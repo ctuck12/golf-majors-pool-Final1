@@ -1117,29 +1117,43 @@ export default function Page() {
                 <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
                   <h2 className="font-bold text-gray-900 text-base">Rules</h2>
                 </div>
-                <div className="p-6">
-                  <ul className="space-y-3 text-sm text-gray-700 leading-relaxed list-none">
-                    {[
-                      'Participants are limited to one entry in the contest.',
-                      <>Picks are made for the following tournaments:
-                        <ul className="mt-2 ml-4 space-y-1 list-none">
-                          {['Players Championship', 'The Masters', 'PGA Championship', 'U.S. Open Championship', 'British Open Championship'].map(t => (
-                            <li key={t} className="flex items-start gap-2"><span style={{ color: '#00bcd4' }}>›</span>{t}</li>
-                          ))}
-                        </ul>
-                      </>,
-                      'For each major tournament, members select six golfers. Each golfer will have a salary assigned to them based on their odds to win the tournament. Participants will be assigned a fixed salary cap they must stay under in order to create their 6-player roster. These six golfers make up their Player Roster for that tournament.',
-                      'Members will enter their guess for the total combined strokes of the winner of the tournament (e.g. 275) as a tiebreaker. In the event of a tie, the person closest to the actual stroke count will win.',
-                      'Golfers CAN be picked more than once per season.',
-                      'The scores of all 6 golfers on your roster count towards your score.',
-                      'The goal is to be the member whose roster performs the best cumulatively (has the most points) as a team.',
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-start gap-2.5">
-                        <span style={{ color: '#00bcd4', flexShrink: 0, marginTop: 2 }}>›</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="p-6 space-y-5 text-sm text-gray-700 leading-relaxed">
+
+                  {/* Roster & Entry Details */}
+                  <div>
+                    <div className="font-bold text-gray-900 text-sm mb-3">🏌️ Roster &amp; Entry Details</div>
+                    <div className="space-y-3">
+                      <p>
+                        For each major tournament, and The Players Championship, members select <strong>six golfers</strong>. Each golfer will have a salary assigned to them based on a blend of their world ranking and odds to win the tournament.
+                      </p>
+                      <p>
+                        Participants will be assigned a fixed salary cap of <strong>$50,000</strong> they must stay under in order to create their 6-player roster. These six golfers make up their Player Roster for that tournament.
+                      </p>
+                      <p>
+                        Golfers <strong>CAN be picked more than once per season</strong>. Points are awarded based on the players hole by hole performance, as well as their tournament standings. Cut players receive <strong>-10 points</strong>.
+                      </p>
+                      <p>
+                        <strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool field.
+                      </p>
+                    </div>
+                  </div>
+
+                  <hr className="border-gray-200" />
+
+                  <p>The scores of all <strong>6 golfers</strong> on your roster count towards your score.</p>
+
+                  <hr className="border-gray-200" />
+
+                  {/* Entry & Contact */}
+                  <div>
+                    <div className="font-bold text-gray-900 text-sm mb-3">💰 Entry &amp; Contact</div>
+                    <div className="space-y-1 text-sm text-gray-700">
+                      <p><strong>Entry Fee:</strong> $25</p>
+                      <p><strong>Venmo:</strong> @claytont743</p>
+                      <p><strong>Questions:</strong> Clayton Tucker 325.665.8299</p>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
