@@ -377,10 +377,10 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#f5f5f5' }}>
 
       {/* ══ Header ══ */}
-      <header style={{ background: 'linear-gradient(135deg, #0f5132 0%, #1a5f3a 100%)', color: '#fff' }} className="shrink-0">
+      <header style={{ background: '#1a1a1a', color: '#fff' }} className="shrink-0">
         {/* Top strip */}
         <div className="flex items-center gap-4 px-6 py-3">
           <button className="text-gray-500 hover:text-gray-300 transition-colors shrink-0">
@@ -393,7 +393,7 @@ export default function Page() {
               <Info className="h-3.5 w-3.5 text-gray-500 shrink-0" />
             </div>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-sm text-gray-400">4/9</span>
+              <span className="text-sm text-gray-400">3/12</span>
               <span className="text-gray-600 text-sm">•</span>
               <span
                 className="text-xs px-2.5 py-0.5 rounded-full font-medium"
@@ -415,7 +415,7 @@ export default function Page() {
         </div>
 
         {/* Nav tabs */}
-        <div style={{ borderTop: '1px solid #2a2a2a' }} className="px-6">
+        <div style={{ borderTop: '1px solid #333' }} className="px-6">
           <div className="flex items-end gap-0">
             {MAIN_TABS.map(tab => (
               <button
@@ -423,8 +423,8 @@ export default function Page() {
                 onClick={() => setMainTab(tab)}
                 className="flex items-center gap-1 px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors"
                 style={{
-                  borderBottom: mainTab === tab ? '2px solid #22c55e' : '2px solid transparent',
-                  color: mainTab === tab ? '#22c55e' : '#ccc',
+                  borderBottom: mainTab === tab ? '2px solid #00bcd4' : '2px solid transparent',
+                  color: mainTab === tab ? '#00bcd4' : '#ccc',
                 }}
                 onMouseEnter={e => { if (mainTab !== tab) (e.currentTarget as HTMLElement).style.color = '#fff'; }}
                 onMouseLeave={e => { if (mainTab !== tab) (e.currentTarget as HTMLElement).style.color = '#ccc'; }}
@@ -445,15 +445,15 @@ export default function Page() {
           <div className="overflow-y-auto h-full">
             <div className="max-w-5xl mx-auto px-6 py-6">
 
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">Leaderboard</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-5">Leaderboard</h1>
 
               {/* White card with tabs inside */}
-              <div className="bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
+              <div className="bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
 
                 {/* Tournament sub-tabs */}
                 <div
                   className="flex items-end gap-0 px-4 pt-3 overflow-x-auto"
-                  style={{ borderBottom: '1px solid #d0d0d0' }}
+                  style={{ borderBottom: '1px solid #ddd' }}
                 >
                   {tournamentTabs.map(t => {
                     const tabClass = tdClass(t);
@@ -472,9 +472,9 @@ export default function Page() {
                         className="shrink-0 px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors"
                         style={{
                           background: isActive ? '#fff' : 'transparent',
-                          color: isActive ? '#333' : isYtd ? '#22c55e' : isFuture ? '#22c55e' : '#888',
+                          color: isActive ? '#333' : isYtd ? '#00bcd4' : isFuture ? '#00bcd4' : '#00bcd4',
                           fontWeight: isYtd ? 700 : isActive ? 600 : 400,
-                          border: isActive ? '1px solid #d0d0d0' : '1px solid transparent',
+                          border: isActive ? '1px solid #ddd' : '1px solid transparent',
                           borderBottom: isActive ? '1px solid #fff' : '1px solid transparent',
                           marginBottom: isActive ? '-1px' : '0',
                           position: 'relative',
@@ -492,7 +492,7 @@ export default function Page() {
                   /* ── Standings table (The Players or Year-to-Date) ── */
                   <div>
                     {/* Prize row */}
-                    <div className="grid grid-cols-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-blue-50">
+                    <div className="grid grid-cols-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 via-cyan-50 to-sky-50">
                       {([
                         { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#b45309' },
                         { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: '#b45309' },
@@ -507,7 +507,7 @@ export default function Page() {
                     </div>
 
                     {/* Table header */}
-                    <div className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 border-b border-gray-200">
+                    <div className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-100">
                       {['Place', 'Entry', 'Salary', 'Raw', 'Bonus', 'Net'].map(h => (
                         <span key={h} className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">{h}</span>
                       ))}
@@ -516,7 +516,7 @@ export default function Page() {
                     {standings.map((entry: any) => (
                       <div
                         key={entry.id}
-                        className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 items-center px-6 py-4 border-b border-gray-100 last:border-0 transition-colors hover:bg-gray-50"
+                        className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 items-center px-6 py-4 border-b border-gray-50 last:border-0 transition-all duration-200 hover:bg-gray-50"
                         style={entry.name === entryName ? { background: '#f0fdf9' } : {}}
                       >
                         <div className="font-bold text-base">
@@ -541,7 +541,7 @@ export default function Page() {
                     ))}
 
                     {/* Sync footer */}
-                    <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-gray-100 to-gray-200 border-t border-gray-200">
+                    <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-100">
                       <div className="flex items-center gap-3 text-xs text-gray-500">
                         <Clock3 className="h-3.5 w-3.5" />
                         <span>Last sync {lastRefresh}</span>
@@ -615,8 +615,8 @@ export default function Page() {
 
               {/* Payout structure card */}
               {hasTournamentData && (
-                <div className="mt-6 bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
-                  <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-blue-50">
+                <div className="mt-6 bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
+                  <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 via-cyan-50 to-sky-50">
                     <h3 className="font-bold text-gray-900 text-sm">Payout Structure</h3>
                     <p className="text-xs text-gray-500 mt-0.5">Send to {settings.venmo}</p>
                   </div>
@@ -646,10 +646,10 @@ export default function Page() {
           <div className="flex overflow-hidden" style={{ height: 'calc(100vh - 113px)' }}>
 
             {/* Left: Player pool */}
-            <div className="flex flex-col flex-1 overflow-hidden bg-white border-r border-gray-200 shadow-lg">
+            <div className="flex flex-col flex-1 overflow-hidden bg-white border-r border-gray-200" style={{ boxShadow: '4px 0 20px rgba(0, 0, 0, 0.08)' }}>
 
               {/* Contest bar */}
-              <div className="shrink-0 grid grid-cols-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-green-50">
+              <div className="shrink-0 grid grid-cols-4 border-b border-gray-100 bg-gradient-to-r from-sky-50 via-cyan-50 to-emerald-50">
                 {([
                   { label: 'Tournament', value: 'The Players Championship' },
                   { label: 'Venue', value: 'TPC Sawgrass' },
@@ -664,7 +664,7 @@ export default function Page() {
               </div>
 
               {/* Column headers */}
-              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 border-b border-gray-200">
+              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-100">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">RK</span>
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Player</span>
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">Thru</span>
@@ -689,12 +689,12 @@ export default function Page() {
                       <div
                         key={player.id}
                         onClick={() => (canAdd || canRemove) ? toggleRosterPlayer(player.id) : undefined}
-                        className="grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-6 py-4 border-b border-gray-100 transition-all"
+                        className="grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-6 py-4 border-b border-gray-50 transition-all duration-200"
                         style={{
                           background: selected ? '#f0fdf9' : 'white',
                           cursor: canAdd || canRemove ? 'pointer' : 'not-allowed',
                           opacity: (!canAdd && !selected) ? 0.4 : 1,
-                          boxShadow: selected ? 'inset 3px 0 0 #22c55e' : undefined,
+                          boxShadow: selected ? 'inset 3px 0 0 #00bcd4' : undefined,
                         }}
                         onMouseEnter={e => { if (canAdd && !selected) (e.currentTarget as HTMLElement).style.background = '#f9f9f9'; }}
                         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = selected ? '#f0fdf9' : 'white'; }}
@@ -749,10 +749,10 @@ export default function Page() {
             </div>
 
             {/* Right: Lineup builder */}
-            <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-white shadow-lg">
+            <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-white" style={{ boxShadow: '-4px 0 20px rgba(0, 0, 0, 0.08)' }}>
 
               {/* Header + salary bar */}
-              <div className="shrink-0 border-b border-gray-200 px-6 pt-5 pb-4 bg-gradient-to-r from-green-50 to-blue-50">
+              <div className="shrink-0 border-b border-gray-100 px-6 pt-5 pb-4 bg-gradient-to-r from-emerald-50 via-cyan-50 to-sky-50">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500">My Lineup</span>
                   <span className="text-xs text-gray-400">{selectedRoster.length}/{REQUIRED_GOLFERS} picks</span>
@@ -767,7 +767,7 @@ export default function Page() {
                   <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#e5e7eb' }}>
                     <div
                       className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${salaryPct}%`, background: salaryRemaining < 0 ? '#dc2626' : '#22c55e' }}
+                      style={{ width: `${salaryPct}%`, background: salaryRemaining < 0 ? '#dc2626' : '#00bcd4' }}
                     />
                   </div>
                   <div className="mt-1 text-right text-xs font-semibold" style={{ color: salaryRemaining < 0 ? '#dc2626' : '#047857' }}>
@@ -820,7 +820,7 @@ export default function Page() {
               </div>
 
               {/* Score + actions */}
-              <div className="shrink-0 border-t border-gray-200 p-5 space-y-4 bg-gradient-to-r from-gray-50 to-blue-50">
+              <div className="shrink-0 border-t border-gray-100 p-5 space-y-4 bg-gradient-to-r from-gray-50 via-sky-50 to-emerald-50">
                 <div className="grid grid-cols-3 gap-3">
                   {([
                     { label: 'Raw', val: fmtScore(rosterRaw), color: scoreColor(rosterRaw) },
@@ -847,8 +847,8 @@ export default function Page() {
                 <button
                   onClick={handleSaveRoster}
                   disabled={isRosterSaving || isRosterLoading || locked}
-                  className="w-full py-4 text-white font-black text-base rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ background: '#22c55e' }}
+                  className="w-full py-4 text-white font-black text-base rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg"
+                  style={{ background: '#00bcd4' }}
                 >
                   <Save className="h-5 w-5" />
                   {isRosterSaving ? 'SAVING…' : 'SAVE LINEUP'}
@@ -870,7 +870,7 @@ export default function Page() {
           <div className="overflow-y-auto h-full">
             <div className="max-w-5xl mx-auto px-6 py-6">
               <h1 className="text-2xl font-bold text-gray-900 mb-4">Reports</h1>
-              <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6">
+              <div className="bg-white border border-gray-200 shadow-xl rounded-xl p-6" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {tournamentPlayers.slice(0, 6).map((player: any, idx: number) => (
                     <div key={player.id} className="flex items-center gap-4 border border-gray-200 rounded p-4">
@@ -912,7 +912,7 @@ export default function Page() {
 
               <div className="grid gap-5 lg:grid-cols-2">
 
-                <div className="bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
+                <div className="bg-white border border-gray-300 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
                   <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
                     <h2 className="font-bold text-gray-900">Pool Rules</h2>
                     <p className="text-xs text-gray-400 mt-0.5">How to play</p>
@@ -943,7 +943,7 @@ export default function Page() {
                         <ul className="space-y-2">
                           {items.map((item: string) => (
                             <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
-                              <span style={{ color: '#22c55e' }} className="shrink-0 mt-0.5">›</span>
+                              <span style={{ color: '#00bcd4' }} className="shrink-0 mt-0.5">›</span>
                               {item}
                             </li>
                           ))}
@@ -953,7 +953,7 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
+                <div className="bg-white border border-gray-300 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
                   <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
                     <h2 className="font-bold text-gray-900">Bonus Scoring</h2>
                     <p className="text-xs text-gray-400 mt-0.5">Subtracted from raw score</p>
@@ -984,7 +984,7 @@ export default function Page() {
             <div className="max-w-4xl mx-auto px-6 py-6 space-y-5">
               <h1 className="text-2xl font-bold text-gray-900">Commissioner Console</h1>
 
-              <div className="bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
+              <div className="bg-white border border-gray-300 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
                 <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                   <div>
                     <h2 className="font-bold text-gray-900">Pool Settings</h2>
@@ -1056,7 +1056,7 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
+              <div className="bg-white border border-gray-300 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
                 <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
                   <h2 className="font-bold text-gray-900">Semi-live Feed Workflow</h2>
                   <p className="text-xs text-gray-400 mt-0.5">Operating model using unofficial leaderboard data</p>
@@ -1087,7 +1087,7 @@ export default function Page() {
       </main>
 
       {/* ══ Footer ══ */}
-      <footer className="shrink-0 border-t border-gray-300 bg-gradient-to-r from-gray-100 to-blue-50 px-6 py-3 flex items-center justify-between text-xs text-gray-500">
+      <footer className="shrink-0 border-t border-gray-300 bg-white px-6 py-3 flex items-center justify-between text-xs text-gray-500">
         <span>MVP prototype · connect auth, DB, and live data feeds to go live</span>
         <button
           onClick={() => setMainTab('Commissioner console')}
