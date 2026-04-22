@@ -415,15 +415,6 @@ export default function Page() {
       >
         {/* Top strip */}
         <div className="flex items-center gap-5 px-8 py-5">
-          <button
-            className="shrink-0 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 7, padding: '6px 8px', color: '#aab4c4', cursor: 'pointer' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.14)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'; }}
-          >
-            <X className="h-4 w-4" />
-          </button>
-
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <span className="font-bold leading-tight tracking-tight" style={{ fontSize: 17 }}>2026 Golf Majors Pool</span>
