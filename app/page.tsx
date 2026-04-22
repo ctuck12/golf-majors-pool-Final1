@@ -458,20 +458,30 @@ export default function Page() {
                   onClick={() => setMainTab(tab)}
                   className="whitespace-nowrap transition-all"
                   style={{
-                    background: isActive ? 'rgba(0,188,212,0.12)' : 'transparent',
+                    background: isActive ? 'rgba(0,212,238,0.13)' : 'rgba(255,255,255,0.05)',
                     border: 'none',
                     outline: 'none',
                     borderBottom: isActive ? '2px solid #00d4ee' : '2px solid transparent',
                     borderRadius: '4px 4px 0 0',
-                    color: isActive ? '#00d4ee' : '#7a94b0',
+                    color: isActive ? '#00d4ee' : '#9ab4cc',
                     cursor: 'pointer',
                     padding: '12px 16px',
                     fontSize: 13.5,
                     fontWeight: isActive ? 700 : 500,
                     letterSpacing: isActive ? '0.01em' : 0,
                   }}
-                  onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = '#c0d8f0'; }}
-                  onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = '#7a94b0'; }}
+                  onMouseEnter={e => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.10)';
+                      (e.currentTarget as HTMLElement).style.color = '#c8ddf0';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)';
+                      (e.currentTarget as HTMLElement).style.color = '#9ab4cc';
+                    }
+                  }}
                 >
                   {tab}
                   {tab === 'Reports' && <ChevronDown className="h-3.5 w-3.5 inline ml-1" />}
