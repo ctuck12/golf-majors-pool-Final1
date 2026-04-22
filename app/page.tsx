@@ -17,6 +17,7 @@ import {
   Lock,
   Unlock,
   CheckCircle2,
+  Trophy,
 } from 'lucide-react';
 
 const SALARY_CAP = 50000;
@@ -254,6 +255,13 @@ const mockPoolService = {
 
 const scoreToNumber = (value: string) => (value === 'E' ? 0 : Number(value));
 
+const scoreColor = (score: string) => {
+  const n = scoreToNumber(score);
+  if (n < 0) return 'text-emerald-400';
+  if (n > 0) return 'text-rose-400';
+  return 'text-slate-300';
+};
+
 const calculatePlayerBonus = (player: any) =>
   player.pars +
   player.birdies * 3 +
@@ -337,14 +345,15 @@ function Pill({
   tone?: 'slate' | 'green' | 'amber' | 'blue' | 'red';
 }) {
   const tones = {
-    slate: 'bg-slate-100 text-slate-700',
-    green: 'bg-emerald-100 text-emerald-700',
-    amber: 'bg-amber-100 text-amber-700',
-    blue: 'bg-sky-100 text-sky-700',
-    red: 'bg-rose-100 text-rose-700',
+    slate: 'bg-slate-700/50 text-slate-300 border border-slate-600/40',
+    green: 'bg-emerald-900/50 text-emerald-300 border border-emerald-500/30',
+    amber: 'bg-amber-900/50 text-amber-300 border border-amber-500/30',
+    blue: 'bg-sky-900/50 text-sky-300 border border-sky-500/30',
+    red: 'bg-rose-900/50 text-rose-300 border border-rose-500/30',
   };
   return <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${tones[tone]}`}>{children}</span>;
 }
+
 function NavTab({
   active,
   onClick,
@@ -357,14 +366,15 @@ function NavTab({
   return (
     <button
       onClick={onClick}
-      className={`px-5 py-3 text-sm font-semibold transition ${
-        active ? 'tab-active' : 'tab-inactive hover:bg-white/10'
+      className={`px-5 py-2.5 text-sm font-semibold transition ${
+        active ? 'tab-active' : 'tab-inactive hover:bg-white/[0.07] hover:text-slate-200'
       }`}
     >
       {children}
     </button>
   );
 }
+
 function SectionCard({
   title,
   subtitle,
@@ -393,7 +403,7 @@ function SectionCard({
 }
 
 function CodeBlock({ children }: { children: React.ReactNode }) {
-  return <pre className="overflow-x-auto rounded-2xl bg-slate-950 p-4 text-sm text-slate-100">{children}</pre>;
+  return <pre className="overflow-x-auto rounded-2xl bg-black/40 border border-white/8 p-4 text-sm text-slate-300">{children}</pre>;
 }
 
 export default function Page() {
@@ -428,9 +438,7 @@ export default function Page() {
       }
     };
     boot();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -449,9 +457,7 @@ export default function Page() {
       setIsRosterLoading(false);
     };
     loadRoster();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [entryName, selectedTournament]);
 
   useEffect(() => {
@@ -459,14 +465,10 @@ export default function Page() {
     const persistSettings = async () => {
       setIsSettingsSaving(true);
       await mockPoolService.saveSettings(settings);
-      if (!cancelled) {
-        setIsSettingsSaving(false);
-      }
+      if (!cancelled) setIsSettingsSaving(false);
     };
     persistSettings();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [settings]);
 
   useEffect(() => {
@@ -555,12 +557,16 @@ export default function Page() {
   return (
     <div className="min-h-screen text-white">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="mb-8 overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(34,197,94,0.18),rgba(15,23,42,0.95),rgba(2,6,23,1))] text-white shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
+
+        {/* ── Header ── */}
+        <header className="mb-8 overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(34,197,94,0.15),rgba(8,16,32,0.97),rgba(2,5,18,1))] text-white shadow-[0_32px_80px_rgba(0,0,0,0.55)]">
           <div className="grid gap-8 p-6 lg:grid-cols-[1.5fr,1fr] lg:p-8">
             <div>
               <Pill tone="green">5-Tournament Major Pool</Pill>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">Golf pool MVP for a shareable season-long majors site</h1>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-slate-200">
+              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl" style={{ background: 'linear-gradient(135deg, #fff 40%, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Golf pool MVP for a shareable season-long majors site
+              </h1>
+              <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300">
                 Build a six-player roster under the $50,000 cap, lock picks at first tee time, and follow semi-live standings with golfer-by-golfer updates and bonus scoring.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
@@ -569,65 +575,65 @@ export default function Page() {
                     key={event.id}
                     onClick={() => setSelectedTournament(event.id)}
                     className={`rounded-2xl px-4 py-3 text-sm font-medium transition ${
-                      selectedTournament === event.id ? 'bg-white text-slate-900' : 'bg-white/10 text-white ring-1 ring-white/15 hover:bg-white/20'
+                      selectedTournament === event.id
+                        ? 'bg-emerald-400 text-slate-900 shadow-[0_6px_20px_rgba(34,197,94,0.35)]'
+                        : 'bg-white/8 text-slate-300 ring-1 ring-white/12 hover:bg-white/14 hover:text-white'
                     }`}
                   >
-                    <div>{event.name}</div>
-                    <div className="mt-1 text-xs opacity-80">{event.venue}</div>
+                    <div className="font-semibold">{event.name}</div>
+                    <div className="mt-0.5 text-xs opacity-75">{event.venue}</div>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="grid gap-4 rounded-[1.75rem] bg-white/10 p-5 ring-1 ring-white/10 backdrop-blur">
+            <div className="grid gap-3 rounded-[1.5rem] bg-white/6 p-4 ring-1 ring-white/8 backdrop-blur">
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-2xl bg-white/10 p-4">
-                  <div className="flex items-center gap-2 text-slate-200">
-                    <Wallet className="h-4 w-4" /> Entry Fee
+                <div className="rounded-xl bg-white/8 p-4">
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <Wallet className="h-4 w-4 text-emerald-400" /> Entry Fee
                   </div>
-                  <p className="mt-2 text-3xl font-bold">${settings.entryFee}</p>
+                  <p className="mt-2 text-3xl font-bold text-white">${settings.entryFee}</p>
                 </div>
-                <div className="rounded-2xl bg-white/10 p-4">
-                  <div className="flex items-center gap-2 text-slate-200">
-                    <Users className="h-4 w-4" /> Entrants
+                <div className="rounded-xl bg-white/8 p-4">
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <Users className="h-4 w-4 text-sky-400" /> Entrants
                   </div>
-                  <p className="mt-2 text-3xl font-bold">{standings.length}</p>
+                  <p className="mt-2 text-3xl font-bold text-white">{standings.length}</p>
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-white/10 p-4">
+              <div className="rounded-xl bg-white/8 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm text-slate-200">Payment</p>
-                    <p className="mt-1 text-xl font-semibold">{settings.venmo}</p>
+                    <p className="text-sm text-slate-400">Payment</p>
+                    <p className="mt-1 text-xl font-semibold text-white">{settings.venmo}</p>
                   </div>
                   <Pill tone="green">Manual Venmo</Pill>
                 </div>
                 <div className="mt-4 grid grid-cols-3 gap-2 text-sm">
-                  <div className="rounded-xl bg-white/10 p-3">
-                    <div className="text-slate-300">1st</div>
-                    <div className="mt-1 font-semibold">{settings.payouts.first}%</div>
-                  </div>
-                  <div className="rounded-xl bg-white/10 p-3">
-                    <div className="text-slate-300">2nd</div>
-                    <div className="mt-1 font-semibold">{settings.payouts.second}%</div>
-                  </div>
-                  <div className="rounded-xl bg-white/10 p-3">
-                    <div className="text-slate-300">3rd</div>
-                    <div className="mt-1 font-semibold">{settings.payouts.third}%</div>
-                  </div>
+                  {[
+                    { label: '1st', value: settings.payouts.first },
+                    { label: '2nd', value: settings.payouts.second },
+                    { label: '3rd', value: settings.payouts.third },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="rounded-lg bg-white/8 p-3">
+                      <div className="text-slate-400">{label}</div>
+                      <div className="mt-1 font-semibold text-white">{value}%</div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-white/10 p-4">
+              <div className="rounded-xl bg-white/8 p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-200">Current Tournament</p>
-                    <p className="mt-1 font-semibold">{tournament.name}</p>
-                    <p className="mt-1 text-sm text-slate-300">Lock: {tournament.lockTimeLabel}</p>
-                    <p className="mt-1 text-sm text-slate-300">{countdownLabel}</p>
+                    <p className="text-sm text-slate-400">Current Tournament</p>
+                    <p className="mt-1 font-semibold text-white">{tournament.name}</p>
+                    <p className="mt-1 text-sm text-slate-400">Lock: {tournament.lockTimeLabel}</p>
+                    <p className="mt-1 text-sm text-slate-400">{countdownLabel}</p>
                   </div>
-                  <Clock3 className="h-5 w-5 text-slate-200" />
+                  <Clock3 className="h-5 w-5 text-slate-400" />
                 </div>
               </div>
             </div>
@@ -635,12 +641,13 @@ export default function Page() {
         </header>
 
         {isBooting ? (
-          <div className="mb-6 rounded-2xl bg-white p-4 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200">
+          <div className="mb-6 rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm text-slate-400">
             Loading pool settings...
           </div>
         ) : null}
 
-        <div className="mb-6 flex flex-wrap gap-3">
+        {/* ── Nav Tabs ── */}
+        <div className="mb-6 flex flex-wrap gap-2">
           {['My Picks', 'Standings', 'Rules and Scoring', 'Admin'].map((tab) => (
             <NavTab key={tab} active={activeTab === tab} onClick={() => setActiveTab(tab)}>
               {tab}
@@ -648,6 +655,7 @@ export default function Page() {
           ))}
         </div>
 
+        {/* ── My Picks ── */}
         {activeTab === 'My Picks' && (
           <div className="grid gap-6 lg:grid-cols-[1.15fr,0.85fr]">
             <SectionCard
@@ -655,30 +663,25 @@ export default function Page() {
               subtitle="Pick exactly 6 golfers without going over the $50,000 cap."
               right={<Pill tone={locked ? 'red' : 'green'}>{locked ? 'Locked' : 'Editable'}</Pill>}
             >
-              <div className="mb-5 grid gap-4 sm:grid-cols-4">
-                <div className="stat-box p-4">
-                  <div className="text-sm text-slate-500">Entry Name</div>
-                  <div className="mt-1 font-semibold">{entryName}</div>
-                </div>
-                <div className="stat-box p-4">
-                  <div className="text-sm text-slate-500">Roster Spots</div>
-                  <div className="mt-1 font-semibold">
-                    {selectedRoster.length} / {REQUIRED_GOLFERS}
+              <div className="mb-5 grid gap-3 sm:grid-cols-4">
+                {[
+                  { label: 'Entry Name', value: entryName },
+                  { label: 'Roster Spots', value: `${selectedRoster.length} / ${REQUIRED_GOLFERS}` },
+                  { label: 'Salary Used', value: `$${salaryUsed.toLocaleString()}` },
+                  {
+                    label: 'Remaining',
+                    value: `$${salaryRemaining.toLocaleString()}`,
+                    valueClass: salaryRemaining < 0 ? 'text-rose-400' : 'text-emerald-400',
+                  },
+                ].map(({ label, value, valueClass }) => (
+                  <div key={label} className="stat-box p-4">
+                    <div className="text-sm text-slate-400">{label}</div>
+                    <div className={`mt-1 font-semibold text-white ${valueClass ?? ''}`}>{value}</div>
                   </div>
-                </div>
-                <div className="stat-box p-4">
-                  <div className="text-sm text-slate-500">Salary Used</div>
-                  <div className="mt-1 font-semibold">${salaryUsed.toLocaleString()}</div>
-                </div>
-                <div className="stat-box p-4">
-                  <div className="text-sm text-slate-500">Remaining</div>
-                  <div className={`mt-1 font-semibold ${salaryRemaining < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
-                    ${salaryRemaining.toLocaleString()}
-                  </div>
-                </div>
+                ))}
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {tournamentPlayers.map((player: any) => {
                   const selected = selectedRoster.includes(player.id);
                   const nextSalary = salaryUsed + (selected ? 0 : player.salary);
@@ -688,39 +691,43 @@ export default function Page() {
                     <button
                       key={player.id}
                       onClick={() => toggleRosterPlayer(player.id)}
-                      className={`w-full rounded-2xl border p-4 text-left transition ${
-                        selected ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
-                      } ${locked || wouldExceedCap || isRosterLoading || isRosterSaving ? 'opacity-70' : ''}`}
+                      className={`w-full rounded-2xl border p-4 text-left transition-all duration-150 ${
+                        selected
+                          ? 'border-emerald-500/50 bg-emerald-950/40 shadow-[0_0_0_1px_rgba(34,197,94,0.15)_inset]'
+                          : 'border-white/8 bg-white/[0.03] hover:border-white/16 hover:bg-white/[0.07]'
+                      } ${locked || wouldExceedCap || isRosterLoading || isRosterSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
                       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold">{player.name}</span>
+                            <span className="font-semibold text-white">{player.name}</span>
                             {selected ? <Pill tone="green">Selected</Pill> : null}
                             {wouldExceedCap ? <Pill tone="amber">Over cap</Pill> : null}
                           </div>
-                          <div className="mt-2 flex flex-wrap gap-2 text-sm text-slate-500">
+                          <div className="mt-2 flex flex-wrap gap-2 text-sm text-slate-400">
                             <span>OWGR #{player.owgr}</span>
-                            <span>•</span>
+                            <span className="text-slate-600">•</span>
                             <span>Outright {player.odds}</span>
-                            <span>•</span>
+                            <span className="text-slate-600">•</span>
                             <span>Thru {player.thru}</span>
-                            <span>•</span>
-                            <span>Score {player.score}</span>
+                            <span className="text-slate-600">•</span>
+                            <span className={`font-medium ${scoreColor(player.score)}`}>Score {player.score}</span>
                           </div>
                         </div>
-                        <div className="grid grid-cols-3 gap-3 text-sm lg:min-w-[270px]">
-                          <div className="rounded-xl bg-slate-50 p-3">
-                            <div className="text-slate-500">Salary</div>
-                            <div className="mt-1 font-semibold">${player.salary.toLocaleString()}</div>
+                        <div className="grid grid-cols-3 gap-2 text-sm lg:min-w-[260px]">
+                          <div className="rounded-xl bg-white/6 p-3">
+                            <div className="text-slate-400">Salary</div>
+                            <div className="mt-1 font-semibold text-white">${player.salary.toLocaleString()}</div>
                           </div>
-                          <div className="rounded-xl bg-slate-50 p-3">
-                            <div className="text-slate-500">Bonus</div>
-                            <div className="mt-1 font-semibold">{calculatePlayerBonus(player)}</div>
+                          <div className="rounded-xl bg-white/6 p-3">
+                            <div className="text-slate-400">Bonus</div>
+                            <div className="mt-1 font-semibold text-white">{calculatePlayerBonus(player)}</div>
                           </div>
-                          <div className="rounded-xl bg-slate-50 p-3">
-                            <div className="text-slate-500">Action</div>
-                            <div className="mt-1 font-semibold">{selected ? 'Remove' : 'Add'}</div>
+                          <div className="rounded-xl bg-white/6 p-3">
+                            <div className="text-slate-400">Action</div>
+                            <div className={`mt-1 font-semibold ${selected ? 'text-rose-400' : 'text-emerald-400'}`}>
+                              {selected ? 'Remove' : 'Add'}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -733,14 +740,14 @@ export default function Page() {
                 <button
                   onClick={handleSaveRoster}
                   disabled={isRosterSaving || isRosterLoading}
-                 className="button-primary inline-flex items-center gap-2 px-4 py-3 text-sm disabled:opacity-60"
+                  className="button-primary inline-flex items-center gap-2 px-5 py-3 text-sm disabled:opacity-60"
                 >
                   <Save className="h-4 w-4" /> {isRosterSaving ? 'Saving...' : 'Save roster'}
                 </button>
                 <button
                   onClick={handleResetRoster}
                   disabled={isRosterSaving || isRosterLoading}
-                  className="button-secondary px-4 py-3 text-sm disabled:opacity-60"
+                  className="button-secondary px-5 py-3 text-sm disabled:opacity-60"
                 >
                   Reset to default roster
                 </button>
@@ -748,63 +755,66 @@ export default function Page() {
               <div className="mt-3 text-sm text-slate-500">
                 {isRosterLoading ? 'Loading saved roster...' : `Last saved: ${lastSavedAt}`}
               </div>
-              {saveMessage ? <div className="mt-3 rounded-2xl bg-slate-50 p-3 text-sm text-slate-700">{saveMessage}</div> : null}
+              {saveMessage ? (
+                <div className="mt-3 rounded-2xl border border-white/8 bg-white/[0.05] p-3 text-sm text-slate-300">
+                  {saveMessage}
+                </div>
+              ) : null}
             </SectionCard>
 
             <div className="space-y-6">
               <SectionCard title="My Live Team" subtitle="Mock live scoring using your real bonus framework." right={<Pill tone="blue">Semi-live</Pill>}>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {rosterPlayers.map((player: any) => (
-                    <div key={player.id} className="rounded-2xl border border-slate-200 p-4">
+                    <div key={player.id} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <div className="font-semibold">{player.name}</div>
-                          <div className="mt-1 text-sm text-slate-500">Salary ${player.salary.toLocaleString()} • Thru {player.thru}</div>
+                          <div className="font-semibold text-white">{player.name}</div>
+                          <div className="mt-1 text-sm text-slate-400">
+                            ${player.salary.toLocaleString()} • Thru {player.thru}
+                          </div>
                         </div>
                         <div className="text-right text-sm">
-                          <div className="font-semibold">{player.score}</div>
-                          <div className="text-slate-500">Bonus {calculatePlayerBonus(player)}</div>
+                          <div className={`text-lg font-bold ${scoreColor(player.score)}`}>{player.score}</div>
+                          <div className="text-slate-400">+{calculatePlayerBonus(player)} pts</div>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
-                  <div className="stat-box p-4">
-                    <div className="text-slate-500">Raw Score</div>
-                    <div className="mt-1 text-lg font-semibold">{rosterRaw > 0 ? `+${rosterRaw}` : rosterRaw}</div>
-                  </div>
-                  <div className="stat-box p-4">
-                    <div className="text-slate-500">Bonus</div>
-                    <div className="mt-1 text-lg font-semibold">{rosterBonus}</div>
-                  </div>
-                  <div className="stat-box p-4">
-                    <div className="text-slate-500">Net</div>
-                    <div className="mt-1 text-lg font-semibold">{rosterNet > 0 ? `+${rosterNet}` : rosterNet}</div>
-                  </div>
+                  {[
+                    { label: 'Raw Score', value: rosterRaw > 0 ? `+${rosterRaw}` : rosterRaw, color: scoreColor(String(rosterRaw)) },
+                    { label: 'Bonus Pts', value: rosterBonus, color: 'text-sky-400' },
+                    { label: 'Net Score', value: rosterNet > 0 ? `+${rosterNet}` : rosterNet, color: 'text-white' },
+                  ].map(({ label, value, color }) => (
+                    <div key={label} className="stat-box p-4">
+                      <div className="text-slate-400">{label}</div>
+                      <div className={`mt-1 text-lg font-bold ${color}`}>{value}</div>
+                    </div>
+                  ))}
                 </div>
               </SectionCard>
 
               <SectionCard title="Payment and Payouts" subtitle="Public-facing info block.">
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-                    <span>Entry Fee</span>
-                    <span className="font-semibold">${settings.entryFee}</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-                    <span>Venmo</span>
-                    <span className="font-semibold">{settings.venmo}</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-                    <span>Projected Prize Pool</span>
-                    <span className="font-semibold">${projectedPot.toLocaleString()}</span>
-                  </div>
+                <div className="space-y-2 text-sm">
+                  {[
+                    { label: 'Entry Fee', value: `$${settings.entryFee}` },
+                    { label: 'Venmo', value: settings.venmo },
+                    { label: 'Projected Prize Pool', value: `$${projectedPot.toLocaleString()}` },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="flex items-center justify-between rounded-xl bg-white/[0.04] px-4 py-3 border border-white/6">
+                      <span className="text-slate-400">{label}</span>
+                      <span className="font-semibold text-white">{value}</span>
+                    </div>
+                  ))}
                 </div>
               </SectionCard>
             </div>
           </div>
         )}
 
+        {/* ── Standings ── */}
         {activeTab === 'Standings' && (
           <div className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
             <SectionCard
@@ -813,13 +823,16 @@ export default function Page() {
               right={
                 <div className="flex items-center gap-2">
                   <Pill tone={syncStatus === 'Healthy' ? 'green' : syncStatus === 'Delayed' ? 'amber' : 'red'}>{syncStatus}</Pill>
-                  <button onClick={simulateRefresh} className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white">
+                  <button
+                    onClick={simulateRefresh}
+                    className="inline-flex items-center gap-2 rounded-xl bg-white/8 border border-white/10 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-white/12 transition"
+                  >
                     <RefreshCw className="h-4 w-4" /> Refresh
                   </button>
                 </div>
               }
             >
-              <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+              <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-slate-500">
                 <div className="inline-flex items-center gap-2">
                   <Clock3 className="h-4 w-4" /> Last sync {lastRefresh}
                 </div>
@@ -827,30 +840,38 @@ export default function Page() {
                   <Shield className="h-4 w-4" /> Source: unofficial leaderboard + cache
                 </div>
               </div>
-              <div className="overflow-hidden rounded-2xl border border-slate-200">
-                <table className="min-w-full divide-y divide-slate-200 text-sm">
-                  <thead className="bg-slate-50 text-left text-slate-500">
+              <div className="overflow-hidden rounded-2xl border border-white/10">
+                <table className="min-w-full divide-y divide-white/6 text-sm">
+                  <thead className="bg-white/[0.05] text-left">
                     <tr>
-                      <th className="px-4 py-3 font-medium">Place</th>
-                      <th className="px-4 py-3 font-medium">Entry</th>
-                      <th className="px-4 py-3 font-medium">Salary</th>
-                      <th className="px-4 py-3 font-medium">Raw</th>
-                      <th className="px-4 py-3 font-medium">Bonus</th>
-                      <th className="px-4 py-3 font-medium">Net</th>
+                      {['Place', 'Entry', 'Salary', 'Raw', 'Bonus', 'Net'].map((h) => (
+                        <th key={h} className="px-4 py-3 font-medium text-slate-400">{h}</th>
+                      ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
+                  <tbody className="divide-y divide-white/5">
                     {standings.map((entry: any) => (
-                      <tr key={entry.id} className={entry.name === entryName ? 'bg-emerald-50/70' : ''}>
-                        <td className="px-4 py-3 font-semibold">{entry.place}</td>
+                      <tr
+                        key={entry.id}
+                        className={entry.name === entryName ? 'bg-emerald-900/20' : 'hover:bg-white/[0.03] transition'}
+                      >
                         <td className="px-4 py-3">
-                          <div className="font-medium">{entry.name}</div>
+                          <span className={`font-bold ${entry.place === 1 ? 'text-amber-400' : entry.place === 2 ? 'text-slate-300' : entry.place === 3 ? 'text-amber-600' : 'text-slate-400'}`}>
+                            {entry.place === 1 ? '🥇' : entry.place === 2 ? '🥈' : entry.place === 3 ? '🥉' : `#${entry.place}`}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-white">{entry.name}</div>
                           <div className="text-xs text-slate-500">{entry.golfers.length} golfers</div>
                         </td>
-                        <td className="px-4 py-3">${entry.salary.toLocaleString()}</td>
-                        <td className="px-4 py-3">{entry.rawScore > 0 ? `+${entry.rawScore}` : entry.rawScore}</td>
-                        <td className="px-4 py-3">{entry.bonus}</td>
-                        <td className="px-4 py-3 text-base font-semibold">{entry.net > 0 ? `+${entry.net}` : entry.net}</td>
+                        <td className="px-4 py-3 text-slate-300">${entry.salary.toLocaleString()}</td>
+                        <td className={`px-4 py-3 font-medium ${scoreColor(String(entry.rawScore))}`}>
+                          {entry.rawScore > 0 ? `+${entry.rawScore}` : entry.rawScore}
+                        </td>
+                        <td className="px-4 py-3 text-sky-400 font-medium">{entry.bonus}</td>
+                        <td className={`px-4 py-3 text-base font-bold ${scoreColor(String(entry.net))}`}>
+                          {entry.net > 0 ? `+${entry.net}` : entry.net}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -860,17 +881,18 @@ export default function Page() {
 
             <div className="space-y-6">
               <SectionCard title="Featured Player Tracker" subtitle="Example live-ish golfer board fed from your refresh job.">
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {tournamentPlayers.slice(0, 6).map((player: any) => (
-                    <div key={player.id} className="rounded-2xl border border-slate-200 p-4">
+                    <div key={player.id} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <div className="font-semibold">{player.name}</div>
-                          <div className="mt-1 text-sm text-slate-500">Through {player.thru} • Score {player.score}</div>
+                          <div className="font-semibold text-white">{player.name}</div>
+                          <div className="mt-1 text-sm text-slate-400">Through {player.thru}</div>
                         </div>
                         <div className="text-right text-sm">
-                          <div className="font-semibold">Bonus {calculatePlayerBonus(player)}</div>
-                          <div className="text-slate-500">Odds {player.odds}</div>
+                          <div className={`text-base font-bold ${scoreColor(player.score)}`}>{player.score}</div>
+                          <div className="text-slate-400">Bonus {calculatePlayerBonus(player)}</div>
+                          <div className="text-slate-500 text-xs">{player.odds}</div>
                         </div>
                       </div>
                     </div>
@@ -878,25 +900,25 @@ export default function Page() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Payout Snapshot" subtitle="Displayed publicly so participants can see what they are playing for.">
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between rounded-2xl bg-amber-50 p-4">
-                    <span className="inline-flex items-center gap-2">
-                      <Medal className="h-4 w-4" /> 1st Place
+              <SectionCard title="Payout Snapshot" subtitle="Displayed publicly so participants can see what they're playing for.">
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between rounded-xl border border-amber-500/20 bg-amber-900/15 p-4">
+                    <span className="inline-flex items-center gap-2 text-amber-300 font-medium">
+                      <Trophy className="h-4 w-4" /> 1st Place
                     </span>
-                    <span className="font-semibold">${Math.round(projectedPot * (settings.payouts.first / 100)).toLocaleString()}</span>
+                    <span className="font-bold text-amber-300">${Math.round(projectedPot * (settings.payouts.first / 100)).toLocaleString()}</span>
                   </div>
-                  <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-                    <span className="inline-flex items-center gap-2">
+                  <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.04] p-4">
+                    <span className="inline-flex items-center gap-2 text-slate-300 font-medium">
                       <Medal className="h-4 w-4" /> 2nd Place
                     </span>
-                    <span className="font-semibold">${Math.round(projectedPot * (settings.payouts.second / 100)).toLocaleString()}</span>
+                    <span className="font-bold text-white">${Math.round(projectedPot * (settings.payouts.second / 100)).toLocaleString()}</span>
                   </div>
-                  <div className="flex items-center justify-between rounded-2xl bg-orange-50 p-4">
-                    <span className="inline-flex items-center gap-2">
+                  <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.04] p-4">
+                    <span className="inline-flex items-center gap-2 text-slate-300 font-medium">
                       <Medal className="h-4 w-4" /> 3rd Place
                     </span>
-                    <span className="font-semibold">${Math.round(projectedPot * (settings.payouts.third / 100)).toLocaleString()}</span>
+                    <span className="font-bold text-white">${Math.round(projectedPot * (settings.payouts.third / 100)).toLocaleString()}</span>
                   </div>
                 </div>
               </SectionCard>
@@ -904,13 +926,14 @@ export default function Page() {
           </div>
         )}
 
+        {/* ── Rules and Scoring ── */}
         {activeTab === 'Rules and Scoring' && (
           <div className="grid gap-6 lg:grid-cols-2">
             <SectionCard title="Pool Rules" subtitle="This tab uses your latest bonus structure.">
-              <div className="space-y-4 text-sm leading-7 text-slate-600">
+              <div className="space-y-4 text-sm leading-7 text-slate-300">
                 <div className="stat-box p-4">
-                  <div className="font-semibold text-slate-900">Roster Construction</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                  <div className="font-semibold text-white mb-2">Roster Construction</div>
+                  <ul className="list-disc space-y-1 pl-5 text-slate-400">
                     <li>Participants pick 6 golfers per tournament.</li>
                     <li>Total salary must not exceed $50,000.</li>
                     <li>Salaries are based on a blend of world ranking and Vegas odds.</li>
@@ -918,8 +941,8 @@ export default function Page() {
                   </ul>
                 </div>
                 <div className="stat-box p-4">
-                  <div className="font-semibold text-slate-900">Scoring</div>
-                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                  <div className="font-semibold text-white mb-2">Scoring</div>
+                  <ul className="list-disc space-y-1 pl-5 text-slate-400">
                     <li>Raw score is the sum of all 6 golfers&apos; tournament scores.</li>
                     <li>Bonus points are subtracted from the raw score to produce net score.</li>
                     <li>Lower net score ranks higher in the standings.</li>
@@ -930,56 +953,93 @@ export default function Page() {
             </SectionCard>
 
             <SectionCard title="Bonus Scoring" subtitle="Using the categories you provided.">
-              <div className="overflow-hidden rounded-2xl border border-slate-200">
-                <table className="min-w-full divide-y divide-slate-200 text-sm">
-                  <thead className="bg-slate-50 text-left text-slate-500">
+              <div className="overflow-hidden rounded-2xl border border-white/10">
+                <table className="min-w-full divide-y divide-white/6 text-sm">
+                  <thead className="bg-white/[0.05] text-left">
                     <tr>
-                      <th className="px-4 py-3 font-medium">Category</th>
-                      <th className="px-4 py-3 font-medium">Points</th>
+                      <th className="px-4 py-3 font-medium text-slate-400">Category</th>
+                      <th className="px-4 py-3 font-medium text-slate-400">Points</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
+                  <tbody className="divide-y divide-white/5">
                     {BONUS_ROWS.map(([label, points]) => (
-                      <tr key={label}>
-                        <td className="px-4 py-3">{label}</td>
-                        <td className="px-4 py-3 font-semibold">{points}</td>
+                      <tr key={label} className="hover:bg-white/[0.03] transition">
+                        <td className="px-4 py-2.5 text-slate-300">{label}</td>
+                        <td className={`px-4 py-2.5 font-semibold ${Number(points) > 0 ? 'text-emerald-400' : Number(points) < 0 ? 'text-rose-400' : 'text-slate-300'}`}>
+                          {Number(points) > 0 ? `+${points}` : points}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <div className="mt-4 rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">
+              <div className="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-900/15 p-4 text-sm text-emerald-300">
                 The prototype now calculates mock bonus totals from your real scoring categories. In production, these values should be computed from live hole-by-hole event data and official finishing position data.
               </div>
             </SectionCard>
           </div>
         )}
 
+        {/* ── Admin ── */}
         {activeTab === 'Admin' && (
           <div className="grid gap-6 lg:grid-cols-[1fr,1fr]">
-            <SectionCard title="Admin Controls" subtitle="This section simulates the tools you would use to run the pool each week." right={<Pill tone="amber">Owner only</Pill>}>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="rounded-2xl bg-slate-50 p-4 text-sm">
-                  <div className="mb-2 font-medium">Entry Name</div>
-                  <input value={entryName} onChange={(e) => setEntryName(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 outline-none ring-0" />
-                </label>
-                <label className="rounded-2xl bg-slate-50 p-4 text-sm">
-                  <div className="mb-2 font-medium">Venmo</div>
-                  <input value={settings.venmo} onChange={(e) => setSettings({ ...settings, venmo: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 outline-none ring-0" />
-                </label>
-                <label className="rounded-2xl bg-slate-50 p-4 text-sm">
-                  <div className="mb-2 font-medium">Entry Fee</div>
-                  <input type="number" value={settings.entryFee} onChange={(e) => setSettings({ ...settings, entryFee: Number(e.target.value) })} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 outline-none ring-0" />
-                </label>
-                <div className="rounded-2xl bg-slate-50 p-4 text-sm">
-                  <div className="mb-2 font-medium">Lineup Lock</div>
-                  <button onClick={() => setSettings({ ...settings, manualLock: !settings.manualLock })} className={`w-full rounded-xl px-3 py-2 font-medium ${locked ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'}`}>
+            <SectionCard
+              title="Admin Controls"
+              subtitle="This section simulates the tools you would use to run the pool each week."
+              right={<Pill tone="amber">Owner only</Pill>}
+            >
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  {
+                    label: 'Entry Name',
+                    input: (
+                      <input
+                        value={entryName}
+                        onChange={(e) => setEntryName(e.target.value)}
+                        className="w-full rounded-xl border border-white/12 bg-white/[0.07] px-3 py-2 text-white outline-none focus:border-emerald-500/50 focus:bg-white/[0.1] transition placeholder:text-slate-500"
+                      />
+                    ),
+                  },
+                  {
+                    label: 'Venmo',
+                    input: (
+                      <input
+                        value={settings.venmo}
+                        onChange={(e) => setSettings({ ...settings, venmo: e.target.value })}
+                        className="w-full rounded-xl border border-white/12 bg-white/[0.07] px-3 py-2 text-white outline-none focus:border-emerald-500/50 focus:bg-white/[0.1] transition"
+                      />
+                    ),
+                  },
+                  {
+                    label: 'Entry Fee',
+                    input: (
+                      <input
+                        type="number"
+                        value={settings.entryFee}
+                        onChange={(e) => setSettings({ ...settings, entryFee: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-white/12 bg-white/[0.07] px-3 py-2 text-white outline-none focus:border-emerald-500/50 focus:bg-white/[0.1] transition"
+                      />
+                    ),
+                  },
+                ].map(({ label, input }) => (
+                  <label key={label} className="rounded-2xl bg-white/[0.04] border border-white/8 p-4 text-sm">
+                    <div className="mb-2 font-medium text-slate-300">{label}</div>
+                    {input}
+                  </label>
+                ))}
+
+                <div className="rounded-2xl bg-white/[0.04] border border-white/8 p-4 text-sm">
+                  <div className="mb-2 font-medium text-slate-300">Lineup Lock</div>
+                  <button
+                    onClick={() => setSettings({ ...settings, manualLock: !settings.manualLock })}
+                    className={`w-full rounded-xl px-3 py-2.5 font-semibold transition ${locked ? 'bg-rose-600/80 text-white hover:bg-rose-600' : 'bg-emerald-600/80 text-white hover:bg-emerald-600'}`}
+                  >
                     {locked ? (
-                      <span className="inline-flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center gap-2">
                         <Lock className="h-4 w-4" /> Locked
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center gap-2">
                         <Unlock className="h-4 w-4" /> Open
                       </span>
                     )}
@@ -987,23 +1047,26 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="mt-5 grid gap-4 sm:grid-cols-3">
-                <label className="rounded-2xl bg-slate-50 p-4 text-sm">
-                  <div className="mb-2 font-medium">1st %</div>
-                  <input type="number" value={settings.payouts.first} onChange={(e) => setSettings({ ...settings, payouts: { ...settings.payouts, first: Number(e.target.value) } })} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2" />
-                </label>
-                <label className="rounded-2xl bg-slate-50 p-4 text-sm">
-                  <div className="mb-2 font-medium">2nd %</div>
-                  <input type="number" value={settings.payouts.second} onChange={(e) => setSettings({ ...settings, payouts: { ...settings.payouts, second: Number(e.target.value) } })} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2" />
-                </label>
-                <label className="rounded-2xl bg-slate-50 p-4 text-sm">
-                  <div className="mb-2 font-medium">3rd %</div>
-                  <input type="number" value={settings.payouts.third} onChange={(e) => setSettings({ ...settings, payouts: { ...settings.payouts, third: Number(e.target.value) } })} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2" />
-                </label>
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                {[
+                  { label: '1st %', key: 'first' as const },
+                  { label: '2nd %', key: 'second' as const },
+                  { label: '3rd %', key: 'third' as const },
+                ].map(({ label, key }) => (
+                  <label key={key} className="rounded-2xl bg-white/[0.04] border border-white/8 p-4 text-sm">
+                    <div className="mb-2 font-medium text-slate-300">{label}</div>
+                    <input
+                      type="number"
+                      value={settings.payouts[key]}
+                      onChange={(e) => setSettings({ ...settings, payouts: { ...settings.payouts, [key]: Number(e.target.value) } })}
+                      className="w-full rounded-xl border border-white/12 bg-white/[0.07] px-3 py-2 text-white outline-none focus:border-emerald-500/50 transition"
+                    />
+                  </label>
+                ))}
               </div>
 
               <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-                <span className={`inline-flex items-center gap-2 rounded-2xl px-3 py-2 ${payoutTotal === 100 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                <span className={`inline-flex items-center gap-2 rounded-2xl border px-3 py-2 ${payoutTotal === 100 ? 'border-emerald-500/30 bg-emerald-900/20 text-emerald-300' : 'border-amber-500/30 bg-amber-900/20 text-amber-300'}`}>
                   <CheckCircle2 className="h-4 w-4" /> Payout total: {payoutTotal}%
                 </span>
                 <span className="text-slate-500">{isSettingsSaving ? 'Saving settings...' : 'Settings save automatically in this prototype.'}</span>
@@ -1012,37 +1075,42 @@ export default function Page() {
 
             <div className="space-y-6">
               <SectionCard title="Semi-live Feed Workflow" subtitle="This is the operating model for Option A using unofficial public leaderboard data.">
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200 p-4">
-                    <RefreshCw className="mt-0.5 h-4 w-4 text-sky-600" />
-                    <div>
-                      <div className="font-medium">Refresh leaderboard every 2–5 minutes</div>
-                      <div className="mt-1 text-slate-500">Normalize player score, thru, status, and last update time into your database.</div>
+                <div className="space-y-2 text-sm">
+                  {[
+                    {
+                      icon: <RefreshCw className="mt-0.5 h-4 w-4 text-sky-400" />,
+                      title: 'Refresh leaderboard every 2–5 minutes',
+                      desc: 'Normalize player score, thru, status, and last update time into your database.',
+                    },
+                    {
+                      icon: <TrendingUp className="mt-0.5 h-4 w-4 text-emerald-400" />,
+                      title: 'Recompute entry scores after each sync',
+                      desc: 'Raw team score and bonus points are recalculated from stored golfer states.',
+                    },
+                    {
+                      icon: <AlertCircle className="mt-0.5 h-4 w-4 text-amber-400" />,
+                      title: 'Flag source issues for manual review',
+                      desc: 'If the feed is delayed or parsing fails, the site shows last good data and an admin status warning.',
+                    },
+                    {
+                      icon: <Flag className="mt-0.5 h-4 w-4 text-slate-400" />,
+                      title: 'Lock at first tee time',
+                      desc: 'No roster edits after official start. In production, this should be enforced server-side.',
+                    },
+                  ].map(({ icon, title, desc }) => (
+                    <div key={title} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                      {icon}
+                      <div>
+                        <div className="font-medium text-white">{title}</div>
+                        <div className="mt-1 text-slate-400">{desc}</div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200 p-4">
-                    <TrendingUp className="mt-0.5 h-4 w-4 text-emerald-600" />
-                    <div>
-                      <div className="font-medium">Recompute entry scores after each sync</div>
-                      <div className="mt-1 text-slate-500">Raw team score and bonus points are recalculated from stored golfer states.</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200 p-4">
-                    <AlertCircle className="mt-0.5 h-4 w-4 text-amber-600" />
-                    <div>
-                      <div className="font-medium">Flag source issues for manual review</div>
-                      <div className="mt-1 text-slate-500">If the feed is delayed or parsing fails, the site shows last good data and an admin status warning.</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 rounded-2xl border border-slate-200 p-4">
-                    <Flag className="mt-0.5 h-4 w-4 text-slate-700" />
-                    <div>
-                      <div className="font-medium">Lock at first tee time</div>
-                      <div className="mt-1 text-slate-500">No roster edits after official start. In production, this should be enforced server-side.</div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-                <button onClick={simulateRefresh} className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-white">
+                <button
+                  onClick={simulateRefresh}
+                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-white/8 border border-white/12 px-4 py-3 text-sm font-medium text-slate-200 hover:bg-white/12 transition"
+                >
                   <Settings2 className="h-4 w-4" /> Run simulated sync
                 </button>
               </SectionCard>
@@ -1069,12 +1137,12 @@ next real implementation:
 
               <SectionCard title="Data Model Scaffold" subtitle="These are the core entities this UI should map to in a real backend.">
                 <CodeBlock>{JSON.stringify(DATA_MODEL, null, 2)}</CodeBlock>
-                <div className="mt-4 rounded-2xl bg-sky-50 p-4 text-sm text-sky-800">
+                <div className="mt-4 rounded-2xl border border-sky-500/20 bg-sky-900/15 p-4 text-sm text-sky-300">
                   The UI now builds tournament player cards from normalized sources: PLAYERS + TOURNAMENT_SALARIES + LIVE_PLAYER_STATS.
                 </div>
-                <div className="mt-4 space-y-2 text-sm text-slate-600">
+                <div className="mt-4 space-y-2 text-sm text-slate-400">
                   {BACKEND_MAPPING_NOTES.map((note) => (
-                    <div key={note} className="rounded-xl bg-slate-50 px-3 py-2">
+                    <div key={note} className="rounded-xl border border-white/6 bg-white/[0.04] px-3 py-2">
                       {note}
                     </div>
                   ))}
@@ -1094,12 +1162,13 @@ test('admin payout warning appears when total != 100')`}</CodeBlock>
           </div>
         )}
 
-        <footer className="mt-8 rounded-3xl border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-sm">
+        {/* ── Footer ── */}
+        <footer className="mt-8 rounded-3xl border border-white/8 bg-white/[0.03] backdrop-blur p-5 text-sm text-slate-500">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div>
+            <div className="text-slate-400">
               MVP status: front-end prototype complete for a shareable golf pool site. To go live, connect this UI to authentication, a database, lineup storage, scheduled refresh jobs, and your unofficial leaderboard and odds ingestion services.
             </div>
-            <div className="inline-flex items-center gap-2 font-medium text-slate-700">
+            <div className="inline-flex items-center gap-2 font-medium text-slate-300 whitespace-nowrap">
               Next step: connect real APIs <ChevronRight className="h-4 w-4" />
             </div>
           </div>

@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --bg: #081018;
-  --bg-soft: #0f172a;
-  --card: rgba(15, 23, 42, 0.82);
-  --card-border: rgba(148, 163, 184, 0.12);
-  --text: #e5e7eb;
+  --bg: #060d18;
+  --bg-soft: #0c1526;
+  --card: rgba(12, 21, 38, 0.85);
+  --card-border: rgba(148, 163, 184, 0.1);
+  --text: #e2e8f0;
   --muted: #94a3b8;
   --accent: #22c55e;
-  --accent-soft: rgba(34, 197, 94, 0.14);
+  --accent-soft: rgba(34, 197, 94, 0.12);
 }
 
 html,
@@ -22,10 +22,12 @@ body {
 
 body {
   background:
-    radial-gradient(circle at top, rgba(34, 197, 94, 0.12), transparent 30%),
-    linear-gradient(180deg, #061018 0%, #020617 100%);
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(34, 197, 94, 0.10), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(14, 165, 233, 0.06), transparent),
+    linear-gradient(180deg, #040c18 0%, #020510 100%);
   color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
@@ -36,68 +38,82 @@ body {
   background: var(--card);
   border: 1px solid var(--card-border);
   border-radius: 24px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(10px);
+  box-shadow:
+    0 0 0 1px rgba(148, 163, 184, 0.04) inset,
+    0 20px 50px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
 }
 
 .stat-box {
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  border-radius: 16px;
 }
 
 .soft-box {
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(148, 163, 184, 0.08);
-  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.07);
+  border-radius: 16px;
 }
 
 .tab-active {
   background: white;
   color: #0f172a;
   border-radius: 9999px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  font-weight: 700;
 }
 
 .tab-inactive {
   background: rgba(255, 255, 255, 0.04);
-  color: #cbd5e1;
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.10);
   border-radius: 9999px;
 }
 
 .button-primary {
   background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: #04110a;
-  border-radius: 16px;
+  color: #022010;
+  border-radius: 14px;
   font-weight: 700;
   border: none;
-  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.28);
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.30);
+  transition: box-shadow 0.15s, opacity 0.15s;
+}
+
+.button-primary:hover {
+  box-shadow: 0 12px 32px rgba(34, 197, 94, 0.40);
 }
 
 .button-secondary {
-  background: rgba(255, 255, 255, 0.04);
-  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
   border: 1px solid rgba(148, 163, 184, 0.14);
-  border-radius: 16px;
+  border-radius: 14px;
   font-weight: 600;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.button-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(148, 163, 184, 0.22);
 }
 
 .table-shell {
   overflow: hidden;
-  border-radius: 20px;
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.10);
 }
 
 .table-head {
-  background: rgba(255, 255, 255, 0.04);
-  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  color: #64748b;
 }
 
 .table-row {
-  background: rgba(255, 255, 255, 0.02);
+  background: transparent;
 }
 
 .table-row-highlight {
-  background: rgba(34, 197, 94, 0.08);
+  background: rgba(34, 197, 94, 0.07);
 }
