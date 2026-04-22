@@ -20,7 +20,6 @@ import {
   Medal,
   Bell,
   Info,
-  ChevronDown,
 } from 'lucide-react';
 
 /* ─── Constants ─────────────────────────────────────── */
@@ -268,7 +267,7 @@ function TournamentLogo({ tid }: { tid: string }) {
 
 /* ─── Main nav tabs ──────────────────────────────────── */
 
-const MAIN_TABS = ['Standings', 'My entries', 'Reports', 'Message board', 'Details', 'Commissioner console'] as const;
+const MAIN_TABS = ['Standings', 'My entries', 'Details', 'Commissioner console'] as const;
 type MainTab = typeof MAIN_TABS[number];
 
 /* ─── Page ───────────────────────────────────────────── */
@@ -484,7 +483,6 @@ export default function Page() {
                   }}
                 >
                   {tab}
-                  {tab === 'Reports' && <ChevronDown className="h-3.5 w-3.5 inline ml-1" />}
                 </button>
               );
             })}
@@ -1109,115 +1107,146 @@ export default function Page() {
           </div>
         )}
 
-        {/* ─── REPORTS ─── */}
-        {mainTab === 'Reports' && (
-          <div className="overflow-y-auto h-full">
-            <div className="max-w-5xl mx-auto px-6 py-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">Reports</h1>
-              <div className="bg-white border border-gray-200 shadow-xl rounded-xl p-6" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {tournamentPlayers.slice(0, 6).map((player: any, idx: number) => (
-                    <div key={player.id} className="flex items-center gap-4 border border-gray-200 rounded p-4">
-                      <div className="text-2xl font-black text-gray-300 w-8">{idx + 1}</div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-gray-900 text-sm">{player.name}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">Thru {player.thru} · {player.odds}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className={`font-black text-lg tabular-nums ${scoreColor(player.score)}`}>{player.score}</div>
-                        <div className="text-xs font-semibold text-blue-600">+{calculatePlayerBonus(player)} pts</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ─── MESSAGE BOARD ─── */}
-        {mainTab === 'Message board' && (
-          <div className="overflow-y-auto h-full">
-            <div className="max-w-5xl mx-auto px-6 py-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">Message Board</h1>
-              <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-8 text-center text-gray-400">
-                <div className="text-4xl mb-3">💬</div>
-                <p className="text-sm">No messages yet. Post updates and trash talk here once connected to a real backend.</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ─── DETAILS (Rules and Scoring) ─── */}
+        {/* ─── DETAILS ─── */}
         {mainTab === 'Details' && (
           <div className="overflow-y-auto h-full">
-            <div className="max-w-5xl mx-auto px-6 py-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">Details</h1>
+            <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
 
-              <div className="grid gap-5 lg:grid-cols-2">
-
-                <div className="bg-white border border-gray-300 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
-                  <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
-                    <h2 className="font-bold text-gray-900">Pool Rules</h2>
-                    <p className="text-xs text-gray-400 mt-0.5">How to play</p>
-                  </div>
-                  <div className="p-5 space-y-4">
-                    {([
-                      {
-                        title: 'Roster Construction',
-                        items: [
-                          'Pick 6 golfers per tournament.',
-                          'Total salary must not exceed $50,000.',
-                          'Salaries blend world ranking with Vegas odds.',
-                          'Editable until the first tee time of the event.',
-                        ],
-                      },
-                      {
-                        title: 'Scoring',
-                        items: [
-                          'Raw score = sum of all 6 golfers\' tournament scores.',
-                          'Bonus points are subtracted to produce net score.',
-                          'Lower net score ranks higher in the standings.',
-                          'Updates refresh using unofficial leaderboard data.',
-                        ],
-                      },
-                    ] as any[]).map(({ title, items }) => (
-                      <div key={title} className="rounded border border-gray-200 p-4">
-                        <div className="text-sm font-bold text-gray-800 mb-3">{title}</div>
-                        <ul className="space-y-2">
-                          {items.map((item: string) => (
-                            <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
-                              <span style={{ color: '#00bcd4' }} className="shrink-0 mt-0.5">›</span>
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
+              {/* Welcome card */}
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+                <div className="px-6 py-4 border-b border-gray-100" style={{ background: 'linear-gradient(135deg, #0c1628, #162040)' }}>
+                  <h2 className="font-black text-white text-lg tracking-tight">Welcome to my PGA Golf Majors Pool!</h2>
                 </div>
-
-                <div className="bg-white border border-gray-300 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
-                  <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
-                    <h2 className="font-bold text-gray-900">Bonus Scoring</h2>
-                    <p className="text-xs text-gray-400 mt-0.5">Subtracted from raw score</p>
-                  </div>
-                  <div className="grid grid-cols-[1fr,60px] gap-3 px-5 py-2 bg-gray-100 border-b border-gray-200">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Category</span>
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 text-right">Pts</span>
-                  </div>
-                  <div className="overflow-y-auto" style={{ maxHeight: 480 }}>
-                    {BONUS_ROWS.map(([label, points]) => (
-                      <div key={label} className="grid grid-cols-[1fr,60px] gap-3 items-center px-5 py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
-                        <span className="text-sm text-gray-700">{label}</span>
-                        <span className={`text-sm font-bold text-right tabular-nums ${Number(points) > 0 ? 'text-green-600' : Number(points) < 0 ? 'text-red-600' : 'text-gray-400'}`}>
-                          {Number(points) > 0 ? `+${points}` : points}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                <div className="p-6 space-y-4 text-gray-700 text-sm leading-relaxed">
+                  <p>
+                    A brief reminder: For each Major tournament, you will pick six (6) PGA players to make up your Player Roster. The pool member with the highest point total between all 6 players on their team after the final round will win. All picks will be hidden until the first scheduled tee time on Thursday (1st Round) of the tournament. If one of your picks get cut, he will garner -10 points for you. The rest of the points break down is displayed below. Good luck to everyone. If you have any questions, please contact me 325.665.8299.
+                  </p>
+                  <p className="font-semibold text-gray-800">— Clayton Tucker</p>
                 </div>
               </div>
+
+              {/* Rules card */}
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+                <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                  <h2 className="font-bold text-gray-900 text-base">Rules</h2>
+                </div>
+                <div className="p-6">
+                  <ul className="space-y-3 text-sm text-gray-700 leading-relaxed list-none">
+                    {[
+                      'Participants are limited to one entry in the contest.',
+                      <>Picks are made for the following tournaments:
+                        <ul className="mt-2 ml-4 space-y-1 list-none">
+                          {['Players Championship', 'The Masters', 'PGA Championship', 'U.S. Open Championship', 'British Open Championship'].map(t => (
+                            <li key={t} className="flex items-start gap-2"><span style={{ color: '#00bcd4' }}>›</span>{t}</li>
+                          ))}
+                        </ul>
+                      </>,
+                      'For each major tournament, members select six golfers. Each golfer will have a salary assigned to them based on their odds to win the tournament. Participants will be assigned a fixed salary cap they must stay under in order to create their 6-player roster. These six golfers make up their Player Roster for that tournament.',
+                      'Members will enter their guess for the total combined strokes of the winner of the tournament (e.g. 275) as a tiebreaker. In the event of a tie, the person closest to the actual stroke count will win.',
+                      'Golfers CAN be picked more than once per season.',
+                      'The scores of all 6 golfers on your roster count towards your score.',
+                      'The goal is to be the member whose roster performs the best cumulatively (has the most points) as a team.',
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-2.5">
+                        <span style={{ color: '#00bcd4', flexShrink: 0, marginTop: 2 }}>›</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Live Scoring Logic card */}
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+                <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                  <h2 className="font-bold text-gray-900 text-base">📊 Live Scoring Logic</h2>
+                  <p className="text-xs text-gray-400 mt-0.5">Each golfer's live point total updates continuously throughout the tournament.</p>
+                </div>
+                <div className="p-6 space-y-6 text-sm text-gray-700">
+
+                  {/* Hole Points */}
+                  <div>
+                    <div className="font-bold text-gray-800 mb-3">⛳ Hole Points</div>
+                    <div className="space-y-1.5">
+                      {[
+                        ['Par', '+0.5'],
+                        ['Birdie', '+3'],
+                        ['Eagle', '+8'],
+                        ['Albatross', '+13'],
+                        ['Bogey', '-0.5'],
+                        ['Double Bogey', '-3'],
+                        ['Triple Bogey or Worse', '-5'],
+                      ].map(([label, pts]) => (
+                        <div key={label} className="flex items-center justify-between py-1.5 border-b border-gray-100 last:border-0">
+                          <span>{label}</span>
+                          <span className={`font-bold tabular-nums ${pts.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>{pts}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bonus Points */}
+                  <div>
+                    <div className="font-bold text-gray-800 mb-3">🎯 Bonus Points</div>
+                    <div className="space-y-1.5">
+                      {[
+                        ['3 Straight Birdie Streak', '+4'],
+                        ['Bogey-Free Round', '+5'],
+                        ['Low Round of Tournament', '+5'],
+                        ['1st Round Leader', '+5'],
+                        ['2nd Round Leader', '+5'],
+                        ['3rd Round Leader', '+5'],
+                      ].map(([label, pts]) => (
+                        <div key={label} className="flex items-center justify-between py-1.5 border-b border-gray-100 last:border-0">
+                          <span>{label}</span>
+                          <span className="font-bold tabular-nums text-green-600">{pts}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Finish Bonus */}
+                  <div>
+                    <div className="font-bold text-gray-800 mb-3">🏁 Finish Bonus</div>
+                    <div className="space-y-1.5">
+                      {[
+                        ['1st', '+40'],
+                        ['2nd', '+25'],
+                        ['3rd', '+20'],
+                        ['4th', '+18'],
+                        ['5th', '+16'],
+                        ['6th', '+14'],
+                        ['7th', '+12'],
+                        ['8th', '+10'],
+                        ['9th', '+9'],
+                        ['10th', '+8'],
+                        ['11th–15th', '+6'],
+                        ['16th–20th', '+5'],
+                        ['21st–25th', '+4'],
+                        ['26th–30th', '+3'],
+                        ['31st–40th', '+2'],
+                        ['41st–50th', '+1'],
+                      ].map(([label, pts]) => (
+                        <div key={label} className="flex items-center justify-between py-1.5 border-b border-gray-100 last:border-0">
+                          <span>{label}</span>
+                          <span className="font-bold tabular-nums text-green-600">{pts}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Missed Cut */}
+                  <div>
+                    <div className="font-bold text-gray-800 mb-3">❌ Missed Cut Penalty</div>
+                    <div className="flex items-center justify-between py-1.5">
+                      <span>Missed Cut</span>
+                      <span className="font-bold tabular-nums text-red-600">-10</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
             </div>
           </div>
         )}
