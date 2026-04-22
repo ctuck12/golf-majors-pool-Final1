@@ -357,10 +357,8 @@ function NavTab({
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
-        active
-          ? 'bg-emerald-500 text-black'
-          : 'bg-slate-800 text-white hover:bg-slate-700'
+      className={`px-5 py-3 text-sm font-semibold transition ${
+        active ? 'tab-active' : 'tab-inactive hover:bg-white/10'
       }`}
     >
       {children}
@@ -379,8 +377,17 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      ...
+    <section className="card p-6">
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight text-white">{title}</h2>
+          {subtitle ? (
+            <p className="mt-1 text-sm leading-6 text-slate-400">{subtitle}</p>
+          ) : null}
+        </div>
+        {right}
+      </div>
+      {children}
     </section>
   );
 }
@@ -546,9 +553,9 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-black text-white">
+    <div className="min-h-screen text-white">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="mb-8 rounded-3xl bg-gradient-to-br from-emerald-500/20 via-slate-900 to-black p-8 border border-slate-800 shadow-2xl">
+        <header className="mb-8 overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(34,197,94,0.18),rgba(15,23,42,0.95),rgba(2,6,23,1))] text-white shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
           <div className="grid gap-8 p-6 lg:grid-cols-[1.5fr,1fr] lg:p-8">
             <div>
               <Pill tone="green">5-Tournament Major Pool</Pill>
@@ -649,21 +656,21 @@ export default function Page() {
               right={<Pill tone={locked ? 'red' : 'green'}>{locked ? 'Locked' : 'Editable'}</Pill>}
             >
               <div className="mb-5 grid gap-4 sm:grid-cols-4">
-                <div className="rounded-2xl bg-slate-50 p-4">
+                <div className="stat-box p-4">
                   <div className="text-sm text-slate-500">Entry Name</div>
                   <div className="mt-1 font-semibold">{entryName}</div>
                 </div>
-                <div className="rounded-2xl bg-slate-50 p-4">
+                <div className="stat-box p-4">
                   <div className="text-sm text-slate-500">Roster Spots</div>
                   <div className="mt-1 font-semibold">
                     {selectedRoster.length} / {REQUIRED_GOLFERS}
                   </div>
                 </div>
-                <div className="rounded-2xl bg-slate-50 p-4">
+                <div className="stat-box p-4">
                   <div className="text-sm text-slate-500">Salary Used</div>
                   <div className="mt-1 font-semibold">${salaryUsed.toLocaleString()}</div>
                 </div>
-                <div className="rounded-2xl bg-slate-50 p-4">
+                <div className="stat-box p-4">
                   <div className="text-sm text-slate-500">Remaining</div>
                   <div className={`mt-1 font-semibold ${salaryRemaining < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
                     ${salaryRemaining.toLocaleString()}
@@ -726,14 +733,14 @@ export default function Page() {
                 <button
                   onClick={handleSaveRoster}
                   disabled={isRosterSaving || isRosterLoading}
-                  className="btn btn-primary flex items-center gap-2"
+                 className="button-primary inline-flex items-center gap-2 px-4 py-3 text-sm disabled:opacity-60"
                 >
                   <Save className="h-4 w-4" /> {isRosterSaving ? 'Saving...' : 'Save roster'}
                 </button>
                 <button
                   onClick={handleResetRoster}
                   disabled={isRosterSaving || isRosterLoading}
-                  className="rounded-2xl bg-white px-4 py-3 text-sm font-medium text-slate-700 ring-1 ring-slate-200 disabled:opacity-60"
+                  className="button-secondary px-4 py-3 text-sm disabled:opacity-60"
                 >
                   Reset to default roster
                 </button>
@@ -763,15 +770,15 @@ export default function Page() {
                   ))}
                 </div>
                 <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
-                  <div className="rounded-2xl bg-slate-50 p-4">
+                  <div className="stat-box p-4">
                     <div className="text-slate-500">Raw Score</div>
                     <div className="mt-1 text-lg font-semibold">{rosterRaw > 0 ? `+${rosterRaw}` : rosterRaw}</div>
                   </div>
-                  <div className="rounded-2xl bg-slate-50 p-4">
+                  <div className="stat-box p-4">
                     <div className="text-slate-500">Bonus</div>
                     <div className="mt-1 text-lg font-semibold">{rosterBonus}</div>
                   </div>
-                  <div className="rounded-2xl bg-slate-50 p-4">
+                  <div className="stat-box p-4">
                     <div className="text-slate-500">Net</div>
                     <div className="mt-1 text-lg font-semibold">{rosterNet > 0 ? `+${rosterNet}` : rosterNet}</div>
                   </div>
@@ -901,7 +908,7 @@ export default function Page() {
           <div className="grid gap-6 lg:grid-cols-2">
             <SectionCard title="Pool Rules" subtitle="This tab uses your latest bonus structure.">
               <div className="space-y-4 text-sm leading-7 text-slate-600">
-                <div className="rounded-2xl bg-slate-50 p-4">
+                <div className="stat-box p-4">
                   <div className="font-semibold text-slate-900">Roster Construction</div>
                   <ul className="mt-2 list-disc space-y-1 pl-5">
                     <li>Participants pick 6 golfers per tournament.</li>
@@ -910,7 +917,7 @@ export default function Page() {
                     <li>Picks may be edited until the first tee time of the event.</li>
                   </ul>
                 </div>
-                <div className="rounded-2xl bg-slate-50 p-4">
+                <div className="stat-box p-4">
                   <div className="font-semibold text-slate-900">Scoring</div>
                   <ul className="mt-2 list-disc space-y-1 pl-5">
                     <li>Raw score is the sum of all 6 golfers&apos; tournament scores.</li>
