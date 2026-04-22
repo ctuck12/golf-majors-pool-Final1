@@ -414,10 +414,10 @@ export default function Page() {
         }}
       >
         {/* Top strip */}
-        <div className="flex items-center gap-4 px-6 py-3.5">
+        <div className="flex items-center gap-5 px-8 py-5">
           <button
             className="shrink-0 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '4px 6px', color: '#aab4c4', cursor: 'pointer' }}
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 7, padding: '6px 8px', color: '#aab4c4', cursor: 'pointer' }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.14)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'; }}
           >
@@ -425,15 +425,15 @@ export default function Page() {
           </button>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-bold text-base leading-tight tracking-tight">2026 Golf Majors Pool</span>
-              <Info className="h-3.5 w-3.5 shrink-0" style={{ color: '#5a7fa0' }} />
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-bold leading-tight tracking-tight" style={{ fontSize: 17 }}>2026 Golf Majors Pool</span>
+              <Info className="h-4 w-4 shrink-0" style={{ color: '#5a7fa0' }} />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs" style={{ color: '#5a7fa0' }}>3/12</span>
-              <span style={{ color: '#2a4060', fontSize: 12 }}>•</span>
+            <div className="flex items-center gap-2.5">
+              <span className="text-sm font-medium" style={{ color: '#5a7fa0' }}>3/12</span>
+              <span style={{ color: '#2a4060', fontSize: 14 }}>•</span>
               <span
-                className="text-xs px-2.5 py-0.5 rounded-full font-semibold"
+                className="text-xs px-3 py-1 rounded-full font-semibold"
                 style={{ border: '1px solid #2a4a70', color: '#7ab8e0', background: 'rgba(0,150,220,0.12)' }}
               >
                 Golf Majors
@@ -442,22 +442,22 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-4 shrink-0">
             <div
               className="flex items-center justify-center"
-              style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
+              style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
             >
               <Bell className="h-4 w-4" style={{ color: '#7ab8e0' }} />
             </div>
             <div className="text-right">
-              <div className="font-bold text-sm leading-tight">23 Contest Entries</div>
-              <div className="text-xs" style={{ color: '#5a7fa0' }}>Your Entries: 1/1 allowed</div>
+              <div className="font-bold leading-tight" style={{ fontSize: 15 }}>23 Contest Entries</div>
+              <div className="text-xs mt-0.5" style={{ color: '#5a7fa0' }}>Your Entries: 1/1 allowed</div>
             </div>
           </div>
         </div>
 
         {/* Nav tabs */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} className="px-6">
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }} className="px-8">
           <div className="flex items-end gap-1">
             {MAIN_TABS.map(tab => {
               const isActive = mainTab === tab;
@@ -474,7 +474,7 @@ export default function Page() {
                     borderRadius: '4px 4px 0 0',
                     color: isActive ? '#00d4ee' : '#7a94b0',
                     cursor: 'pointer',
-                    padding: '10px 14px',
+                    padding: '12px 16px',
                     fontSize: 13.5,
                     fontWeight: isActive ? 700 : 500,
                     letterSpacing: isActive ? '0.01em' : 0,
