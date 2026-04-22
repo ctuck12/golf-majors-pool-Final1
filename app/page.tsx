@@ -219,10 +219,35 @@ function getCountdown(lockAt: string) {
 /* ─── Tournament logo placeholder ───────────────────── */
 
 function TournamentLogo({ tid }: { tid: string }) {
+  if (tid === 'pga') {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center" style={{ background: '#fff' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+          <span style={{ color: '#00205b', fontSize: 14, fontWeight: 700 }}>20</span>
+          <div style={{
+            width: 52, height: 52,
+            borderRadius: '50%',
+            border: '2.5px solid #00205b',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+          }}>
+            <span style={{ color: '#00205b', fontSize: 10, fontWeight: 900, letterSpacing: 1 }}>AG</span>
+            <div style={{ width: 24, height: 1.5, background: '#00205b' }} />
+            <span style={{ color: '#00205b', fontSize: 6, fontWeight: 700, letterSpacing: 1 }}>CLUB</span>
+          </div>
+          <span style={{ color: '#00205b', fontSize: 14, fontWeight: 700 }}>26</span>
+        </div>
+        <div style={{ color: '#00205b', fontSize: 30, fontWeight: 900, letterSpacing: 3, lineHeight: 1.1 }}>PGA</div>
+        <div style={{ color: '#00205b', fontSize: 8, fontWeight: 700, letterSpacing: 4, marginTop: 3 }}>ARONIMINK</div>
+      </div>
+    );
+  }
   const configs: Record<string, { bg: string; fg: string; lines: string[] }> = {
     players:  { bg: '#00553a', fg: '#ffffff', lines: ['THE', 'PLAYERS', '2026'] },
     masters:  { bg: '#00553a', fg: '#f5d000', lines: ['MASTERS', '2026', 'AUGUSTA'] },
-    pga:      { bg: '#00205b', fg: '#ffffff', lines: ['PGA', '2026', 'ARONIMINK'] },
     'us-open':{ bg: '#002868', fg: '#ffffff', lines: ['U.S.', 'OPEN', '2026'] },
     open:     { bg: '#003087', fg: '#ffffff', lines: ['THE', 'OPEN', '2026'] },
   };
@@ -401,6 +426,7 @@ export default function Page() {
               >
                 Golf Majors
               </span>
+              <Flag className="h-3.5 w-3.5 text-gray-500" />
             </div>
           </div>
 
@@ -447,19 +473,17 @@ export default function Page() {
               <h1 className="text-4xl font-bold text-gray-900 mb-8">Leaderboard</h1>
 
               {/* White card with tabs inside */}
-              <div className="bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
+              <div className="bg-white border border-gray-200 rounded-xl" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
 
                 {/* Tournament sub-tabs */}
                 <div
-                  className="flex items-end gap-6 px-6 pt-4 pb-0 overflow-x-auto"
-                  style={{ borderBottom: '1px solid #e0e0e0' }}
+                  className="flex items-end gap-6 px-6 pt-3 overflow-x-auto"
+                  style={{ borderBottom: '1px solid #ddd' }}
                 >
                   {tournamentTabs.map(t => {
                     const tabClass = tdClass(t);
                     const isActive = tabClass === 'active-tab';
                     const isYtd = tabClass === 'ytd-tab';
-                    const isFuture = tabClass === 'future-tab';
-                    const isPast = tabClass === 'past-tab';
 
                     return (
                       <button
@@ -468,10 +492,22 @@ export default function Page() {
                           if (t.isYtd) { setShowYtd(true); }
                           else { setShowYtd(false); setSelectedTournament(t.id); }
                         }}
-                        className="shrink-0 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2"
-                        style={{
-                          borderBottom: isActive ? '2px solid #fff' : '2px solid transparent',
-                          color: isActive ? '#333' : isYtd ? '#00bcd4' : isFuture ? '#00bcd4' : '#00bcd4',
+                        className="shrink-0 text-sm whitespace-nowrap transition-colors"
+                        style={isActive ? {
+                          padding: '8px 16px',
+                          marginBottom: '-1px',
+                          background: '#fff',
+                          border: '1px solid #ddd',
+                          borderBottom: '1px solid #fff',
+                          borderRadius: '4px 4px 0 0',
+                          color: '#1a1a1a',
+                          fontWeight: 500,
+                          position: 'relative' as const,
+                          zIndex: 1,
+                        } : {
+                          padding: '8px 16px',
+                          color: '#00bcd4',
+                          fontWeight: isYtd ? 700 : 400,
                         }}
                       >
                         {t.shortName}
@@ -481,6 +517,7 @@ export default function Page() {
                 </div>
 
                 {/* Tab content */}
+                <div className="overflow-hidden rounded-b-xl">
                 {hasTournamentData ? (
                   /* ── Standings table (The Players or Year-to-Date) ── */
                   <div>
@@ -580,10 +617,10 @@ export default function Page() {
                       </div>
                     </div>
 
-                    {/* Info banner — matches screenshot exactly */}
+                    {/* Info banner */}
                     <div
                       className="px-6 py-4 flex items-start gap-3"
-                      style={{ background: '#b3e5fc', borderTop: '1px solid #81d4fa' }}
+                      style={{ background: '#b2dfdb', borderTop: '1px solid #80cbc4' }}
                     >
                       <div
                         className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5"
@@ -604,6 +641,7 @@ export default function Page() {
                     </div>
                   </div>
                 )}
+                </div>
               </div>
 
               {/* Payout structure card */}
