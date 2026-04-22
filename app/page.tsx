@@ -227,18 +227,22 @@ function getCountdown(lockAt: string) {
 
 function Badge({ children, tone = 'slate' }: { children: React.ReactNode; tone?: 'slate' | 'green' | 'amber' | 'blue' | 'red' }) {
   const cls = {
-    slate: 'bg-slate-800/60 text-slate-300 border-slate-700/40',
-    green: 'bg-emerald-900/50 text-emerald-400 border-emerald-500/30',
-    amber: 'bg-amber-900/50 text-amber-400 border-amber-500/30',
-    blue:  'bg-sky-900/50 text-sky-400 border-sky-500/30',
-    red:   'bg-rose-900/50 text-rose-400 border-rose-500/30',
+    slate: 'bg-[#1a2d47]/70 text-slate-400 border-slate-700/30',
+    green: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/25',
+    amber: 'bg-amber-950/60 text-amber-400 border-amber-500/25',
+    blue:  'bg-sky-950/60 text-sky-400 border-sky-500/25',
+    red:   'bg-rose-950/60 text-rose-400 border-rose-500/25',
   }[tone];
-  return <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${cls}`}>{children}</span>;
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${cls}`}>
+      {children}
+    </span>
+  );
 }
 
-const PANEL = 'rounded-xl border border-[#1a2540] overflow-hidden';
-const PANEL_HEAD = 'bg-[#0b1220] border-b border-[#1a2540] px-5 py-3';
-const COL_LABEL = 'text-[10px] font-semibold uppercase tracking-widest text-slate-600';
+const PANEL = 'rounded-2xl border border-[#1c2d48] overflow-hidden';
+const PANEL_HEAD = 'bg-[#0c1626] border-b border-[#1c2d48] px-5 py-3.5';
+const COL_LABEL = 'text-[10px] font-semibold uppercase tracking-widest text-[#3d5878]';
 
 /* ─── Page ───────────────────────────────────────────── */
 
@@ -263,14 +267,12 @@ export default function Page() {
   const tournamentPlayers = useMemo(() => buildPlayerView(selectedTournament), [selectedTournament]);
   const playersById = useMemo(() => Object.fromEntries(tournamentPlayers.map((p: any) => [p.id, p])), [tournamentPlayers]);
 
-  /* boot */
   useEffect(() => {
     let cancelled = false;
     mockPoolService.loadSettings().then(s => { if (!cancelled) { setSettings(s); setIsBooting(false); } });
     return () => { cancelled = true; };
   }, []);
 
-  /* load roster */
   useEffect(() => {
     let cancelled = false;
     setIsRosterLoading(true);
@@ -283,7 +285,6 @@ export default function Page() {
     return () => { cancelled = true; };
   }, [entryName, selectedTournament]);
 
-  /* persist settings */
   useEffect(() => {
     let cancelled = false;
     setIsSettingsSaving(true);
@@ -291,7 +292,6 @@ export default function Page() {
     return () => { cancelled = true; };
   }, [settings]);
 
-  /* countdown */
   useEffect(() => {
     const tick = () => { const c = getCountdown(tournament.lockAt); setAutoLocked(c.isLocked); setCountdownLabel(c.label); };
     tick();
@@ -301,7 +301,6 @@ export default function Page() {
 
   const locked = settings.manualLock || autoLocked;
 
-  /* roster derived */
   const rosterPlayers = selectedRoster.map(id => playersById[id]).filter(Boolean);
   const salaryUsed = rosterPlayers.reduce((s: number, p: any) => s + p.salary, 0);
   const salaryRemaining = SALARY_CAP - salaryUsed;
@@ -310,7 +309,6 @@ export default function Page() {
   const rosterBonus = rosterPlayers.reduce((s: number, p: any) => s + calculatePlayerBonus(p), 0);
   const rosterNet   = rosterRaw - rosterBonus;
 
-  /* standings */
   const standings = [{ id: 1, name: entryName, picks: selectedRoster }, ...STATIC_ENTRIES]
     .map(entry => {
       const golfers = entry.picks.map(id => playersById[id]).filter(Boolean);
@@ -326,7 +324,6 @@ export default function Page() {
   const projectedPot = standings.length * Number(settings.entryFee || 0);
   const payoutTotal  = Number(settings.payouts.first) + Number(settings.payouts.second) + Number(settings.payouts.third);
 
-  /* actions */
   const toggleRosterPlayer = (id: number) => {
     if (locked || isRosterLoading || isRosterSaving) return;
     if (selectedRoster.includes(id)) { setSelectedRoster(selectedRoster.filter(x => x !== id)); return; }
@@ -360,28 +357,28 @@ export default function Page() {
 
   /* ── RENDER ── */
   return (
-    <div className="flex h-screen flex-col bg-[#080e1a] text-white overflow-hidden">
+    <div className="flex h-screen flex-col bg-[#070d1a] text-[#f0f6ff] overflow-hidden">
 
-      {/* ══ Top navigation bar ══ */}
-      <header className="shrink-0 flex h-14 items-center border-b border-[#1a2540] bg-[#0b1220] px-5 gap-6">
-        {/* Logo */}
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xl leading-none">⛳</span>
+      {/* ══ Header ══ */}
+      <header className="shrink-0 flex h-14 items-center border-b border-[#1c2d48] bg-[#0c1626] px-5 gap-6">
+        <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/25">
+            <span className="text-sm leading-none">⛳</span>
+          </div>
           <span className="text-[15px] font-black tracking-tight">
             MAJORS <span className="text-emerald-400">POOL</span>
           </span>
         </div>
 
-        {/* Nav tabs */}
         <nav className="flex items-center gap-1 flex-1">
           {(['My Picks', 'Standings', 'Rules and Scoring', 'Admin'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-150 ${
                 activeTab === tab
-                  ? 'bg-emerald-500 text-white'
-                  : 'text-slate-400 hover:text-white hover:bg-[#1a2540]'
+                  ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.28)]'
+                  : 'text-[#6b82a8] hover:text-[#f0f6ff] hover:bg-white/[0.05]'
               }`}
             >
               {tab}
@@ -389,10 +386,9 @@ export default function Page() {
           ))}
         </nav>
 
-        {/* Right strip */}
         <div className="flex items-center gap-3 shrink-0">
-          {isBooting && <span className="text-xs text-slate-600 animate-pulse">Loading…</span>}
-          <span className="text-sm text-slate-400 font-medium hidden sm:block">{entryName}</span>
+          {isBooting && <span className="text-xs text-[#2a4063] animate-pulse">Loading…</span>}
+          <span className="text-sm text-[#6b82a8] font-medium hidden sm:block">{entryName}</span>
           <Badge tone={locked ? 'red' : 'green'}>
             {locked ? <><Lock className="h-2.5 w-2.5" /> Locked</> : <><Unlock className="h-2.5 w-2.5" /> Open</>}
           </Badge>
@@ -400,29 +396,32 @@ export default function Page() {
       </header>
 
       {/* ══ Tournament selector strip ══ */}
-      <div className="shrink-0 flex items-center gap-2 border-b border-[#1a2540] bg-[#080e1a] px-5 py-2.5 overflow-x-auto">
+      <div className="shrink-0 flex items-center gap-2 border-b border-[#1c2d48] bg-[#070d1a] px-5 py-2.5 overflow-x-auto">
         {TOURNAMENTS.map(t => (
           <button
             key={t.id}
             onClick={() => setSelectedTournament(t.id)}
-            className={`shrink-0 px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-colors ${
+            className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all duration-150 ${
               selectedTournament === t.id
-                ? 'bg-emerald-500 text-white shadow-[0_0_18px_rgba(34,197,94,0.28)]'
-                : 'bg-[#111d31] text-slate-400 border border-[#1a2540] hover:text-white hover:bg-[#162035]'
+                ? 'bg-emerald-500 text-white shadow-[0_0_16px_rgba(16,185,129,0.3)]'
+                : 'bg-[#0c1626] text-[#6b82a8] border border-[#1c2d48] hover:text-[#f0f6ff] hover:border-[#2a4063]'
             }`}
           >
             {t.shortName}
           </button>
         ))}
 
-        <div className="ml-auto flex items-center gap-5 text-xs shrink-0">
-          <div className="text-slate-500 flex items-center gap-1.5">
+        <div className="ml-auto flex items-center gap-4 text-xs shrink-0">
+          <div className="text-[#3d5878] flex items-center gap-1.5">
             <Clock3 className="h-3.5 w-3.5" />
             Lock: <span className="text-slate-300 font-semibold ml-0.5">{tournament.lockTimeLabel}</span>
           </div>
-          <span className={`font-bold ${autoLocked ? 'text-rose-400' : 'text-emerald-400'}`}>
-            {autoLocked ? 'LOCKED' : countdownLabel + ' until lock'}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${autoLocked ? 'bg-rose-500' : 'bg-emerald-500 animate-pulse'}`} />
+            <span className={`font-bold ${autoLocked ? 'text-rose-400' : 'text-emerald-400'}`}>
+              {autoLocked ? 'LOCKED' : countdownLabel + ' until lock'}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -434,25 +433,25 @@ export default function Page() {
           <div className="flex h-full">
 
             {/* Left: Player pool */}
-            <div className="flex flex-col flex-1 overflow-hidden border-r border-[#1a2540]">
+            <div className="flex flex-col flex-1 overflow-hidden border-r border-[#1c2d48]">
 
               {/* Contest context bar */}
-              <div className="shrink-0 grid grid-cols-4 border-b border-[#1a2540]" style={{ borderTop: 'none' }}>
+              <div className="shrink-0 grid grid-cols-4 border-b border-[#1c2d48]">
                 {([
                   { label: 'Tournament', value: tournament.name },
                   { label: 'Venue', value: tournament.venue },
                   { label: 'Entry Fee', value: `$${settings.entryFee}`, hi: 'text-emerald-400' },
                   { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, hi: 'text-amber-400' },
                 ] as any[]).map(({ label, value, hi }) => (
-                  <div key={label} className="px-4 py-3 border-r border-[#1a2540] last:border-0 bg-[#0b1220]">
+                  <div key={label} className="px-4 py-3 border-r border-[#1c2d48] last:border-0 bg-[#0c1626]">
                     <div className={COL_LABEL}>{label}</div>
-                    <div className={`text-sm font-semibold mt-0.5 truncate ${hi ?? 'text-white'}`}>{value}</div>
+                    <div className={`text-sm font-semibold mt-0.5 truncate ${hi ?? 'text-[#f0f6ff]'}`}>{value}</div>
                   </div>
                 ))}
               </div>
 
               {/* Column headers */}
-              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-2 bg-[#080e1a] border-b border-[#1a2540]">
+              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-2.5 bg-[#070d1a] border-b border-[#1c2d48]">
                 <span className={COL_LABEL + ' text-center'}>RK</span>
                 <span className={COL_LABEL}>Player</span>
                 <span className={COL_LABEL + ' text-center'}>Thru</span>
@@ -464,7 +463,7 @@ export default function Page() {
               {/* Player rows */}
               <div className="overflow-y-auto flex-1">
                 {isRosterLoading ? (
-                  <div className="flex items-center justify-center h-32 text-slate-600 text-sm">Loading roster…</div>
+                  <div className="flex items-center justify-center h-32 text-[#3d5878] text-sm">Loading roster…</div>
                 ) : (
                   tournamentPlayers.map((player: any) => {
                     const selected = selectedRoster.includes(player.id);
@@ -477,46 +476,43 @@ export default function Page() {
                       <div
                         key={player.id}
                         onClick={() => (canAdd || canRemove) ? toggleRosterPlayer(player.id) : undefined}
-                        className={`grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-3.5 border-b border-[#1a2540] transition-colors ${
+                        className={`grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-3 border-b border-[#1c2d48]/50 transition-all ${
                           selected
-                            ? 'bg-[#0a1f15] cursor-pointer'
+                            ? 'bg-emerald-950/20 shadow-[inset_3px_0_0_rgba(16,185,129,0.5)] cursor-pointer'
                             : canAdd
-                              ? 'hover:bg-[#0f1e35] cursor-pointer'
-                              : 'opacity-40 cursor-not-allowed'
+                              ? 'hover:bg-[#0f1e35]/50 cursor-pointer'
+                              : 'opacity-30 cursor-not-allowed'
                         }`}
                       >
-                        {/* Rank */}
-                        <span className="text-xs text-slate-500 text-center font-medium tabular-nums">{player.owgr}</span>
+                        <span className="text-xs text-[#3d5878] text-center font-medium tabular-nums">{player.owgr}</span>
 
-                        {/* Name + odds */}
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-semibold text-white">{player.name}</span>
-                            {selected && <Badge tone="green">In Lineup</Badge>}
-                            {wouldExceedCap && <Badge tone="amber">Over Cap</Badge>}
+                        <div className="min-w-0 flex items-center gap-2.5">
+                          <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black ${
+                            selected ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#0f1e35] text-[#4d6a8a]'
+                          }`}>
+                            {player.name.charAt(0)}
                           </div>
-                          <div className="text-xs text-slate-600 mt-0.5">{player.odds} outright</div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-semibold text-[#f0f6ff]">{player.name}</span>
+                              {selected && <Badge tone="green">In Lineup</Badge>}
+                              {wouldExceedCap && <Badge tone="amber">Over Cap</Badge>}
+                            </div>
+                            <div className="text-[11px] text-[#3d5878] mt-0.5">{player.odds} outright</div>
+                          </div>
                         </div>
 
-                        {/* Thru */}
                         <span className="text-xs text-slate-400 text-center tabular-nums">{player.thru}</span>
-
-                        {/* Score */}
                         <span className={`text-sm font-bold text-center tabular-nums ${scoreColor(player.score)}`}>{player.score}</span>
+                        <span className="text-sm font-semibold text-emerald-400 tabular-nums">${(player.salary / 1000).toFixed(1)}K</span>
 
-                        {/* Salary */}
-                        <span className="text-sm font-bold text-emerald-400 tabular-nums">
-                          ${(player.salary / 1000).toFixed(1)}K
-                        </span>
-
-                        {/* Action */}
                         <button
                           onClick={e => { e.stopPropagation(); toggleRosterPlayer(player.id); }}
                           disabled={!canAdd && !canRemove}
-                          className={`py-1.5 rounded-lg text-[11px] font-bold tracking-wide border transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+                          className={`py-1.5 rounded-lg text-[11px] font-bold tracking-wide border transition-all disabled:opacity-20 disabled:cursor-not-allowed ${
                             selected
-                              ? 'bg-rose-500/15 text-rose-400 border-rose-500/25 hover:bg-rose-500/25'
-                              : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25 hover:bg-emerald-500/25'
+                              ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 hover:bg-rose-500/20'
+                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
                           }`}
                         >
                           {selected ? 'REMOVE' : '+ ADD'}
@@ -529,13 +525,13 @@ export default function Page() {
             </div>
 
             {/* Right: Lineup builder */}
-            <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-[#0b1220]">
+            <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-[#0c1626]">
 
               {/* Header + salary bar */}
-              <div className="shrink-0 border-b border-[#1a2540] px-4 pt-4 pb-3">
+              <div className="shrink-0 border-b border-[#1c2d48] px-4 pt-4 pb-3">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">My Lineup</span>
-                  <span className="text-xs text-slate-600">{selectedRoster.length}/{REQUIRED_GOLFERS} picks</span>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#6b82a8]">My Lineup</span>
+                  <span className="text-xs text-[#3d5878]">{selectedRoster.length}/{REQUIRED_GOLFERS} picks</span>
                 </div>
 
                 <div>
@@ -545,9 +541,13 @@ export default function Page() {
                       ${salaryUsed.toLocaleString()} / $50K
                     </span>
                   </div>
-                  <div className="h-2 rounded-full bg-[#1a2540] overflow-hidden">
+                  <div className="h-1.5 rounded-full bg-[#111d33] overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${salaryRemaining < 0 ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        salaryRemaining < 0
+                          ? 'bg-rose-500'
+                          : 'bg-gradient-to-r from-emerald-600 to-emerald-400'
+                      }`}
                       style={{ width: `${salaryPct}%` }}
                     />
                   </div>
@@ -558,18 +558,18 @@ export default function Page() {
               </div>
 
               {/* Roster slots */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
                 {Array.from({ length: REQUIRED_GOLFERS }, (_, i) => {
                   const p: any = playersById[selectedRoster[i]];
                   return (
                     <div
                       key={i}
-                      className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${
-                        p ? 'border-[#1e3a25] bg-[#0a1f15]' : 'border-[#1a2540] bg-[#111d31]'
+                      className={`flex items-center gap-3 rounded-xl border p-3 transition-all ${
+                        p ? 'border-emerald-500/20 bg-emerald-950/15' : 'border-[#1c2d48] bg-[#111d33]/50'
                       }`}
                     >
-                      <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                        p ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#1a2540] text-slate-600'
+                      <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${
+                        p ? 'bg-emerald-500/25 text-emerald-400' : 'bg-[#1c2d48] text-[#3d5878]'
                       }`}>
                         {i + 1}
                       </div>
@@ -577,20 +577,23 @@ export default function Page() {
                       {p ? (
                         <>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-semibold text-white truncate">{p.name}</div>
-                            <div className="text-[11px] text-slate-500 mt-0.5">
+                            <div className="text-sm font-semibold text-[#f0f6ff] truncate">{p.name}</div>
+                            <div className="text-[11px] text-[#3d5878] mt-0.5">
                               ${p.salary.toLocaleString()} · OWGR #{p.owgr}
                             </div>
                           </div>
                           <span className={`text-sm font-bold shrink-0 tabular-nums ${scoreColor(p.score)}`}>{p.score}</span>
                           {!locked && (
-                            <button onClick={() => toggleRosterPlayer(p.id)} className="shrink-0 text-slate-700 hover:text-rose-400 transition-colors">
-                              <X className="h-4 w-4" />
+                            <button
+                              onClick={() => toggleRosterPlayer(p.id)}
+                              className="shrink-0 text-[#1c2d48] hover:text-rose-400 transition-colors ml-0.5"
+                            >
+                              <X className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </>
                       ) : (
-                        <span className="text-sm text-slate-700 italic">Empty slot</span>
+                        <span className="text-sm text-[#3d5878] italic">Empty slot</span>
                       )}
                     </div>
                   );
@@ -598,22 +601,22 @@ export default function Page() {
               </div>
 
               {/* Score strip + actions */}
-              <div className="shrink-0 border-t border-[#1a2540] p-4 space-y-3">
+              <div className="shrink-0 border-t border-[#1c2d48] p-4 space-y-3">
                 <div className="grid grid-cols-3 gap-2">
                   {([
                     { label: 'Raw', val: fmtScore(rosterRaw), color: scoreColor(rosterRaw) },
                     { label: 'Bonus', val: `+${rosterBonus}`, color: 'text-sky-400' },
                     { label: 'Net', val: fmtScore(rosterNet), color: scoreColor(rosterNet) },
                   ] as any[]).map(({ label, val, color }) => (
-                    <div key={label} className="text-center rounded-lg bg-[#111d31] border border-[#1a2540] py-2">
-                      <div className={COL_LABEL + ' mb-0.5'}>{label}</div>
+                    <div key={label} className="text-center rounded-xl bg-[#111d33] border border-[#1c2d48] py-2.5">
+                      <div className={COL_LABEL + ' mb-1'}>{label}</div>
                       <div className={`text-base font-black tabular-nums ${color}`}>{val}</div>
                     </div>
                   ))}
                 </div>
 
                 {saveMessage && (
-                  <div className="text-xs text-slate-400 bg-[#111d31] border border-[#1a2540] rounded-lg px-3 py-2 text-center">
+                  <div className="text-xs text-slate-400 bg-[#111d33] border border-[#1c2d48] rounded-lg px-3 py-2 text-center">
                     {saveMessage}
                   </div>
                 )}
@@ -625,7 +628,7 @@ export default function Page() {
                 <button
                   onClick={handleSaveRoster}
                   disabled={isRosterSaving || isRosterLoading || locked}
-                  className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-sm rounded-xl transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 active:from-emerald-700 active:to-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-sm rounded-xl transition-all shadow-[0_4px_18px_rgba(16,185,129,0.22)] disabled:shadow-none flex items-center justify-center gap-2"
                 >
                   <Save className="h-4 w-4" />
                   {isRosterSaving ? 'SAVING…' : 'SAVE LINEUP'}
@@ -633,7 +636,7 @@ export default function Page() {
                 <button
                   onClick={handleResetRoster}
                   disabled={isRosterSaving || isRosterLoading || locked}
-                  className="w-full py-1.5 text-slate-600 hover:text-slate-300 disabled:opacity-40 text-xs font-semibold transition-colors"
+                  className="w-full py-1.5 text-[#3d5878] hover:text-slate-300 disabled:opacity-40 text-xs font-semibold transition-colors"
                 >
                   Reset to default picks
                 </button>
@@ -648,16 +651,19 @@ export default function Page() {
             <div className="max-w-5xl mx-auto px-6 py-6 space-y-5">
 
               {/* Prize stat row */}
-              <div className={`${PANEL} grid grid-cols-4 divide-x divide-[#1a2540]`}>
+              <div className={`${PANEL} grid grid-cols-4 divide-x divide-[#1c2d48]`}>
                 {([
-                  { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: 'text-amber-400' },
-                  { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: 'text-amber-300' },
-                  { label: 'Entries',    value: standings.length, color: 'text-white' },
-                  { label: 'Entry Fee',  value: `$${settings.entryFee}`, color: 'text-emerald-400' },
-                ] as any[]).map(({ label, value, color }) => (
-                  <div key={label} className="bg-[#0b1220] px-5 py-4">
-                    <div className={COL_LABEL}>{label}</div>
-                    <div className={`text-2xl font-black mt-1 ${color}`}>{value}</div>
+                  { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: 'text-amber-400', icon: <Wallet className="h-4 w-4" /> },
+                  { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: 'text-amber-300', icon: <Medal className="h-4 w-4" /> },
+                  { label: 'Entries',    value: standings.length, color: 'text-[#f0f6ff]', icon: <Users className="h-4 w-4" /> },
+                  { label: 'Entry Fee',  value: `$${settings.entryFee}`, color: 'text-emerald-400', icon: <TrendingUp className="h-4 w-4" /> },
+                ] as any[]).map(({ label, value, color, icon }) => (
+                  <div key={label} className="bg-[#0c1626] px-5 py-4">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <span className={`${color} opacity-50`}>{icon}</span>
+                      <div className={COL_LABEL}>{label}</div>
+                    </div>
+                    <div className={`text-2xl font-black ${color}`}>{value}</div>
                   </div>
                 ))}
               </div>
@@ -666,8 +672,8 @@ export default function Page() {
               <div className={PANEL}>
                 <div className={`${PANEL_HEAD} flex items-center justify-between`}>
                   <div>
-                    <h2 className="font-bold text-white">Live Standings</h2>
-                    <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
+                    <h2 className="font-bold text-[#f0f6ff]">Live Standings</h2>
+                    <p className="text-xs text-[#3d5878] mt-0.5 flex items-center gap-1.5">
                       <Clock3 className="h-3 w-3" /> Last sync {lastRefresh}
                       <span className="mx-1">·</span>
                       <Shield className="h-3 w-3" /> Unofficial source
@@ -677,15 +683,14 @@ export default function Page() {
                     <Badge tone={syncStatus === 'Healthy' ? 'green' : syncStatus === 'Delayed' ? 'amber' : 'red'}>{syncStatus}</Badge>
                     <button
                       onClick={simulateRefresh}
-                      className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white bg-[#111d31] border border-[#1a2540] px-3 py-1.5 rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-semibold text-[#6b82a8] hover:text-[#f0f6ff] bg-[#111d33] border border-[#1c2d48] px-3 py-1.5 rounded-full transition-all hover:border-[#2a4063]"
                     >
                       <RefreshCw className="h-3.5 w-3.5" /> Refresh
                     </button>
                   </div>
                 </div>
 
-                {/* Column headers */}
-                <div className="grid grid-cols-[64px,1fr,110px,80px,80px,88px] gap-3 px-5 py-2.5 bg-[#080e1a] border-b border-[#1a2540]">
+                <div className="grid grid-cols-[64px,1fr,110px,80px,80px,88px] gap-3 px-5 py-2.5 bg-[#070d1a] border-b border-[#1c2d48]">
                   {['Place', 'Entry', 'Salary', 'Raw', 'Bonus', 'Net'].map(h => (
                     <span key={h} className={COL_LABEL}>{h}</span>
                   ))}
@@ -694,21 +699,23 @@ export default function Page() {
                 {standings.map((entry: any) => (
                   <div
                     key={entry.id}
-                    className={`grid grid-cols-[64px,1fr,110px,80px,80px,88px] gap-3 items-center px-5 py-4 border-b border-[#1a2540] last:border-0 transition-colors ${
-                      entry.name === entryName ? 'bg-emerald-950/25' : 'hover:bg-[#0f1e35]'
+                    className={`grid grid-cols-[64px,1fr,110px,80px,80px,88px] gap-3 items-center px-5 py-4 border-b border-[#1c2d48]/50 last:border-0 transition-all ${
+                      entry.name === entryName
+                        ? 'bg-emerald-950/20 shadow-[inset_3px_0_0_rgba(16,185,129,0.45)]'
+                        : 'hover:bg-[#0f1e35]/40'
                     }`}
                   >
                     <div className="text-base font-black">
                       {entry.place === 1 ? '🥇' : entry.place === 2 ? '🥈' : entry.place === 3 ? '🥉' : (
-                        <span className="text-slate-500 text-sm">#{entry.place}</span>
+                        <span className="text-[#3d5878] text-sm">#{entry.place}</span>
                       )}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-white">{entry.name}</span>
+                        <span className="text-sm font-semibold text-[#f0f6ff]">{entry.name}</span>
                         {entry.name === entryName && <Badge tone="green">You</Badge>}
                       </div>
-                      <div className="text-xs text-slate-600 mt-0.5">{entry.golfers.length} golfers</div>
+                      <div className="text-xs text-[#3d5878] mt-0.5">{entry.golfers.length} golfers</div>
                     </div>
                     <span className="text-sm text-slate-300 tabular-nums">${entry.salary.toLocaleString()}</span>
                     <span className={`text-sm font-bold tabular-nums ${scoreColor(entry.rawScore)}`}>{fmtScore(entry.rawScore)}</span>
@@ -723,18 +730,18 @@ export default function Page() {
                 {/* Player tracker */}
                 <div className={PANEL}>
                   <div className={PANEL_HEAD}>
-                    <h3 className="font-bold text-white text-sm">Featured Players</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">Top of the leaderboard</p>
+                    <h3 className="font-bold text-[#f0f6ff] text-sm">Featured Players</h3>
+                    <p className="text-xs text-[#3d5878] mt-0.5">Top of the leaderboard</p>
                   </div>
-                  <div className="grid grid-cols-[28px,1fr,56px,60px] gap-3 px-5 py-2 bg-[#080e1a] border-b border-[#1a2540]">
+                  <div className="grid grid-cols-[28px,1fr,56px,60px] gap-3 px-5 py-2.5 bg-[#070d1a] border-b border-[#1c2d48]">
                     {['#', 'Player', 'Score', 'Bonus'].map(h => <span key={h} className={COL_LABEL}>{h}</span>)}
                   </div>
                   {tournamentPlayers.slice(0, 6).map((player: any, idx: number) => (
-                    <div key={player.id} className="grid grid-cols-[28px,1fr,56px,60px] gap-3 items-center px-5 py-3 border-b border-[#1a2540] last:border-0 hover:bg-[#0f1e35] transition-colors">
-                      <span className="text-xs text-slate-600 font-bold">{idx + 1}</span>
+                    <div key={player.id} className="grid grid-cols-[28px,1fr,56px,60px] gap-3 items-center px-5 py-3 border-b border-[#1c2d48]/50 last:border-0 hover:bg-[#0f1e35]/40 transition-all">
+                      <span className="text-xs text-[#3d5878] font-bold">{idx + 1}</span>
                       <div>
-                        <div className="text-sm font-semibold text-white">{player.name}</div>
-                        <div className="text-[11px] text-slate-600">Thru {player.thru} · {player.odds}</div>
+                        <div className="text-sm font-semibold text-[#f0f6ff]">{player.name}</div>
+                        <div className="text-[11px] text-[#3d5878]">Thru {player.thru} · {player.odds}</div>
                       </div>
                       <span className={`text-sm font-bold tabular-nums ${scoreColor(player.score)}`}>{player.score}</span>
                       <span className="text-xs font-semibold text-sky-400 tabular-nums">+{calculatePlayerBonus(player)}</span>
@@ -745,24 +752,24 @@ export default function Page() {
                 {/* Payout */}
                 <div className={PANEL}>
                   <div className={PANEL_HEAD}>
-                    <h3 className="font-bold text-white text-sm">Payout Structure</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">Send to {settings.venmo}</p>
+                    <h3 className="font-bold text-[#f0f6ff] text-sm">Payout Structure</h3>
+                    <p className="text-xs text-[#3d5878] mt-0.5">Send to {settings.venmo}</p>
                   </div>
-                  <div className="p-4 space-y-3">
+                  <div className="p-4 space-y-2.5">
                     {([
                       { icon: '🥇', label: '1st Place', pct: settings.payouts.first, gold: true },
                       { icon: '🥈', label: '2nd Place', pct: settings.payouts.second, gold: false },
                       { icon: '🥉', label: '3rd Place', pct: settings.payouts.third,  gold: false },
                     ] as any[]).map(({ icon, label, pct, gold }) => (
                       <div key={label} className={`flex items-center justify-between rounded-xl border px-4 py-3.5 ${
-                        gold ? 'bg-amber-950/30 border-amber-500/20' : 'bg-[#111d31] border-[#1a2540]'
+                        gold ? 'bg-amber-950/25 border-amber-500/20' : 'bg-[#111d33] border-[#1c2d48]'
                       }`}>
-                        <span className="flex items-center gap-2 text-sm font-semibold text-white">{icon} {label}</span>
+                        <span className="flex items-center gap-2 text-sm font-semibold text-[#f0f6ff]">{icon} {label}</span>
                         <div className="text-right">
-                          <div className={`text-xl font-black tabular-nums ${gold ? 'text-amber-400' : 'text-white'}`}>
+                          <div className={`text-xl font-black tabular-nums ${gold ? 'text-amber-400' : 'text-[#f0f6ff]'}`}>
                             ${Math.round(projectedPot * pct / 100).toLocaleString()}
                           </div>
-                          <div className="text-xs text-slate-600">{pct}% of pot</div>
+                          <div className="text-xs text-[#3d5878]">{pct}% of pot</div>
                         </div>
                       </div>
                     ))}
@@ -778,11 +785,10 @@ export default function Page() {
           <div className="overflow-y-auto h-full">
             <div className="max-w-5xl mx-auto px-6 py-6 grid gap-6 lg:grid-cols-2">
 
-              {/* Pool rules */}
               <div className={PANEL}>
                 <div className={PANEL_HEAD}>
-                  <h2 className="font-bold text-white">Pool Rules</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">How to play</p>
+                  <h2 className="font-bold text-[#f0f6ff]">Pool Rules</h2>
+                  <p className="text-xs text-[#3d5878] mt-0.5">How to play</p>
                 </div>
                 <div className="p-5 space-y-4">
                   {([
@@ -805,11 +811,11 @@ export default function Page() {
                       ],
                     },
                   ] as any[]).map(({ title, items }) => (
-                    <div key={title} className="rounded-xl bg-[#111d31] border border-[#1a2540] p-4">
-                      <div className="text-sm font-bold text-white mb-3">{title}</div>
+                    <div key={title} className="rounded-xl bg-[#111d33] border border-[#1c2d48] p-4">
+                      <div className="text-sm font-bold text-[#f0f6ff] mb-3">{title}</div>
                       <ul className="space-y-2">
                         {items.map((item: string) => (
-                          <li key={item} className="flex items-start gap-2.5 text-sm text-slate-400">
+                          <li key={item} className="flex items-start gap-2.5 text-sm text-[#6b82a8]">
                             <span className="text-emerald-500 shrink-0 mt-0.5">›</span>
                             {item}
                           </li>
@@ -820,21 +826,20 @@ export default function Page() {
                 </div>
               </div>
 
-              {/* Bonus scoring */}
               <div className={PANEL}>
                 <div className={PANEL_HEAD}>
-                  <h2 className="font-bold text-white">Bonus Scoring</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">Subtracted from raw score</p>
+                  <h2 className="font-bold text-[#f0f6ff]">Bonus Scoring</h2>
+                  <p className="text-xs text-[#3d5878] mt-0.5">Subtracted from raw score</p>
                 </div>
-                <div className="grid grid-cols-[1fr,72px] gap-3 px-5 py-2 bg-[#080e1a] border-b border-[#1a2540]">
+                <div className="grid grid-cols-[1fr,72px] gap-3 px-5 py-2.5 bg-[#070d1a] border-b border-[#1c2d48]">
                   <span className={COL_LABEL}>Category</span>
                   <span className={COL_LABEL + ' text-right'}>Pts</span>
                 </div>
                 <div className="overflow-y-auto" style={{ maxHeight: 500 }}>
                   {BONUS_ROWS.map(([label, points]) => (
-                    <div key={label} className="grid grid-cols-[1fr,72px] gap-3 items-center px-5 py-2.5 border-b border-[#1a2540] last:border-0 hover:bg-[#0f1e35] transition-colors">
-                      <span className="text-sm text-slate-300">{label}</span>
-                      <span className={`text-sm font-bold text-right tabular-nums ${Number(points) > 0 ? 'text-emerald-400' : Number(points) < 0 ? 'text-rose-400' : 'text-slate-400'}`}>
+                    <div key={label} className="grid grid-cols-[1fr,72px] gap-3 items-center px-5 py-2.5 border-b border-[#1c2d48]/50 last:border-0 hover:bg-[#0f1e35]/40 transition-all">
+                      <span className="text-sm text-[#a0b4cc]">{label}</span>
+                      <span className={`text-sm font-bold text-right tabular-nums ${Number(points) > 0 ? 'text-emerald-400' : Number(points) < 0 ? 'text-rose-400' : 'text-[#6b82a8]'}`}>
                         {Number(points) > 0 ? `+${points}` : points}
                       </span>
                     </div>
@@ -850,28 +855,29 @@ export default function Page() {
           <div className="overflow-y-auto h-full">
             <div className="max-w-4xl mx-auto px-6 py-6 space-y-5">
 
-              {/* Admin controls */}
               <div className={PANEL}>
                 <div className={`${PANEL_HEAD} flex items-center justify-between`}>
                   <div>
-                    <h2 className="font-bold text-white">Admin Controls</h2>
-                    <p className="text-xs text-slate-500 mt-0.5">Simulates tools for running the pool</p>
+                    <h2 className="font-bold text-[#f0f6ff]">Admin Controls</h2>
+                    <p className="text-xs text-[#3d5878] mt-0.5">Simulates tools for running the pool</p>
                   </div>
                   <Badge tone="amber">Owner Only</Badge>
                 </div>
 
                 <div className="p-5 grid gap-4 sm:grid-cols-2">
                   {([
-                    { label: 'Entry Name', input: <input value={entryName} onChange={e => setEntryName(e.target.value)} className="w-full rounded-xl border border-[#1a2540] bg-[#111d31] px-3 py-2.5 text-white text-sm outline-none focus:border-emerald-500/60 transition-colors placeholder:text-slate-700" /> },
-                    { label: 'Venmo Handle', input: <input value={settings.venmo} onChange={e => setSettings({ ...settings, venmo: e.target.value })} className="w-full rounded-xl border border-[#1a2540] bg-[#111d31] px-3 py-2.5 text-white text-sm outline-none focus:border-emerald-500/60 transition-colors" /> },
-                    { label: 'Entry Fee ($)', input: <input type="number" value={settings.entryFee} onChange={e => setSettings({ ...settings, entryFee: Number(e.target.value) })} className="w-full rounded-xl border border-[#1a2540] bg-[#111d31] px-3 py-2.5 text-white text-sm outline-none focus:border-emerald-500/60 transition-colors" /> },
+                    { label: 'Entry Name', input: <input value={entryName} onChange={e => setEntryName(e.target.value)} className="w-full rounded-xl border border-[#1c2d48] bg-[#111d33] px-3 py-2.5 text-[#f0f6ff] text-sm outline-none focus:border-emerald-500/50 transition-colors placeholder:text-[#3d5878]" /> },
+                    { label: 'Venmo Handle', input: <input value={settings.venmo} onChange={e => setSettings({ ...settings, venmo: e.target.value })} className="w-full rounded-xl border border-[#1c2d48] bg-[#111d33] px-3 py-2.5 text-[#f0f6ff] text-sm outline-none focus:border-emerald-500/50 transition-colors" /> },
+                    { label: 'Entry Fee ($)', input: <input type="number" value={settings.entryFee} onChange={e => setSettings({ ...settings, entryFee: Number(e.target.value) })} className="w-full rounded-xl border border-[#1c2d48] bg-[#111d33] px-3 py-2.5 text-[#f0f6ff] text-sm outline-none focus:border-emerald-500/50 transition-colors" /> },
                     {
                       label: 'Lineup Lock',
                       input: (
                         <button
                           onClick={() => setSettings({ ...settings, manualLock: !settings.manualLock })}
-                          className={`w-full py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 border ${
-                            locked ? 'bg-rose-500/15 text-rose-400 border-rose-500/25 hover:bg-rose-500/25' : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25 hover:bg-emerald-500/25'
+                          className={`w-full py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 border ${
+                            locked
+                              ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 hover:bg-rose-500/20'
+                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
                           }`}
                         >
                           {locked ? <><Lock className="h-4 w-4" /> LOCKED — Click to Open</> : <><Unlock className="h-4 w-4" /> OPEN — Click to Lock</>}
@@ -879,14 +885,13 @@ export default function Page() {
                       ),
                     },
                   ] as any[]).map(({ label, input }) => (
-                    <label key={label} className="block rounded-xl bg-[#0b1220] border border-[#1a2540] p-4">
+                    <label key={label} className="block rounded-xl bg-[#0c1626] border border-[#1c2d48] p-4">
                       <div className={COL_LABEL + ' mb-2'}>{label}</div>
                       {input}
                     </label>
                   ))}
                 </div>
 
-                {/* Payout splits */}
                 <div className="px-5 pb-5">
                   <div className={COL_LABEL + ' mb-3'}>Payout Splits (%)</div>
                   <div className="grid grid-cols-3 gap-3">
@@ -895,13 +900,13 @@ export default function Page() {
                       { label: '2nd Place', key: 'second' as const },
                       { label: '3rd Place', key: 'third' as const },
                     ] as const).map(({ label, key }) => (
-                      <label key={key} className="block rounded-xl bg-[#0b1220] border border-[#1a2540] p-3">
-                        <div className="text-xs text-slate-500 mb-2">{label}</div>
+                      <label key={key} className="block rounded-xl bg-[#0c1626] border border-[#1c2d48] p-3">
+                        <div className="text-xs text-[#3d5878] mb-2">{label}</div>
                         <input
                           type="number"
                           value={settings.payouts[key]}
                           onChange={e => setSettings({ ...settings, payouts: { ...settings.payouts, [key]: Number(e.target.value) } })}
-                          className="w-full rounded-lg border border-[#1a2540] bg-[#111d31] px-2.5 py-2 text-white text-sm outline-none focus:border-emerald-500/60 transition-colors"
+                          className="w-full rounded-lg border border-[#1c2d48] bg-[#111d33] px-2.5 py-2 text-[#f0f6ff] text-sm outline-none focus:border-emerald-500/50 transition-colors"
                         />
                       </label>
                     ))}
@@ -910,48 +915,46 @@ export default function Page() {
                     <Badge tone={payoutTotal === 100 ? 'green' : 'amber'}>
                       <CheckCircle2 className="h-3 w-3" /> Total: {payoutTotal}%
                     </Badge>
-                    <span className={`text-xs ${isSettingsSaving ? 'text-slate-500 animate-pulse' : 'text-slate-700'}`}>
+                    <span className={`text-xs ${isSettingsSaving ? 'text-[#3d5878] animate-pulse' : 'text-[#1c2d48]'}`}>
                       {isSettingsSaving ? 'Saving…' : 'Auto-saved'}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Semi-live feed workflow */}
               <div className={PANEL}>
                 <div className={PANEL_HEAD}>
-                  <h2 className="font-bold text-white">Semi-live Feed Workflow</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">Operating model using unofficial leaderboard data</p>
+                  <h2 className="font-bold text-[#f0f6ff]">Semi-live Feed Workflow</h2>
+                  <p className="text-xs text-[#3d5878] mt-0.5">Operating model using unofficial leaderboard data</p>
                 </div>
                 <div className="p-5 space-y-3">
                   {([
-                    { icon: <RefreshCw className="h-4 w-4 text-sky-400" />,    title: 'Refresh leaderboard every 2–5 minutes', desc: 'Normalize player score, thru, status, and last update time into your database.' },
+                    { icon: <RefreshCw className="h-4 w-4 text-sky-400" />,     title: 'Refresh leaderboard every 2–5 minutes', desc: 'Normalize player score, thru, status, and last update time into your database.' },
                     { icon: <TrendingUp className="h-4 w-4 text-emerald-400" />, title: 'Recompute entry scores after each sync', desc: 'Raw team score and bonus points are recalculated from stored golfer states.' },
                     { icon: <AlertCircle className="h-4 w-4 text-amber-400" />,  title: 'Flag source issues for manual review', desc: 'If the feed is delayed or parsing fails, the site shows last good data and a warning.' },
-                    { icon: <Flag className="h-4 w-4 text-slate-500" />,         title: 'Lock at first tee time', desc: 'No roster edits after official start — enforced server-side in production.' },
+                    { icon: <Flag className="h-4 w-4 text-[#3d5878]" />,          title: 'Lock at first tee time', desc: 'No roster edits after official start — enforced server-side in production.' },
                   ] as any[]).map(({ icon, title, desc }) => (
-                    <div key={title} className="flex items-start gap-4 rounded-xl border border-[#1a2540] bg-[#0b1220] p-4">
-                      <div className="shrink-0 mt-0.5">{icon}</div>
+                    <div key={title} className="flex items-start gap-4 rounded-xl border border-[#1c2d48] bg-[#0c1626] p-4">
+                      <div className="shrink-0 mt-0.5 p-1.5 rounded-lg bg-[#111d33]">{icon}</div>
                       <div>
-                        <div className="text-sm font-semibold text-white">{title}</div>
-                        <div className="mt-1 text-xs text-slate-500">{desc}</div>
+                        <div className="text-sm font-semibold text-[#f0f6ff]">{title}</div>
+                        <div className="mt-1 text-xs text-[#3d5878]">{desc}</div>
                       </div>
                     </div>
                   ))}
-                  <button onClick={simulateRefresh} className="flex items-center gap-2 rounded-xl bg-[#111d31] border border-[#1a2540] px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-[#162035] transition-colors">
+                  <button onClick={simulateRefresh} className="flex items-center gap-2 rounded-xl bg-[#111d33] border border-[#1c2d48] px-4 py-3 text-sm font-semibold text-[#6b82a8] hover:text-[#f0f6ff] hover:bg-[#162035] transition-all hover:border-[#2a4063]">
                     <Settings2 className="h-4 w-4" /> Run simulated sync
                   </button>
                 </div>
               </div>
 
-              {/* Backend contract */}
               <div className={PANEL}>
                 <div className={PANEL_HEAD}>
-                  <h2 className="font-bold text-white">Backend Contract</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">Replace mock methods with real API calls to go live</p>
+                  <h2 className="font-bold text-[#f0f6ff]">Backend Contract</h2>
+                  <p className="text-xs text-[#3d5878] mt-0.5">Replace mock methods with real API calls to go live</p>
                 </div>
                 <div className="p-5">
-                  <pre className="text-xs text-slate-400 bg-black/50 border border-[#1a2540] rounded-xl p-4 overflow-x-auto leading-relaxed">{`mockPoolService methods:
+                  <pre className="text-xs text-[#6b82a8] bg-black/40 border border-[#1c2d48] rounded-xl p-4 overflow-x-auto leading-relaxed font-mono">{`mockPoolService methods:
   loadSettings()
   saveSettings(settings)
   loadRoster(entryName, tournamentId)
@@ -970,9 +973,9 @@ next real implementation:
       </main>
 
       {/* ══ Footer ══ */}
-      <footer className="shrink-0 border-t border-[#1a2540] bg-[#0b1220] px-5 py-2.5 flex items-center justify-between text-xs text-slate-700">
+      <footer className="shrink-0 border-t border-[#1c2d48] bg-[#0c1626] px-5 py-2.5 flex items-center justify-between text-xs text-[#2a4063]">
         <span>MVP prototype · connect auth, DB, and live data feeds to go live</span>
-        <span className="flex items-center gap-1 text-slate-600 hover:text-slate-400 transition-colors">
+        <span className="flex items-center gap-1 hover:text-[#6b82a8] transition-colors cursor-pointer">
           Next: connect real APIs <ChevronRight className="h-3 w-3" />
         </span>
       </footer>
