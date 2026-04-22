@@ -2,23 +2,25 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Wallet,
   RefreshCw,
   Clock3,
   Shield,
   ChevronRight,
   AlertCircle,
   TrendingUp,
-  Medal,
-  Users,
   Flag,
   Settings2,
   Save,
   Lock,
   Unlock,
   CheckCircle2,
-  Trophy,
+  X,
+  Wallet,
+  Users,
+  Medal,
 } from 'lucide-react';
+
+/* ─── Constants ─────────────────────────────────────── */
 
 const SALARY_CAP = 50000;
 const REQUIRED_GOLFERS = 6;
@@ -42,72 +44,21 @@ const BACKEND_MAPPING_NOTES = [
 ];
 
 const DATA_MODEL = {
-  tournaments: {
-    id: 'string',
-    name: 'string',
-    venue: 'string',
-    lockAt: 'datetime',
-    status: 'scheduled | live | final',
-  },
-  players: {
-    id: 'number',
-    name: 'string',
-    owgr: 'number',
-  },
-  tournamentSalaries: {
-    tournamentId: 'string',
-    playerId: 'number',
-    salary: 'number',
-    odds: 'string',
-    salaryRank: 'number',
-  },
-  entries: {
-    id: 'number',
-    userId: 'string',
-    entryName: 'string',
-    tournamentId: 'string',
-    savedAt: 'datetime',
-    lockedAt: 'datetime | null',
-  },
-  entryPicks: {
-    entryId: 'number',
-    playerId: 'number',
-    slot: 'number',
-  },
-  livePlayerStats: {
-    tournamentId: 'string',
-    playerId: 'number',
-    thru: 'string',
-    score: 'string',
-    pars: 'number',
-    birdies: 'number',
-    eagles: 'number',
-    aces: 'number',
-    bogeys: 'number',
-    doubles: 'number',
-    triplePlus: 'number',
-    streaks: 'number',
-    roundLeadBonus: 'number',
-    finishingBonus: 'number',
-    lowRoundBonus: 'number',
-    updatedAt: 'datetime',
-  },
-  poolSettings: {
-    venmo: 'string',
-    entryFee: 'number',
-    payoutFirst: 'number',
-    payoutSecond: 'number',
-    payoutThird: 'number',
-    manualLock: 'boolean',
-  },
+  tournaments: { id: 'string', name: 'string', venue: 'string', lockAt: 'datetime', status: 'scheduled | live | final' },
+  players: { id: 'number', name: 'string', owgr: 'number' },
+  tournamentSalaries: { tournamentId: 'string', playerId: 'number', salary: 'number', odds: 'string', salaryRank: 'number' },
+  entries: { id: 'number', userId: 'string', entryName: 'string', tournamentId: 'string', savedAt: 'datetime', lockedAt: 'datetime | null' },
+  entryPicks: { entryId: 'number', playerId: 'number', slot: 'number' },
+  livePlayerStats: { tournamentId: 'string', playerId: 'number', thru: 'string', score: 'string', pars: 'number', birdies: 'number', eagles: 'number', aces: 'number', bogeys: 'number', doubles: 'number', triplePlus: 'number', streaks: 'number', roundLeadBonus: 'number', finishingBonus: 'number', lowRoundBonus: 'number', updatedAt: 'datetime' },
+  poolSettings: { venmo: 'string', entryFee: 'number', payoutFirst: 'number', payoutSecond: 'number', payoutThird: 'number', manualLock: 'boolean' },
 };
 
 const TOURNAMENTS = [
-  { id: 'players', name: 'The Players Championship', venue: 'TPC Sawgrass', lockTimeLabel: 'Thu 7:40 AM', lockAt: '2026-03-12T07:40:00' },
-  { id: 'masters', name: 'The Masters', venue: 'Augusta National', lockTimeLabel: 'Thu 7:30 AM', lockAt: '2026-04-09T07:30:00' },
-  { id: 'pga', name: 'The PGA Championship', venue: 'TBD', lockTimeLabel: 'Thu 7:20 AM', lockAt: '2026-05-14T07:20:00' },
-  { id: 'us-open', name: 'The U.S. Open', venue: 'TBD', lockTimeLabel: 'Thu 7:15 AM', lockAt: '2026-06-18T07:15:00' },
-  { id: 'open', name: 'The Open Championship', venue: 'TBD', lockTimeLabel: 'Thu 6:35 AM', lockAt: '2026-07-16T06:35:00' },
+  { id: 'players', name: 'The Players Championship', shortName: 'Players', venue: 'TPC Sawgrass', lockTimeLabel: 'Thu 7:40 AM', lockAt: '2026-03-12T07:40:00' },
+  { id: 'masters', name: 'The Masters', shortName: 'Masters', venue: 'Augusta National', lockTimeLabel: 'Thu 7:30 AM', lockAt: '2026-04-09T07:30:00' },
+  { id: 'pga', name: 'PGA Championship', shortName: 'PGA Champ.', venue: 'TBD', lockTimeLabel: 'Thu 7:20 AM', lockAt: '2026-05-14T07:20:00' },
+  { id: 'us-open', name: 'U.S. Open', shortName: 'US Open', venue: 'TBD', lockTimeLabel: 'Thu 7:15 AM', lockAt: '2026-06-18T07:15:00' },
+  { id: 'open', name: 'The Open Championship', shortName: 'The Open', venue: 'TBD', lockTimeLabel: 'Thu 6:35 AM', lockAt: '2026-07-16T06:35:00' },
 ];
 
 const BONUS_ROWS = [
@@ -129,9 +80,9 @@ const BONUS_ROWS = [
   ['12th Place', 8],
   ['13th Place', 7],
   ['14th Place', 6],
-  ['15th - 20th Place', 5],
-  ['21st - 29th Place', 3],
-  ['30th - 40th Place', 1],
+  ['15th – 20th Place', 5],
+  ['21st – 29th Place', 3],
+  ['30th – 40th Place', 1],
   ['Missed Cut', -10],
   ['Pars', 1],
   ['Birdies', 3],
@@ -178,233 +129,118 @@ const TOURNAMENT_SALARIES = [
 ];
 
 const LIVE_PLAYER_STATS = [
-  { tournamentId: 'players', playerId: 1, thru: '13', score: '-4', pars: 42, birdies: 14, eagles: 1, aces: 0, bogeys: 5, doubles: 0, triplePlus: 0, streaks: 2, roundLeadBonus: 5, finishingBonus: 40, lowRoundBonus: 5, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 2, thru: 'F', score: '-2', pars: 40, birdies: 13, eagles: 0, aces: 0, bogeys: 6, doubles: 1, triplePlus: 0, streaks: 1, roundLeadBonus: 0, finishingBonus: 25, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 3, thru: '11', score: '-1', pars: 39, birdies: 11, eagles: 0, aces: 0, bogeys: 5, doubles: 0, triplePlus: 0, streaks: 1, roundLeadBonus: 5, finishingBonus: 20, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 4, thru: '12', score: 'E', pars: 44, birdies: 10, eagles: 0, aces: 0, bogeys: 8, doubles: 0, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: 19, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 5, thru: '10', score: '-1', pars: 41, birdies: 12, eagles: 1, aces: 0, bogeys: 7, doubles: 0, triplePlus: 0, streaks: 1, roundLeadBonus: 5, finishingBonus: 18, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 6, thru: 'F', score: '+1', pars: 46, birdies: 9, eagles: 0, aces: 0, bogeys: 9, doubles: 1, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: 16, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 7, thru: '8', score: 'E', pars: 43, birdies: 10, eagles: 0, aces: 0, bogeys: 7, doubles: 0, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: 14, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 8, thru: '14', score: '-2', pars: 45, birdies: 12, eagles: 0, aces: 0, bogeys: 5, doubles: 0, triplePlus: 0, streaks: 2, roundLeadBonus: 0, finishingBonus: 12, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 9, thru: '9', score: '+1', pars: 42, birdies: 8, eagles: 1, aces: 0, bogeys: 10, doubles: 1, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: 11, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 10, thru: '12', score: '-1', pars: 41, birdies: 11, eagles: 0, aces: 1, bogeys: 7, doubles: 0, triplePlus: 0, streaks: 1, roundLeadBonus: 0, finishingBonus: 10, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 11, thru: 'F', score: '+2', pars: 38, birdies: 8, eagles: 0, aces: 0, bogeys: 11, doubles: 2, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: -10, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 12, thru: '7', score: '-2', pars: 40, birdies: 12, eagles: 1, aces: 0, bogeys: 6, doubles: 0, triplePlus: 0, streaks: 2, roundLeadBonus: 0, finishingBonus: 9, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 13, thru: '11', score: 'E', pars: 43, birdies: 9, eagles: 0, aces: 0, bogeys: 8, doubles: 1, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: 8, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 14, thru: '10', score: '-1', pars: 39, birdies: 10, eagles: 0, aces: 0, bogeys: 6, doubles: 0, triplePlus: 1, streaks: 1, roundLeadBonus: 0, finishingBonus: 7, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 1,  thru: '13', score: '-4', pars: 42, birdies: 14, eagles: 1, aces: 0, bogeys: 5,  doubles: 0, triplePlus: 0, streaks: 2, roundLeadBonus: 5, finishingBonus: 40, lowRoundBonus: 5, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 2,  thru: 'F',  score: '-2', pars: 40, birdies: 13, eagles: 0, aces: 0, bogeys: 6,  doubles: 1, triplePlus: 0, streaks: 1, roundLeadBonus: 0, finishingBonus: 25, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 3,  thru: '11', score: '-1', pars: 39, birdies: 11, eagles: 0, aces: 0, bogeys: 5,  doubles: 0, triplePlus: 0, streaks: 1, roundLeadBonus: 5, finishingBonus: 20, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 4,  thru: '12', score: 'E',  pars: 44, birdies: 10, eagles: 0, aces: 0, bogeys: 8,  doubles: 0, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: 19, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 5,  thru: '10', score: '-1', pars: 41, birdies: 12, eagles: 1, aces: 0, bogeys: 7,  doubles: 0, triplePlus: 0, streaks: 1, roundLeadBonus: 5, finishingBonus: 18, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 6,  thru: 'F',  score: '+1', pars: 46, birdies: 9,  eagles: 0, aces: 0, bogeys: 9,  doubles: 1, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: 16, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 7,  thru: '8',  score: 'E',  pars: 43, birdies: 10, eagles: 0, aces: 0, bogeys: 7,  doubles: 0, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: 14, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 8,  thru: '14', score: '-2', pars: 45, birdies: 12, eagles: 0, aces: 0, bogeys: 5,  doubles: 0, triplePlus: 0, streaks: 2, roundLeadBonus: 0, finishingBonus: 12, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 9,  thru: '9',  score: '+1', pars: 42, birdies: 8,  eagles: 1, aces: 0, bogeys: 10, doubles: 1, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: 11, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 10, thru: '12', score: '-1', pars: 41, birdies: 11, eagles: 0, aces: 1, bogeys: 7,  doubles: 0, triplePlus: 0, streaks: 1, roundLeadBonus: 0, finishingBonus: 10, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 11, thru: 'F',  score: '+2', pars: 38, birdies: 8,  eagles: 0, aces: 0, bogeys: 11, doubles: 2, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: -10, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 12, thru: '7',  score: '-2', pars: 40, birdies: 12, eagles: 1, aces: 0, bogeys: 6,  doubles: 0, triplePlus: 0, streaks: 2, roundLeadBonus: 0, finishingBonus: 9,  lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 13, thru: '11', score: 'E',  pars: 43, birdies: 9,  eagles: 0, aces: 0, bogeys: 8,  doubles: 1, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: 8,  lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 14, thru: '10', score: '-1', pars: 39, birdies: 10, eagles: 0, aces: 0, bogeys: 6,  doubles: 0, triplePlus: 1, streaks: 1, roundLeadBonus: 0, finishingBonus: 7,  lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
 ];
 
 const STATIC_ENTRIES = [
-  { id: 2, name: 'Brady S.', picks: [1, 3, 5, 7, 9, 11] },
+  { id: 2, name: 'Brady S.',  picks: [1, 3, 5, 7, 9, 11] },
   { id: 3, name: 'Megan T.', picks: [2, 4, 6, 8, 12, 13] },
-  { id: 4, name: 'Ryan H.', picks: [3, 4, 5, 9, 10, 14] },
+  { id: 4, name: 'Ryan H.',  picks: [3, 4, 5, 9, 10, 14] },
 ];
 
-const getRosterStorageKey = (userName: string, tournamentId: string) =>
-  `${STORAGE_PREFIX}:roster:${userName}:${tournamentId}`;
-const getSettingsStorageKey = () => `${STORAGE_PREFIX}:settings`;
+/* ─── Storage ────────────────────────────────────────── */
+
+const getRosterKey = (name: string, tid: string) => `${STORAGE_PREFIX}:roster:${name}:${tid}`;
+const getSettingsKey = () => `${STORAGE_PREFIX}:settings`;
 
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback;
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
+  try { const raw = window.localStorage.getItem(key); return raw ? (JSON.parse(raw) as T) : fallback; }
+  catch { return fallback; }
 }
-
 function writeJson<T>(key: string, value: T) {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(key, JSON.stringify(value));
 }
 
 const mockPoolService = {
-  async loadSettings() {
-    return readJson(getSettingsStorageKey(), DEFAULT_SETTINGS);
+  async loadSettings() { return readJson(getSettingsKey(), DEFAULT_SETTINGS); },
+  async saveSettings(s: typeof DEFAULT_SETTINGS) { writeJson(getSettingsKey(), s); return s; },
+  async loadRoster(name: string, tid: string) {
+    return readJson<null | { entryName: string; tournamentId: string; playerIds: number[]; savedAt: string }>(getRosterKey(name, tid), null);
   },
-  async saveSettings(nextSettings: typeof DEFAULT_SETTINGS) {
-    writeJson(getSettingsStorageKey(), nextSettings);
-    return nextSettings;
-  },
-  async loadRoster(entryName: string, tournamentId: string) {
-    return readJson<null | { entryName: string; tournamentId: string; playerIds: number[]; savedAt: string }>(
-      getRosterStorageKey(entryName, tournamentId),
-      null
-    );
-  },
-  async saveRoster({
-    entryName,
-    tournamentId,
-    playerIds,
-  }: {
-    entryName: string;
-    tournamentId: string;
-    playerIds: number[];
-  }) {
-    const payload = {
-      entryName,
-      tournamentId,
-      playerIds,
-      savedAt: new Date().toISOString(),
-    };
-    writeJson(getRosterStorageKey(entryName, tournamentId), payload);
+  async saveRoster({ entryName, tournamentId, playerIds }: { entryName: string; tournamentId: string; playerIds: number[] }) {
+    const payload = { entryName, tournamentId, playerIds, savedAt: new Date().toISOString() };
+    writeJson(getRosterKey(entryName, tournamentId), payload);
     return payload;
   },
 };
 
-const scoreToNumber = (value: string) => (value === 'E' ? 0 : Number(value));
+/* ─── Pure helpers ───────────────────────────────────── */
 
-const scoreColor = (score: string) => {
-  const n = scoreToNumber(score);
+const scoreToNumber = (v: string) => (v === 'E' ? 0 : Number(v));
+
+const scoreColor = (score: string | number) => {
+  const n = typeof score === 'string' ? scoreToNumber(score) : score;
   if (n < 0) return 'text-emerald-400';
   if (n > 0) return 'text-rose-400';
-  return 'text-slate-300';
+  return 'text-slate-400';
 };
 
-const calculatePlayerBonus = (player: any) =>
-  player.pars +
-  player.birdies * 3 +
-  player.eagles * 5 +
-  player.aces * 8 +
-  player.bogeys * -1 +
-  player.doubles * -3 +
-  player.triplePlus * -5 +
-  player.streaks * 3 +
-  player.roundLeadBonus +
-  player.finishingBonus +
-  player.lowRoundBonus;
+const fmtScore = (n: number) => (n > 0 ? `+${n}` : String(n));
 
-const buildTournamentPlayerView = (tournamentId: string) => {
-  const salaryByPlayerId = Object.fromEntries(
-    TOURNAMENT_SALARIES.filter((row) => row.tournamentId === tournamentId).map((row) => [row.playerId, row])
-  );
-  const liveByPlayerId = Object.fromEntries(
-    LIVE_PLAYER_STATS.filter((row) => row.tournamentId === tournamentId).map((row) => [row.playerId, row])
-  );
+const calculatePlayerBonus = (p: any) =>
+  p.pars + p.birdies * 3 + p.eagles * 5 + p.aces * 8 +
+  p.bogeys * -1 + p.doubles * -3 + p.triplePlus * -5 +
+  p.streaks * 3 + p.roundLeadBonus + p.finishingBonus + p.lowRoundBonus;
 
-  return PLAYERS.map((player) => {
-    const salaryRow = salaryByPlayerId[player.id];
-    const liveRow = liveByPlayerId[player.id];
-    if (!salaryRow || !liveRow) return null;
-    return {
-      id: player.id,
-      name: player.name,
-      owgr: player.owgr,
-      salary: salaryRow.salary,
-      odds: salaryRow.odds,
-      salaryRank: salaryRow.salaryRank,
-      thru: liveRow.thru,
-      score: liveRow.score,
-      pars: liveRow.pars,
-      birdies: liveRow.birdies,
-      eagles: liveRow.eagles,
-      aces: liveRow.aces,
-      bogeys: liveRow.bogeys,
-      doubles: liveRow.doubles,
-      triplePlus: liveRow.triplePlus,
-      streaks: liveRow.streaks,
-      roundLeadBonus: liveRow.roundLeadBonus,
-      finishingBonus: liveRow.finishingBonus,
-      lowRoundBonus: liveRow.lowRoundBonus,
-      updatedAt: liveRow.updatedAt,
-    };
+const buildPlayerView = (tid: string) => {
+  const salMap = Object.fromEntries(TOURNAMENT_SALARIES.filter(r => r.tournamentId === tid).map(r => [r.playerId, r]));
+  const liveMap = Object.fromEntries(LIVE_PLAYER_STATS.filter(r => r.tournamentId === tid).map(r => [r.playerId, r]));
+  return PLAYERS.map(p => {
+    const s = salMap[p.id]; const l = liveMap[p.id];
+    if (!s || !l) return null;
+    return { ...p, ...s, ...l };
   }).filter(Boolean);
 };
 
-const validateRoster = (roster: number[], playersById: Record<number, any>) => {
-  if (roster.length !== REQUIRED_GOLFERS) {
-    return { ok: false, message: `Roster must contain exactly ${REQUIRED_GOLFERS} golfers.` };
-  }
-  const invalidIds = roster.filter((id) => !playersById[id]);
-  if (invalidIds.length > 0) {
-    return { ok: false, message: 'Roster contains invalid golfers.' };
-  }
-  const salary = roster.reduce((sum, id) => sum + playersById[id].salary, 0);
-  if (salary > SALARY_CAP) {
-    return { ok: false, message: `Roster exceeds the $${SALARY_CAP.toLocaleString()} salary cap.` };
-  }
+const validateRoster = (roster: number[], byId: Record<number, any>) => {
+  if (roster.length !== REQUIRED_GOLFERS) return { ok: false, message: `Select exactly ${REQUIRED_GOLFERS} golfers.` };
+  if (roster.some(id => !byId[id])) return { ok: false, message: 'Roster contains invalid golfers.' };
+  const salary = roster.reduce((s, id) => s + byId[id].salary, 0);
+  if (salary > SALARY_CAP) return { ok: false, message: `Roster exceeds the $${SALARY_CAP.toLocaleString()} salary cap.` };
   return { ok: true, message: 'Roster is valid.' };
 };
 
-function getCountdownParts(lockAt: string) {
-  const now = new Date().getTime();
-  const lock = new Date(lockAt).getTime();
-  const diff = lock - now;
+function getCountdown(lockAt: string) {
+  const diff = new Date(lockAt).getTime() - Date.now();
   if (diff <= 0) return { isLocked: true, label: 'Locked' };
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  return { isLocked: false, label: `${hours}h ${minutes}m until lock` };
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  return { isLocked: false, label: `${h}h ${m}m` };
 }
 
-function Pill({
-  children,
-  tone = 'slate',
-}: {
-  children: React.ReactNode;
-  tone?: 'slate' | 'green' | 'amber' | 'blue' | 'red';
-}) {
-  const tones = {
-    slate: 'bg-slate-700/50 text-slate-300 border border-slate-600/40',
-    green: 'bg-emerald-900/50 text-emerald-300 border border-emerald-500/30',
-    amber: 'bg-amber-900/50 text-amber-300 border border-amber-500/30',
-    blue: 'bg-sky-900/50 text-sky-300 border border-sky-500/30',
-    red: 'bg-rose-900/50 text-rose-300 border border-rose-500/30',
-  };
-  return <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${tones[tone]}`}>{children}</span>;
+/* ─── Small UI atoms ─────────────────────────────────── */
+
+function Badge({ children, tone = 'slate' }: { children: React.ReactNode; tone?: 'slate' | 'green' | 'amber' | 'blue' | 'red' }) {
+  const cls = {
+    slate: 'bg-slate-800/60 text-slate-300 border-slate-700/40',
+    green: 'bg-emerald-900/50 text-emerald-400 border-emerald-500/30',
+    amber: 'bg-amber-900/50 text-amber-400 border-amber-500/30',
+    blue:  'bg-sky-900/50 text-sky-400 border-sky-500/30',
+    red:   'bg-rose-900/50 text-rose-400 border-rose-500/30',
+  }[tone];
+  return <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${cls}`}>{children}</span>;
 }
 
-function NavTab({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-5 py-2.5 text-sm font-semibold transition ${
-        active ? 'tab-active' : 'tab-inactive hover:bg-white/[0.07] hover:text-slate-200'
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
+const PANEL = 'rounded-xl border border-[#1a2540] overflow-hidden';
+const PANEL_HEAD = 'bg-[#0b1220] border-b border-[#1a2540] px-5 py-3';
+const COL_LABEL = 'text-[10px] font-semibold uppercase tracking-widest text-slate-600';
 
-function SectionCard({
-  title,
-  subtitle,
-  right,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  right?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="card p-6">
-      <div className="mb-5 flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-semibold tracking-tight text-white">{title}</h2>
-          {subtitle ? (
-            <p className="mt-1 text-sm leading-6 text-slate-400">{subtitle}</p>
-          ) : null}
-        </div>
-        {right}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function CodeBlock({ children }: { children: React.ReactNode }) {
-  return <pre className="overflow-x-auto rounded-2xl bg-black/40 border border-white/8 p-4 text-sm text-slate-300">{children}</pre>;
-}
+/* ─── Page ───────────────────────────────────────────── */
 
 export default function Page() {
   const [selectedTournament, setSelectedTournament] = useState(TOURNAMENTS[0].id);
@@ -416,764 +252,730 @@ export default function Page() {
   const [syncStatus, setSyncStatus] = useState('Healthy');
   const [lastSavedAt, setLastSavedAt] = useState('Not saved yet');
   const [saveMessage, setSaveMessage] = useState('');
-  const [countdownLabel, setCountdownLabel] = useState('Loading...');
+  const [countdownLabel, setCountdownLabel] = useState('...');
   const [autoLocked, setAutoLocked] = useState(false);
   const [isBooting, setIsBooting] = useState(true);
   const [isRosterLoading, setIsRosterLoading] = useState(false);
   const [isRosterSaving, setIsRosterSaving] = useState(false);
   const [isSettingsSaving, setIsSettingsSaving] = useState(false);
 
-  const tournament = TOURNAMENTS.find((t) => t.id === selectedTournament) ?? TOURNAMENTS[0];
-  const tournamentPlayers = useMemo(() => buildTournamentPlayerView(selectedTournament), [selectedTournament]);
+  const tournament = TOURNAMENTS.find(t => t.id === selectedTournament) ?? TOURNAMENTS[0];
+  const tournamentPlayers = useMemo(() => buildPlayerView(selectedTournament), [selectedTournament]);
   const playersById = useMemo(() => Object.fromEntries(tournamentPlayers.map((p: any) => [p.id, p])), [tournamentPlayers]);
 
+  /* boot */
   useEffect(() => {
     let cancelled = false;
-    const boot = async () => {
-      setIsBooting(true);
-      const loadedSettings = await mockPoolService.loadSettings();
-      if (!cancelled) {
-        setSettings(loadedSettings);
-        setIsBooting(false);
-      }
-    };
-    boot();
+    mockPoolService.loadSettings().then(s => { if (!cancelled) { setSettings(s); setIsBooting(false); } });
     return () => { cancelled = true; };
   }, []);
 
+  /* load roster */
   useEffect(() => {
     let cancelled = false;
-    const loadRoster = async () => {
-      setIsRosterLoading(true);
-      const savedRoster = await mockPoolService.loadRoster(entryName, selectedTournament);
+    setIsRosterLoading(true);
+    mockPoolService.loadRoster(entryName, selectedTournament).then(saved => {
       if (cancelled) return;
-      if (savedRoster && Array.isArray(savedRoster.playerIds)) {
-        setSelectedRoster(savedRoster.playerIds);
-        setLastSavedAt(new Date(savedRoster.savedAt).toLocaleString());
-      } else {
-        setSelectedRoster(DEFAULT_ROSTER);
-        setLastSavedAt('Not saved yet');
-      }
+      if (saved?.playerIds) { setSelectedRoster(saved.playerIds); setLastSavedAt(new Date(saved.savedAt).toLocaleString()); }
+      else { setSelectedRoster(DEFAULT_ROSTER); setLastSavedAt('Not saved yet'); }
       setIsRosterLoading(false);
-    };
-    loadRoster();
+    });
     return () => { cancelled = true; };
   }, [entryName, selectedTournament]);
 
+  /* persist settings */
   useEffect(() => {
     let cancelled = false;
-    const persistSettings = async () => {
-      setIsSettingsSaving(true);
-      await mockPoolService.saveSettings(settings);
-      if (!cancelled) setIsSettingsSaving(false);
-    };
-    persistSettings();
+    setIsSettingsSaving(true);
+    mockPoolService.saveSettings(settings).then(() => { if (!cancelled) setIsSettingsSaving(false); });
     return () => { cancelled = true; };
   }, [settings]);
 
+  /* countdown */
   useEffect(() => {
-    const updateCountdown = () => {
-      const next = getCountdownParts(tournament.lockAt);
-      setAutoLocked(next.isLocked);
-      setCountdownLabel(next.label);
-    };
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 60000);
-    return () => clearInterval(interval);
+    const tick = () => { const c = getCountdown(tournament.lockAt); setAutoLocked(c.isLocked); setCountdownLabel(c.label); };
+    tick();
+    const id = setInterval(tick, 60000);
+    return () => clearInterval(id);
   }, [tournament.lockAt]);
 
   const locked = settings.manualLock || autoLocked;
 
-  const rosterPlayers = selectedRoster.map((id) => playersById[id]).filter(Boolean);
-  const salaryUsed = rosterPlayers.reduce((sum: number, player: any) => sum + player.salary, 0);
+  /* roster derived */
+  const rosterPlayers = selectedRoster.map(id => playersById[id]).filter(Boolean);
+  const salaryUsed = rosterPlayers.reduce((s: number, p: any) => s + p.salary, 0);
   const salaryRemaining = SALARY_CAP - salaryUsed;
-  const rosterRaw = rosterPlayers.reduce((sum: number, player: any) => sum + scoreToNumber(player.score), 0);
-  const rosterBonus = rosterPlayers.reduce((sum: number, player: any) => sum + calculatePlayerBonus(player), 0);
-  const rosterNet = rosterRaw - rosterBonus;
+  const salaryPct = Math.min(100, (salaryUsed / SALARY_CAP) * 100);
+  const rosterRaw   = rosterPlayers.reduce((s: number, p: any) => s + scoreToNumber(p.score), 0);
+  const rosterBonus = rosterPlayers.reduce((s: number, p: any) => s + calculatePlayerBonus(p), 0);
+  const rosterNet   = rosterRaw - rosterBonus;
 
-  const dynamicEntry = { id: 1, name: entryName, picks: selectedRoster };
-  const standings = [dynamicEntry, ...STATIC_ENTRIES]
-    .map((entry) => {
-      const golfers = entry.picks.map((id) => playersById[id]).filter(Boolean);
-      const rawScore = golfers.reduce((sum: number, player: any) => sum + scoreToNumber(player.score), 0);
-      const bonus = golfers.reduce((sum: number, player: any) => sum + calculatePlayerBonus(player), 0);
-      const net = rawScore - bonus;
-      const salary = golfers.reduce((sum: number, player: any) => sum + player.salary, 0);
+  /* standings */
+  const standings = [{ id: 1, name: entryName, picks: selectedRoster }, ...STATIC_ENTRIES]
+    .map(entry => {
+      const golfers = entry.picks.map(id => playersById[id]).filter(Boolean);
+      const rawScore = golfers.reduce((s: number, p: any) => s + scoreToNumber(p.score), 0);
+      const bonus    = golfers.reduce((s: number, p: any) => s + calculatePlayerBonus(p), 0);
+      const net      = rawScore - bonus;
+      const salary   = golfers.reduce((s: number, p: any) => s + p.salary, 0);
       return { ...entry, golfers, rawScore, bonus, net, salary };
     })
     .sort((a, b) => a.net - b.net)
-    .map((entry, index) => ({ ...entry, place: index + 1 }));
+    .map((e, i) => ({ ...e, place: i + 1 }));
 
   const projectedPot = standings.length * Number(settings.entryFee || 0);
-  const payoutTotal = Number(settings.payouts.first) + Number(settings.payouts.second) + Number(settings.payouts.third);
+  const payoutTotal  = Number(settings.payouts.first) + Number(settings.payouts.second) + Number(settings.payouts.third);
 
-  const toggleRosterPlayer = (playerId: number) => {
+  /* actions */
+  const toggleRosterPlayer = (id: number) => {
     if (locked || isRosterLoading || isRosterSaving) return;
-    if (selectedRoster.includes(playerId)) {
-      setSelectedRoster(selectedRoster.filter((id) => id !== playerId));
-      return;
-    }
+    if (selectedRoster.includes(id)) { setSelectedRoster(selectedRoster.filter(x => x !== id)); return; }
     if (selectedRoster.length >= REQUIRED_GOLFERS) return;
-    const next = [...selectedRoster, playerId];
-    const nextSalary = next.reduce((sum, id) => sum + playersById[id].salary, 0);
-    if (nextSalary > SALARY_CAP) return;
+    const next = [...selectedRoster, id];
+    if (next.reduce((s, i) => s + playersById[i].salary, 0) > SALARY_CAP) return;
     setSelectedRoster(next);
   };
 
   const handleSaveRoster = async () => {
-    const validation = validateRoster(selectedRoster, playersById);
-    if (locked) {
-      setSaveMessage('Lineups are locked for this tournament.');
-      return;
-    }
-    if (!validation.ok) {
-      setSaveMessage(validation.message);
-      return;
-    }
+    if (locked) { setSaveMessage('Lineups are locked.'); return; }
+    const v = validateRoster(selectedRoster, playersById);
+    if (!v.ok) { setSaveMessage(v.message); return; }
     setIsRosterSaving(true);
-    const saved = await mockPoolService.saveRoster({
-      entryName,
-      tournamentId: selectedTournament,
-      playerIds: selectedRoster,
-    });
+    const saved = await mockPoolService.saveRoster({ entryName, tournamentId: selectedTournament, playerIds: selectedRoster });
     setLastSavedAt(new Date(saved.savedAt).toLocaleString());
-    setSaveMessage('Roster saved successfully.');
+    setSaveMessage('Lineup saved!');
     setIsRosterSaving(false);
   };
 
   const handleResetRoster = () => {
     if (locked || isRosterLoading || isRosterSaving) return;
     setSelectedRoster(DEFAULT_ROSTER);
-    setSaveMessage('Roster reset to default mock picks.');
+    setSaveMessage('Reset to default picks.');
   };
 
   const simulateRefresh = () => {
-    const statuses = ['Healthy', 'Delayed', 'Manual review'];
-    const times = ['just now', '1 minute ago', '2 minutes ago'];
-    setLastRefresh(times[Math.floor(Math.random() * times.length)]);
-    setSyncStatus(statuses[Math.floor(Math.random() * statuses.length)]);
+    setSyncStatus(['Healthy', 'Delayed', 'Manual review'][Math.floor(Math.random() * 3)]);
+    setLastRefresh(['just now', '1 minute ago', '2 minutes ago'][Math.floor(Math.random() * 3)]);
   };
 
+  /* ── RENDER ── */
   return (
-    <div className="min-h-screen text-white">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="flex h-screen flex-col bg-[#080e1a] text-white overflow-hidden">
 
-        {/* ── Header ── */}
-        <header className="mb-8 overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(34,197,94,0.15),rgba(8,16,32,0.97),rgba(2,5,18,1))] text-white shadow-[0_32px_80px_rgba(0,0,0,0.55)]">
-          <div className="grid gap-8 p-6 lg:grid-cols-[1.5fr,1fr] lg:p-8">
-            <div>
-              <Pill tone="green">5-Tournament Major Pool</Pill>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl" style={{ background: 'linear-gradient(135deg, #fff 40%, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Golf pool MVP for a shareable season-long majors site
-              </h1>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300">
-                Build a six-player roster under the $50,000 cap, lock picks at first tee time, and follow semi-live standings with golfer-by-golfer updates and bonus scoring.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                {TOURNAMENTS.map((event) => (
-                  <button
-                    key={event.id}
-                    onClick={() => setSelectedTournament(event.id)}
-                    className={`rounded-2xl px-4 py-3 text-sm font-medium transition ${
-                      selectedTournament === event.id
-                        ? 'bg-emerald-400 text-slate-900 shadow-[0_6px_20px_rgba(34,197,94,0.35)]'
-                        : 'bg-white/8 text-slate-300 ring-1 ring-white/12 hover:bg-white/14 hover:text-white'
-                    }`}
-                  >
-                    <div className="font-semibold">{event.name}</div>
-                    <div className="mt-0.5 text-xs opacity-75">{event.venue}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid gap-3 rounded-[1.5rem] bg-white/6 p-4 ring-1 ring-white/8 backdrop-blur">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-white/8 p-4">
-                  <div className="flex items-center gap-2 text-sm text-slate-400">
-                    <Wallet className="h-4 w-4 text-emerald-400" /> Entry Fee
-                  </div>
-                  <p className="mt-2 text-3xl font-bold text-white">${settings.entryFee}</p>
-                </div>
-                <div className="rounded-xl bg-white/8 p-4">
-                  <div className="flex items-center gap-2 text-sm text-slate-400">
-                    <Users className="h-4 w-4 text-sky-400" /> Entrants
-                  </div>
-                  <p className="mt-2 text-3xl font-bold text-white">{standings.length}</p>
-                </div>
-              </div>
-
-              <div className="rounded-xl bg-white/8 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm text-slate-400">Payment</p>
-                    <p className="mt-1 text-xl font-semibold text-white">{settings.venmo}</p>
-                  </div>
-                  <Pill tone="green">Manual Venmo</Pill>
-                </div>
-                <div className="mt-4 grid grid-cols-3 gap-2 text-sm">
-                  {[
-                    { label: '1st', value: settings.payouts.first },
-                    { label: '2nd', value: settings.payouts.second },
-                    { label: '3rd', value: settings.payouts.third },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="rounded-lg bg-white/8 p-3">
-                      <div className="text-slate-400">{label}</div>
-                      <div className="mt-1 font-semibold text-white">{value}%</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-xl bg-white/8 p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-400">Current Tournament</p>
-                    <p className="mt-1 font-semibold text-white">{tournament.name}</p>
-                    <p className="mt-1 text-sm text-slate-400">Lock: {tournament.lockTimeLabel}</p>
-                    <p className="mt-1 text-sm text-slate-400">{countdownLabel}</p>
-                  </div>
-                  <Clock3 className="h-5 w-5 text-slate-400" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {isBooting ? (
-          <div className="mb-6 rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm text-slate-400">
-            Loading pool settings...
-          </div>
-        ) : null}
-
-        {/* ── Nav Tabs ── */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          {['My Picks', 'Standings', 'Rules and Scoring', 'Admin'].map((tab) => (
-            <NavTab key={tab} active={activeTab === tab} onClick={() => setActiveTab(tab)}>
-              {tab}
-            </NavTab>
-          ))}
+      {/* ══ Top navigation bar ══ */}
+      <header className="shrink-0 flex h-14 items-center border-b border-[#1a2540] bg-[#0b1220] px-5 gap-6">
+        {/* Logo */}
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-xl leading-none">⛳</span>
+          <span className="text-[15px] font-black tracking-tight">
+            MAJORS <span className="text-emerald-400">POOL</span>
+          </span>
         </div>
 
-        {/* ── My Picks ── */}
-        {activeTab === 'My Picks' && (
-          <div className="grid gap-6 lg:grid-cols-[1.15fr,0.85fr]">
-            <SectionCard
-              title="Build Your Roster"
-              subtitle="Pick exactly 6 golfers without going over the $50,000 cap."
-              right={<Pill tone={locked ? 'red' : 'green'}>{locked ? 'Locked' : 'Editable'}</Pill>}
+        {/* Nav tabs */}
+        <nav className="flex items-center gap-1 flex-1">
+          {(['My Picks', 'Standings', 'Rules and Scoring', 'Admin'] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                activeTab === tab
+                  ? 'bg-emerald-500 text-white'
+                  : 'text-slate-400 hover:text-white hover:bg-[#1a2540]'
+              }`}
             >
-              <div className="mb-5 grid gap-3 sm:grid-cols-4">
-                {[
-                  { label: 'Entry Name', value: entryName },
-                  { label: 'Roster Spots', value: `${selectedRoster.length} / ${REQUIRED_GOLFERS}` },
-                  { label: 'Salary Used', value: `$${salaryUsed.toLocaleString()}` },
-                  {
-                    label: 'Remaining',
-                    value: `$${salaryRemaining.toLocaleString()}`,
-                    valueClass: salaryRemaining < 0 ? 'text-rose-400' : 'text-emerald-400',
-                  },
-                ].map(({ label, value, valueClass }) => (
-                  <div key={label} className="stat-box p-4">
-                    <div className="text-sm text-slate-400">{label}</div>
-                    <div className={`mt-1 font-semibold text-white ${valueClass ?? ''}`}>{value}</div>
+              {tab}
+            </button>
+          ))}
+        </nav>
+
+        {/* Right strip */}
+        <div className="flex items-center gap-3 shrink-0">
+          {isBooting && <span className="text-xs text-slate-600 animate-pulse">Loading…</span>}
+          <span className="text-sm text-slate-400 font-medium hidden sm:block">{entryName}</span>
+          <Badge tone={locked ? 'red' : 'green'}>
+            {locked ? <><Lock className="h-2.5 w-2.5" /> Locked</> : <><Unlock className="h-2.5 w-2.5" /> Open</>}
+          </Badge>
+        </div>
+      </header>
+
+      {/* ══ Tournament selector strip ══ */}
+      <div className="shrink-0 flex items-center gap-2 border-b border-[#1a2540] bg-[#080e1a] px-5 py-2.5 overflow-x-auto">
+        {TOURNAMENTS.map(t => (
+          <button
+            key={t.id}
+            onClick={() => setSelectedTournament(t.id)}
+            className={`shrink-0 px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-colors ${
+              selectedTournament === t.id
+                ? 'bg-emerald-500 text-white shadow-[0_0_18px_rgba(34,197,94,0.28)]'
+                : 'bg-[#111d31] text-slate-400 border border-[#1a2540] hover:text-white hover:bg-[#162035]'
+            }`}
+          >
+            {t.shortName}
+          </button>
+        ))}
+
+        <div className="ml-auto flex items-center gap-5 text-xs shrink-0">
+          <div className="text-slate-500 flex items-center gap-1.5">
+            <Clock3 className="h-3.5 w-3.5" />
+            Lock: <span className="text-slate-300 font-semibold ml-0.5">{tournament.lockTimeLabel}</span>
+          </div>
+          <span className={`font-bold ${autoLocked ? 'text-rose-400' : 'text-emerald-400'}`}>
+            {autoLocked ? 'LOCKED' : countdownLabel + ' until lock'}
+          </span>
+        </div>
+      </div>
+
+      {/* ══ Main content area ══ */}
+      <main className="flex-1 overflow-hidden">
+
+        {/* ─── MY PICKS ─── */}
+        {activeTab === 'My Picks' && (
+          <div className="flex h-full">
+
+            {/* Left: Player pool */}
+            <div className="flex flex-col flex-1 overflow-hidden border-r border-[#1a2540]">
+
+              {/* Contest context bar */}
+              <div className="shrink-0 grid grid-cols-4 border-b border-[#1a2540]" style={{ borderTop: 'none' }}>
+                {([
+                  { label: 'Tournament', value: tournament.name },
+                  { label: 'Venue', value: tournament.venue },
+                  { label: 'Entry Fee', value: `$${settings.entryFee}`, hi: 'text-emerald-400' },
+                  { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, hi: 'text-amber-400' },
+                ] as any[]).map(({ label, value, hi }) => (
+                  <div key={label} className="px-4 py-3 border-r border-[#1a2540] last:border-0 bg-[#0b1220]">
+                    <div className={COL_LABEL}>{label}</div>
+                    <div className={`text-sm font-semibold mt-0.5 truncate ${hi ?? 'text-white'}`}>{value}</div>
                   </div>
                 ))}
               </div>
 
-              <div className="space-y-2">
-                {tournamentPlayers.map((player: any) => {
-                  const selected = selectedRoster.includes(player.id);
-                  const nextSalary = salaryUsed + (selected ? 0 : player.salary);
-                  const wouldExceedCap = !selected && nextSalary > SALARY_CAP;
+              {/* Column headers */}
+              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-2 bg-[#080e1a] border-b border-[#1a2540]">
+                <span className={COL_LABEL + ' text-center'}>RK</span>
+                <span className={COL_LABEL}>Player</span>
+                <span className={COL_LABEL + ' text-center'}>Thru</span>
+                <span className={COL_LABEL + ' text-center'}>Score</span>
+                <span className={COL_LABEL}>Salary</span>
+                <span className={COL_LABEL + ' text-center'}>Action</span>
+              </div>
 
-                  return (
-                    <button
-                      key={player.id}
-                      onClick={() => toggleRosterPlayer(player.id)}
-                      className={`w-full rounded-2xl border p-4 text-left transition-all duration-150 ${
-                        selected
-                          ? 'border-emerald-500/50 bg-emerald-950/40 shadow-[0_0_0_1px_rgba(34,197,94,0.15)_inset]'
-                          : 'border-white/8 bg-white/[0.03] hover:border-white/16 hover:bg-white/[0.07]'
-                      } ${locked || wouldExceedCap || isRosterLoading || isRosterSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                    >
-                      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-white">{player.name}</span>
-                            {selected ? <Pill tone="green">Selected</Pill> : null}
-                            {wouldExceedCap ? <Pill tone="amber">Over cap</Pill> : null}
+              {/* Player rows */}
+              <div className="overflow-y-auto flex-1">
+                {isRosterLoading ? (
+                  <div className="flex items-center justify-center h-32 text-slate-600 text-sm">Loading roster…</div>
+                ) : (
+                  tournamentPlayers.map((player: any) => {
+                    const selected = selectedRoster.includes(player.id);
+                    const wouldExceedCap = !selected && salaryUsed + player.salary > SALARY_CAP;
+                    const atLimit = !selected && selectedRoster.length >= REQUIRED_GOLFERS;
+                    const canAdd = !locked && !isRosterSaving && !wouldExceedCap && !atLimit && !selected;
+                    const canRemove = !locked && !isRosterSaving && selected;
+
+                    return (
+                      <div
+                        key={player.id}
+                        onClick={() => (canAdd || canRemove) ? toggleRosterPlayer(player.id) : undefined}
+                        className={`grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-3.5 border-b border-[#1a2540] transition-colors ${
+                          selected
+                            ? 'bg-[#0a1f15] cursor-pointer'
+                            : canAdd
+                              ? 'hover:bg-[#0f1e35] cursor-pointer'
+                              : 'opacity-40 cursor-not-allowed'
+                        }`}
+                      >
+                        {/* Rank */}
+                        <span className="text-xs text-slate-500 text-center font-medium tabular-nums">{player.owgr}</span>
+
+                        {/* Name + odds */}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-semibold text-white">{player.name}</span>
+                            {selected && <Badge tone="green">In Lineup</Badge>}
+                            {wouldExceedCap && <Badge tone="amber">Over Cap</Badge>}
                           </div>
-                          <div className="mt-2 flex flex-wrap gap-2 text-sm text-slate-400">
-                            <span>OWGR #{player.owgr}</span>
-                            <span className="text-slate-600">•</span>
-                            <span>Outright {player.odds}</span>
-                            <span className="text-slate-600">•</span>
-                            <span>Thru {player.thru}</span>
-                            <span className="text-slate-600">•</span>
-                            <span className={`font-medium ${scoreColor(player.score)}`}>Score {player.score}</span>
-                          </div>
+                          <div className="text-xs text-slate-600 mt-0.5">{player.odds} outright</div>
                         </div>
-                        <div className="grid grid-cols-3 gap-2 text-sm lg:min-w-[260px]">
-                          <div className="rounded-xl bg-white/6 p-3">
-                            <div className="text-slate-400">Salary</div>
-                            <div className="mt-1 font-semibold text-white">${player.salary.toLocaleString()}</div>
-                          </div>
-                          <div className="rounded-xl bg-white/6 p-3">
-                            <div className="text-slate-400">Bonus</div>
-                            <div className="mt-1 font-semibold text-white">{calculatePlayerBonus(player)}</div>
-                          </div>
-                          <div className="rounded-xl bg-white/6 p-3">
-                            <div className="text-slate-400">Action</div>
-                            <div className={`mt-1 font-semibold ${selected ? 'text-rose-400' : 'text-emerald-400'}`}>
-                              {selected ? 'Remove' : 'Add'}
+
+                        {/* Thru */}
+                        <span className="text-xs text-slate-400 text-center tabular-nums">{player.thru}</span>
+
+                        {/* Score */}
+                        <span className={`text-sm font-bold text-center tabular-nums ${scoreColor(player.score)}`}>{player.score}</span>
+
+                        {/* Salary */}
+                        <span className="text-sm font-bold text-emerald-400 tabular-nums">
+                          ${(player.salary / 1000).toFixed(1)}K
+                        </span>
+
+                        {/* Action */}
+                        <button
+                          onClick={e => { e.stopPropagation(); toggleRosterPlayer(player.id); }}
+                          disabled={!canAdd && !canRemove}
+                          className={`py-1.5 rounded-lg text-[11px] font-bold tracking-wide border transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+                            selected
+                              ? 'bg-rose-500/15 text-rose-400 border-rose-500/25 hover:bg-rose-500/25'
+                              : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25 hover:bg-emerald-500/25'
+                          }`}
+                        >
+                          {selected ? 'REMOVE' : '+ ADD'}
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Right: Lineup builder */}
+            <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-[#0b1220]">
+
+              {/* Header + salary bar */}
+              <div className="shrink-0 border-b border-[#1a2540] px-4 pt-4 pb-3">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">My Lineup</span>
+                  <span className="text-xs text-slate-600">{selectedRoster.length}/{REQUIRED_GOLFERS} picks</span>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <span className={COL_LABEL}>Salary Cap</span>
+                    <span className={`font-bold tabular-nums ${salaryRemaining < 0 ? 'text-rose-400' : 'text-slate-300'}`}>
+                      ${salaryUsed.toLocaleString()} / $50K
+                    </span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[#1a2540] overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${salaryRemaining < 0 ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                      style={{ width: `${salaryPct}%` }}
+                    />
+                  </div>
+                  <div className={`mt-1 text-right text-xs font-semibold ${salaryRemaining < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                    ${salaryRemaining.toLocaleString()} remaining
+                  </div>
+                </div>
+              </div>
+
+              {/* Roster slots */}
+              <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                {Array.from({ length: REQUIRED_GOLFERS }, (_, i) => {
+                  const p: any = playersById[selectedRoster[i]];
+                  return (
+                    <div
+                      key={i}
+                      className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${
+                        p ? 'border-[#1e3a25] bg-[#0a1f15]' : 'border-[#1a2540] bg-[#111d31]'
+                      }`}
+                    >
+                      <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                        p ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#1a2540] text-slate-600'
+                      }`}>
+                        {i + 1}
+                      </div>
+
+                      {p ? (
+                        <>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-semibold text-white truncate">{p.name}</div>
+                            <div className="text-[11px] text-slate-500 mt-0.5">
+                              ${p.salary.toLocaleString()} · OWGR #{p.owgr}
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    </button>
+                          <span className={`text-sm font-bold shrink-0 tabular-nums ${scoreColor(p.score)}`}>{p.score}</span>
+                          {!locked && (
+                            <button onClick={() => toggleRosterPlayer(p.id)} className="shrink-0 text-slate-700 hover:text-rose-400 transition-colors">
+                              <X className="h-4 w-4" />
+                            </button>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-sm text-slate-700 italic">Empty slot</span>
+                      )}
+                    </div>
                   );
                 })}
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-3">
+              {/* Score strip + actions */}
+              <div className="shrink-0 border-t border-[#1a2540] p-4 space-y-3">
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { label: 'Raw', val: fmtScore(rosterRaw), color: scoreColor(rosterRaw) },
+                    { label: 'Bonus', val: `+${rosterBonus}`, color: 'text-sky-400' },
+                    { label: 'Net', val: fmtScore(rosterNet), color: scoreColor(rosterNet) },
+                  ] as any[]).map(({ label, val, color }) => (
+                    <div key={label} className="text-center rounded-lg bg-[#111d31] border border-[#1a2540] py-2">
+                      <div className={COL_LABEL + ' mb-0.5'}>{label}</div>
+                      <div className={`text-base font-black tabular-nums ${color}`}>{val}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {saveMessage && (
+                  <div className="text-xs text-slate-400 bg-[#111d31] border border-[#1a2540] rounded-lg px-3 py-2 text-center">
+                    {saveMessage}
+                  </div>
+                )}
+
+                <div className={COL_LABEL + ' text-center'}>
+                  {isRosterLoading ? 'Loading…' : `Saved: ${lastSavedAt}`}
+                </div>
+
                 <button
                   onClick={handleSaveRoster}
-                  disabled={isRosterSaving || isRosterLoading}
-                  className="button-primary inline-flex items-center gap-2 px-5 py-3 text-sm disabled:opacity-60"
+                  disabled={isRosterSaving || isRosterLoading || locked}
+                  className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-sm rounded-xl transition-colors flex items-center justify-center gap-2"
                 >
-                  <Save className="h-4 w-4" /> {isRosterSaving ? 'Saving...' : 'Save roster'}
+                  <Save className="h-4 w-4" />
+                  {isRosterSaving ? 'SAVING…' : 'SAVE LINEUP'}
                 </button>
                 <button
                   onClick={handleResetRoster}
-                  disabled={isRosterSaving || isRosterLoading}
-                  className="button-secondary px-5 py-3 text-sm disabled:opacity-60"
+                  disabled={isRosterSaving || isRosterLoading || locked}
+                  className="w-full py-1.5 text-slate-600 hover:text-slate-300 disabled:opacity-40 text-xs font-semibold transition-colors"
                 >
-                  Reset to default roster
+                  Reset to default picks
                 </button>
               </div>
-              <div className="mt-3 text-sm text-slate-500">
-                {isRosterLoading ? 'Loading saved roster...' : `Last saved: ${lastSavedAt}`}
-              </div>
-              {saveMessage ? (
-                <div className="mt-3 rounded-2xl border border-white/8 bg-white/[0.05] p-3 text-sm text-slate-300">
-                  {saveMessage}
-                </div>
-              ) : null}
-            </SectionCard>
-
-            <div className="space-y-6">
-              <SectionCard title="My Live Team" subtitle="Mock live scoring using your real bonus framework." right={<Pill tone="blue">Semi-live</Pill>}>
-                <div className="space-y-2">
-                  {rosterPlayers.map((player: any) => (
-                    <div key={player.id} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <div className="font-semibold text-white">{player.name}</div>
-                          <div className="mt-1 text-sm text-slate-400">
-                            ${player.salary.toLocaleString()} • Thru {player.thru}
-                          </div>
-                        </div>
-                        <div className="text-right text-sm">
-                          <div className={`text-lg font-bold ${scoreColor(player.score)}`}>{player.score}</div>
-                          <div className="text-slate-400">+{calculatePlayerBonus(player)} pts</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
-                  {[
-                    { label: 'Raw Score', value: rosterRaw > 0 ? `+${rosterRaw}` : rosterRaw, color: scoreColor(String(rosterRaw)) },
-                    { label: 'Bonus Pts', value: rosterBonus, color: 'text-sky-400' },
-                    { label: 'Net Score', value: rosterNet > 0 ? `+${rosterNet}` : rosterNet, color: 'text-white' },
-                  ].map(({ label, value, color }) => (
-                    <div key={label} className="stat-box p-4">
-                      <div className="text-slate-400">{label}</div>
-                      <div className={`mt-1 text-lg font-bold ${color}`}>{value}</div>
-                    </div>
-                  ))}
-                </div>
-              </SectionCard>
-
-              <SectionCard title="Payment and Payouts" subtitle="Public-facing info block.">
-                <div className="space-y-2 text-sm">
-                  {[
-                    { label: 'Entry Fee', value: `$${settings.entryFee}` },
-                    { label: 'Venmo', value: settings.venmo },
-                    { label: 'Projected Prize Pool', value: `$${projectedPot.toLocaleString()}` },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="flex items-center justify-between rounded-xl bg-white/[0.04] px-4 py-3 border border-white/6">
-                      <span className="text-slate-400">{label}</span>
-                      <span className="font-semibold text-white">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              </SectionCard>
             </div>
           </div>
         )}
 
-        {/* ── Standings ── */}
+        {/* ─── STANDINGS ─── */}
         {activeTab === 'Standings' && (
-          <div className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
-            <SectionCard
-              title="Live Standings"
-              subtitle="Net score = combined golfer score minus bonus points. Lower is better."
-              right={
-                <div className="flex items-center gap-2">
-                  <Pill tone={syncStatus === 'Healthy' ? 'green' : syncStatus === 'Delayed' ? 'amber' : 'red'}>{syncStatus}</Pill>
-                  <button
-                    onClick={simulateRefresh}
-                    className="inline-flex items-center gap-2 rounded-xl bg-white/8 border border-white/10 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-white/12 transition"
-                  >
-                    <RefreshCw className="h-4 w-4" /> Refresh
-                  </button>
-                </div>
-              }
-            >
-              <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-slate-500">
-                <div className="inline-flex items-center gap-2">
-                  <Clock3 className="h-4 w-4" /> Last sync {lastRefresh}
-                </div>
-                <div className="inline-flex items-center gap-2">
-                  <Shield className="h-4 w-4" /> Source: unofficial leaderboard + cache
-                </div>
-              </div>
-              <div className="overflow-hidden rounded-2xl border border-white/10">
-                <table className="min-w-full divide-y divide-white/6 text-sm">
-                  <thead className="bg-white/[0.05] text-left">
-                    <tr>
-                      {['Place', 'Entry', 'Salary', 'Raw', 'Bonus', 'Net'].map((h) => (
-                        <th key={h} className="px-4 py-3 font-medium text-slate-400">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {standings.map((entry: any) => (
-                      <tr
-                        key={entry.id}
-                        className={entry.name === entryName ? 'bg-emerald-900/20' : 'hover:bg-white/[0.03] transition'}
-                      >
-                        <td className="px-4 py-3">
-                          <span className={`font-bold ${entry.place === 1 ? 'text-amber-400' : entry.place === 2 ? 'text-slate-300' : entry.place === 3 ? 'text-amber-600' : 'text-slate-400'}`}>
-                            {entry.place === 1 ? '🥇' : entry.place === 2 ? '🥈' : entry.place === 3 ? '🥉' : `#${entry.place}`}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-white">{entry.name}</div>
-                          <div className="text-xs text-slate-500">{entry.golfers.length} golfers</div>
-                        </td>
-                        <td className="px-4 py-3 text-slate-300">${entry.salary.toLocaleString()}</td>
-                        <td className={`px-4 py-3 font-medium ${scoreColor(String(entry.rawScore))}`}>
-                          {entry.rawScore > 0 ? `+${entry.rawScore}` : entry.rawScore}
-                        </td>
-                        <td className="px-4 py-3 text-sky-400 font-medium">{entry.bonus}</td>
-                        <td className={`px-4 py-3 text-base font-bold ${scoreColor(String(entry.net))}`}>
-                          {entry.net > 0 ? `+${entry.net}` : entry.net}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </SectionCard>
+          <div className="overflow-y-auto h-full">
+            <div className="max-w-5xl mx-auto px-6 py-6 space-y-5">
 
-            <div className="space-y-6">
-              <SectionCard title="Featured Player Tracker" subtitle="Example live-ish golfer board fed from your refresh job.">
-                <div className="space-y-2">
-                  {tournamentPlayers.slice(0, 6).map((player: any) => (
-                    <div key={player.id} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="font-semibold text-white">{player.name}</div>
-                          <div className="mt-1 text-sm text-slate-400">Through {player.thru}</div>
-                        </div>
-                        <div className="text-right text-sm">
-                          <div className={`text-base font-bold ${scoreColor(player.score)}`}>{player.score}</div>
-                          <div className="text-slate-400">Bonus {calculatePlayerBonus(player)}</div>
-                          <div className="text-slate-500 text-xs">{player.odds}</div>
-                        </div>
+              {/* Prize stat row */}
+              <div className={`${PANEL} grid grid-cols-4 divide-x divide-[#1a2540]`}>
+                {([
+                  { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: 'text-amber-400' },
+                  { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: 'text-amber-300' },
+                  { label: 'Entries',    value: standings.length, color: 'text-white' },
+                  { label: 'Entry Fee',  value: `$${settings.entryFee}`, color: 'text-emerald-400' },
+                ] as any[]).map(({ label, value, color }) => (
+                  <div key={label} className="bg-[#0b1220] px-5 py-4">
+                    <div className={COL_LABEL}>{label}</div>
+                    <div className={`text-2xl font-black mt-1 ${color}`}>{value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Standings table */}
+              <div className={PANEL}>
+                <div className={`${PANEL_HEAD} flex items-center justify-between`}>
+                  <div>
+                    <h2 className="font-bold text-white">Live Standings</h2>
+                    <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
+                      <Clock3 className="h-3 w-3" /> Last sync {lastRefresh}
+                      <span className="mx-1">·</span>
+                      <Shield className="h-3 w-3" /> Unofficial source
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge tone={syncStatus === 'Healthy' ? 'green' : syncStatus === 'Delayed' ? 'amber' : 'red'}>{syncStatus}</Badge>
+                    <button
+                      onClick={simulateRefresh}
+                      className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white bg-[#111d31] border border-[#1a2540] px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" /> Refresh
+                    </button>
+                  </div>
+                </div>
+
+                {/* Column headers */}
+                <div className="grid grid-cols-[64px,1fr,110px,80px,80px,88px] gap-3 px-5 py-2.5 bg-[#080e1a] border-b border-[#1a2540]">
+                  {['Place', 'Entry', 'Salary', 'Raw', 'Bonus', 'Net'].map(h => (
+                    <span key={h} className={COL_LABEL}>{h}</span>
+                  ))}
+                </div>
+
+                {standings.map((entry: any) => (
+                  <div
+                    key={entry.id}
+                    className={`grid grid-cols-[64px,1fr,110px,80px,80px,88px] gap-3 items-center px-5 py-4 border-b border-[#1a2540] last:border-0 transition-colors ${
+                      entry.name === entryName ? 'bg-emerald-950/25' : 'hover:bg-[#0f1e35]'
+                    }`}
+                  >
+                    <div className="text-base font-black">
+                      {entry.place === 1 ? '🥇' : entry.place === 2 ? '🥈' : entry.place === 3 ? '🥉' : (
+                        <span className="text-slate-500 text-sm">#{entry.place}</span>
+                      )}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-white">{entry.name}</span>
+                        {entry.name === entryName && <Badge tone="green">You</Badge>}
                       </div>
+                      <div className="text-xs text-slate-600 mt-0.5">{entry.golfers.length} golfers</div>
+                    </div>
+                    <span className="text-sm text-slate-300 tabular-nums">${entry.salary.toLocaleString()}</span>
+                    <span className={`text-sm font-bold tabular-nums ${scoreColor(entry.rawScore)}`}>{fmtScore(entry.rawScore)}</span>
+                    <span className="text-sm font-bold text-sky-400 tabular-nums">{entry.bonus}</span>
+                    <span className={`text-base font-black tabular-nums ${scoreColor(entry.net)}`}>{fmtScore(entry.net)}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bottom row */}
+              <div className="grid gap-5 lg:grid-cols-2">
+                {/* Player tracker */}
+                <div className={PANEL}>
+                  <div className={PANEL_HEAD}>
+                    <h3 className="font-bold text-white text-sm">Featured Players</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Top of the leaderboard</p>
+                  </div>
+                  <div className="grid grid-cols-[28px,1fr,56px,60px] gap-3 px-5 py-2 bg-[#080e1a] border-b border-[#1a2540]">
+                    {['#', 'Player', 'Score', 'Bonus'].map(h => <span key={h} className={COL_LABEL}>{h}</span>)}
+                  </div>
+                  {tournamentPlayers.slice(0, 6).map((player: any, idx: number) => (
+                    <div key={player.id} className="grid grid-cols-[28px,1fr,56px,60px] gap-3 items-center px-5 py-3 border-b border-[#1a2540] last:border-0 hover:bg-[#0f1e35] transition-colors">
+                      <span className="text-xs text-slate-600 font-bold">{idx + 1}</span>
+                      <div>
+                        <div className="text-sm font-semibold text-white">{player.name}</div>
+                        <div className="text-[11px] text-slate-600">Thru {player.thru} · {player.odds}</div>
+                      </div>
+                      <span className={`text-sm font-bold tabular-nums ${scoreColor(player.score)}`}>{player.score}</span>
+                      <span className="text-xs font-semibold text-sky-400 tabular-nums">+{calculatePlayerBonus(player)}</span>
                     </div>
                   ))}
                 </div>
-              </SectionCard>
 
-              <SectionCard title="Payout Snapshot" subtitle="Displayed publicly so participants can see what they're playing for.">
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-between rounded-xl border border-amber-500/20 bg-amber-900/15 p-4">
-                    <span className="inline-flex items-center gap-2 text-amber-300 font-medium">
-                      <Trophy className="h-4 w-4" /> 1st Place
-                    </span>
-                    <span className="font-bold text-amber-300">${Math.round(projectedPot * (settings.payouts.first / 100)).toLocaleString()}</span>
+                {/* Payout */}
+                <div className={PANEL}>
+                  <div className={PANEL_HEAD}>
+                    <h3 className="font-bold text-white text-sm">Payout Structure</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Send to {settings.venmo}</p>
                   </div>
-                  <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.04] p-4">
-                    <span className="inline-flex items-center gap-2 text-slate-300 font-medium">
-                      <Medal className="h-4 w-4" /> 2nd Place
-                    </span>
-                    <span className="font-bold text-white">${Math.round(projectedPot * (settings.payouts.second / 100)).toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.04] p-4">
-                    <span className="inline-flex items-center gap-2 text-slate-300 font-medium">
-                      <Medal className="h-4 w-4" /> 3rd Place
-                    </span>
-                    <span className="font-bold text-white">${Math.round(projectedPot * (settings.payouts.third / 100)).toLocaleString()}</span>
+                  <div className="p-4 space-y-3">
+                    {([
+                      { icon: '🥇', label: '1st Place', pct: settings.payouts.first, gold: true },
+                      { icon: '🥈', label: '2nd Place', pct: settings.payouts.second, gold: false },
+                      { icon: '🥉', label: '3rd Place', pct: settings.payouts.third,  gold: false },
+                    ] as any[]).map(({ icon, label, pct, gold }) => (
+                      <div key={label} className={`flex items-center justify-between rounded-xl border px-4 py-3.5 ${
+                        gold ? 'bg-amber-950/30 border-amber-500/20' : 'bg-[#111d31] border-[#1a2540]'
+                      }`}>
+                        <span className="flex items-center gap-2 text-sm font-semibold text-white">{icon} {label}</span>
+                        <div className="text-right">
+                          <div className={`text-xl font-black tabular-nums ${gold ? 'text-amber-400' : 'text-white'}`}>
+                            ${Math.round(projectedPot * pct / 100).toLocaleString()}
+                          </div>
+                          <div className="text-xs text-slate-600">{pct}% of pot</div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </SectionCard>
+              </div>
             </div>
           </div>
         )}
 
-        {/* ── Rules and Scoring ── */}
+        {/* ─── RULES AND SCORING ─── */}
         {activeTab === 'Rules and Scoring' && (
-          <div className="grid gap-6 lg:grid-cols-2">
-            <SectionCard title="Pool Rules" subtitle="This tab uses your latest bonus structure.">
-              <div className="space-y-4 text-sm leading-7 text-slate-300">
-                <div className="stat-box p-4">
-                  <div className="font-semibold text-white mb-2">Roster Construction</div>
-                  <ul className="list-disc space-y-1 pl-5 text-slate-400">
-                    <li>Participants pick 6 golfers per tournament.</li>
-                    <li>Total salary must not exceed $50,000.</li>
-                    <li>Salaries are based on a blend of world ranking and Vegas odds.</li>
-                    <li>Picks may be edited until the first tee time of the event.</li>
-                  </ul>
-                </div>
-                <div className="stat-box p-4">
-                  <div className="font-semibold text-white mb-2">Scoring</div>
-                  <ul className="list-disc space-y-1 pl-5 text-slate-400">
-                    <li>Raw score is the sum of all 6 golfers&apos; tournament scores.</li>
-                    <li>Bonus points are subtracted from the raw score to produce net score.</li>
-                    <li>Lower net score ranks higher in the standings.</li>
-                    <li>Live updates refresh on a delay using unofficial public leaderboard data.</li>
-                  </ul>
-                </div>
-              </div>
-            </SectionCard>
+          <div className="overflow-y-auto h-full">
+            <div className="max-w-5xl mx-auto px-6 py-6 grid gap-6 lg:grid-cols-2">
 
-            <SectionCard title="Bonus Scoring" subtitle="Using the categories you provided.">
-              <div className="overflow-hidden rounded-2xl border border-white/10">
-                <table className="min-w-full divide-y divide-white/6 text-sm">
-                  <thead className="bg-white/[0.05] text-left">
-                    <tr>
-                      <th className="px-4 py-3 font-medium text-slate-400">Category</th>
-                      <th className="px-4 py-3 font-medium text-slate-400">Points</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {BONUS_ROWS.map(([label, points]) => (
-                      <tr key={label} className="hover:bg-white/[0.03] transition">
-                        <td className="px-4 py-2.5 text-slate-300">{label}</td>
-                        <td className={`px-4 py-2.5 font-semibold ${Number(points) > 0 ? 'text-emerald-400' : Number(points) < 0 ? 'text-rose-400' : 'text-slate-300'}`}>
-                          {Number(points) > 0 ? `+${points}` : points}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {/* Pool rules */}
+              <div className={PANEL}>
+                <div className={PANEL_HEAD}>
+                  <h2 className="font-bold text-white">Pool Rules</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">How to play</p>
+                </div>
+                <div className="p-5 space-y-4">
+                  {([
+                    {
+                      title: 'Roster Construction',
+                      items: [
+                        'Pick 6 golfers per tournament.',
+                        'Total salary must not exceed $50,000.',
+                        'Salaries blend world ranking with Vegas odds.',
+                        'Editable until the first tee time of the event.',
+                      ],
+                    },
+                    {
+                      title: 'Scoring',
+                      items: [
+                        'Raw score = sum of all 6 golfers\' tournament scores.',
+                        'Bonus points are subtracted to produce net score.',
+                        'Lower net score ranks higher in the standings.',
+                        'Updates refresh using unofficial leaderboard data.',
+                      ],
+                    },
+                  ] as any[]).map(({ title, items }) => (
+                    <div key={title} className="rounded-xl bg-[#111d31] border border-[#1a2540] p-4">
+                      <div className="text-sm font-bold text-white mb-3">{title}</div>
+                      <ul className="space-y-2">
+                        {items.map((item: string) => (
+                          <li key={item} className="flex items-start gap-2.5 text-sm text-slate-400">
+                            <span className="text-emerald-500 shrink-0 mt-0.5">›</span>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-900/15 p-4 text-sm text-emerald-300">
-                The prototype now calculates mock bonus totals from your real scoring categories. In production, these values should be computed from live hole-by-hole event data and official finishing position data.
+
+              {/* Bonus scoring */}
+              <div className={PANEL}>
+                <div className={PANEL_HEAD}>
+                  <h2 className="font-bold text-white">Bonus Scoring</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">Subtracted from raw score</p>
+                </div>
+                <div className="grid grid-cols-[1fr,72px] gap-3 px-5 py-2 bg-[#080e1a] border-b border-[#1a2540]">
+                  <span className={COL_LABEL}>Category</span>
+                  <span className={COL_LABEL + ' text-right'}>Pts</span>
+                </div>
+                <div className="overflow-y-auto" style={{ maxHeight: 500 }}>
+                  {BONUS_ROWS.map(([label, points]) => (
+                    <div key={label} className="grid grid-cols-[1fr,72px] gap-3 items-center px-5 py-2.5 border-b border-[#1a2540] last:border-0 hover:bg-[#0f1e35] transition-colors">
+                      <span className="text-sm text-slate-300">{label}</span>
+                      <span className={`text-sm font-bold text-right tabular-nums ${Number(points) > 0 ? 'text-emerald-400' : Number(points) < 0 ? 'text-rose-400' : 'text-slate-400'}`}>
+                        {Number(points) > 0 ? `+${points}` : points}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </SectionCard>
+            </div>
           </div>
         )}
 
-        {/* ── Admin ── */}
+        {/* ─── ADMIN ─── */}
         {activeTab === 'Admin' && (
-          <div className="grid gap-6 lg:grid-cols-[1fr,1fr]">
-            <SectionCard
-              title="Admin Controls"
-              subtitle="This section simulates the tools you would use to run the pool each week."
-              right={<Pill tone="amber">Owner only</Pill>}
-            >
-              <div className="grid gap-3 sm:grid-cols-2">
-                {[
-                  {
-                    label: 'Entry Name',
-                    input: (
-                      <input
-                        value={entryName}
-                        onChange={(e) => setEntryName(e.target.value)}
-                        className="w-full rounded-xl border border-white/12 bg-white/[0.07] px-3 py-2 text-white outline-none focus:border-emerald-500/50 focus:bg-white/[0.1] transition placeholder:text-slate-500"
-                      />
-                    ),
-                  },
-                  {
-                    label: 'Venmo',
-                    input: (
-                      <input
-                        value={settings.venmo}
-                        onChange={(e) => setSettings({ ...settings, venmo: e.target.value })}
-                        className="w-full rounded-xl border border-white/12 bg-white/[0.07] px-3 py-2 text-white outline-none focus:border-emerald-500/50 focus:bg-white/[0.1] transition"
-                      />
-                    ),
-                  },
-                  {
-                    label: 'Entry Fee',
-                    input: (
-                      <input
-                        type="number"
-                        value={settings.entryFee}
-                        onChange={(e) => setSettings({ ...settings, entryFee: Number(e.target.value) })}
-                        className="w-full rounded-xl border border-white/12 bg-white/[0.07] px-3 py-2 text-white outline-none focus:border-emerald-500/50 focus:bg-white/[0.1] transition"
-                      />
-                    ),
-                  },
-                ].map(({ label, input }) => (
-                  <label key={label} className="rounded-2xl bg-white/[0.04] border border-white/8 p-4 text-sm">
-                    <div className="mb-2 font-medium text-slate-300">{label}</div>
-                    {input}
-                  </label>
-                ))}
+          <div className="overflow-y-auto h-full">
+            <div className="max-w-4xl mx-auto px-6 py-6 space-y-5">
 
-                <div className="rounded-2xl bg-white/[0.04] border border-white/8 p-4 text-sm">
-                  <div className="mb-2 font-medium text-slate-300">Lineup Lock</div>
-                  <button
-                    onClick={() => setSettings({ ...settings, manualLock: !settings.manualLock })}
-                    className={`w-full rounded-xl px-3 py-2.5 font-semibold transition ${locked ? 'bg-rose-600/80 text-white hover:bg-rose-600' : 'bg-emerald-600/80 text-white hover:bg-emerald-600'}`}
-                  >
-                    {locked ? (
-                      <span className="inline-flex items-center justify-center gap-2">
-                        <Lock className="h-4 w-4" /> Locked
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center justify-center gap-2">
-                        <Unlock className="h-4 w-4" /> Open
-                      </span>
-                    )}
+              {/* Admin controls */}
+              <div className={PANEL}>
+                <div className={`${PANEL_HEAD} flex items-center justify-between`}>
+                  <div>
+                    <h2 className="font-bold text-white">Admin Controls</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">Simulates tools for running the pool</p>
+                  </div>
+                  <Badge tone="amber">Owner Only</Badge>
+                </div>
+
+                <div className="p-5 grid gap-4 sm:grid-cols-2">
+                  {([
+                    { label: 'Entry Name', input: <input value={entryName} onChange={e => setEntryName(e.target.value)} className="w-full rounded-xl border border-[#1a2540] bg-[#111d31] px-3 py-2.5 text-white text-sm outline-none focus:border-emerald-500/60 transition-colors placeholder:text-slate-700" /> },
+                    { label: 'Venmo Handle', input: <input value={settings.venmo} onChange={e => setSettings({ ...settings, venmo: e.target.value })} className="w-full rounded-xl border border-[#1a2540] bg-[#111d31] px-3 py-2.5 text-white text-sm outline-none focus:border-emerald-500/60 transition-colors" /> },
+                    { label: 'Entry Fee ($)', input: <input type="number" value={settings.entryFee} onChange={e => setSettings({ ...settings, entryFee: Number(e.target.value) })} className="w-full rounded-xl border border-[#1a2540] bg-[#111d31] px-3 py-2.5 text-white text-sm outline-none focus:border-emerald-500/60 transition-colors" /> },
+                    {
+                      label: 'Lineup Lock',
+                      input: (
+                        <button
+                          onClick={() => setSettings({ ...settings, manualLock: !settings.manualLock })}
+                          className={`w-full py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 border ${
+                            locked ? 'bg-rose-500/15 text-rose-400 border-rose-500/25 hover:bg-rose-500/25' : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25 hover:bg-emerald-500/25'
+                          }`}
+                        >
+                          {locked ? <><Lock className="h-4 w-4" /> LOCKED — Click to Open</> : <><Unlock className="h-4 w-4" /> OPEN — Click to Lock</>}
+                        </button>
+                      ),
+                    },
+                  ] as any[]).map(({ label, input }) => (
+                    <label key={label} className="block rounded-xl bg-[#0b1220] border border-[#1a2540] p-4">
+                      <div className={COL_LABEL + ' mb-2'}>{label}</div>
+                      {input}
+                    </label>
+                  ))}
+                </div>
+
+                {/* Payout splits */}
+                <div className="px-5 pb-5">
+                  <div className={COL_LABEL + ' mb-3'}>Payout Splits (%)</div>
+                  <div className="grid grid-cols-3 gap-3">
+                    {([
+                      { label: '1st Place', key: 'first' as const },
+                      { label: '2nd Place', key: 'second' as const },
+                      { label: '3rd Place', key: 'third' as const },
+                    ] as const).map(({ label, key }) => (
+                      <label key={key} className="block rounded-xl bg-[#0b1220] border border-[#1a2540] p-3">
+                        <div className="text-xs text-slate-500 mb-2">{label}</div>
+                        <input
+                          type="number"
+                          value={settings.payouts[key]}
+                          onChange={e => setSettings({ ...settings, payouts: { ...settings.payouts, [key]: Number(e.target.value) } })}
+                          className="w-full rounded-lg border border-[#1a2540] bg-[#111d31] px-2.5 py-2 text-white text-sm outline-none focus:border-emerald-500/60 transition-colors"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex items-center gap-3">
+                    <Badge tone={payoutTotal === 100 ? 'green' : 'amber'}>
+                      <CheckCircle2 className="h-3 w-3" /> Total: {payoutTotal}%
+                    </Badge>
+                    <span className={`text-xs ${isSettingsSaving ? 'text-slate-500 animate-pulse' : 'text-slate-700'}`}>
+                      {isSettingsSaving ? 'Saving…' : 'Auto-saved'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Semi-live feed workflow */}
+              <div className={PANEL}>
+                <div className={PANEL_HEAD}>
+                  <h2 className="font-bold text-white">Semi-live Feed Workflow</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">Operating model using unofficial leaderboard data</p>
+                </div>
+                <div className="p-5 space-y-3">
+                  {([
+                    { icon: <RefreshCw className="h-4 w-4 text-sky-400" />,    title: 'Refresh leaderboard every 2–5 minutes', desc: 'Normalize player score, thru, status, and last update time into your database.' },
+                    { icon: <TrendingUp className="h-4 w-4 text-emerald-400" />, title: 'Recompute entry scores after each sync', desc: 'Raw team score and bonus points are recalculated from stored golfer states.' },
+                    { icon: <AlertCircle className="h-4 w-4 text-amber-400" />,  title: 'Flag source issues for manual review', desc: 'If the feed is delayed or parsing fails, the site shows last good data and a warning.' },
+                    { icon: <Flag className="h-4 w-4 text-slate-500" />,         title: 'Lock at first tee time', desc: 'No roster edits after official start — enforced server-side in production.' },
+                  ] as any[]).map(({ icon, title, desc }) => (
+                    <div key={title} className="flex items-start gap-4 rounded-xl border border-[#1a2540] bg-[#0b1220] p-4">
+                      <div className="shrink-0 mt-0.5">{icon}</div>
+                      <div>
+                        <div className="text-sm font-semibold text-white">{title}</div>
+                        <div className="mt-1 text-xs text-slate-500">{desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                  <button onClick={simulateRefresh} className="flex items-center gap-2 rounded-xl bg-[#111d31] border border-[#1a2540] px-4 py-3 text-sm font-semibold text-slate-400 hover:text-white hover:bg-[#162035] transition-colors">
+                    <Settings2 className="h-4 w-4" /> Run simulated sync
                   </button>
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                {[
-                  { label: '1st %', key: 'first' as const },
-                  { label: '2nd %', key: 'second' as const },
-                  { label: '3rd %', key: 'third' as const },
-                ].map(({ label, key }) => (
-                  <label key={key} className="rounded-2xl bg-white/[0.04] border border-white/8 p-4 text-sm">
-                    <div className="mb-2 font-medium text-slate-300">{label}</div>
-                    <input
-                      type="number"
-                      value={settings.payouts[key]}
-                      onChange={(e) => setSettings({ ...settings, payouts: { ...settings.payouts, [key]: Number(e.target.value) } })}
-                      className="w-full rounded-xl border border-white/12 bg-white/[0.07] px-3 py-2 text-white outline-none focus:border-emerald-500/50 transition"
-                    />
-                  </label>
-                ))}
-              </div>
-
-              <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-                <span className={`inline-flex items-center gap-2 rounded-2xl border px-3 py-2 ${payoutTotal === 100 ? 'border-emerald-500/30 bg-emerald-900/20 text-emerald-300' : 'border-amber-500/30 bg-amber-900/20 text-amber-300'}`}>
-                  <CheckCircle2 className="h-4 w-4" /> Payout total: {payoutTotal}%
-                </span>
-                <span className="text-slate-500">{isSettingsSaving ? 'Saving settings...' : 'Settings save automatically in this prototype.'}</span>
-              </div>
-            </SectionCard>
-
-            <div className="space-y-6">
-              <SectionCard title="Semi-live Feed Workflow" subtitle="This is the operating model for Option A using unofficial public leaderboard data.">
-                <div className="space-y-2 text-sm">
-                  {[
-                    {
-                      icon: <RefreshCw className="mt-0.5 h-4 w-4 text-sky-400" />,
-                      title: 'Refresh leaderboard every 2–5 minutes',
-                      desc: 'Normalize player score, thru, status, and last update time into your database.',
-                    },
-                    {
-                      icon: <TrendingUp className="mt-0.5 h-4 w-4 text-emerald-400" />,
-                      title: 'Recompute entry scores after each sync',
-                      desc: 'Raw team score and bonus points are recalculated from stored golfer states.',
-                    },
-                    {
-                      icon: <AlertCircle className="mt-0.5 h-4 w-4 text-amber-400" />,
-                      title: 'Flag source issues for manual review',
-                      desc: 'If the feed is delayed or parsing fails, the site shows last good data and an admin status warning.',
-                    },
-                    {
-                      icon: <Flag className="mt-0.5 h-4 w-4 text-slate-400" />,
-                      title: 'Lock at first tee time',
-                      desc: 'No roster edits after official start. In production, this should be enforced server-side.',
-                    },
-                  ].map(({ icon, title, desc }) => (
-                    <div key={title} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                      {icon}
-                      <div>
-                        <div className="font-medium text-white">{title}</div>
-                        <div className="mt-1 text-slate-400">{desc}</div>
-                      </div>
-                    </div>
-                  ))}
+              {/* Backend contract */}
+              <div className={PANEL}>
+                <div className={PANEL_HEAD}>
+                  <h2 className="font-bold text-white">Backend Contract</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">Replace mock methods with real API calls to go live</p>
                 </div>
-                <button
-                  onClick={simulateRefresh}
-                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-white/8 border border-white/12 px-4 py-3 text-sm font-medium text-slate-200 hover:bg-white/12 transition"
-                >
-                  <Settings2 className="h-4 w-4" /> Run simulated sync
-                </button>
-              </SectionCard>
-
-              <SectionCard title="Backend Contract" subtitle="The UI now talks to an async mock service, which is the bridge point for a real backend.">
-                <CodeBlock>{`mockPoolService methods:
-- loadSettings()
-- saveSettings(settings)
-- loadRoster(entryName, tournamentId)
-- saveRoster({ entryName, tournamentId, playerIds })
-
-current UI states:
-- isBooting
-- isRosterLoading
-- isRosterSaving
-- isSettingsSaving
+                <div className="p-5">
+                  <pre className="text-xs text-slate-400 bg-black/50 border border-[#1a2540] rounded-xl p-4 overflow-x-auto leading-relaxed">{`mockPoolService methods:
+  loadSettings()
+  saveSettings(settings)
+  loadRoster(entryName, tournamentId)
+  saveRoster({ entryName, tournamentId, playerIds })
 
 next real implementation:
-- replace localStorage reads/writes with API calls
-- keep UI state and validation unchanged
-- map these methods to Supabase queries/actions
-- keep loading/saving indicators as-is`}</CodeBlock>
-              </SectionCard>
-
-              <SectionCard title="Data Model Scaffold" subtitle="These are the core entities this UI should map to in a real backend.">
-                <CodeBlock>{JSON.stringify(DATA_MODEL, null, 2)}</CodeBlock>
-                <div className="mt-4 rounded-2xl border border-sky-500/20 bg-sky-900/15 p-4 text-sm text-sky-300">
-                  The UI now builds tournament player cards from normalized sources: PLAYERS + TOURNAMENT_SALARIES + LIVE_PLAYER_STATS.
+  → replace localStorage reads/writes with fetch() / Supabase
+  → keep all UI state and validation unchanged
+  → keep loading/saving indicators as-is`}</pre>
                 </div>
-                <div className="mt-4 space-y-2 text-sm text-slate-400">
-                  {BACKEND_MAPPING_NOTES.map((note) => (
-                    <div key={note} className="rounded-xl border border-white/6 bg-white/[0.04] px-3 py-2">
-                      {note}
-                    </div>
-                  ))}
-                </div>
-              </SectionCard>
+              </div>
 
-              <SectionCard title="Suggested Tests" subtitle="Add these when the app moves into a real project.">
-                <CodeBlock>{`test('validateRoster requires exactly 6 golfers')
-test('validateRoster rejects cap over $50,000')
-test('saveRoster blocks when locked')
-test('mockPoolService.saveRoster persists roster by tournament key')
-test('mockPoolService.loadSettings returns defaults when empty')
-test('standings sort by lowest net score')
-test('admin payout warning appears when total != 100')`}</CodeBlock>
-              </SectionCard>
             </div>
           </div>
         )}
+      </main>
 
-        {/* ── Footer ── */}
-        <footer className="mt-8 rounded-3xl border border-white/8 bg-white/[0.03] backdrop-blur p-5 text-sm text-slate-500">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="text-slate-400">
-              MVP status: front-end prototype complete for a shareable golf pool site. To go live, connect this UI to authentication, a database, lineup storage, scheduled refresh jobs, and your unofficial leaderboard and odds ingestion services.
-            </div>
-            <div className="inline-flex items-center gap-2 font-medium text-slate-300 whitespace-nowrap">
-              Next step: connect real APIs <ChevronRight className="h-4 w-4" />
-            </div>
-          </div>
-        </footer>
-      </div>
+      {/* ══ Footer ══ */}
+      <footer className="shrink-0 border-t border-[#1a2540] bg-[#0b1220] px-5 py-2.5 flex items-center justify-between text-xs text-slate-700">
+        <span>MVP prototype · connect auth, DB, and live data feeds to go live</span>
+        <span className="flex items-center gap-1 text-slate-600 hover:text-slate-400 transition-colors">
+          Next: connect real APIs <ChevronRight className="h-3 w-3" />
+        </span>
+      </footer>
     </div>
   );
 }
