@@ -18,6 +18,9 @@ import {
   Wallet,
   Users,
   Medal,
+  Bell,
+  Info,
+  ChevronDown,
 } from 'lucide-react';
 
 /* ─── Constants ─────────────────────────────────────── */
@@ -33,16 +36,6 @@ const DEFAULT_SETTINGS = {
   manualLock: false,
 };
 
-const BACKEND_MAPPING_NOTES = [
-  'tournaments -> schedule, lock time, status',
-  'players -> master player directory',
-  'tournamentSalaries -> one row per player per event',
-  'entries -> one saved roster shell per user per tournament',
-  'entryPicks -> exactly 6 picks tied to an entry',
-  'livePlayerStats -> refreshed every 2–5 minutes from leaderboard ingest',
-  'poolSettings -> admin-controlled payout and payment details',
-];
-
 const DATA_MODEL = {
   tournaments: { id: 'string', name: 'string', venue: 'string', lockAt: 'datetime', status: 'scheduled | live | final' },
   players: { id: 'number', name: 'string', owgr: 'number' },
@@ -54,11 +47,11 @@ const DATA_MODEL = {
 };
 
 const TOURNAMENTS = [
-  { id: 'players', name: 'The Players Championship', shortName: 'Players', venue: 'TPC Sawgrass', lockTimeLabel: 'Thu 7:40 AM', lockAt: '2026-03-12T07:40:00' },
-  { id: 'masters', name: 'The Masters', shortName: 'Masters', venue: 'Augusta National', lockTimeLabel: 'Thu 7:30 AM', lockAt: '2026-04-09T07:30:00' },
-  { id: 'pga', name: 'PGA Championship', shortName: 'PGA Champ.', venue: 'TBD', lockTimeLabel: 'Thu 7:20 AM', lockAt: '2026-05-14T07:20:00' },
-  { id: 'us-open', name: 'U.S. Open', shortName: 'US Open', venue: 'TBD', lockTimeLabel: 'Thu 7:15 AM', lockAt: '2026-06-18T07:15:00' },
-  { id: 'open', name: 'The Open Championship', shortName: 'The Open', venue: 'TBD', lockTimeLabel: 'Thu 6:35 AM', lockAt: '2026-07-16T06:35:00' },
+  { id: 'players', name: 'The Players Championship', shortName: 'The Players', venue: 'TPC Sawgrass', lockTimeLabel: 'Thu 7:40 AM', lockAt: '2026-03-12T07:40:00' },
+  { id: 'masters', name: 'The Masters', shortName: 'The Masters', venue: 'Augusta National', lockTimeLabel: 'Thu 7:30 AM', lockAt: '2026-04-09T07:30:00' },
+  { id: 'pga', name: 'PGA Championship', shortName: 'The PGA', venue: 'Aronimink', lockTimeLabel: 'Thu 7:20 AM', lockAt: '2026-05-14T07:20:00' },
+  { id: 'us-open', name: 'U.S. Open', shortName: 'The U.S. Open', venue: 'TBD', lockTimeLabel: 'Thu 7:15 AM', lockAt: '2026-06-18T07:15:00' },
+  { id: 'open', name: 'The Open Championship', shortName: 'The British Open', venue: 'TBD', lockTimeLabel: 'Thu 6:35 AM', lockAt: '2026-07-16T06:35:00' },
 ];
 
 const BONUS_ROWS = [
@@ -142,7 +135,7 @@ const LIVE_PLAYER_STATS = [
   { tournamentId: 'players', playerId: 11, thru: 'F',  score: '+2', pars: 38, birdies: 8,  eagles: 0, aces: 0, bogeys: 11, doubles: 2, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: -10, lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
   { tournamentId: 'players', playerId: 12, thru: '7',  score: '-2', pars: 40, birdies: 12, eagles: 1, aces: 0, bogeys: 6,  doubles: 0, triplePlus: 0, streaks: 2, roundLeadBonus: 0, finishingBonus: 9,  lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
   { tournamentId: 'players', playerId: 13, thru: '11', score: 'E',  pars: 43, birdies: 9,  eagles: 0, aces: 0, bogeys: 8,  doubles: 1, triplePlus: 0, streaks: 0, roundLeadBonus: 0, finishingBonus: 8,  lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
-  { tournamentId: 'players', playerId: 14, thru: '10', score: '-1', pars: 39, birdies: 10, eagles: 0, aces: 0, bogeys: 6,  doubles: 0, triplePlus: 1, streaks: 1, roundLeadBonus: 0, finishingBonus: 7,  lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
+  { tournamentId: 'players', playerId: 14, thru: '10', score: '-1', pars: 39, birdies: 10, eagles: 0, acs: 0, bogeys: 6,  doubles: 0, triplePlus: 1, streaks: 1, roundLeadBonus: 0, finishingBonus: 7,  lowRoundBonus: 0, updatedAt: '2026-03-12T12:00:00' },
 ];
 
 const STATIC_ENTRIES = [
@@ -185,9 +178,9 @@ const scoreToNumber = (v: string) => (v === 'E' ? 0 : Number(v));
 
 const scoreColor = (score: string | number) => {
   const n = typeof score === 'string' ? scoreToNumber(score) : score;
-  if (n < 0) return 'text-emerald-400';
-  if (n > 0) return 'text-rose-400';
-  return 'text-slate-400';
+  if (n < 0) return 'text-red-600';
+  if (n > 0) return 'text-gray-500';
+  return 'text-gray-400';
 };
 
 const fmtScore = (n: number) => (n > 0 ? `+${n}` : String(n));
@@ -223,32 +216,41 @@ function getCountdown(lockAt: string) {
   return { isLocked: false, label: `${h}h ${m}m` };
 }
 
-/* ─── Small UI atoms ─────────────────────────────────── */
+/* ─── Tournament logo placeholder ───────────────────── */
 
-function Badge({ children, tone = 'slate' }: { children: React.ReactNode; tone?: 'slate' | 'green' | 'amber' | 'blue' | 'red' }) {
-  const cls = {
-    slate: 'bg-[#1a2d47]/70 text-slate-400 border-slate-700/30',
-    green: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/25',
-    amber: 'bg-amber-950/60 text-amber-400 border-amber-500/25',
-    blue:  'bg-sky-950/60 text-sky-400 border-sky-500/25',
-    red:   'bg-rose-950/60 text-rose-400 border-rose-500/25',
-  }[tone];
+function TournamentLogo({ tid }: { tid: string }) {
+  const configs: Record<string, { bg: string; fg: string; lines: string[] }> = {
+    players:  { bg: '#00553a', fg: '#ffffff', lines: ['THE', 'PLAYERS', '2026'] },
+    masters:  { bg: '#00553a', fg: '#f5d000', lines: ['MASTERS', '2026', 'AUGUSTA'] },
+    pga:      { bg: '#00205b', fg: '#ffffff', lines: ['PGA', '2026', 'ARONIMINK'] },
+    'us-open':{ bg: '#002868', fg: '#ffffff', lines: ['U.S.', 'OPEN', '2026'] },
+    open:     { bg: '#003087', fg: '#ffffff', lines: ['THE', 'OPEN', '2026'] },
+  };
+  const c = configs[tid] ?? configs['players'];
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${cls}`}>
-      {children}
-    </span>
+    <div className="w-full h-full flex flex-col items-center justify-center gap-0.5" style={{ background: c.bg }}>
+      {c.lines.map((line, i) => (
+        <div
+          key={i}
+          style={{ color: c.fg, fontWeight: i === 1 ? 900 : 700, fontSize: i === 1 ? 28 : 13, letterSpacing: i === 1 ? 2 : 1 }}
+        >
+          {line}
+        </div>
+      ))}
+    </div>
   );
 }
 
-const PANEL = 'rounded-2xl border border-[#1c2d48] overflow-hidden';
-const PANEL_HEAD = 'bg-[#0c1626] border-b border-[#1c2d48] px-5 py-3.5';
-const COL_LABEL = 'text-[10px] font-semibold uppercase tracking-widest text-[#3d5878]';
+/* ─── Main nav tabs ──────────────────────────────────── */
+
+const MAIN_TABS = ['Standings', 'My entries', 'Reports', 'Message board', 'Details', 'Commissioner console'] as const;
+type MainTab = typeof MAIN_TABS[number];
 
 /* ─── Page ───────────────────────────────────────────── */
 
 export default function Page() {
-  const [selectedTournament, setSelectedTournament] = useState(TOURNAMENTS[0].id);
-  const [activeTab, setActiveTab] = useState('My Picks');
+  const [mainTab, setMainTab] = useState<MainTab>('Standings');
+  const [selectedTournament, setSelectedTournament] = useState(TOURNAMENTS[2].id); // default to PGA like screenshot
   const [entryName, setEntryName] = useState('Clayton Tucker');
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTER);
@@ -262,9 +264,10 @@ export default function Page() {
   const [isRosterLoading, setIsRosterLoading] = useState(false);
   const [isRosterSaving, setIsRosterSaving] = useState(false);
   const [isSettingsSaving, setIsSettingsSaving] = useState(false);
+  const [showYtd, setShowYtd] = useState(false);
 
   const tournament = TOURNAMENTS.find(t => t.id === selectedTournament) ?? TOURNAMENTS[0];
-  const tournamentPlayers = useMemo(() => buildPlayerView(selectedTournament), [selectedTournament]);
+  const tournamentPlayers = useMemo(() => buildPlayerView('players'), []);
   const playersById = useMemo(() => Object.fromEntries(tournamentPlayers.map((p: any) => [p.id, p])), [tournamentPlayers]);
 
   useEffect(() => {
@@ -276,14 +279,14 @@ export default function Page() {
   useEffect(() => {
     let cancelled = false;
     setIsRosterLoading(true);
-    mockPoolService.loadRoster(entryName, selectedTournament).then(saved => {
+    mockPoolService.loadRoster(entryName, 'players').then(saved => {
       if (cancelled) return;
       if (saved?.playerIds) { setSelectedRoster(saved.playerIds); setLastSavedAt(new Date(saved.savedAt).toLocaleString()); }
       else { setSelectedRoster(DEFAULT_ROSTER); setLastSavedAt('Not saved yet'); }
       setIsRosterLoading(false);
     });
     return () => { cancelled = true; };
-  }, [entryName, selectedTournament]);
+  }, [entryName]);
 
   useEffect(() => {
     let cancelled = false;
@@ -338,7 +341,7 @@ export default function Page() {
     const v = validateRoster(selectedRoster, playersById);
     if (!v.ok) { setSaveMessage(v.message); return; }
     setIsRosterSaving(true);
-    const saved = await mockPoolService.saveRoster({ entryName, tournamentId: selectedTournament, playerIds: selectedRoster });
+    const saved = await mockPoolService.saveRoster({ entryName, tournamentId: 'players', playerIds: selectedRoster });
     setLastSavedAt(new Date(saved.savedAt).toLocaleString());
     setSaveMessage('Lineup saved!');
     setIsRosterSaving(false);
@@ -355,115 +358,326 @@ export default function Page() {
     setLastRefresh(['just now', '1 minute ago', '2 minutes ago'][Math.floor(Math.random() * 3)]);
   };
 
+  // Today = April 22 2026; players + masters are past, rest upcoming
+  const today = new Date('2026-04-22');
+  const tournamentTabs = [
+    ...TOURNAMENTS.map(t => ({ ...t, isPast: new Date(t.lockAt) < today, isYtd: false })),
+    { id: 'ytd', name: 'Year-to-Date', shortName: 'Year-to-Date', venue: '', lockTimeLabel: '', lockAt: '', isPast: false, isYtd: true },
+  ];
+
+  const activeLeaderboardTid = showYtd ? 'ytd' : selectedTournament;
+  const hasTournamentData = activeLeaderboardTid === 'players' || activeLeaderboardTid === 'ytd';
+
+  const tdClass = (t: typeof tournamentTabs[0]) => {
+    const isActive = showYtd ? t.isYtd : (!t.isYtd && t.id === selectedTournament);
+    if (isActive) return 'active-tab';
+    if (t.isYtd) return 'ytd-tab';
+    if (t.isPast) return 'past-tab';
+    return 'future-tab';
+  };
+
   /* ── RENDER ── */
   return (
-    <div className="flex h-screen flex-col bg-[#070d1a] text-[#f0f6ff] overflow-hidden">
+    <div className="min-h-screen flex flex-col" style={{ background: '#e8e8e8' }}>
 
       {/* ══ Header ══ */}
-      <header className="shrink-0 flex h-14 items-center border-b border-[#1c2d48] bg-[#0c1626] px-5 gap-6">
-        <div className="flex items-center gap-2.5 shrink-0">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/25">
-            <span className="text-sm leading-none">⛳</span>
+      <header style={{ background: '#1a1a1a', color: '#fff' }} className="shrink-0">
+        {/* Top strip */}
+        <div className="flex items-center gap-4 px-6 py-3">
+          <button className="text-gray-500 hover:text-gray-300 transition-colors shrink-0">
+            <X className="h-5 w-5" />
+          </button>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-[15px] leading-tight">2026 Golf Majors Pool</span>
+              <Info className="h-3.5 w-3.5 text-gray-500 shrink-0" />
+            </div>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-sm text-gray-400">4/9</span>
+              <span className="text-gray-600 text-sm">•</span>
+              <span
+                className="text-xs px-2.5 py-0.5 rounded-full font-medium"
+                style={{ border: '1px solid #444', color: '#ccc', background: '#2a2a2a' }}
+              >
+                Golf Majors
+              </span>
+              <span className="text-base">⛳</span>
+            </div>
           </div>
-          <span className="text-[15px] font-black tracking-tight">
-            MAJORS <span className="text-emerald-400">POOL</span>
-          </span>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <Bell className="h-5 w-5 text-gray-400" />
+            <div className="text-right">
+              <div className="font-bold text-sm leading-tight">23 Contest Entries</div>
+              <div className="text-xs text-gray-400 mt-0.5">Your Entries: 1/1 allowed</div>
+            </div>
+          </div>
         </div>
 
-        <nav className="flex items-center gap-1 flex-1">
-          {(['My Picks', 'Standings', 'Rules and Scoring', 'Admin'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-150 ${
-                activeTab === tab
-                  ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.28)]'
-                  : 'text-[#6b82a8] hover:text-[#f0f6ff] hover:bg-white/[0.05]'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-3 shrink-0">
-          {isBooting && <span className="text-xs text-[#2a4063] animate-pulse">Loading…</span>}
-          <span className="text-sm text-[#6b82a8] font-medium hidden sm:block">{entryName}</span>
-          <Badge tone={locked ? 'red' : 'green'}>
-            {locked ? <><Lock className="h-2.5 w-2.5" /> Locked</> : <><Unlock className="h-2.5 w-2.5" /> Open</>}
-          </Badge>
+        {/* Nav tabs */}
+        <div style={{ borderTop: '1px solid #2a2a2a' }} className="px-6">
+          <div className="flex items-end gap-0">
+            {MAIN_TABS.map(tab => (
+              <button
+                key={tab}
+                onClick={() => setMainTab(tab)}
+                className="flex items-center gap-1 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors"
+                style={{
+                  borderBottom: mainTab === tab ? '2px solid #3dd8c8' : '2px solid transparent',
+                  color: mainTab === tab ? '#3dd8c8' : '#ccc',
+                }}
+                onMouseEnter={e => { if (mainTab !== tab) (e.currentTarget as HTMLElement).style.color = '#fff'; }}
+                onMouseLeave={e => { if (mainTab !== tab) (e.currentTarget as HTMLElement).style.color = '#ccc'; }}
+              >
+                {tab}
+                {tab === 'Reports' && <ChevronDown className="h-3.5 w-3.5" />}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
-      {/* ══ Tournament selector strip ══ */}
-      <div className="shrink-0 flex items-center gap-2 border-b border-[#1c2d48] bg-[#070d1a] px-5 py-2.5 overflow-x-auto">
-        {TOURNAMENTS.map(t => (
-          <button
-            key={t.id}
-            onClick={() => setSelectedTournament(t.id)}
-            className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all duration-150 ${
-              selectedTournament === t.id
-                ? 'bg-emerald-500 text-white shadow-[0_0_16px_rgba(16,185,129,0.3)]'
-                : 'bg-[#0c1626] text-[#6b82a8] border border-[#1c2d48] hover:text-[#f0f6ff] hover:border-[#2a4063]'
-            }`}
-          >
-            {t.shortName}
-          </button>
-        ))}
-
-        <div className="ml-auto flex items-center gap-4 text-xs shrink-0">
-          <div className="text-[#3d5878] flex items-center gap-1.5">
-            <Clock3 className="h-3.5 w-3.5" />
-            Lock: <span className="text-slate-300 font-semibold ml-0.5">{tournament.lockTimeLabel}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${autoLocked ? 'bg-rose-500' : 'bg-emerald-500 animate-pulse'}`} />
-            <span className={`font-bold ${autoLocked ? 'text-rose-400' : 'text-emerald-400'}`}>
-              {autoLocked ? 'LOCKED' : countdownLabel + ' until lock'}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* ══ Main content area ══ */}
+      {/* ══ Main content ══ */}
       <main className="flex-1 overflow-hidden">
 
-        {/* ─── MY PICKS ─── */}
-        {activeTab === 'My Picks' && (
-          <div className="flex h-full">
+        {/* ─── STANDINGS (Leaderboard) ─── */}
+        {mainTab === 'Standings' && (
+          <div className="overflow-y-auto h-full">
+            <div className="max-w-5xl mx-auto px-6 py-6">
+
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">Leaderboard</h1>
+
+              {/* White card with tabs inside */}
+              <div className="bg-white border border-gray-300">
+
+                {/* Tournament sub-tabs */}
+                <div
+                  className="flex items-end gap-0 px-4 pt-3 overflow-x-auto"
+                  style={{ borderBottom: '1px solid #d0d0d0' }}
+                >
+                  {tournamentTabs.map(t => {
+                    const tabClass = tdClass(t);
+                    const isActive = tabClass === 'active-tab';
+                    const isYtd = tabClass === 'ytd-tab';
+                    const isFuture = tabClass === 'future-tab';
+                    const isPast = tabClass === 'past-tab';
+
+                    return (
+                      <button
+                        key={t.id}
+                        onClick={() => {
+                          if (t.isYtd) { setShowYtd(true); }
+                          else { setShowYtd(false); setSelectedTournament(t.id); }
+                        }}
+                        className="shrink-0 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors"
+                        style={{
+                          background: isActive ? '#fff' : 'transparent',
+                          color: isActive ? '#333' : isYtd ? '#3dd8c8' : isFuture ? '#3dd8c8' : '#888',
+                          fontWeight: isYtd ? 700 : isActive ? 600 : 400,
+                          border: isActive ? '1px solid #d0d0d0' : '1px solid transparent',
+                          borderBottom: isActive ? '1px solid #fff' : '1px solid transparent',
+                          marginBottom: isActive ? '-1px' : '0',
+                          position: 'relative',
+                          zIndex: isActive ? 1 : 0,
+                        }}
+                      >
+                        {t.shortName}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Tab content */}
+                {hasTournamentData ? (
+                  /* ── Standings table (The Players or Year-to-Date) ── */
+                  <div>
+                    {/* Prize row */}
+                    <div className="grid grid-cols-4 border-b border-gray-200">
+                      {([
+                        { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#b45309' },
+                        { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: '#b45309' },
+                        { label: 'Entries',    value: standings.length, color: '#1a1a1a' },
+                        { label: 'Entry Fee',  value: `$${settings.entryFee}`, color: '#047857' },
+                      ] as any[]).map(({ label, value, color }) => (
+                        <div key={label} className="px-5 py-4 border-r border-gray-200 last:border-0">
+                          <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-1">{label}</div>
+                          <div className="text-xl font-black" style={{ color }}>{value}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Table header */}
+                    <div className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 px-5 py-2.5 bg-gray-50 border-b border-gray-200">
+                      {['Place', 'Entry', 'Salary', 'Raw', 'Bonus', 'Net'].map(h => (
+                        <span key={h} className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">{h}</span>
+                      ))}
+                    </div>
+
+                    {standings.map((entry: any) => (
+                      <div
+                        key={entry.id}
+                        className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 items-center px-5 py-3.5 border-b border-gray-100 last:border-0 transition-colors hover:bg-gray-50"
+                        style={entry.name === entryName ? { background: '#f0fdf9' } : {}}
+                      >
+                        <div className="font-bold text-base">
+                          {entry.place === 1 ? '🥇' : entry.place === 2 ? '🥈' : entry.place === 3 ? '🥉' : (
+                            <span className="text-gray-400 text-sm">#{entry.place}</span>
+                          )}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-900">{entry.name}</span>
+                            {entry.name === entryName && (
+                              <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full" style={{ background: '#d1fae5', color: '#065f46' }}>You</span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-400 mt-0.5">{entry.golfers.length} golfers</div>
+                        </div>
+                        <span className="text-sm text-gray-600 tabular-nums">${entry.salary.toLocaleString()}</span>
+                        <span className={`text-sm font-bold tabular-nums ${scoreColor(entry.rawScore)}`}>{fmtScore(entry.rawScore)}</span>
+                        <span className="text-sm font-bold tabular-nums text-blue-600">{entry.bonus}</span>
+                        <span className={`text-base font-black tabular-nums ${scoreColor(entry.net)}`}>{fmtScore(entry.net)}</span>
+                      </div>
+                    ))}
+
+                    {/* Sync footer */}
+                    <div className="flex items-center justify-between px-5 py-3 bg-gray-50 border-t border-gray-200">
+                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                        <Clock3 className="h-3.5 w-3.5" />
+                        <span>Last sync {lastRefresh}</span>
+                        <span>·</span>
+                        <Shield className="h-3.5 w-3.5" />
+                        <span>Unofficial source</span>
+                        <span
+                          className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
+                          style={{
+                            background: syncStatus === 'Healthy' ? '#d1fae5' : syncStatus === 'Delayed' ? '#fef3c7' : '#fee2e2',
+                            color: syncStatus === 'Healthy' ? '#065f46' : syncStatus === 'Delayed' ? '#92400e' : '#991b1b',
+                          }}
+                        >
+                          {syncStatus}
+                        </span>
+                      </div>
+                      <button
+                        onClick={simulateRefresh}
+                        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-800 transition-colors"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" /> Refresh
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* ── Coming soon card (upcoming tournaments) ── */
+                  <div>
+                    <div className="p-6 flex gap-6">
+                      {/* Tournament logo */}
+                      <div className="shrink-0 w-44 h-44 border border-gray-200 overflow-hidden">
+                        <TournamentLogo tid={selectedTournament} />
+                      </div>
+
+                      {/* Info text */}
+                      <div className="pt-2">
+                        <p className="text-gray-800 mb-3">
+                          The {tournament.name} begins on{' '}
+                          {new Date(tournament.lockAt).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}.
+                        </p>
+                        <p className="text-gray-600 text-sm leading-relaxed">
+                          Picks can not be entered until the tournament field has been finalized and entered in our system (usually Monday morning the week of the tournament).
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Info banner — matches screenshot exactly */}
+                    <div
+                      className="px-5 py-4 flex items-start gap-3"
+                      style={{ background: '#ccf0ec', borderTop: '1px solid #a0ddd7' }}
+                    >
+                      <div
+                        className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5"
+                        style={{ background: '#333', color: '#fff', fontSize: 11, fontWeight: 700 }}
+                      >
+                        i
+                      </div>
+                      <p className="text-sm text-gray-700">
+                        Reminder: To modify your list of active tournaments, please go to your{' '}
+                        <button
+                          onClick={() => setMainTab('Commissioner console')}
+                          className="underline hover:text-gray-900 transition-colors"
+                        >
+                          tournament settings
+                        </button>
+                        .
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Payout structure card */}
+              {hasTournamentData && (
+                <div className="mt-5 bg-white border border-gray-300 overflow-hidden">
+                  <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
+                    <h3 className="font-bold text-gray-900 text-sm">Payout Structure</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">Send to {settings.venmo}</p>
+                  </div>
+                  <div className="p-4 grid grid-cols-3 gap-3">
+                    {([
+                      { icon: '🥇', label: '1st Place', pct: settings.payouts.first },
+                      { icon: '🥈', label: '2nd Place', pct: settings.payouts.second },
+                      { icon: '🥉', label: '3rd Place', pct: settings.payouts.third },
+                    ] as any[]).map(({ icon, label, pct }) => (
+                      <div key={label} className="border border-gray-200 rounded px-4 py-3 flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">{icon} {label}</span>
+                        <div className="text-right">
+                          <div className="text-lg font-black text-gray-900">${Math.round(projectedPot * pct / 100).toLocaleString()}</div>
+                          <div className="text-xs text-gray-400">{pct}%</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ─── MY ENTRIES (My Picks) ─── */}
+        {mainTab === 'My entries' && (
+          <div className="flex overflow-hidden" style={{ height: 'calc(100vh - 113px)' }}>
 
             {/* Left: Player pool */}
-            <div className="flex flex-col flex-1 overflow-hidden border-r border-[#1c2d48]">
+            <div className="flex flex-col flex-1 overflow-hidden bg-white border-r border-gray-200">
 
-              {/* Contest context bar */}
-              <div className="shrink-0 grid grid-cols-4 border-b border-[#1c2d48]">
+              {/* Contest bar */}
+              <div className="shrink-0 grid grid-cols-4 border-b border-gray-200">
                 {([
-                  { label: 'Tournament', value: tournament.name },
-                  { label: 'Venue', value: tournament.venue },
-                  { label: 'Entry Fee', value: `$${settings.entryFee}`, hi: 'text-emerald-400' },
-                  { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, hi: 'text-amber-400' },
-                ] as any[]).map(({ label, value, hi }) => (
-                  <div key={label} className="px-4 py-3 border-r border-[#1c2d48] last:border-0 bg-[#0c1626]">
-                    <div className={COL_LABEL}>{label}</div>
-                    <div className={`text-sm font-semibold mt-0.5 truncate ${hi ?? 'text-[#f0f6ff]'}`}>{value}</div>
+                  { label: 'Tournament', value: 'The Players Championship' },
+                  { label: 'Venue', value: 'TPC Sawgrass' },
+                  { label: 'Entry Fee', value: `$${settings.entryFee}`, color: '#047857' },
+                  { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#b45309' },
+                ] as any[]).map(({ label, value, color }) => (
+                  <div key={label} className="px-4 py-3 border-r border-gray-200 last:border-0 bg-gray-50">
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{label}</div>
+                    <div className="text-sm font-semibold mt-0.5 truncate" style={{ color: color ?? '#1a1a1a' }}>{value}</div>
                   </div>
                 ))}
               </div>
 
               {/* Column headers */}
-              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-2.5 bg-[#070d1a] border-b border-[#1c2d48]">
-                <span className={COL_LABEL + ' text-center'}>RK</span>
-                <span className={COL_LABEL}>Player</span>
-                <span className={COL_LABEL + ' text-center'}>Thru</span>
-                <span className={COL_LABEL + ' text-center'}>Score</span>
-                <span className={COL_LABEL}>Salary</span>
-                <span className={COL_LABEL + ' text-center'}>Action</span>
+              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-2 bg-gray-100 border-b border-gray-200">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">RK</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Player</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">Thru</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">Score</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Salary</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">Action</span>
               </div>
 
               {/* Player rows */}
               <div className="overflow-y-auto flex-1">
                 {isRosterLoading ? (
-                  <div className="flex items-center justify-center h-32 text-[#3d5878] text-sm">Loading roster…</div>
+                  <div className="flex items-center justify-center h-32 text-gray-400 text-sm">Loading roster…</div>
                 ) : (
                   tournamentPlayers.map((player: any) => {
                     const selected = selectedRoster.includes(player.id);
@@ -476,44 +690,55 @@ export default function Page() {
                       <div
                         key={player.id}
                         onClick={() => (canAdd || canRemove) ? toggleRosterPlayer(player.id) : undefined}
-                        className={`grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-3 border-b border-[#1c2d48]/50 transition-all ${
-                          selected
-                            ? 'bg-emerald-950/20 shadow-[inset_3px_0_0_rgba(16,185,129,0.5)] cursor-pointer'
-                            : canAdd
-                              ? 'hover:bg-[#0f1e35]/50 cursor-pointer'
-                              : 'opacity-30 cursor-not-allowed'
-                        }`}
+                        className="grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-3 border-b border-gray-100 transition-all"
+                        style={{
+                          background: selected ? '#f0fdf9' : 'white',
+                          cursor: canAdd || canRemove ? 'pointer' : 'not-allowed',
+                          opacity: (!canAdd && !selected) ? 0.4 : 1,
+                          boxShadow: selected ? 'inset 3px 0 0 #3dd8c8' : undefined,
+                        }}
+                        onMouseEnter={e => { if (canAdd && !selected) (e.currentTarget as HTMLElement).style.background = '#f9f9f9'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = selected ? '#f0fdf9' : 'white'; }}
                       >
-                        <span className="text-xs text-[#3d5878] text-center font-medium tabular-nums">{player.owgr}</span>
+                        <span className="text-xs text-gray-400 text-center font-medium tabular-nums">{player.owgr}</span>
 
                         <div className="min-w-0 flex items-center gap-2.5">
-                          <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black ${
-                            selected ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#0f1e35] text-[#4d6a8a]'
-                          }`}>
+                          <div
+                            className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black"
+                            style={{ background: selected ? '#d1fae5' : '#f3f4f6', color: selected ? '#065f46' : '#6b7280' }}
+                          >
                             {player.name.charAt(0)}
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-sm font-semibold text-[#f0f6ff]">{player.name}</span>
-                              {selected && <Badge tone="green">In Lineup</Badge>}
-                              {wouldExceedCap && <Badge tone="amber">Over Cap</Badge>}
+                              <span className="text-sm font-semibold text-gray-900">{player.name}</span>
+                              {selected && (
+                                <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full" style={{ background: '#d1fae5', color: '#065f46' }}>
+                                  In Lineup
+                                </span>
+                              )}
+                              {wouldExceedCap && (
+                                <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full" style={{ background: '#fef3c7', color: '#92400e' }}>
+                                  Over Cap
+                                </span>
+                              )}
                             </div>
-                            <div className="text-[11px] text-[#3d5878] mt-0.5">{player.odds} outright</div>
+                            <div className="text-[11px] text-gray-400 mt-0.5">{player.odds} outright</div>
                           </div>
                         </div>
 
-                        <span className="text-xs text-slate-400 text-center tabular-nums">{player.thru}</span>
+                        <span className="text-xs text-gray-500 text-center tabular-nums">{player.thru}</span>
                         <span className={`text-sm font-bold text-center tabular-nums ${scoreColor(player.score)}`}>{player.score}</span>
-                        <span className="text-sm font-semibold text-emerald-400 tabular-nums">${(player.salary / 1000).toFixed(1)}K</span>
+                        <span className="text-sm font-semibold tabular-nums" style={{ color: '#047857' }}>${(player.salary / 1000).toFixed(1)}K</span>
 
                         <button
                           onClick={e => { e.stopPropagation(); toggleRosterPlayer(player.id); }}
                           disabled={!canAdd && !canRemove}
-                          className={`py-1.5 rounded-lg text-[11px] font-bold tracking-wide border transition-all disabled:opacity-20 disabled:cursor-not-allowed ${
-                            selected
-                              ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 hover:bg-rose-500/20'
-                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
-                          }`}
+                          className="py-1.5 rounded text-[11px] font-bold tracking-wide border transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                          style={selected
+                            ? { background: '#fee2e2', color: '#991b1b', borderColor: '#fca5a5' }
+                            : { background: '#d1fae5', color: '#065f46', borderColor: '#6ee7b7' }
+                          }
                         >
                           {selected ? 'REMOVE' : '+ ADD'}
                         </button>
@@ -525,110 +750,106 @@ export default function Page() {
             </div>
 
             {/* Right: Lineup builder */}
-            <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-[#0c1626]">
+            <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-white">
 
               {/* Header + salary bar */}
-              <div className="shrink-0 border-b border-[#1c2d48] px-4 pt-4 pb-3">
+              <div className="shrink-0 border-b border-gray-200 px-4 pt-4 pb-3 bg-gray-50">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#6b82a8]">My Lineup</span>
-                  <span className="text-xs text-[#3d5878]">{selectedRoster.length}/{REQUIRED_GOLFERS} picks</span>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500">My Lineup</span>
+                  <span className="text-xs text-gray-400">{selectedRoster.length}/{REQUIRED_GOLFERS} picks</span>
                 </div>
-
                 <div>
                   <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className={COL_LABEL}>Salary Cap</span>
-                    <span className={`font-bold tabular-nums ${salaryRemaining < 0 ? 'text-rose-400' : 'text-slate-300'}`}>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Salary Cap</span>
+                    <span className="font-bold tabular-nums" style={{ color: salaryRemaining < 0 ? '#dc2626' : '#374151' }}>
                       ${salaryUsed.toLocaleString()} / $50K
                     </span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-[#111d33] overflow-hidden">
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#e5e7eb' }}>
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        salaryRemaining < 0
-                          ? 'bg-rose-500'
-                          : 'bg-gradient-to-r from-emerald-600 to-emerald-400'
-                      }`}
-                      style={{ width: `${salaryPct}%` }}
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${salaryPct}%`, background: salaryRemaining < 0 ? '#dc2626' : '#3dd8c8' }}
                     />
                   </div>
-                  <div className={`mt-1 text-right text-xs font-semibold ${salaryRemaining < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                  <div className="mt-1 text-right text-xs font-semibold" style={{ color: salaryRemaining < 0 ? '#dc2626' : '#047857' }}>
                     ${salaryRemaining.toLocaleString()} remaining
                   </div>
                 </div>
               </div>
 
-              {/* Roster slots */}
+              {/* Slots */}
               <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
                 {Array.from({ length: REQUIRED_GOLFERS }, (_, i) => {
                   const p: any = playersById[selectedRoster[i]];
                   return (
                     <div
                       key={i}
-                      className={`flex items-center gap-3 rounded-xl border p-3 transition-all ${
-                        p ? 'border-emerald-500/20 bg-emerald-950/15' : 'border-[#1c2d48] bg-[#111d33]/50'
-                      }`}
+                      className="flex items-center gap-3 rounded border p-3 transition-all"
+                      style={p
+                        ? { borderColor: '#a7f3d0', background: '#f0fdf9' }
+                        : { borderColor: '#e5e7eb', background: '#f9fafb' }
+                      }
                     >
-                      <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${
-                        p ? 'bg-emerald-500/25 text-emerald-400' : 'bg-[#1c2d48] text-[#3d5878]'
-                      }`}>
+                      <div
+                        className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black"
+                        style={p
+                          ? { background: '#d1fae5', color: '#065f46' }
+                          : { background: '#e5e7eb', color: '#9ca3af' }
+                        }
+                      >
                         {i + 1}
                       </div>
-
                       {p ? (
                         <>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-semibold text-[#f0f6ff] truncate">{p.name}</div>
-                            <div className="text-[11px] text-[#3d5878] mt-0.5">
-                              ${p.salary.toLocaleString()} · OWGR #{p.owgr}
-                            </div>
+                            <div className="text-sm font-semibold text-gray-900 truncate">{p.name}</div>
+                            <div className="text-[11px] text-gray-400 mt-0.5">${p.salary.toLocaleString()} · OWGR #{p.owgr}</div>
                           </div>
                           <span className={`text-sm font-bold shrink-0 tabular-nums ${scoreColor(p.score)}`}>{p.score}</span>
                           {!locked && (
-                            <button
-                              onClick={() => toggleRosterPlayer(p.id)}
-                              className="shrink-0 text-[#1c2d48] hover:text-rose-400 transition-colors ml-0.5"
-                            >
+                            <button onClick={() => toggleRosterPlayer(p.id)} className="shrink-0 text-gray-300 hover:text-red-500 transition-colors ml-0.5">
                               <X className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </>
                       ) : (
-                        <span className="text-sm text-[#3d5878] italic">Empty slot</span>
+                        <span className="text-sm text-gray-400 italic">Empty slot</span>
                       )}
                     </div>
                   );
                 })}
               </div>
 
-              {/* Score strip + actions */}
-              <div className="shrink-0 border-t border-[#1c2d48] p-4 space-y-3">
+              {/* Score + actions */}
+              <div className="shrink-0 border-t border-gray-200 p-4 space-y-3 bg-gray-50">
                 <div className="grid grid-cols-3 gap-2">
                   {([
                     { label: 'Raw', val: fmtScore(rosterRaw), color: scoreColor(rosterRaw) },
-                    { label: 'Bonus', val: `+${rosterBonus}`, color: 'text-sky-400' },
+                    { label: 'Bonus', val: `+${rosterBonus}`, color: 'text-blue-600' },
                     { label: 'Net', val: fmtScore(rosterNet), color: scoreColor(rosterNet) },
                   ] as any[]).map(({ label, val, color }) => (
-                    <div key={label} className="text-center rounded-xl bg-[#111d33] border border-[#1c2d48] py-2.5">
-                      <div className={COL_LABEL + ' mb-1'}>{label}</div>
+                    <div key={label} className="text-center rounded border border-gray-200 bg-white py-2.5">
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-1">{label}</div>
                       <div className={`text-base font-black tabular-nums ${color}`}>{val}</div>
                     </div>
                   ))}
                 </div>
 
                 {saveMessage && (
-                  <div className="text-xs text-slate-400 bg-[#111d33] border border-[#1c2d48] rounded-lg px-3 py-2 text-center">
+                  <div className="text-xs text-gray-600 bg-white border border-gray-200 rounded px-3 py-2 text-center">
                     {saveMessage}
                   </div>
                 )}
 
-                <div className={COL_LABEL + ' text-center'}>
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">
                   {isRosterLoading ? 'Loading…' : `Saved: ${lastSavedAt}`}
                 </div>
 
                 <button
                   onClick={handleSaveRoster}
                   disabled={isRosterSaving || isRosterLoading || locked}
-                  className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 active:from-emerald-700 active:to-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-sm rounded-xl transition-all shadow-[0_4px_18px_rgba(16,185,129,0.22)] disabled:shadow-none flex items-center justify-center gap-2"
+                  className="w-full py-3 text-white font-black text-sm rounded transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: '#3dd8c8' }}
                 >
                   <Save className="h-4 w-4" />
                   {isRosterSaving ? 'SAVING…' : 'SAVE LINEUP'}
@@ -636,7 +857,7 @@ export default function Page() {
                 <button
                   onClick={handleResetRoster}
                   disabled={isRosterSaving || isRosterLoading || locked}
-                  className="w-full py-1.5 text-[#3d5878] hover:text-slate-300 disabled:opacity-40 text-xs font-semibold transition-colors"
+                  className="w-full py-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-40 text-xs font-semibold transition-colors"
                 >
                   Reset to default picks
                 </button>
@@ -645,132 +866,110 @@ export default function Page() {
           </div>
         )}
 
-        {/* ─── STANDINGS ─── */}
-        {activeTab === 'Standings' && (
+        {/* ─── REPORTS ─── */}
+        {mainTab === 'Reports' && (
           <div className="overflow-y-auto h-full">
-            <div className="max-w-5xl mx-auto px-6 py-6 space-y-5">
-
-              {/* Prize stat row */}
-              <div className={`${PANEL} grid grid-cols-4 divide-x divide-[#1c2d48]`}>
-                {([
-                  { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: 'text-amber-400', icon: <Wallet className="h-4 w-4" /> },
-                  { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: 'text-amber-300', icon: <Medal className="h-4 w-4" /> },
-                  { label: 'Entries',    value: standings.length, color: 'text-[#f0f6ff]', icon: <Users className="h-4 w-4" /> },
-                  { label: 'Entry Fee',  value: `$${settings.entryFee}`, color: 'text-emerald-400', icon: <TrendingUp className="h-4 w-4" /> },
-                ] as any[]).map(({ label, value, color, icon }) => (
-                  <div key={label} className="bg-[#0c1626] px-5 py-4">
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <span className={`${color} opacity-50`}>{icon}</span>
-                      <div className={COL_LABEL}>{label}</div>
-                    </div>
-                    <div className={`text-2xl font-black ${color}`}>{value}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Standings table */}
-              <div className={PANEL}>
-                <div className={`${PANEL_HEAD} flex items-center justify-between`}>
-                  <div>
-                    <h2 className="font-bold text-[#f0f6ff]">Live Standings</h2>
-                    <p className="text-xs text-[#3d5878] mt-0.5 flex items-center gap-1.5">
-                      <Clock3 className="h-3 w-3" /> Last sync {lastRefresh}
-                      <span className="mx-1">·</span>
-                      <Shield className="h-3 w-3" /> Unofficial source
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge tone={syncStatus === 'Healthy' ? 'green' : syncStatus === 'Delayed' ? 'amber' : 'red'}>{syncStatus}</Badge>
-                    <button
-                      onClick={simulateRefresh}
-                      className="flex items-center gap-1.5 text-xs font-semibold text-[#6b82a8] hover:text-[#f0f6ff] bg-[#111d33] border border-[#1c2d48] px-3 py-1.5 rounded-full transition-all hover:border-[#2a4063]"
-                    >
-                      <RefreshCw className="h-3.5 w-3.5" /> Refresh
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-[64px,1fr,110px,80px,80px,88px] gap-3 px-5 py-2.5 bg-[#070d1a] border-b border-[#1c2d48]">
-                  {['Place', 'Entry', 'Salary', 'Raw', 'Bonus', 'Net'].map(h => (
-                    <span key={h} className={COL_LABEL}>{h}</span>
-                  ))}
-                </div>
-
-                {standings.map((entry: any) => (
-                  <div
-                    key={entry.id}
-                    className={`grid grid-cols-[64px,1fr,110px,80px,80px,88px] gap-3 items-center px-5 py-4 border-b border-[#1c2d48]/50 last:border-0 transition-all ${
-                      entry.name === entryName
-                        ? 'bg-emerald-950/20 shadow-[inset_3px_0_0_rgba(16,185,129,0.45)]'
-                        : 'hover:bg-[#0f1e35]/40'
-                    }`}
-                  >
-                    <div className="text-base font-black">
-                      {entry.place === 1 ? '🥇' : entry.place === 2 ? '🥈' : entry.place === 3 ? '🥉' : (
-                        <span className="text-[#3d5878] text-sm">#{entry.place}</span>
-                      )}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-[#f0f6ff]">{entry.name}</span>
-                        {entry.name === entryName && <Badge tone="green">You</Badge>}
-                      </div>
-                      <div className="text-xs text-[#3d5878] mt-0.5">{entry.golfers.length} golfers</div>
-                    </div>
-                    <span className="text-sm text-slate-300 tabular-nums">${entry.salary.toLocaleString()}</span>
-                    <span className={`text-sm font-bold tabular-nums ${scoreColor(entry.rawScore)}`}>{fmtScore(entry.rawScore)}</span>
-                    <span className="text-sm font-bold text-sky-400 tabular-nums">{entry.bonus}</span>
-                    <span className={`text-base font-black tabular-nums ${scoreColor(entry.net)}`}>{fmtScore(entry.net)}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Bottom row */}
-              <div className="grid gap-5 lg:grid-cols-2">
-                {/* Player tracker */}
-                <div className={PANEL}>
-                  <div className={PANEL_HEAD}>
-                    <h3 className="font-bold text-[#f0f6ff] text-sm">Featured Players</h3>
-                    <p className="text-xs text-[#3d5878] mt-0.5">Top of the leaderboard</p>
-                  </div>
-                  <div className="grid grid-cols-[28px,1fr,56px,60px] gap-3 px-5 py-2.5 bg-[#070d1a] border-b border-[#1c2d48]">
-                    {['#', 'Player', 'Score', 'Bonus'].map(h => <span key={h} className={COL_LABEL}>{h}</span>)}
-                  </div>
+            <div className="max-w-5xl mx-auto px-6 py-6">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">Reports</h1>
+              <div className="bg-white border border-gray-300 p-6">
+                <div className="grid gap-4 sm:grid-cols-2">
                   {tournamentPlayers.slice(0, 6).map((player: any, idx: number) => (
-                    <div key={player.id} className="grid grid-cols-[28px,1fr,56px,60px] gap-3 items-center px-5 py-3 border-b border-[#1c2d48]/50 last:border-0 hover:bg-[#0f1e35]/40 transition-all">
-                      <span className="text-xs text-[#3d5878] font-bold">{idx + 1}</span>
-                      <div>
-                        <div className="text-sm font-semibold text-[#f0f6ff]">{player.name}</div>
-                        <div className="text-[11px] text-[#3d5878]">Thru {player.thru} · {player.odds}</div>
+                    <div key={player.id} className="flex items-center gap-4 border border-gray-200 rounded p-4">
+                      <div className="text-2xl font-black text-gray-300 w-8">{idx + 1}</div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 text-sm">{player.name}</div>
+                        <div className="text-xs text-gray-400 mt-0.5">Thru {player.thru} · {player.odds}</div>
                       </div>
-                      <span className={`text-sm font-bold tabular-nums ${scoreColor(player.score)}`}>{player.score}</span>
-                      <span className="text-xs font-semibold text-sky-400 tabular-nums">+{calculatePlayerBonus(player)}</span>
+                      <div className="text-right">
+                        <div className={`font-black text-lg tabular-nums ${scoreColor(player.score)}`}>{player.score}</div>
+                        <div className="text-xs font-semibold text-blue-600">+{calculatePlayerBonus(player)} pts</div>
+                      </div>
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-                {/* Payout */}
-                <div className={PANEL}>
-                  <div className={PANEL_HEAD}>
-                    <h3 className="font-bold text-[#f0f6ff] text-sm">Payout Structure</h3>
-                    <p className="text-xs text-[#3d5878] mt-0.5">Send to {settings.venmo}</p>
+        {/* ─── MESSAGE BOARD ─── */}
+        {mainTab === 'Message board' && (
+          <div className="overflow-y-auto h-full">
+            <div className="max-w-5xl mx-auto px-6 py-6">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">Message Board</h1>
+              <div className="bg-white border border-gray-300 p-8 text-center text-gray-400">
+                <div className="text-4xl mb-3">💬</div>
+                <p className="text-sm">No messages yet. Post updates and trash talk here once connected to a real backend.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─── DETAILS (Rules and Scoring) ─── */}
+        {mainTab === 'Details' && (
+          <div className="overflow-y-auto h-full">
+            <div className="max-w-5xl mx-auto px-6 py-6">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">Details</h1>
+
+              <div className="grid gap-5 lg:grid-cols-2">
+
+                <div className="bg-white border border-gray-300 overflow-hidden">
+                  <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
+                    <h2 className="font-bold text-gray-900">Pool Rules</h2>
+                    <p className="text-xs text-gray-400 mt-0.5">How to play</p>
                   </div>
-                  <div className="p-4 space-y-2.5">
+                  <div className="p-5 space-y-4">
                     {([
-                      { icon: '🥇', label: '1st Place', pct: settings.payouts.first, gold: true },
-                      { icon: '🥈', label: '2nd Place', pct: settings.payouts.second, gold: false },
-                      { icon: '🥉', label: '3rd Place', pct: settings.payouts.third,  gold: false },
-                    ] as any[]).map(({ icon, label, pct, gold }) => (
-                      <div key={label} className={`flex items-center justify-between rounded-xl border px-4 py-3.5 ${
-                        gold ? 'bg-amber-950/25 border-amber-500/20' : 'bg-[#111d33] border-[#1c2d48]'
-                      }`}>
-                        <span className="flex items-center gap-2 text-sm font-semibold text-[#f0f6ff]">{icon} {label}</span>
-                        <div className="text-right">
-                          <div className={`text-xl font-black tabular-nums ${gold ? 'text-amber-400' : 'text-[#f0f6ff]'}`}>
-                            ${Math.round(projectedPot * pct / 100).toLocaleString()}
-                          </div>
-                          <div className="text-xs text-[#3d5878]">{pct}% of pot</div>
-                        </div>
+                      {
+                        title: 'Roster Construction',
+                        items: [
+                          'Pick 6 golfers per tournament.',
+                          'Total salary must not exceed $50,000.',
+                          'Salaries blend world ranking with Vegas odds.',
+                          'Editable until the first tee time of the event.',
+                        ],
+                      },
+                      {
+                        title: 'Scoring',
+                        items: [
+                          'Raw score = sum of all 6 golfers\' tournament scores.',
+                          'Bonus points are subtracted to produce net score.',
+                          'Lower net score ranks higher in the standings.',
+                          'Updates refresh using unofficial leaderboard data.',
+                        ],
+                      },
+                    ] as any[]).map(({ title, items }) => (
+                      <div key={title} className="rounded border border-gray-200 p-4">
+                        <div className="text-sm font-bold text-gray-800 mb-3">{title}</div>
+                        <ul className="space-y-2">
+                          {items.map((item: string) => (
+                            <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
+                              <span style={{ color: '#3dd8c8' }} className="shrink-0 mt-0.5">›</span>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-300 overflow-hidden">
+                  <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
+                    <h2 className="font-bold text-gray-900">Bonus Scoring</h2>
+                    <p className="text-xs text-gray-400 mt-0.5">Subtracted from raw score</p>
+                  </div>
+                  <div className="grid grid-cols-[1fr,60px] gap-3 px-5 py-2 bg-gray-100 border-b border-gray-200">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Category</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 text-right">Pts</span>
+                  </div>
+                  <div className="overflow-y-auto" style={{ maxHeight: 480 }}>
+                    {BONUS_ROWS.map(([label, points]) => (
+                      <div key={label} className="grid grid-cols-[1fr,60px] gap-3 items-center px-5 py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                        <span className="text-sm text-gray-700">{label}</span>
+                        <span className={`text-sm font-bold text-right tabular-nums ${Number(points) > 0 ? 'text-green-600' : Number(points) < 0 ? 'text-red-600' : 'text-gray-400'}`}>
+                          {Number(points) > 0 ? `+${points}` : points}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -780,204 +979,123 @@ export default function Page() {
           </div>
         )}
 
-        {/* ─── RULES AND SCORING ─── */}
-        {activeTab === 'Rules and Scoring' && (
-          <div className="overflow-y-auto h-full">
-            <div className="max-w-5xl mx-auto px-6 py-6 grid gap-6 lg:grid-cols-2">
-
-              <div className={PANEL}>
-                <div className={PANEL_HEAD}>
-                  <h2 className="font-bold text-[#f0f6ff]">Pool Rules</h2>
-                  <p className="text-xs text-[#3d5878] mt-0.5">How to play</p>
-                </div>
-                <div className="p-5 space-y-4">
-                  {([
-                    {
-                      title: 'Roster Construction',
-                      items: [
-                        'Pick 6 golfers per tournament.',
-                        'Total salary must not exceed $50,000.',
-                        'Salaries blend world ranking with Vegas odds.',
-                        'Editable until the first tee time of the event.',
-                      ],
-                    },
-                    {
-                      title: 'Scoring',
-                      items: [
-                        'Raw score = sum of all 6 golfers\' tournament scores.',
-                        'Bonus points are subtracted to produce net score.',
-                        'Lower net score ranks higher in the standings.',
-                        'Updates refresh using unofficial leaderboard data.',
-                      ],
-                    },
-                  ] as any[]).map(({ title, items }) => (
-                    <div key={title} className="rounded-xl bg-[#111d33] border border-[#1c2d48] p-4">
-                      <div className="text-sm font-bold text-[#f0f6ff] mb-3">{title}</div>
-                      <ul className="space-y-2">
-                        {items.map((item: string) => (
-                          <li key={item} className="flex items-start gap-2.5 text-sm text-[#6b82a8]">
-                            <span className="text-emerald-500 shrink-0 mt-0.5">›</span>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className={PANEL}>
-                <div className={PANEL_HEAD}>
-                  <h2 className="font-bold text-[#f0f6ff]">Bonus Scoring</h2>
-                  <p className="text-xs text-[#3d5878] mt-0.5">Subtracted from raw score</p>
-                </div>
-                <div className="grid grid-cols-[1fr,72px] gap-3 px-5 py-2.5 bg-[#070d1a] border-b border-[#1c2d48]">
-                  <span className={COL_LABEL}>Category</span>
-                  <span className={COL_LABEL + ' text-right'}>Pts</span>
-                </div>
-                <div className="overflow-y-auto" style={{ maxHeight: 500 }}>
-                  {BONUS_ROWS.map(([label, points]) => (
-                    <div key={label} className="grid grid-cols-[1fr,72px] gap-3 items-center px-5 py-2.5 border-b border-[#1c2d48]/50 last:border-0 hover:bg-[#0f1e35]/40 transition-all">
-                      <span className="text-sm text-[#a0b4cc]">{label}</span>
-                      <span className={`text-sm font-bold text-right tabular-nums ${Number(points) > 0 ? 'text-emerald-400' : Number(points) < 0 ? 'text-rose-400' : 'text-[#6b82a8]'}`}>
-                        {Number(points) > 0 ? `+${points}` : points}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ─── ADMIN ─── */}
-        {activeTab === 'Admin' && (
+        {/* ─── COMMISSIONER CONSOLE (Admin) ─── */}
+        {mainTab === 'Commissioner console' && (
           <div className="overflow-y-auto h-full">
             <div className="max-w-4xl mx-auto px-6 py-6 space-y-5">
+              <h1 className="text-2xl font-bold text-gray-900">Commissioner Console</h1>
 
-              <div className={PANEL}>
-                <div className={`${PANEL_HEAD} flex items-center justify-between`}>
+              <div className="bg-white border border-gray-300 overflow-hidden">
+                <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                   <div>
-                    <h2 className="font-bold text-[#f0f6ff]">Admin Controls</h2>
-                    <p className="text-xs text-[#3d5878] mt-0.5">Simulates tools for running the pool</p>
+                    <h2 className="font-bold text-gray-900">Pool Settings</h2>
+                    <p className="text-xs text-gray-400 mt-0.5">Manage your pool configuration</p>
                   </div>
-                  <Badge tone="amber">Owner Only</Badge>
+                  <span className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full" style={{ background: '#fef3c7', color: '#92400e' }}>
+                    Owner Only
+                  </span>
                 </div>
 
                 <div className="p-5 grid gap-4 sm:grid-cols-2">
                   {([
-                    { label: 'Entry Name', input: <input value={entryName} onChange={e => setEntryName(e.target.value)} className="w-full rounded-xl border border-[#1c2d48] bg-[#111d33] px-3 py-2.5 text-[#f0f6ff] text-sm outline-none focus:border-emerald-500/50 transition-colors placeholder:text-[#3d5878]" /> },
-                    { label: 'Venmo Handle', input: <input value={settings.venmo} onChange={e => setSettings({ ...settings, venmo: e.target.value })} className="w-full rounded-xl border border-[#1c2d48] bg-[#111d33] px-3 py-2.5 text-[#f0f6ff] text-sm outline-none focus:border-emerald-500/50 transition-colors" /> },
-                    { label: 'Entry Fee ($)', input: <input type="number" value={settings.entryFee} onChange={e => setSettings({ ...settings, entryFee: Number(e.target.value) })} className="w-full rounded-xl border border-[#1c2d48] bg-[#111d33] px-3 py-2.5 text-[#f0f6ff] text-sm outline-none focus:border-emerald-500/50 transition-colors" /> },
+                    { label: 'Entry Name', input: <input value={entryName} onChange={e => setEntryName(e.target.value)} className="w-full rounded border border-gray-200 bg-white px-3 py-2.5 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors" /> },
+                    { label: 'Venmo Handle', input: <input value={settings.venmo} onChange={e => setSettings({ ...settings, venmo: e.target.value })} className="w-full rounded border border-gray-200 bg-white px-3 py-2.5 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors" /> },
+                    { label: 'Entry Fee ($)', input: <input type="number" value={settings.entryFee} onChange={e => setSettings({ ...settings, entryFee: Number(e.target.value) })} className="w-full rounded border border-gray-200 bg-white px-3 py-2.5 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors" /> },
                     {
                       label: 'Lineup Lock',
                       input: (
                         <button
                           onClick={() => setSettings({ ...settings, manualLock: !settings.manualLock })}
-                          className={`w-full py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 border ${
-                            locked
-                              ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 hover:bg-rose-500/20'
-                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
-                          }`}
+                          className="w-full py-2.5 rounded text-sm font-bold transition-all flex items-center justify-center gap-2 border"
+                          style={locked
+                            ? { background: '#fee2e2', color: '#991b1b', borderColor: '#fca5a5' }
+                            : { background: '#d1fae5', color: '#065f46', borderColor: '#6ee7b7' }
+                          }
                         >
                           {locked ? <><Lock className="h-4 w-4" /> LOCKED — Click to Open</> : <><Unlock className="h-4 w-4" /> OPEN — Click to Lock</>}
                         </button>
                       ),
                     },
                   ] as any[]).map(({ label, input }) => (
-                    <label key={label} className="block rounded-xl bg-[#0c1626] border border-[#1c2d48] p-4">
-                      <div className={COL_LABEL + ' mb-2'}>{label}</div>
+                    <label key={label} className="block rounded border border-gray-200 bg-gray-50 p-4">
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-2">{label}</div>
                       {input}
                     </label>
                   ))}
                 </div>
 
                 <div className="px-5 pb-5">
-                  <div className={COL_LABEL + ' mb-3'}>Payout Splits (%)</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-3">Payout Splits (%)</div>
                   <div className="grid grid-cols-3 gap-3">
                     {([
                       { label: '1st Place', key: 'first' as const },
                       { label: '2nd Place', key: 'second' as const },
                       { label: '3rd Place', key: 'third' as const },
                     ] as const).map(({ label, key }) => (
-                      <label key={key} className="block rounded-xl bg-[#0c1626] border border-[#1c2d48] p-3">
-                        <div className="text-xs text-[#3d5878] mb-2">{label}</div>
+                      <label key={key} className="block rounded border border-gray-200 bg-gray-50 p-3">
+                        <div className="text-xs text-gray-400 mb-2">{label}</div>
                         <input
                           type="number"
                           value={settings.payouts[key]}
                           onChange={e => setSettings({ ...settings, payouts: { ...settings.payouts, [key]: Number(e.target.value) } })}
-                          className="w-full rounded-lg border border-[#1c2d48] bg-[#111d33] px-2.5 py-2 text-[#f0f6ff] text-sm outline-none focus:border-emerald-500/50 transition-colors"
+                          className="w-full rounded border border-gray-200 bg-white px-2.5 py-2 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors"
                         />
                       </label>
                     ))}
                   </div>
                   <div className="mt-3 flex items-center gap-3">
-                    <Badge tone={payoutTotal === 100 ? 'green' : 'amber'}>
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full flex items-center gap-1"
+                      style={{ background: payoutTotal === 100 ? '#d1fae5' : '#fef3c7', color: payoutTotal === 100 ? '#065f46' : '#92400e' }}
+                    >
                       <CheckCircle2 className="h-3 w-3" /> Total: {payoutTotal}%
-                    </Badge>
-                    <span className={`text-xs ${isSettingsSaving ? 'text-[#3d5878] animate-pulse' : 'text-[#1c2d48]'}`}>
+                    </span>
+                    <span className={`text-xs ${isSettingsSaving ? 'text-gray-400 animate-pulse' : 'text-gray-300'}`}>
                       {isSettingsSaving ? 'Saving…' : 'Auto-saved'}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className={PANEL}>
-                <div className={PANEL_HEAD}>
-                  <h2 className="font-bold text-[#f0f6ff]">Semi-live Feed Workflow</h2>
-                  <p className="text-xs text-[#3d5878] mt-0.5">Operating model using unofficial leaderboard data</p>
+              <div className="bg-white border border-gray-300 overflow-hidden">
+                <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
+                  <h2 className="font-bold text-gray-900">Semi-live Feed Workflow</h2>
+                  <p className="text-xs text-gray-400 mt-0.5">Operating model using unofficial leaderboard data</p>
                 </div>
                 <div className="p-5 space-y-3">
                   {([
-                    { icon: <RefreshCw className="h-4 w-4 text-sky-400" />,     title: 'Refresh leaderboard every 2–5 minutes', desc: 'Normalize player score, thru, status, and last update time into your database.' },
-                    { icon: <TrendingUp className="h-4 w-4 text-emerald-400" />, title: 'Recompute entry scores after each sync', desc: 'Raw team score and bonus points are recalculated from stored golfer states.' },
-                    { icon: <AlertCircle className="h-4 w-4 text-amber-400" />,  title: 'Flag source issues for manual review', desc: 'If the feed is delayed or parsing fails, the site shows last good data and a warning.' },
-                    { icon: <Flag className="h-4 w-4 text-[#3d5878]" />,          title: 'Lock at first tee time', desc: 'No roster edits after official start — enforced server-side in production.' },
+                    { icon: <RefreshCw className="h-4 w-4 text-blue-500" />,     title: 'Refresh leaderboard every 2–5 minutes', desc: 'Normalize player score, thru, status, and last update time into your database.' },
+                    { icon: <TrendingUp className="h-4 w-4 text-green-500" />,   title: 'Recompute entry scores after each sync', desc: 'Raw team score and bonus points are recalculated from stored golfer states.' },
+                    { icon: <AlertCircle className="h-4 w-4 text-amber-500" />,  title: 'Flag source issues for manual review', desc: 'If the feed is delayed or parsing fails, the site shows last good data and a warning.' },
+                    { icon: <Flag className="h-4 w-4 text-gray-400" />,          title: 'Lock at first tee time', desc: 'No roster edits after official start — enforced server-side in production.' },
                   ] as any[]).map(({ icon, title, desc }) => (
-                    <div key={title} className="flex items-start gap-4 rounded-xl border border-[#1c2d48] bg-[#0c1626] p-4">
-                      <div className="shrink-0 mt-0.5 p-1.5 rounded-lg bg-[#111d33]">{icon}</div>
+                    <div key={title} className="flex items-start gap-4 rounded border border-gray-200 bg-gray-50 p-4">
+                      <div className="shrink-0 mt-0.5 p-1.5 rounded bg-white border border-gray-200">{icon}</div>
                       <div>
-                        <div className="text-sm font-semibold text-[#f0f6ff]">{title}</div>
-                        <div className="mt-1 text-xs text-[#3d5878]">{desc}</div>
+                        <div className="text-sm font-semibold text-gray-800">{title}</div>
+                        <div className="mt-1 text-xs text-gray-500">{desc}</div>
                       </div>
                     </div>
                   ))}
-                  <button onClick={simulateRefresh} className="flex items-center gap-2 rounded-xl bg-[#111d33] border border-[#1c2d48] px-4 py-3 text-sm font-semibold text-[#6b82a8] hover:text-[#f0f6ff] hover:bg-[#162035] transition-all hover:border-[#2a4063]">
+                  <button onClick={simulateRefresh} className="flex items-center gap-2 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all">
                     <Settings2 className="h-4 w-4" /> Run simulated sync
                   </button>
                 </div>
               </div>
-
-              <div className={PANEL}>
-                <div className={PANEL_HEAD}>
-                  <h2 className="font-bold text-[#f0f6ff]">Backend Contract</h2>
-                  <p className="text-xs text-[#3d5878] mt-0.5">Replace mock methods with real API calls to go live</p>
-                </div>
-                <div className="p-5">
-                  <pre className="text-xs text-[#6b82a8] bg-black/40 border border-[#1c2d48] rounded-xl p-4 overflow-x-auto leading-relaxed font-mono">{`mockPoolService methods:
-  loadSettings()
-  saveSettings(settings)
-  loadRoster(entryName, tournamentId)
-  saveRoster({ entryName, tournamentId, playerIds })
-
-next real implementation:
-  → replace localStorage reads/writes with fetch() / Supabase
-  → keep all UI state and validation unchanged
-  → keep loading/saving indicators as-is`}</pre>
-                </div>
-              </div>
-
             </div>
           </div>
         )}
       </main>
 
       {/* ══ Footer ══ */}
-      <footer className="shrink-0 border-t border-[#1c2d48] bg-[#0c1626] px-5 py-2.5 flex items-center justify-between text-xs text-[#2a4063]">
+      <footer className="shrink-0 border-t border-gray-300 bg-white px-6 py-2.5 flex items-center justify-between text-xs text-gray-400">
         <span>MVP prototype · connect auth, DB, and live data feeds to go live</span>
-        <span className="flex items-center gap-1 hover:text-[#6b82a8] transition-colors cursor-pointer">
+        <button
+          onClick={() => setMainTab('Commissioner console')}
+          className="flex items-center gap-1 hover:text-gray-700 transition-colors"
+        >
           Next: connect real APIs <ChevronRight className="h-3 w-3" />
-        </span>
+        </button>
       </footer>
     </div>
   );
