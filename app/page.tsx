@@ -376,12 +376,11 @@ export default function Page() {
     return 'future-tab';
   };
 
-  /* ── RENDER ── */
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#e8e8e8' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
 
       {/* ══ Header ══ */}
-      <header style={{ background: '#1a1a1a', color: '#fff' }} className="shrink-0">
+      <header style={{ background: 'linear-gradient(135deg, #0f5132 0%, #1a5f3a 100%)', color: '#fff' }} className="shrink-0">
         {/* Top strip */}
         <div className="flex items-center gap-4 px-6 py-3">
           <button className="text-gray-500 hover:text-gray-300 transition-colors shrink-0">
@@ -422,10 +421,10 @@ export default function Page() {
               <button
                 key={tab}
                 onClick={() => setMainTab(tab)}
-                className="flex items-center gap-1 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors"
+                className="flex items-center gap-1 px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors"
                 style={{
-                  borderBottom: mainTab === tab ? '2px solid #3dd8c8' : '2px solid transparent',
-                  color: mainTab === tab ? '#3dd8c8' : '#ccc',
+                  borderBottom: mainTab === tab ? '2px solid #22c55e' : '2px solid transparent',
+                  color: mainTab === tab ? '#22c55e' : '#ccc',
                 }}
                 onMouseEnter={e => { if (mainTab !== tab) (e.currentTarget as HTMLElement).style.color = '#fff'; }}
                 onMouseLeave={e => { if (mainTab !== tab) (e.currentTarget as HTMLElement).style.color = '#ccc'; }}
@@ -449,7 +448,7 @@ export default function Page() {
               <h1 className="text-2xl font-bold text-gray-900 mb-4">Leaderboard</h1>
 
               {/* White card with tabs inside */}
-              <div className="bg-white border border-gray-300">
+              <div className="bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
 
                 {/* Tournament sub-tabs */}
                 <div
@@ -470,10 +469,10 @@ export default function Page() {
                           if (t.isYtd) { setShowYtd(true); }
                           else { setShowYtd(false); setSelectedTournament(t.id); }
                         }}
-                        className="shrink-0 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors"
+                        className="shrink-0 px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors"
                         style={{
                           background: isActive ? '#fff' : 'transparent',
-                          color: isActive ? '#333' : isYtd ? '#3dd8c8' : isFuture ? '#3dd8c8' : '#888',
+                          color: isActive ? '#333' : isYtd ? '#22c55e' : isFuture ? '#22c55e' : '#888',
                           fontWeight: isYtd ? 700 : isActive ? 600 : 400,
                           border: isActive ? '1px solid #d0d0d0' : '1px solid transparent',
                           borderBottom: isActive ? '1px solid #fff' : '1px solid transparent',
@@ -493,14 +492,14 @@ export default function Page() {
                   /* ── Standings table (The Players or Year-to-Date) ── */
                   <div>
                     {/* Prize row */}
-                    <div className="grid grid-cols-4 border-b border-gray-200">
+                    <div className="grid grid-cols-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-blue-50">
                       {([
                         { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#b45309' },
                         { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: '#b45309' },
                         { label: 'Entries',    value: standings.length, color: '#1a1a1a' },
                         { label: 'Entry Fee',  value: `$${settings.entryFee}`, color: '#047857' },
                       ] as any[]).map(({ label, value, color }) => (
-                        <div key={label} className="px-5 py-4 border-r border-gray-200 last:border-0">
+                        <div key={label} className="px-6 py-5 border-r border-gray-200 last:border-0">
                           <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-1">{label}</div>
                           <div className="text-xl font-black" style={{ color }}>{value}</div>
                         </div>
@@ -508,7 +507,7 @@ export default function Page() {
                     </div>
 
                     {/* Table header */}
-                    <div className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 px-5 py-2.5 bg-gray-50 border-b border-gray-200">
+                    <div className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 border-b border-gray-200">
                       {['Place', 'Entry', 'Salary', 'Raw', 'Bonus', 'Net'].map(h => (
                         <span key={h} className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">{h}</span>
                       ))}
@@ -517,7 +516,7 @@ export default function Page() {
                     {standings.map((entry: any) => (
                       <div
                         key={entry.id}
-                        className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 items-center px-5 py-3.5 border-b border-gray-100 last:border-0 transition-colors hover:bg-gray-50"
+                        className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 items-center px-6 py-4 border-b border-gray-100 last:border-0 transition-colors hover:bg-gray-50"
                         style={entry.name === entryName ? { background: '#f0fdf9' } : {}}
                       >
                         <div className="font-bold text-base">
@@ -542,7 +541,7 @@ export default function Page() {
                     ))}
 
                     {/* Sync footer */}
-                    <div className="flex items-center justify-between px-5 py-3 bg-gray-50 border-t border-gray-200">
+                    <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-gray-100 to-gray-200 border-t border-gray-200">
                       <div className="flex items-center gap-3 text-xs text-gray-500">
                         <Clock3 className="h-3.5 w-3.5" />
                         <span>Last sync {lastRefresh}</span>
@@ -616,18 +615,18 @@ export default function Page() {
 
               {/* Payout structure card */}
               {hasTournamentData && (
-                <div className="mt-5 bg-white border border-gray-300 overflow-hidden">
-                  <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
+                <div className="mt-6 bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-blue-50">
                     <h3 className="font-bold text-gray-900 text-sm">Payout Structure</h3>
                     <p className="text-xs text-gray-500 mt-0.5">Send to {settings.venmo}</p>
                   </div>
-                  <div className="p-4 grid grid-cols-3 gap-3">
+                  <div className="p-6 grid grid-cols-3 gap-4">
                     {([
                       { icon: '🥇', label: '1st Place', pct: settings.payouts.first },
                       { icon: '🥈', label: '2nd Place', pct: settings.payouts.second },
                       { icon: '🥉', label: '3rd Place', pct: settings.payouts.third },
                     ] as any[]).map(({ icon, label, pct }) => (
-                      <div key={label} className="border border-gray-200 rounded px-4 py-3 flex items-center justify-between">
+                      <div key={label} className="border border-gray-200 rounded-lg px-5 py-4 flex items-center justify-between bg-gradient-to-br from-yellow-50 to-orange-50">
                         <span className="text-sm font-medium text-gray-700">{icon} {label}</span>
                         <div className="text-right">
                           <div className="text-lg font-black text-gray-900">${Math.round(projectedPot * pct / 100).toLocaleString()}</div>
@@ -647,17 +646,17 @@ export default function Page() {
           <div className="flex overflow-hidden" style={{ height: 'calc(100vh - 113px)' }}>
 
             {/* Left: Player pool */}
-            <div className="flex flex-col flex-1 overflow-hidden bg-white border-r border-gray-200">
+            <div className="flex flex-col flex-1 overflow-hidden bg-white border-r border-gray-200 shadow-lg">
 
               {/* Contest bar */}
-              <div className="shrink-0 grid grid-cols-4 border-b border-gray-200">
+              <div className="shrink-0 grid grid-cols-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-green-50">
                 {([
                   { label: 'Tournament', value: 'The Players Championship' },
                   { label: 'Venue', value: 'TPC Sawgrass' },
                   { label: 'Entry Fee', value: `$${settings.entryFee}`, color: '#047857' },
                   { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#b45309' },
                 ] as any[]).map(({ label, value, color }) => (
-                  <div key={label} className="px-4 py-3 border-r border-gray-200 last:border-0 bg-gray-50">
+                  <div key={label} className="px-6 py-4 border-r border-gray-200 last:border-0 bg-gray-50">
                     <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{label}</div>
                     <div className="text-sm font-semibold mt-0.5 truncate" style={{ color: color ?? '#1a1a1a' }}>{value}</div>
                   </div>
@@ -665,7 +664,7 @@ export default function Page() {
               </div>
 
               {/* Column headers */}
-              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-2 bg-gray-100 border-b border-gray-200">
+              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 border-b border-gray-200">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">RK</span>
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Player</span>
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">Thru</span>
@@ -690,12 +689,12 @@ export default function Page() {
                       <div
                         key={player.id}
                         onClick={() => (canAdd || canRemove) ? toggleRosterPlayer(player.id) : undefined}
-                        className="grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-5 py-3 border-b border-gray-100 transition-all"
+                        className="grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-6 py-4 border-b border-gray-100 transition-all"
                         style={{
                           background: selected ? '#f0fdf9' : 'white',
                           cursor: canAdd || canRemove ? 'pointer' : 'not-allowed',
                           opacity: (!canAdd && !selected) ? 0.4 : 1,
-                          boxShadow: selected ? 'inset 3px 0 0 #3dd8c8' : undefined,
+                          boxShadow: selected ? 'inset 3px 0 0 #22c55e' : undefined,
                         }}
                         onMouseEnter={e => { if (canAdd && !selected) (e.currentTarget as HTMLElement).style.background = '#f9f9f9'; }}
                         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = selected ? '#f0fdf9' : 'white'; }}
@@ -734,7 +733,7 @@ export default function Page() {
                         <button
                           onClick={e => { e.stopPropagation(); toggleRosterPlayer(player.id); }}
                           disabled={!canAdd && !canRemove}
-                          className="py-1.5 rounded text-[11px] font-bold tracking-wide border transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                          className="py-2.5 rounded text-[11px] font-bold tracking-wide border transition-all disabled:opacity-20 disabled:cursor-not-allowed"
                           style={selected
                             ? { background: '#fee2e2', color: '#991b1b', borderColor: '#fca5a5' }
                             : { background: '#d1fae5', color: '#065f46', borderColor: '#6ee7b7' }
@@ -750,11 +749,11 @@ export default function Page() {
             </div>
 
             {/* Right: Lineup builder */}
-            <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-white">
+            <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-white shadow-lg">
 
               {/* Header + salary bar */}
-              <div className="shrink-0 border-b border-gray-200 px-4 pt-4 pb-3 bg-gray-50">
-                <div className="flex items-center justify-between mb-3">
+              <div className="shrink-0 border-b border-gray-200 px-6 pt-5 pb-4 bg-gradient-to-r from-green-50 to-blue-50">
+                <div className="flex items-center justify-between mb-4">
                   <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500">My Lineup</span>
                   <span className="text-xs text-gray-400">{selectedRoster.length}/{REQUIRED_GOLFERS} picks</span>
                 </div>
@@ -768,7 +767,7 @@ export default function Page() {
                   <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#e5e7eb' }}>
                     <div
                       className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${salaryPct}%`, background: salaryRemaining < 0 ? '#dc2626' : '#3dd8c8' }}
+                      style={{ width: `${salaryPct}%`, background: salaryRemaining < 0 ? '#dc2626' : '#22c55e' }}
                     />
                   </div>
                   <div className="mt-1 text-right text-xs font-semibold" style={{ color: salaryRemaining < 0 ? '#dc2626' : '#047857' }}>
@@ -778,13 +777,13 @@ export default function Page() {
               </div>
 
               {/* Slots */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
+              <div className="flex-1 overflow-y-auto p-4 space-y-2">
                 {Array.from({ length: REQUIRED_GOLFERS }, (_, i) => {
                   const p: any = playersById[selectedRoster[i]];
                   return (
                     <div
                       key={i}
-                      className="flex items-center gap-3 rounded border p-3 transition-all"
+                      className="flex items-center gap-4 rounded-lg border p-4 transition-all"
                       style={p
                         ? { borderColor: '#a7f3d0', background: '#f0fdf9' }
                         : { borderColor: '#e5e7eb', background: '#f9fafb' }
@@ -821,14 +820,14 @@ export default function Page() {
               </div>
 
               {/* Score + actions */}
-              <div className="shrink-0 border-t border-gray-200 p-4 space-y-3 bg-gray-50">
-                <div className="grid grid-cols-3 gap-2">
+              <div className="shrink-0 border-t border-gray-200 p-5 space-y-4 bg-gradient-to-r from-gray-50 to-blue-50">
+                <div className="grid grid-cols-3 gap-3">
                   {([
                     { label: 'Raw', val: fmtScore(rosterRaw), color: scoreColor(rosterRaw) },
                     { label: 'Bonus', val: `+${rosterBonus}`, color: 'text-blue-600' },
                     { label: 'Net', val: fmtScore(rosterNet), color: scoreColor(rosterNet) },
                   ] as any[]).map(({ label, val, color }) => (
-                    <div key={label} className="text-center rounded border border-gray-200 bg-white py-2.5">
+                    <div key={label} className="text-center rounded-lg border border-gray-200 bg-white py-3">
                       <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-1">{label}</div>
                       <div className={`text-base font-black tabular-nums ${color}`}>{val}</div>
                     </div>
@@ -848,16 +847,16 @@ export default function Page() {
                 <button
                   onClick={handleSaveRoster}
                   disabled={isRosterSaving || isRosterLoading || locked}
-                  className="w-full py-3 text-white font-black text-sm rounded transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ background: '#3dd8c8' }}
+                  className="w-full py-4 text-white font-black text-base rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: '#22c55e' }}
                 >
-                  <Save className="h-4 w-4" />
+                  <Save className="h-5 w-5" />
                   {isRosterSaving ? 'SAVING…' : 'SAVE LINEUP'}
                 </button>
                 <button
                   onClick={handleResetRoster}
                   disabled={isRosterSaving || isRosterLoading || locked}
-                  className="w-full py-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-40 text-xs font-semibold transition-colors"
+                  className="w-full py-2 text-gray-400 hover:text-gray-700 disabled:opacity-40 text-sm font-semibold transition-colors"
                 >
                   Reset to default picks
                 </button>
@@ -871,7 +870,7 @@ export default function Page() {
           <div className="overflow-y-auto h-full">
             <div className="max-w-5xl mx-auto px-6 py-6">
               <h1 className="text-2xl font-bold text-gray-900 mb-4">Reports</h1>
-              <div className="bg-white border border-gray-300 p-6">
+              <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                   {tournamentPlayers.slice(0, 6).map((player: any, idx: number) => (
                     <div key={player.id} className="flex items-center gap-4 border border-gray-200 rounded p-4">
@@ -897,7 +896,7 @@ export default function Page() {
           <div className="overflow-y-auto h-full">
             <div className="max-w-5xl mx-auto px-6 py-6">
               <h1 className="text-2xl font-bold text-gray-900 mb-4">Message Board</h1>
-              <div className="bg-white border border-gray-300 p-8 text-center text-gray-400">
+              <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-8 text-center text-gray-400">
                 <div className="text-4xl mb-3">💬</div>
                 <p className="text-sm">No messages yet. Post updates and trash talk here once connected to a real backend.</p>
               </div>
@@ -913,7 +912,7 @@ export default function Page() {
 
               <div className="grid gap-5 lg:grid-cols-2">
 
-                <div className="bg-white border border-gray-300 overflow-hidden">
+                <div className="bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
                   <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
                     <h2 className="font-bold text-gray-900">Pool Rules</h2>
                     <p className="text-xs text-gray-400 mt-0.5">How to play</p>
@@ -944,7 +943,7 @@ export default function Page() {
                         <ul className="space-y-2">
                           {items.map((item: string) => (
                             <li key={item} className="flex items-start gap-2.5 text-sm text-gray-600">
-                              <span style={{ color: '#3dd8c8' }} className="shrink-0 mt-0.5">›</span>
+                              <span style={{ color: '#22c55e' }} className="shrink-0 mt-0.5">›</span>
                               {item}
                             </li>
                           ))}
@@ -954,7 +953,7 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="bg-white border border-gray-300 overflow-hidden">
+                <div className="bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
                   <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
                     <h2 className="font-bold text-gray-900">Bonus Scoring</h2>
                     <p className="text-xs text-gray-400 mt-0.5">Subtracted from raw score</p>
@@ -985,7 +984,7 @@ export default function Page() {
             <div className="max-w-4xl mx-auto px-6 py-6 space-y-5">
               <h1 className="text-2xl font-bold text-gray-900">Commissioner Console</h1>
 
-              <div className="bg-white border border-gray-300 overflow-hidden">
+              <div className="bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
                 <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                   <div>
                     <h2 className="font-bold text-gray-900">Pool Settings</h2>
@@ -996,17 +995,17 @@ export default function Page() {
                   </span>
                 </div>
 
-                <div className="p-5 grid gap-4 sm:grid-cols-2">
+                <div className="p-6 grid gap-6 sm:grid-cols-2">
                   {([
-                    { label: 'Entry Name', input: <input value={entryName} onChange={e => setEntryName(e.target.value)} className="w-full rounded border border-gray-200 bg-white px-3 py-2.5 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors" /> },
-                    { label: 'Venmo Handle', input: <input value={settings.venmo} onChange={e => setSettings({ ...settings, venmo: e.target.value })} className="w-full rounded border border-gray-200 bg-white px-3 py-2.5 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors" /> },
-                    { label: 'Entry Fee ($)', input: <input type="number" value={settings.entryFee} onChange={e => setSettings({ ...settings, entryFee: Number(e.target.value) })} className="w-full rounded border border-gray-200 bg-white px-3 py-2.5 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors" /> },
+                    { label: 'Entry Name', input: <input value={entryName} onChange={e => setEntryName(e.target.value)} className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors" /> },
+                    { label: 'Venmo Handle', input: <input value={settings.venmo} onChange={e => setSettings({ ...settings, venmo: e.target.value })} className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors" /> },
+                    { label: 'Entry Fee ($)', input: <input type="number" value={settings.entryFee} onChange={e => setSettings({ ...settings, entryFee: Number(e.target.value) })} className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors" /> },
                     {
                       label: 'Lineup Lock',
                       input: (
                         <button
                           onClick={() => setSettings({ ...settings, manualLock: !settings.manualLock })}
-                          className="w-full py-2.5 rounded text-sm font-bold transition-all flex items-center justify-center gap-2 border"
+                          className="w-full py-3 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 border"
                           style={locked
                             ? { background: '#fee2e2', color: '#991b1b', borderColor: '#fca5a5' }
                             : { background: '#d1fae5', color: '#065f46', borderColor: '#6ee7b7' }
@@ -1017,28 +1016,28 @@ export default function Page() {
                       ),
                     },
                   ] as any[]).map(({ label, input }) => (
-                    <label key={label} className="block rounded border border-gray-200 bg-gray-50 p-4">
-                      <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-2">{label}</div>
+                    <label key={label} className="block rounded-lg border border-gray-200 bg-gray-50 p-5">
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-3">{label}</div>
                       {input}
                     </label>
                   ))}
                 </div>
 
-                <div className="px-5 pb-5">
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-3">Payout Splits (%)</div>
-                  <div className="grid grid-cols-3 gap-3">
+                <div className="px-6 pb-6">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-4">Payout Splits (%)</div>
+                  <div className="grid grid-cols-3 gap-4">
                     {([
                       { label: '1st Place', key: 'first' as const },
                       { label: '2nd Place', key: 'second' as const },
                       { label: '3rd Place', key: 'third' as const },
                     ] as const).map(({ label, key }) => (
-                      <label key={key} className="block rounded border border-gray-200 bg-gray-50 p-3">
-                        <div className="text-xs text-gray-400 mb-2">{label}</div>
+                      <label key={key} className="block rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <div className="text-xs text-gray-400 mb-3">{label}</div>
                         <input
                           type="number"
                           value={settings.payouts[key]}
                           onChange={e => setSettings({ ...settings, payouts: { ...settings.payouts, [key]: Number(e.target.value) } })}
-                          className="w-full rounded border border-gray-200 bg-white px-2.5 py-2 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors"
+                          className="w-full rounded border border-gray-200 bg-white px-3 py-2 text-gray-900 text-sm outline-none focus:border-teal-400 transition-colors"
                         />
                       </label>
                     ))}
@@ -1057,28 +1056,28 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="bg-white border border-gray-300 overflow-hidden">
+              <div className="bg-white border border-gray-300 shadow-lg rounded-lg overflow-hidden">
                 <div className="px-5 py-3.5 border-b border-gray-200 bg-gray-50">
                   <h2 className="font-bold text-gray-900">Semi-live Feed Workflow</h2>
                   <p className="text-xs text-gray-400 mt-0.5">Operating model using unofficial leaderboard data</p>
                 </div>
-                <div className="p-5 space-y-3">
+                <div className="p-6 space-y-4">
                   {([
-                    { icon: <RefreshCw className="h-4 w-4 text-blue-500" />,     title: 'Refresh leaderboard every 2–5 minutes', desc: 'Normalize player score, thru, status, and last update time into your database.' },
-                    { icon: <TrendingUp className="h-4 w-4 text-green-500" />,   title: 'Recompute entry scores after each sync', desc: 'Raw team score and bonus points are recalculated from stored golfer states.' },
-                    { icon: <AlertCircle className="h-4 w-4 text-amber-500" />,  title: 'Flag source issues for manual review', desc: 'If the feed is delayed or parsing fails, the site shows last good data and a warning.' },
-                    { icon: <Flag className="h-4 w-4 text-gray-400" />,          title: 'Lock at first tee time', desc: 'No roster edits after official start — enforced server-side in production.' },
+                    { icon: <RefreshCw className="h-5 w-5 text-blue-500" />,     title: 'Refresh leaderboard every 2–5 minutes', desc: 'Normalize player score, thru, status, and last update time into your database.' },
+                    { icon: <TrendingUp className="h-5 w-5 text-green-500" />,   title: 'Recompute entry scores after each sync', desc: 'Raw team score and bonus points are recalculated from stored golfer states.' },
+                    { icon: <AlertCircle className="h-5 w-5 text-amber-500" />,  title: 'Flag source issues for manual review', desc: 'If the feed is delayed or parsing fails, the site shows last good data and a warning.' },
+                    { icon: <Flag className="h-5 w-5 text-gray-400" />,          title: 'Lock at first tee time', desc: 'No roster edits after official start — enforced server-side in production.' },
                   ] as any[]).map(({ icon, title, desc }) => (
-                    <div key={title} className="flex items-start gap-4 rounded border border-gray-200 bg-gray-50 p-4">
-                      <div className="shrink-0 mt-0.5 p-1.5 rounded bg-white border border-gray-200">{icon}</div>
+                    <div key={title} className="flex items-start gap-5 rounded-lg border border-gray-200 bg-gray-50 p-5">
+                      <div className="shrink-0 mt-0.5 p-2 rounded bg-white border border-gray-200">{icon}</div>
                       <div>
                         <div className="text-sm font-semibold text-gray-800">{title}</div>
                         <div className="mt-1 text-xs text-gray-500">{desc}</div>
                       </div>
                     </div>
                   ))}
-                  <button onClick={simulateRefresh} className="flex items-center gap-2 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all">
-                    <Settings2 className="h-4 w-4" /> Run simulated sync
+                  <button onClick={simulateRefresh} className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-5 py-3 text-sm font-semibold text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all">
+                    <Settings2 className="h-5 w-5" /> Run simulated sync
                   </button>
                 </div>
               </div>
@@ -1088,7 +1087,7 @@ export default function Page() {
       </main>
 
       {/* ══ Footer ══ */}
-      <footer className="shrink-0 border-t border-gray-300 bg-white px-6 py-2.5 flex items-center justify-between text-xs text-gray-400">
+      <footer className="shrink-0 border-t border-gray-300 bg-gradient-to-r from-gray-100 to-blue-50 px-6 py-3 flex items-center justify-between text-xs text-gray-500">
         <span>MVP prototype · connect auth, DB, and live data feeds to go live</span>
         <button
           onClick={() => setMainTab('Commissioner console')}
