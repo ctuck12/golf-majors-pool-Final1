@@ -345,7 +345,28 @@ function Pill({
   };
   return <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${tones[tone]}`}>{children}</span>;
 }
-
+function NavTab({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
+        active
+          ? 'bg-emerald-500 text-black'
+          : 'bg-slate-800 text-white hover:bg-slate-700'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
 function SectionCard({
   title,
   subtitle,
