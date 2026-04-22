@@ -446,10 +446,14 @@ export default function Page() {
               <button
                 key={tab}
                 onClick={() => setMainTab(tab)}
-                className="py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2"
+                className="py-3 text-sm font-medium whitespace-nowrap transition-colors"
                 style={{
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
                   borderBottom: mainTab === tab ? '2px solid #00bcd4' : '2px solid transparent',
                   color: mainTab === tab ? '#00bcd4' : '#ccc',
+                  cursor: 'pointer',
                 }}
                 onMouseEnter={e => { if (mainTab !== tab) (e.currentTarget as HTMLElement).style.color = '#fff'; }}
                 onMouseLeave={e => { if (mainTab !== tab) (e.currentTarget as HTMLElement).style.color = '#ccc'; }}
@@ -494,20 +498,29 @@ export default function Page() {
                         }}
                         className="shrink-0 text-sm whitespace-nowrap transition-colors"
                         style={isActive ? {
-                          padding: '8px 16px',
+                          padding: '8px 18px',
                           marginBottom: '-1px',
-                          background: '#fff',
-                          border: '1px solid #ddd',
-                          borderBottom: '1px solid #fff',
-                          borderRadius: '4px 4px 0 0',
-                          color: '#1a1a1a',
-                          fontWeight: 500,
+                          background: '#ffffff',
+                          border: '1px solid #c8c8c8',
+                          borderBottom: '2px solid #ffffff',
+                          borderRadius: '6px 6px 0 0',
+                          color: '#111',
+                          fontWeight: 600,
+                          fontSize: 14,
                           position: 'relative' as const,
-                          zIndex: 1,
+                          zIndex: 2,
+                          boxShadow: '-2px -3px 8px rgba(0,0,0,0.08), 2px -2px 8px rgba(0,0,0,0.05)',
+                          cursor: 'pointer',
                         } : {
-                          padding: '8px 16px',
-                          color: '#00bcd4',
-                          fontWeight: isYtd ? 700 : 400,
+                          padding: '8px 18px',
+                          color: isYtd ? '#00acc1' : '#0097a7',
+                          fontWeight: isYtd ? 700 : 500,
+                          fontSize: 14,
+                          background: '#f2f4f5',
+                          border: '1px solid #d4d4d4',
+                          borderBottom: '1px solid #ddd',
+                          borderRadius: '5px 5px 0 0',
+                          cursor: 'pointer',
                         }}
                       >
                         {t.shortName}
