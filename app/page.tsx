@@ -402,66 +402,91 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#f5f5f5' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#e8edf3' }}>
 
       {/* ══ Header ══ */}
-      <header style={{ background: '#1a1a1a', color: '#fff' }} className="shrink-0">
+      <header
+        className="shrink-0"
+        style={{
+          background: 'linear-gradient(180deg, #0c1628 0%, #162040 55%, #1a2848 100%)',
+          color: '#fff',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.45)',
+        }}
+      >
         {/* Top strip */}
-        <div className="flex items-start gap-4 px-6 py-4">
-          <button className="text-gray-500 hover:text-gray-300 transition-colors shrink-0 mt-0.5">
-            <X className="h-5 w-5" />
+        <div className="flex items-center gap-4 px-6 py-3.5">
+          <button
+            className="shrink-0 transition-colors"
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '4px 6px', color: '#aab4c4', cursor: 'pointer' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.14)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'; }}
+          >
+            <X className="h-4 w-4" />
           </button>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 mb-2">
-              <span className="font-bold text-sm leading-tight">2026 Golf Majors Pool</span>
-              <Info className="h-3.5 w-3.5 text-gray-500 shrink-0" />
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-bold text-base leading-tight tracking-tight">2026 Golf Majors Pool</span>
+              <Info className="h-3.5 w-3.5 shrink-0" style={{ color: '#5a7fa0' }} />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400">3/12</span>
-              <span className="text-gray-600 text-xs">•</span>
+              <span className="text-xs" style={{ color: '#5a7fa0' }}>3/12</span>
+              <span style={{ color: '#2a4060', fontSize: 12 }}>•</span>
               <span
-                className="text-xs px-2 py-1 rounded-full font-medium"
-                style={{ border: '1px solid #444', color: '#ccc', background: '#2a2a2a' }}
+                className="text-xs px-2.5 py-0.5 rounded-full font-semibold"
+                style={{ border: '1px solid #2a4a70', color: '#7ab8e0', background: 'rgba(0,150,220,0.12)' }}
               >
                 Golf Majors
               </span>
-              <Flag className="h-3.5 w-3.5 text-gray-500" />
+              <Flag className="h-3.5 w-3.5" style={{ color: '#5a7fa0' }} />
             </div>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0 text-right">
-            <Bell className="h-5 w-5 text-gray-400" />
-            <div>
+          <div className="flex items-center gap-3 shrink-0">
+            <div
+              className="flex items-center justify-center"
+              style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
+            >
+              <Bell className="h-4 w-4" style={{ color: '#7ab8e0' }} />
+            </div>
+            <div className="text-right">
               <div className="font-bold text-sm leading-tight">23 Contest Entries</div>
-              <div className="text-xs text-gray-400">Your Entries: 1/1 allowed</div>
+              <div className="text-xs" style={{ color: '#5a7fa0' }}>Your Entries: 1/1 allowed</div>
             </div>
           </div>
         </div>
 
         {/* Nav tabs */}
-        <div style={{ borderTop: '1px solid #333' }} className="px-6">
-          <div className="flex items-end gap-6">
-            {MAIN_TABS.map(tab => (
-              <button
-                key={tab}
-                onClick={() => setMainTab(tab)}
-                className="py-3 text-sm font-medium whitespace-nowrap transition-colors"
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  borderBottom: mainTab === tab ? '2px solid #00bcd4' : '2px solid transparent',
-                  color: mainTab === tab ? '#00bcd4' : '#ccc',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={e => { if (mainTab !== tab) (e.currentTarget as HTMLElement).style.color = '#fff'; }}
-                onMouseLeave={e => { if (mainTab !== tab) (e.currentTarget as HTMLElement).style.color = '#ccc'; }}
-              >
-                {tab}
-                {tab === 'Reports' && <ChevronDown className="h-3.5 w-3.5 inline ml-1" />}
-              </button>
-            ))}
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} className="px-6">
+          <div className="flex items-end gap-1">
+            {MAIN_TABS.map(tab => {
+              const isActive = mainTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setMainTab(tab)}
+                  className="whitespace-nowrap transition-all"
+                  style={{
+                    background: isActive ? 'rgba(0,188,212,0.12)' : 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    borderBottom: isActive ? '2px solid #00d4ee' : '2px solid transparent',
+                    borderRadius: '4px 4px 0 0',
+                    color: isActive ? '#00d4ee' : '#7a94b0',
+                    cursor: 'pointer',
+                    padding: '10px 14px',
+                    fontSize: 13.5,
+                    fontWeight: isActive ? 700 : 500,
+                    letterSpacing: isActive ? '0.01em' : 0,
+                  }}
+                  onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = '#c0d8f0'; }}
+                  onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = '#7a94b0'; }}
+                >
+                  {tab}
+                  {tab === 'Reports' && <ChevronDown className="h-3.5 w-3.5 inline ml-1" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       </header>
@@ -474,15 +499,25 @@ export default function Page() {
           <div className="overflow-y-auto h-full">
             <div className="max-w-6xl mx-auto px-8 py-8">
 
-              <h1 className="text-4xl font-bold text-gray-900 mb-8">Leaderboard</h1>
+              <h1 className="font-black text-gray-900 mb-6 tracking-tight" style={{ fontSize: 28, letterSpacing: '-0.02em' }}>Leaderboard</h1>
 
               {/* White card with tabs inside */}
-              <div className="bg-white border border-gray-200 rounded-xl" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
+              <div
+                className="bg-white rounded-2xl"
+                style={{
+                  border: '1px solid rgba(0,0,0,0.07)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.10)',
+                }}
+              >
 
                 {/* Tournament sub-tabs */}
                 <div
-                  className="flex items-end gap-6 px-6 pt-3 overflow-x-auto"
-                  style={{ borderBottom: '1px solid #ddd' }}
+                  className="flex items-end gap-2 px-5 pt-3 overflow-x-auto"
+                  style={{
+                    background: 'linear-gradient(to bottom, #f6f8fb, #edf0f5)',
+                    borderBottom: '1px solid #d4d9e3',
+                    borderRadius: '16px 16px 0 0',
+                  }}
                 >
                   {tournamentTabs.map(t => {
                     const tabClass = tdClass(t);
@@ -498,29 +533,31 @@ export default function Page() {
                         }}
                         className="shrink-0 text-sm whitespace-nowrap transition-colors"
                         style={isActive ? {
-                          padding: '8px 18px',
+                          padding: '9px 20px',
                           marginBottom: '-1px',
                           background: '#ffffff',
-                          border: '1px solid #c8c8c8',
+                          border: '1px solid #bcc5d4',
                           borderBottom: '2px solid #ffffff',
-                          borderRadius: '6px 6px 0 0',
-                          color: '#111',
-                          fontWeight: 600,
-                          fontSize: 14,
+                          borderRadius: '8px 8px 0 0',
+                          color: '#0f172a',
+                          fontWeight: 700,
+                          fontSize: 13.5,
                           position: 'relative' as const,
                           zIndex: 2,
-                          boxShadow: '-2px -3px 8px rgba(0,0,0,0.08), 2px -2px 8px rgba(0,0,0,0.05)',
                           cursor: 'pointer',
+                          boxShadow: '0 -4px 14px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
+                          letterSpacing: '0.01em',
                         } : {
-                          padding: '8px 18px',
-                          color: isYtd ? '#00acc1' : '#0097a7',
+                          padding: '9px 20px',
+                          color: isYtd ? '#0284c7' : '#0369a1',
                           fontWeight: isYtd ? 700 : 500,
-                          fontSize: 14,
-                          background: '#f2f4f5',
-                          border: '1px solid #d4d4d4',
-                          borderBottom: '1px solid #ddd',
-                          borderRadius: '5px 5px 0 0',
+                          fontSize: 13.5,
+                          background: 'linear-gradient(to bottom, #ffffff, #f0f4f9)',
+                          border: '1px solid #c8d0dc',
+                          borderBottom: '1px solid #d4d9e3',
+                          borderRadius: '7px 7px 0 0',
                           cursor: 'pointer',
+                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8), 0 -2px 6px rgba(0,0,0,0.04)',
                         }}
                       >
                         {t.shortName}
@@ -535,7 +572,7 @@ export default function Page() {
                   /* ── Standings table (The Players or Year-to-Date) ── */
                   <div>
                     {/* Prize row */}
-                    <div className="grid grid-cols-4 border-b border-gray-100 bg-gradient-to-r from-cyan-50 to-blue-50">
+                    <div className="grid grid-cols-4 border-b border-gray-100" style={{ background: 'linear-gradient(to right, #f0fafe, #e8f4fc, #f0f7ff)' }}>
                       {([
                         { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#b45309' },
                         { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: '#b45309' },
@@ -550,7 +587,7 @@ export default function Page() {
                     </div>
 
                     {/* Table header */}
-                    <div className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-100">
+                    <div className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 px-6 py-3 border-b border-gray-100" style={{ background: 'linear-gradient(to right, #f3f5f8, #eaedf2)' }}>
                       {['Place', 'Entry', 'Salary', 'Raw', 'Bonus', 'Net'].map(h => (
                         <span key={h} className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">{h}</span>
                       ))}
@@ -584,7 +621,7 @@ export default function Page() {
                     ))}
 
                     {/* Sync footer */}
-                    <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-100">
+                    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100" style={{ background: 'linear-gradient(to right, #f3f5f8, #eaedf2)' }}>
                       <div className="flex items-center gap-3 text-xs text-gray-500">
                         <Clock3 className="h-3.5 w-3.5" />
                         <span>Last sync {lastRefresh}</span>
@@ -612,19 +649,28 @@ export default function Page() {
                 ) : (
                   /* ── Coming soon card (upcoming tournaments) ── */
                   <div>
-                    <div className="p-6 flex gap-6">
+                    <div className="p-8 flex gap-8">
                       {/* Tournament logo */}
-                      <div className="shrink-0 w-44 h-44 border border-gray-200 overflow-hidden">
+                      <div
+                        className="shrink-0 w-44 h-44 overflow-hidden"
+                        style={{
+                          borderRadius: 10,
+                          border: '2px solid #e2e8f0',
+                          boxShadow: '0 4px 16px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.8)',
+                        }}
+                      >
                         <TournamentLogo tid={selectedTournament} />
                       </div>
 
                       {/* Info text */}
-                      <div className="pt-2">
-                        <p className="text-gray-800 mb-3">
+                      <div className="pt-1 flex flex-col justify-center">
+                        <p className="font-semibold mb-3" style={{ color: '#0f172a', fontSize: 15.5, lineHeight: 1.5 }}>
                           The {tournament.name} begins on{' '}
-                          {new Date(tournament.lockAt).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}.
+                          <span style={{ color: '#0369a1' }}>
+                            {new Date(tournament.lockAt).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                          </span>.
                         </p>
-                        <p className="text-gray-600 text-sm leading-relaxed">
+                        <p style={{ color: '#475569', fontSize: 14, lineHeight: 1.65 }}>
                           Picks can not be entered until the tournament field has been finalized and entered in our system (usually Monday morning the week of the tournament).
                         </p>
                       </div>
@@ -633,19 +679,22 @@ export default function Page() {
                     {/* Info banner */}
                     <div
                       className="px-6 py-4 flex items-start gap-3"
-                      style={{ background: '#b2dfdb', borderTop: '1px solid #80cbc4' }}
+                      style={{
+                        background: 'linear-gradient(to right, #e0f7fa, #e8f5fb)',
+                        borderTop: '1px solid #b2d8e8',
+                      }}
                     >
                       <div
                         className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5"
-                        style={{ background: '#333', color: '#fff', fontSize: 11, fontWeight: 700 }}
+                        style={{ background: 'linear-gradient(135deg, #0288d1, #0097a7)', color: '#fff', fontSize: 10, fontWeight: 900, boxShadow: '0 2px 6px rgba(2,136,209,0.35)' }}
                       >
                         i
                       </div>
-                      <p className="text-sm text-gray-800">
+                      <p className="text-sm" style={{ color: '#1e3a4a', lineHeight: 1.6 }}>
                         Reminder: To modify your list of active tournaments, please go to your{' '}
                         <button
                           onClick={() => setMainTab('Commissioner console')}
-                          className="underline hover:text-gray-900 transition-colors"
+                          style={{ color: '#0288d1', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline', fontWeight: 600 }}
                         >
                           tournament settings
                         </button>
@@ -659,19 +708,26 @@ export default function Page() {
 
               {/* Payout structure card */}
               {hasTournamentData && (
-                <div className="mt-6 bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
-                  <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-cyan-50 to-blue-50">
-                    <h3 className="font-bold text-gray-900 text-sm">Payout Structure</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">Send to {settings.venmo}</p>
+                <div
+                  className="mt-5 bg-white rounded-2xl overflow-hidden"
+                  style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.08)' }}
+                >
+                  <div className="px-6 py-4 border-b border-gray-100" style={{ background: 'linear-gradient(to right, #f0fafe, #e8f4fc)' }}>
+                    <h3 className="font-bold text-gray-900 text-sm tracking-wide">Payout Structure</h3>
+                    <p className="text-xs text-gray-400 mt-0.5">Send to {settings.venmo}</p>
                   </div>
-                  <div className="p-6 grid grid-cols-3 gap-4">
+                  <div className="p-5 grid grid-cols-3 gap-3">
                     {([
-                      { icon: '🥇', label: '1st Place', pct: settings.payouts.first },
-                      { icon: '🥈', label: '2nd Place', pct: settings.payouts.second },
-                      { icon: '🥉', label: '3rd Place', pct: settings.payouts.third },
-                    ] as any[]).map(({ icon, label, pct }) => (
-                      <div key={label} className="border border-gray-200 rounded-lg px-5 py-4 flex items-center justify-between bg-gradient-to-br from-yellow-50 to-orange-50">
-                        <span className="text-sm font-medium text-gray-700">{icon} {label}</span>
+                      { icon: '🥇', label: '1st Place', pct: settings.payouts.first, grad: 'linear-gradient(135deg, #fef9e7, #fef3c7)' },
+                      { icon: '🥈', label: '2nd Place', pct: settings.payouts.second, grad: 'linear-gradient(135deg, #f8fafc, #f0f4f8)' },
+                      { icon: '🥉', label: '3rd Place', pct: settings.payouts.third, grad: 'linear-gradient(135deg, #fff7f0, #fef0e6)' },
+                    ] as any[]).map(({ icon, label, pct, grad }) => (
+                      <div
+                        key={label}
+                        className="rounded-xl px-5 py-4 flex items-center justify-between"
+                        style={{ background: grad, border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}
+                      >
+                        <span className="text-sm font-semibold text-gray-700">{icon} {label}</span>
                         <div className="text-right">
                           <div className="text-lg font-black text-gray-900">${Math.round(projectedPot * pct / 100).toLocaleString()}</div>
                           <div className="text-xs text-gray-400">{pct}%</div>
@@ -693,7 +749,7 @@ export default function Page() {
             <div className="flex flex-col flex-1 overflow-hidden bg-white border-r border-gray-200" style={{ boxShadow: '4px 0 20px rgba(0, 0, 0, 0.08)' }}>
 
               {/* Contest bar */}
-              <div className="shrink-0 grid grid-cols-4 border-b border-gray-100 bg-gradient-to-r from-cyan-50 to-blue-50">
+              <div className="shrink-0 grid grid-cols-4 border-b border-gray-100" style={{ background: 'linear-gradient(to right, #f0fafe, #e8f4fc, #f0f7ff)' }}>
                 {([
                   { label: 'Tournament', value: 'The Players Championship' },
                   { label: 'Venue', value: 'TPC Sawgrass' },
@@ -708,7 +764,7 @@ export default function Page() {
               </div>
 
               {/* Column headers */}
-              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-6 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-100">
+              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-6 py-3 border-b border-gray-100" style={{ background: 'linear-gradient(to right, #f3f5f8, #eaedf2)' }}>
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">RK</span>
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Player</span>
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">Thru</span>
@@ -777,10 +833,20 @@ export default function Page() {
                         <button
                           onClick={e => { e.stopPropagation(); toggleRosterPlayer(player.id); }}
                           disabled={!canAdd && !canRemove}
-                          className="py-2.5 rounded text-[11px] font-bold tracking-wide border transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                          className="py-2 rounded-lg text-[11px] font-bold tracking-widest transition-all disabled:opacity-20 disabled:cursor-not-allowed"
                           style={selected
-                            ? { background: '#fee2e2', color: '#991b1b', borderColor: '#fca5a5' }
-                            : { background: '#d1fae5', color: '#065f46', borderColor: '#6ee7b7' }
+                            ? {
+                              background: 'linear-gradient(to bottom, #f87171, #dc2626)',
+                              color: '#fff',
+                              border: '1px solid #b91c1c',
+                              boxShadow: '0 2px 8px rgba(220,38,38,0.30), inset 0 1px 0 rgba(255,255,255,0.15)',
+                            }
+                            : {
+                              background: 'linear-gradient(to bottom, #34d399, #059669)',
+                              color: '#fff',
+                              border: '1px solid #047857',
+                              boxShadow: '0 2px 8px rgba(5,150,105,0.28), inset 0 1px 0 rgba(255,255,255,0.15)',
+                            }
                           }
                         >
                           {selected ? 'REMOVE' : '+ ADD'}
@@ -793,10 +859,10 @@ export default function Page() {
             </div>
 
             {/* Right: Lineup builder */}
-            <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-white" style={{ boxShadow: '-4px 0 20px rgba(0, 0, 0, 0.08)' }}>
+            <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-white" style={{ boxShadow: '-4px 0 28px rgba(0, 0, 0, 0.12)' }}>
 
               {/* Header + salary bar */}
-              <div className="shrink-0 border-b border-gray-100 px-6 pt-5 pb-4 bg-gradient-to-r from-cyan-50 to-blue-50">
+              <div className="shrink-0 border-b border-gray-100 px-6 pt-5 pb-4" style={{ background: 'linear-gradient(135deg, #e8f8fc, #e0f0fb)' }}>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500">My Lineup</span>
                   <span className="text-xs text-gray-400">{selectedRoster.length}/{REQUIRED_GOLFERS} picks</span>
@@ -864,7 +930,7 @@ export default function Page() {
               </div>
 
               {/* Score + actions */}
-              <div className="shrink-0 border-t border-gray-100 p-5 space-y-4 bg-gradient-to-r from-gray-50 to-cyan-50">
+              <div className="shrink-0 border-t border-gray-100 p-5 space-y-4" style={{ background: 'linear-gradient(to bottom, #f5f8fc, #eef2f8)' }}>
                 <div className="grid grid-cols-3 gap-3">
                   {([
                     { label: 'Raw', val: fmtScore(rosterRaw), color: scoreColor(rosterRaw) },
@@ -891,8 +957,13 @@ export default function Page() {
                 <button
                   onClick={handleSaveRoster}
                   disabled={isRosterSaving || isRosterLoading || locked}
-                  className="w-full py-4 text-white font-black text-base rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg"
-                  style={{ background: '#00bcd4' }}
+                  className="w-full py-4 text-white font-black text-base rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{
+                    background: 'linear-gradient(135deg, #00d4e8 0%, #00a8c8 50%, #0080b0 100%)',
+                    boxShadow: '0 4px 18px rgba(0,168,200,0.45), inset 0 1px 0 rgba(255,255,255,0.20)',
+                    border: '1px solid rgba(0,160,200,0.5)',
+                    letterSpacing: '0.06em',
+                  }}
                 >
                   <Save className="h-5 w-5" />
                   {isRosterSaving ? 'SAVING…' : 'SAVE LINEUP'}
@@ -1131,7 +1202,7 @@ export default function Page() {
       </main>
 
       {/* ══ Footer ══ */}
-      <footer className="shrink-0 border-t border-gray-300 bg-gray-50 px-6 py-3 flex items-center justify-between text-xs text-gray-500">
+      <footer className="shrink-0 px-6 py-3 flex items-center justify-between text-xs" style={{ background: 'linear-gradient(to right, #e0e6ee, #dce4ee)', borderTop: '1px solid #c8d2de', color: '#64748b' }}>
         <span>MVP prototype · connect auth, DB, and live data feeds to go live</span>
         <button
           onClick={() => setMainTab('Commissioner console')}
