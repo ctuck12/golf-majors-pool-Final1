@@ -359,36 +359,8 @@ function SectionCard({
 }) {
   return (
     <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      <div className="mb-5 flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-          {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
-        </div>
-        {right}
-      </div>
-      {children}
+      ...
     </section>
-  );
-}
-
-function NavTab({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded-2xl px-5 py-3 text-sm font-medium transition ${
-        active ? 'bg-slate-900 text-white shadow-sm' : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50'
-      }`}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -553,9 +525,9 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-black text-white">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="mb-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-900 text-white shadow-xl">
+        <header className="mb-8 rounded-3xl bg-gradient-to-br from-emerald-500/20 via-slate-900 to-black p-8 border border-slate-800 shadow-2xl">
           <div className="grid gap-8 p-6 lg:grid-cols-[1.5fr,1fr] lg:p-8">
             <div>
               <Pill tone="green">5-Tournament Major Pool</Pill>
@@ -733,7 +705,7 @@ export default function Page() {
                 <button
                   onClick={handleSaveRoster}
                   disabled={isRosterSaving || isRosterLoading}
-                  className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-60"
+                  className="btn btn-primary flex items-center gap-2"
                 >
                   <Save className="h-4 w-4" /> {isRosterSaving ? 'Saving...' : 'Save roster'}
                 </button>
