@@ -382,46 +382,45 @@ export default function Page() {
       {/* ══ Header ══ */}
       <header style={{ background: '#1a1a1a', color: '#fff' }} className="shrink-0">
         {/* Top strip */}
-        <div className="flex items-center gap-4 px-6 py-3">
-          <button className="text-gray-500 hover:text-gray-300 transition-colors shrink-0">
+        <div className="flex items-start gap-4 px-6 py-4">
+          <button className="text-gray-500 hover:text-gray-300 transition-colors shrink-0 mt-0.5">
             <X className="h-5 w-5" />
           </button>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-[15px] leading-tight">2026 Golf Majors Pool</span>
+            <div className="flex items-center gap-1.5 mb-2">
+              <span className="font-bold text-sm leading-tight">2026 Golf Majors Pool</span>
               <Info className="h-3.5 w-3.5 text-gray-500 shrink-0" />
             </div>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-sm text-gray-400">3/12</span>
-              <span className="text-gray-600 text-sm">•</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400">3/12</span>
+              <span className="text-gray-600 text-xs">•</span>
               <span
-                className="text-xs px-2.5 py-0.5 rounded-full font-medium"
+                className="text-xs px-2 py-1 rounded-full font-medium"
                 style={{ border: '1px solid #444', color: '#ccc', background: '#2a2a2a' }}
               >
                 Golf Majors
               </span>
-              <span className="text-base">⛳</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-3 shrink-0 text-right">
             <Bell className="h-5 w-5 text-gray-400" />
-            <div className="text-right">
+            <div>
               <div className="font-bold text-sm leading-tight">23 Contest Entries</div>
-              <div className="text-xs text-gray-400 mt-0.5">Your Entries: 1/1 allowed</div>
+              <div className="text-xs text-gray-400">Your Entries: 1/1 allowed</div>
             </div>
           </div>
         </div>
 
         {/* Nav tabs */}
         <div style={{ borderTop: '1px solid #333' }} className="px-6">
-          <div className="flex items-end gap-0">
+          <div className="flex items-end gap-6">
             {MAIN_TABS.map(tab => (
               <button
                 key={tab}
                 onClick={() => setMainTab(tab)}
-                className="flex items-center gap-1 px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors"
+                className="py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2"
                 style={{
                   borderBottom: mainTab === tab ? '2px solid #00bcd4' : '2px solid transparent',
                   color: mainTab === tab ? '#00bcd4' : '#ccc',
@@ -430,7 +429,7 @@ export default function Page() {
                 onMouseLeave={e => { if (mainTab !== tab) (e.currentTarget as HTMLElement).style.color = '#ccc'; }}
               >
                 {tab}
-                {tab === 'Reports' && <ChevronDown className="h-3.5 w-3.5" />}
+                {tab === 'Reports' && <ChevronDown className="h-3.5 w-3.5 inline ml-1" />}
               </button>
             ))}
           </div>
@@ -443,17 +442,17 @@ export default function Page() {
         {/* ─── STANDINGS (Leaderboard) ─── */}
         {mainTab === 'Standings' && (
           <div className="overflow-y-auto h-full">
-            <div className="max-w-5xl mx-auto px-6 py-6">
+            <div className="max-w-6xl mx-auto px-8 py-8">
 
-              <h1 className="text-3xl font-bold text-gray-900 mb-5">Leaderboard</h1>
+              <h1 className="text-4xl font-bold text-gray-900 mb-8">Leaderboard</h1>
 
               {/* White card with tabs inside */}
               <div className="bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
 
                 {/* Tournament sub-tabs */}
                 <div
-                  className="flex items-end gap-0 px-4 pt-3 overflow-x-auto"
-                  style={{ borderBottom: '1px solid #ddd' }}
+                  className="flex items-end gap-6 px-6 pt-4 pb-0 overflow-x-auto"
+                  style={{ borderBottom: '1px solid #e0e0e0' }}
                 >
                   {tournamentTabs.map(t => {
                     const tabClass = tdClass(t);
@@ -469,16 +468,10 @@ export default function Page() {
                           if (t.isYtd) { setShowYtd(true); }
                           else { setShowYtd(false); setSelectedTournament(t.id); }
                         }}
-                        className="shrink-0 px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors"
+                        className="shrink-0 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2"
                         style={{
-                          background: isActive ? '#fff' : 'transparent',
+                          borderBottom: isActive ? '2px solid #fff' : '2px solid transparent',
                           color: isActive ? '#333' : isYtd ? '#00bcd4' : isFuture ? '#00bcd4' : '#00bcd4',
-                          fontWeight: isYtd ? 700 : isActive ? 600 : 400,
-                          border: isActive ? '1px solid #ddd' : '1px solid transparent',
-                          borderBottom: isActive ? '1px solid #fff' : '1px solid transparent',
-                          marginBottom: isActive ? '-1px' : '0',
-                          position: 'relative',
-                          zIndex: isActive ? 1 : 0,
                         }}
                       >
                         {t.shortName}
@@ -492,7 +485,7 @@ export default function Page() {
                   /* ── Standings table (The Players or Year-to-Date) ── */
                   <div>
                     {/* Prize row */}
-                    <div className="grid grid-cols-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 via-cyan-50 to-sky-50">
+                    <div className="grid grid-cols-4 border-b border-gray-100 bg-gradient-to-r from-cyan-50 to-blue-50">
                       {([
                         { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#b45309' },
                         { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: '#b45309' },
@@ -589,8 +582,8 @@ export default function Page() {
 
                     {/* Info banner — matches screenshot exactly */}
                     <div
-                      className="px-5 py-4 flex items-start gap-3"
-                      style={{ background: '#ccf0ec', borderTop: '1px solid #a0ddd7' }}
+                      className="px-6 py-4 flex items-start gap-3"
+                      style={{ background: '#b3e5fc', borderTop: '1px solid #81d4fa' }}
                     >
                       <div
                         className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5"
@@ -598,7 +591,7 @@ export default function Page() {
                       >
                         i
                       </div>
-                      <p className="text-sm text-gray-700">
+                      <p className="text-sm text-gray-800">
                         Reminder: To modify your list of active tournaments, please go to your{' '}
                         <button
                           onClick={() => setMainTab('Commissioner console')}
@@ -616,7 +609,7 @@ export default function Page() {
               {/* Payout structure card */}
               {hasTournamentData && (
                 <div className="mt-6 bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)' }}>
-                  <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 via-cyan-50 to-sky-50">
+                  <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-cyan-50 to-blue-50">
                     <h3 className="font-bold text-gray-900 text-sm">Payout Structure</h3>
                     <p className="text-xs text-gray-500 mt-0.5">Send to {settings.venmo}</p>
                   </div>
@@ -649,7 +642,7 @@ export default function Page() {
             <div className="flex flex-col flex-1 overflow-hidden bg-white border-r border-gray-200" style={{ boxShadow: '4px 0 20px rgba(0, 0, 0, 0.08)' }}>
 
               {/* Contest bar */}
-              <div className="shrink-0 grid grid-cols-4 border-b border-gray-100 bg-gradient-to-r from-sky-50 via-cyan-50 to-emerald-50">
+              <div className="shrink-0 grid grid-cols-4 border-b border-gray-100 bg-gradient-to-r from-cyan-50 to-blue-50">
                 {([
                   { label: 'Tournament', value: 'The Players Championship' },
                   { label: 'Venue', value: 'TPC Sawgrass' },
@@ -752,7 +745,7 @@ export default function Page() {
             <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-white" style={{ boxShadow: '-4px 0 20px rgba(0, 0, 0, 0.08)' }}>
 
               {/* Header + salary bar */}
-              <div className="shrink-0 border-b border-gray-100 px-6 pt-5 pb-4 bg-gradient-to-r from-emerald-50 via-cyan-50 to-sky-50">
+              <div className="shrink-0 border-b border-gray-100 px-6 pt-5 pb-4 bg-gradient-to-r from-cyan-50 to-blue-50">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500">My Lineup</span>
                   <span className="text-xs text-gray-400">{selectedRoster.length}/{REQUIRED_GOLFERS} picks</span>
@@ -820,7 +813,7 @@ export default function Page() {
               </div>
 
               {/* Score + actions */}
-              <div className="shrink-0 border-t border-gray-100 p-5 space-y-4 bg-gradient-to-r from-gray-50 via-sky-50 to-emerald-50">
+              <div className="shrink-0 border-t border-gray-100 p-5 space-y-4 bg-gradient-to-r from-gray-50 to-cyan-50">
                 <div className="grid grid-cols-3 gap-3">
                   {([
                     { label: 'Raw', val: fmtScore(rosterRaw), color: scoreColor(rosterRaw) },
@@ -1087,7 +1080,7 @@ export default function Page() {
       </main>
 
       {/* ══ Footer ══ */}
-      <footer className="shrink-0 border-t border-gray-300 bg-white px-6 py-3 flex items-center justify-between text-xs text-gray-500">
+      <footer className="shrink-0 border-t border-gray-300 bg-gray-50 px-6 py-3 flex items-center justify-between text-xs text-gray-500">
         <span>MVP prototype · connect auth, DB, and live data feeds to go live</span>
         <button
           onClick={() => setMainTab('Commissioner console')}
