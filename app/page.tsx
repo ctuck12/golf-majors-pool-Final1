@@ -1112,19 +1112,6 @@ export default function Page() {
           <div className="overflow-y-auto h-full">
             <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
 
-              {/* Welcome card */}
-              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-                <div className="px-6 py-4 border-b border-gray-100" style={{ background: 'linear-gradient(135deg, #0c1628, #162040)' }}>
-                  <h2 className="font-black text-white text-lg tracking-tight">Welcome to my PGA Golf Majors Pool!</h2>
-                </div>
-                <div className="p-6 space-y-4 text-gray-700 text-sm leading-relaxed">
-                  <p>
-                    A brief reminder: For each Major tournament, you will pick six (6) PGA players to make up your Player Roster. The pool member with the highest point total between all 6 players on their team after the final round will win. All picks will be hidden until the first scheduled tee time on Thursday (1st Round) of the tournament. If one of your picks get cut, he will garner -10 points for you. The rest of the points break down is displayed below. Good luck to everyone. If you have any questions, please contact me 325.665.8299.
-                  </p>
-                  <p className="font-semibold text-gray-800">— Clayton Tucker</p>
-                </div>
-              </div>
-
               {/* Rules card */}
               <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
                 <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
