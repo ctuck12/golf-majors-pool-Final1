@@ -747,31 +747,45 @@ export default function Page() {
           <div className="flex overflow-hidden" style={{ height: 'calc(100vh - 113px)' }}>
 
             {/* Left: Player pool */}
-            <div className="flex flex-col flex-1 overflow-hidden bg-white border-r border-gray-200" style={{ boxShadow: '4px 0 20px rgba(0, 0, 0, 0.08)' }}>
+            <div className="flex flex-col flex-1 overflow-hidden" style={{ background: '#f4f6fa', borderRight: '1px solid #d8dfe8' }}>
 
               {/* Contest bar */}
-              <div className="shrink-0 grid grid-cols-4 border-b border-gray-100" style={{ background: 'linear-gradient(to right, #f0fafe, #e8f4fc, #f0f7ff)' }}>
+              <div
+                className="shrink-0 flex border-b shrink-0"
+                style={{ background: 'linear-gradient(135deg, #0c1628 0%, #162040 100%)', borderColor: 'rgba(255,255,255,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.18)' }}
+              >
                 {([
-                  { label: 'Tournament', value: 'The Players Championship' },
-                  { label: 'Venue', value: 'TPC Sawgrass' },
-                  { label: 'Entry Fee', value: `$${settings.entryFee}`, color: '#047857' },
-                  { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#b45309' },
+                  { label: 'Tournament', value: 'The Players Championship', color: '#e2eaf4' },
+                  { label: 'Venue', value: 'TPC Sawgrass', color: '#9ab8d8' },
+                  { label: 'Entry Fee', value: `$${settings.entryFee}`, color: '#4ade80' },
+                  { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#fbbf24' },
                 ] as any[]).map(({ label, value, color }) => (
-                  <div key={label} className="px-6 py-4 border-r border-gray-200 last:border-0 bg-gray-50">
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{label}</div>
-                    <div className="text-sm font-semibold mt-0.5 truncate" style={{ color: color ?? '#1a1a1a' }}>{value}</div>
+                  <div key={label} className="flex-1 px-6 py-4" style={{ borderRight: '1px solid rgba(255,255,255,0.07)' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.38)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>{label}</div>
+                    <div className="truncate" style={{ color, fontWeight: 700, fontSize: 14 }}>{value}</div>
                   </div>
                 ))}
               </div>
 
               {/* Column headers */}
-              <div className="shrink-0 grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-6 py-3 border-b border-gray-100" style={{ background: 'linear-gradient(to right, #f3f5f8, #eaedf2)' }}>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">RK</span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Player</span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">Thru</span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">Score</span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Salary</span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">Action</span>
+              <div
+                className="shrink-0 border-b"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '44px 1fr 56px 64px 76px 96px',
+                  gap: 0,
+                  alignItems: 'center',
+                  padding: '10px 24px',
+                  background: 'linear-gradient(to right, #edf1f7, #e4e9f2)',
+                  borderColor: '#cdd4e0',
+                }}
+              >
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8', textAlign: 'center' }}>RK</span>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8' }}>Player</span>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8', textAlign: 'center' }}>Thru</span>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8', textAlign: 'center' }}>Score</span>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8' }}>Salary</span>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8', textAlign: 'center' }}>Action</span>
               </div>
 
               {/* Player rows */}
@@ -790,68 +804,114 @@ export default function Page() {
                       <div
                         key={player.id}
                         onClick={() => (canAdd || canRemove) ? toggleRosterPlayer(player.id) : undefined}
-                        className="grid grid-cols-[48px,1fr,56px,64px,80px,96px] gap-3 items-center px-6 py-4 border-b border-gray-50 transition-all duration-200"
                         style={{
-                          background: selected ? '#f0fdf9' : 'white',
+                          display: 'grid',
+                          gridTemplateColumns: '44px 1fr 56px 64px 76px 96px',
+                          gap: 0,
+                          alignItems: 'center',
+                          padding: '13px 24px',
+                          borderBottom: '1px solid #dde3ec',
+                          background: selected
+                            ? 'linear-gradient(to right, #e8faf4, #f0fdf9)'
+                            : 'white',
                           cursor: canAdd || canRemove ? 'pointer' : 'not-allowed',
-                          opacity: (!canAdd && !selected) ? 0.4 : 1,
-                          boxShadow: selected ? 'inset 3px 0 0 #00bcd4' : undefined,
+                          opacity: (!canAdd && !selected) ? 0.45 : 1,
+                          boxShadow: selected ? 'inset 4px 0 0 #00bcd4' : undefined,
+                          transition: 'background 0.15s',
                         }}
-                        onMouseEnter={e => { if (canAdd && !selected) (e.currentTarget as HTMLElement).style.background = '#f9f9f9'; }}
-                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = selected ? '#f0fdf9' : 'white'; }}
+                        onMouseEnter={e => { if (canAdd && !selected) (e.currentTarget as HTMLElement).style.background = '#f5f8fc'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = selected ? 'linear-gradient(to right, #e8faf4, #f0fdf9)' : 'white'; }}
                       >
-                        <span className="text-xs text-gray-400 text-center font-medium tabular-nums">{player.owgr}</span>
+                        {/* Rank */}
+                        <div style={{ textAlign: 'center' }}>
+                          <span
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                              width: 26, height: 26, borderRadius: '50%',
+                              background: selected ? 'linear-gradient(135deg, #00bcd4, #0097a7)' : 'linear-gradient(135deg, #e8ecf2, #d8dfe8)',
+                              color: selected ? '#fff' : '#7a8fa8',
+                              fontSize: 11, fontWeight: 800,
+                              boxShadow: selected ? '0 2px 6px rgba(0,188,212,0.35)' : '0 1px 3px rgba(0,0,0,0.08)',
+                            }}
+                          >{player.owgr}</span>
+                        </div>
 
-                        <div className="min-w-0 flex items-center gap-2.5">
+                        {/* Player info */}
+                        <div className="min-w-0 flex items-center gap-2.5" style={{ paddingRight: 8 }}>
                           <div
-                            className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black"
-                            style={{ background: selected ? '#d1fae5' : '#f3f4f6', color: selected ? '#065f46' : '#6b7280' }}
+                            style={{
+                              flexShrink: 0, width: 34, height: 34, borderRadius: '50%',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: 13, fontWeight: 900,
+                              background: selected
+                                ? 'linear-gradient(135deg, #00c9a7, #00a896)'
+                                : 'linear-gradient(135deg, #c8d4e4, #b8c8dc)',
+                              color: selected ? '#fff' : '#4a6080',
+                              boxShadow: selected ? '0 2px 8px rgba(0,188,212,0.30)' : '0 1px 4px rgba(0,0,0,0.10)',
+                            }}
                           >
                             {player.name.charAt(0)}
                           </div>
                           <div className="min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-sm font-semibold text-gray-900">{player.name}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                              <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a' }}>{player.name}</span>
                               {selected && (
-                                <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full" style={{ background: '#d1fae5', color: '#065f46' }}>
+                                <span style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 999, background: 'linear-gradient(135deg, #00bcd4, #0097a7)', color: '#fff', boxShadow: '0 1px 4px rgba(0,188,212,0.3)' }}>
                                   In Lineup
                                 </span>
                               )}
                               {wouldExceedCap && (
-                                <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full" style={{ background: '#fef3c7', color: '#92400e' }}>
+                                <span style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 999, background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' }}>
                                   Over Cap
                                 </span>
                               )}
                             </div>
-                            <div className="text-[11px] text-gray-400 mt-0.5">{player.odds} outright</div>
+                            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{player.odds} outright</div>
                           </div>
                         </div>
 
-                        <span className="text-xs text-gray-500 text-center tabular-nums">{player.thru}</span>
-                        <span className={`text-sm font-bold text-center tabular-nums ${scoreColor(player.score)}`}>{player.score}</span>
-                        <span className="text-sm font-semibold tabular-nums" style={{ color: '#047857' }}>${(player.salary / 1000).toFixed(1)}K</span>
+                        {/* Thru */}
+                        <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 600, color: '#64748b' }}>{player.thru}</div>
 
-                        <button
-                          onClick={e => { e.stopPropagation(); toggleRosterPlayer(player.id); }}
-                          disabled={!canAdd && !canRemove}
-                          className="py-2 rounded-lg text-[11px] font-bold tracking-widest transition-all disabled:opacity-20 disabled:cursor-not-allowed"
-                          style={selected
-                            ? {
-                              background: 'linear-gradient(to bottom, #f87171, #dc2626)',
-                              color: '#fff',
-                              border: '1px solid #b91c1c',
-                              boxShadow: '0 2px 8px rgba(220,38,38,0.30), inset 0 1px 0 rgba(255,255,255,0.15)',
-                            }
-                            : {
-                              background: 'linear-gradient(to bottom, #34d399, #059669)',
-                              color: '#fff',
-                              border: '1px solid #047857',
-                              boxShadow: '0 2px 8px rgba(5,150,105,0.28), inset 0 1px 0 rgba(255,255,255,0.15)',
-                            }
-                          }
-                        >
-                          {selected ? 'REMOVE' : '+ ADD'}
-                        </button>
+                        {/* Score */}
+                        <div style={{ textAlign: 'center' }}>
+                          <span
+                            className={`tabular-nums ${scoreColor(player.score)}`}
+                            style={{ fontSize: 14, fontWeight: 800 }}
+                          >{player.score}</span>
+                        </div>
+
+                        {/* Salary */}
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#059669' }}>${(player.salary / 1000).toFixed(1)}K</div>
+
+                        {/* Action button */}
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                          <button
+                            onClick={e => { e.stopPropagation(); toggleRosterPlayer(player.id); }}
+                            disabled={!canAdd && !canRemove}
+                            style={{
+                              width: 76, padding: '7px 0',
+                              borderRadius: 8,
+                              fontSize: 10, fontWeight: 800, letterSpacing: '0.07em',
+                              cursor: canAdd || canRemove ? 'pointer' : 'not-allowed',
+                              transition: 'all 0.15s',
+                              opacity: (!canAdd && !canRemove) ? 0.2 : 1,
+                              ...(selected
+                                ? {
+                                  background: 'linear-gradient(to bottom, #f87171, #dc2626)',
+                                  color: '#fff', border: '1px solid #b91c1c',
+                                  boxShadow: '0 2px 8px rgba(220,38,38,0.30), inset 0 1px 0 rgba(255,255,255,0.15)',
+                                }
+                                : {
+                                  background: 'linear-gradient(to bottom, #34d399, #059669)',
+                                  color: '#fff', border: '1px solid #047857',
+                                  boxShadow: '0 2px 8px rgba(5,150,105,0.28), inset 0 1px 0 rgba(255,255,255,0.15)',
+                                }),
+                            }}
+                          >
+                            {selected ? 'REMOVE' : '+ ADD'}
+                          </button>
+                        </div>
                       </div>
                     );
                   })
@@ -863,67 +923,79 @@ export default function Page() {
             <div className="w-[300px] xl:w-[330px] shrink-0 flex flex-col bg-white" style={{ boxShadow: '-4px 0 28px rgba(0, 0, 0, 0.12)' }}>
 
               {/* Header + salary bar */}
-              <div className="shrink-0 border-b border-gray-100 px-6 pt-5 pb-4" style={{ background: 'linear-gradient(135deg, #e8f8fc, #e0f0fb)' }}>
+              <div
+                className="shrink-0 border-b px-6 pt-5 pb-4"
+                style={{ background: 'linear-gradient(135deg, #0c1628 0%, #162040 100%)', borderColor: 'rgba(255,255,255,0.08)' }}
+              >
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500">My Lineup</span>
-                  <span className="text-xs text-gray-400">{selectedRoster.length}/{REQUIRED_GOLFERS} picks</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7ab8e0' }}>My Lineup</span>
+                  <span
+                    style={{ fontSize: 12, fontWeight: 700, color: '#fff', background: 'rgba(0,188,212,0.18)', border: '1px solid rgba(0,188,212,0.3)', borderRadius: 20, padding: '2px 10px' }}
+                  >{selectedRoster.length}/{REQUIRED_GOLFERS} picks</span>
                 </div>
                 <div>
-                  <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Salary Cap</span>
-                    <span className="font-bold tabular-nums" style={{ color: salaryRemaining < 0 ? '#dc2626' : '#374151' }}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.35)' }}>Salary Cap</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: salaryRemaining < 0 ? '#f87171' : '#fff' }}>
                       ${salaryUsed.toLocaleString()} / $50K
                     </span>
                   </div>
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#e5e7eb' }}>
+                  <div style={{ height: 6, borderRadius: 99, overflow: 'hidden', background: 'rgba(255,255,255,0.10)' }}>
                     <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${salaryPct}%`, background: salaryRemaining < 0 ? '#dc2626' : '#00bcd4' }}
+                      style={{ height: '100%', borderRadius: 99, transition: 'width 0.5s', width: `${salaryPct}%`, background: salaryRemaining < 0 ? 'linear-gradient(to right, #f87171, #dc2626)' : 'linear-gradient(to right, #00e5ff, #00b8d9)' }}
                     />
                   </div>
-                  <div className="mt-1 text-right text-xs font-semibold" style={{ color: salaryRemaining < 0 ? '#dc2626' : '#047857' }}>
+                  <div style={{ marginTop: 5, textAlign: 'right', fontSize: 11, fontWeight: 700, color: salaryRemaining < 0 ? '#f87171' : '#4ade80' }}>
                     ${salaryRemaining.toLocaleString()} remaining
                   </div>
                 </div>
               </div>
 
               {/* Slots */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-2">
+              <div className="flex-1 overflow-y-auto p-4 space-y-2" style={{ background: '#f4f6fa' }}>
                 {Array.from({ length: REQUIRED_GOLFERS }, (_, i) => {
                   const p: any = playersById[selectedRoster[i]];
                   return (
                     <div
                       key={i}
-                      className="flex items-center gap-4 rounded-lg border p-4 transition-all"
+                      className="flex items-center gap-3 rounded-xl p-3.5 transition-all"
                       style={p
-                        ? { borderColor: '#a7f3d0', background: '#f0fdf9' }
-                        : { borderColor: '#e5e7eb', background: '#f9fafb' }
+                        ? { background: 'white', border: '1px solid #c8eee4', boxShadow: '0 2px 8px rgba(0,0,0,0.06), inset 3px 0 0 #00bcd4' }
+                        : { background: 'white', border: '1px solid #dde3ec', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }
                       }
                     >
                       <div
-                        className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black"
-                        style={p
-                          ? { background: '#d1fae5', color: '#065f46' }
-                          : { background: '#e5e7eb', color: '#9ca3af' }
-                        }
+                        style={{
+                          flexShrink: 0, width: 24, height: 24, borderRadius: '50%',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 10, fontWeight: 900,
+                          background: p ? 'linear-gradient(135deg, #00bcd4, #0097a7)' : 'linear-gradient(135deg, #e2e8f0, #cbd5e1)',
+                          color: p ? '#fff' : '#94a3b8',
+                          boxShadow: p ? '0 2px 6px rgba(0,188,212,0.30)' : 'none',
+                        }}
                       >
                         {i + 1}
                       </div>
                       {p ? (
                         <>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-semibold text-gray-900 truncate">{p.name}</div>
-                            <div className="text-[11px] text-gray-400 mt-0.5">${p.salary.toLocaleString()} · OWGR #{p.owgr}</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }} className="truncate">{p.name}</div>
+                            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>${p.salary.toLocaleString()} · OWGR #{p.owgr}</div>
                           </div>
-                          <span className={`text-sm font-bold shrink-0 tabular-nums ${scoreColor(p.score)}`}>{p.score}</span>
+                          <span className={`tabular-nums ${scoreColor(p.score)}`} style={{ fontSize: 14, fontWeight: 800, flexShrink: 0 }}>{p.score}</span>
                           {!locked && (
-                            <button onClick={() => toggleRosterPlayer(p.id)} className="shrink-0 text-gray-300 hover:text-red-500 transition-colors ml-0.5">
+                            <button
+                              onClick={() => toggleRosterPlayer(p.id)}
+                              style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', color: '#cbd5e1', padding: 2, borderRadius: 4 }}
+                              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#ef4444'; }}
+                              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#cbd5e1'; }}
+                            >
                               <X className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </>
                       ) : (
-                        <span className="text-sm text-gray-400 italic">Empty slot</span>
+                        <span style={{ fontSize: 13, color: '#94a3b8', fontStyle: 'italic' }}>Empty slot</span>
                       )}
                     </div>
                   );
@@ -931,27 +1003,27 @@ export default function Page() {
               </div>
 
               {/* Score + actions */}
-              <div className="shrink-0 border-t border-gray-100 p-5 space-y-4" style={{ background: 'linear-gradient(to bottom, #f5f8fc, #eef2f8)' }}>
-                <div className="grid grid-cols-3 gap-3">
+              <div className="shrink-0 p-4 space-y-3" style={{ background: 'linear-gradient(to bottom, #0f1e34, #162840)', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
                   {([
                     { label: 'Raw', val: fmtScore(rosterRaw), color: scoreColor(rosterRaw) },
-                    { label: 'Bonus', val: `+${rosterBonus}`, color: 'text-blue-600' },
+                    { label: 'Bonus', val: `+${rosterBonus}`, color: 'text-blue-400' },
                     { label: 'Net', val: fmtScore(rosterNet), color: scoreColor(rosterNet) },
                   ] as any[]).map(({ label, val, color }) => (
-                    <div key={label} className="text-center rounded-lg border border-gray-200 bg-white py-3">
-                      <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-1">{label}</div>
-                      <div className={`text-base font-black tabular-nums ${color}`}>{val}</div>
+                    <div key={label} style={{ textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 10, padding: '10px 4px' }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>{label}</div>
+                      <div className={`tabular-nums ${color}`} style={{ fontSize: 16, fontWeight: 900 }}>{val}</div>
                     </div>
                   ))}
                 </div>
 
                 {saveMessage && (
-                  <div className="text-xs text-gray-600 bg-white border border-gray-200 rounded px-3 py-2 text-center">
+                  <div style={{ fontSize: 11, color: '#7ab8e0', background: 'rgba(0,188,212,0.10)', border: '1px solid rgba(0,188,212,0.20)', borderRadius: 8, padding: '6px 12px', textAlign: 'center' }}>
                     {saveMessage}
                   </div>
                 )}
 
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 text-center">
+                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.28)', textAlign: 'center' }}>
                   {isRosterLoading ? 'Loading…' : `Saved: ${lastSavedAt}`}
                 </div>
 
@@ -972,7 +1044,9 @@ export default function Page() {
                 <button
                   onClick={handleResetRoster}
                   disabled={isRosterSaving || isRosterLoading || locked}
-                  className="w-full py-2 text-gray-400 hover:text-gray-700 disabled:opacity-40 text-sm font-semibold transition-colors"
+                  style={{ width: '100%', padding: '8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.02em' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'; }}
                 >
                   Reset to default picks
                 </button>
