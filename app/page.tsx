@@ -572,68 +572,119 @@ export default function Page() {
                 {hasTournamentData ? (
                   /* ── Standings table (The Players or Year-to-Date) ── */
                   <div>
-                    {/* Prize row */}
-                    <div className="grid grid-cols-4 border-b border-gray-100" style={{ background: 'linear-gradient(to right, #f0fafe, #e8f4fc, #f0f7ff)' }}>
+                    {/* Prize row — dark navy like My entries contest bar */}
+                    <div
+                      style={{
+                        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+                        background: 'linear-gradient(135deg, #0c1628 0%, #162040 100%)',
+                        borderBottom: '1px solid rgba(255,255,255,0.07)',
+                        boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+                      }}
+                    >
                       {([
-                        { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#b45309' },
-                        { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: '#b45309' },
-                        { label: 'Entries',    value: standings.length, color: '#1a1a1a' },
-                        { label: 'Entry Fee',  value: `$${settings.entryFee}`, color: '#047857' },
+                        { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#fbbf24' },
+                        { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: '#fbbf24' },
+                        { label: 'Entries',    value: standings.length, color: '#e2eaf4' },
+                        { label: 'Entry Fee',  value: `$${settings.entryFee}`, color: '#4ade80' },
                       ] as any[]).map(({ label, value, color }) => (
-                        <div key={label} className="px-6 py-5 border-r border-gray-200 last:border-0">
-                          <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-1">{label}</div>
-                          <div className="text-xl font-black" style={{ color }}>{value}</div>
+                        <div key={label} style={{ padding: '16px 24px', borderRight: '1px solid rgba(255,255,255,0.07)' }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.38)', marginBottom: 6 }}>{label}</div>
+                          <div style={{ fontSize: 20, fontWeight: 900, color }}>{value}</div>
                         </div>
                       ))}
                     </div>
 
                     {/* Table header */}
-                    <div className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 px-6 py-3 border-b border-gray-100" style={{ background: 'linear-gradient(to right, #f3f5f8, #eaedf2)' }}>
-                      {['Place', 'Entry', 'Salary', 'Raw', 'Bonus', 'Net'].map(h => (
-                        <span key={h} className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">{h}</span>
+                    <div
+                      style={{
+                        display: 'grid', gridTemplateColumns: '56px 1fr 100px 72px 72px 80px',
+                        padding: '10px 24px', gap: 0,
+                        background: 'linear-gradient(to right, #edf1f7, #e4e9f2)',
+                        borderBottom: '1px solid #cdd4e0',
+                      }}
+                    >
+                      {[['Place', 'left'], ['Entry', 'left'], ['Salary', 'left'], ['Raw', 'left'], ['Bonus', 'left'], ['Net', 'left']].map(([h, align]) => (
+                        <span key={h} style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8', textAlign: align as any }}>{h}</span>
                       ))}
                     </div>
 
-                    {standings.map((entry: any) => (
-                      <div
-                        key={entry.id}
-                        className="grid grid-cols-[60px,1fr,100px,72px,72px,80px] gap-3 items-center px-6 py-4 border-b border-gray-50 last:border-0 transition-all duration-200 hover:bg-gray-50"
-                        style={entry.name === entryName ? { background: '#f0fdf9' } : {}}
-                      >
-                        <div className="font-bold text-base">
-                          {entry.place === 1 ? '🥇' : entry.place === 2 ? '🥈' : entry.place === 3 ? '🥉' : (
-                            <span className="text-gray-400 text-sm">#{entry.place}</span>
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-gray-900">{entry.name}</span>
-                            {entry.name === entryName && (
-                              <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full" style={{ background: '#d1fae5', color: '#065f46' }}>You</span>
+                    {/* Entry rows */}
+                    {standings.map((entry: any) => {
+                      const isMe = entry.name === entryName;
+                      return (
+                        <div
+                          key={entry.id}
+                          style={{
+                            display: 'grid', gridTemplateColumns: '56px 1fr 100px 72px 72px 80px',
+                            alignItems: 'center', padding: '14px 24px', gap: 0,
+                            borderBottom: '1px solid #dde3ec',
+                            background: isMe
+                              ? 'linear-gradient(to right, #e8faf4, #f0fdf9)'
+                              : 'white',
+                            boxShadow: isMe ? 'inset 4px 0 0 #00bcd4' : undefined,
+                            transition: 'background 0.15s',
+                          }}
+                          onMouseEnter={e => { if (!isMe) (e.currentTarget as HTMLElement).style.background = '#f5f8fc'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = isMe ? 'linear-gradient(to right, #e8faf4, #f0fdf9)' : 'white'; }}
+                        >
+                          {/* Place */}
+                          <div style={{ fontSize: 18 }}>
+                            {entry.place === 1 ? '🥇' : entry.place === 2 ? '🥈' : entry.place === 3 ? '🥉' : (
+                              <span style={{
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                width: 28, height: 28, borderRadius: '50%',
+                                background: 'linear-gradient(135deg, #e2e8f0, #d0d8e4)',
+                                fontSize: 11, fontWeight: 800, color: '#64748b',
+                                boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                              }}>#{entry.place}</span>
                             )}
                           </div>
-                          <div className="text-xs text-gray-400 mt-0.5">{entry.golfers.length} golfers</div>
+
+                          {/* Entry name */}
+                          <div style={{ paddingRight: 8 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a' }}>{entry.name}</span>
+                              {isMe && (
+                                <span style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 999, background: 'linear-gradient(135deg, #00bcd4, #0097a7)', color: '#fff', boxShadow: '0 1px 4px rgba(0,188,212,0.3)' }}>
+                                  You
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{entry.golfers.length} golfers</div>
+                          </div>
+
+                          {/* Salary */}
+                          <span style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>${entry.salary.toLocaleString()}</span>
+
+                          {/* Raw */}
+                          <span className={`tabular-nums ${scoreColor(entry.rawScore)}`} style={{ fontSize: 13, fontWeight: 700 }}>{fmtScore(entry.rawScore)}</span>
+
+                          {/* Bonus */}
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#3b82f6' }}>{entry.bonus}</span>
+
+                          {/* Net */}
+                          <span className={`tabular-nums ${scoreColor(entry.net)}`} style={{ fontSize: 15, fontWeight: 900 }}>{fmtScore(entry.net)}</span>
                         </div>
-                        <span className="text-sm text-gray-600 tabular-nums">${entry.salary.toLocaleString()}</span>
-                        <span className={`text-sm font-bold tabular-nums ${scoreColor(entry.rawScore)}`}>{fmtScore(entry.rawScore)}</span>
-                        <span className="text-sm font-bold tabular-nums text-blue-600">{entry.bonus}</span>
-                        <span className={`text-base font-black tabular-nums ${scoreColor(entry.net)}`}>{fmtScore(entry.net)}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
 
                     {/* Sync footer */}
-                    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100" style={{ background: 'linear-gradient(to right, #f3f5f8, #eaedf2)' }}>
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <div
+                      className="flex items-center justify-between px-6 py-3"
+                      style={{ background: 'linear-gradient(to right, #edf1f7, #e4e9f2)', borderTop: '1px solid #cdd4e0' }}
+                    >
+                      <div className="flex items-center gap-3" style={{ fontSize: 11, color: '#7a8fa8' }}>
                         <Clock3 className="h-3.5 w-3.5" />
                         <span>Last sync {lastRefresh}</span>
                         <span>·</span>
                         <Shield className="h-3.5 w-3.5" />
                         <span>Unofficial source</span>
                         <span
-                          className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
                           style={{
-                            background: syncStatus === 'Healthy' ? '#d1fae5' : syncStatus === 'Delayed' ? '#fef3c7' : '#fee2e2',
+                            padding: '2px 8px', borderRadius: 999, fontSize: 10, fontWeight: 800, textTransform: 'uppercase' as const, letterSpacing: '0.06em',
+                            background: syncStatus === 'Healthy' ? 'linear-gradient(135deg,#d1fae5,#a7f3d0)' : syncStatus === 'Delayed' ? '#fef3c7' : '#fee2e2',
                             color: syncStatus === 'Healthy' ? '#065f46' : syncStatus === 'Delayed' ? '#92400e' : '#991b1b',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
                           }}
                         >
                           {syncStatus}
@@ -641,7 +692,10 @@ export default function Page() {
                       </div>
                       <button
                         onClick={simulateRefresh}
-                        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-800 transition-colors"
+                        className="flex items-center gap-1.5 transition-colors"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600, color: '#7a8fa8' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0f172a'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#7a8fa8'; }}
                       >
                         <RefreshCw className="h-3.5 w-3.5" /> Refresh
                       </button>
