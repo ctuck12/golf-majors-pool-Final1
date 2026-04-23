@@ -287,6 +287,7 @@ export default function Page() {
   const [isRosterLoading, setIsRosterLoading] = useState(false);
   const [isRosterSaving, setIsRosterSaving] = useState(false);
   const [isSettingsSaving, setIsSettingsSaving] = useState(false);
+  const [showMobileLineup, setShowMobileLineup] = useState(false);
 
 
   const tournament = TOURNAMENTS.find(t => t.id === selectedTournament) ?? TOURNAMENTS[0];
@@ -768,7 +769,10 @@ export default function Page() {
 
         {/* ─── MY ENTRIES (My Picks) ─── */}
         {mainTab === 'My entries' && (
-          <div className="flex overflow-hidden" style={{ height: 'calc(100vh - 113px)' }}>
+          <div
+            className={`${showMobileLineup ? 'hidden md:flex' : 'flex'} flex-col flex-1 overflow-hidden`}
+            style={{ background: '#f4f6fa', borderRight: '1px solid #d8dfe8' }} 
+          >
 
             {/* Left: Player pool */}
             <div className="flex flex-col flex-1 overflow-hidden" style={{ background: '#f4f6fa', borderRight: '1px solid #d8dfe8' }}>
