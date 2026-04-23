@@ -412,7 +412,7 @@ export default function Page() {
               src="/logo-banner.png"
               alt="Golf Majors Pool"
               style={{
-                height: 104,
+                height: 160,
                 width: 'auto',
                 objectFit: 'contain',
                 display: 'block',
