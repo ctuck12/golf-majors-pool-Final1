@@ -1098,14 +1098,16 @@ export default function Page() {
                       <span style={{ fontSize: 18 }}>🏌️</span>
                       <span style={{ fontWeight: 700, fontSize: 16, color: '#111' }}>Roster &amp; Entry Details</span>
                     </div>
-                    {[
-                      <>For each major tournament, and The Players Championship, members select <strong>six golfers</strong>. Each golfer will have a salary assigned to them based on a blend of their world ranking and odds to win the tournament.</>,
+                    {([
+                      <>For each major tournament, and <span style={{ color: '#1a56db' }}>The Players Championship</span>, members select <strong>six golfers</strong>. Each golfer will have a salary assigned to them based on a blend of their world ranking and odds to win the tournament.</>,
                       <>Participants will be assigned a fixed salary cap of <strong>$50,000</strong> they must stay under in order to create their 6-player roster. These six golfers make up their Player Roster for that tournament.</>,
-                      <>Golfers <strong>CAN be picked more than once per season</strong>. Points are awarded based on the players hole by hole performance, as well as their tournament standings. Cut players receive <strong>-10 points</strong>.</>,
+                      <>Golfers <strong>CAN be picked more than once per season.</strong> Points are awarded based on the players hole by hole performance, as well as their tournament standings. Cut players receive <strong>-10 points</strong>.</>,
                       <><strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool field.</>,
-                    ].map((text, i, arr) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: i < arr.length - 1 ? 14 : 0 }}>
-                        <span style={{ color: '#4ade80', fontSize: 22, fontWeight: 900, lineHeight: 1.3, flexShrink: 0 }}>›</span>
+                      <>The scores of all <strong>6 golfers</strong> on your roster count towards your score.</>,
+                      <>You'll enter what you think the winning score for the champion will be (i.e. -12) when entering your picks, to serve as a tiebreaker value.</>,
+                    ] as React.ReactNode[]).map((text, i, arr) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: i < arr.length - 1 ? 12 : 0 }}>
+                        <span style={{ flexShrink: 0, fontSize: 13, lineHeight: '1.65' }}>🟢▶</span>
                         <p style={{ fontSize: 14.5, lineHeight: 1.65, color: '#1a1a1a', margin: 0 }}>{text}</p>
                       </div>
                     ))}
@@ -1113,25 +1115,19 @@ export default function Page() {
 
                   <hr style={{ border: 'none', borderTop: '1px solid #e0e0e0', marginBottom: 20 }} />
 
-                  <p style={{ fontSize: 14.5, lineHeight: 1.65, color: '#1a1a1a', marginBottom: 20 }}>
-                    The scores of all <strong>6 golfers</strong> on your roster count towards your score.
-                  </p>
-
-                  <hr style={{ border: 'none', borderTop: '1px solid #e0e0e0', marginBottom: 20 }} />
-
                   {/* Entry & Contact */}
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                       <span style={{ fontSize: 18 }}>💰</span>
                       <span style={{ fontWeight: 700, fontSize: 16, color: '#111' }}>Entry &amp; Contact</span>
                     </div>
-                    {[
-                      <><strong>Entry Fee:</strong> $25</>,
+                    {([
+                      <><strong>Entry Fee:</strong> <span style={{ color: '#1a56db' }}>$25</span></>,
                       <><strong>Venmo:</strong> @claytont743</>,
-                      <><strong>Questions:</strong> Clayton Tucker (325.665.8299)</>,
-                    ].map((line, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ color: '#4ade80', fontSize: 22, fontWeight: 900, lineHeight: 1.5, flexShrink: 0 }}>›</span>
+                      <><strong>Questions:</strong> Clayton Tucker <span style={{ color: '#1a56db' }}>📞 (325.665.8299)</span></>,
+                    ] as React.ReactNode[]).map((line, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                        <span style={{ flexShrink: 0, fontSize: 13, lineHeight: '1.5' }}>🟢▶</span>
                         <p style={{ fontSize: 14.5, lineHeight: 1.5, color: '#1a1a1a', margin: 0 }}>{line}</p>
                       </div>
                     ))}
