@@ -1093,18 +1093,17 @@ export default function Page() {
                       <span style={{ fontSize: 18 }}>🏌️</span>
                       <span style={{ fontWeight: 700, fontSize: 16, color: '#111' }}>Roster &amp; Entry Details</span>
                     </div>
-                    <p style={{ fontSize: 14.5, lineHeight: 1.65, marginBottom: 14, color: '#1a1a1a' }}>
-                      For each major tournament, and The Players Championship, members select <strong>six golfers</strong>. Each golfer will have a salary assigned to them based on a blend of their world ranking and odds to win the tournament.
-                    </p>
-                    <p style={{ fontSize: 14.5, lineHeight: 1.65, marginBottom: 14, color: '#1a1a1a' }}>
-                      Participants will be assigned a fixed salary cap of <strong>$50,000</strong> they must stay under in order to create their 6-player roster. These six golfers make up their Player Roster for that tournament.
-                    </p>
-                    <p style={{ fontSize: 14.5, lineHeight: 1.65, marginBottom: 14, color: '#1a1a1a' }}>
-                      Golfers <strong>CAN be picked more than once per season</strong>. Points are awarded based on the players hole by hole performance, as well as their tournament standings. Cut players receive <strong>-10 points</strong>.
-                    </p>
-                    <p style={{ fontSize: 14.5, lineHeight: 1.65, color: '#1a1a1a' }}>
-                      <strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool field.
-                    </p>
+                    {[
+                      <>For each major tournament, and The Players Championship, members select <strong>six golfers</strong>. Each golfer will have a salary assigned to them based on a blend of their world ranking and odds to win the tournament.</>,
+                      <>Participants will be assigned a fixed salary cap of <strong>$50,000</strong> they must stay under in order to create their 6-player roster. These six golfers make up their Player Roster for that tournament.</>,
+                      <>Golfers <strong>CAN be picked more than once per season</strong>. Points are awarded based on the players hole by hole performance, as well as their tournament standings. Cut players receive <strong>-10 points</strong>.</>,
+                      <><strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool field.</>,
+                    ].map((text, i, arr) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: i < arr.length - 1 ? 14 : 0 }}>
+                        <span style={{ color: '#4ade80', fontSize: 22, fontWeight: 900, lineHeight: 1.3, flexShrink: 0 }}>›</span>
+                        <p style={{ fontSize: 14.5, lineHeight: 1.65, color: '#1a1a1a', margin: 0 }}>{text}</p>
+                      </div>
+                    ))}
                   </div>
 
                   <hr style={{ border: 'none', borderTop: '1px solid #e0e0e0', marginBottom: 20 }} />
@@ -1121,9 +1120,16 @@ export default function Page() {
                       <span style={{ fontSize: 18 }}>💰</span>
                       <span style={{ fontWeight: 700, fontSize: 16, color: '#111' }}>Entry &amp; Contact</span>
                     </div>
-                    <p style={{ fontSize: 14.5, lineHeight: 1.5, color: '#1a1a1a', margin: 0 }}><strong>Entry Fee:</strong> $25</p>
-                    <p style={{ fontSize: 14.5, lineHeight: 1.5, color: '#1a1a1a', margin: 0 }}><strong>Venmo:</strong> @claytont743</p>
-                    <p style={{ fontSize: 14.5, lineHeight: 1.5, color: '#1a1a1a', margin: 0 }}><strong>Questions:</strong> Clayton Tucker 325.665.8299</p>
+                    {[
+                      <><strong>Entry Fee:</strong> $25</>,
+                      <><strong>Venmo:</strong> @claytont743</>,
+                      <><strong>Questions:</strong> Clayton Tucker (325.665.8299)</>,
+                    ].map((line, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span style={{ color: '#4ade80', fontSize: 22, fontWeight: 900, lineHeight: 1.5, flexShrink: 0 }}>›</span>
+                        <p style={{ fontSize: 14.5, lineHeight: 1.5, color: '#1a1a1a', margin: 0 }}>{line}</p>
+                      </div>
+                    ))}
                   </div>
 
                 </div>
@@ -1135,7 +1141,7 @@ export default function Page() {
                   <h2 className="font-bold text-gray-900 text-base">📊 Points are awarded as follows:</h2>
                 </div>
                 <div className="px-7 py-6">
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 40px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
 
                     {/* ── Left column ── */}
                     <div>
@@ -1152,7 +1158,6 @@ export default function Page() {
                         <span style={{ fontWeight: 800, color: '#111' }}>Par:</span>
                         <span style={{ fontWeight: 700, color: '#2d6b2d' }}>.5 pts</span>
                       </div>
-                      <hr style={{ border: 'none', borderTop: '1px solid #ccc', margin: '3px 0' }} />
                       {/* Birdie–Ace */}
                       {[['Birdie', '3 pts'], ['Eagle', '8 pts'], ['Albatross', '13 pts'], ['Ace', '10 pts']].map(([lbl, pts]) => (
                         <div key={lbl} style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
@@ -1184,16 +1189,16 @@ export default function Page() {
 
                     {/* ── Right column ── */}
                     <div>
-                      {/* 1st–2nd */}
-                      {[['1st Place', '40 pts'], ['2nd Place', '25 pts']].map(([lbl, pts]) => (
+                      {/* 1st–3rd */}
+                      {[['1st Place', '40 pts'], ['2nd Place', '25 pts'], ['3rd Place', '20 pts']].map(([lbl, pts]) => (
                         <div key={lbl} style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
                           <span style={{ fontWeight: 800, color: '#111' }}>{lbl}:</span>
                           <span style={{ fontWeight: 700, color: '#2d6b2d' }}>{pts}</span>
                         </div>
                       ))}
                       <hr style={{ border: 'none', borderTop: '1px solid #ccc', margin: '3px 0' }} />
-                      {/* 3rd–10th */}
-                      {[['3rd Place', '20 pts'], ['4th Place', '18 pts'], ['5th Place', '16 pts'], ['6th Place', '14 pts'], ['7th Place', '12 pts'], ['8th Place', '10 pts'], ['9th Place', '9 pts'], ['10th Place', '8 pts']].map(([lbl, pts]) => (
+                      {/* 4th–10th */}
+                      {[['4th Place', '18 pts'], ['5th Place', '16 pts'], ['6th Place', '14 pts'], ['7th Place', '12 pts'], ['8th Place', '10 pts'], ['9th Place', '9 pts'], ['10th Place', '8 pts']].map(([lbl, pts]) => (
                         <div key={lbl} style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
                           <span style={{ fontWeight: 800, color: '#111' }}>{lbl}:</span>
                           <span style={{ fontWeight: 700, color: '#2d6b2d' }}>{pts}</span>
