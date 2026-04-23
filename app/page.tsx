@@ -1110,31 +1110,30 @@ export default function Page() {
         {/* ─── DETAILS ─── */}
         {mainTab === 'Details' && (
           <div className="overflow-y-auto h-full">
-            <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
+            <div className="max-w-3xl mx-auto px-10 py-8 space-y-8">
 
               {/* Rules card */}
               <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
                 <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
                   <h2 className="font-bold text-gray-900 text-base">Rules</h2>
                 </div>
-                <div className="p-6 space-y-5 text-sm text-gray-700 leading-relaxed">
+                <div className="px-8 py-6 space-y-5 text-sm text-gray-700 leading-relaxed">
 
                   {/* Roster & Entry Details */}
                   <div>
                     <div className="font-bold text-gray-900 text-sm mb-3">🏌️ Roster &amp; Entry Details</div>
-                    <div className="space-y-3">
-                      <p>
-                        For each major tournament, and The Players Championship, members select <strong>six golfers</strong>. Each golfer will have a salary assigned to them based on a blend of their world ranking and odds to win the tournament.
-                      </p>
-                      <p>
-                        Participants will be assigned a fixed salary cap of <strong>$50,000</strong> they must stay under in order to create their 6-player roster. These six golfers make up their Player Roster for that tournament.
-                      </p>
-                      <p>
-                        Golfers <strong>CAN be picked more than once per season</strong>. Points are awarded based on the players hole by hole performance, as well as their tournament standings. Cut players receive <strong>-10 points</strong>.
-                      </p>
-                      <p>
-                        <strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool field.
-                      </p>
+                    <div className="space-y-2.5">
+                      {[
+                        <>For each major tournament, and The Players Championship, members select <strong>six golfers</strong>. Each golfer will have a salary assigned to them based on a blend of their world ranking and odds to win the tournament.</>,
+                        <>Participants will be assigned a fixed salary cap of <strong>$50,000</strong> they must stay under in order to create their 6-player roster. These six golfers make up their Player Roster for that tournament.</>,
+                        <>Golfers <strong>CAN be picked more than once per season</strong>. Points are awarded based on the players hole by hole performance, as well as their tournament standings. Cut players receive <strong>-10 points</strong>.</>,
+                        <><strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool field.</>,
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <span style={{ color: '#4ade80', flexShrink: 0, marginTop: 1, fontSize: 15, fontWeight: 700 }}>›</span>
+                          <span>{item}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
@@ -1147,10 +1146,10 @@ export default function Page() {
                   {/* Entry & Contact */}
                   <div>
                     <div className="font-bold text-gray-900 text-sm mb-3">💰 Entry &amp; Contact</div>
-                    <div className="space-y-1 text-sm text-gray-700">
-                      <p><strong>Entry Fee:</strong> $25</p>
-                      <p><strong>Venmo:</strong> @claytont743</p>
-                      <p><strong>Questions:</strong> Clayton Tucker 325.665.8299</p>
+                    <div className="text-sm text-gray-700 leading-none space-y-0">
+                      <p className="py-0.5"><strong>Entry Fee:</strong> $25</p>
+                      <p className="py-0.5"><strong>Venmo:</strong> @claytont743</p>
+                      <p className="py-0.5"><strong>Questions:</strong> Clayton Tucker 325.665.8299</p>
                     </div>
                   </div>
 
@@ -1162,8 +1161,8 @@ export default function Page() {
                 <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
                   <h2 className="font-bold text-gray-900 text-base">📊 Points are awarded as follows:</h2>
                 </div>
-                <div className="p-6 text-sm text-gray-800">
-                  <div className="grid grid-cols-2 gap-x-8">
+                <div className="px-8 py-6 text-sm text-gray-800">
+                  <div style={{ display: 'grid', gridTemplateColumns: 'max-content max-content', gap: '0 48px' }}>
                     {/* Left column */}
                     <div className="space-y-1.5">
                       {[
