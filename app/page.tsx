@@ -406,7 +406,7 @@ export default function Page() {
       <header
         className="shrink-0"
         style={{
-          background: 'linear-gradient(180deg, #0c1628 0%, #162040 55%, #1a2848 100%)',
+          background: '#1c2248',
           color: '#fff',
           boxShadow: '0 4px 24px rgba(0,0,0,0.45)',
         }}
@@ -418,10 +418,9 @@ export default function Page() {
               src="/logo2.png"
               alt="Golf Majors Pool"
               style={{
-                height: 110,
+                height: 94,
                 width: 'auto',
                 objectFit: 'contain',
-                mixBlendMode: 'lighten',
                 display: 'block',
               }}
             />
