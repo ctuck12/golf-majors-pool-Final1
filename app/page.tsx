@@ -409,14 +409,13 @@ export default function Page() {
         <div className="flex items-center gap-5 px-8 py-2">
           <div className="flex-1 min-w-0">
             <img
-              src="/logo-banner.png?v=2"
+              src="/logo-banner.png"
               alt="Golf Majors Pool"
               style={{
                 height: 130,
                 width: 'auto',
                 objectFit: 'contain',
                 display: 'block',
-                backgroundColor: 'transparent',
               }}
             />
           </div>
