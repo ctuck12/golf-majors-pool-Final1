@@ -553,7 +553,7 @@ export default function Page() {
                     >
                       {([
                         { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#fbbf24' },
-                        { label: '1st Place',  value: `$${Math.round(projectedPot * settings.payouts.first / 100).toLocaleString()}`, color: '#fbbf24' },
+                        { label: '1st Place',  value: `$${Number(settings.payouts.first).toLocaleString()}`, color: '#fbbf24' },
                         { label: 'Entries',    value: standings.length, color: '#e2eaf4' },
                         { label: 'Entry Fee',  value: `$${settings.entryFee}`, color: '#4ade80' },
                       ] as any[]).map(({ label, value, color }) => (
@@ -754,8 +754,7 @@ export default function Page() {
                       >
                         <span className="text-sm font-semibold text-gray-700">{icon} {label}</span>
                         <div className="text-right">
-                          <div className="text-lg font-black text-gray-900">${Math.round(projectedPot * pct / 100).toLocaleString()}</div>
-                          <div className="text-xs text-gray-400">{pct}%</div>
+                          <div className="text-lg font-black text-gray-900">${Number(pct).toLocaleString()}</div>
                         </div>
                       </div>
                     ))}
@@ -1260,7 +1259,7 @@ export default function Page() {
                 </div>
 
                 <div className="px-6 pb-6">
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-4">Payout Splits (%)</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-4">Payout Splits ($)</div>
                   <div className="grid grid-cols-3 gap-4">
                     {([
                       { label: '1st Place', key: 'first' as const },
@@ -1281,9 +1280,9 @@ export default function Page() {
                   <div className="mt-3 flex items-center gap-3">
                     <span
                       className="text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full flex items-center gap-1"
-                      style={{ background: payoutTotal === 100 ? '#d1fae5' : '#fef3c7', color: payoutTotal === 100 ? '#065f46' : '#92400e' }}
+                      style={{ background: '#d1fae5', color: '#065f46' }}
                     >
-                      <CheckCircle2 className="h-3 w-3" /> Total: {payoutTotal}%
+                      <CheckCircle2 className="h-3 w-3" /> Total: ${payoutTotal.toLocaleString()}
                     </span>
                     <span className={`text-xs ${isSettingsSaving ? 'text-gray-400 animate-pulse' : 'text-gray-300'}`}>
                       {isSettingsSaving ? 'Saving…' : 'Auto-saved'}
