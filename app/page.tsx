@@ -19,7 +19,6 @@ import {
   Users,
   Medal,
   Bell,
-  Info,
 } from 'lucide-react';
 
 /* ─── Constants ─────────────────────────────────────── */
@@ -415,21 +414,7 @@ export default function Page() {
         {/* Top strip */}
         <div className="flex items-center gap-5 px-8 py-5">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="font-bold leading-tight tracking-tight" style={{ fontSize: 17 }}>2026 Golf Majors Pool</span>
-              <Info className="h-4 w-4 shrink-0" style={{ color: '#5a7fa0' }} />
-            </div>
-            <div className="flex items-center gap-2.5">
-              <span className="text-sm font-medium" style={{ color: '#5a7fa0' }}>3/12</span>
-              <span style={{ color: '#2a4060', fontSize: 14 }}>•</span>
-              <span
-                className="text-xs px-3 py-1 rounded-full font-semibold"
-                style={{ border: '1px solid #2a4a70', color: '#7ab8e0', background: 'rgba(0,150,220,0.12)' }}
-              >
-                Golf Majors
-              </span>
-              <Flag className="h-3.5 w-3.5" style={{ color: '#5a7fa0' }} />
-            </div>
+            <img src="/logo.png" alt="Golf Majors Pool" style={{ height: 64, width: 'auto', objectFit: 'contain' }} />
           </div>
 
           <div className="flex items-center gap-4 shrink-0">
