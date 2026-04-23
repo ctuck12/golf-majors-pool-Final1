@@ -400,7 +400,7 @@ export default function Page() {
       <header
         className="shrink-0"
         style={{
-          background: '#1c2248',
+          background: '#1d1940',
           color: '#fff',
           boxShadow: '0 4px 24px rgba(0,0,0,0.45)',
         }}
