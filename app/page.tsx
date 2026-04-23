@@ -1134,58 +1134,86 @@ export default function Page() {
                 <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
                   <h2 className="font-bold text-gray-900 text-base">📊 Points are awarded as follows:</h2>
                 </div>
-                <div className="px-8 py-6 text-sm text-gray-800">
-                  <div style={{ display: 'grid', gridTemplateColumns: 'max-content max-content', gap: '0 48px' }}>
-                    {/* Left column */}
-                    <div className="space-y-1.5">
-                      {[
-                        ['Triple+', '-5 pts'],
-                        ['Double', '-3 pts'],
-                        ['Bogey', '-1 pts'],
-                        ['Par', '.5 pts'],
-                        ['Birdie', '3 pts'],
-                        ['Eagle', '8 pts'],
-                        ['Albatross', '13 pts'],
-                        ['Ace', '10 pts'],
-                        ['3 Birdie Streak', '4 pts'],
-                        ['Bogey Free Rnd', '6 pts'],
-                        ['Tourney Low Rnd', '5 pts'],
-                        ['1st Rnd Leader', '5 pts'],
-                        ['2nd Rnd Leader', '5 pts'],
-                        ['3rd Rnd Leader', '5 pts'],
-                      ].map(([label, pts]) => (
-                        <div key={label} className="flex items-baseline gap-1">
-                          <span className="font-bold">{label}:</span>
-                          <span>{pts}</span>
+                <div className="px-7 py-6">
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 40px' }}>
+
+                    {/* ── Left column ── */}
+                    <div>
+                      {/* Negatives */}
+                      {[['Triple+', '-5 pts'], ['Double', '-3 pts'], ['Bogey', '-1 pts']].map(([lbl, pts]) => (
+                        <div key={lbl} style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
+                          <span style={{ fontWeight: 800, color: '#111' }}>{lbl}:</span>
+                          <span style={{ fontWeight: 700, color: '#8b1a1a' }}>{pts}</span>
+                        </div>
+                      ))}
+                      <hr style={{ border: 'none', borderTop: '1px solid #ccc', margin: '3px 0' }} />
+                      {/* Par */}
+                      <div style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
+                        <span style={{ fontWeight: 800, color: '#111' }}>Par:</span>
+                        <span style={{ fontWeight: 700, color: '#2d6b2d' }}>.5 pts</span>
+                      </div>
+                      <hr style={{ border: 'none', borderTop: '1px solid #ccc', margin: '3px 0' }} />
+                      {/* Birdie–Ace */}
+                      {[['Birdie', '3 pts'], ['Eagle', '8 pts'], ['Albatross', '13 pts'], ['Ace', '10 pts']].map(([lbl, pts]) => (
+                        <div key={lbl} style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
+                          <span style={{ fontWeight: 800, color: '#111' }}>{lbl}:</span>
+                          <span style={{ fontWeight: 700, color: '#2d6b2d' }}>{pts}</span>
+                        </div>
+                      ))}
+                      <hr style={{ border: 'none', borderTop: '1px solid #ccc', margin: '3px 0' }} />
+                      {/* Streak / Round bonuses */}
+                      {[['3 Birdie Streak', '4 pts'], ['Bogey Free Rnd', '6 pts'], ['Tourney Low Rnd', '5 pts']].map(([lbl, pts]) => (
+                        <div key={lbl} style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
+                          <span style={{ fontWeight: 800, color: '#111' }}>{lbl}:</span>
+                          <span style={{ fontWeight: 700, color: '#2d6b2d' }}>{pts}</span>
+                        </div>
+                      ))}
+                      <hr style={{ border: 'none', borderTop: '1px solid #ccc', margin: '3px 0' }} />
+                      {/* Round leaders */}
+                      {([
+                        [<>1<sup style={{ fontSize: '0.6em' }}>st</sup> Rnd Leader</>, '5 pts'],
+                        [<>2<sup style={{ fontSize: '0.6em' }}>nd</sup> Rnd Leader</>, '5 pts'],
+                        [<>3<sup style={{ fontSize: '0.6em' }}>rd</sup> Rnd Leader</>, '5 pts'],
+                      ] as [React.ReactNode, string][]).map(([lbl, pts], i) => (
+                        <div key={i} style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
+                          <span style={{ fontWeight: 800, color: '#111' }}>{lbl}:</span>
+                          <span style={{ fontWeight: 700, color: '#2d6b2d' }}>{pts}</span>
                         </div>
                       ))}
                     </div>
-                    {/* Right column */}
-                    <div className="space-y-1.5">
-                      {[
-                        ['1st Place', '40 pts'],
-                        ['2nd Place', '25 pts'],
-                        ['3rd Place', '20 pts'],
-                        ['4th Place', '18 pts'],
-                        ['5th Place', '16 pts'],
-                        ['6th Place', '14 pts'],
-                        ['7th Place', '12 pts'],
-                        ['8th Place', '10 pts'],
-                        ['9th Place', '9 pts'],
-                        ['10th Place', '8 pts'],
-                        ['11-15th Place', '7 pts'],
-                        ['16-20th Place', '6 pts'],
-                        ['21-25th Place', '5 pts'],
-                        ['26-30th Place', '3 pts'],
-                        ['31-40th Place', '1 pts'],
-                        ['Cut Players', '-10 pts'],
-                      ].map(([label, pts]) => (
-                        <div key={label} className="flex items-baseline gap-1">
-                          <span className="font-bold">{label}:</span>
-                          <span>{pts}</span>
+
+                    {/* ── Right column ── */}
+                    <div>
+                      {/* 1st–2nd */}
+                      {[['1st Place', '40 pts'], ['2nd Place', '25 pts']].map(([lbl, pts]) => (
+                        <div key={lbl} style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
+                          <span style={{ fontWeight: 800, color: '#111' }}>{lbl}:</span>
+                          <span style={{ fontWeight: 700, color: '#2d6b2d' }}>{pts}</span>
                         </div>
                       ))}
+                      <hr style={{ border: 'none', borderTop: '1px solid #ccc', margin: '3px 0' }} />
+                      {/* 3rd–10th */}
+                      {[['3rd Place', '20 pts'], ['4th Place', '18 pts'], ['5th Place', '16 pts'], ['6th Place', '14 pts'], ['7th Place', '12 pts'], ['8th Place', '10 pts'], ['9th Place', '9 pts'], ['10th Place', '8 pts']].map(([lbl, pts]) => (
+                        <div key={lbl} style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
+                          <span style={{ fontWeight: 800, color: '#111' }}>{lbl}:</span>
+                          <span style={{ fontWeight: 700, color: '#2d6b2d' }}>{pts}</span>
+                        </div>
+                      ))}
+                      <hr style={{ border: 'none', borderTop: '1px solid #ccc', margin: '3px 0' }} />
+                      {/* 11th–40th */}
+                      {[['11-15th Place', '7 pts'], ['16-20th Place', '6 pts'], ['21-25th Place', '5 pts'], ['26-30th Place', '3 pts'], ['31-40th Place', '1 pts']].map(([lbl, pts]) => (
+                        <div key={lbl} style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
+                          <span style={{ fontWeight: 800, color: '#111' }}>{lbl}:</span>
+                          <span style={{ fontWeight: 700, color: '#2d6b2d' }}>{pts}</span>
+                        </div>
+                      ))}
+                      {/* Cut Players */}
+                      <div style={{ display: 'flex', gap: 6, padding: '5px 0', fontSize: 15.5 }}>
+                        <span style={{ fontWeight: 800, color: '#8b1a1a' }}>Cut Players:</span>
+                        <span style={{ fontWeight: 700, color: '#8b1a1a' }}>-10 pts</span>
+                      </div>
                     </div>
+
                   </div>
                 </div>
               </div>
