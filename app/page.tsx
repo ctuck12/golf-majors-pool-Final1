@@ -1157,93 +1157,65 @@ export default function Page() {
                 </div>
               </div>
 
-              {/* Live Scoring Logic card */}
+              {/* Points card */}
               <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
                 <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-                  <h2 className="font-bold text-gray-900 text-base">📊 Live Scoring Logic</h2>
-                  <p className="text-xs text-gray-400 mt-0.5">Each golfer's live point total updates continuously throughout the tournament.</p>
+                  <h2 className="font-bold text-gray-900 text-base">📊 Points are awarded as follows:</h2>
                 </div>
-                <div className="p-6 space-y-6 text-sm text-gray-700">
-
-                  {/* Hole Points */}
-                  <div>
-                    <div className="font-bold text-gray-800 mb-3">⛳ Hole Points</div>
+                <div className="p-6 text-sm text-gray-800">
+                  <div className="grid grid-cols-2 gap-x-8">
+                    {/* Left column */}
                     <div className="space-y-1.5">
                       {[
-                        ['Par', '+0.5'],
-                        ['Birdie', '+3'],
-                        ['Eagle', '+8'],
-                        ['Albatross', '+13'],
-                        ['Bogey', '-0.5'],
-                        ['Double Bogey', '-3'],
-                        ['Triple Bogey or Worse', '-5'],
+                        ['Triple+', '-5 pts'],
+                        ['Double', '-3 pts'],
+                        ['Bogey', '-1 pts'],
+                        ['Par', '.5 pts'],
+                        ['Birdie', '3 pts'],
+                        ['Eagle', '8 pts'],
+                        ['Albatross', '13 pts'],
+                        ['Ace', '10 pts'],
+                        ['3 Birdie Streak', '4 pts'],
+                        ['Bogey Free Rnd', '6 pts'],
+                        ['Tourney Low Rnd', '5 pts'],
+                        ['1st Rnd Leader', '5 pts'],
+                        ['2nd Rnd Leader', '5 pts'],
+                        ['3rd Rnd Leader', '5 pts'],
                       ].map(([label, pts]) => (
-                        <div key={label} className="flex items-center justify-between py-1.5 border-b border-gray-100 last:border-0">
-                          <span>{label}</span>
-                          <span className={`font-bold tabular-nums ${pts.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>{pts}</span>
+                        <div key={label} className="flex items-baseline gap-1">
+                          <span className="font-bold">{label}:</span>
+                          <span>{pts}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Right column */}
+                    <div className="space-y-1.5">
+                      {[
+                        ['1st Place', '40 pts'],
+                        ['2nd Place', '25 pts'],
+                        ['3rd Place', '20 pts'],
+                        ['4th Place', '18 pts'],
+                        ['5th Place', '16 pts'],
+                        ['6th Place', '14 pts'],
+                        ['7th Place', '12 pts'],
+                        ['8th Place', '10 pts'],
+                        ['9th Place', '9 pts'],
+                        ['10th Place', '8 pts'],
+                        ['11-15th Place', '7 pts'],
+                        ['16-20th Place', '6 pts'],
+                        ['21-25th Place', '5 pts'],
+                        ['26-30th Place', '3 pts'],
+                        ['31-40th Place', '1 pts'],
+                        ['Cut Players', '-10 pts'],
+                      ].map(([label, pts]) => (
+                        <div key={label} className="flex items-baseline gap-1">
+                          <span className="font-bold">{label}:</span>
+                          <span>{pts}</span>
                         </div>
                       ))}
                     </div>
                   </div>
-
-                  {/* Bonus Points */}
-                  <div>
-                    <div className="font-bold text-gray-800 mb-3">🎯 Bonus Points</div>
-                    <div className="space-y-1.5">
-                      {[
-                        ['3 Straight Birdie Streak', '+4'],
-                        ['Bogey-Free Round', '+5'],
-                        ['Low Round of Tournament', '+5'],
-                        ['1st Round Leader', '+5'],
-                        ['2nd Round Leader', '+5'],
-                        ['3rd Round Leader', '+5'],
-                      ].map(([label, pts]) => (
-                        <div key={label} className="flex items-center justify-between py-1.5 border-b border-gray-100 last:border-0">
-                          <span>{label}</span>
-                          <span className="font-bold tabular-nums text-green-600">{pts}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Finish Bonus */}
-                  <div>
-                    <div className="font-bold text-gray-800 mb-3">🏁 Finish Bonus</div>
-                    <div className="space-y-1.5">
-                      {[
-                        ['1st', '+40'],
-                        ['2nd', '+25'],
-                        ['3rd', '+20'],
-                        ['4th', '+18'],
-                        ['5th', '+16'],
-                        ['6th', '+14'],
-                        ['7th', '+12'],
-                        ['8th', '+10'],
-                        ['9th', '+9'],
-                        ['10th', '+8'],
-                        ['11th–15th', '+6'],
-                        ['16th–20th', '+5'],
-                        ['21st–25th', '+4'],
-                        ['26th–30th', '+3'],
-                        ['31st–40th', '+2'],
-                        ['41st–50th', '+1'],
-                      ].map(([label, pts]) => (
-                        <div key={label} className="flex items-center justify-between py-1.5 border-b border-gray-100 last:border-0">
-                          <span>{label}</span>
-                          <span className="font-bold tabular-nums text-green-600">{pts}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Missed Cut */}
-                  <div>
-                    <div className="font-bold text-gray-800 mb-3">❌ Missed Cut Penalty</div>
-                    <div className="flex items-center justify-between py-1.5">
-                      <span>Missed Cut</span>
-                      <span className="font-bold tabular-nums text-red-600">-10</span>
-                    </div>
-                  </div>
+                </div>
 
                 </div>
               </div>
