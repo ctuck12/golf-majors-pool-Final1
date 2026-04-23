@@ -1085,43 +1085,45 @@ export default function Page() {
 
               {/* Rules card */}
               <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-                <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-                  <h2 className="font-bold text-gray-900 text-base">Rules</h2>
-                </div>
-                <div className="px-8 py-6 space-y-5 text-sm text-gray-700 leading-relaxed">
+                <div className="px-7 py-6" style={{ fontFamily: 'inherit', color: '#1a1a1a' }}>
 
                   {/* Roster & Entry Details */}
-                  <div>
-                    <div className="font-bold text-gray-900 text-sm mb-3">🏌️ Roster &amp; Entry Details</div>
-                    <div className="space-y-2.5">
-                      {[
-                        <>For each major tournament, and The Players Championship, members select <strong>six golfers</strong>. Each golfer will have a salary assigned to them based on a blend of their world ranking and odds to win the tournament.</>,
-                        <>Participants will be assigned a fixed salary cap of <strong>$50,000</strong> they must stay under in order to create their 6-player roster. These six golfers make up their Player Roster for that tournament.</>,
-                        <>Golfers <strong>CAN be picked more than once per season</strong>. Points are awarded based on the players hole by hole performance, as well as their tournament standings. Cut players receive <strong>-10 points</strong>.</>,
-                        <><strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool field.</>,
-                      ].map((item, i) => (
-                        <div key={i} className="flex items-start gap-2">
-                          <span style={{ color: '#4ade80', flexShrink: 0, marginTop: 1, fontSize: 15, fontWeight: 700 }}>›</span>
-                          <span>{item}</span>
-                        </div>
-                      ))}
+                  <div style={{ marginBottom: 24 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                      <span style={{ fontSize: 18 }}>🏌️</span>
+                      <span style={{ fontWeight: 700, fontSize: 16, color: '#111' }}>Roster &amp; Entry Details</span>
                     </div>
+                    <p style={{ fontSize: 14.5, lineHeight: 1.65, marginBottom: 14, color: '#1a1a1a' }}>
+                      For each major tournament, and The Players Championship, members select <strong>six golfers</strong>. Each golfer will have a salary assigned to them based on a blend of their world ranking and odds to win the tournament.
+                    </p>
+                    <p style={{ fontSize: 14.5, lineHeight: 1.65, marginBottom: 14, color: '#1a1a1a' }}>
+                      Participants will be assigned a fixed salary cap of <strong>$50,000</strong> they must stay under in order to create their 6-player roster. These six golfers make up their Player Roster for that tournament.
+                    </p>
+                    <p style={{ fontSize: 14.5, lineHeight: 1.65, marginBottom: 14, color: '#1a1a1a' }}>
+                      Golfers <strong>CAN be picked more than once per season</strong>. Points are awarded based on the players hole by hole performance, as well as their tournament standings. Cut players receive <strong>-10 points</strong>.
+                    </p>
+                    <p style={{ fontSize: 14.5, lineHeight: 1.65, color: '#1a1a1a' }}>
+                      <strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool field.
+                    </p>
                   </div>
 
-                  <hr className="border-gray-200" />
+                  <hr style={{ border: 'none', borderTop: '1px solid #e0e0e0', marginBottom: 20 }} />
 
-                  <p>The scores of all <strong>6 golfers</strong> on your roster count towards your score.</p>
+                  <p style={{ fontSize: 14.5, lineHeight: 1.65, color: '#1a1a1a', marginBottom: 20 }}>
+                    The scores of all <strong>6 golfers</strong> on your roster count towards your score.
+                  </p>
 
-                  <hr className="border-gray-200" />
+                  <hr style={{ border: 'none', borderTop: '1px solid #e0e0e0', marginBottom: 20 }} />
 
                   {/* Entry & Contact */}
                   <div>
-                    <div className="font-bold text-gray-900 text-sm mb-3">💰 Entry &amp; Contact</div>
-                    <div className="text-sm text-gray-700 leading-none space-y-0">
-                      <p className="py-0.5"><strong>Entry Fee:</strong> $25</p>
-                      <p className="py-0.5"><strong>Venmo:</strong> @claytont743</p>
-                      <p className="py-0.5"><strong>Questions:</strong> Clayton Tucker 325.665.8299</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                      <span style={{ fontSize: 18 }}>💰</span>
+                      <span style={{ fontWeight: 700, fontSize: 16, color: '#111' }}>Entry &amp; Contact</span>
                     </div>
+                    <p style={{ fontSize: 14.5, lineHeight: 1.5, color: '#1a1a1a', margin: 0 }}><strong>Entry Fee:</strong> $25</p>
+                    <p style={{ fontSize: 14.5, lineHeight: 1.5, color: '#1a1a1a', margin: 0 }}><strong>Venmo:</strong> @claytont743</p>
+                    <p style={{ fontSize: 14.5, lineHeight: 1.5, color: '#1a1a1a', margin: 0 }}><strong>Questions:</strong> Clayton Tucker 325.665.8299</p>
                   </div>
 
                 </div>
