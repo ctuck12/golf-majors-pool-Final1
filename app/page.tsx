@@ -18,7 +18,7 @@ import {
   Wallet,
   Users,
   Medal,
-  Bell,
+
 } from 'lucide-react';
 
 /* ─── Constants ─────────────────────────────────────── */
@@ -287,7 +287,7 @@ export default function Page() {
   const [isRosterLoading, setIsRosterLoading] = useState(false);
   const [isRosterSaving, setIsRosterSaving] = useState(false);
   const [isSettingsSaving, setIsSettingsSaving] = useState(false);
-  const [showYtd, setShowYtd] = useState(false);
+
 
   const tournament = TOURNAMENTS.find(t => t.id === selectedTournament) ?? TOURNAMENTS[0];
   const tournamentPlayers = useMemo(() => buildPlayerView('players'), []);
@@ -383,18 +383,12 @@ export default function Page() {
 
   // Today = April 22 2026; players + masters are past, rest upcoming
   const today = new Date('2026-04-22');
-  const tournamentTabs = [
-    ...TOURNAMENTS.map(t => ({ ...t, isPast: new Date(t.lockAt) < today, isYtd: false })),
-    { id: 'ytd', name: 'Year-to-Date', shortName: 'Year-to-Date', venue: '', lockTimeLabel: '', lockAt: '', isPast: false, isYtd: true },
-  ];
+  const tournamentTabs = TOURNAMENTS.map(t => ({ ...t, isPast: new Date(t.lockAt) < today }));
 
-  const activeLeaderboardTid = showYtd ? 'ytd' : selectedTournament;
-  const hasTournamentData = activeLeaderboardTid === 'players' || activeLeaderboardTid === 'ytd';
+  const hasTournamentData = selectedTournament === 'players';
 
   const tdClass = (t: typeof tournamentTabs[0]) => {
-    const isActive = showYtd ? t.isYtd : (!t.isYtd && t.id === selectedTournament);
-    if (isActive) return 'active-tab';
-    if (t.isYtd) return 'ytd-tab';
+    if (t.id === selectedTournament) return 'active-tab';
     if (t.isPast) return 'past-tab';
     return 'future-tab';
   };
@@ -426,18 +420,6 @@ export default function Page() {
             />
           </div>
 
-          <div className="flex items-center gap-4 shrink-0">
-            <div
-              className="flex items-center justify-center"
-              style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
-            >
-              <Bell className="h-4 w-4" style={{ color: '#7ab8e0' }} />
-            </div>
-            <div className="text-right">
-              <div className="font-bold leading-tight" style={{ fontSize: 15 }}>23 Contest Entries</div>
-              <div className="text-xs mt-0.5" style={{ color: '#5a7fa0' }}>Your Entries: 1/1 allowed</div>
-            </div>
-          </div>
         </div>
 
         {/* Nav tabs */}
@@ -513,17 +495,12 @@ export default function Page() {
                   }}
                 >
                   {tournamentTabs.map(t => {
-                    const tabClass = tdClass(t);
-                    const isActive = tabClass === 'active-tab';
-                    const isYtd = tabClass === 'ytd-tab';
+                    const isActive = tdClass(t) === 'active-tab';
 
                     return (
                       <button
                         key={t.id}
-                        onClick={() => {
-                          if (t.isYtd) { setShowYtd(true); }
-                          else { setShowYtd(false); setSelectedTournament(t.id); }
-                        }}
+                        onClick={() => setSelectedTournament(t.id)}
                         className="shrink-0 text-sm whitespace-nowrap transition-colors"
                         style={isActive ? {
                           padding: '9px 20px',
@@ -542,8 +519,8 @@ export default function Page() {
                           letterSpacing: '0.01em',
                         } : {
                           padding: '9px 20px',
-                          color: isYtd ? '#0284c7' : '#0369a1',
-                          fontWeight: isYtd ? 700 : 500,
+                          color: '#0369a1',
+                          fontWeight: 500,
                           fontSize: 13.5,
                           background: 'linear-gradient(to bottom, #ffffff, #f0f4f9)',
                           border: '1px solid #c8d0dc',
