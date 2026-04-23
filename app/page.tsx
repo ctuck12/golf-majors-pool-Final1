@@ -1086,7 +1086,7 @@ export default function Page() {
                       <><strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool field.</>,
                     ].map((text, i, arr) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: i < arr.length - 1 ? 14 : 0 }}>
-                        <span style={{ color: '#4ade80', fontSize: 22, fontWeight: 900, lineHeight: 1.3, flexShrink: 0 }}>›</span>
+                        <span style={{ color: '#4ade80', fontSize: 34, fontWeight: 900, lineHeight: 1.3, flexShrink: 0 }}>›</span>
                         <p style={{ fontSize: 14.5, lineHeight: 1.65, color: '#1a1a1a', margin: 0 }}>{text}</p>
                       </div>
                     ))}
@@ -1094,9 +1094,12 @@ export default function Page() {
 
                   <hr style={{ border: 'none', borderTop: '1px solid #e0e0e0', marginBottom: 20 }} />
 
-                  <p style={{ fontSize: 14.5, lineHeight: 1.65, color: '#1a1a1a', marginBottom: 20 }}>
-                    The scores of all <strong>6 golfers</strong> on your roster count towards your score.
-                  </p>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 20 }}>
+                    <span style={{ color: '#4ade80', fontSize: 34, fontWeight: 900, lineHeight: 1.3, flexShrink: 0 }}>›</span>
+                    <p style={{ fontSize: 14.5, lineHeight: 1.65, color: '#1a1a1a', margin: 0 }}>
+                      The scores of all <strong>6 golfers</strong> on your roster count towards your score.
+                    </p>
+                  </div>
 
                   <hr style={{ border: 'none', borderTop: '1px solid #e0e0e0', marginBottom: 20 }} />
 
@@ -1112,7 +1115,7 @@ export default function Page() {
                       <><strong>Questions:</strong> Clayton Tucker (325.665.8299)</>,
                     ].map((line, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ color: '#4ade80', fontSize: 22, fontWeight: 900, lineHeight: 1.5, flexShrink: 0 }}>›</span>
+                        <span style={{ color: '#4ade80', fontSize: 34, fontWeight: 900, lineHeight: 1.5, flexShrink: 0 }}>›</span>
                         <p style={{ fontSize: 14.5, lineHeight: 1.5, color: '#1a1a1a', margin: 0 }}>{line}</p>
                       </div>
                     ))}
