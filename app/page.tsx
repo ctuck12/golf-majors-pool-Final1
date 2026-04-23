@@ -409,7 +409,7 @@ export default function Page() {
         <div className="flex items-center gap-5 px-8 py-2">
           <div className="flex-1 min-w-0">
             <img
-              src="/logo2.png"
+              src="/logo-banner.png"
               alt="Golf Majors Pool"
               style={{
                 height: 94,
