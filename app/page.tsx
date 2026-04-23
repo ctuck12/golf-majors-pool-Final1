@@ -412,9 +412,19 @@ export default function Page() {
         }}
       >
         {/* Top strip */}
-        <div className="flex items-center gap-5 px-8 py-5">
+        <div className="flex items-center gap-5 px-8 py-2">
           <div className="flex-1 min-w-0">
-            <img src="/logo.png" alt="Golf Majors Pool" style={{ height: 64, width: 'auto', objectFit: 'contain' }} />
+            <img
+              src="/logo2.png"
+              alt="Golf Majors Pool"
+              style={{
+                height: 110,
+                width: 'auto',
+                objectFit: 'contain',
+                mixBlendMode: 'lighten',
+                display: 'block',
+              }}
+            />
           </div>
 
           <div className="flex items-center gap-4 shrink-0">
