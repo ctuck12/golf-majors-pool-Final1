@@ -54,20 +54,20 @@ const TOURNAMENTS = [
 ] as const;
 
 const PLAYER_POOL = [
-  { id: 1, name: 'Scottie Scheffler', odds: '+450', worldRank: 1 },
-  { id: 2, name: 'Rory McIlroy', odds: '+900', worldRank: 2 },
-  { id: 3, name: 'Xander Schauffele', odds: '+1200', worldRank: 3 },
-  { id: 4, name: 'Collin Morikawa', odds: '+1600', worldRank: 4 },
-  { id: 5, name: 'Ludvig Aberg', odds: '+1800', worldRank: 5 },
-  { id: 6, name: 'Tommy Fleetwood', odds: '+3500', worldRank: 12 },
-  { id: 7, name: 'Patrick Cantlay', odds: '+3000', worldRank: 10 },
-  { id: 8, name: 'Hideki Matsuyama', odds: '+4000', worldRank: 13 },
-  { id: 9, name: 'Brooks Koepka', odds: '+4500', worldRank: 18 },
-  { id: 10, name: 'Jordan Spieth', odds: '+5000', worldRank: 22 },
-  { id: 11, name: 'Will Zalatoris', odds: '+5500', worldRank: 28 },
-  { id: 12, name: 'Min Woo Lee', odds: '+7000', worldRank: 34 },
-  { id: 13, name: 'Sahith Theegala', odds: '+8000', worldRank: 30 },
-  { id: 14, name: 'Akshay Bhatia', odds: '+9000', worldRank: 37 },
+  { id: 1, name: 'Scottie Scheffler', defaultOdds: '+450', worldRank: 1 },
+  { id: 2, name: 'Rory McIlroy', defaultOdds: '+900', worldRank: 2 },
+  { id: 3, name: 'Xander Schauffele', defaultOdds: '+1200', worldRank: 3 },
+  { id: 4, name: 'Collin Morikawa', defaultOdds: '+1600', worldRank: 4 },
+  { id: 5, name: 'Ludvig Aberg', defaultOdds: '+1800', worldRank: 5 },
+  { id: 6, name: 'Tommy Fleetwood', defaultOdds: '+3500', worldRank: 12 },
+  { id: 7, name: 'Patrick Cantlay', defaultOdds: '+3000', worldRank: 10 },
+  { id: 8, name: 'Hideki Matsuyama', defaultOdds: '+4000', worldRank: 13 },
+  { id: 9, name: 'Brooks Koepka', defaultOdds: '+4500', worldRank: 18 },
+  { id: 10, name: 'Jordan Spieth', defaultOdds: '+5000', worldRank: 22 },
+  { id: 11, name: 'Will Zalatoris', defaultOdds: '+5500', worldRank: 28 },
+  { id: 12, name: 'Min Woo Lee', defaultOdds: '+7000', worldRank: 34 },
+  { id: 13, name: 'Sahith Theegala', defaultOdds: '+8000', worldRank: 30 },
+  { id: 14, name: 'Akshay Bhatia', defaultOdds: '+9000', worldRank: 37 },
 ] as const;
 
 function parseAmericanOdds(odds: string) {
@@ -92,16 +92,27 @@ function normalizeValue(value: number, min: number, max: number) {
   return (value - min) / (max - min);
 }
 
-const PLAYERS = (() => {
-  const impliedProbabilities = PLAYER_POOL.map((player) => parseAmericanOdds(player.odds));
-  const ranks = PLAYER_POOL.map((player) => player.worldRank);
-
+function buildPricedPlayers(
+  playerPool: ReadonlyArray<{
+    id: number;
+    name: string;
+    defaultOdds: string;
+    worldRank: number;
+  }>,
+  liveOddsMap: Record<string, string>,
+) {
+  const playersWithOdds = playerPool.map((player) => ({
+    ...player,
+    odds: liveOddsMap[normalizeName(player.name)] ?? player.defaultOdds,
+  }));
+  const impliedProbabilities = playersWithOdds.map((player) => parseAmericanOdds(player.odds));
+  const ranks = playersWithOdds.map((player) => player.worldRank);
   const minProbability = Math.min(...impliedProbabilities);
   const maxProbability = Math.max(...impliedProbabilities);
   const minRank = Math.min(...ranks);
   const maxRank = Math.max(...ranks);
 
-  return PLAYER_POOL.map((player) => {
+  return playersWithOdds.map((player) => {
     const oddsScore = normalizeValue(parseAmericanOdds(player.odds), minProbability, maxProbability);
     const rankScore = 1 - normalizeValue(player.worldRank, minRank, maxRank);
     const blendedScore = oddsScore * VEGAS_WEIGHT + rankScore * WORLD_RANK_WEIGHT;
@@ -109,11 +120,14 @@ const PLAYERS = (() => {
       Math.round((SALARY_MIN + blendedScore * (SALARY_MAX - SALARY_MIN)) / 100) * 100;
 
     return {
-      ...player,
+      id: player.id,
+      name: player.name,
+      worldRank: player.worldRank,
+      odds: player.odds,
       salary,
     };
   });
-})();
+}
 
 const DEFAULT_ROSTERS: Record<string, number[]> = {
   players: [1, 2, 8, 10, 12, 14],
@@ -143,6 +157,11 @@ type FeedRow = {
 type FeedResponse = {
   fetchedAt: string;
   players: FeedRow[];
+  odds: Array<{
+    canonicalName: string;
+    odds: string;
+  }>;
+  oddsSource?: string;
   source: string;
   status: string;
 };
@@ -336,9 +355,16 @@ export default function Page() {
     ) as Record<string, FeedRow>;
   }, [feed]);
 
+  const liveOddsMap = useMemo(() => {
+    const rows = feed?.odds ?? [];
+    return Object.fromEntries(
+      rows.map((row) => [normalizeName(row.canonicalName), row.odds]),
+    ) as Record<string, string>;
+  }, [feed]);
+
   const players = useMemo(
     () =>
-      PLAYERS.map((player) => {
+      buildPricedPlayers(PLAYER_POOL, liveOddsMap).map((player) => {
         const live = feedMap[normalizeName(player.name)];
         const score = live?.score ?? '--';
         const position = live?.position ?? '--';
@@ -356,7 +382,7 @@ export default function Page() {
           poolTotal: scoreValue - bonus,
         };
       }),
-    [feedMap],
+    [feedMap, liveOddsMap],
   );
 
   const playersById = useMemo(
@@ -365,6 +391,7 @@ export default function Page() {
   );
 
   const rosterPlayers = selectedRoster.map((id) => playersById[id]).filter(Boolean);
+  const orderedRosterPlayers = [...rosterPlayers].sort((left, right) => right.salary - left.salary);
   const salaryUsed = rosterPlayers.reduce((sum, player) => sum + player.salary, 0);
   const salaryRemaining = SALARY_CAP - salaryUsed;
   const playersNeeded = Math.max(0, REQUIRED_GOLFERS - selectedRoster.length);
@@ -718,7 +745,7 @@ export default function Page() {
                 </label>
 
                 <div style={{ marginTop: 16, display: 'grid', gap: 10 }}>
-                  {rosterPlayers.map((player) => (
+                  {orderedRosterPlayers.map((player, index) => (
                     <div
                       key={player.id}
                       style={{
@@ -732,6 +759,9 @@ export default function Page() {
                       }}
                     >
                       <div>
+                        <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0b7a53' }}>
+                          Roster {index + 1}
+                        </div>
                         <div style={{ fontWeight: 700 }}>{player.name}</div>
                         <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
                           OWGR {player.worldRank} | ${player.salary.toLocaleString()}
@@ -946,7 +976,7 @@ export default function Page() {
                   </label>
 
                   <div style={{ marginTop: 18, display: 'grid', gap: 10 }}>
-                    {rosterPlayers.map((player) => (
+                    {orderedRosterPlayers.map((player, index) => (
                       <div
                         key={player.id}
                         style={{
@@ -961,6 +991,9 @@ export default function Page() {
                         }}
                       >
                         <div>
+                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0b7a53' }}>
+                            Roster {index + 1}
+                          </div>
                           <div style={{ fontWeight: 700 }}>{player.name}</div>
                           <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
                             OWGR {player.worldRank} | ${player.salary.toLocaleString()}
