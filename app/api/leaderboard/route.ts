@@ -6,12 +6,12 @@ const TOURNAMENT_FEEDS: Record<string, { espnTournamentId: string }> = {
   open: { espnTournamentId: '401811957' },
 };
 
-const ODDS_SPORT_KEYS: Record<string, string | undefined> = {
-  players: undefined,
-  masters: 'golf_masters_tournament_winner',
-  pga: 'golf_pga_championship_winner',
-  'us-open': 'golf_us_open_winner',
-  open: 'golf_the_open_championship_winner',
+const TOURNAMENT_ODDS_PAGES: Record<string, string> = {
+  players: 'https://www.oddschecker.com/us/golf/the-players-championship/winner',
+  masters: 'https://www.oddschecker.com/us/golf/the-masters/winner',
+  pga: 'https://www.oddschecker.com/us/golf/pga-championship/winner',
+  'us-open': 'https://www.oddschecker.com/us/golf/us-open/winner',
+  open: 'https://www.oddschecker.com/us/golf/the-open-championship/winner',
 };
 
 const WATCHED_PLAYERS = [
@@ -152,127 +152,90 @@ function findStatus(lines: string[]) {
   return statusLine ?? 'Status unavailable';
 }
 
-function americanOddsToProbability(price: number) {
-  if (price === 0) {
-    return 0;
+function extractWinnerSection(lines: string[]) {
+  const winnerIndex = lines.findIndex((line) => line === 'Winner');
+
+  if (winnerIndex < 0) {
+    return lines;
   }
 
-  if (price > 0) {
-    return 100 / (price + 100);
-  }
+  const endIndex = lines.findIndex(
+    (line, index) =>
+      index > winnerIndex &&
+      (line === 'Top 10 Finish' ||
+        line === 'Top 5 Finish' ||
+        line === 'Top 20 Finish' ||
+        line === '1st Round Leader' ||
+        line === 'Compare All Odds' ||
+        line === 'Picks' ||
+        line === 'More Insights'),
+  );
 
-  return Math.abs(price) / (Math.abs(price) + 100);
+  return lines.slice(winnerIndex, endIndex > winnerIndex ? endIndex : undefined);
 }
 
-function probabilityToAmericanOdds(probability: number) {
-  if (probability <= 0 || probability >= 1) {
-    return null;
+function extractOddsFromSection(lines: string[]) {
+  const americanOddsPattern = /^[+-]\d{2,5}$/;
+  const section = extractWinnerSection(lines);
+  const players: OddsRow[] = [];
+
+  for (const watchedPlayer of WATCHED_PLAYERS) {
+    const normalizedPlayer = normalizeName(watchedPlayer);
+    const playerIndex = section.findIndex((line) => normalizeName(line) === normalizedPlayer);
+
+    if (playerIndex < 0) {
+      continue;
+    }
+
+    let foundOdds: string | null = null;
+
+    for (let index = playerIndex + 1; index <= Math.min(playerIndex + 4, section.length - 1); index += 1) {
+      const candidate = section[index];
+
+      if (americanOddsPattern.test(candidate)) {
+        foundOdds = candidate;
+        break;
+      }
+    }
+
+    if (!foundOdds) {
+      continue;
+    }
+
+    players.push({
+      canonicalName: watchedPlayer,
+      odds: foundOdds,
+    });
   }
 
-  if (probability < 0.5) {
-    return Math.round((100 * (1 - probability)) / probability);
-  }
-
-  return -Math.round((100 * probability) / (1 - probability));
-}
-
-function formatAmericanOdds(price: number | null) {
-  if (price === null || Number.isNaN(price)) {
-    return null;
-  }
-
-  return price > 0 ? `+${price}` : `${price}`;
+  return players;
 }
 
 async function fetchLiveOdds(tournamentId: string) {
-  const apiKey = process.env.ODDS_API_KEY;
-  const sportKey = ODDS_SPORT_KEYS[tournamentId];
+  const oddsPageUrl = TOURNAMENT_ODDS_PAGES[tournamentId];
 
-  if (!apiKey || !sportKey) {
-    return { source: apiKey ? 'Static odds fallback' : 'Static odds fallback (no ODDS_API_KEY)', players: [] as OddsRow[] };
+  if (!oddsPageUrl) {
+    return { source: 'Static odds fallback (no public odds page)', players: [] as OddsRow[] };
   }
 
-  const response = await fetch(
-    `https://api.the-odds-api.com/v4/sports/${sportKey}/odds?regions=us&markets=outrights&oddsFormat=american&apiKey=${apiKey}`,
-    {
-      cache: 'no-store',
-      headers: {
-        'user-agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-      },
+  const response = await fetch(oddsPageUrl, {
+    cache: 'no-store',
+    headers: {
+      'user-agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
     },
-  );
+  });
 
   if (!response.ok) {
     return { source: `Static odds fallback (${response.status})`, players: [] as OddsRow[] };
   }
 
-  const payload = (await response.json()) as Array<{
-    bookmakers?: Array<{
-      markets?: Array<{
-        key?: string;
-        outcomes?: Array<{
-          name?: string;
-          price?: number;
-        }>;
-      }>;
-    }>;
-  }>;
-
-  const probabilityBuckets = new Map<string, number[]>();
-
-  for (const event of payload) {
-    for (const bookmaker of event.bookmakers ?? []) {
-      for (const market of bookmaker.markets ?? []) {
-        if (market.key !== 'outrights') {
-          continue;
-        }
-
-        for (const outcome of market.outcomes ?? []) {
-          if (!outcome.name || typeof outcome.price !== 'number') {
-            continue;
-          }
-
-          const canonicalName = WATCHED_PLAYERS.find(
-            (playerName) => normalizeName(playerName) === normalizeName(outcome.name ?? ''),
-          );
-
-          if (!canonicalName) {
-            continue;
-          }
-
-          const probability = americanOddsToProbability(outcome.price);
-          if (probability <= 0) {
-            continue;
-          }
-
-          const values = probabilityBuckets.get(canonicalName) ?? [];
-          values.push(probability);
-          probabilityBuckets.set(canonicalName, values);
-        }
-      }
-    }
-  }
-
-  const players = Array.from(probabilityBuckets.entries())
-    .map(([canonicalName, probabilities]) => {
-      const averageProbability =
-        probabilities.reduce((sum, value) => sum + value, 0) / probabilities.length;
-      const consensusOdds = formatAmericanOdds(probabilityToAmericanOdds(averageProbability));
-
-      if (!consensusOdds) {
-        return null;
-      }
-
-      return {
-        canonicalName,
-        odds: consensusOdds,
-      };
-    })
-    .filter((row): row is OddsRow => Boolean(row));
+  const html = await response.text();
+  const lines = htmlToLines(html);
+  const players = extractOddsFromSection(lines);
 
   return {
-    source: players.length ? 'The Odds API consensus odds' : 'Static odds fallback (no matching live odds)',
+    source: players.length ? 'Oddschecker public page scrape' : 'Static odds fallback (no matching scraped odds)',
     players,
   };
 }
