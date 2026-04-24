@@ -784,10 +784,9 @@ export default function Page() {
         style={{ background: 'linear-gradient(135deg, #0c1628 0%, #162040 100%)', borderColor: 'rgba(255,255,255,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.18)' }}
       >
         {([
-          { label: 'Tournament', value: 'The Players Championship', color: '#e2eaf4' },
-          { label: 'Venue', value: 'TPC Sawgrass', color: '#9ab8d8' },
+          { label: 'Tournament', value: 'The Players', color: '#e2eaf4' },
           { label: 'Entry Fee', value: `$${settings.entryFee}`, color: '#4ade80' },
-          { label: 'Prize Pool', value: `$${projectedPot.toLocaleString()}`, color: '#fbbf24' },
+          { label: 'Venmo', value: '@claytont743', color: '#9ab8d8' },
         ] as any[]).map(({ label, value, color }) => (
           <div key={label} className="flex-1 px-6 py-4" style={{ borderRight: '1px solid rgba(255,255,255,0.07)' }}>
             <div style={{ color: 'rgba(255,255,255,0.38)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>{label}</div>
@@ -879,7 +878,7 @@ export default function Page() {
                         </span>
                       )}
                     </div>
-                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{player.odds} outright</div>
+                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{player.odds}</div>
                   </div>
                 </div>
 
