@@ -6,6 +6,14 @@ const TOURNAMENT_FEEDS: Record<string, { espnTournamentId: string }> = {
   open: { espnTournamentId: '401811957' },
 };
 
+const ODDS_SPORT_KEYS: Record<string, string | undefined> = {
+  players: undefined,
+  masters: 'golf_masters_tournament_winner',
+  pga: 'golf_pga_championship_winner',
+  'us-open': 'golf_us_open_winner',
+  open: 'golf_the_open_championship_winner',
+};
+
 const WATCHED_PLAYERS = [
   'Scottie Scheffler',
   'Rory McIlroy',
@@ -29,6 +37,11 @@ type LeaderboardRow = {
   score: string;
   thru: string;
   total?: string;
+};
+
+type OddsRow = {
+  canonicalName: string;
+  odds: string;
 };
 
 const SCORE_TOKEN = /^(E|CUT|WD|DQ|MDF|[+-]\d+)$/i;
@@ -139,6 +152,131 @@ function findStatus(lines: string[]) {
   return statusLine ?? 'Status unavailable';
 }
 
+function americanOddsToProbability(price: number) {
+  if (price === 0) {
+    return 0;
+  }
+
+  if (price > 0) {
+    return 100 / (price + 100);
+  }
+
+  return Math.abs(price) / (Math.abs(price) + 100);
+}
+
+function probabilityToAmericanOdds(probability: number) {
+  if (probability <= 0 || probability >= 1) {
+    return null;
+  }
+
+  if (probability < 0.5) {
+    return Math.round((100 * (1 - probability)) / probability);
+  }
+
+  return -Math.round((100 * probability) / (1 - probability));
+}
+
+function formatAmericanOdds(price: number | null) {
+  if (price === null || Number.isNaN(price)) {
+    return null;
+  }
+
+  return price > 0 ? `+${price}` : `${price}`;
+}
+
+async function fetchLiveOdds(tournamentId: string) {
+  const apiKey = process.env.ODDS_API_KEY;
+  const sportKey = ODDS_SPORT_KEYS[tournamentId];
+
+  if (!apiKey || !sportKey) {
+    return { source: apiKey ? 'Static odds fallback' : 'Static odds fallback (no ODDS_API_KEY)', players: [] as OddsRow[] };
+  }
+
+  const response = await fetch(
+    `https://api.the-odds-api.com/v4/sports/${sportKey}/odds?regions=us&markets=outrights&oddsFormat=american&apiKey=${apiKey}`,
+    {
+      cache: 'no-store',
+      headers: {
+        'user-agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      },
+    },
+  );
+
+  if (!response.ok) {
+    return { source: `Static odds fallback (${response.status})`, players: [] as OddsRow[] };
+  }
+
+  const payload = (await response.json()) as Array<{
+    bookmakers?: Array<{
+      markets?: Array<{
+        key?: string;
+        outcomes?: Array<{
+          name?: string;
+          price?: number;
+        }>;
+      }>;
+    }>;
+  }>;
+
+  const probabilityBuckets = new Map<string, number[]>();
+
+  for (const event of payload) {
+    for (const bookmaker of event.bookmakers ?? []) {
+      for (const market of bookmaker.markets ?? []) {
+        if (market.key !== 'outrights') {
+          continue;
+        }
+
+        for (const outcome of market.outcomes ?? []) {
+          if (!outcome.name || typeof outcome.price !== 'number') {
+            continue;
+          }
+
+          const canonicalName = WATCHED_PLAYERS.find(
+            (playerName) => normalizeName(playerName) === normalizeName(outcome.name ?? ''),
+          );
+
+          if (!canonicalName) {
+            continue;
+          }
+
+          const probability = americanOddsToProbability(outcome.price);
+          if (probability <= 0) {
+            continue;
+          }
+
+          const values = probabilityBuckets.get(canonicalName) ?? [];
+          values.push(probability);
+          probabilityBuckets.set(canonicalName, values);
+        }
+      }
+    }
+  }
+
+  const players = Array.from(probabilityBuckets.entries())
+    .map(([canonicalName, probabilities]) => {
+      const averageProbability =
+        probabilities.reduce((sum, value) => sum + value, 0) / probabilities.length;
+      const consensusOdds = formatAmericanOdds(probabilityToAmericanOdds(averageProbability));
+
+      if (!consensusOdds) {
+        return null;
+      }
+
+      return {
+        canonicalName,
+        odds: consensusOdds,
+      };
+    })
+    .filter((row): row is OddsRow => Boolean(row));
+
+  return {
+    source: players.length ? 'The Odds API consensus odds' : 'Static odds fallback (no matching live odds)',
+    players,
+  };
+}
+
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
@@ -171,6 +309,7 @@ export async function GET(request: Request) {
   const html = await response.text();
   const lines = htmlToLines(html);
   const status = findStatus(lines);
+  const liveOdds = await fetchLiveOdds(tournamentId);
 
   const rows = lines
     .map(parseRow)
@@ -189,9 +328,11 @@ export async function GET(request: Request) {
 
   return Response.json({
     source: 'ESPN leaderboard',
+    oddsSource: liveOdds.source,
     tournamentId,
     status,
     fetchedAt: new Date().toISOString(),
     players,
+    odds: liveOdds.players,
   });
 }
