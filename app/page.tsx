@@ -318,6 +318,9 @@ export default function Page() {
   const rosterPlayers = selectedRoster.map((id) => playersById[id]).filter(Boolean);
   const salaryUsed = rosterPlayers.reduce((sum, player) => sum + player.salary, 0);
   const salaryRemaining = SALARY_CAP - salaryUsed;
+  const playersNeeded = Math.max(0, REQUIRED_GOLFERS - selectedRoster.length);
+  const averageRemainingPerPlayer =
+    playersNeeded > 0 ? Math.max(0, Math.floor(salaryRemaining / playersNeeded)) : 0;
   const locked = autoLocked;
 
   const standings = [{ id: 1, name: entryName, picks: selectedRoster }, ...STATIC_ENTRIES]
@@ -697,7 +700,7 @@ export default function Page() {
                   style={{
                     marginTop: 16,
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
                     gap: 10,
                   }}
                 >
@@ -722,6 +725,17 @@ export default function Page() {
                       }}
                     >
                       ${salaryRemaining.toLocaleString()}
+                    </div>
+                  </div>
+                  <div style={{ borderRadius: 16, background: '#f5f9fb', padding: 14 }}>
+                    <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
+                      Avg/player left
+                    </div>
+                    <div style={{ marginTop: 6, fontSize: 22, fontWeight: 900 }}>
+                      ${averageRemainingPerPlayer.toLocaleString()}
+                    </div>
+                    <div style={{ marginTop: 4, fontSize: 12, color: '#6b7b88' }}>
+                      {playersNeeded === 0 ? 'Roster complete' : `${playersNeeded} spot${playersNeeded === 1 ? '' : 's'} left`}
                     </div>
                   </div>
                 </div>
@@ -784,6 +798,9 @@ export default function Page() {
                 <div style={{ display: 'grid', gap: 10 }}>
                   {players.map((player) => {
                     const selected = selectedRoster.includes(player.id);
+                    const disabled =
+                      !selected &&
+                      (locked || selectedRoster.length >= REQUIRED_GOLFERS || player.salary > salaryRemaining);
                     return (
                       <button
                         key={player.id}
@@ -791,22 +808,26 @@ export default function Page() {
                         style={{
                           textAlign: 'left',
                           borderRadius: 16,
-                          border: selected ? '2px solid #0b7a53' : '1px solid #e6edf1',
-                          background: selected ? '#f2fbf7' : '#fff',
+                          border: selected ? '2px solid #0b7a53' : disabled ? '1px solid #d7dee6' : '1px solid #e6edf1',
+                          background: selected ? '#f2fbf7' : disabled ? '#f3f5f7' : '#fff',
                           padding: 14,
-                          cursor: locked ? 'default' : 'pointer',
+                          cursor: disabled ? 'not-allowed' : 'pointer',
+                          opacity: disabled ? 0.58 : 1,
                         }}
+                        disabled={disabled}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                           <div>
-                            <div style={{ fontWeight: 800, color: '#0f1720' }}>{player.name}</div>
-                            <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
+                            <div style={{ fontWeight: 800, color: disabled ? '#748391' : '#0f1720' }}>{player.name}</div>
+                            <div style={{ marginTop: 4, color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 13 }}>
                               OWGR {player.worldRank} | {player.odds}
                             </div>
                           </div>
                           <div style={{ textAlign: 'right' }}>
                             <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
-                            <div style={{ color: '#6b7b88', fontSize: 12 }}>${player.salary.toLocaleString()}</div>
+                            <div style={{ color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 12 }}>
+                              ${player.salary.toLocaleString()}
+                            </div>
                           </div>
                         </div>
                       </button>
@@ -908,7 +929,7 @@ export default function Page() {
                     style={{
                       marginTop: 16,
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                      gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
                       gap: 10,
                     }}
                   >
@@ -933,6 +954,17 @@ export default function Page() {
                         }}
                       >
                         ${salaryRemaining.toLocaleString()}
+                      </div>
+                    </div>
+                    <div style={{ borderRadius: 16, background: '#fff', padding: 14, border: '1px solid #e6edf1' }}>
+                      <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
+                        Avg/player left
+                      </div>
+                      <div style={{ marginTop: 6, fontSize: 22, fontWeight: 900 }}>
+                        ${averageRemainingPerPlayer.toLocaleString()}
+                      </div>
+                      <div style={{ marginTop: 4, fontSize: 12, color: '#6b7b88' }}>
+                        {playersNeeded === 0 ? 'Roster complete' : `${playersNeeded} spot${playersNeeded === 1 ? '' : 's'} left`}
                       </div>
                     </div>
                   </div>
@@ -995,6 +1027,9 @@ export default function Page() {
                   <div style={{ display: 'grid', gap: 10 }}>
                     {players.map((player) => {
                       const selected = selectedRoster.includes(player.id);
+                      const disabled =
+                        !selected &&
+                        (locked || selectedRoster.length >= REQUIRED_GOLFERS || player.salary > salaryRemaining);
                       return (
                         <button
                           key={player.id}
@@ -1002,22 +1037,26 @@ export default function Page() {
                           style={{
                             textAlign: 'left',
                             borderRadius: 16,
-                            border: selected ? '2px solid #0b7a53' : '1px solid #e6edf1',
-                            background: selected ? '#f2fbf7' : '#fff',
+                            border: selected ? '2px solid #0b7a53' : disabled ? '1px solid #d7dee6' : '1px solid #e6edf1',
+                            background: selected ? '#f2fbf7' : disabled ? '#f3f5f7' : '#fff',
                             padding: 14,
-                            cursor: locked ? 'default' : 'pointer',
+                            cursor: disabled ? 'not-allowed' : 'pointer',
+                            opacity: disabled ? 0.58 : 1,
                           }}
+                          disabled={disabled}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                             <div>
-                              <div style={{ fontWeight: 800, color: '#0f1720' }}>{player.name}</div>
-                              <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
+                              <div style={{ fontWeight: 800, color: disabled ? '#748391' : '#0f1720' }}>{player.name}</div>
+                              <div style={{ marginTop: 4, color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 13 }}>
                                 OWGR {player.worldRank} | {player.odds}
                               </div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
                               <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
-                              <div style={{ color: '#6b7b88', fontSize: 12 }}>${player.salary.toLocaleString()}</div>
+                              <div style={{ color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 12 }}>
+                                ${player.salary.toLocaleString()}
+                              </div>
                             </div>
                           </div>
                         </button>
