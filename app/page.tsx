@@ -82,12 +82,6 @@ const DEFAULT_ROSTERS: Record<string, number[]> = {
   open: [2, 3, 5, 6, 8, 12],
 };
 
-const STATIC_ENTRIES = [
-  { id: 'static-2', name: 'Brady S.', rosters: { pga: [1, 3, 5, 7, 9, 11] } },
-  { id: 'static-3', name: 'Megan T.', rosters: { pga: [2, 4, 6, 8, 12, 13] } },
-  { id: 'static-4', name: 'Ryan H.', rosters: { pga: [3, 4, 5, 9, 10, 14] } },
-];
-
 type TournamentId = (typeof TOURNAMENTS)[number]['id'];
 type MainTab = 'Standings' | 'My entries' | 'Details' | 'Commissioner console';
 
@@ -130,6 +124,12 @@ type PoolEntry = {
   name: string;
   rosters: Partial<Record<TournamentId, number[]>>;
 };
+
+const STATIC_ENTRIES: PoolEntry[] = [
+  { id: 'static-2', name: 'Brady S.', rosters: { pga: [1, 3, 5, 7, 9, 11] } },
+  { id: 'static-3', name: 'Megan T.', rosters: { pga: [2, 4, 6, 8, 12, 13] } },
+  { id: 'static-4', name: 'Ryan H.', rosters: { pga: [3, 4, 5, 9, 10, 14] } },
+];
 
 type SessionPayload = {
   user: AuthUser | null;
