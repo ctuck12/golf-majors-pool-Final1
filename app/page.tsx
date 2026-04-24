@@ -15,6 +15,10 @@ import {
 const SALARY_CAP = 50000;
 const REQUIRED_GOLFERS = 6;
 const STORAGE_PREFIX = 'golf-pool-live';
+const SALARY_MIN = 5000;
+const SALARY_MAX = 10800;
+const VEGAS_WEIGHT = 0.65;
+const WORLD_RANK_WEIGHT = 0.35;
 
 const TOURNAMENTS = [
   {
@@ -49,22 +53,67 @@ const TOURNAMENTS = [
   },
 ] as const;
 
-const PLAYERS = [
-  { id: 1, name: 'Scottie Scheffler', salary: 10800, odds: '+450', worldRank: 1 },
-  { id: 2, name: 'Rory McIlroy', salary: 10100, odds: '+900', worldRank: 2 },
-  { id: 3, name: 'Xander Schauffele', salary: 9300, odds: '+1200', worldRank: 3 },
-  { id: 4, name: 'Collin Morikawa', salary: 8800, odds: '+1600', worldRank: 4 },
-  { id: 5, name: 'Ludvig Aberg', salary: 8500, odds: '+1800', worldRank: 5 },
-  { id: 6, name: 'Tommy Fleetwood', salary: 7200, odds: '+3500', worldRank: 12 },
-  { id: 7, name: 'Patrick Cantlay', salary: 7600, odds: '+3000', worldRank: 10 },
-  { id: 8, name: 'Hideki Matsuyama', salary: 7000, odds: '+4000', worldRank: 13 },
-  { id: 9, name: 'Brooks Koepka', salary: 6800, odds: '+4500', worldRank: 18 },
-  { id: 10, name: 'Jordan Spieth', salary: 6500, odds: '+5000', worldRank: 22 },
-  { id: 11, name: 'Will Zalatoris', salary: 6200, odds: '+5500', worldRank: 28 },
-  { id: 12, name: 'Min Woo Lee', salary: 5600, odds: '+7000', worldRank: 34 },
-  { id: 13, name: 'Sahith Theegala', salary: 5400, odds: '+8000', worldRank: 30 },
-  { id: 14, name: 'Akshay Bhatia', salary: 5100, odds: '+9000', worldRank: 37 },
+const PLAYER_POOL = [
+  { id: 1, name: 'Scottie Scheffler', odds: '+450', worldRank: 1 },
+  { id: 2, name: 'Rory McIlroy', odds: '+900', worldRank: 2 },
+  { id: 3, name: 'Xander Schauffele', odds: '+1200', worldRank: 3 },
+  { id: 4, name: 'Collin Morikawa', odds: '+1600', worldRank: 4 },
+  { id: 5, name: 'Ludvig Aberg', odds: '+1800', worldRank: 5 },
+  { id: 6, name: 'Tommy Fleetwood', odds: '+3500', worldRank: 12 },
+  { id: 7, name: 'Patrick Cantlay', odds: '+3000', worldRank: 10 },
+  { id: 8, name: 'Hideki Matsuyama', odds: '+4000', worldRank: 13 },
+  { id: 9, name: 'Brooks Koepka', odds: '+4500', worldRank: 18 },
+  { id: 10, name: 'Jordan Spieth', odds: '+5000', worldRank: 22 },
+  { id: 11, name: 'Will Zalatoris', odds: '+5500', worldRank: 28 },
+  { id: 12, name: 'Min Woo Lee', odds: '+7000', worldRank: 34 },
+  { id: 13, name: 'Sahith Theegala', odds: '+8000', worldRank: 30 },
+  { id: 14, name: 'Akshay Bhatia', odds: '+9000', worldRank: 37 },
 ] as const;
+
+function parseAmericanOdds(odds: string) {
+  const numeric = Number(odds.replace('+', ''));
+
+  if (Number.isNaN(numeric) || numeric === 0) {
+    return 0;
+  }
+
+  if (numeric > 0) {
+    return 100 / (numeric + 100);
+  }
+
+  return Math.abs(numeric) / (Math.abs(numeric) + 100);
+}
+
+function normalizeValue(value: number, min: number, max: number) {
+  if (max === min) {
+    return 1;
+  }
+
+  return (value - min) / (max - min);
+}
+
+const PLAYERS = (() => {
+  const impliedProbabilities = PLAYER_POOL.map((player) => parseAmericanOdds(player.odds));
+  const ranks = PLAYER_POOL.map((player) => player.worldRank);
+
+  const minProbability = Math.min(...impliedProbabilities);
+  const maxProbability = Math.max(...impliedProbabilities);
+  const minRank = Math.min(...ranks);
+  const maxRank = Math.max(...ranks);
+
+  return PLAYER_POOL.map((player) => {
+    const oddsScore = normalizeValue(parseAmericanOdds(player.odds), minProbability, maxProbability);
+    const rankScore = 1 - normalizeValue(player.worldRank, minRank, maxRank);
+    const blendedScore = oddsScore * VEGAS_WEIGHT + rankScore * WORLD_RANK_WEIGHT;
+    const salary =
+      Math.round((SALARY_MIN + blendedScore * (SALARY_MAX - SALARY_MIN)) / 100) * 100;
+
+    return {
+      ...player,
+      salary,
+    };
+  });
+})();
 
 const DEFAULT_ROSTERS: Record<string, number[]> = {
   players: [1, 2, 8, 10, 12, 14],
