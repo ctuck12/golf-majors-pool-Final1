@@ -1,9 +1,20 @@
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+
 const TOURNAMENT_FEEDS: Record<string, { espnTournamentId: string }> = {
   players: { espnTournamentId: '401811937' },
   masters: { espnTournamentId: '401811941' },
   pga: { espnTournamentId: '401811947' },
   'us-open': { espnTournamentId: '401811952' },
   open: { espnTournamentId: '401811957' },
+};
+
+const TOURNAMENT_ODDS_LOCK_AT: Record<string, string> = {
+  players: '2026-03-09T08:00:00-05:00',
+  masters: '2026-04-06T08:00:00-05:00',
+  pga: '2026-05-11T08:00:00-05:00',
+  'us-open': '2026-06-15T08:00:00-05:00',
+  open: '2026-07-13T08:00:00-05:00',
 };
 
 const TOURNAMENT_ODDS_PAGES: Record<string, string> = {
@@ -44,7 +55,15 @@ type OddsRow = {
   odds: string;
 };
 
+type LockedOddsSnapshot = {
+  fetchedAt: string;
+  lockedAt: string;
+  players: OddsRow[];
+};
+
 const SCORE_TOKEN = /^(E|CUT|WD|DQ|MDF|[+-]\d+)$/i;
+const LOCKED_ODDS_DIR = path.join(process.cwd(), 'data');
+const LOCKED_ODDS_FILE = path.join(LOCKED_ODDS_DIR, 'locked-odds.json');
 
 function normalizeName(value: string) {
   return value
@@ -211,6 +230,31 @@ function extractOddsFromSection(lines: string[]) {
   return players;
 }
 
+async function readLockedOddsStore() {
+  try {
+    const raw = await readFile(LOCKED_ODDS_FILE, 'utf8');
+    return JSON.parse(raw) as Record<string, LockedOddsSnapshot>;
+  } catch {
+    return {};
+  }
+}
+
+async function writeLockedOddsStore(store: Record<string, LockedOddsSnapshot>) {
+  await mkdir(LOCKED_ODDS_DIR, { recursive: true });
+  await writeFile(LOCKED_ODDS_FILE, JSON.stringify(store, null, 2), 'utf8');
+}
+
+async function readLockedOddsSnapshot(tournamentId: string) {
+  const store = await readLockedOddsStore();
+  return store[tournamentId] ?? null;
+}
+
+async function saveLockedOddsSnapshot(tournamentId: string, snapshot: LockedOddsSnapshot) {
+  const store = await readLockedOddsStore();
+  store[tournamentId] = snapshot;
+  await writeLockedOddsStore(store);
+}
+
 async function fetchLiveOdds(tournamentId: string) {
   const oddsPageUrl = TOURNAMENT_ODDS_PAGES[tournamentId];
 
@@ -272,7 +316,35 @@ export async function GET(request: Request) {
   const html = await response.text();
   const lines = htmlToLines(html);
   const status = findStatus(lines);
-  const liveOdds = await fetchLiveOdds(tournamentId);
+  const oddsLockAt = TOURNAMENT_ODDS_LOCK_AT[tournamentId];
+  const shouldLockOdds = oddsLockAt ? Date.now() >= new Date(oddsLockAt).getTime() : false;
+  const lockedOddsSnapshot = shouldLockOdds ? await readLockedOddsSnapshot(tournamentId) : null;
+
+  let liveOdds: { source: string; players: OddsRow[] };
+
+  if (lockedOddsSnapshot) {
+    liveOdds = {
+      source: `Locked Monday odds (${lockedOddsSnapshot.lockedAt})`,
+      players: lockedOddsSnapshot.players,
+    };
+  } else {
+    const scrapedOdds = await fetchLiveOdds(tournamentId);
+
+    if (shouldLockOdds && scrapedOdds.players.length) {
+      await saveLockedOddsSnapshot(tournamentId, {
+        fetchedAt: new Date().toISOString(),
+        lockedAt: oddsLockAt,
+        players: scrapedOdds.players,
+      });
+
+      liveOdds = {
+        source: `Locked Monday odds (${oddsLockAt})`,
+        players: scrapedOdds.players,
+      };
+    } else {
+      liveOdds = scrapedOdds;
+    }
+  }
 
   const rows = lines
     .map(parseRow)
