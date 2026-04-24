@@ -287,6 +287,7 @@ export default function Page() {
   const [isRosterLoading, setIsRosterLoading] = useState(false);
   const [isRosterSaving, setIsRosterSaving] = useState(false);
   const [isSettingsSaving, setIsSettingsSaving] = useState(false);
+  const [tiebreakerScore, setTiebreakerScore] = useState('');
   const [showMobileLineup, setShowMobileLineup] = useState(false);
 
 
@@ -819,7 +820,7 @@ export default function Page() {
         className="shrink-0 border-b"
         style={{
           display: 'grid',
-          gridTemplateColumns: '44px 1fr 56px 64px 76px 96px',
+          gridTemplateColumns: '44px 1fr 76px 96px',
           gap: 0,
           alignItems: 'center',
           padding: '10px 24px',
@@ -829,8 +830,6 @@ export default function Page() {
       >
         <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8', textAlign: 'center' }}>RK</span>
         <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8' }}>Player</span>
-        <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8', textAlign: 'center' }}>Thru</span>
-        <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8', textAlign: 'center' }}>Score</span>
         <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8' }}>Salary</span>
         <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7a8fa8', textAlign: 'center' }}>Action</span>
       </div>
@@ -853,7 +852,7 @@ export default function Page() {
                 onClick={() => (canAdd || canRemove) ? toggleRosterPlayer(player.id) : undefined}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '44px 1fr 56px 64px 76px 96px',
+                  gridTemplateColumns: '44px 1fr 76px 96px',
                   gap: 0,
                   alignItems: 'center',
                   padding: '13px 24px',
@@ -915,17 +914,6 @@ export default function Page() {
                     </div>
                     <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{player.odds} outright</div>
                   </div>
-                </div>
-
-                {/* Thru */}
-                <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 600, color: '#64748b' }}>{player.thru}</div>
-
-                {/* Score */}
-                <div style={{ textAlign: 'center' }}>
-                  <span
-                    className={`tabular-nums ${scoreColor(player.score)}`}
-                    style={{ fontSize: 14, fontWeight: 800 }}
-                  >{player.score}</span>
                 </div>
 
                 {/* Salary */}
@@ -1079,17 +1067,24 @@ export default function Page() {
 
       {/* Score + actions */}
       <div className="shrink-0 p-4 space-y-3" style={{ background: 'linear-gradient(to bottom, #0f1e34, #162840)', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-          {([
-            { label: 'Raw', val: fmtScore(rosterRaw), color: scoreColor(rosterRaw) },
-            { label: 'Bonus', val: `+${rosterBonus}`, color: 'text-blue-400' },
-            { label: 'Net', val: fmtScore(rosterNet), color: scoreColor(rosterNet) },
-          ] as any[]).map(({ label, val, color }) => (
-            <div key={label} style={{ textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 10, padding: '10px 4px' }}>
-              <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>{label}</div>
-              <div className={`tabular-nums ${color}`} style={{ fontSize: 16, fontWeight: 900 }}>{val}</div>
-            </div>
-          ))}
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>Tiebreaker Score</div>
+          <input
+            type="text"
+            value={tiebreakerScore}
+            onChange={e => setTiebreakerScore(e.target.value)}
+            placeholder="e.g. -12"
+            style={{
+              width: '100%', boxSizing: 'border-box',
+              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: 8, padding: '9px 12px',
+              color: '#fff', fontSize: 15, fontWeight: 700,
+              outline: 'none',
+            }}
+          />
+          <div style={{ marginTop: 5, fontSize: 10, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>
+            *What you think the winning score to par will be (i.e. -12)
+          </div>
         </div>
 
         {saveMessage && (
