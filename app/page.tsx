@@ -774,8 +774,8 @@ export default function Page() {
 
     {/* Left: Player pool */}
     <div
-      className={`${showMobileLineup ? 'hidden md:flex' : 'flex'} flex-col flex-1 overflow-hidden`}
-      style={{ background: '#f4f6fa', borderRight: '1px solid #d8dfe8' }}
+      className="flex flex-col shrink-0 overflow-hidden"
+      style={{ background: '#f4f6fa', borderRight: '1px solid #d8dfe8', width: 474 }}
     >
 
       {/* Contest bar */}
@@ -796,31 +796,12 @@ export default function Page() {
         ))}
       </div>
 
-      {/* Mobile lineup toggle */}
-      <div className="md:hidden px-4 py-3 border-b" style={{ background: '#f8fafc', borderColor: '#d8dfe8' }}>
-        <button
-          onClick={() => setShowMobileLineup(true)}
-          style={{
-            width: '100%',
-            padding: '10px 14px',
-            borderRadius: 10,
-            border: '1px solid #cbd5e1',
-            background: '#ffffff',
-            fontSize: 13,
-            fontWeight: 700,
-            color: '#0f172a',
-          }}
-        >
-          Show My Lineup ({selectedRoster.length}/{REQUIRED_GOLFERS})
-        </button>
-      </div>
-
       {/* Column headers */}
       <div
         className="shrink-0 border-b"
         style={{
           display: 'grid',
-          gridTemplateColumns: '44px 1fr 76px 96px',
+          gridTemplateColumns: '44px 210px 76px 96px',
           gap: 0,
           alignItems: 'center',
           padding: '10px 24px',
@@ -852,7 +833,7 @@ export default function Page() {
                 onClick={() => (canAdd || canRemove) ? toggleRosterPlayer(player.id) : undefined}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '44px 1fr 76px 96px',
+                  gridTemplateColumns: '44px 210px 76px 96px',
                   gap: 0,
                   alignItems: 'center',
                   padding: '13px 24px',
@@ -956,7 +937,7 @@ export default function Page() {
 
     {/* Right: Lineup builder */}
     <div
-      className={`${showMobileLineup ? 'flex' : 'hidden'} md:flex w-full md:w-[300px] xl:w-[330px] shrink-0 flex-col bg-white`}
+      className="flex w-[300px] shrink-0 flex-col bg-white"
       style={{ boxShadow: '-4px 0 28px rgba(0, 0, 0, 0.12)' }}
     >
 
@@ -970,30 +951,11 @@ export default function Page() {
             My Lineup
           </span>
 
-          <div className="flex items-center gap-2">
-            <span
-              style={{ fontSize: 12, fontWeight: 700, color: '#fff', background: 'rgba(0,188,212,0.18)', border: '1px solid rgba(0,188,212,0.3)', borderRadius: 20, padding: '2px 10px' }}
-            >
-              {selectedRoster.length}/{REQUIRED_GOLFERS} picks
-            </span>
-
-            <button
-              className="md:hidden"
-              onClick={() => setShowMobileLineup(false)}
-              style={{
-                background: 'none',
-                border: '1px solid rgba(255,255,255,0.18)',
-                color: '#fff',
-                borderRadius: 8,
-                padding: '4px 8px',
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Close
-            </button>
-          </div>
+          <span
+            style={{ fontSize: 12, fontWeight: 700, color: '#fff', background: 'rgba(0,188,212,0.18)', border: '1px solid rgba(0,188,212,0.3)', borderRadius: 20, padding: '2px 10px' }}
+          >
+            {selectedRoster.length}/{REQUIRED_GOLFERS} picks
+          </span>
         </div>
 
         <div>
@@ -1122,6 +1084,9 @@ export default function Page() {
         </button>
       </div>
     </div>
+
+    {/* Spacer fills remaining screen width */}
+    <div className="flex-1" style={{ background: '#f4f6fa' }} />
   </div>
 )}
 
