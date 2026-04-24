@@ -50,20 +50,20 @@ const TOURNAMENTS = [
 ] as const;
 
 const PLAYERS = [
-  { id: 1, name: 'Scottie Scheffler', salary: 10800, odds: '+450' },
-  { id: 2, name: 'Rory McIlroy', salary: 10100, odds: '+900' },
-  { id: 3, name: 'Xander Schauffele', salary: 9300, odds: '+1200' },
-  { id: 4, name: 'Collin Morikawa', salary: 8800, odds: '+1600' },
-  { id: 5, name: 'Ludvig Aberg', salary: 8500, odds: '+1800' },
-  { id: 6, name: 'Tommy Fleetwood', salary: 7200, odds: '+3500' },
-  { id: 7, name: 'Patrick Cantlay', salary: 7600, odds: '+3000' },
-  { id: 8, name: 'Hideki Matsuyama', salary: 7000, odds: '+4000' },
-  { id: 9, name: 'Brooks Koepka', salary: 6800, odds: '+4500' },
-  { id: 10, name: 'Jordan Spieth', salary: 6500, odds: '+5000' },
-  { id: 11, name: 'Will Zalatoris', salary: 6200, odds: '+5500' },
-  { id: 12, name: 'Min Woo Lee', salary: 5600, odds: '+7000' },
-  { id: 13, name: 'Sahith Theegala', salary: 5400, odds: '+8000' },
-  { id: 14, name: 'Akshay Bhatia', salary: 5100, odds: '+9000' },
+  { id: 1, name: 'Scottie Scheffler', salary: 10800, odds: '+450', worldRank: 1 },
+  { id: 2, name: 'Rory McIlroy', salary: 10100, odds: '+900', worldRank: 2 },
+  { id: 3, name: 'Xander Schauffele', salary: 9300, odds: '+1200', worldRank: 3 },
+  { id: 4, name: 'Collin Morikawa', salary: 8800, odds: '+1600', worldRank: 4 },
+  { id: 5, name: 'Ludvig Aberg', salary: 8500, odds: '+1800', worldRank: 5 },
+  { id: 6, name: 'Tommy Fleetwood', salary: 7200, odds: '+3500', worldRank: 12 },
+  { id: 7, name: 'Patrick Cantlay', salary: 7600, odds: '+3000', worldRank: 10 },
+  { id: 8, name: 'Hideki Matsuyama', salary: 7000, odds: '+4000', worldRank: 13 },
+  { id: 9, name: 'Brooks Koepka', salary: 6800, odds: '+4500', worldRank: 18 },
+  { id: 10, name: 'Jordan Spieth', salary: 6500, odds: '+5000', worldRank: 22 },
+  { id: 11, name: 'Will Zalatoris', salary: 6200, odds: '+5500', worldRank: 28 },
+  { id: 12, name: 'Min Woo Lee', salary: 5600, odds: '+7000', worldRank: 34 },
+  { id: 13, name: 'Sahith Theegala', salary: 5400, odds: '+8000', worldRank: 30 },
+  { id: 14, name: 'Akshay Bhatia', salary: 5100, odds: '+9000', worldRank: 37 },
 ] as const;
 
 const DEFAULT_ROSTERS: Record<string, number[]> = {
@@ -682,7 +682,7 @@ export default function Page() {
                       <div>
                         <div style={{ fontWeight: 700 }}>{player.name}</div>
                         <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                          {player.position} place | {player.thru} thru | ${player.salary.toLocaleString()}
+                          OWGR {player.worldRank} | ${player.salary.toLocaleString()}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
@@ -801,7 +801,7 @@ export default function Page() {
                           <div>
                             <div style={{ fontWeight: 800, color: '#0f1720' }}>{player.name}</div>
                             <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
-                              {player.position} place | {player.thru} thru | {player.odds}
+                              OWGR {player.worldRank} | {player.odds}
                             </div>
                           </div>
                           <div style={{ textAlign: 'right' }}>
@@ -893,7 +893,7 @@ export default function Page() {
                         <div>
                           <div style={{ fontWeight: 700 }}>{player.name}</div>
                           <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            {player.position} place | {player.thru} thru | ${player.salary.toLocaleString()}
+                            OWGR {player.worldRank} | ${player.salary.toLocaleString()}
                           </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
@@ -1012,7 +1012,7 @@ export default function Page() {
                             <div>
                               <div style={{ fontWeight: 800, color: '#0f1720' }}>{player.name}</div>
                               <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
-                                {player.position} place | {player.thru} thru | {player.odds}
+                                OWGR {player.worldRank} | {player.odds}
                               </div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
