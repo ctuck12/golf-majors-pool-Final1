@@ -81,6 +81,7 @@ const STATIC_ENTRIES = [
 ];
 
 type TournamentId = (typeof TOURNAMENTS)[number]['id'];
+type MainTab = 'Standings' | 'My entries' | 'Details' | 'Commissioner console';
 
 type FeedRow = {
   position: string;
@@ -212,6 +213,7 @@ function formatRefresh(value: string | null) {
 }
 
 export default function Page() {
+  const [mainTab, setMainTab] = useState<MainTab>('Standings');
   const [selectedTournament, setSelectedTournament] = useState<TournamentId>('pga');
   const [entryName, setEntryName] = useState('Clayton Tucker');
   const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTERS.pga);
@@ -475,6 +477,38 @@ export default function Page() {
           })}
         </section>
 
+        <section
+          style={{
+            marginTop: 18,
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 10,
+          }}
+        >
+          {(['Standings', 'My entries', 'Details', 'Commissioner console'] as MainTab[]).map((tab) => {
+            const active = tab === mainTab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setMainTab(tab)}
+                style={{
+                  border: active ? '1px solid #0b7a53' : '1px solid #d7e0e8',
+                  background: active ? '#0b7a53' : '#fff',
+                  color: active ? '#fff' : '#31424f',
+                  borderRadius: 999,
+                  padding: '10px 16px',
+                  fontSize: 14,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  boxShadow: active ? '0 10px 20px rgba(11, 122, 83, 0.18)' : 'none',
+                }}
+              >
+                {tab}
+              </button>
+            );
+          })}
+        </section>
+
         {error ? (
           <div
             style={{
@@ -494,91 +528,15 @@ export default function Page() {
           </div>
         ) : null}
 
-        <main
-          style={{
-            marginTop: 24,
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1.5fr) minmax(320px, 0.9fr)',
-            gap: 20,
-          }}
-        >
-          <section
+        {mainTab === 'Standings' && (
+          <main
             style={{
-              background: '#fff',
-              borderRadius: 24,
-              padding: 22,
-              boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+              marginTop: 24,
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1.5fr) minmax(320px, 0.9fr)',
+              gap: 20,
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                  Pool standings
-                </div>
-                <h2 style={{ margin: '6px 0 0', fontSize: 26, color: '#0f1720' }}>{tournament.name}</h2>
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  color: '#5b6b79',
-                  fontSize: 14,
-                }}
-              >
-                <RefreshCw size={15} />
-                <span>{isLoading ? 'Refreshing live scores...' : formatRefresh(feed?.fetchedAt ?? null)}</span>
-              </div>
-            </div>
-
-            <div style={{ marginTop: 18, overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: 13 }}>
-                    <th style={{ padding: '0 0 12px' }}>Place</th>
-                    <th style={{ padding: '0 0 12px' }}>Entry</th>
-                    <th style={{ padding: '0 0 12px' }}>Raw</th>
-                    <th style={{ padding: '0 0 12px' }}>Bonus</th>
-                    <th style={{ padding: '0 0 12px' }}>Pool total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {standings.map((entry) => (
-                    <tr key={entry.id} style={{ borderTop: '1px solid #edf1f4' }}>
-                      <td style={{ padding: '16px 0', fontWeight: 800, color: '#0b7a53' }}>#{entry.place}</td>
-                      <td style={{ padding: '16px 0' }}>
-                        <div style={{ fontWeight: 700, color: '#0f1720' }}>{entry.name}</div>
-                        <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                          {entry.golfers.map((golfer) => golfer.name.split(' ')[0]).join(', ')}
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 0', fontWeight: 700 }}>
-                        {entry.rawScore > 0 ? `+${entry.rawScore}` : entry.rawScore}
-                      </td>
-                      <td style={{ padding: '16px 0', fontWeight: 700, color: '#0b7a53' }}>{entry.bonus}</td>
-                      <td style={{ padding: '16px 0', fontWeight: 900, fontSize: 18 }}>{entry.total}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div
-              style={{
-                marginTop: 18,
-                borderRadius: 18,
-                background: '#f5f9fb',
-                padding: 16,
-                color: '#50616f',
-                lineHeight: 1.5,
-              }}
-            >
-              Pool totals are recalculated from each golfer&apos;s current score to par, with ESPN leaderboard position
-              used for a live bonus estimate while the event is underway.
-            </div>
-          </section>
-
-          <aside style={{ display: 'grid', gap: 20 }}>
             <section
               style={{
                 background: '#fff',
@@ -587,152 +545,281 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    My entry
+                    Pool standings
                   </div>
-                  <h3 style={{ margin: '6px 0 0', fontSize: 24 }}>{entryName}</h3>
+                  <h2 style={{ margin: '6px 0 0', fontSize: 26, color: '#0f1720' }}>{tournament.name}</h2>
                 </div>
                 <div
                   style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '8px 10px',
-                    borderRadius: 999,
-                    background: locked ? '#fff1f2' : '#eefbf5',
-                    color: locked ? '#be123c' : '#0b7a53',
-                    fontWeight: 800,
-                    fontSize: 12,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  <Lock size={14} />
-                  {locked ? 'Locked' : 'Editable'}
-                </div>
-              </div>
-
-              <label style={{ display: 'block', marginTop: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', marginBottom: 8 }}>
-                  Entry name
-                </div>
-                <input
-                  value={entryName}
-                  onChange={(event) => setEntryName(event.target.value)}
-                  style={{
-                    width: '100%',
-                    borderRadius: 14,
-                    border: '1px solid #d7e0e8',
-                    padding: '12px 14px',
-                    fontSize: 15,
-                  }}
-                />
-              </label>
-
-              <div style={{ marginTop: 16, display: 'grid', gap: 10 }}>
-                {rosterPlayers.map((player) => (
-                  <div
-                    key={player.id}
-                    style={{
-                      border: '1px solid #e6edf1',
-                      borderRadius: 16,
-                      padding: 14,
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      gap: 12,
-                      alignItems: 'center',
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 700 }}>{player.name}</div>
-                      <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                        {player.position} place | {player.thru} thru | ${player.salary.toLocaleString()}
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
-                      <div style={{ fontSize: 12, color: '#0b7a53' }}>bonus {player.bonus}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div
-                style={{
-                  marginTop: 16,
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                  gap: 10,
-                }}
-              >
-                <div style={{ borderRadius: 16, background: '#f5f9fb', padding: 14 }}>
-                  <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
-                    Salary used
-                  </div>
-                  <div style={{ marginTop: 6, fontSize: 22, fontWeight: 900 }}>
-                    ${salaryUsed.toLocaleString()}
-                  </div>
-                </div>
-                <div style={{ borderRadius: 16, background: '#f5f9fb', padding: 14 }}>
-                  <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
-                    Remaining
-                  </div>
-                  <div
-                    style={{
-                      marginTop: 6,
-                      fontSize: 22,
-                      fontWeight: 900,
-                      color: salaryRemaining < 0 ? '#b91c1c' : '#0f1720',
-                    }}
-                  >
-                    ${salaryRemaining.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-
-              {saveMessage ? (
-                <div
-                  style={{
-                    marginTop: 14,
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
-                    borderRadius: 14,
-                    background: '#eefbf5',
-                    color: '#0b7a53',
-                    padding: '12px 14px',
+                    color: '#5b6b79',
+                    fontSize: 14,
                   }}
                 >
-                  <CheckCircle2 size={16} />
-                  <span>{saveMessage}</span>
+                  <RefreshCw size={15} />
+                  <span>{isLoading ? 'Refreshing live scores...' : formatRefresh(feed?.fetchedAt ?? null)}</span>
                 </div>
-              ) : null}
+              </div>
 
-              <button
-                onClick={handleSave}
+              <div style={{ marginTop: 18, overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: 13 }}>
+                      <th style={{ padding: '0 0 12px' }}>Place</th>
+                      <th style={{ padding: '0 0 12px' }}>Entry</th>
+                      <th style={{ padding: '0 0 12px' }}>Raw</th>
+                      <th style={{ padding: '0 0 12px' }}>Bonus</th>
+                      <th style={{ padding: '0 0 12px' }}>Pool total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {standings.map((entry) => (
+                      <tr key={entry.id} style={{ borderTop: '1px solid #edf1f4' }}>
+                        <td style={{ padding: '16px 0', fontWeight: 800, color: '#0b7a53' }}>#{entry.place}</td>
+                        <td style={{ padding: '16px 0' }}>
+                          <div style={{ fontWeight: 700, color: '#0f1720' }}>{entry.name}</div>
+                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
+                            {entry.golfers.map((golfer) => golfer.name.split(' ')[0]).join(', ')}
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px 0', fontWeight: 700 }}>
+                          {entry.rawScore > 0 ? `+${entry.rawScore}` : entry.rawScore}
+                        </td>
+                        <td style={{ padding: '16px 0', fontWeight: 700, color: '#0b7a53' }}>{entry.bonus}</td>
+                        <td style={{ padding: '16px 0', fontWeight: 900, fontSize: 18 }}>{entry.total}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div
                 style={{
-                  marginTop: 16,
-                  width: '100%',
-                  border: 'none',
-                  borderRadius: 16,
-                  padding: '14px 16px',
-                  background: canSave ? 'linear-gradient(135deg, #0b7a53 0%, #0c5f85 100%)' : '#cbd5df',
-                  color: '#fff',
-                  fontSize: 15,
-                  fontWeight: 900,
-                  cursor: canSave ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
+                  marginTop: 18,
+                  borderRadius: 18,
+                  background: '#f5f9fb',
+                  padding: 16,
+                  color: '#50616f',
+                  lineHeight: 1.5,
                 }}
               >
-                <Save size={16} />
-                Save lineup
-              </button>
+                Pool totals are recalculated from each golfer&apos;s current score to par, with ESPN leaderboard position
+                used for a live bonus estimate while the event is underway.
+              </div>
             </section>
 
+            <aside style={{ display: 'grid', gap: 20 }}>
+              <section
+                style={{
+                  background: '#fff',
+                  borderRadius: 24,
+                  padding: 22,
+                  boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                      My entry
+                    </div>
+                    <h3 style={{ margin: '6px 0 0', fontSize: 24 }}>{entryName}</h3>
+                  </div>
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '8px 10px',
+                      borderRadius: 999,
+                      background: locked ? '#fff1f2' : '#eefbf5',
+                      color: locked ? '#be123c' : '#0b7a53',
+                      fontWeight: 800,
+                      fontSize: 12,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    <Lock size={14} />
+                    {locked ? 'Locked' : 'Editable'}
+                  </div>
+                </div>
+
+                <label style={{ display: 'block', marginTop: 16 }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', marginBottom: 8 }}>
+                    Entry name
+                  </div>
+                  <input
+                    value={entryName}
+                    onChange={(event) => setEntryName(event.target.value)}
+                    style={{
+                      width: '100%',
+                      borderRadius: 14,
+                      border: '1px solid #d7e0e8',
+                      padding: '12px 14px',
+                      fontSize: 15,
+                    }}
+                  />
+                </label>
+
+                <div style={{ marginTop: 16, display: 'grid', gap: 10 }}>
+                  {rosterPlayers.map((player) => (
+                    <div
+                      key={player.id}
+                      style={{
+                        border: '1px solid #e6edf1',
+                        borderRadius: 16,
+                        padding: 14,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        gap: 12,
+                        alignItems: 'center',
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 700 }}>{player.name}</div>
+                        <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
+                          {player.position} place | {player.thru} thru | ${player.salary.toLocaleString()}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
+                        <div style={{ fontSize: 12, color: '#0b7a53' }}>bonus {player.bonus}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 16,
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ borderRadius: 16, background: '#f5f9fb', padding: 14 }}>
+                    <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
+                      Salary used
+                    </div>
+                    <div style={{ marginTop: 6, fontSize: 22, fontWeight: 900 }}>
+                      ${salaryUsed.toLocaleString()}
+                    </div>
+                  </div>
+                  <div style={{ borderRadius: 16, background: '#f5f9fb', padding: 14 }}>
+                    <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
+                      Remaining
+                    </div>
+                    <div
+                      style={{
+                        marginTop: 6,
+                        fontSize: 22,
+                        fontWeight: 900,
+                        color: salaryRemaining < 0 ? '#b91c1c' : '#0f1720',
+                      }}
+                    >
+                      ${salaryRemaining.toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+
+                {saveMessage ? (
+                  <div
+                    style={{
+                      marginTop: 14,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      borderRadius: 14,
+                      background: '#eefbf5',
+                      color: '#0b7a53',
+                      padding: '12px 14px',
+                    }}
+                  >
+                    <CheckCircle2 size={16} />
+                    <span>{saveMessage}</span>
+                  </div>
+                ) : null}
+
+                <button
+                  onClick={handleSave}
+                  style={{
+                    marginTop: 16,
+                    width: '100%',
+                    border: 'none',
+                    borderRadius: 16,
+                    padding: '14px 16px',
+                    background: canSave ? 'linear-gradient(135deg, #0b7a53 0%, #0c5f85 100%)' : '#cbd5df',
+                    color: '#fff',
+                    fontSize: 15,
+                    fontWeight: 900,
+                    cursor: canSave ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <Save size={16} />
+                  Save lineup
+                </button>
+              </section>
+
+              <section
+                style={{
+                  background: '#fff',
+                  borderRadius: 24,
+                  padding: 22,
+                  boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                  <Trophy size={18} color="#0b7a53" />
+                  <div style={{ fontSize: 18, fontWeight: 900 }}>Tracked golfers</div>
+                </div>
+
+                <div style={{ display: 'grid', gap: 10 }}>
+                  {players.map((player) => {
+                    const selected = selectedRoster.includes(player.id);
+                    return (
+                      <button
+                        key={player.id}
+                        onClick={() => togglePlayer(player.id)}
+                        style={{
+                          textAlign: 'left',
+                          borderRadius: 16,
+                          border: selected ? '2px solid #0b7a53' : '1px solid #e6edf1',
+                          background: selected ? '#f2fbf7' : '#fff',
+                          padding: 14,
+                          cursor: locked ? 'default' : 'pointer',
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                          <div>
+                            <div style={{ fontWeight: 800, color: '#0f1720' }}>{player.name}</div>
+                            <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
+                              {player.position} place | {player.thru} thru | {player.odds}
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
+                            <div style={{ color: '#6b7b88', fontSize: 12 }}>${player.salary.toLocaleString()}</div>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            </aside>
+          </main>
+        )}
+
+        {mainTab === 'My entries' && (
+          <main style={{ marginTop: 24, display: 'grid', gap: 20 }}>
             <section
               style={{
                 background: '#fff',
@@ -741,46 +828,291 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                <Trophy size={18} color="#0b7a53" />
-                <div style={{ fontSize: 18, fontWeight: 900 }}>Tracked golfers</div>
+              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                My entries
               </div>
+              <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
+                Build and save your {tournament.name} lineup
+              </h2>
 
-              <div style={{ display: 'grid', gap: 10 }}>
-                {players.map((player) => {
-                  const selected = selectedRoster.includes(player.id);
-                  return (
-                    <button
-                      key={player.id}
-                      onClick={() => togglePlayer(player.id)}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+                  gap: 20,
+                }}
+              >
+                <div
+                  style={{
+                    background: '#f8fbfd',
+                    border: '1px solid #e6edf1',
+                    borderRadius: 20,
+                    padding: 18,
+                  }}
+                >
+                  <label style={{ display: 'block' }}>
+                    <div
                       style={{
-                        textAlign: 'left',
-                        borderRadius: 16,
-                        border: selected ? '2px solid #0b7a53' : '1px solid #e6edf1',
-                        background: selected ? '#f2fbf7' : '#fff',
-                        padding: 14,
-                        cursor: locked ? 'default' : 'pointer',
+                        fontSize: 12,
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        color: '#5b6b79',
+                        marginBottom: 8,
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                      Entry name
+                    </div>
+                    <input
+                      value={entryName}
+                      onChange={(event) => setEntryName(event.target.value)}
+                      style={{
+                        width: '100%',
+                        borderRadius: 14,
+                        border: '1px solid #d7e0e8',
+                        padding: '12px 14px',
+                        fontSize: 15,
+                      }}
+                    />
+                  </label>
+
+                  <div style={{ marginTop: 18, display: 'grid', gap: 10 }}>
+                    {rosterPlayers.map((player) => (
+                      <div
+                        key={player.id}
+                        style={{
+                          border: '1px solid #e6edf1',
+                          borderRadius: 16,
+                          padding: 14,
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          gap: 12,
+                          alignItems: 'center',
+                          background: '#fff',
+                        }}
+                      >
                         <div>
-                          <div style={{ fontWeight: 800, color: '#0f1720' }}>{player.name}</div>
-                          <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
-                            {player.position} place | {player.thru} thru | {player.odds}
+                          <div style={{ fontWeight: 700 }}>{player.name}</div>
+                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
+                            {player.position} place | {player.thru} thru | ${player.salary.toLocaleString()}
                           </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
-                          <div style={{ color: '#6b7b88', fontSize: 12 }}>${player.salary.toLocaleString()}</div>
+                          <div style={{ fontSize: 12, color: '#0b7a53' }}>bonus {player.bonus}</div>
                         </div>
                       </div>
-                    </button>
-                  );
-                })}
+                    ))}
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: 16,
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                      gap: 10,
+                    }}
+                  >
+                    <div style={{ borderRadius: 16, background: '#fff', padding: 14, border: '1px solid #e6edf1' }}>
+                      <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
+                        Salary used
+                      </div>
+                      <div style={{ marginTop: 6, fontSize: 22, fontWeight: 900 }}>
+                        ${salaryUsed.toLocaleString()}
+                      </div>
+                    </div>
+                    <div style={{ borderRadius: 16, background: '#fff', padding: 14, border: '1px solid #e6edf1' }}>
+                      <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
+                        Remaining
+                      </div>
+                      <div
+                        style={{
+                          marginTop: 6,
+                          fontSize: 22,
+                          fontWeight: 900,
+                          color: salaryRemaining < 0 ? '#b91c1c' : '#0f1720',
+                        }}
+                      >
+                        ${salaryRemaining.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+
+                  {saveMessage ? (
+                    <div
+                      style={{
+                        marginTop: 14,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        borderRadius: 14,
+                        background: '#eefbf5',
+                        color: '#0b7a53',
+                        padding: '12px 14px',
+                      }}
+                    >
+                      <CheckCircle2 size={16} />
+                      <span>{saveMessage}</span>
+                    </div>
+                  ) : null}
+
+                  <button
+                    onClick={handleSave}
+                    style={{
+                      marginTop: 16,
+                      width: '100%',
+                      border: 'none',
+                      borderRadius: 16,
+                      padding: '14px 16px',
+                      background: canSave ? 'linear-gradient(135deg, #0b7a53 0%, #0c5f85 100%)' : '#cbd5df',
+                      color: '#fff',
+                      fontSize: 15,
+                      fontWeight: 900,
+                      cursor: canSave ? 'pointer' : 'not-allowed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                    }}
+                  >
+                    <Save size={16} />
+                    Save lineup
+                  </button>
+                </div>
+
+                <section
+                  style={{
+                    background: '#fff',
+                    borderRadius: 20,
+                    padding: 18,
+                    border: '1px solid #e6edf1',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                    <Trophy size={18} color="#0b7a53" />
+                    <div style={{ fontSize: 18, fontWeight: 900 }}>Tracked golfers</div>
+                  </div>
+
+                  <div style={{ display: 'grid', gap: 10 }}>
+                    {players.map((player) => {
+                      const selected = selectedRoster.includes(player.id);
+                      return (
+                        <button
+                          key={player.id}
+                          onClick={() => togglePlayer(player.id)}
+                          style={{
+                            textAlign: 'left',
+                            borderRadius: 16,
+                            border: selected ? '2px solid #0b7a53' : '1px solid #e6edf1',
+                            background: selected ? '#f2fbf7' : '#fff',
+                            padding: 14,
+                            cursor: locked ? 'default' : 'pointer',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                            <div>
+                              <div style={{ fontWeight: 800, color: '#0f1720' }}>{player.name}</div>
+                              <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
+                                {player.position} place | {player.thru} thru | {player.odds}
+                              </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
+                              <div style={{ color: '#6b7b88', fontSize: 12 }}>${player.salary.toLocaleString()}</div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
               </div>
             </section>
-          </aside>
-        </main>
+          </main>
+        )}
+
+        {mainTab === 'Details' && (
+          <main style={{ marginTop: 24, display: 'grid', gap: 20 }}>
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+              }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                Pool details
+              </div>
+              <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
+                How scoring and lineup locks work
+              </h2>
+              <div style={{ display: 'grid', gap: 12, color: '#425463', lineHeight: 1.6 }}>
+                <div>Each event uses a 6-golfer lineup and a $50,000 salary cap.</div>
+                <div>Lineups lock automatically at the tournament tee time shown on the event card.</div>
+                <div>
+                  Live standings use current score to par plus a live finishing-position bonus estimate from the active
+                  leaderboard.
+                </div>
+                <div>
+                  The app now fetches from ESPN for `The Players`, `The Masters`, `PGA Championship`, `U.S. Open`,
+                  and `The Open Championship`.
+                </div>
+              </div>
+            </section>
+          </main>
+        )}
+
+        {mainTab === 'Commissioner console' && (
+          <main style={{ marginTop: 24, display: 'grid', gap: 20 }}>
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+              }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                Commissioner console
+              </div>
+              <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
+                Live feed status for {tournament.name}
+              </h2>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: 14,
+                }}
+              >
+                <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
+                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                    Source
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{feed?.source ?? 'ESPN leaderboard'}</div>
+                </div>
+                <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
+                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                    Status
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{feed?.status ?? 'Unavailable'}</div>
+                </div>
+                <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
+                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                    Last sync
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{formatRefresh(feed?.fetchedAt ?? null)}</div>
+                </div>
+                <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
+                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                    Lineup lock
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{locked ? 'Locked' : 'Open'}</div>
+                </div>
+              </div>
+            </section>
+          </main>
+        )}
       </div>
     </div>
   );
