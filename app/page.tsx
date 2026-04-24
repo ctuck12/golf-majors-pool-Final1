@@ -864,21 +864,7 @@ export default function Page() {
                 </div>
 
                 {/* Player info */}
-                <div className="min-w-0 flex items-center gap-2.5" style={{ paddingRight: 8 }}>
-                  <div
-                    style={{
-                      flexShrink: 0, width: 34, height: 34, borderRadius: '50%',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 13, fontWeight: 900,
-                      background: selected
-                        ? 'linear-gradient(135deg, #00c9a7, #00a896)'
-                        : 'linear-gradient(135deg, #c8d4e4, #b8c8dc)',
-                      color: selected ? '#fff' : '#4a6080',
-                      boxShadow: selected ? '0 2px 8px rgba(0,188,212,0.30)' : '0 1px 4px rgba(0,0,0,0.10)',
-                    }}
-                  >
-                    {player.name.charAt(0)}
-                  </div>
+                <div className="min-w-0 flex items-center" style={{ paddingRight: 8 }}>
                   <div className="min-w-0">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                       <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0f172a' }}>{player.name}</span>
