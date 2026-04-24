@@ -616,6 +616,66 @@ export default function Page() {
               gap: 20,
             }}
           >
+          <section
+            style={{
+              background: '#fff',
+              borderRadius: 24,
+              padding: 22,
+              boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                  Pool standings
+                </div>
+                <h2 style={{ margin: '6px 0 0', fontSize: 26, color: '#0f1720' }}>{tournament.name}</h2>
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  color: '#5b6b79',
+                  fontSize: 14,
+                }}
+              >
+                <RefreshCw size={15} />
+                <span>{isLoading ? 'Refreshing live scores...' : formatRefresh(feed?.fetchedAt ?? null)}</span>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 18, overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: 12, textTransform: 'uppercase' }}>
+                    <th style={{ padding: '0 0 12px' }}>Place</th>
+                    <th style={{ padding: '0 0 12px' }}>Entry</th>
+                    <th style={{ padding: '0 0 12px' }}>Golfers</th>
+                    <th style={{ padding: '0 0 12px' }}>Score</th>
+                    <th style={{ padding: '0 0 12px' }}>Bonus</th>
+                    <th style={{ padding: '0 0 12px' }}>Pool total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {standings.map((entry) => (
+                    <tr key={entry.id} style={{ borderTop: '1px solid #edf2f5' }}>
+                      <td style={{ padding: '16px 0', fontWeight: 800 }}>{entry.place}</td>
+                      <td style={{ padding: '16px 0', fontWeight: 700 }}>{entry.name}</td>
+                      <td style={{ padding: '16px 0', color: '#5b6b79' }}>
+                        {entry.golfers.map((golfer) => golfer.name).join(', ')}
+                      </td>
+                      <td style={{ padding: '16px 0' }}>{entry.rawScore}</td>
+                      <td style={{ padding: '16px 0' }}>{entry.bonus}</td>
+                      <td style={{ padding: '16px 0', fontWeight: 900, color: '#0b7a53' }}>{entry.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside style={{ display: 'grid', gap: 20 }}>
             <section
               style={{
                 background: '#fff',
@@ -624,156 +684,41 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Pool standings
-                  </div>
-                  <h2 style={{ margin: '6px 0 0', fontSize: 26, color: '#0f1720' }}>{tournament.name}</h2>
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    color: '#5b6b79',
-                    fontSize: 14,
-                  }}
-                >
-                  <RefreshCw size={15} />
-                  <span>{isLoading ? 'Refreshing live scores...' : formatRefresh(feed?.fetchedAt ?? null)}</span>
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                <Lock size={18} color="#0b7a53" />
+                <div style={{ fontSize: 18, fontWeight: 900 }}>Your lineup</div>
               </div>
 
-              <div style={{ marginTop: 18, overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: 13 }}>
-                      <th style={{ padding: '0 0 12px' }}>Place</th>
-                      <th style={{ padding: '0 0 12px' }}>Entry</th>
-                      <th style={{ padding: '0 0 12px' }}>Raw</th>
-                      <th style={{ padding: '0 0 12px' }}>Bonus</th>
-                      <th style={{ padding: '0 0 12px' }}>Pool total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {standings.map((entry) => (
-                      <tr key={entry.id} style={{ borderTop: '1px solid #edf1f4' }}>
-                        <td style={{ padding: '16px 0', fontWeight: 800, color: '#0b7a53' }}>#{entry.place}</td>
-                        <td style={{ padding: '16px 0' }}>
-                          <div style={{ fontWeight: 700, color: '#0f1720' }}>{entry.name}</div>
-                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            {entry.golfers.map((golfer) => golfer.name.split(' ')[0]).join(', ')}
-                          </div>
-                        </td>
-                        <td style={{ padding: '16px 0', fontWeight: 700 }}>
-                          {entry.rawScore > 0 ? `+${entry.rawScore}` : entry.rawScore}
-                        </td>
-                        <td style={{ padding: '16px 0', fontWeight: 700, color: '#0b7a53' }}>{entry.bonus}</td>
-                        <td style={{ padding: '16px 0', fontWeight: 900, fontSize: 18 }}>{entry.total}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div
-                style={{
-                  marginTop: 18,
-                  borderRadius: 18,
-                  background: '#f5f9fb',
-                  padding: 16,
-                  color: '#50616f',
-                  lineHeight: 1.5,
-                }}
-              >
-                Pool totals are recalculated from each golfer&apos;s current score to par, with ESPN leaderboard position
-                used for a live bonus estimate while the event is underway.
-              </div>
-            </section>
-
-            <aside style={{ display: 'grid', gap: 20 }}>
-              <section
-                style={{
-                  background: '#fff',
-                  borderRadius: 24,
-                  padding: 22,
-                  boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                      My entry
-                    </div>
-                    <h3 style={{ margin: '6px 0 0', fontSize: 24 }}>{entryName}</h3>
-                  </div>
+              <div style={{ display: 'grid', gap: 10 }}>
+                {orderedRosterPlayers.map((player, index) => (
                   <div
+                    key={player.id}
                     style={{
-                      display: 'inline-flex',
+                      border: '1px solid #e6edf1',
+                      borderRadius: 16,
+                      padding: 14,
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      gap: 12,
                       alignItems: 'center',
-                      gap: 6,
-                      padding: '8px 10px',
-                      borderRadius: 999,
-                      background: locked ? '#fff1f2' : '#eefbf5',
-                      color: locked ? '#be123c' : '#0b7a53',
-                      fontWeight: 800,
-                      fontSize: 12,
-                      textTransform: 'uppercase',
                     }}
                   >
-                    <Lock size={14} />
-                    {locked ? 'Locked' : 'Editable'}
-                  </div>
-                </div>
-
-                <label style={{ display: 'block', marginTop: 16 }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', marginBottom: 8 }}>
-                    Entry name
-                  </div>
-                  <input
-                    value={entryName}
-                    onChange={(event) => setEntryName(event.target.value)}
-                    style={{
-                      width: '100%',
-                      borderRadius: 14,
-                      border: '1px solid #d7e0e8',
-                      padding: '12px 14px',
-                      fontSize: 15,
-                    }}
-                  />
-                </label>
-
-                <div style={{ marginTop: 16, display: 'grid', gap: 10 }}>
-                  {orderedRosterPlayers.map((player, index) => (
-                    <div
-                      key={player.id}
-                      style={{
-                        border: '1px solid #e6edf1',
-                        borderRadius: 16,
-                        padding: 14,
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        gap: 12,
-                        alignItems: 'center',
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0b7a53' }}>
-                          Roster {index + 1}
-                        </div>
-                        <div style={{ fontWeight: 700 }}>{player.name}</div>
-                        <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                          OWGR {player.worldRank} | ${player.salary.toLocaleString()}
-                        </div>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0b7a53' }}>
+                        Roster {index + 1}
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
-                        <div style={{ fontSize: 12, color: '#0b7a53' }}>bonus {player.bonus}</div>
+                      <div style={{ fontWeight: 700 }}>{player.name}</div>
+                      <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
+                        OWGR {player.worldRank} | ${player.salary.toLocaleString()}
                       </div>
                     </div>
-                  ))}
-                </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
+                      <div style={{ fontSize: 12, color: '#0b7a53' }}>bonus {player.bonus}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
 
                 <div
                   style={{
@@ -783,26 +728,26 @@ export default function Page() {
                     gap: 10,
                   }}
                 >
-                  <div style={{ borderRadius: 16, background: '#f5f9fb', padding: 14 }}>
-                    <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
-                      Salary used
-                    </div>
-                    <div style={{ marginTop: 6, fontSize: 22, fontWeight: 900 }}>
-                      ${salaryUsed.toLocaleString()}
-                    </div>
+                <div style={{ borderRadius: 16, background: '#f5f9fb', padding: 14 }}>
+                  <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
+                    Salary used
                   </div>
+                  <div style={{ marginTop: 6, fontSize: 22, fontWeight: 900 }}>
+                    ${salaryUsed.toLocaleString()}
+                  </div>
+                </div>
                   <div style={{ borderRadius: 16, background: '#f5f9fb', padding: 14 }}>
                     <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
                       Remaining
-                    </div>
-                    <div
-                      style={{
-                        marginTop: 6,
-                        fontSize: 22,
-                        fontWeight: 900,
-                        color: salaryRemaining < 0 ? '#b91c1c' : '#0f1720',
-                      }}
-                    >
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 22,
+                      fontWeight: 900,
+                      color: salaryRemaining < 0 ? '#b91c1c' : '#0f1720',
+                    }}
+                  >
                       ${salaryRemaining.toLocaleString()}
                     </div>
                   </div>
@@ -819,60 +764,60 @@ export default function Page() {
                   </div>
                 </div>
 
-                {saveMessage ? (
-                  <div
-                    style={{
-                      marginTop: 14,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      borderRadius: 14,
-                      background: '#eefbf5',
-                      color: '#0b7a53',
-                      padding: '12px 14px',
-                    }}
-                  >
-                    <CheckCircle2 size={16} />
-                    <span>{saveMessage}</span>
-                  </div>
-                ) : null}
-
-                <button
-                  onClick={handleSave}
+              {saveMessage ? (
+                <div
                   style={{
-                    marginTop: 16,
-                    width: '100%',
-                    border: 'none',
-                    borderRadius: 16,
-                    padding: '14px 16px',
-                    background: canSave ? 'linear-gradient(135deg, #0b7a53 0%, #0c5f85 100%)' : '#cbd5df',
-                    color: '#fff',
-                    fontSize: 15,
-                    fontWeight: 900,
-                    cursor: canSave ? 'pointer' : 'not-allowed',
+                    marginTop: 14,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
                     gap: 8,
+                    borderRadius: 14,
+                    background: '#eefbf5',
+                    color: '#0b7a53',
+                    padding: '12px 14px',
                   }}
                 >
-                  <Save size={16} />
-                  Save lineup
-                </button>
-              </section>
+                  <CheckCircle2 size={16} />
+                  <span>{saveMessage}</span>
+                </div>
+              ) : null}
 
-              <section
+              <button
+                onClick={handleSave}
                 style={{
-                  background: '#fff',
-                  borderRadius: 24,
-                  padding: 22,
-                  boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                  marginTop: 16,
+                  width: '100%',
+                  border: 'none',
+                  borderRadius: 16,
+                  padding: '14px 16px',
+                  background: canSave ? 'linear-gradient(135deg, #0b7a53 0%, #0c5f85 100%)' : '#cbd5df',
+                  color: '#fff',
+                  fontSize: 15,
+                  fontWeight: 900,
+                  cursor: canSave ? 'pointer' : 'not-allowed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                  <Trophy size={18} color="#0b7a53" />
-                  <div style={{ fontSize: 18, fontWeight: 900 }}>Tracked golfers</div>
-                </div>
+                <Save size={16} />
+                Save lineup
+              </button>
+            </section>
+
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                <Trophy size={18} color="#0b7a53" />
+                <div style={{ fontSize: 18, fontWeight: 900 }}>Tracked golfers</div>
+              </div>
 
                 <div style={{ display: 'grid', gap: 10 }}>
                   {players.map((player) => {
@@ -910,11 +855,11 @@ export default function Page() {
                           </div>
                         </div>
                       </button>
-                    );
-                  })}
-                </div>
-              </section>
-            </aside>
+                  );
+                })}
+              </div>
+            </section>
+          </aside>
           </main>
         )}
 
@@ -950,32 +895,7 @@ export default function Page() {
                     padding: 18,
                   }}
                 >
-                  <label style={{ display: 'block' }}>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 800,
-                        textTransform: 'uppercase',
-                        color: '#5b6b79',
-                        marginBottom: 8,
-                      }}
-                    >
-                      Entry name
-                    </div>
-                    <input
-                      value={entryName}
-                      onChange={(event) => setEntryName(event.target.value)}
-                      style={{
-                        width: '100%',
-                        borderRadius: 14,
-                        border: '1px solid #d7e0e8',
-                        padding: '12px 14px',
-                        fontSize: 15,
-                      }}
-                    />
-                  </label>
-
-                  <div style={{ marginTop: 18, display: 'grid', gap: 10 }}>
+                  <div style={{ display: 'grid', gap: 10 }}>
                     {orderedRosterPlayers.map((player, index) => (
                       <div
                         key={player.id}
@@ -1010,11 +930,11 @@ export default function Page() {
                   <div
                     style={{
                       marginTop: 16,
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                      gap: 10,
-                    }}
-                  >
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                  gap: 10,
+                }}
+              >
                     <div style={{ borderRadius: 16, background: '#fff', padding: 14, border: '1px solid #e6edf1' }}>
                       <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
                         Salary used
@@ -1023,9 +943,9 @@ export default function Page() {
                         ${salaryUsed.toLocaleString()}
                       </div>
                     </div>
-                    <div style={{ borderRadius: 16, background: '#fff', padding: 14, border: '1px solid #e6edf1' }}>
-                      <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
-                        Remaining
+                <div style={{ borderRadius: 16, background: '#fff', padding: 14, border: '1px solid #e6edf1' }}>
+                  <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
+                    Remaining
                       </div>
                       <div
                         style={{
@@ -1034,22 +954,22 @@ export default function Page() {
                           fontWeight: 900,
                           color: salaryRemaining < 0 ? '#b91c1c' : '#0f1720',
                         }}
-                      >
-                        ${salaryRemaining.toLocaleString()}
-                      </div>
-                    </div>
-                    <div style={{ borderRadius: 16, background: '#fff', padding: 14, border: '1px solid #e6edf1' }}>
-                      <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
-                        Avg/player left
-                      </div>
-                      <div style={{ marginTop: 6, fontSize: 22, fontWeight: 900 }}>
-                        ${averageRemainingPerPlayer.toLocaleString()}
-                      </div>
-                      <div style={{ marginTop: 4, fontSize: 12, color: '#6b7b88' }}>
-                        {playersNeeded === 0 ? 'Roster complete' : `${playersNeeded} spot${playersNeeded === 1 ? '' : 's'} left`}
-                      </div>
+                    >
+                      ${salaryRemaining.toLocaleString()}
                     </div>
                   </div>
+                  <div style={{ borderRadius: 16, background: '#fff', padding: 14, border: '1px solid #e6edf1' }}>
+                    <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
+                      Avg/player left
+                    </div>
+                    <div style={{ marginTop: 6, fontSize: 22, fontWeight: 900 }}>
+                      ${averageRemainingPerPlayer.toLocaleString()}
+                    </div>
+                    <div style={{ marginTop: 4, fontSize: 12, color: '#6b7b88' }}>
+                      {playersNeeded === 0 ? 'Roster complete' : `${playersNeeded} spot${playersNeeded === 1 ? '' : 's'} left`}
+                    </div>
+                  </div>
+                </div>
 
                   {saveMessage ? (
                     <div
