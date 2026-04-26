@@ -58,6 +58,7 @@ const TOURNAMENTS = [
 
 const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
   players: '/the-players-championship-logo.jpg',
+  masters: '/the-masters-logo.png',
 };
 
 const PLAYER_POOL = [
