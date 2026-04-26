@@ -1590,6 +1590,54 @@ export default function Page() {
                   Questions: Clayton Tucker <span style={{ margin: '0 4px' }}>📞</span> (325.665.8299)
                 </div>
               </div>
+              <div style={{ margin: '24px 0 18px', borderTop: '1px solid #d7dee6' }} />
+              <div style={{ fontSize: 16, fontWeight: 500, color: '#0f1720' }}>Points are awarded as follows:</div>
+              <div
+                style={{
+                  marginTop: 18,
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                  gap: 28,
+                  color: '#0f1720',
+                  fontSize: 15,
+                  lineHeight: 1.35,
+                }}
+              >
+                <div style={{ display: 'grid', gap: 2 }}>
+                  <div><strong>Triple+:</strong> -5 pts</div>
+                  <div><strong>Double:</strong> -3 pts</div>
+                  <div><strong>Bogey:</strong> -1 pts</div>
+                  <div><strong>Par:</strong> .5 pts</div>
+                  <div><strong>Birdie:</strong> 3 pts</div>
+                  <div><strong>Eagle:</strong> 8 pts</div>
+                  <div><strong>Albatross:</strong> 13 pts</div>
+                  <div><strong>Ace:</strong> 10 pts</div>
+                  <div><strong>3 Birdie Streak:</strong> 4 pts</div>
+                  <div><strong>Bogey Free Rnd:</strong> 6 pts</div>
+                  <div><strong>Tourney Low Rnd:</strong> 5 pts</div>
+                  <div><strong>1<sup>st</sup> Rnd Leader:</strong> 5 pts</div>
+                  <div><strong>2<sup>nd</sup> Rnd Leader:</strong> 5 pts</div>
+                  <div><strong>3<sup>rd</sup> Rnd Leader:</strong> 5 pts</div>
+                </div>
+                <div style={{ display: 'grid', gap: 2 }}>
+                  <div><strong>1st Place:</strong> 40 pts</div>
+                  <div><strong>2nd Place:</strong> 25 pts</div>
+                  <div><strong>3rd Place:</strong> 20 pts</div>
+                  <div><strong>4th Place:</strong> 18 pts</div>
+                  <div><strong>5th Place:</strong> 16 pts</div>
+                  <div><strong>6th Place:</strong> 14 pts</div>
+                  <div><strong>7th Place:</strong> 12 pts</div>
+                  <div><strong>8th Place:</strong> 10 pts</div>
+                  <div><strong>9th Place:</strong> 9 pts</div>
+                  <div><strong>10th Place:</strong> 8 pts</div>
+                  <div><strong>11-15th Place:</strong> 7 pts</div>
+                  <div><strong>16-20th Place:</strong> 6 pts</div>
+                  <div><strong>21-25th Place:</strong> 5 pts</div>
+                  <div><strong>26-30th Place:</strong> 3 pts</div>
+                  <div><strong>31-40th Place:</strong> 1 pts</div>
+                  <div><strong>Cut Players:</strong> -10 pts</div>
+                </div>
+              </div>
             </section>
           </main>
         )}
