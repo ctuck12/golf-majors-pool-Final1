@@ -61,6 +61,7 @@ const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
   masters: '/the-masters-logo.png',
   pga: '/pga-of-america-logo.png',
   'us-open': '/us-open-logo.png',
+  open: '/the-open-logo.png',
 };
 
 const PLAYER_POOL = [
