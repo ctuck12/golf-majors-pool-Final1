@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="56" height="28" viewBox="0 0 56 28" fill="none">
-  <rect x="0.75" y="0.75" width="54.5" height="26.5" rx="8" fill="#F3F7FD" stroke="#9FB7D9" stroke-width="1.5"/>
-  <circle cx="14" cy="14" r="7" fill="#EAF4FF" stroke="#2F5F96" stroke-width="1.5"/>
-  <path d="M12 19.5H16V18.1C16 17.2 15.55 16.35 14.8 15.85L15.45 9.7L17.2 9.2C17.7 9.05 17.95 8.5 17.75 8.05C17.55 7.55 17 7.35 16.5 7.6L14 8.85L11.5 7.6C11 7.35 10.45 7.55 10.25 8.05C10.05 8.5 10.3 9.05 10.8 9.2L12.55 9.7L13.2 15.85C12.45 16.35 12 17.2 12 18.1V19.5Z" fill="#3F73AD"/>
-  <text x="35" y="17" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" font-weight="700" fill="#173B63">THE OPEN</text>
-</svg>
