@@ -1524,24 +1524,70 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                Pool details
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#0f1720' }}>
+                <span style={{ marginRight: 8 }}>🏌️</span>
+                Roster &amp; Entry Details
               </div>
-              <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
-                How scoring, accounts, and lineup locks work
-              </h2>
-              <div style={{ display: 'grid', gap: 12, color: '#425463', lineHeight: 1.6 }}>
-                <div>Each event uses a 6-golfer lineup and a $50,000 salary cap.</div>
-                <div>Lineups lock automatically at the tournament tee time shown on the event card.</div>
+              <div style={{ marginTop: 14, display: 'grid', gap: 18, color: '#0f1720', lineHeight: 1.6, fontSize: 15 }}>
                 <div>
-                  Live standings use current score to par plus a live finishing-position bonus estimate from the active
-                  leaderboard.
+                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
+                  <span style={{ marginRight: 6 }}>➤</span>
+                  For each major tournament, and The Players Championship, members select <strong>six golfers</strong>.
+                  Each golfer will have a salary assigned to them based on a blend of their world ranking and odds to
+                  win the tournament.
                 </div>
                 <div>
-                  New accounts can sign in, save rosters by tournament, and join the main pool using a join code.
+                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
+                  <span style={{ marginRight: 6 }}>➤</span>
+                  Participants will be assigned a fixed salary cap of <strong>$50,000</strong> they must stay under in
+                  order to create their 6-player roster. These six golfers make up their Player Roster for that
+                  tournament.
                 </div>
                 <div>
-                  The app pulls leaderboard data from ESPN and uses live odds when available for player pricing.
+                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
+                  <span style={{ marginRight: 6 }}>➤</span>
+                  Golfers <strong>CAN be picked more than once per season.</strong> Points are awarded based on the
+                  players hole by hole performance, as well as their tournament standings. Cut players receive
+                  <strong> -10 points.</strong>
+                </div>
+                <div>
+                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
+                  <span style={{ marginRight: 6 }}>➤</span>
+                  <strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool
+                  field.
+                </div>
+                <div>
+                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
+                  <span style={{ marginRight: 6 }}>➤</span>
+                  The scores of all <strong>6 golfers</strong> on your roster count towards your score.
+                </div>
+                <div>
+                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
+                  <span style={{ marginRight: 6 }}>➤</span>
+                  You’ll enter what you think the winning score for the champion will be (i.e. -12) when entering your
+                  picks, to serve as a tiebreaker value.
+                </div>
+              </div>
+              <div style={{ margin: '20px 0', borderTop: '1px solid #d7dee6' }} />
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#0f1720' }}>
+                <span style={{ marginRight: 8 }}>💰</span>
+                Entry &amp; Contact
+              </div>
+              <div style={{ marginTop: 14, display: 'grid', gap: 10, color: '#0f1720', lineHeight: 1.6, fontSize: 15 }}>
+                <div>
+                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
+                  <span style={{ marginRight: 6 }}>➤</span>
+                  Entry Fee: $25
+                </div>
+                <div>
+                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
+                  <span style={{ marginRight: 6 }}>➤</span>
+                  Venmo: @clayton743
+                </div>
+                <div>
+                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
+                  <span style={{ marginRight: 6 }}>➤</span>
+                  Questions: Clayton Tucker <span style={{ margin: '0 4px' }}>📞</span> (325.665.8299)
                 </div>
               </div>
             </section>
