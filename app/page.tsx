@@ -783,19 +783,20 @@ export default function Page() {
             background: 'linear-gradient(135deg, #0b3d2e 0%, #092233 100%)',
             color: '#fff',
             borderRadius: 28,
-            padding: '24px 28px',
+            padding: '18px 28px',
             boxShadow: '0 24px 64px rgba(9, 34, 51, 0.18)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <img
-              src="/golf-majors-pool-logo.png"
+              src="/golf-majors-pool-logo-v2.png"
               alt="Golf Majors Pool"
               style={{
                 display: 'block',
-                width: 'min(100%, 760px)',
+                width: 'min(100%, 420px)',
                 height: 'auto',
                 objectFit: 'contain',
+                background: 'transparent',
               }}
             />
           </div>
