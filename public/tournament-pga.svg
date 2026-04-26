@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="56" height="28" viewBox="0 0 56 28" fill="none">
+  <rect x="0.75" y="0.75" width="54.5" height="26.5" rx="8" fill="#F3F7FD" stroke="#9FB7D9" stroke-width="1.5"/>
+  <circle cx="14" cy="14" r="7" fill="#173B63"/>
+  <path d="M14 9L15.25 10.9H17.5L16 12.45L16.5 14.8L14 13.55L11.5 14.8L12 12.45L10.5 10.9H12.75L14 9Z" fill="#F4D06B"/>
+  <path d="M12 16.6H16L15.25 19H12.75L12 16.6Z" fill="#F4D06B"/>
+  <text x="34" y="17" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="800" fill="#173B63">PGA</text>
+</svg>

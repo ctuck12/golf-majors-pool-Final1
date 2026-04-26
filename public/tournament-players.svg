@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="56" height="28" viewBox="0 0 56 28" fill="none">
+  <rect x="0.75" y="0.75" width="54.5" height="26.5" rx="8" fill="#F3F7FD" stroke="#9FB7D9" stroke-width="1.5"/>
+  <path d="M14 20V7.5" stroke="#1E4F86" stroke-width="2" stroke-linecap="round"/>
+  <path d="M15 8L24 11.25L15 14.5V8Z" fill="#3F73AD"/>
+  <text x="31" y="17" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" font-weight="700" fill="#173B63">PLAYERS</text>
+</svg>

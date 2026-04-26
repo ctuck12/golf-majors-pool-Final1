@@ -155,6 +155,14 @@ type SessionPayload = {
   error?: string;
 };
 
+const TOURNAMENT_LOGOS: Record<TournamentId, string> = {
+  players: '/tournament-players.svg',
+  masters: '/tournament-masters.svg',
+  pga: '/tournament-pga.svg',
+  'us-open': '/tournament-us-open.svg',
+  open: '/tournament-open.svg',
+};
+
 function parseAmericanOdds(odds: string) {
   const numeric = Number(odds.replace('+', ''));
 
@@ -1051,7 +1059,19 @@ export default function Page() {
                     boxShadow: active ? '0 14px 34px rgba(49, 95, 149, 0.18)' : '0 10px 22px rgba(9, 34, 51, 0.05)',
                   }}
                 >
-                  <div style={{ fontWeight: 800, color: '#0f1720' }}>{item.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <img
+                      src={TOURNAMENT_LOGOS[item.id]}
+                      alt={`${item.name} logo`}
+                      style={{
+                        width: 56,
+                        height: 28,
+                        objectFit: 'contain',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <div style={{ fontWeight: 800, color: '#0f1720' }}>{item.name}</div>
+                  </div>
                   <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>{item.venue}</div>
                   <div
                     style={{
