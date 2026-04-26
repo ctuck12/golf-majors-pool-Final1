@@ -714,7 +714,7 @@ export default function Page() {
           }}
         >
           <div>
-            <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0b7a53' }}>
+            <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
               Roster {index + 1}
             </div>
             <div style={{ fontWeight: 700 }}>{player.name}</div>
@@ -724,7 +724,7 @@ export default function Page() {
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
-            <div style={{ fontSize: 12, color: '#0b7a53' }}>bonus {player.bonus}</div>
+            <div style={{ fontSize: 12, color: '#2f5f96' }}>bonus {player.bonus}</div>
           </div>
         </div>
       ))}
@@ -780,7 +780,7 @@ export default function Page() {
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 20px 40px' }}>
         <header
           style={{
-            background: 'linear-gradient(135deg, #1f456d 0%, #17324f 100%)',
+            background: 'linear-gradient(135deg, #173b63 0%, #102842 100%)',
             color: '#fff',
             borderRadius: 28,
             padding: '18px 28px',
@@ -844,7 +844,7 @@ export default function Page() {
                       border: 'none',
                       borderRadius: 16,
                       padding: '14px 16px',
-                      background: 'linear-gradient(135deg, #3b6ea5 0%, #2d5e94 100%)',
+                      background: 'linear-gradient(135deg, #487dc2 0%, #3c6ea9 100%)',
                       color: '#fff',
                       fontSize: 15,
                       fontWeight: 900,
@@ -901,7 +901,7 @@ export default function Page() {
                       border: 'none',
                       borderRadius: 16,
                       padding: '14px 16px',
-                      background: '#0f1720',
+                      background: 'linear-gradient(135deg, #315f95 0%, #284f7d 100%)',
                       color: '#fff',
                       fontSize: 15,
                       fontWeight: 900,
@@ -1041,14 +1041,14 @@ export default function Page() {
                   key={item.id}
                   onClick={() => setSelectedTournament(item.id)}
                   style={{
-                    border: active ? '2px solid #3a6293' : '1px solid #d7e0e8',
-                    background: active ? '#eef4fc' : '#fff',
+                    border: active ? '2px solid #315f95' : '1px solid #d7e0e8',
+                    background: active ? '#edf4ff' : '#fff',
                     borderRadius: 18,
                     padding: '14px 16px',
                     minWidth: 190,
                     textAlign: 'left',
                     cursor: 'pointer',
-                    boxShadow: active ? '0 14px 34px rgba(58, 98, 147, 0.16)' : '0 10px 22px rgba(9, 34, 51, 0.05)',
+                    boxShadow: active ? '0 14px 34px rgba(49, 95, 149, 0.18)' : '0 10px 22px rgba(9, 34, 51, 0.05)',
                   }}
                 >
                   <div style={{ fontWeight: 800, color: '#0f1720' }}>{item.name}</div>
@@ -1059,7 +1059,7 @@ export default function Page() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 6,
-                      color: countdown.isLocked ? '#be123c' : '#2d5e94',
+                      color: countdown.isLocked ? '#be123c' : '#234d80',
                       fontWeight: 800,
                       fontSize: 12,
                       textTransform: 'uppercase',
@@ -1081,15 +1081,15 @@ export default function Page() {
                   key={tab}
                   onClick={() => setMainTab(tab)}
                   style={{
-                    border: active ? '1px solid #3b6ea5' : '1px solid #d7e0e8',
-                    background: active ? '#3b6ea5' : '#fff',
+                    border: active ? '1px solid #3f73ad' : '1px solid #d7e0e8',
+                    background: active ? '#3f73ad' : '#fff',
                     color: active ? '#fff' : '#31424f',
                     borderRadius: 999,
                     padding: '10px 16px',
                     fontSize: 14,
                     fontWeight: 800,
                     cursor: 'pointer',
-                    boxShadow: active ? '0 10px 20px rgba(59, 110, 165, 0.18)' : 'none',
+                    boxShadow: active ? '0 10px 20px rgba(63, 115, 173, 0.2)' : 'none',
                   }}
                 >
                   {tab}
@@ -1162,7 +1162,7 @@ export default function Page() {
                   <tbody>
                     {standings.map((entry) => (
                       <tr key={entry.id} style={{ borderTop: '1px solid #edf1f4' }}>
-                        <td style={{ padding: '16px 0', fontWeight: 800, color: '#0b7a53' }}>#{entry.place}</td>
+                        <td style={{ padding: '16px 0', fontWeight: 800, color: '#2f5f96' }}>#{entry.place}</td>
                         <td style={{ padding: '16px 0' }}>
                           <button
                             onClick={() => setActiveStandingEntryId(entry.id)}
@@ -1186,7 +1186,7 @@ export default function Page() {
                         <td style={{ padding: '16px 0', fontWeight: 700 }}>
                           {entry.rawScore > 0 ? `+${entry.rawScore}` : entry.rawScore}
                         </td>
-                        <td style={{ padding: '16px 0', fontWeight: 700, color: '#0b7a53' }}>{entry.bonus}</td>
+                        <td style={{ padding: '16px 0', fontWeight: 700, color: '#2f5f96' }}>{entry.bonus}</td>
                         <td style={{ padding: '16px 0', fontWeight: 900, fontSize: 18 }}>{entry.total}</td>
                       </tr>
                     ))}
@@ -1235,8 +1235,8 @@ export default function Page() {
                       gap: 6,
                       padding: '8px 10px',
                       borderRadius: 999,
-                      background: locked ? '#fff1f2' : '#eefbf5',
-                      color: locked ? '#be123c' : '#0b7a53',
+                      background: locked ? '#fff1f2' : '#eaf2ff',
+                      color: locked ? '#be123c' : '#2f5f96',
                       fontWeight: 800,
                       fontSize: 12,
                       textTransform: 'uppercase',
@@ -1272,8 +1272,8 @@ export default function Page() {
                       alignItems: 'center',
                       gap: 8,
                       borderRadius: 14,
-                      background: '#eefbf5',
-                      color: '#0b7a53',
+                      background: '#eef4ff',
+                      color: '#2f5f96',
                       padding: '12px 14px',
                     }}
                   >
@@ -1290,7 +1290,7 @@ export default function Page() {
                     border: 'none',
                     borderRadius: 16,
                     padding: '14px 16px',
-                    background: canSave ? 'linear-gradient(135deg, #0b7a53 0%, #0c5f85 100%)' : '#cbd5df',
+                    background: canSave ? 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)' : '#cbd5df',
                     color: '#fff',
                     fontSize: 15,
                     fontWeight: 900,
@@ -1315,7 +1315,7 @@ export default function Page() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                  <Trophy size={18} color="#0b7a53" />
+                  <Trophy size={18} color="#2f5f96" />
                   <div style={{ fontSize: 18, fontWeight: 900 }}>Tracked golfers</div>
                 </div>
 
@@ -1333,8 +1333,8 @@ export default function Page() {
                         style={{
                           textAlign: 'left',
                           borderRadius: 16,
-                          border: selected ? '2px solid #0b7a53' : disabled ? '1px solid #d7dee6' : '1px solid #e6edf1',
-                          background: selected ? '#f2fbf7' : disabled ? '#f3f5f7' : '#fff',
+                          border: selected ? '2px solid #3f73ad' : disabled ? '1px solid #d7dee6' : '1px solid #e6edf1',
+                          background: selected ? '#eef4ff' : disabled ? '#f3f5f7' : '#fff',
                           padding: 14,
                           cursor: disabled ? 'not-allowed' : 'pointer',
                           opacity: disabled ? 0.58 : 1,
@@ -1421,8 +1421,8 @@ export default function Page() {
                         alignItems: 'center',
                         gap: 8,
                         borderRadius: 14,
-                        background: '#eefbf5',
-                        color: '#0b7a53',
+                        background: '#eef4ff',
+                        color: '#2f5f96',
                         padding: '12px 14px',
                       }}
                     >
@@ -1439,7 +1439,7 @@ export default function Page() {
                       border: 'none',
                       borderRadius: 16,
                       padding: '14px 16px',
-                      background: canSave ? 'linear-gradient(135deg, #0b7a53 0%, #0c5f85 100%)' : '#cbd5df',
+                      background: canSave ? 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)' : '#cbd5df',
                       color: '#fff',
                       fontSize: 15,
                       fontWeight: 900,
@@ -1464,7 +1464,7 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                    <Trophy size={18} color="#0b7a53" />
+                    <Trophy size={18} color="#2f5f96" />
                     <div style={{ fontSize: 18, fontWeight: 900 }}>Tracked golfers</div>
                   </div>
 
@@ -1482,8 +1482,8 @@ export default function Page() {
                           style={{
                             textAlign: 'left',
                             borderRadius: 16,
-                            border: selected ? '2px solid #0b7a53' : disabled ? '1px solid #d7dee6' : '1px solid #e6edf1',
-                            background: selected ? '#f2fbf7' : disabled ? '#f3f5f7' : '#fff',
+                            border: selected ? '2px solid #3f73ad' : disabled ? '1px solid #d7dee6' : '1px solid #e6edf1',
+                            background: selected ? '#eef4ff' : disabled ? '#f3f5f7' : '#fff',
                             padding: 14,
                             cursor: disabled ? 'not-allowed' : 'pointer',
                             opacity: disabled ? 0.58 : 1,
@@ -1790,11 +1790,11 @@ export default function Page() {
                     {activeStandingEntry.rawScore > 0 ? `+${activeStandingEntry.rawScore}` : activeStandingEntry.rawScore}
                   </div>
                 </div>
-                <div style={{ borderRadius: 18, background: '#eefbf5', padding: 16, border: '1px solid #d7efe5' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0b7a53' }}>
+                <div style={{ borderRadius: 18, background: '#eef4ff', padding: 16, border: '1px solid #c7d8ee' }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
                     Bonus
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900, color: '#0b7a53' }}>
+                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900, color: '#2f5f96' }}>
                     {activeStandingEntry.bonus}
                   </div>
                 </div>
@@ -1820,7 +1820,7 @@ export default function Page() {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
                         <div>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0b7a53' }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
                             Roster {index + 1}
                           </div>
                           <div style={{ marginTop: 4, fontSize: 22, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
@@ -1855,11 +1855,11 @@ export default function Page() {
                             Live score shown as {golfer.score}
                           </div>
                         </div>
-                        <div style={{ borderRadius: 14, background: '#eefbf5', padding: 14 }}>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0b7a53' }}>
+                        <div style={{ borderRadius: 14, background: '#eef4ff', padding: 14 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
                             Bonus estimate
                           </div>
-                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: '#0b7a53' }}>
+                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: '#2f5f96' }}>
                             -{golfer.bonus}
                           </div>
                           <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
