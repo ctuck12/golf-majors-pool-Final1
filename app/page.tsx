@@ -789,7 +789,7 @@ export default function Page() {
         >
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <img
-              src="/golf-majors-pool-logo-v5.png"
+              src="/golf-majors-pool-logo-v6.png"
               alt="Golf Majors Pool"
               style={{
                 display: 'block',
