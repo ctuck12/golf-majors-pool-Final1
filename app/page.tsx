@@ -56,6 +56,10 @@ const TOURNAMENTS = [
   },
 ] as const;
 
+const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
+  players: '/the-players-championship-logo.jpg',
+};
+
 const PLAYER_POOL = [
   { id: 1, name: 'Scottie Scheffler', defaultOdds: '+450', worldRank: 1 },
   { id: 2, name: 'Rory McIlroy', defaultOdds: '+900', worldRank: 2 },
@@ -1051,22 +1055,40 @@ export default function Page() {
                     boxShadow: active ? '0 14px 34px rgba(49, 95, 149, 0.18)' : '0 10px 22px rgba(9, 34, 51, 0.05)',
                   }}
                 >
-                  <div style={{ fontWeight: 800, color: '#0f1720' }}>{item.name}</div>
-                  <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>{item.venue}</div>
-                  <div
-                    style={{
-                      marginTop: 10,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      color: countdown.isLocked ? '#be123c' : '#234d80',
-                      fontWeight: 800,
-                      fontSize: 12,
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    <Clock3 size={14} />
-                    {countdown.isLocked ? 'Locked' : `Locks in ${countdown.label}`}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: 800, color: '#0f1720' }}>{item.name}</div>
+                      <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>{item.venue}</div>
+                      <div
+                        style={{
+                          marginTop: 10,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          color: countdown.isLocked ? '#be123c' : '#234d80',
+                          fontWeight: 800,
+                          fontSize: 12,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        <Clock3 size={14} />
+                        {countdown.isLocked ? 'Locked' : `Locks in ${countdown.label}`}
+                      </div>
+                    </div>
+                    {TOURNAMENT_CARD_LOGOS[item.id] ? (
+                      <img
+                        src={TOURNAMENT_CARD_LOGOS[item.id]}
+                        alt={`${item.name} logo`}
+                        style={{
+                          width: 56,
+                          height: 56,
+                          objectFit: 'contain',
+                          borderRadius: 8,
+                          flexShrink: 0,
+                          marginTop: 2,
+                        }}
+                      />
+                    ) : null}
                   </div>
                 </button>
               );
