@@ -125,6 +125,24 @@ type PoolEntry = {
   rosters: Partial<Record<TournamentId, number[]>>;
 };
 
+type StandingGolfer = ReturnType<typeof buildPricedPlayers>[number] & {
+  position: string;
+  thru: string;
+  score: string;
+  scoreValue: number;
+  bonus: number;
+  poolTotal: number;
+};
+
+type StandingEntry = PoolEntry & {
+  picks: number[];
+  golfers: StandingGolfer[];
+  rawScore: number;
+  bonus: number;
+  total: number;
+  place: number;
+};
+
 const STATIC_ENTRIES: PoolEntry[] = [
   { id: 'static-2', name: 'Brady S.', rosters: { pga: [1, 3, 5, 7, 9, 11] } },
   { id: 'static-3', name: 'Megan T.', rosters: { pga: [2, 4, 6, 8, 12, 13] } },
@@ -337,6 +355,7 @@ export default function Page() {
   const [mainTab, setMainTab] = useState<MainTab>('Standings');
   const [selectedTournament, setSelectedTournament] = useState<TournamentId>('pga');
   const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTERS.pga);
+  const [activeStandingEntryId, setActiveStandingEntryId] = useState<string | null>(null);
   const [feed, setFeed] = useState<FeedResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -599,7 +618,7 @@ export default function Page() {
           ...STATIC_ENTRIES,
         ];
 
-  const standings = liveStandingEntries
+  const standings: StandingEntry[] = liveStandingEntries
     .map((entry) => {
       const picks = entry.rosters[selectedTournament] ?? [];
       const golfers = picks.map((id) => playersById[id]).filter(Boolean);
@@ -618,6 +637,8 @@ export default function Page() {
     })
     .sort((left, right) => left.total - right.total)
     .map((entry, index) => ({ ...entry, place: index + 1 }));
+
+  const activeStandingEntry = standings.find((entry) => entry.id === activeStandingEntryId) ?? null;
 
   const canSave =
     Boolean(sessionUser) &&
@@ -768,10 +789,17 @@ export default function Page() {
           }}
         >
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: 13, letterSpacing: '0.16em', textTransform: 'uppercase', opacity: 0.75 }}>
-                Golf Majors Pool
-              </div>
+            <div style={{ flex: '1 1 640px' }}>
+              <img
+                src="/golf-majors-pool-logo.svg"
+                alt="Golf Majors Pool"
+                style={{
+                  display: 'block',
+                  width: 'min(100%, 760px)',
+                  height: 'auto',
+                  marginBottom: 14,
+                }}
+              />
               <h1 style={{ margin: '8px 0 6px', fontSize: 36, lineHeight: 1.05 }}>
                 Live tournament scoring and real pool accounts
               </h1>
@@ -833,39 +861,39 @@ export default function Page() {
                   boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                   <LogIn size={18} color="#0b7a53" />
-                  <div style={{ fontSize: 18, fontWeight: 900 }}>Sign in</div>
+                  <div style={{ fontSize: 20, fontWeight: 900 }}>Sign in</div>
                 </div>
-                <div style={{ marginTop: 14, display: 'grid', gap: 10 }}>
+                <div style={{ display: 'grid', gap: 12 }}>
                   <input
                     value={loginForm.email}
-                    onChange={(event) => setLoginForm((current) => ({ ...current, email: event.target.value }))}
-                    placeholder="Email address"
+                    onChange={(event) => setLoginForm({ ...loginForm, email: event.target.value })}
+                    placeholder="Email"
                     style={fieldStyle()}
                   />
                   <input
                     type="password"
                     value={loginForm.password}
-                    onChange={(event) => setLoginForm((current) => ({ ...current, password: event.target.value }))}
+                    onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })}
                     placeholder="Password"
                     style={fieldStyle()}
                   />
                   <button
                     onClick={handleLogin}
-                    disabled={authBusy}
                     style={{
                       border: 'none',
                       borderRadius: 16,
                       padding: '14px 16px',
-                      background: '#0b7a53',
+                      background: 'linear-gradient(135deg, #0b7a53 0%, #0c5f85 100%)',
                       color: '#fff',
                       fontSize: 15,
                       fontWeight: 900,
                       cursor: authBusy ? 'wait' : 'pointer',
                     }}
+                    disabled={authBusy}
                   >
-                    {authBusy ? 'Working...' : 'Sign in'}
+                    Sign in to the pool
                   </button>
                 </div>
               </div>
@@ -878,55 +906,51 @@ export default function Page() {
                   boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                   <UserPlus size={18} color="#0b7a53" />
-                  <div style={{ fontSize: 18, fontWeight: 900 }}>Create account</div>
+                  <div style={{ fontSize: 20, fontWeight: 900 }}>Create account</div>
                 </div>
-                <div style={{ marginTop: 14, display: 'grid', gap: 10 }}>
+                <div style={{ display: 'grid', gap: 12 }}>
                   <input
                     value={registerForm.displayName}
-                    onChange={(event) =>
-                      setRegisterForm((current) => ({ ...current, displayName: event.target.value }))
-                    }
+                    onChange={(event) => setRegisterForm({ ...registerForm, displayName: event.target.value })}
                     placeholder="Display name"
                     style={fieldStyle()}
                   />
                   <input
                     value={registerForm.email}
-                    onChange={(event) => setRegisterForm((current) => ({ ...current, email: event.target.value }))}
-                    placeholder="Email address"
+                    onChange={(event) => setRegisterForm({ ...registerForm, email: event.target.value })}
+                    placeholder="Email"
                     style={fieldStyle()}
                   />
                   <input
                     type="password"
                     value={registerForm.password}
-                    onChange={(event) =>
-                      setRegisterForm((current) => ({ ...current, password: event.target.value }))
-                    }
+                    onChange={(event) => setRegisterForm({ ...registerForm, password: event.target.value })}
                     placeholder="Password"
                     style={fieldStyle()}
                   />
                   <input
                     value={registerForm.joinCode}
-                    onChange={(event) => setRegisterForm((current) => ({ ...current, joinCode: event.target.value }))}
-                    placeholder={`Pool join code (optional, ex: ${DEFAULT_JOIN_CODE})`}
+                    onChange={(event) => setRegisterForm({ ...registerForm, joinCode: event.target.value })}
+                    placeholder="Join code (optional)"
                     style={fieldStyle()}
                   />
                   <button
                     onClick={handleRegister}
-                    disabled={authBusy}
                     style={{
                       border: 'none',
                       borderRadius: 16,
                       padding: '14px 16px',
-                      background: 'linear-gradient(135deg, #0b7a53 0%, #0c5f85 100%)',
+                      background: '#0f1720',
                       color: '#fff',
                       fontSize: 15,
                       fontWeight: 900,
                       cursor: authBusy ? 'wait' : 'pointer',
                     }}
+                    disabled={authBusy}
                   >
-                    {authBusy ? 'Working...' : 'Create account'}
+                    Create account
                   </button>
                 </div>
               </div>
@@ -938,139 +962,68 @@ export default function Page() {
                 borderRadius: 24,
                 padding: 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'space-between',
+                gap: 16,
+                alignItems: 'center',
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'space-between',
-                  gap: 18,
-                  alignItems: 'flex-start',
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Account
-                  </div>
-                  <h2 style={{ margin: '6px 0 4px', fontSize: 28, color: '#0f1720' }}>{sessionUser.displayName}</h2>
-                  <div style={{ color: '#5b6b79' }}>{sessionUser.email}</div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                  Signed in
                 </div>
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    borderRadius: 999,
-                    padding: '10px 14px',
-                    background: pool ? '#eefbf5' : '#fff8e7',
-                    color: pool ? '#0b7a53' : '#9a6700',
-                    fontWeight: 800,
-                  }}
-                >
-                  <Users size={16} />
-                  {pool ? `Joined ${pool.name}` : 'Not joined to a pool yet'}
+                <div style={{ marginTop: 6, fontSize: 24, fontWeight: 900 }}>{sessionUser.displayName}</div>
+                <div style={{ marginTop: 4, color: '#6b7b88' }}>{sessionUser.email}</div>
+                <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
+                  {pool ? `Pool: ${pool.name}` : 'Join the pool below with your code.'}
                 </div>
               </div>
-
-              <div
-                style={{
-                  marginTop: 16,
-                  display: 'grid',
-                  gridTemplateColumns: pool ? 'repeat(3, minmax(0, 1fr))' : 'minmax(0, 1fr) auto auto',
-                  gap: 12,
-                }}
-              >
-                {pool ? (
-                  <>
-                    <div style={{ borderRadius: 16, background: '#f5f9fb', padding: 14 }}>
-                      <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
-                        Pool
-                      </div>
-                      <div style={{ marginTop: 6, fontSize: 20, fontWeight: 900 }}>{pool.name}</div>
-                    </div>
-                    <div style={{ borderRadius: 16, background: '#f5f9fb', padding: 14 }}>
-                      <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
-                        Join code
-                      </div>
-                      <div style={{ marginTop: 6, fontSize: 20, fontWeight: 900 }}>{pool.joinCode}</div>
-                    </div>
-                    <button
-                      onClick={handleLogout}
-                      disabled={authBusy}
-                      style={{
-                        border: '1px solid #d7e0e8',
-                        borderRadius: 16,
-                        padding: '14px 16px',
-                        background: '#fff',
-                        fontSize: 15,
-                        fontWeight: 900,
-                        cursor: authBusy ? 'wait' : 'pointer',
-                      }}
-                    >
-                      Sign out
-                    </button>
-                  </>
-                ) : (
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                {!pool ? (
                   <>
                     <input
                       value={joinCode}
                       onChange={(event) => setJoinCode(event.target.value)}
                       placeholder="Pool join code"
-                      style={fieldStyle()}
+                      style={{ ...fieldStyle(), minWidth: 220 }}
                     />
                     <button
                       onClick={handleJoinPool}
-                      disabled={authBusy}
                       style={{
                         border: 'none',
                         borderRadius: 16,
                         padding: '14px 16px',
                         background: '#0b7a53',
                         color: '#fff',
-                        fontSize: 15,
                         fontWeight: 900,
                         cursor: authBusy ? 'wait' : 'pointer',
                       }}
+                      disabled={authBusy}
                     >
                       Join pool
                     </button>
-                    <button
-                      onClick={handleLogout}
-                      disabled={authBusy}
-                      style={{
-                        border: '1px solid #d7e0e8',
-                        borderRadius: 16,
-                        padding: '14px 16px',
-                        background: '#fff',
-                        fontSize: 15,
-                        fontWeight: 900,
-                        cursor: authBusy ? 'wait' : 'pointer',
-                      }}
-                    >
-                      Sign out
-                    </button>
                   </>
-                )}
+                ) : null}
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 16,
+                    padding: '14px 16px',
+                    background: '#fff',
+                    color: '#0f1720',
+                    fontWeight: 900,
+                    cursor: authBusy ? 'wait' : 'pointer',
+                  }}
+                  disabled={authBusy}
+                >
+                  Sign out
+                </button>
               </div>
             </div>
           )}
         </section>
-
-        {sessionLoading ? (
-          <div
-            style={{
-              marginTop: 16,
-              borderRadius: 16,
-              background: '#f5f9fb',
-              color: '#50616f',
-              border: '1px solid #d7e0e8',
-              padding: '14px 16px',
-            }}
-          >
-            Checking account session...
-          </div>
-        ) : null}
 
         {authError ? (
           <div
@@ -1101,7 +1054,7 @@ export default function Page() {
               borderRadius: 16,
               background: '#eefbf5',
               color: '#0b7a53',
-              border: '1px solid #cdebdc',
+              border: '1px solid #b8e7d2',
               padding: '14px 16px',
             }}
           >
@@ -1113,73 +1066,78 @@ export default function Page() {
         <section
           style={{
             marginTop: 24,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: 14,
-          }}
-        >
-          {TOURNAMENTS.map((item) => {
-            const active = item.id === selectedTournament;
-            const countdown = getCountdown(item.lockAt);
-
-            return (
-              <button
-                key={item.id}
-                onClick={() => setSelectedTournament(item.id)}
-                style={{
-                  textAlign: 'left',
-                  borderRadius: 20,
-                  padding: 18,
-                  border: active ? '2px solid #0b7a53' : '1px solid #d7e0e8',
-                  background: active ? '#f2fbf7' : '#fff',
-                  boxShadow: '0 8px 24px rgba(9, 34, 51, 0.06)',
-                  cursor: 'pointer',
-                }}
-              >
-                <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                  {countdown.isLocked ? 'Locked' : 'Open'}
-                </div>
-                <div style={{ marginTop: 8, fontSize: 19, fontWeight: 800, color: '#0f1720' }}>{item.name}</div>
-                <div style={{ marginTop: 6, color: '#5b6b79' }}>{item.venue}</div>
-                <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, color: '#0b7a53' }}>
-                  <Clock3 size={15} />
-                  <span>{countdown.label}</span>
-                </div>
-              </button>
-            );
-          })}
-        </section>
-
-        <section
-          style={{
-            marginTop: 18,
             display: 'flex',
             flexWrap: 'wrap',
-            gap: 10,
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 16,
           }}
         >
-          {(['Standings', 'My entries', 'Details', 'Commissioner console'] as MainTab[]).map((tab) => {
-            const active = tab === mainTab;
-            return (
-              <button
-                key={tab}
-                onClick={() => setMainTab(tab)}
-                style={{
-                  border: active ? '1px solid #0b7a53' : '1px solid #d7e0e8',
-                  background: active ? '#0b7a53' : '#fff',
-                  color: active ? '#fff' : '#31424f',
-                  borderRadius: 999,
-                  padding: '10px 16px',
-                  fontSize: 14,
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  boxShadow: active ? '0 10px 20px rgba(11, 122, 83, 0.18)' : 'none',
-                }}
-              >
-                {tab}
-              </button>
-            );
-          })}
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {TOURNAMENTS.map((item) => {
+              const active = item.id === selectedTournament;
+              const countdown = getCountdown(item.lockAt);
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setSelectedTournament(item.id)}
+                  style={{
+                    border: active ? '2px solid #0b7a53' : '1px solid #d7e0e8',
+                    background: active ? '#f2fbf7' : '#fff',
+                    borderRadius: 18,
+                    padding: '14px 16px',
+                    minWidth: 190,
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    boxShadow: active ? '0 14px 34px rgba(11, 122, 83, 0.12)' : '0 10px 22px rgba(9, 34, 51, 0.05)',
+                  }}
+                >
+                  <div style={{ fontWeight: 800, color: '#0f1720' }}>{item.name}</div>
+                  <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>{item.venue}</div>
+                  <div
+                    style={{
+                      marginTop: 10,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      color: countdown.isLocked ? '#be123c' : '#0b7a53',
+                      fontWeight: 800,
+                      fontSize: 12,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    <Clock3 size={14} />
+                    {countdown.isLocked ? 'Locked' : `Locks in ${countdown.label}`}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {(['Standings', 'My entries', 'Details', 'Commissioner console'] as MainTab[]).map((tab) => {
+              const active = tab === mainTab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setMainTab(tab)}
+                  style={{
+                    border: active ? '1px solid #0b7a53' : '1px solid #d7e0e8',
+                    background: active ? '#0b7a53' : '#fff',
+                    color: active ? '#fff' : '#31424f',
+                    borderRadius: 999,
+                    padding: '10px 16px',
+                    fontSize: 14,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: active ? '0 10px 20px rgba(11, 122, 83, 0.18)' : 'none',
+                  }}
+                >
+                  {tab}
+                </button>
+              );
+            })}
+          </div>
         </section>
 
         {error ? (
@@ -1247,7 +1205,21 @@ export default function Page() {
                       <tr key={entry.id} style={{ borderTop: '1px solid #edf1f4' }}>
                         <td style={{ padding: '16px 0', fontWeight: 800, color: '#0b7a53' }}>#{entry.place}</td>
                         <td style={{ padding: '16px 0' }}>
-                          <div style={{ fontWeight: 700, color: '#0f1720' }}>{entry.name}</div>
+                          <button
+                            onClick={() => setActiveStandingEntryId(entry.id)}
+                            style={{
+                              border: 'none',
+                              background: 'transparent',
+                              padding: 0,
+                              fontWeight: 700,
+                              color: '#0f1720',
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              fontSize: 18,
+                            }}
+                          >
+                            {entry.name}
+                          </button>
                           <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
                             {entry.golfers.map((golfer) => golfer.name.split(' ')[0]).join(', ') || 'No lineup saved'}
                           </div>
@@ -1680,6 +1652,199 @@ export default function Page() {
             </section>
           </main>
         )}
+
+        {activeStandingEntry ? (
+          <div
+            onClick={() => setActiveStandingEntryId(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 32, 0.55)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
+              zIndex: 50,
+            }}
+          >
+            <div
+              onClick={(event) => event.stopPropagation()}
+              style={{
+                width: 'min(760px, 100%)',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                background: '#fff',
+                borderRadius: 24,
+                padding: 24,
+                boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                    Entry breakdown
+                  </div>
+                  <h3 style={{ margin: '6px 0 0', fontSize: 28, color: '#0f1720' }}>{activeStandingEntry.name}</h3>
+                  <div style={{ marginTop: 6, color: '#6b7b88' }}>
+                    Place #{activeStandingEntry.place} in {tournament.name}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setActiveStandingEntryId(null)}
+                  style={{
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 999,
+                    background: '#fff',
+                    padding: '8px 14px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+
+              <div
+                style={{
+                  marginTop: 18,
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                  gap: 12,
+                }}
+              >
+                <div style={{ borderRadius: 18, background: '#f6fbfd', padding: 16, border: '1px solid #e6edf1' }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                    Roster size
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>{activeStandingEntry.golfers.length}</div>
+                </div>
+                <div style={{ borderRadius: 18, background: '#f6fbfd', padding: 16, border: '1px solid #e6edf1' }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                    Score to par
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>
+                    {activeStandingEntry.rawScore > 0 ? `+${activeStandingEntry.rawScore}` : activeStandingEntry.rawScore}
+                  </div>
+                </div>
+                <div style={{ borderRadius: 18, background: '#eefbf5', padding: 16, border: '1px solid #d7efe5' }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0b7a53' }}>
+                    Bonus
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900, color: '#0b7a53' }}>
+                    {activeStandingEntry.bonus}
+                  </div>
+                </div>
+                <div style={{ borderRadius: 18, background: '#f9fafb', padding: 16, border: '1px solid #e6edf1' }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                    Pool total
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>{activeStandingEntry.total}</div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 20, display: 'grid', gap: 12 }}>
+                {activeStandingEntry.golfers.length > 0 ? (
+                  activeStandingEntry.golfers.map((golfer, index) => (
+                    <div
+                      key={golfer.id}
+                      style={{
+                        border: '1px solid #e6edf1',
+                        borderRadius: 18,
+                        padding: 16,
+                        background: '#fff',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0b7a53' }}>
+                            Roster {index + 1}
+                          </div>
+                          <div style={{ marginTop: 4, fontSize: 22, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                          <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
+                            OWGR {golfer.worldRank} | {golfer.odds} | Pos {golfer.position} | Thru {golfer.thru}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                            Current total
+                          </div>
+                          <div style={{ marginTop: 6, fontSize: 28, fontWeight: 900 }}>{golfer.poolTotal}</div>
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          marginTop: 16,
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                          gap: 10,
+                        }}
+                      >
+                        <div style={{ borderRadius: 14, background: '#f6fbfd', padding: 14 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                            Score to par
+                          </div>
+                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900 }}>
+                            {golfer.scoreValue > 0 ? `+${golfer.scoreValue}` : golfer.scoreValue}
+                          </div>
+                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
+                            Live score shown as {golfer.score}
+                          </div>
+                        </div>
+                        <div style={{ borderRadius: 14, background: '#eefbf5', padding: 14 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0b7a53' }}>
+                            Bonus estimate
+                          </div>
+                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: '#0b7a53' }}>
+                            -{golfer.bonus}
+                          </div>
+                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
+                            Based on current leaderboard position
+                          </div>
+                        </div>
+                        <div style={{ borderRadius: 14, background: '#f9fafb', padding: 14 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                            Pool total
+                          </div>
+                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900 }}>{golfer.poolTotal}</div>
+                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
+                            Score to par minus bonus estimate
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div
+                    style={{
+                      borderRadius: 18,
+                      border: '1px solid #e6edf1',
+                      background: '#f8fbfd',
+                      padding: 18,
+                      color: '#50616f',
+                    }}
+                  >
+                    No lineup has been saved for this team yet.
+                  </div>
+                )}
+              </div>
+
+              <div
+                style={{
+                  marginTop: 18,
+                  borderRadius: 16,
+                  background: '#f5f9fb',
+                  padding: 14,
+                  color: '#50616f',
+                  lineHeight: 1.5,
+                }}
+              >
+                The scoring breakdown uses the same live model as the standings table: current score to par plus a
+                leaderboard-based bonus estimate while the tournament is in progress.
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
