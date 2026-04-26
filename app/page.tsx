@@ -1591,8 +1591,8 @@ export default function Page() {
                 </div>
               </div>
               <div style={{ margin: '24px 0 18px', borderTop: '1px solid #d7dee6' }} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 18, fontWeight: 800, color: '#0f1720' }}>
-                <span style={{ fontSize: 28 }}>{'📊'}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 18, fontWeight: 700, color: '#0f1720' }}>
+                <span style={{ fontSize: 18 }}>{'📊'}</span>
                 <span>Points are awarded as follows:</span>
               </div>
               <div
