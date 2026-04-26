@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import {
   AlertCircle,
   CheckCircle2,
-  Clock3,
   Lock,
   LogIn,
   RefreshCw,
@@ -309,15 +308,52 @@ function positionBonus(position: string | undefined) {
   return 0;
 }
 
-function getCountdown(lockAt: string) {
-  const diff = new Date(lockAt).getTime() - Date.now();
-  if (diff <= 0) {
-    return { isLocked: true, label: 'Locked' };
-  }
+function nthWeekdayOfMonth(year: number, monthIndex: number, weekday: number, occurrence: number) {
+  const firstOfMonth = new Date(year, monthIndex, 1);
+  const offset = (weekday - firstOfMonth.getDay() + 7) % 7;
+  return new Date(year, monthIndex, 1 + offset + (occurrence - 1) * 7);
+}
 
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  return { isLocked: false, label: `${h}h ${m}m` };
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function addDays(date: Date, days: number) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function getTournamentStartDate(tournamentId: TournamentId, year: number) {
+  switch (tournamentId) {
+    case 'players':
+      return nthWeekdayOfMonth(year, 2, 4, 2);
+    case 'masters':
+      return nthWeekdayOfMonth(year, 3, 4, 2);
+    case 'pga':
+      return nthWeekdayOfMonth(year, 4, 4, 2);
+    case 'us-open':
+      return nthWeekdayOfMonth(year, 5, 4, 3);
+    case 'open':
+      return nthWeekdayOfMonth(year, 6, 4, 3);
+  }
+}
+
+function getTournamentCardStatus(tournamentId: TournamentId, now = new Date()) {
+  const startDate = getTournamentStartDate(tournamentId, now.getFullYear());
+  const activeAt = addDays(startOfDay(startDate), -3);
+  const lockAt = addDays(activeAt, 7);
+  const isActive = now >= activeAt && now < lockAt;
+
+  return {
+    isActive,
+    label: isActive ? 'Active' : 'Locked',
+    color: isActive ? '#15803d' : '#be123c',
+  };
+}
+
+function isLineupLocked(lockAt: string) {
+  return new Date(lockAt).getTime() <= Date.now();
 }
 
 function formatRefresh(value: string | null) {
@@ -424,8 +460,7 @@ export default function Page() {
 
   useEffect(() => {
     const tick = () => {
-      const countdown = getCountdown(tournament.lockAt);
-      setAutoLocked(countdown.isLocked);
+      setAutoLocked(isLineupLocked(tournament.lockAt));
     };
 
     tick();
@@ -1043,7 +1078,7 @@ export default function Page() {
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {TOURNAMENTS.map((item) => {
               const active = item.id === selectedTournament;
-              const countdown = getCountdown(item.lockAt);
+              const status = getTournamentCardStatus(item.id);
               return (
                 <button
                   key={item.id}
@@ -1069,14 +1104,14 @@ export default function Page() {
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: 6,
-                          color: countdown.isLocked ? '#be123c' : '#234d80',
+                          color: status.color,
                           fontWeight: 800,
                           fontSize: 12,
                           textTransform: 'uppercase',
                         }}
                       >
-                        <Clock3 size={14} />
-                        {countdown.isLocked ? 'Locked' : `Locks in ${countdown.label}`}
+                        {status.isActive ? <CheckCircle2 size={14} /> : <Lock size={14} />}
+                        {status.label}
                       </div>
                     </div>
                     {TOURNAMENT_CARD_LOGOS[item.id] ? (
