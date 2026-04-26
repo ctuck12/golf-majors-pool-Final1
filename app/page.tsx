@@ -9,7 +9,6 @@ import {
   LogIn,
   RefreshCw,
   Save,
-  Shield,
   Trophy,
   UserPlus,
   Users,
@@ -784,62 +783,21 @@ export default function Page() {
             background: 'linear-gradient(135deg, #0b3d2e 0%, #092233 100%)',
             color: '#fff',
             borderRadius: 28,
-            padding: '28px 28px 24px',
+            padding: '24px 28px',
             boxShadow: '0 24px 64px rgba(9, 34, 51, 0.18)',
           }}
         >
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, justifyContent: 'space-between' }}>
-            <div style={{ flex: '1 1 640px' }}>
-              <img
-                src="/golf-majors-pool-logo.svg"
-                alt="Golf Majors Pool"
-                style={{
-                  display: 'block',
-                  width: 'min(100%, 760px)',
-                  height: 'auto',
-                  marginBottom: 14,
-                }}
-              />
-              <h1 style={{ margin: '8px 0 6px', fontSize: 36, lineHeight: 1.05 }}>
-                Live tournament scoring and real pool accounts
-              </h1>
-              <p style={{ margin: 0, maxWidth: 720, color: 'rgba(255,255,255,0.78)', lineHeight: 1.55 }}>
-                This board pulls leaderboard data from ESPN, recalculates the standings, and now lets players create
-                accounts, join the pool, and save tournament rosters to their own login.
-              </p>
-            </div>
-            <div
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <img
+              src="/golf-majors-pool-logo.png"
+              alt="Golf Majors Pool"
               style={{
-                minWidth: 280,
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 18,
-                padding: 16,
+                display: 'block',
+                width: 'min(100%, 760px)',
+                height: 'auto',
+                objectFit: 'contain',
               }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, marginBottom: 10 }}>
-                <Shield size={16} />
-                Feed health
-              </div>
-              <div style={{ display: 'grid', gap: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-                  <span style={{ opacity: 0.72 }}>Source</span>
-                  <span>{feed?.source ?? 'ESPN leaderboard'}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-                  <span style={{ opacity: 0.72 }}>Status</span>
-                  <span>{feed?.status ?? (isLoading ? 'Refreshing...' : 'Unavailable')}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-                  <span style={{ opacity: 0.72 }}>Last sync</span>
-                  <span>{formatRefresh(feed?.fetchedAt ?? null)}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-                  <span style={{ opacity: 0.72 }}>Odds</span>
-                  <span>{feed?.oddsSource ?? 'Fallback board'}</span>
-                </div>
-              </div>
-            </div>
+            />
           </div>
         </header>
 
