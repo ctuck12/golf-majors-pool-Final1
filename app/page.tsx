@@ -1591,51 +1591,62 @@ export default function Page() {
                 </div>
               </div>
               <div style={{ margin: '24px 0 18px', borderTop: '1px solid #d7dee6' }} />
-              <div style={{ fontSize: 16, fontWeight: 500, color: '#0f1720' }}>Points are awarded as follows:</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 18, fontWeight: 800, color: '#0f1720' }}>
+                <span style={{ fontSize: 28 }}>{'📊'}</span>
+                <span>Points are awarded as follows:</span>
+              </div>
               <div
                 style={{
                   marginTop: 18,
                   display: 'grid',
                   gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                  gap: 28,
+                  gap: 36,
                   color: '#0f1720',
                   fontSize: 15,
                   lineHeight: 1.35,
                 }}
               >
-                <div style={{ display: 'grid', gap: 2 }}>
-                  <div><strong>Triple+:</strong> -5 pts</div>
-                  <div><strong>Double:</strong> -3 pts</div>
-                  <div><strong>Bogey:</strong> -1 pts</div>
-                  <div><strong>Par:</strong> .5 pts</div>
-                  <div><strong>Birdie:</strong> 3 pts</div>
-                  <div><strong>Eagle:</strong> 8 pts</div>
-                  <div><strong>Albatross:</strong> 13 pts</div>
-                  <div><strong>Ace:</strong> 10 pts</div>
-                  <div><strong>3 Birdie Streak:</strong> 4 pts</div>
-                  <div><strong>Bogey Free Rnd:</strong> 6 pts</div>
-                  <div><strong>Tourney Low Rnd:</strong> 5 pts</div>
-                  <div><strong>1<sup>st</sup> Rnd Leader:</strong> 5 pts</div>
-                  <div><strong>2<sup>nd</sup> Rnd Leader:</strong> 5 pts</div>
-                  <div><strong>3<sup>rd</sup> Rnd Leader:</strong> 5 pts</div>
+                <div style={{ display: 'grid', gap: 8 }}>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>Triple+:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-5 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>Double:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-3 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>Bogey:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-1 pts</span></div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #a3a3a3', width: '72%' }} />
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>Par:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>.5 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>Birdie:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>3 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>Eagle:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>8 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>Albatross:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>13 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>Ace:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #a3a3a3', width: '72%' }} />
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>3 Birdie Streak:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>4 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>Bogey Free Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>Tourney Low Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #a3a3a3', width: '96%' }} />
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>1<sup>st</sup> Rnd Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>2<sup>nd</sup> Rnd Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>3<sup>rd</sup> Rnd Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
                 </div>
-                <div style={{ display: 'grid', gap: 2 }}>
-                  <div><strong>1st Place:</strong> 40 pts</div>
-                  <div><strong>2nd Place:</strong> 25 pts</div>
-                  <div><strong>3rd Place:</strong> 20 pts</div>
-                  <div><strong>4th Place:</strong> 18 pts</div>
-                  <div><strong>5th Place:</strong> 16 pts</div>
-                  <div><strong>6th Place:</strong> 14 pts</div>
-                  <div><strong>7th Place:</strong> 12 pts</div>
-                  <div><strong>8th Place:</strong> 10 pts</div>
-                  <div><strong>9th Place:</strong> 9 pts</div>
-                  <div><strong>10th Place:</strong> 8 pts</div>
-                  <div><strong>11-15th Place:</strong> 7 pts</div>
-                  <div><strong>16-20th Place:</strong> 6 pts</div>
-                  <div><strong>21-25th Place:</strong> 5 pts</div>
-                  <div><strong>26-30th Place:</strong> 3 pts</div>
-                  <div><strong>31-40th Place:</strong> 1 pts</div>
-                  <div><strong>Cut Players:</strong> -10 pts</div>
+                <div style={{ display: 'grid', gap: 8 }}>
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    <div style={{ fontSize: 18, fontWeight: 800 }}><span style={{ marginRight: 10 }}>{'🥇'}</span><strong>1st Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>40 pts</span></div>
+                    <div style={{ fontSize: 18, fontWeight: 800 }}><span style={{ marginRight: 10 }}>{'🥈'}</span><strong>2nd Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>25 pts</span></div>
+                    <div style={{ fontSize: 18, fontWeight: 800 }}><span style={{ marginRight: 10 }}>{'🥉'}</span><strong>3rd Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>20 pts</span></div>
+                  </div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #a3a3a3', width: '88%' }} />
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>4th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>18 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>5th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>16 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>6th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>14 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>7th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>12 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>8th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>9th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>9 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>10th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>8 pts</span></div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #a3a3a3', width: '88%' }} />
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>11-15th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>7 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>16-20th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>21-25th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>26-30th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>3 pts</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>31-40th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>1 pts</span></div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #a3a3a3', width: '88%' }} />
+                  <div style={{ fontSize: 18, fontWeight: 800 }}><strong>Cut Players:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-10 pts</span></div>
                 </div>
               </div>
             </section>
