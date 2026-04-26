@@ -26,7 +26,7 @@ const DEFAULT_JOIN_CODE = 'MAJORS2026';
 const TOURNAMENTS = [
   {
     id: 'players',
-    name: 'THE PLAYERS Championship',
+    name: 'The Players',
     venue: 'TPC Sawgrass',
     lockAt: '2026-03-12T07:40:00',
   },
@@ -38,7 +38,7 @@ const TOURNAMENTS = [
   },
   {
     id: 'pga',
-    name: 'PGA Championship',
+    name: 'PGA',
     venue: 'Aronimink',
     lockAt: '2026-05-14T07:20:00',
   },
@@ -50,7 +50,7 @@ const TOURNAMENTS = [
   },
   {
     id: 'open',
-    name: 'The Open Championship',
+    name: 'The Open',
     venue: 'Royal Birkdale',
     lockAt: '2026-07-16T06:35:00',
   },
@@ -774,13 +774,13 @@ export default function Page() {
       style={{
         minHeight: '100vh',
         background:
-          'radial-gradient(circle at top left, rgba(0, 135, 91, 0.18), transparent 28%), linear-gradient(180deg, #f7fbf9 0%, #eef3f7 100%)',
+          'radial-gradient(circle at top left, rgba(72, 126, 196, 0.18), transparent 28%), linear-gradient(180deg, #f7fbff 0%, #edf3fb 100%)',
       }}
     >
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 20px 40px' }}>
         <header
           style={{
-            background: 'linear-gradient(135deg, #0b3d2e 0%, #092233 100%)',
+            background: 'linear-gradient(135deg, #1f456d 0%, #17324f 100%)',
             color: '#fff',
             borderRadius: 28,
             padding: '18px 28px',
@@ -821,7 +821,7 @@ export default function Page() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                  <LogIn size={18} color="#0b7a53" />
+                  <LogIn size={18} color="#2f5f96" />
                   <div style={{ fontSize: 20, fontWeight: 900 }}>Sign in</div>
                 </div>
                 <div style={{ display: 'grid', gap: 12 }}>
@@ -844,7 +844,7 @@ export default function Page() {
                       border: 'none',
                       borderRadius: 16,
                       padding: '14px 16px',
-                      background: 'linear-gradient(135deg, #0b7a53 0%, #0c5f85 100%)',
+                      background: 'linear-gradient(135deg, #3b6ea5 0%, #2d5e94 100%)',
                       color: '#fff',
                       fontSize: 15,
                       fontWeight: 900,
@@ -866,7 +866,7 @@ export default function Page() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                  <UserPlus size={18} color="#0b7a53" />
+                  <UserPlus size={18} color="#2f5f96" />
                   <div style={{ fontSize: 20, fontWeight: 900 }}>Create account</div>
                 </div>
                 <div style={{ display: 'grid', gap: 12 }}>
@@ -948,15 +948,15 @@ export default function Page() {
                       style={{ ...fieldStyle(), minWidth: 220 }}
                     />
                     <button
-                      onClick={handleJoinPool}
-                      style={{
-                        border: 'none',
-                        borderRadius: 16,
-                        padding: '14px 16px',
-                        background: '#0b7a53',
-                        color: '#fff',
-                        fontWeight: 900,
-                        cursor: authBusy ? 'wait' : 'pointer',
+                    onClick={handleJoinPool}
+                    style={{
+                      border: 'none',
+                      borderRadius: 16,
+                      padding: '14px 16px',
+                      background: '#2d5e94',
+                      color: '#fff',
+                      fontWeight: 900,
+                      cursor: authBusy ? 'wait' : 'pointer',
                       }}
                       disabled={authBusy}
                     >
@@ -1011,9 +1011,9 @@ export default function Page() {
               alignItems: 'center',
               gap: 10,
               borderRadius: 16,
-              background: '#eefbf5',
-              color: '#0b7a53',
-              border: '1px solid #b8e7d2',
+              background: '#eef5ff',
+              color: '#2d5e94',
+              border: '1px solid #c7d8ee',
               padding: '14px 16px',
             }}
           >
@@ -1041,14 +1041,14 @@ export default function Page() {
                   key={item.id}
                   onClick={() => setSelectedTournament(item.id)}
                   style={{
-                    border: active ? '2px solid #0b7a53' : '1px solid #d7e0e8',
-                    background: active ? '#f2fbf7' : '#fff',
+                    border: active ? '2px solid #3a6293' : '1px solid #d7e0e8',
+                    background: active ? '#eef4fc' : '#fff',
                     borderRadius: 18,
                     padding: '14px 16px',
                     minWidth: 190,
                     textAlign: 'left',
                     cursor: 'pointer',
-                    boxShadow: active ? '0 14px 34px rgba(11, 122, 83, 0.12)' : '0 10px 22px rgba(9, 34, 51, 0.05)',
+                    boxShadow: active ? '0 14px 34px rgba(58, 98, 147, 0.16)' : '0 10px 22px rgba(9, 34, 51, 0.05)',
                   }}
                 >
                   <div style={{ fontWeight: 800, color: '#0f1720' }}>{item.name}</div>
@@ -1059,7 +1059,7 @@ export default function Page() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 6,
-                      color: countdown.isLocked ? '#be123c' : '#0b7a53',
+                      color: countdown.isLocked ? '#be123c' : '#2d5e94',
                       fontWeight: 800,
                       fontSize: 12,
                       textTransform: 'uppercase',
@@ -1081,15 +1081,15 @@ export default function Page() {
                   key={tab}
                   onClick={() => setMainTab(tab)}
                   style={{
-                    border: active ? '1px solid #0b7a53' : '1px solid #d7e0e8',
-                    background: active ? '#0b7a53' : '#fff',
+                    border: active ? '1px solid #3b6ea5' : '1px solid #d7e0e8',
+                    background: active ? '#3b6ea5' : '#fff',
                     color: active ? '#fff' : '#31424f',
                     borderRadius: 999,
                     padding: '10px 16px',
                     fontSize: 14,
                     fontWeight: 800,
                     cursor: 'pointer',
-                    boxShadow: active ? '0 10px 20px rgba(11, 122, 83, 0.18)' : 'none',
+                    boxShadow: active ? '0 10px 20px rgba(59, 110, 165, 0.18)' : 'none',
                   }}
                 >
                   {tab}
