@@ -71,6 +71,10 @@ const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
   open: '/open-tab-logo.png',
 };
 
+const TOURNAMENT_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
+  pga: 46,
+};
+
 const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; height: number }>> = {
   players: { width: 78, height: 78 },
   pga: { width: 76, height: 76 },
@@ -1237,7 +1241,7 @@ export default function Page() {
                         style={{
                           maxWidth: '100%',
                           width: '100%',
-                          height: 40,
+                          height: TOURNAMENT_TAB_LOGO_HEIGHTS[item.id] ?? 40,
                           objectFit: 'contain',
                           display: 'block',
                         }}
