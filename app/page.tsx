@@ -70,8 +70,8 @@ const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; 
   open: { width: 92, height: 92 },
 };
 
-const TOURNAMENT_CARD_WIDTH = 252;
-const TOURNAMENT_CARD_HEIGHT = 132;
+const TOURNAMENT_CARD_WIDTH = 210;
+const TOURNAMENT_CARD_HEIGHT = 66;
 
 const PLAYER_POOL = [
   { id: 1, name: 'Scottie Scheffler', defaultOdds: '+450', worldRank: 1 },
@@ -1170,7 +1170,7 @@ export default function Page() {
             marginTop: 24,
             display: 'flex',
             flexWrap: 'wrap',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'space-between',
             gap: 16,
             overflowX: 'hidden',
@@ -1184,77 +1184,45 @@ export default function Page() {
               overflowX: 'auto',
               overflowY: 'hidden',
               width: '100%',
-              paddingBottom: 6,
+              paddingBottom: 2,
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'thin',
               overscrollBehaviorX: 'contain',
               overscrollBehaviorY: 'none',
               touchAction: 'pan-x',
+              borderBottom: '1px solid #d7e0e8',
             }}
           >
             {TOURNAMENTS.map((item) => {
               const active = item.id === selectedTournament;
-              const status = tournamentCardStatuses[item.id] ?? null;
               return (
                 <button
                   key={item.id}
                   onClick={() => setSelectedTournament(item.id)}
                   style={{
-                    border: active ? '2px solid #315f95' : '1px solid #d7e0e8',
-                    background: active ? '#edf4ff' : '#fff',
-                    borderRadius: 18,
-                    padding: '12px 14px',
+                    border: active ? '1px solid #d7e0e8' : '1px solid transparent',
+                    borderBottom: active ? '1px solid #fff' : '1px solid transparent',
+                    background: active ? '#fff' : 'transparent',
+                    color: active ? '#1f2f42' : '#46bfd1',
+                    borderRadius: '14px 14px 0 0',
+                    padding: '14px 20px 12px',
                     width: TOURNAMENT_CARD_WIDTH,
                     height: TOURNAMENT_CARD_HEIGHT,
                     boxSizing: 'border-box',
                     flex: '0 0 auto',
-                    textAlign: 'left',
+                    textAlign: 'center',
                     cursor: 'pointer',
-                    boxShadow: active ? '0 14px 34px rgba(49, 95, 149, 0.18)' : '0 10px 22px rgba(9, 34, 51, 0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 17,
+                    fontWeight: active ? 500 : 400,
+                    lineHeight: 1.1,
+                    boxShadow: 'none',
+                    marginBottom: -1,
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontWeight: 800, fontSize: 18, color: '#0f1720' }}>{item.name}</div>
-                      <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 11 }}>{item.venue}</div>
-                      {status ? (
-                        <div
-                          style={{
-                            marginTop: 7,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 4,
-                            color: status.color,
-                            fontWeight: 800,
-                            fontSize: 9,
-                            lineHeight: 1,
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          {status.icon === 'check' ? <CheckCircle2 size={10} /> : null}
-                          {status.icon === 'lock' ? <Lock size={10} /> : null}
-                          {status.icon === 'trophy' ? <Trophy size={10} /> : null}
-                          {status.label}
-                        </div>
-                      ) : null}
-                    </div>
-                    {TOURNAMENT_CARD_LOGOS[item.id] ? (
-                      <img
-                        src={TOURNAMENT_CARD_LOGOS[item.id]}
-                        alt={`${item.name} logo`}
-                        style={{
-                          width: TOURNAMENT_CARD_LOGO_SIZES[item.id]?.width ?? 56,
-                          height: TOURNAMENT_CARD_LOGO_SIZES[item.id]?.height ?? 56,
-                          objectFit: 'contain',
-                          borderRadius: 0,
-                          flexShrink: 0,
-                          marginTop: 2,
-                          display: 'block',
-                          background: 'transparent',
-                        }}
-                      />
-                    ) : null}
-                  </div>
+                  <span>{item.name}</span>
                 </button>
               );
             })}
