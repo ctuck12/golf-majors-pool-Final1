@@ -67,6 +67,7 @@ const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; 
   players: { width: 78, height: 78 },
   pga: { width: 76, height: 76 },
   'us-open': { width: 76, height: 76 },
+  open: { width: 76, height: 76 },
 };
 
 const PLAYER_POOL = [
