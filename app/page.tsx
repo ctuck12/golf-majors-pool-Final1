@@ -68,6 +68,7 @@ const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
   masters: '/masters-tab-logo.png',
   pga: '/pga-tab-logo.png',
   'us-open': '/us-open-tab-logo.png',
+  open: '/open-tab-logo.png',
 };
 
 const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; height: number }>> = {
