@@ -56,7 +56,7 @@ const TOURNAMENTS = [
 ] as const;
 
 const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
-  players: '/the-players-championship-logo.jpg',
+  players: '/the-players-championship-logo.png',
   masters: '/the-masters-logo.png',
   pga: '/pga-of-america-logo.png',
   'us-open': '/us-open-logo.png',
@@ -70,8 +70,8 @@ const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; 
   open: { width: 92, height: 92 },
 };
 
-const TOURNAMENT_CARD_WIDTH = 290;
-const TOURNAMENT_CARD_HEIGHT = 150;
+const TOURNAMENT_CARD_WIDTH = 252;
+const TOURNAMENT_CARD_HEIGHT = 132;
 
 const PLAYER_POOL = [
   { id: 1, name: 'Scottie Scheffler', defaultOdds: '+450', worldRank: 1 },
@@ -1173,6 +1173,7 @@ export default function Page() {
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: 16,
+            overflowX: 'hidden',
           }}
         >
           <div
@@ -1186,6 +1187,9 @@ export default function Page() {
               paddingBottom: 6,
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'thin',
+              overscrollBehaviorX: 'contain',
+              overscrollBehaviorY: 'none',
+              touchAction: 'pan-x',
             }}
           >
             {TOURNAMENTS.map((item) => {
@@ -1199,7 +1203,7 @@ export default function Page() {
                     border: active ? '2px solid #315f95' : '1px solid #d7e0e8',
                     background: active ? '#edf4ff' : '#fff',
                     borderRadius: 18,
-                    padding: '14px 16px',
+                    padding: '12px 14px',
                     width: TOURNAMENT_CARD_WIDTH,
                     height: TOURNAMENT_CARD_HEIGHT,
                     boxSizing: 'border-box',
@@ -1211,18 +1215,18 @@ export default function Page() {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontWeight: 800, color: '#0f1720' }}>{item.name}</div>
-                      <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>{item.venue}</div>
+                      <div style={{ fontWeight: 800, fontSize: 18, color: '#0f1720' }}>{item.name}</div>
+                      <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 11 }}>{item.venue}</div>
                       {status ? (
                         <div
                           style={{
-                            marginTop: 10,
+                            marginTop: 8,
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: 6,
                             color: status.color,
                             fontWeight: 800,
-                            fontSize: 12,
+                            fontSize: 11,
                             textTransform: 'uppercase',
                           }}
                         >
@@ -1241,9 +1245,11 @@ export default function Page() {
                           width: TOURNAMENT_CARD_LOGO_SIZES[item.id]?.width ?? 56,
                           height: TOURNAMENT_CARD_LOGO_SIZES[item.id]?.height ?? 56,
                           objectFit: 'contain',
-                          borderRadius: 8,
+                          borderRadius: 0,
                           flexShrink: 0,
                           marginTop: 2,
+                          display: 'block',
+                          background: 'transparent',
                         }}
                       />
                     ) : null}
