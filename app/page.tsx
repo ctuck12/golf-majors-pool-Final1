@@ -84,6 +84,7 @@ const TOURNAMENT_PARS: Partial<Record<TournamentId, number>> = {
   masters: 72,
   pga: 70,
   'us-open': 70,
+  open: 70,
 };
 
 const TOURNAMENT_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
@@ -1391,6 +1392,25 @@ export default function Page() {
                       >
                         <span style={{ fontSize: 18, fontWeight: 500 }}>Shinnecock Hills Golf Club</span>
                         <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS['us-open']}</span>
+                      </div>
+                    </>
+                  ) : selectedTournament === 'open' ? (
+                    <>
+                      <h2 style={{ margin: 0, fontSize: 30, fontWeight: 800, color: '#0f1720' }}>
+                        The Open Championship
+                      </h2>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          gap: 10,
+                          marginTop: 8,
+                          color: '#5b6b79',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        <span style={{ fontSize: 18, fontWeight: 500 }}>Royal Birkdale Golf Club</span>
+                        <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.open}</span>
                       </div>
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
