@@ -472,6 +472,7 @@ export default function Page() {
   const [selectedTournament, setSelectedTournament] = useState<TournamentId>(initialTournament);
   const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTERS[initialTournament]);
   const [activeStandingEntryId, setActiveStandingEntryId] = useState<string | null>(null);
+  const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
   const [feed, setFeed] = useState<FeedResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -765,7 +766,9 @@ export default function Page() {
     .map((entry, index) => ({ ...entry, place: index + 1 }));
 
   const activeStandingEntry = standings.find((entry) => entry.id === activeStandingEntryId) ?? null;
+  const pickedGolferIds = new Set(standings.flatMap((entry) => entry.golfers.map((golfer) => golfer.id)));
   const eventLeaderboardRows = [...players]
+    .filter((player) => pickedGolferIds.has(player.id))
     .sort((left, right) => {
       const leftPos = Number(left.position.replace('T', ''));
       const rightPos = Number(right.position.replace('T', ''));
@@ -1333,7 +1336,16 @@ export default function Page() {
                     </thead>
                     <tbody>
                       {standings.map((entry) => (
-                        <tr key={entry.id} style={{ borderTop: '1px solid #e7edf2' }}>
+                        <tr
+                          key={entry.id}
+                          style={{
+                            borderTop: '1px solid #e7edf2',
+                            background:
+                              selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
+                                ? '#eef4ff'
+                                : 'transparent',
+                          }}
+                        >
                           <td style={{ padding: '16px 18px 16px 0', fontSize: 16 }}>{entry.place}</td>
                           <td style={{ padding: '16px 18px 16px 0' }}>
                             <button
@@ -1350,6 +1362,11 @@ export default function Page() {
                             >
                               {entry.name}
                             </button>
+                            {selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId) ? (
+                              <div style={{ marginTop: 6, fontSize: 12, fontWeight: 800, color: '#2f5f96', textTransform: 'uppercase' }}>
+                                Picked selected golfer
+                              </div>
+                            ) : null}
                           </td>
                           <td style={{ padding: '16px 18px 16px 0', textAlign: 'center', fontSize: 18 }}>
                             {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
@@ -1456,15 +1473,24 @@ export default function Page() {
                             (sum, entry) => sum + entry.golfers.filter((golfer) => golfer.id === player.id).length,
                             0,
                           );
+                          const activePlayer = selectedLeaderboardPlayerId === player.id;
 
                           return (
-                            <tr key={player.id} style={{ borderTop: '1px solid #e7edf2' }}>
+                            <tr
+                              key={player.id}
+                              onClick={() => setSelectedLeaderboardPlayerId(activePlayer ? null : player.id)}
+                              style={{
+                                borderTop: '1px solid #e7edf2',
+                                background: activePlayer ? '#eef4ff' : 'transparent',
+                                cursor: 'pointer',
+                              }}
+                            >
                               <td style={{ padding: '8px', border: '1px solid #e7edf2' }}>{player.position}</td>
-                              <td style={{ padding: '8px', border: '1px solid #e7edf2' }}>{player.name}</td>
+                              <td style={{ padding: '8px', border: '1px solid #e7edf2', fontWeight: activePlayer ? 800 : 400 }}>{player.name}</td>
                               <td style={{ padding: '8px', border: '1px solid #e7edf2' }}>{player.score}</td>
                               <td style={{ padding: '8px', border: '1px solid #e7edf2' }}>{player.thru}</td>
                               <td style={{ padding: '8px', border: '1px solid #e7edf2', textAlign: 'center' }}>
-                                {timesPicked === 0 ? '-' : timesPicked}
+                                {timesPicked}
                               </td>
                             </tr>
                           );
