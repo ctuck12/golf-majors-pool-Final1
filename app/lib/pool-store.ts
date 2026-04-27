@@ -1,5 +1,6 @@
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 
 export const SESSION_COOKIE_NAME = 'golf-pool-session';
@@ -62,7 +63,10 @@ export type PublicPool = {
 };
 
 const DATA_DIR = path.join(process.cwd(), 'data');
-const DATA_FILE = path.join(DATA_DIR, 'pool-data.json');
+const DATA_ROOT =
+  process.env.POOL_DATA_DIR ??
+  (process.env.VERCEL ? path.join(os.tmpdir(), 'golf-majors-pool-data') : DATA_DIR);
+const DATA_FILE = path.join(DATA_ROOT, 'pool-data.json');
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
 function nowIso() {
@@ -118,7 +122,7 @@ function toPublicUser(user: StoredUser): PublicUser {
 }
 
 async function ensureDataFile() {
-  await mkdir(DATA_DIR, { recursive: true });
+  await mkdir(DATA_ROOT, { recursive: true });
 
   try {
     await readFile(DATA_FILE, 'utf8');
@@ -209,15 +213,20 @@ export async function registerUser(input: {
     createdAt: nowIso(),
   };
 
-  if (joinCode) {
-    const pool = database.pools.find((item) => item.joinCode === joinCode);
+  const poolToJoin = joinCode
+    ? database.pools.find((item) => item.joinCode === joinCode)
+    : database.pools.find((item) => item.id === DEFAULT_POOL_ID);
 
-    if (!pool) {
-      throw new Error('That pool join code was not recognized.');
-    }
+  if (!poolToJoin) {
+    throw new Error(joinCode ? 'That pool join code was not recognized.' : 'Default pool was not found.');
+  }
 
-    pool.memberUserIds.push(user.id);
-    user.poolIds.push(pool.id);
+  if (!poolToJoin.memberUserIds.includes(user.id)) {
+    poolToJoin.memberUserIds.push(user.id);
+  }
+
+  if (!user.poolIds.includes(poolToJoin.id)) {
+    user.poolIds.push(poolToJoin.id);
   }
 
   database.users.push(user);
@@ -361,4 +370,120 @@ export async function saveRosterForUser(userId: string, tournamentId: Tournament
   await writeDatabase(database);
 
   return user.rosters[tournamentId] ?? [];
+}
+
+export async function listPoolMembers(userId: string) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.id === userId);
+
+  if (!user) {
+    throw new Error('User account was not found.');
+  }
+
+  const activePool = database.pools.find((pool) => user.poolIds.includes(pool.id)) ??
+    database.pools.find((pool) => pool.id === DEFAULT_POOL_ID);
+
+  if (!activePool) {
+    return [];
+  }
+
+  return database.users
+    .filter((item) => activePool.memberUserIds.includes(item.id))
+    .map((item) => toPublicUser(item));
+}
+
+export async function updatePoolMember(
+  requestingUserId: string,
+  memberId: string,
+  updates: {
+    displayName?: string;
+    email?: string;
+    password?: string;
+    rosters?: Partial<Record<TournamentId, unknown>>;
+  },
+) {
+  const database = await readDatabase();
+  const requestingUser = database.users.find((item) => item.id === requestingUserId);
+
+  if (!requestingUser) {
+    throw new Error('User account was not found.');
+  }
+
+  const activePool = database.pools.find((pool) => requestingUser.poolIds.includes(pool.id)) ??
+    database.pools.find((pool) => pool.id === DEFAULT_POOL_ID);
+
+  if (!activePool || !activePool.memberUserIds.includes(memberId)) {
+    throw new Error('Pool member was not found.');
+  }
+
+  const member = database.users.find((item) => item.id === memberId);
+
+  if (!member) {
+    throw new Error('Pool member was not found.');
+  }
+
+  if (typeof updates.displayName === 'string') {
+    const displayName = updates.displayName.trim();
+    if (displayName.length < 2) {
+      throw new Error('Display name must be at least 2 characters.');
+    }
+    member.displayName = displayName;
+  }
+
+  if (typeof updates.email === 'string') {
+    const email = normalizeEmail(updates.email);
+    if (!email.includes('@')) {
+      throw new Error('Enter a valid email address.');
+    }
+    const existing = database.users.find((item) => item.email === email && item.id !== member.id);
+    if (existing) {
+      throw new Error('An account with that email already exists.');
+    }
+    member.email = email;
+  }
+
+  if (typeof updates.password === 'string' && updates.password.trim().length > 0) {
+    if (updates.password.length < 8) {
+      throw new Error('Password must be at least 8 characters.');
+    }
+    const passwordSalt = randomBytes(16).toString('hex');
+    member.passwordSalt = passwordSalt;
+    member.passwordHash = hashPassword(updates.password, passwordSalt);
+  }
+
+  if (updates.rosters) {
+    for (const tournamentId of TOURNAMENT_IDS) {
+      if (Object.prototype.hasOwnProperty.call(updates.rosters, tournamentId)) {
+        member.rosters[tournamentId] = sanitizeRoster(updates.rosters[tournamentId]);
+      }
+    }
+  }
+
+  await writeDatabase(database);
+  return toPublicUser(member);
+}
+
+export async function deletePoolMember(requestingUserId: string, memberId: string) {
+  const database = await readDatabase();
+  const requestingUser = database.users.find((item) => item.id === requestingUserId);
+
+  if (!requestingUser) {
+    throw new Error('User account was not found.');
+  }
+
+  const activePool = database.pools.find((pool) => requestingUser.poolIds.includes(pool.id)) ??
+    database.pools.find((pool) => pool.id === DEFAULT_POOL_ID);
+
+  if (!activePool || !activePool.memberUserIds.includes(memberId)) {
+    throw new Error('Pool member was not found.');
+  }
+
+  database.users = database.users.filter((item) => item.id !== memberId);
+  database.sessions = database.sessions.filter((item) => item.userId !== memberId);
+
+  for (const pool of database.pools) {
+    pool.memberUserIds = pool.memberUserIds.filter((id) => id !== memberId);
+  }
+
+  await writeDatabase(database);
 }

@@ -170,6 +170,8 @@ type PoolEntry = {
   rosters: Partial<Record<TournamentId, number[]>>;
 };
 
+type CommissionerMember = AuthUser;
+
 type StandingGolfer = ReturnType<typeof buildPricedPlayers>[number] & {
   position: string;
   thru: string;
@@ -268,6 +270,17 @@ function normalizeName(value: string) {
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
+}
+
+function formatRosterField(roster: number[] | undefined) {
+  return (roster ?? []).join(', ');
+}
+
+function parseRosterField(value: string) {
+  return value
+    .split(',')
+    .map((item) => Number(item.trim()))
+    .filter((item) => Number.isInteger(item) && item > 0);
 }
 
 function readRoster(tournamentId: TournamentId) {
@@ -520,9 +533,25 @@ export default function Page() {
     displayName: '',
     email: '',
     password: '',
-    joinCode: '',
   });
   const [joinCode, setJoinCode] = useState(DEFAULT_JOIN_CODE);
+  const [commissionerMembers, setCommissionerMembers] = useState<CommissionerMember[]>([]);
+  const [commissionerBusy, setCommissionerBusy] = useState(false);
+  const [commissionerError, setCommissionerError] = useState('');
+  const [commissionerSuccess, setCommissionerSuccess] = useState('');
+  const [selectedCommissionerMemberId, setSelectedCommissionerMemberId] = useState<string | null>(null);
+  const [memberEditForm, setMemberEditForm] = useState({
+    displayName: '',
+    email: '',
+    password: '',
+    rosters: {
+      players: '',
+      masters: '',
+      pga: '',
+      'us-open': '',
+      open: '',
+    } as Record<TournamentId, string>,
+  });
 
   const tournament = TOURNAMENTS.find((item) => item.id === selectedTournament) ?? TOURNAMENTS[0];
 
@@ -604,6 +633,56 @@ export default function Page() {
     };
   }, [selectedTournament]);
 
+  useEffect(() => {
+    const loadCommissionerMembers = async () => {
+      if (!sessionUser || mainTab !== 'Commissioner console') {
+        return;
+      }
+
+      setCommissionerBusy(true);
+      setCommissionerError('');
+
+      try {
+        const payload = await readJson<{ members: CommissionerMember[] }>('/api/commissioner/members', {
+          cache: 'no-store',
+        });
+        setCommissionerMembers(payload.members);
+      } catch (err) {
+        setCommissionerError(err instanceof Error ? err.message : 'Unable to load pool members.');
+      } finally {
+        setCommissionerBusy(false);
+      }
+    };
+
+    void loadCommissionerMembers();
+  }, [mainTab, sessionUser]);
+
+  useEffect(() => {
+    if (!selectedCommissionerMemberId) {
+      return;
+    }
+
+    const member = commissionerMembers.find((item) => item.id === selectedCommissionerMemberId);
+
+    if (!member) {
+      setSelectedCommissionerMemberId(null);
+      return;
+    }
+
+    setMemberEditForm({
+      displayName: member.displayName,
+      email: member.email,
+      password: '',
+      rosters: {
+        players: formatRosterField(member.rosters.players),
+        masters: formatRosterField(member.rosters.masters),
+        pga: formatRosterField(member.rosters.pga),
+        'us-open': formatRosterField(member.rosters['us-open']),
+        open: formatRosterField(member.rosters.open),
+      },
+    });
+  }, [selectedCommissionerMemberId, commissionerMembers]);
+
   const applySession = (payload: SessionPayload, successMessage?: string) => {
     setSessionUser(payload.user);
     setPool(payload.pool);
@@ -625,7 +704,7 @@ export default function Page() {
       });
 
       applySession(payload, 'Account created and signed in.');
-      setRegisterForm({ displayName: '', email: '', password: '', joinCode: '' });
+      setRegisterForm({ displayName: '', email: '', password: '' });
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Unable to create account.');
     } finally {
@@ -684,12 +763,97 @@ export default function Page() {
       setSessionUser(null);
       setPool(null);
       setPoolEntries([]);
+      setCommissionerMembers([]);
+      setSelectedCommissionerMemberId(null);
       setSaveMessage('');
       setAuthSuccess('Signed out.');
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Unable to sign out.');
     } finally {
       setAuthBusy(false);
+    }
+  };
+
+  const handleSelectCommissionerMember = (memberId: string) => {
+    setSelectedCommissionerMemberId(memberId);
+    setCommissionerError('');
+    setCommissionerSuccess('');
+  };
+
+  const handleSaveCommissionerMember = async () => {
+    if (!selectedCommissionerMemberId) {
+      return;
+    }
+
+    setCommissionerBusy(true);
+    setCommissionerError('');
+    setCommissionerSuccess('');
+
+    try {
+      const payload = await readJson<{ member: CommissionerMember }>(
+        `/api/commissioner/members/${selectedCommissionerMemberId}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            displayName: memberEditForm.displayName,
+            email: memberEditForm.email,
+            password: memberEditForm.password,
+            rosters: {
+              players: parseRosterField(memberEditForm.rosters.players),
+              masters: parseRosterField(memberEditForm.rosters.masters),
+              pga: parseRosterField(memberEditForm.rosters.pga),
+              'us-open': parseRosterField(memberEditForm.rosters['us-open']),
+              open: parseRosterField(memberEditForm.rosters.open),
+            },
+          }),
+        },
+      );
+
+      setCommissionerMembers((current) =>
+        current.map((member) => (member.id === payload.member.id ? payload.member : member)),
+      );
+      setPoolEntries((current) =>
+        current.map((entry) =>
+          entry.id === payload.member.id ? { ...entry, name: payload.member.displayName, rosters: payload.member.rosters } : entry,
+        ),
+      );
+      setSessionUser((current) =>
+        current && current.id === payload.member.id ? payload.member : current,
+      );
+      setCommissionerSuccess('Member updated.');
+      setMemberEditForm((current) => ({ ...current, password: '' }));
+    } catch (err) {
+      setCommissionerError(err instanceof Error ? err.message : 'Unable to update member.');
+    } finally {
+      setCommissionerBusy(false);
+    }
+  };
+
+  const handleDeleteCommissionerMember = async () => {
+    if (!selectedCommissionerMemberId) {
+      return;
+    }
+
+    setCommissionerBusy(true);
+    setCommissionerError('');
+    setCommissionerSuccess('');
+
+    try {
+      await readJson<{ ok: boolean }>(`/api/commissioner/members/${selectedCommissionerMemberId}`, {
+        method: 'DELETE',
+      });
+
+      setCommissionerMembers((current) => current.filter((member) => member.id !== selectedCommissionerMemberId));
+      setPoolEntries((current) => current.filter((entry) => entry.id !== selectedCommissionerMemberId));
+      setSessionUser((current) => (current?.id === selectedCommissionerMemberId ? null : current));
+      setPool((current) => (sessionUser?.id === selectedCommissionerMemberId ? null : current));
+      setSelectedCommissionerMemberId(null);
+      setCommissionerSuccess('Member deleted.');
+    } catch (err) {
+      setCommissionerError(err instanceof Error ? err.message : 'Unable to delete member.');
+    } finally {
+      setCommissionerBusy(false);
     }
   };
 
@@ -739,6 +903,8 @@ export default function Page() {
     () => Object.fromEntries(players.map((player) => [player.id, player])),
     [players],
   );
+  const selectedCommissionerMember =
+    commissionerMembers.find((member) => member.id === selectedCommissionerMemberId) ?? null;
 
   const rosterPlayers = selectedRoster.map((id) => playersById[id]).filter(Boolean);
   const orderedRosterPlayers = [...rosterPlayers].sort((left, right) => right.salary - left.salary);
@@ -1065,12 +1231,6 @@ export default function Page() {
                     value={registerForm.password}
                     onChange={(event) => setRegisterForm({ ...registerForm, password: event.target.value })}
                     placeholder="Password"
-                    style={fieldStyle()}
-                  />
-                  <input
-                    value={registerForm.joinCode}
-                    onChange={(event) => setRegisterForm({ ...registerForm, joinCode: event.target.value })}
-                    placeholder="Join code (optional)"
                     style={fieldStyle()}
                   />
                   <button
@@ -2223,6 +2383,225 @@ export default function Page() {
                   <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{poolEntries.length}</div>
                 </div>
               </div>
+            </section>
+
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+              }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                Member management
+              </div>
+              <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
+                Edit pool members and saved lineups
+              </h2>
+
+              {!sessionUser ? (
+                <div
+                  style={{
+                    borderRadius: 18,
+                    background: '#fff8e7',
+                    color: '#9a6700',
+                    border: '1px solid #f0d28a',
+                    padding: '16px 18px',
+                  }}
+                >
+                  Sign in to load and manage pool members.
+                </div>
+              ) : (
+                <>
+                  {commissionerError ? (
+                    <div
+                      style={{
+                        marginBottom: 14,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        borderRadius: 16,
+                        background: '#fff5f5',
+                        color: '#a61b1b',
+                        border: '1px solid #fecaca',
+                        padding: '14px 16px',
+                      }}
+                    >
+                      <AlertCircle size={18} />
+                      <span>{commissionerError}</span>
+                    </div>
+                  ) : null}
+
+                  {commissionerSuccess ? (
+                    <div
+                      style={{
+                        marginBottom: 14,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        borderRadius: 16,
+                        background: '#eef4ff',
+                        color: '#2f5f96',
+                        border: '1px solid #c7d8ee',
+                        padding: '14px 16px',
+                      }}
+                    >
+                      <CheckCircle2 size={18} />
+                      <span>{commissionerSuccess}</span>
+                    </div>
+                  ) : null}
+
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(260px, 0.8fr) minmax(0, 1.4fr)',
+                      gap: 20,
+                    }}
+                  >
+                    <div
+                      style={{
+                        border: '1px solid #e6edf1',
+                        borderRadius: 20,
+                        padding: 14,
+                        background: '#f8fbfd',
+                        display: 'grid',
+                        gap: 10,
+                      }}
+                    >
+                      {commissionerBusy && commissionerMembers.length === 0 ? (
+                        <div style={{ color: '#6b7b88' }}>Loading members...</div>
+                      ) : commissionerMembers.length === 0 ? (
+                        <div style={{ color: '#6b7b88' }}>No pool members found yet.</div>
+                      ) : (
+                        commissionerMembers.map((member) => (
+                          <button
+                            key={member.id}
+                            onClick={() => handleSelectCommissionerMember(member.id)}
+                            style={{
+                              border: member.id === selectedCommissionerMemberId ? '2px solid #3f73ad' : '1px solid #d7e0e8',
+                              borderRadius: 16,
+                              background: member.id === selectedCommissionerMemberId ? '#eef4ff' : '#fff',
+                              padding: 14,
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <div style={{ fontWeight: 800, color: '#0f1720' }}>{member.displayName}</div>
+                            <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>{member.email}</div>
+                            <div style={{ marginTop: 6, color: '#2f5f96', fontSize: 12, fontWeight: 800 }}>
+                              {TOURNAMENTS.filter((event) => (member.rosters[event.id] ?? []).length > 0).length} saved lineup(s)
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+
+                    <div
+                      style={{
+                        border: '1px solid #e6edf1',
+                        borderRadius: 20,
+                        padding: 18,
+                        background: '#fff',
+                      }}
+                    >
+                      {selectedCommissionerMember ? (
+                        <div style={{ display: 'grid', gap: 14 }}>
+                          <div>
+                            <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                              Editing member
+                            </div>
+                            <div style={{ marginTop: 6, fontSize: 24, fontWeight: 900, color: '#0f1720' }}>
+                              {selectedCommissionerMember.displayName}
+                            </div>
+                          </div>
+
+                          <input
+                            value={memberEditForm.displayName}
+                            onChange={(event) => setMemberEditForm({ ...memberEditForm, displayName: event.target.value })}
+                            placeholder="Display name"
+                            style={fieldStyle()}
+                          />
+                          <input
+                            value={memberEditForm.email}
+                            onChange={(event) => setMemberEditForm({ ...memberEditForm, email: event.target.value })}
+                            placeholder="Email"
+                            style={fieldStyle()}
+                          />
+                          <input
+                            type="password"
+                            value={memberEditForm.password}
+                            onChange={(event) => setMemberEditForm({ ...memberEditForm, password: event.target.value })}
+                            placeholder="New password (leave blank to keep current)"
+                            style={fieldStyle()}
+                          />
+
+                          <div style={{ fontSize: 12, color: '#6b7b88' }}>
+                            Edit picks as comma-separated golfer IDs.
+                            {' '}Available golfers:
+                            {' '}
+                            {PLAYER_POOL.map((player) => `${player.id} ${player.name}`).join(' • ')}
+                          </div>
+
+                          {TOURNAMENTS.map((event) => (
+                            <div key={event.id} style={{ display: 'grid', gap: 8 }}>
+                              <div style={{ fontSize: 13, fontWeight: 800, color: '#31424f' }}>{event.name} picks</div>
+                              <input
+                                value={memberEditForm.rosters[event.id]}
+                                onChange={(eventInput) =>
+                                  setMemberEditForm({
+                                    ...memberEditForm,
+                                    rosters: { ...memberEditForm.rosters, [event.id]: eventInput.target.value },
+                                  })
+                                }
+                                placeholder="Example: 1, 2, 5, 8, 10, 14"
+                                style={fieldStyle()}
+                              />
+                            </div>
+                          ))}
+
+                          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                            <button
+                              onClick={handleSaveCommissionerMember}
+                              disabled={commissionerBusy}
+                              style={{
+                                border: 'none',
+                                borderRadius: 16,
+                                padding: '14px 18px',
+                                background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                                color: '#fff',
+                                fontWeight: 900,
+                                cursor: commissionerBusy ? 'wait' : 'pointer',
+                              }}
+                            >
+                              Save member changes
+                            </button>
+                            <button
+                              onClick={handleDeleteCommissionerMember}
+                              disabled={commissionerBusy}
+                              style={{
+                                border: '1px solid #fecaca',
+                                borderRadius: 16,
+                                padding: '14px 18px',
+                                background: '#fff5f5',
+                                color: '#a61b1b',
+                                fontWeight: 900,
+                                cursor: commissionerBusy ? 'wait' : 'pointer',
+                              }}
+                            >
+                              Delete account
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ color: '#6b7b88' }}>
+                          Select a member on the left to edit their display name, email, password, and saved picks.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
             </section>
           </main>
         )}
