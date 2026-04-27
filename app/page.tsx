@@ -70,8 +70,8 @@ const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; 
   open: { width: 92, height: 92 },
 };
 
-const TOURNAMENT_CARD_WIDTH = 210;
-const TOURNAMENT_CARD_HEIGHT = 66;
+const TOURNAMENT_CARD_WIDTH = 148;
+const TOURNAMENT_CARD_HEIGHT = 54;
 
 const PLAYER_POOL = [
   { id: 1, name: 'Scottie Scheffler', defaultOdds: '+450', worldRank: 1 },
@@ -1179,7 +1179,7 @@ export default function Page() {
           <div
             style={{
               display: 'flex',
-              gap: 10,
+              gap: 6,
               flexWrap: 'nowrap',
               overflowX: 'auto',
               overflowY: 'hidden',
@@ -1205,7 +1205,7 @@ export default function Page() {
                     background: active ? '#fff' : 'transparent',
                     color: active ? '#1f2f42' : '#46bfd1',
                     borderRadius: '14px 14px 0 0',
-                    padding: '14px 20px 12px',
+                    padding: '10px 12px 9px',
                     width: TOURNAMENT_CARD_WIDTH,
                     height: TOURNAMENT_CARD_HEIGHT,
                     boxSizing: 'border-box',
@@ -1215,7 +1215,7 @@ export default function Page() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 17,
+                    fontSize: 13,
                     fontWeight: active ? 500 : 400,
                     lineHeight: 1.1,
                     boxShadow: 'none',
