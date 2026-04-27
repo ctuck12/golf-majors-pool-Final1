@@ -64,7 +64,7 @@ const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
 };
 
 const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
-  players: '/players-tab-logo.png',
+  players: '/players-tab-logo.webp',
   masters: '/masters-tab-logo.png',
 };
 
