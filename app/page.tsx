@@ -25,6 +25,8 @@ const SALARY_MAX = 10800;
 const VEGAS_WEIGHT = 0.65;
 const WORLD_RANK_WEIGHT = 0.35;
 const DEFAULT_JOIN_CODE = 'MAJORS2026';
+const COMMISSIONER_EMAIL = 'ctuck12@gmail.com';
+const COMMISSIONER_DISPLAY_NAME = 'Clayton Tucker';
 
 const TOURNAMENTS = [
   {
@@ -281,6 +283,14 @@ function parseRosterField(value: string) {
     .split(',')
     .map((item) => Number(item.trim()))
     .filter((item) => Number.isInteger(item) && item > 0);
+}
+
+function canAccessCommissionerConsole(user: AuthUser | null) {
+  if (!user) {
+    return false;
+  }
+
+  return user.email.trim().toLowerCase() === COMMISSIONER_EMAIL && user.displayName.trim() === COMMISSIONER_DISPLAY_NAME;
 }
 
 function readRoster(tournamentId: TournamentId) {
@@ -554,6 +564,7 @@ export default function Page() {
   });
 
   const tournament = TOURNAMENTS.find((item) => item.id === selectedTournament) ?? TOURNAMENTS[0];
+  const canManagePool = canAccessCommissionerConsole(sessionUser);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -597,6 +608,12 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    if (mainTab === 'Commissioner console' && !canManagePool) {
+      setMainTab('Standings');
+    }
+  }, [canManagePool, mainTab]);
+
+  useEffect(() => {
     let active = true;
 
     const loadFeed = async () => {
@@ -635,7 +652,7 @@ export default function Page() {
 
   useEffect(() => {
     const loadCommissionerMembers = async () => {
-      if (!sessionUser || mainTab !== 'Commissioner console') {
+      if (!sessionUser || !canManagePool || mainTab !== 'Commissioner console') {
         return;
       }
 
@@ -655,7 +672,7 @@ export default function Page() {
     };
 
     void loadCommissionerMembers();
-  }, [mainTab, sessionUser]);
+  }, [canManagePool, mainTab, sessionUser]);
 
   useEffect(() => {
     if (!selectedCommissionerMemberId) {
@@ -1438,7 +1455,9 @@ export default function Page() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            {(['Standings', 'My entries', 'Details', 'Commissioner console'] as MainTab[]).map((tab) => {
+            {(['Standings', 'My entries', 'Details', 'Commissioner console'] as MainTab[])
+              .filter((tab) => tab !== 'Commissioner console' || canManagePool)
+              .map((tab) => {
               const active = tab === mainTab;
               return (
                 <button

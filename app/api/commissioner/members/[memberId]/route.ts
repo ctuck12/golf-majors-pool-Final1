@@ -9,6 +9,9 @@ import {
   updatePoolMember,
 } from '../../../../lib/pool-store';
 
+const COMMISSIONER_EMAIL = 'ctuck12@gmail.com';
+const COMMISSIONER_DISPLAY_NAME = 'Clayton Tucker';
+
 function parseRosters(input: unknown) {
   if (!input || typeof input !== 'object') {
     return undefined;
@@ -32,6 +35,13 @@ export async function PATCH(request: Request, context: { params: Promise<{ membe
 
   if (!session.user) {
     return NextResponse.json({ error: 'Sign in to manage pool members.' }, { status: 401 });
+  }
+
+  if (
+    session.user.email.trim().toLowerCase() !== COMMISSIONER_EMAIL ||
+    session.user.displayName.trim() !== COMMISSIONER_DISPLAY_NAME
+  ) {
+    return NextResponse.json({ error: 'You do not have access to commissioner tools.' }, { status: 403 });
   }
 
   try {
@@ -66,6 +76,13 @@ export async function DELETE(_request: Request, context: { params: Promise<{ mem
 
   if (!session.user) {
     return NextResponse.json({ error: 'Sign in to manage pool members.' }, { status: 401 });
+  }
+
+  if (
+    session.user.email.trim().toLowerCase() !== COMMISSIONER_EMAIL ||
+    session.user.displayName.trim() !== COMMISSIONER_DISPLAY_NAME
+  ) {
+    return NextResponse.json({ error: 'You do not have access to commissioner tools.' }, { status: 403 });
   }
 
   try {

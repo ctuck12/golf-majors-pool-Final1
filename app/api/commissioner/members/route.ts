@@ -2,6 +2,9 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { getSessionContext, listPoolMembers, SESSION_COOKIE_NAME } from '../../../lib/pool-store';
 
+const COMMISSIONER_EMAIL = 'ctuck12@gmail.com';
+const COMMISSIONER_DISPLAY_NAME = 'Clayton Tucker';
+
 export async function GET() {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
@@ -9,6 +12,13 @@ export async function GET() {
 
   if (!session.user) {
     return NextResponse.json({ error: 'Sign in to manage pool members.' }, { status: 401 });
+  }
+
+  if (
+    session.user.email.trim().toLowerCase() !== COMMISSIONER_EMAIL ||
+    session.user.displayName.trim() !== COMMISSIONER_DISPLAY_NAME
+  ) {
+    return NextResponse.json({ error: 'You do not have access to commissioner tools.' }, { status: 403 });
   }
 
   try {
