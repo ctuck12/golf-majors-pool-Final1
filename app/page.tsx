@@ -77,6 +77,7 @@ const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
 
 const TOURNAMENT_HEADING_LOGOS: Partial<Record<TournamentId, string>> = {
   players: '/players-heading-logo.png',
+  masters: '/masters-heading-logo.png',
 };
 
 const TOURNAMENT_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
