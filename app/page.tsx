@@ -37,7 +37,7 @@ const TOURNAMENTS = [
   },
   {
     id: 'pga',
-    name: 'PGA',
+    name: 'The PGA',
     venue: 'Aronimink',
     lockAt: '2026-05-14T07:20:00',
   },
@@ -324,6 +324,19 @@ function addDays(date: Date, days: number) {
   return next;
 }
 
+function buildOccurrenceDate(referenceIso: string, year: number, dateOnly: Date) {
+  const reference = new Date(referenceIso);
+  return new Date(
+    year,
+    dateOnly.getMonth(),
+    dateOnly.getDate(),
+    reference.getHours(),
+    reference.getMinutes(),
+    reference.getSeconds(),
+    reference.getMilliseconds(),
+  );
+}
+
 function getTournamentStartDate(tournamentId: TournamentId, year: number) {
   switch (tournamentId) {
     case 'players':
@@ -339,21 +352,88 @@ function getTournamentStartDate(tournamentId: TournamentId, year: number) {
   }
 }
 
-function getTournamentCardStatus(tournamentId: TournamentId, now = new Date()) {
-  const startDate = getTournamentStartDate(tournamentId, now.getFullYear());
+type TournamentCardStatus = {
+  label: 'LOCKED' | 'UP NEXT' | 'ACTIVE' | 'IN PROGRESS';
+  color: string;
+  icon: 'lock' | 'trophy' | 'check';
+} | null;
+
+function getTournamentEventWindow(tournament: (typeof TOURNAMENTS)[number], year: number) {
+  const startDate = getTournamentStartDate(tournament.id, year);
   const activeAt = addDays(startOfDay(startDate), -3);
-  const lockAt = addDays(activeAt, 7);
-  const isActive = now >= activeAt && now < lockAt;
+  const inProgressAt = buildOccurrenceDate(tournament.lockAt, year, startDate);
+  const concludeAt = addDays(startOfDay(startDate), 4);
 
   return {
-    isActive,
-    label: isActive ? 'Active' : 'Locked',
-    color: isActive ? '#15803d' : '#be123c',
+    id: tournament.id,
+    year,
+    activeAt,
+    inProgressAt,
+    concludeAt,
   };
 }
 
-function isLineupLocked(lockAt: string) {
-  return new Date(lockAt).getTime() <= Date.now();
+function getTournamentCardStatuses(now = new Date()) {
+  const currentYear = now.getFullYear();
+  const windows = TOURNAMENTS.flatMap((tournament) => [
+    getTournamentEventWindow(tournament, currentYear),
+    getTournamentEventWindow(tournament, currentYear + 1),
+  ]).sort((left, right) => left.activeAt.getTime() - right.activeAt.getTime());
+
+  const nextUpcoming = windows.find((window) => now < window.activeAt) ?? null;
+  const statuses: Partial<Record<TournamentId, TournamentCardStatus>> = {};
+
+  for (const tournament of TOURNAMENTS) {
+    const currentWindow = getTournamentEventWindow(tournament, currentYear);
+    const nextWindow = getTournamentEventWindow(tournament, currentYear + 1);
+
+    if (now < currentWindow.concludeAt && now >= currentWindow.inProgressAt) {
+      statuses[tournament.id] = {
+        label: 'IN PROGRESS',
+        color: '#15803d',
+        icon: 'check',
+      };
+      continue;
+    }
+
+    if (now < currentWindow.concludeAt && now >= currentWindow.activeAt) {
+      statuses[tournament.id] = {
+        label: 'ACTIVE',
+        color: '#15803d',
+        icon: 'check',
+      };
+      continue;
+    }
+
+    const upcomingWindow = now < currentWindow.concludeAt ? currentWindow : nextWindow;
+    const isUpNext =
+      nextUpcoming &&
+      nextUpcoming.id === tournament.id &&
+      nextUpcoming.year === upcomingWindow.year;
+
+    if (isUpNext) {
+      statuses[tournament.id] = {
+        label: 'UP NEXT',
+        color: '#234d80',
+        icon: 'trophy',
+      };
+      continue;
+    }
+
+    statuses[tournament.id] = now >= currentWindow.concludeAt
+      ? {
+          label: 'LOCKED',
+          color: '#be123c',
+          icon: 'lock',
+        }
+      : null;
+  }
+
+  return statuses;
+}
+
+function isLineupLocked(lockAt: string, now = Date.now()) {
+  return new Date(lockAt).getTime() <= now;
 }
 
 function formatRefresh(value: string | null) {
@@ -403,7 +483,7 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [saveMessage, setSaveMessage] = useState('');
-  const [autoLocked, setAutoLocked] = useState(false);
+  const [nowTick, setNowTick] = useState(() => Date.now());
   const [sessionUser, setSessionUser] = useState<AuthUser | null>(null);
   const [pool, setPool] = useState<PoolInfo | null>(null);
   const [poolEntries, setPoolEntries] = useState<PoolEntry[]>([]);
@@ -459,14 +539,9 @@ export default function Page() {
   }, [selectedTournament, selectedRoster, sessionUser]);
 
   useEffect(() => {
-    const tick = () => {
-      setAutoLocked(isLineupLocked(tournament.lockAt));
-    };
-
-    tick();
-    const timer = window.setInterval(tick, 60000);
+    const timer = window.setInterval(() => setNowTick(Date.now()), 60000);
     return () => window.clearInterval(timer);
-  }, [tournament.lockAt]);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -645,7 +720,8 @@ export default function Page() {
   const playersNeeded = Math.max(0, REQUIRED_GOLFERS - selectedRoster.length);
   const averageRemainingPerPlayer =
     playersNeeded > 0 ? Math.max(0, Math.floor(salaryRemaining / playersNeeded)) : 0;
-  const locked = autoLocked;
+  const locked = isLineupLocked(tournament.lockAt, nowTick);
+  const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
 
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
   const liveStandingEntries =
@@ -1078,7 +1154,7 @@ export default function Page() {
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {TOURNAMENTS.map((item) => {
               const active = item.id === selectedTournament;
-              const status = getTournamentCardStatus(item.id);
+              const status = tournamentCardStatuses[item.id] ?? null;
               return (
                 <button
                   key={item.id}
@@ -1098,21 +1174,25 @@ export default function Page() {
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontWeight: 800, color: '#0f1720' }}>{item.name}</div>
                       <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>{item.venue}</div>
-                      <div
-                        style={{
-                          marginTop: 10,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 6,
-                          color: status.color,
-                          fontWeight: 800,
-                          fontSize: 12,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        {status.isActive ? <CheckCircle2 size={14} /> : <Lock size={14} />}
-                        {status.label}
-                      </div>
+                      {status ? (
+                        <div
+                          style={{
+                            marginTop: 10,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            color: status.color,
+                            fontWeight: 800,
+                            fontSize: 12,
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          {status.icon === 'check' ? <CheckCircle2 size={14} /> : null}
+                          {status.icon === 'lock' ? <Lock size={14} /> : null}
+                          {status.icon === 'trophy' ? <Trophy size={14} /> : null}
+                          {status.label}
+                        </div>
+                      ) : null}
                     </div>
                     {TOURNAMENT_CARD_LOGOS[item.id] ? (
                       <img
