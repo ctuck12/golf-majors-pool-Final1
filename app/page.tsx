@@ -1311,17 +1311,17 @@ export default function Page() {
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
                 <div>
                   {TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
-                    <img
-                      src={TOURNAMENT_HEADING_LOGOS[selectedTournament]}
-                      alt={tournament.name}
-                      style={{
-                        display: 'block',
-                        width: 'min(100%, 420px)',
-                        height: 48,
-                        objectFit: 'contain',
-                        objectPosition: 'left center',
-                      }}
-                    />
+                      <img
+                        src={TOURNAMENT_HEADING_LOGOS[selectedTournament]}
+                        alt={tournament.name}
+                        style={{
+                          display: 'block',
+                          width: 'min(100%, 640px)',
+                          height: 72,
+                          objectFit: 'contain',
+                          objectPosition: 'left center',
+                        }}
+                      />
                   ) : (
                     <h2 style={{ margin: 0, fontSize: 26, color: '#0f1720' }}>
                       {showFinalTournamentView ? tournament.name : `${tournament.name} Pool Standings`}
