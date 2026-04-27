@@ -76,8 +76,11 @@ const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
 };
 
 const TOURNAMENT_HEADING_LOGOS: Partial<Record<TournamentId, string>> = {
-  players: '/players-heading-logo.png',
   masters: '/masters-heading-logo.png',
+};
+
+const TOURNAMENT_PARS: Partial<Record<TournamentId, number>> = {
+  players: 72,
 };
 
 const TOURNAMENT_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
@@ -1311,7 +1314,26 @@ export default function Page() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
                 <div>
-                  {TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
+                  {selectedTournament === 'players' ? (
+                    <>
+                      <h2 style={{ margin: 0, fontSize: 30, fontWeight: 800, color: '#0f1720' }}>
+                        The Players Championship
+                      </h2>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          gap: 10,
+                          marginTop: 8,
+                          color: '#5b6b79',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        <span style={{ fontSize: 18, fontWeight: 500 }}>TPC Sawgrass</span>
+                        <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.players}</span>
+                      </div>
+                    </>
+                  ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
                       <img
                         src={TOURNAMENT_HEADING_LOGOS[selectedTournament]}
                         alt={tournament.name}
