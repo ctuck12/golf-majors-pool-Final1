@@ -70,8 +70,8 @@ const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; 
   open: { width: 92, height: 92 },
 };
 
-const TOURNAMENT_CARD_WIDTH = 330;
-const TOURNAMENT_CARD_HEIGHT = 185;
+const TOURNAMENT_CARD_WIDTH = 290;
+const TOURNAMENT_CARD_HEIGHT = 150;
 
 const PLAYER_POOL = [
   { id: 1, name: 'Scottie Scheffler', defaultOdds: '+450', worldRank: 1 },
@@ -442,6 +442,19 @@ function getTournamentCardStatuses(now = new Date()) {
   return statuses;
 }
 
+function getDefaultTournamentId(statuses: Partial<Record<TournamentId, TournamentCardStatus>>) {
+  const priority: Array<NonNullable<TournamentCardStatus>['label']> = ['IN PROGRESS', 'ACTIVE', 'UP NEXT'];
+
+  for (const label of priority) {
+    const match = TOURNAMENTS.find((tournament) => statuses[tournament.id]?.label === label);
+    if (match) {
+      return match.id;
+    }
+  }
+
+  return TOURNAMENTS[0].id;
+}
+
 function isLineupLocked(lockAt: string, now = Date.now()) {
   return new Date(lockAt).getTime() <= now;
 }
@@ -485,9 +498,10 @@ function fieldStyle() {
 }
 
 export default function Page() {
+  const initialTournament = getDefaultTournamentId(getTournamentCardStatuses());
   const [mainTab, setMainTab] = useState<MainTab>('Standings');
-  const [selectedTournament, setSelectedTournament] = useState<TournamentId>('pga');
-  const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTERS.pga);
+  const [selectedTournament, setSelectedTournament] = useState<TournamentId>(initialTournament);
+  const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTERS[initialTournament]);
   const [activeStandingEntryId, setActiveStandingEntryId] = useState<string | null>(null);
   const [feed, setFeed] = useState<FeedResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -1161,7 +1175,19 @@ export default function Page() {
             gap: 16,
           }}
         >
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'nowrap' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 10,
+              flexWrap: 'nowrap',
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              width: '100%',
+              paddingBottom: 6,
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'thin',
+            }}
+          >
             {TOURNAMENTS.map((item) => {
               const active = item.id === selectedTournament;
               const status = tournamentCardStatuses[item.id] ?? null;
@@ -1177,6 +1203,7 @@ export default function Page() {
                     width: TOURNAMENT_CARD_WIDTH,
                     height: TOURNAMENT_CARD_HEIGHT,
                     boxSizing: 'border-box',
+                    flex: '0 0 auto',
                     textAlign: 'left',
                     cursor: 'pointer',
                     boxShadow: active ? '0 14px 34px rgba(49, 95, 149, 0.18)' : '0 10px 22px rgba(9, 34, 51, 0.05)',
