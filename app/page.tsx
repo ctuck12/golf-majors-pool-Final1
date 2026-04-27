@@ -65,6 +65,7 @@ const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
 
 const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; height: number }>> = {
   players: { width: 78, height: 78 },
+  pga: { width: 76, height: 76 },
 };
 
 const PLAYER_POOL = [
