@@ -12,6 +12,10 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react';
+import {
+  buildPlaceholderScoreBreakdown,
+  type GolferScoreBreakdown,
+} from './lib/scoring';
 
 const SALARY_CAP = 50000;
 const REQUIRED_GOLFERS = 6;
@@ -158,17 +162,17 @@ type StandingGolfer = ReturnType<typeof buildPricedPlayers>[number] & {
   position: string;
   thru: string;
   score: string;
-  scoreValue: number;
-  bonus: number;
-  poolTotal: number;
+  points: number;
+  holesRemaining: number;
+  scoreBreakdown: GolferScoreBreakdown;
 };
 
 type StandingEntry = PoolEntry & {
   picks: number[];
   golfers: StandingGolfer[];
-  rawScore: number;
-  bonus: number;
-  total: number;
+  rosterPoints: number;
+  holesRemaining: number;
+  tieBreakValue: number;
   place: number;
 };
 
@@ -281,54 +285,6 @@ function saveGuestRoster(tournamentId: TournamentId, roster: number[]) {
 
   const key = `${STORAGE_PREFIX}:roster:${tournamentId}`;
   window.localStorage.setItem(key, JSON.stringify(roster));
-}
-
-function scoreToNumber(score: string | undefined) {
-  if (!score || score === '--') {
-    return 0;
-  }
-
-  if (score === 'E') {
-    return 0;
-  }
-
-  if (score === 'CUT') {
-    return 10;
-  }
-
-  if (score === 'WD' || score === 'DQ' || score === 'MDF') {
-    return 12;
-  }
-
-  return Number(score);
-}
-
-function positionBonus(position: string | undefined) {
-  if (!position) {
-    return 0;
-  }
-
-  const numeric = Number(position.replace('T', ''));
-  if (Number.isNaN(numeric)) {
-    return 0;
-  }
-
-  if (numeric === 1) return 40;
-  if (numeric === 2) return 25;
-  if (numeric === 3) return 20;
-  if (numeric === 4) return 18;
-  if (numeric === 5) return 16;
-  if (numeric === 6) return 14;
-  if (numeric === 7) return 12;
-  if (numeric === 8) return 10;
-  if (numeric === 9) return 9;
-  if (numeric === 10) return 8;
-  if (numeric <= 15) return 7;
-  if (numeric <= 20) return 6;
-  if (numeric <= 25) return 5;
-  if (numeric <= 30) return 3;
-  if (numeric <= 40) return 1;
-  return 0;
 }
 
 function nthWeekdayOfMonth(year: number, monthIndex: number, weekday: number, occurrence: number) {
@@ -729,17 +685,20 @@ export default function Page() {
         const score = live?.score ?? '--';
         const position = live?.position ?? '--';
         const thru = live?.thru ?? '--';
-        const scoreValue = scoreToNumber(score);
-        const bonus = positionBonus(position);
+        const scoreBreakdown = buildPlaceholderScoreBreakdown({
+          position,
+          score,
+          thru,
+        });
 
         return {
           ...player,
           position,
           thru,
           score,
-          scoreValue,
-          bonus,
-          poolTotal: scoreValue - bonus,
+          points: scoreBreakdown.totalPoints,
+          holesRemaining: scoreBreakdown.holesRemaining,
+          scoreBreakdown,
         };
       }),
     [feedMap, liveOddsMap],
@@ -759,6 +718,8 @@ export default function Page() {
     playersNeeded > 0 ? Math.max(0, Math.floor(salaryRemaining / playersNeeded)) : 0;
   const locked = isLineupLocked(tournament.lockAt, nowTick);
   const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
+  const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
+  const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
 
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
   const liveStandingEntries =
@@ -777,23 +738,44 @@ export default function Page() {
     .map((entry) => {
       const picks = entry.rosters[selectedTournament] ?? [];
       const golfers = picks.map((id) => playersById[id]).filter(Boolean);
-      const rawScore = golfers.reduce((sum, golfer) => sum + golfer.scoreValue, 0);
-      const bonus = golfers.reduce((sum, golfer) => sum + golfer.bonus, 0);
-      const total = rawScore - bonus;
+      const rosterPoints = golfers.reduce((sum, golfer) => sum + golfer.points, 0);
+      const holesRemaining = golfers.reduce((sum, golfer) => sum + golfer.holesRemaining, 0);
+      const tieBreakValue = picks.reduce((sum, id) => sum + id, 0) + 270;
 
       return {
         ...entry,
         picks,
         golfers,
-        rawScore,
-        bonus,
-        total,
+        rosterPoints,
+        holesRemaining,
+        tieBreakValue,
       };
     })
-    .sort((left, right) => left.total - right.total)
+    .sort((left, right) => {
+      if (right.rosterPoints !== left.rosterPoints) {
+        return right.rosterPoints - left.rosterPoints;
+      }
+
+      if (left.holesRemaining !== right.holesRemaining) {
+        return left.holesRemaining - right.holesRemaining;
+      }
+
+      return left.tieBreakValue - right.tieBreakValue;
+    })
     .map((entry, index) => ({ ...entry, place: index + 1 }));
 
   const activeStandingEntry = standings.find((entry) => entry.id === activeStandingEntryId) ?? null;
+  const eventLeaderboardRows = [...players]
+    .sort((left, right) => {
+      const leftPos = Number(left.position.replace('T', ''));
+      const rightPos = Number(right.position.replace('T', ''));
+
+      if (!Number.isNaN(leftPos) && !Number.isNaN(rightPos) && leftPos !== rightPos) {
+        return leftPos - rightPos;
+      }
+
+      return right.points - left.points;
+    });
 
   const canSave =
     Boolean(sessionUser) &&
@@ -879,8 +861,8 @@ export default function Page() {
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
-            <div style={{ fontSize: 12, color: '#2f5f96' }}>bonus {player.bonus}</div>
+            <div style={{ fontWeight: 900, fontSize: 20 }}>{player.points}</div>
+            <div style={{ fontSize: 12, color: '#2f5f96' }}>{player.holesRemaining} holes left</div>
           </div>
         </div>
       ))}
@@ -1305,7 +1287,9 @@ export default function Page() {
             style={{
               marginTop: 24,
               display: 'grid',
-              gridTemplateColumns: 'minmax(0, 1.5fr) minmax(320px, 0.9fr)',
+              gridTemplateColumns: showFinalTournamentView
+                ? 'minmax(0, 1.7fr) minmax(360px, 0.9fr)'
+                : 'minmax(0, 1.5fr) minmax(320px, 0.9fr)',
               gap: 20,
             }}
           >
@@ -1319,79 +1303,179 @@ export default function Page() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Pool standings
-                  </div>
-                  <h2 style={{ margin: '6px 0 0', fontSize: 26, color: '#0f1720' }}>{tournament.name}</h2>
+                  <h2 style={{ margin: 0, fontSize: 26, color: '#0f1720' }}>
+                    {showFinalTournamentView ? tournament.name : `${tournament.name} Pool Standings`}
+                  </h2>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
                   <RefreshCw size={15} />
-                  <span>{isLoading ? 'Refreshing live scores...' : formatRefresh(feed?.fetchedAt ?? null)}</span>
+                  <span>
+                    {showFinalTournamentView
+                      ? 'Final tournament snapshot'
+                      : isLoading
+                        ? 'Refreshing live scores...'
+                        : formatRefresh(feed?.fetchedAt ?? null)}
+                  </span>
                 </div>
               </div>
 
-              <div style={{ marginTop: 18, overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: 12, textTransform: 'uppercase' }}>
-                      <th style={{ padding: '0 0 12px' }}>Place</th>
-                      <th style={{ padding: '0 0 12px' }}>Entry</th>
-                      <th style={{ padding: '0 0 12px' }}>Score</th>
-                      <th style={{ padding: '0 0 12px' }}>Bonus</th>
-                      <th style={{ padding: '0 0 12px' }}>Pool total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {standings.map((entry) => (
-                      <tr key={entry.id} style={{ borderTop: '1px solid #edf1f4' }}>
-                        <td style={{ padding: '16px 0', fontWeight: 800, color: '#2f5f96' }}>#{entry.place}</td>
-                        <td style={{ padding: '16px 0' }}>
-                          <button
-                            onClick={() => setActiveStandingEntryId(entry.id)}
-                            style={{
-                              border: 'none',
-                              background: 'transparent',
-                              padding: 0,
-                              fontWeight: 700,
-                              color: '#0f1720',
-                              cursor: 'pointer',
-                              textAlign: 'left',
-                              fontSize: 18,
-                            }}
-                          >
-                            {entry.name}
-                          </button>
-                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            {entry.golfers.map((golfer) => golfer.name.split(' ')[0]).join(', ') || 'No lineup saved'}
-                          </div>
-                        </td>
-                        <td style={{ padding: '16px 0', fontWeight: 700 }}>
-                          {entry.rawScore > 0 ? `+${entry.rawScore}` : entry.rawScore}
-                        </td>
-                        <td style={{ padding: '16px 0', fontWeight: 700, color: '#2f5f96' }}>{entry.bonus}</td>
-                        <td style={{ padding: '16px 0', fontWeight: 900, fontSize: 18 }}>{entry.total}</td>
+              {showFinalTournamentView ? (
+                <div style={{ marginTop: 28, overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: 12 }}>
+                        <th style={{ padding: '0 18px 14px 0' }}>Rank</th>
+                        <th style={{ padding: '0 18px 14px 0' }}>Entry</th>
+                        <th style={{ padding: '0 18px 14px 0', textAlign: 'center' }}>Roster Points</th>
+                        <th style={{ padding: '0 18px 14px 0', textAlign: 'center' }}>Holes Remaining</th>
+                        <th style={{ padding: '0 0 14px', textAlign: 'center' }}>Tie-break</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {standings.map((entry) => (
+                        <tr key={entry.id} style={{ borderTop: '1px solid #e7edf2' }}>
+                          <td style={{ padding: '16px 18px 16px 0', fontSize: 16 }}>{entry.place}</td>
+                          <td style={{ padding: '16px 18px 16px 0' }}>
+                            <button
+                              onClick={() => setActiveStandingEntryId(entry.id)}
+                              style={{
+                                border: 'none',
+                                background: 'transparent',
+                                padding: 0,
+                                fontSize: 18,
+                                color: '#0f1720',
+                                cursor: 'pointer',
+                                textAlign: 'left',
+                              }}
+                            >
+                              {entry.name}
+                            </button>
+                          </td>
+                          <td style={{ padding: '16px 18px 16px 0', textAlign: 'center', fontSize: 18 }}>
+                            {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
+                          </td>
+                          <td style={{ padding: '16px 18px 16px 0', textAlign: 'center', fontSize: 18 }}>
+                            {entry.holesRemaining}
+                          </td>
+                          <td style={{ padding: '16px 0', textAlign: 'center', fontSize: 18 }}>{entry.tieBreakValue}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <>
+                  <div style={{ marginTop: 18, overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: 12, textTransform: 'uppercase' }}>
+                          <th style={{ padding: '0 0 12px' }}>Place</th>
+                          <th style={{ padding: '0 0 12px' }}>Entry</th>
+                          <th style={{ padding: '0 0 12px' }}>Roster points</th>
+                          <th style={{ padding: '0 0 12px' }}>Holes left</th>
+                          <th style={{ padding: '0 0 12px' }}>Tie-break</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {standings.map((entry) => (
+                          <tr key={entry.id} style={{ borderTop: '1px solid #edf1f4' }}>
+                            <td style={{ padding: '16px 0', fontWeight: 800, color: '#2f5f96' }}>#{entry.place}</td>
+                            <td style={{ padding: '16px 0' }}>
+                              <button
+                                onClick={() => setActiveStandingEntryId(entry.id)}
+                                style={{
+                                  border: 'none',
+                                  background: 'transparent',
+                                  padding: 0,
+                                  fontWeight: 700,
+                                  color: '#0f1720',
+                                  cursor: 'pointer',
+                                  textAlign: 'left',
+                                  fontSize: 18,
+                                }}
+                              >
+                                {entry.name}
+                              </button>
+                              <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
+                                {entry.golfers.map((golfer) => golfer.name.split(' ')[0]).join(', ') || 'No lineup saved'}
+                              </div>
+                            </td>
+                            <td style={{ padding: '16px 0', fontWeight: 900, fontSize: 18 }}>{entry.rosterPoints}</td>
+                            <td style={{ padding: '16px 0', fontWeight: 700 }}>{entry.holesRemaining}</td>
+                            <td style={{ padding: '16px 0', fontWeight: 700, color: '#2f5f96' }}>{entry.tieBreakValue}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-              <div
-                style={{
-                  marginTop: 18,
-                  borderRadius: 18,
-                  background: '#f5f9fb',
-                  padding: 16,
-                  color: '#50616f',
-                  lineHeight: 1.5,
-                }}
-              >
-                Pool totals are recalculated from each golfer&apos;s current score to par, with ESPN leaderboard position
-                used for a live bonus estimate while the event is underway.
-              </div>
+                  <div
+                    style={{
+                      marginTop: 18,
+                      borderRadius: 18,
+                      background: '#f5f9fb',
+                      padding: 16,
+                      color: '#50616f',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    Live scoring is now points-first. Hole-by-hole categories, streaks, round bonuses, and final finish
+                    bonuses are scaffolded for the upcoming Slash Golf integration.
+                  </div>
+                </>
+              )}
             </section>
 
             <aside style={{ display: 'grid', gap: 20 }}>
+              {showFinalTournamentView ? (
+                <section
+                  style={{
+                    background: '#fff',
+                    borderRadius: 24,
+                    padding: 22,
+                    boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+                    <h3 style={{ margin: 0, fontSize: 30, color: '#0f1720' }}>{tournament.name} Leaderboard</h3>
+                  </div>
+                  <div style={{ marginTop: 24, overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ textAlign: 'left', fontSize: 12, color: '#5b6b79' }}>
+                          <th style={{ padding: '10px 8px', border: '1px solid #d7dee6' }}>Pos.</th>
+                          <th style={{ padding: '10px 8px', border: '1px solid #d7dee6' }}>Player</th>
+                          <th style={{ padding: '10px 8px', border: '1px solid #d7dee6' }}>Total</th>
+                          <th style={{ padding: '10px 8px', border: '1px solid #d7dee6' }}>Thru</th>
+                          <th style={{ padding: '10px 8px', border: '1px solid #d7dee6' }}>Times Picked</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {eventLeaderboardRows.map((player) => {
+                          const timesPicked = standings.reduce(
+                            (sum, entry) => sum + entry.golfers.filter((golfer) => golfer.id === player.id).length,
+                            0,
+                          );
+
+                          return (
+                            <tr key={player.id} style={{ borderTop: '1px solid #e7edf2' }}>
+                              <td style={{ padding: '8px', border: '1px solid #e7edf2' }}>{player.position}</td>
+                              <td style={{ padding: '8px', border: '1px solid #e7edf2' }}>{player.name}</td>
+                              <td style={{ padding: '8px', border: '1px solid #e7edf2' }}>{player.score}</td>
+                              <td style={{ padding: '8px', border: '1px solid #e7edf2' }}>{player.thru}</td>
+                              <td style={{ padding: '8px', border: '1px solid #e7edf2', textAlign: 'center' }}>
+                                {timesPicked === 0 ? '-' : timesPicked}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              ) : null}
+
+              {!showFinalTournamentView ? (
               <section
                 style={{
                   background: '#fff',
@@ -1487,7 +1571,9 @@ export default function Page() {
                   {sessionUser ? 'Save lineup' : 'Sign in to save'}
                 </button>
               </section>
+              ) : null}
 
+              {!showFinalTournamentView ? (
               <section
                 style={{
                   background: '#fff',
@@ -1542,6 +1628,7 @@ export default function Page() {
                   })}
                 </div>
               </section>
+              ) : null}
             </aside>
           </main>
         )}
@@ -1966,25 +2053,21 @@ export default function Page() {
                 </div>
                 <div style={{ borderRadius: 18, background: '#f6fbfd', padding: 16, border: '1px solid #e6edf1' }}>
                   <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Score to par
+                    Roster points
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>
-                    {activeStandingEntry.rawScore > 0 ? `+${activeStandingEntry.rawScore}` : activeStandingEntry.rawScore}
-                  </div>
+                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>{activeStandingEntry.rosterPoints}</div>
                 </div>
                 <div style={{ borderRadius: 18, background: '#eef4ff', padding: 16, border: '1px solid #c7d8ee' }}>
                   <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
-                    Bonus
+                    Holes remaining
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900, color: '#2f5f96' }}>
-                    {activeStandingEntry.bonus}
-                  </div>
+                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900, color: '#2f5f96' }}>{activeStandingEntry.holesRemaining}</div>
                 </div>
                 <div style={{ borderRadius: 18, background: '#f9fafb', padding: 16, border: '1px solid #e6edf1' }}>
                   <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Pool total
+                    Tie-break
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>{activeStandingEntry.total}</div>
+                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>{activeStandingEntry.tieBreakValue}</div>
                 </div>
               </div>
 
@@ -2012,9 +2095,9 @@ export default function Page() {
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                            Current total
+                            Tournament points
                           </div>
-                          <div style={{ marginTop: 6, fontSize: 28, fontWeight: 900 }}>{golfer.poolTotal}</div>
+                          <div style={{ marginTop: 6, fontSize: 28, fontWeight: 900 }}>{golfer.points}</div>
                         </div>
                       </div>
 
@@ -2028,33 +2111,31 @@ export default function Page() {
                       >
                         <div style={{ borderRadius: 14, background: '#f6fbfd', padding: 14 }}>
                           <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                            Score to par
+                            Placement points
                           </div>
-                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900 }}>
-                            {golfer.scoreValue > 0 ? `+${golfer.scoreValue}` : golfer.scoreValue}
-                          </div>
+                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900 }}>{golfer.scoreBreakdown.placementPoints}</div>
                           <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            Live score shown as {golfer.score}
+                            Position {golfer.position} earns full tied-place points
                           </div>
                         </div>
                         <div style={{ borderRadius: 14, background: '#eef4ff', padding: 14 }}>
                           <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
-                            Bonus estimate
+                            Hole and streak points
                           </div>
                           <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: '#2f5f96' }}>
-                            -{golfer.bonus}
+                            {golfer.scoreBreakdown.holePoints + golfer.scoreBreakdown.streakPoints}
                           </div>
                           <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            Based on current leaderboard position
+                            Awaiting live scorecard integration
                           </div>
                         </div>
                         <div style={{ borderRadius: 14, background: '#f9fafb', padding: 14 }}>
                           <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                            Pool total
+                            Holes remaining
                           </div>
-                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900 }}>{golfer.poolTotal}</div>
+                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900 }}>{golfer.holesRemaining}</div>
                           <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            Score to par minus bonus estimate
+                            Cut players automatically go to zero
                           </div>
                         </div>
                       </div>
@@ -2085,8 +2166,8 @@ export default function Page() {
                   lineHeight: 1.5,
                 }}
               >
-                The scoring breakdown uses the same live model as the standings table: current score to par plus a
-                leaderboard-based bonus estimate while the tournament is in progress.
+                This scoring panel is now built around your custom points system. Hole-by-hole and round-based categories
+                are scaffolded in the UI and will populate from Slash Golf scorecards once the API key is added.
               </div>
             </div>
           </div>
