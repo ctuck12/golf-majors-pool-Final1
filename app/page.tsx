@@ -75,6 +75,10 @@ const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
   open: '/open-tab-logo.png',
 };
 
+const TOURNAMENT_HEADING_LOGOS: Partial<Record<TournamentId, string>> = {
+  players: '/players-tab-logo.webp',
+};
+
 const TOURNAMENT_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
   players: 46,
   pga: 46,
@@ -1306,9 +1310,23 @@ export default function Page() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: 26, color: '#0f1720' }}>
-                    {showFinalTournamentView ? tournament.name : `${tournament.name} Pool Standings`}
-                  </h2>
+                  {TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
+                    <img
+                      src={TOURNAMENT_HEADING_LOGOS[selectedTournament]}
+                      alt={tournament.name}
+                      style={{
+                        display: 'block',
+                        width: 'min(100%, 420px)',
+                        height: 48,
+                        objectFit: 'contain',
+                        objectPosition: 'left center',
+                      }}
+                    />
+                  ) : (
+                    <h2 style={{ margin: 0, fontSize: 26, color: '#0f1720' }}>
+                      {showFinalTournamentView ? tournament.name : `${tournament.name} Pool Standings`}
+                    </h2>
+                  )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
                   <RefreshCw size={15} />
