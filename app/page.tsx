@@ -81,6 +81,7 @@ const TOURNAMENT_HEADING_LOGOS: Partial<Record<TournamentId, string>> = {
 
 const TOURNAMENT_PARS: Partial<Record<TournamentId, number>> = {
   players: 72,
+  masters: 72,
 };
 
 const TOURNAMENT_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
@@ -1331,6 +1332,25 @@ export default function Page() {
                       >
                         <span style={{ fontSize: 18, fontWeight: 500 }}>TPC Sawgrass</span>
                         <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.players}</span>
+                      </div>
+                    </>
+                  ) : selectedTournament === 'masters' ? (
+                    <>
+                      <h2 style={{ margin: 0, fontSize: 30, fontWeight: 800, color: '#0f1720' }}>
+                        The Masters
+                      </h2>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          gap: 10,
+                          marginTop: 8,
+                          color: '#5b6b79',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        <span style={{ fontSize: 18, fontWeight: 500 }}>Augusta National Golf Club</span>
+                        <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.masters}</span>
                       </div>
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
