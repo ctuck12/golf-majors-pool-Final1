@@ -63,6 +63,10 @@ const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
   open: '/the-open-logo.png',
 };
 
+const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; height: number }>> = {
+  players: { width: 78, height: 78 },
+};
+
 const PLAYER_POOL = [
   { id: 1, name: 'Scottie Scheffler', defaultOdds: '+450', worldRank: 1 },
   { id: 2, name: 'Rory McIlroy', defaultOdds: '+900', worldRank: 2 },
@@ -1199,8 +1203,8 @@ export default function Page() {
                         src={TOURNAMENT_CARD_LOGOS[item.id]}
                         alt={`${item.name} logo`}
                         style={{
-                          width: 56,
-                          height: 56,
+                          width: TOURNAMENT_CARD_LOGO_SIZES[item.id]?.width ?? 56,
+                          height: TOURNAMENT_CARD_LOGO_SIZES[item.id]?.height ?? 56,
                           objectFit: 'contain',
                           borderRadius: 8,
                           flexShrink: 0,
