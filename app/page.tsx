@@ -1220,19 +1220,20 @@ export default function Page() {
                       {status ? (
                         <div
                           style={{
-                            marginTop: 8,
+                            marginTop: 7,
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: 6,
+                            gap: 4,
                             color: status.color,
                             fontWeight: 800,
-                            fontSize: 11,
+                            fontSize: 9,
+                            lineHeight: 1,
                             textTransform: 'uppercase',
                           }}
                         >
-                          {status.icon === 'check' ? <CheckCircle2 size={14} /> : null}
-                          {status.icon === 'lock' ? <Lock size={14} /> : null}
-                          {status.icon === 'trophy' ? <Trophy size={14} /> : null}
+                          {status.icon === 'check' ? <CheckCircle2 size={10} /> : null}
+                          {status.icon === 'lock' ? <Lock size={10} /> : null}
+                          {status.icon === 'trophy' ? <Trophy size={10} /> : null}
                           {status.label}
                         </div>
                       ) : null}
