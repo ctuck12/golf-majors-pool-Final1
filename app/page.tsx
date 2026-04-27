@@ -364,6 +364,15 @@ function getTournamentEventWindow(tournament: (typeof TOURNAMENTS)[number], year
   };
 }
 
+function getDisplayTournamentWindow(tournament: (typeof TOURNAMENTS)[number], now = new Date()) {
+  const currentWindow = getTournamentEventWindow(tournament, now.getFullYear());
+  if (now < currentWindow.concludeAt) {
+    return currentWindow;
+  }
+
+  return getTournamentEventWindow(tournament, now.getFullYear() + 1);
+}
+
 function getTournamentCardStatuses(now = new Date()) {
   const currentYear = now.getFullYear();
   const windows = TOURNAMENTS.flatMap((tournament) => [
@@ -454,6 +463,15 @@ function formatRefresh(value: string | null) {
     return 'Updated 1 minute ago';
   }
   return `Updated ${minutes} minutes ago`;
+}
+
+function formatTournamentStartDate(value: Date) {
+  return new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(value);
 }
 
 async function readJson<T>(url: string, init?: RequestInit) {
@@ -733,6 +751,13 @@ export default function Page() {
   const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
   const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
+  const showFutureTournamentView =
+    selectedTournamentStatus?.label === 'UP NEXT' ||
+    selectedTournamentStatus?.label === 'ACTIVE' ||
+    selectedTournamentStatus === null;
+  const displayTournamentWindow = getDisplayTournamentWindow(tournament, new Date(nowTick));
+  const picksOpenForTournament = selectedTournamentStatus?.label === 'ACTIVE';
+  const tournamentStartLabel = formatTournamentStartDate(displayTournamentWindow.inProgressAt);
 
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
   const liveStandingEntries =
@@ -1302,7 +1327,9 @@ export default function Page() {
             style={{
               marginTop: 24,
               display: 'grid',
-              gridTemplateColumns: showFinalTournamentView
+              gridTemplateColumns: showFutureTournamentView
+                ? 'minmax(0, 1fr)'
+                : showFinalTournamentView
                 ? 'minmax(0, 1.7fr) minmax(360px, 0.9fr)'
                 : 'minmax(0, 1.5fr) minmax(320px, 0.9fr)',
               gap: 20,
@@ -1434,7 +1461,11 @@ export default function Page() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
                   <RefreshCw size={15} />
                   <span>
-                    {showFinalTournamentView
+                    {showFutureTournamentView
+                      ? picksOpenForTournament
+                        ? 'Pool is open for lineup building'
+                        : 'Tournament field not open for picks yet'
+                      : showFinalTournamentView
                       ? 'Final tournament snapshot'
                       : isLoading
                         ? 'Refreshing live scores...'
@@ -1443,7 +1474,70 @@ export default function Page() {
                 </div>
               </div>
 
-              {showFinalTournamentView ? (
+              {showFutureTournamentView ? (
+                <div
+                  style={{
+                    marginTop: 28,
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(180px, 240px) minmax(0, 1fr)',
+                    gap: 28,
+                    alignItems: 'start',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minHeight: 180,
+                    }}
+                  >
+                    {TOURNAMENT_CARD_LOGOS[selectedTournament] ? (
+                      <img
+                        src={TOURNAMENT_CARD_LOGOS[selectedTournament]}
+                        alt={tournament.name}
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: 180,
+                          objectFit: 'contain',
+                          display: 'block',
+                        }}
+                      />
+                    ) : null}
+                  </div>
+                  <div style={{ color: '#0f1720', fontSize: 17, lineHeight: 1.55 }}>
+                    <div style={{ fontSize: 20 }}>
+                      {selectedTournament === 'pga' ? 'The PGA Championship' : tournament.name} begins on{' '}
+                      {tournamentStartLabel}.
+                    </div>
+                    <div style={{ marginTop: 14 }}>
+                      {picksOpenForTournament
+                        ? 'The field has been finalized and picks are now open in the pool. Build your lineup before the first tee time on Thursday morning.'
+                        : 'Picks can not be entered until the tournament field has been finalized and entered in our system (usually Monday morning the week of the tournament).'}
+                    </div>
+
+                    {picksOpenForTournament ? (
+                      <button
+                        onClick={() => setMainTab('My entries')}
+                        style={{
+                          marginTop: 24,
+                          border: 'none',
+                          borderRadius: 16,
+                          padding: '14px 22px',
+                          background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                          color: '#fff',
+                          fontSize: 16,
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                          boxShadow: '0 14px 28px rgba(63, 115, 173, 0.22)',
+                        }}
+                      >
+                        Make Your Picks
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              ) : showFinalTournamentView ? (
                 <div style={{ marginTop: 28, overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
@@ -1564,7 +1658,7 @@ export default function Page() {
               )}
             </section>
 
-            <aside style={{ display: 'grid', gap: 20 }}>
+            <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20 }}>
               {showFinalTournamentView ? (
                 <section
                   style={{
