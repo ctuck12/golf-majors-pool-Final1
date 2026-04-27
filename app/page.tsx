@@ -63,6 +63,10 @@ const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
   open: '/the-open-logo.png',
 };
 
+const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
+  masters: '/masters-tab-logo.png',
+};
+
 const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; height: number }>> = {
   players: { width: 78, height: 78 },
   pga: { width: 76, height: 76 },
@@ -1221,11 +1225,25 @@ export default function Page() {
                     boxShadow: 'none',
                     marginBottom: -1,
                   }}
-                >
-                  <span>{item.name}</span>
-                </button>
-              );
-            })}
+                  >
+                    {TOURNAMENT_TAB_LOGOS[item.id] ? (
+                      <img
+                        src={TOURNAMENT_TAB_LOGOS[item.id]}
+                        alt={item.name}
+                        style={{
+                          maxWidth: '100%',
+                          width: '100%',
+                          height: 40,
+                          objectFit: 'contain',
+                          display: 'block',
+                        }}
+                      />
+                    ) : (
+                      <span>{item.name}</span>
+                    )}
+                  </button>
+                );
+              })}
           </div>
 
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
