@@ -70,6 +70,9 @@ const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; 
   open: { width: 92, height: 92 },
 };
 
+const TOURNAMENT_CARD_WIDTH = 390;
+const TOURNAMENT_CARD_HEIGHT = 200;
+
 const PLAYER_POOL = [
   { id: 1, name: 'Scottie Scheffler', defaultOdds: '+450', worldRank: 1 },
   { id: 2, name: 'Rory McIlroy', defaultOdds: '+900', worldRank: 2 },
@@ -1171,7 +1174,9 @@ export default function Page() {
                     background: active ? '#edf4ff' : '#fff',
                     borderRadius: 18,
                     padding: '14px 16px',
-                    minWidth: 190,
+                    width: TOURNAMENT_CARD_WIDTH,
+                    height: TOURNAMENT_CARD_HEIGHT,
+                    boxSizing: 'border-box',
                     textAlign: 'left',
                     cursor: 'pointer',
                     boxShadow: active ? '0 14px 34px rgba(49, 95, 149, 0.18)' : '0 10px 22px rgba(9, 34, 51, 0.05)',
