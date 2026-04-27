@@ -72,6 +72,7 @@ const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
 };
 
 const TOURNAMENT_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
+  players: 46,
   pga: 46,
 };
 
