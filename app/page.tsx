@@ -70,8 +70,8 @@ const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; 
   open: { width: 92, height: 92 },
 };
 
-const TOURNAMENT_CARD_WIDTH = 390;
-const TOURNAMENT_CARD_HEIGHT = 200;
+const TOURNAMENT_CARD_WIDTH = 330;
+const TOURNAMENT_CARD_HEIGHT = 185;
 
 const PLAYER_POOL = [
   { id: 1, name: 'Scottie Scheffler', defaultOdds: '+450', worldRank: 1 },
@@ -1161,7 +1161,7 @@ export default function Page() {
             gap: 16,
           }}
         >
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'nowrap' }}>
             {TOURNAMENTS.map((item) => {
               const active = item.id === selectedTournament;
               const status = tournamentCardStatuses[item.id] ?? null;
