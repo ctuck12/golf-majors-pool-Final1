@@ -165,6 +165,7 @@ type PoolInfo = {
   id: string;
   name: string;
   joinCode: string;
+  lineupLocks: Partial<Record<TournamentId, boolean>>;
 };
 
 type PoolEntry = {
@@ -390,6 +391,11 @@ function findStoredAccount(email: string, password: string) {
   return readStoredAccounts().find(
     (account) => account.email.trim().toLowerCase() === normalizedEmail && account.password === password,
   ) ?? null;
+}
+
+function findStoredAccountByEmail(email: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  return readStoredAccounts().find((account) => account.email.trim().toLowerCase() === normalizedEmail) ?? null;
 }
 
 function readRoster(tournamentId: TournamentId) {
@@ -676,6 +682,51 @@ export default function Page() {
   const tournament = TOURNAMENTS.find((item) => item.id === selectedTournament) ?? TOURNAMENTS[0];
   const canManagePool = canAccessCommissionerConsole(sessionUser);
 
+  const restoreServerSessionFromStoredAccount = async (storedAccount: LocalStoredAccount) => {
+    try {
+      return await readJson<SessionPayload>('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: storedAccount.email,
+          password: storedAccount.password,
+        }),
+      });
+    } catch (loginError) {
+      const fallbackUser = storedAccount.session.user;
+
+      if (!fallbackUser) {
+        throw loginError;
+      }
+
+      const registered = await readJson<SessionPayload>('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          displayName: fallbackUser.displayName,
+          email: storedAccount.email,
+          password: storedAccount.password,
+        }),
+      });
+
+      let latestSession = registered;
+
+      for (const tournamentId of TOURNAMENTS.map((item) => item.id)) {
+        const roster = fallbackUser.rosters[tournamentId] ?? [];
+
+        if (roster.length > 0) {
+          latestSession = await readJson<SessionPayload & { roster: number[] }>('/api/roster', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tournamentId, roster }),
+          });
+        }
+      }
+
+      return latestSession;
+    }
+  };
+
   useEffect(() => {
     const loadSession = async () => {
       setSessionLoading(true);
@@ -690,15 +741,45 @@ export default function Page() {
           upsertStoredAccount(payload);
         } else {
           const stored = readStoredSession();
-          setSessionUser(stored?.user ?? null);
-          setPool(stored?.pool ?? null);
-          setPoolEntries(stored?.entries ?? []);
+          const storedAccount = stored?.user ? findStoredAccountByEmail(stored.user.email) : null;
+
+          if (storedAccount) {
+            const restored = await restoreServerSessionFromStoredAccount(storedAccount);
+            setSessionUser(restored.user);
+            setPool(restored.pool);
+            setPoolEntries(restored.entries);
+            writeStoredSession(restored);
+            upsertStoredAccount(restored, storedAccount.password);
+          } else {
+            setSessionUser(null);
+            setPool(null);
+            setPoolEntries([]);
+            clearStoredSession();
+          }
         }
       } catch {
         const stored = readStoredSession();
-        setSessionUser(stored?.user ?? null);
-        setPool(stored?.pool ?? null);
-        setPoolEntries(stored?.entries ?? []);
+        const storedAccount = stored?.user ? findStoredAccountByEmail(stored.user.email) : null;
+
+        if (storedAccount) {
+          try {
+            const restored = await restoreServerSessionFromStoredAccount(storedAccount);
+            setSessionUser(restored.user);
+            setPool(restored.pool);
+            setPoolEntries(restored.entries);
+            writeStoredSession(restored);
+            upsertStoredAccount(restored, storedAccount.password);
+          } catch {
+            setSessionUser(null);
+            setPool(null);
+            setPoolEntries([]);
+            clearStoredSession();
+          }
+        } else {
+          setSessionUser(null);
+          setPool(null);
+          setPoolEntries([]);
+        }
       } finally {
         setSessionLoading(false);
       }
@@ -889,8 +970,14 @@ export default function Page() {
       const fallbackAccount = findStoredAccount(loginForm.email, loginForm.password);
 
       if (fallbackAccount) {
-        applySession(fallbackAccount.session);
-        setLoginForm({ email: '', password: '' });
+        try {
+          const restored = await restoreServerSessionFromStoredAccount(fallbackAccount);
+          upsertStoredAccount(restored, fallbackAccount.password);
+          applySession(restored);
+          setLoginForm({ email: '', password: '' });
+        } catch {
+          setAuthError(err instanceof Error ? err.message : 'Unable to sign in.');
+        }
       } else {
         setAuthError(err instanceof Error ? err.message : 'Unable to sign in.');
       }
@@ -1004,6 +1091,34 @@ export default function Page() {
       setCommissionerSuccess('Member added.');
     } catch (err) {
       setCommissionerError(err instanceof Error ? err.message : 'Unable to add member.');
+    } finally {
+      setCommissionerBusy(false);
+    }
+  };
+
+  const handleToggleLineupLock = async () => {
+    if (!sessionUser || !canManagePool || !pool) {
+      return;
+    }
+
+    setCommissionerBusy(true);
+    setCommissionerError('');
+    setCommissionerSuccess('');
+
+    try {
+      const payload = await readJson<{ pool: PoolInfo }>('/api/commissioner/lineup-lock', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tournamentId: selectedTournament,
+          locked: !locked,
+        }),
+      });
+
+      setPool(payload.pool);
+      setCommissionerSuccess(`Lineup lock ${payload.pool.lineupLocks[selectedTournament] ? 'enabled' : 'disabled'}.`);
+    } catch (err) {
+      setCommissionerError(err instanceof Error ? err.message : 'Unable to update lineup lock.');
     } finally {
       setCommissionerBusy(false);
     }
@@ -1148,7 +1263,8 @@ export default function Page() {
   const playersNeeded = Math.max(0, REQUIRED_GOLFERS - selectedRoster.length);
   const averageRemainingPerPlayer =
     playersNeeded > 0 ? Math.max(0, Math.floor(salaryRemaining / playersNeeded)) : 0;
-  const locked = isLineupLocked(tournament.lockAt, nowTick);
+  const defaultLocked = isLineupLocked(tournament.lockAt, nowTick);
+  const locked = pool?.lineupLocks?.[selectedTournament] ?? defaultLocked;
   const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
   const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
@@ -2749,13 +2865,7 @@ export default function Page() {
                   <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Source
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{feed?.source ?? 'ESPN leaderboard'}</div>
-                </div>
-                <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
-                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                    Status
-                  </div>
-                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{feed?.status ?? 'Unavailable'}</div>
+                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>Slash Golf API</div>
                 </div>
                 <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
                   <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
@@ -2763,18 +2873,26 @@ export default function Page() {
                   </div>
                   <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{formatRefresh(feed?.fetchedAt ?? null)}</div>
                 </div>
-                <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
+                <button
+                  onClick={handleToggleLineupLock}
+                  disabled={!canManagePool || commissionerBusy}
+                  style={{
+                    border: '1px solid #e6edf1',
+                    borderRadius: 18,
+                    padding: 16,
+                    background: '#f8fbfd',
+                    textAlign: 'left',
+                    cursor: !canManagePool || commissionerBusy ? 'not-allowed' : 'pointer',
+                  }}
+                >
                   <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Lineup lock
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{locked ? 'Locked' : 'Open'}</div>
-                </div>
-                <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
-                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                    Join code
+                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{locked ? 'Locked' : 'Unlocked'}</div>
+                  <div style={{ marginTop: 8, fontSize: 13, color: '#5b6b79' }}>
+                    {locked ? 'Click to unlock roster editing' : 'Click to lock roster editing'}
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{pool?.joinCode ?? DEFAULT_JOIN_CODE}</div>
-                </div>
+                </button>
                 <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
                   <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Pool members

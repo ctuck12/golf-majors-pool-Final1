@@ -33,6 +33,7 @@ type StoredPool = {
   name: string;
   joinCode: string;
   memberUserIds: string[];
+  lineupLocks: Partial<Record<TournamentId, boolean>>;
   createdAt: string;
 };
 
@@ -60,6 +61,7 @@ export type PublicPool = {
   id: string;
   name: string;
   joinCode: string;
+  lineupLocks: Partial<Record<TournamentId, boolean>>;
 };
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -137,6 +139,7 @@ async function ensureDataFile() {
           name: 'Golf Majors Pool',
           joinCode: DEFAULT_POOL_JOIN_CODE,
           memberUserIds: [],
+          lineupLocks: {},
           createdAt,
         },
       ],
@@ -159,9 +162,15 @@ async function readDatabase() {
           name: 'Golf Majors Pool',
           joinCode: DEFAULT_POOL_JOIN_CODE,
           memberUserIds: [],
+          lineupLocks: {},
           createdAt: nowIso(),
         },
       ];
+
+  parsed.pools = parsed.pools.map((pool) => ({
+    ...pool,
+    lineupLocks: pool.lineupLocks ?? {},
+  }));
 
   parsed.sessions = parsed.sessions.filter((session) => new Date(session.expiresAt).getTime() > Date.now());
   return parsed;
@@ -311,6 +320,7 @@ export async function getSessionContext(token: string | undefined) {
           id: activePool.id,
           name: activePool.name,
           joinCode: activePool.joinCode,
+          lineupLocks: activePool.lineupLocks,
         }
       : null,
     entries,
@@ -351,6 +361,7 @@ export async function joinPoolForUser(userId: string, joinCode: string) {
     id: pool.id,
     name: pool.name,
     joinCode: pool.joinCode,
+    lineupLocks: pool.lineupLocks,
   } satisfies PublicPool;
 }
 
@@ -524,4 +535,36 @@ export async function deletePoolMember(requestingUserId: string, memberId: strin
   }
 
   await writeDatabase(database);
+}
+
+export async function updatePoolLineupLock(
+  requestingUserId: string,
+  tournamentId: TournamentId,
+  locked: boolean,
+) {
+  const database = await readDatabase();
+  const requestingUser = database.users.find((item) => item.id === requestingUserId);
+
+  if (!requestingUser) {
+    throw new Error('User account was not found.');
+  }
+
+  const activePool =
+    database.pools.find((pool) => requestingUser.poolIds.includes(pool.id)) ??
+    database.pools.find((pool) => pool.id === DEFAULT_POOL_ID);
+
+  if (!activePool) {
+    throw new Error('Pool was not found.');
+  }
+
+  activePool.lineupLocks = activePool.lineupLocks ?? {};
+  activePool.lineupLocks[tournamentId] = locked;
+  await writeDatabase(database);
+
+  return {
+    id: activePool.id,
+    name: activePool.name,
+    joinCode: activePool.joinCode,
+    lineupLocks: activePool.lineupLocks,
+  } satisfies PublicPool;
 }
