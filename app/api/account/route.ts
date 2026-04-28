@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { getSessionContext, SESSION_COOKIE_NAME, updateUserPassword } from '../../lib/pool-store';
+import { getSessionContext, SESSION_COOKIE_NAME, updateUserAccount } from '../../lib/pool-store';
 
 export async function PATCH(request: Request) {
   const cookieStore = await cookies();
@@ -12,8 +12,11 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    const body = (await request.json()) as { password?: string };
-    const user = await updateUserPassword(session.user.id, body.password ?? '');
+    const body = (await request.json()) as { password?: string; displayName?: string };
+    const user = await updateUserAccount(session.user.id, {
+      password: body.password,
+      displayName: body.displayName,
+    });
     return NextResponse.json({ user });
   } catch (error) {
     return NextResponse.json(

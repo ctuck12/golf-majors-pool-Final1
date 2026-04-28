@@ -636,7 +636,6 @@ export default function Page() {
   const [sessionLoading, setSessionLoading] = useState(true);
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState('');
-  const [authSuccess, setAuthSuccess] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [authMode, setAuthMode] = useState<AuthMode>('login');
   const [registerForm, setRegisterForm] = useState({
@@ -644,14 +643,15 @@ export default function Page() {
     email: '',
     password: '',
   });
-  const [joinCode, setJoinCode] = useState(DEFAULT_JOIN_CODE);
   const [commissionerMembers, setCommissionerMembers] = useState<CommissionerMember[]>([]);
   const [commissionerBusy, setCommissionerBusy] = useState(false);
   const [commissionerError, setCommissionerError] = useState('');
   const [commissionerSuccess, setCommissionerSuccess] = useState('');
   const [selectedCommissionerMemberId, setSelectedCommissionerMemberId] = useState<string | null>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [accountPreferencesView, setAccountPreferencesView] = useState<'root' | 'preferences' | 'password' | 'displayName'>('root');
   const [accountPassword, setAccountPassword] = useState('');
+  const [accountDisplayName, setAccountDisplayName] = useState('');
   const [accountBusy, setAccountBusy] = useState(false);
   const [accountMessage, setAccountMessage] = useState('');
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
@@ -833,7 +833,11 @@ export default function Page() {
     });
   }, [selectedCommissionerMemberId, commissionerMembers]);
 
-  const applySession = (payload: SessionPayload, successMessage?: string) => {
+  useEffect(() => {
+    setAccountDisplayName(sessionUser?.displayName ?? '');
+  }, [sessionUser]);
+
+  const applySession = (payload: SessionPayload) => {
     setSessionUser(payload.user);
     setPool(payload.pool);
     setPoolEntries(payload.entries);
@@ -844,13 +848,11 @@ export default function Page() {
       clearStoredSession();
     }
     setAuthError('');
-    setAuthSuccess(successMessage ?? '');
   };
 
   const handleRegister = async () => {
     setAuthBusy(true);
     setAuthError('');
-    setAuthSuccess('');
 
     try {
       const payload = await readJson<SessionPayload>('/api/auth/register', {
@@ -860,7 +862,7 @@ export default function Page() {
       });
 
       upsertStoredAccount(payload, registerForm.password);
-      applySession(payload, 'Account created and signed in.');
+      applySession(payload);
       setRegisterForm({ displayName: '', email: '', password: '' });
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Unable to create account.');
@@ -872,7 +874,6 @@ export default function Page() {
   const handleLogin = async () => {
     setAuthBusy(true);
     setAuthError('');
-    setAuthSuccess('');
 
     try {
       const payload = await readJson<SessionPayload>('/api/auth/login', {
@@ -882,13 +883,13 @@ export default function Page() {
       });
 
       upsertStoredAccount(payload, loginForm.password);
-      applySession(payload, 'Signed in successfully.');
+      applySession(payload);
       setLoginForm({ email: '', password: '' });
     } catch (err) {
       const fallbackAccount = findStoredAccount(loginForm.email, loginForm.password);
 
       if (fallbackAccount) {
-        applySession(fallbackAccount.session, 'Signed in successfully.');
+        applySession(fallbackAccount.session);
         setLoginForm({ email: '', password: '' });
       } else {
         setAuthError(err instanceof Error ? err.message : 'Unable to sign in.');
@@ -898,30 +899,9 @@ export default function Page() {
     }
   };
 
-  const handleJoinPool = async () => {
-    setAuthBusy(true);
-    setAuthError('');
-    setAuthSuccess('');
-
-    try {
-      const payload = await readJson<SessionPayload>('/api/pool/join', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ joinCode }),
-      });
-
-      applySession(payload, 'You joined the pool.');
-    } catch (err) {
-      setAuthError(err instanceof Error ? err.message : 'Unable to join the pool.');
-    } finally {
-      setAuthBusy(false);
-    }
-  };
-
   const handleLogout = async () => {
     setAuthBusy(true);
     setAuthError('');
-    setAuthSuccess('');
 
     try {
       await readJson<{ ok: boolean }>('/api/auth/logout', { method: 'POST' });
@@ -931,11 +911,12 @@ export default function Page() {
       setCommissionerMembers([]);
       setSelectedCommissionerMemberId(null);
       setAccountMenuOpen(false);
+      setAccountPreferencesView('root');
       setAccountPassword('');
+      setAccountDisplayName('');
       setAccountMessage('');
       clearStoredSession();
       setSaveMessage('');
-      setAuthSuccess('Signed out.');
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Unable to sign out.');
     } finally {
@@ -962,10 +943,43 @@ export default function Page() {
         },
         accountPassword,
       );
+      setSessionUser(payload.user);
       setAccountPassword('');
       setAccountMessage('Password updated.');
     } catch (err) {
       setAccountMessage(err instanceof Error ? err.message : 'Unable to update password.');
+    } finally {
+      setAccountBusy(false);
+    }
+  };
+
+  const handleUpdateOwnDisplayName = async () => {
+    setAccountBusy(true);
+    setAccountMessage('');
+
+    try {
+      const payload = await readJson<{ user: AuthUser }>('/api/account', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ displayName: accountDisplayName }),
+      });
+
+      setSessionUser(payload.user);
+      setPoolEntries((current) =>
+        current.map((entry) =>
+          entry.id === payload.user.id ? { ...entry, name: payload.user.displayName, rosters: payload.user.rosters } : entry,
+        ),
+      );
+      upsertStoredAccount({
+        user: payload.user,
+        pool,
+        entries: poolEntries.map((entry) =>
+          entry.id === payload.user.id ? { ...entry, name: payload.user.displayName, rosters: payload.user.rosters } : entry,
+        ),
+      });
+      setAccountMessage('Display name updated.');
+    } catch (err) {
+      setAccountMessage(err instanceof Error ? err.message : 'Unable to update display name.');
     } finally {
       setAccountBusy(false);
     }
@@ -1373,6 +1387,9 @@ export default function Page() {
                 onClick={() => {
                   setAccountMenuOpen((current) => !current);
                   setAccountMessage('');
+                  setAccountPreferencesView('root');
+                  setAccountPassword('');
+                  setAccountDisplayName(sessionUser.displayName);
                 }}
                 style={{
                   width: 42,
@@ -1409,35 +1426,161 @@ export default function Page() {
                   </div>
                   <div style={{ marginTop: 6, fontSize: 20, fontWeight: 900 }}>{sessionUser.displayName}</div>
                   <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>{sessionUser.email}</div>
-                  <input
-                    type="password"
-                    value={accountPassword}
-                    onChange={(event) => setAccountPassword(event.target.value)}
-                    placeholder="New password"
-                    style={{ ...fieldStyle(), marginTop: 14 }}
-                  />
+
+                  {accountPreferencesView === 'password' ? (
+                    <input
+                      type="password"
+                      value={accountPassword}
+                      onChange={(event) => setAccountPassword(event.target.value)}
+                      placeholder="New password"
+                      style={{ ...fieldStyle(), marginTop: 14 }}
+                    />
+                  ) : null}
+
+                  {accountPreferencesView === 'displayName' ? (
+                    <input
+                      value={accountDisplayName}
+                      onChange={(event) => setAccountDisplayName(event.target.value)}
+                      placeholder="Display name"
+                      style={{ ...fieldStyle(), marginTop: 14 }}
+                    />
+                  ) : null}
+
                   {accountMessage ? (
-                    <div style={{ marginTop: 10, fontSize: 12, color: accountMessage === 'Password updated.' ? '#2f5f96' : '#a61b1b' }}>
+                    <div
+                      style={{
+                        marginTop: 10,
+                        fontSize: 12,
+                        color:
+                          accountMessage === 'Password updated.' || accountMessage === 'Display name updated.'
+                            ? '#2f5f96'
+                            : '#a61b1b',
+                      }}
+                    >
                       {accountMessage}
                     </div>
                   ) : null}
                   <div style={{ marginTop: 14, display: 'flex', gap: 8 }}>
-                    <button
-                      onClick={handleUpdateOwnPassword}
-                      disabled={accountBusy}
-                      style={{
-                        flex: 1,
-                        border: 'none',
-                        borderRadius: 12,
-                        padding: '12px 14px',
-                        background: '#173b63',
-                        color: '#fff',
-                        fontWeight: 800,
-                        cursor: accountBusy ? 'wait' : 'pointer',
-                      }}
-                    >
-                      Update password
-                    </button>
+                    {accountPreferencesView === 'root' ? (
+                      <button
+                        onClick={() => {
+                          setAccountPreferencesView('preferences');
+                          setAccountMessage('');
+                        }}
+                        style={{
+                          flex: 1,
+                          border: 'none',
+                          borderRadius: 12,
+                          padding: '12px 14px',
+                          background: '#173b63',
+                          color: '#fff',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Preferences
+                      </button>
+                    ) : null}
+
+                    {accountPreferencesView === 'preferences' ? (
+                      <>
+                        <button
+                          onClick={() => {
+                            setAccountPreferencesView('password');
+                            setAccountMessage('');
+                          }}
+                          style={{
+                            flex: 1,
+                            border: 'none',
+                            borderRadius: 12,
+                            padding: '12px 14px',
+                            background: '#173b63',
+                            color: '#fff',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Change Password
+                        </button>
+                        <button
+                          onClick={() => {
+                            setAccountPreferencesView('displayName');
+                            setAccountMessage('');
+                          }}
+                          style={{
+                            flex: 1,
+                            border: '1px solid #d7e0e8',
+                            borderRadius: 12,
+                            padding: '12px 14px',
+                            background: '#fff',
+                            color: '#0f1720',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Edit Display Name
+                        </button>
+                      </>
+                    ) : null}
+
+                    {accountPreferencesView === 'password' ? (
+                      <button
+                        onClick={handleUpdateOwnPassword}
+                        disabled={accountBusy}
+                        style={{
+                          flex: 1,
+                          border: 'none',
+                          borderRadius: 12,
+                          padding: '12px 14px',
+                          background: '#173b63',
+                          color: '#fff',
+                          fontWeight: 800,
+                          cursor: accountBusy ? 'wait' : 'pointer',
+                        }}
+                      >
+                        Save Password
+                      </button>
+                    ) : null}
+
+                    {accountPreferencesView === 'displayName' ? (
+                      <button
+                        onClick={handleUpdateOwnDisplayName}
+                        disabled={accountBusy}
+                        style={{
+                          flex: 1,
+                          border: 'none',
+                          borderRadius: 12,
+                          padding: '12px 14px',
+                          background: '#173b63',
+                          color: '#fff',
+                          fontWeight: 800,
+                          cursor: accountBusy ? 'wait' : 'pointer',
+                        }}
+                      >
+                        Save Name
+                      </button>
+                    ) : null}
+
+                    {accountPreferencesView !== 'root' ? (
+                      <button
+                        onClick={() => {
+                          setAccountPreferencesView(accountPreferencesView === 'preferences' ? 'root' : 'preferences');
+                          setAccountMessage('');
+                        }}
+                        style={{
+                          flex: 1,
+                          border: '1px solid #d7e0e8',
+                          borderRadius: 12,
+                          padding: '12px 14px',
+                          background: '#fff',
+                          color: '#0f1720',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Back
+                      </button>
+                    ) : null}
                     <button
                       onClick={handleLogout}
                       disabled={authBusy}
@@ -1541,7 +1684,6 @@ export default function Page() {
                 onClick={() => {
                   setAuthMode((current) => (current === 'login' ? 'register' : 'login'));
                   setAuthError('');
-                  setAuthSuccess('');
                 }}
                 style={{
                   marginTop: 14,
@@ -1561,66 +1703,7 @@ export default function Page() {
             </div>
           </section>
         ) : (
-        <section
-          style={{
-            marginTop: 24,
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1fr)',
-            gap: 18,
-          }}
-        >
-            <div
-              style={{
-                background: '#fff',
-                borderRadius: 24,
-                padding: 22,
-                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-                gap: 16,
-                alignItems: 'center',
-              }}
-            >
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                  Signed in
-                </div>
-                <div style={{ marginTop: 6, fontSize: 24, fontWeight: 900 }}>{sessionUser.displayName}</div>
-                <div style={{ marginTop: 4, color: '#6b7b88' }}>{sessionUser.email}</div>
-                <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
-                  {pool ? `Pool: ${pool.name}` : 'Join the pool below with your code.'}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                {!pool ? (
-                  <>
-                    <input
-                      value={joinCode}
-                      onChange={(event) => setJoinCode(event.target.value)}
-                      placeholder="Pool join code"
-                      style={{ ...fieldStyle(), minWidth: 220 }}
-                    />
-                    <button
-                    onClick={handleJoinPool}
-                    style={{
-                      border: 'none',
-                      borderRadius: 16,
-                      padding: '14px 16px',
-                      background: '#2d5e94',
-                      color: '#fff',
-                      fontWeight: 900,
-                      cursor: authBusy ? 'wait' : 'pointer',
-                      }}
-                      disabled={authBusy}
-                    >
-                      Join pool
-                    </button>
-                  </>
-                ) : null}
-              </div>
-            </div>
-        </section>
+        <></>
         )}
 
         {authError ? (
@@ -1639,25 +1722,6 @@ export default function Page() {
           >
             <AlertCircle size={18} />
             <span>{authError}</span>
-          </div>
-        ) : null}
-
-        {authSuccess ? (
-          <div
-            style={{
-              marginTop: 16,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              borderRadius: 16,
-              background: '#eef5ff',
-              color: '#2d5e94',
-              border: '1px solid #c7d8ee',
-              padding: '14px 16px',
-            }}
-          >
-            <CheckCircle2 size={18} />
-            <span>{authSuccess}</span>
           </div>
         ) : null}
 

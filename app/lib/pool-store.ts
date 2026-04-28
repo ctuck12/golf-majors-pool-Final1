@@ -372,11 +372,13 @@ export async function saveRosterForUser(userId: string, tournamentId: Tournament
   return user.rosters[tournamentId] ?? [];
 }
 
-export async function updateUserPassword(userId: string, password: string) {
-  if (password.length < 8) {
-    throw new Error('Password must be at least 8 characters.');
-  }
-
+export async function updateUserAccount(
+  userId: string,
+  updates: {
+    password?: string;
+    displayName?: string;
+  },
+) {
   const database = await readDatabase();
   const user = database.users.find((item) => item.id === userId);
 
@@ -384,9 +386,25 @@ export async function updateUserPassword(userId: string, password: string) {
     throw new Error('User account was not found.');
   }
 
-  const passwordSalt = randomBytes(16).toString('hex');
-  user.passwordSalt = passwordSalt;
-  user.passwordHash = hashPassword(password, passwordSalt);
+  if (typeof updates.displayName === 'string') {
+    const displayName = updates.displayName.trim();
+
+    if (displayName.length < 2) {
+      throw new Error('Display name must be at least 2 characters.');
+    }
+
+    user.displayName = displayName;
+  }
+
+  if (typeof updates.password === 'string' && updates.password.length > 0) {
+    if (updates.password.length < 8) {
+      throw new Error('Password must be at least 8 characters.');
+    }
+
+    const passwordSalt = randomBytes(16).toString('hex');
+    user.passwordSalt = passwordSalt;
+    user.passwordHash = hashPassword(updates.password, passwordSalt);
+  }
 
   await writeDatabase(database);
   return toPublicUser(user);
