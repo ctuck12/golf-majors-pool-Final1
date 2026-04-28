@@ -3355,14 +3355,14 @@ export default function Page() {
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
                   <span style={{ marginRight: 6 }}>➤</span>
-                  For each major tournament, and The Players Championship, members select <strong>six golfers</strong>.
+                  For each major tournament, and The Players Championship, members select <strong>6 golfers</strong>.
                   Each golfer will have a salary assigned to them based strictly on their odds to win the tournament.
                 </div>
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
                   <span style={{ marginRight: 6 }}>➤</span>
                   Participants will be assigned a fixed salary cap of <strong>$50,000</strong> they must stay under in
-                  order to create their 6-player roster. These six golfers make up their Player Roster for that
+                  order to create their 6-player roster. Thes 6 golfers make up their player roster for that specific
                   tournament.
                 </div>
                 <div>
