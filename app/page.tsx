@@ -1362,7 +1362,7 @@ export default function Page() {
             background: 'linear-gradient(135deg, #173b63 0%, #102842 100%)',
             color: '#fff',
             borderRadius: 28,
-            padding: sessionUser ? '14px 28px 10px' : '14px 28px',
+            padding: sessionUser ? '10px 28px 6px' : '10px 28px',
             boxShadow: '0 24px 64px rgba(9, 34, 51, 0.18)',
             position: 'relative',
           }}
@@ -1373,7 +1373,7 @@ export default function Page() {
               alt="Golf Majors Pool"
               style={{
                 display: 'block',
-                width: 'min(100%, 360px)',
+                width: 'min(100%, 380px)',
                 height: 'auto',
                 objectFit: 'contain',
                 background: 'transparent',
@@ -1384,13 +1384,14 @@ export default function Page() {
           {sessionUser ? (
             <div
               style={{
-                marginTop: 12,
-                paddingTop: 10,
+                marginTop: 6,
+                paddingTop: 8,
                 borderTop: '1px solid rgba(112, 202, 220, 0.18)',
                 display: 'flex',
                 justifyContent: 'center',
                 gap: 12,
                 flexWrap: 'wrap',
+                paddingLeft: 72,
                 paddingRight: 72,
               }}
             >
@@ -1422,7 +1423,7 @@ export default function Page() {
           ) : null}
 
           {sessionUser ? (
-            <div style={{ position: 'absolute', right: 22, bottom: 18, zIndex: 30 }}>
+            <div style={{ position: 'absolute', right: 22, bottom: 8, zIndex: 30 }}>
               {accountMenuOpen ? (
                 <button
                   type="button"
