@@ -1521,10 +1521,15 @@ export default function Page() {
                             background: '#173b63',
                             color: '#fff',
                             fontWeight: 800,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                             cursor: 'pointer',
                           }}
                         >
-                          Change Password
+                          <span>Change</span>
+                          <span>Password</span>
                         </button>
                         <button
                           onClick={() => {
