@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import {
   AlertCircle,
+  CircleUserRound,
   CheckCircle2,
   Lock,
   LogIn,
@@ -173,6 +174,7 @@ type PoolEntry = {
 };
 
 type CommissionerMember = AuthUser;
+type AuthMode = 'login' | 'register';
 
 type StandingGolfer = ReturnType<typeof buildPricedPlayers>[number] & {
   position: string;
@@ -539,6 +541,7 @@ export default function Page() {
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [authMode, setAuthMode] = useState<AuthMode>('login');
   const [registerForm, setRegisterForm] = useState({
     displayName: '',
     email: '',
@@ -550,6 +553,16 @@ export default function Page() {
   const [commissionerError, setCommissionerError] = useState('');
   const [commissionerSuccess, setCommissionerSuccess] = useState('');
   const [selectedCommissionerMemberId, setSelectedCommissionerMemberId] = useState<string | null>(null);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [accountPassword, setAccountPassword] = useState('');
+  const [accountBusy, setAccountBusy] = useState(false);
+  const [accountMessage, setAccountMessage] = useState('');
+  const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  const [memberCreateForm, setMemberCreateForm] = useState({
+    displayName: '',
+    email: '',
+    password: '',
+  });
   const [memberEditForm, setMemberEditForm] = useState({
     displayName: '',
     email: '',
@@ -782,12 +795,59 @@ export default function Page() {
       setPoolEntries([]);
       setCommissionerMembers([]);
       setSelectedCommissionerMemberId(null);
+      setAccountMenuOpen(false);
+      setAccountPassword('');
+      setAccountMessage('');
       setSaveMessage('');
       setAuthSuccess('Signed out.');
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Unable to sign out.');
     } finally {
       setAuthBusy(false);
+    }
+  };
+
+  const handleUpdateOwnPassword = async () => {
+    setAccountBusy(true);
+    setAccountMessage('');
+
+    try {
+      await readJson<{ user: AuthUser }>('/api/account', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: accountPassword }),
+      });
+
+      setAccountPassword('');
+      setAccountMessage('Password updated.');
+    } catch (err) {
+      setAccountMessage(err instanceof Error ? err.message : 'Unable to update password.');
+    } finally {
+      setAccountBusy(false);
+    }
+  };
+
+  const handleCreateMember = async () => {
+    setCommissionerBusy(true);
+    setCommissionerError('');
+    setCommissionerSuccess('');
+
+    try {
+      const payload = await readJson<{ member: CommissionerMember }>('/api/commissioner/members', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(memberCreateForm),
+      });
+
+      setCommissionerMembers((current) => [...current, payload.member]);
+      setPoolEntries((current) => [...current, { id: payload.member.id, name: payload.member.displayName, rosters: payload.member.rosters }]);
+      setMemberCreateForm({ displayName: '', email: '', password: '' });
+      setShowAddMemberForm(false);
+      setCommissionerSuccess('Member added.');
+    } catch (err) {
+      setCommissionerError(err instanceof Error ? err.message : 'Unable to add member.');
+    } finally {
+      setCommissionerBusy(false);
     }
   };
 
@@ -1146,6 +1206,7 @@ export default function Page() {
             borderRadius: 28,
             padding: '18px 28px',
             boxShadow: '0 24px 64px rgba(9, 34, 51, 0.18)',
+            position: 'relative',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -1161,115 +1222,209 @@ export default function Page() {
               }}
             />
           </div>
-        </header>
 
-        <section
-          style={{
-            marginTop: 24,
-            display: 'grid',
-            gridTemplateColumns: sessionUser ? 'minmax(0, 1fr)' : 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: 18,
-          }}
-        >
-          {!sessionUser ? (
-            <>
-              <div
+          {sessionUser ? (
+            <div style={{ position: 'absolute', right: 22, bottom: 18 }}>
+              <button
+                onClick={() => {
+                  setAccountMenuOpen((current) => !current);
+                  setAccountMessage('');
+                }}
                 style={{
-                  background: '#fff',
-                  borderRadius: 24,
-                  padding: 22,
-                  boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                  width: 42,
+                  height: 42,
+                  borderRadius: 999,
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  background: '#173b63',
+                  color: '#fff',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                  <LogIn size={18} color="#2f5f96" />
-                  <div style={{ fontSize: 20, fontWeight: 900 }}>Sign in</div>
-                </div>
-                <div style={{ display: 'grid', gap: 12 }}>
-                  <input
-                    value={loginForm.email}
-                    onChange={(event) => setLoginForm({ ...loginForm, email: event.target.value })}
-                    placeholder="Email"
-                    style={fieldStyle()}
-                  />
+                <CircleUserRound size={20} />
+              </button>
+
+              {accountMenuOpen ? (
+                <div
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    bottom: 54,
+                    width: 280,
+                    borderRadius: 18,
+                    background: '#fff',
+                    color: '#0f1720',
+                    padding: 16,
+                    boxShadow: '0 18px 40px rgba(9, 34, 51, 0.22)',
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                    Account
+                  </div>
+                  <div style={{ marginTop: 6, fontSize: 20, fontWeight: 900 }}>{sessionUser.displayName}</div>
+                  <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>{sessionUser.email}</div>
                   <input
                     type="password"
-                    value={loginForm.password}
-                    onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })}
-                    placeholder="Password"
-                    style={fieldStyle()}
+                    value={accountPassword}
+                    onChange={(event) => setAccountPassword(event.target.value)}
+                    placeholder="New password"
+                    style={{ ...fieldStyle(), marginTop: 14 }}
                   />
-                  <button
-                    onClick={handleLogin}
-                    style={{
-                      border: 'none',
-                      borderRadius: 16,
-                      padding: '14px 16px',
-                      background: 'linear-gradient(135deg, #487dc2 0%, #3c6ea9 100%)',
-                      color: '#fff',
-                      fontSize: 15,
-                      fontWeight: 900,
-                      cursor: authBusy ? 'wait' : 'pointer',
-                    }}
-                    disabled={authBusy}
-                  >
-                    Sign in to the pool
-                  </button>
+                  {accountMessage ? (
+                    <div style={{ marginTop: 10, fontSize: 12, color: accountMessage === 'Password updated.' ? '#2f5f96' : '#a61b1b' }}>
+                      {accountMessage}
+                    </div>
+                  ) : null}
+                  <div style={{ marginTop: 14, display: 'flex', gap: 8 }}>
+                    <button
+                      onClick={handleUpdateOwnPassword}
+                      disabled={accountBusy}
+                      style={{
+                        flex: 1,
+                        border: 'none',
+                        borderRadius: 12,
+                        padding: '12px 14px',
+                        background: '#173b63',
+                        color: '#fff',
+                        fontWeight: 800,
+                        cursor: accountBusy ? 'wait' : 'pointer',
+                      }}
+                    >
+                      Update password
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      disabled={authBusy}
+                      style={{
+                        flex: 1,
+                        border: '1px solid #d7e0e8',
+                        borderRadius: 12,
+                        padding: '12px 14px',
+                        background: '#fff',
+                        color: '#0f1720',
+                        fontWeight: 800,
+                        cursor: authBusy ? 'wait' : 'pointer',
+                      }}
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </header>
+
+        {!sessionUser ? (
+          <section
+            style={{
+              marginTop: 24,
+              display: 'grid',
+              justifyContent: 'center',
+            }}
+          >
+            <div
+              style={{
+                width: 'min(520px, 100%)',
+                background: '#fff',
+                borderRadius: 24,
+                padding: 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                {authMode === 'login' ? <LogIn size={18} color="#2f5f96" /> : <UserPlus size={18} color="#2f5f96" />}
+                <div style={{ fontSize: 20, fontWeight: 900 }}>
+                  {authMode === 'login' ? 'Sign in' : 'Create account'}
                 </div>
               </div>
 
-              <div
-                style={{
-                  background: '#fff',
-                  borderRadius: 24,
-                  padding: 22,
-                  boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                  <UserPlus size={18} color="#2f5f96" />
-                  <div style={{ fontSize: 20, fontWeight: 900 }}>Create account</div>
-                </div>
-                <div style={{ display: 'grid', gap: 12 }}>
+              <div style={{ display: 'grid', gap: 12 }}>
+                {authMode === 'register' ? (
                   <input
                     value={registerForm.displayName}
                     onChange={(event) => setRegisterForm({ ...registerForm, displayName: event.target.value })}
                     placeholder="Display name"
                     style={fieldStyle()}
                   />
-                  <input
-                    value={registerForm.email}
-                    onChange={(event) => setRegisterForm({ ...registerForm, email: event.target.value })}
-                    placeholder="Email"
-                    style={fieldStyle()}
-                  />
-                  <input
-                    type="password"
-                    value={registerForm.password}
-                    onChange={(event) => setRegisterForm({ ...registerForm, password: event.target.value })}
-                    placeholder="Password"
-                    style={fieldStyle()}
-                  />
-                  <button
-                    onClick={handleRegister}
-                    style={{
-                      border: 'none',
-                      borderRadius: 16,
-                      padding: '14px 16px',
-                      background: 'linear-gradient(135deg, #315f95 0%, #284f7d 100%)',
-                      color: '#fff',
-                      fontSize: 15,
-                      fontWeight: 900,
-                      cursor: authBusy ? 'wait' : 'pointer',
-                    }}
-                    disabled={authBusy}
-                  >
-                    Create account
-                  </button>
-                </div>
+                ) : null}
+
+                <input
+                  value={authMode === 'login' ? loginForm.email : registerForm.email}
+                  onChange={(event) =>
+                    authMode === 'login'
+                      ? setLoginForm({ ...loginForm, email: event.target.value })
+                      : setRegisterForm({ ...registerForm, email: event.target.value })
+                  }
+                  placeholder="Email"
+                  style={fieldStyle()}
+                />
+                <input
+                  type="password"
+                  value={authMode === 'login' ? loginForm.password : registerForm.password}
+                  onChange={(event) =>
+                    authMode === 'login'
+                      ? setLoginForm({ ...loginForm, password: event.target.value })
+                      : setRegisterForm({ ...registerForm, password: event.target.value })
+                  }
+                  placeholder="Password"
+                  style={fieldStyle()}
+                />
+                <button
+                  onClick={authMode === 'login' ? handleLogin : handleRegister}
+                  style={{
+                    border: 'none',
+                    borderRadius: 16,
+                    padding: '14px 16px',
+                    background:
+                      authMode === 'login'
+                        ? 'linear-gradient(135deg, #487dc2 0%, #3c6ea9 100%)'
+                        : 'linear-gradient(135deg, #315f95 0%, #284f7d 100%)',
+                    color: '#fff',
+                    fontSize: 15,
+                    fontWeight: 900,
+                    cursor: authBusy ? 'wait' : 'pointer',
+                  }}
+                  disabled={authBusy}
+                >
+                  {authMode === 'login' ? 'Sign in to the pool' : 'Create account'}
+                </button>
               </div>
-            </>
-          ) : (
+
+              <button
+                onClick={() => {
+                  setAuthMode((current) => (current === 'login' ? 'register' : 'login'));
+                  setAuthError('');
+                  setAuthSuccess('');
+                }}
+                style={{
+                  marginTop: 14,
+                  border: 'none',
+                  background: 'transparent',
+                  color: '#2f5f96',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  padding: 0,
+                }}
+              >
+                {authMode === 'login'
+                  ? 'New Member? Click here to register'
+                  : 'Already have an account? Click here to sign in'}
+              </button>
+            </div>
+          </section>
+        ) : (
+        <section
+          style={{
+            marginTop: 24,
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1fr)',
+            gap: 18,
+          }}
+        >
             <div
               style={{
                 background: '#fff',
@@ -1319,25 +1474,10 @@ export default function Page() {
                     </button>
                   </>
                 ) : null}
-                <button
-                  onClick={handleLogout}
-                  style={{
-                    border: '1px solid #d7e0e8',
-                    borderRadius: 16,
-                    padding: '14px 16px',
-                    background: '#fff',
-                    color: '#0f1720',
-                    fontWeight: 900,
-                    cursor: authBusy ? 'wait' : 'pointer',
-                  }}
-                  disabled={authBusy}
-                >
-                  Sign out
-                </button>
               </div>
             </div>
-          )}
         </section>
+        )}
 
         {authError ? (
           <div
@@ -1377,6 +1517,8 @@ export default function Page() {
           </div>
         ) : null}
 
+        {sessionUser ? (
+        <>
         <section
           style={{
             marginTop: 24,
@@ -2415,9 +2557,25 @@ export default function Page() {
               <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                 Member management
               </div>
-              <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
-                Edit pool members and saved lineups
-              </h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
+                  Edit pool members and saved lineups
+                </h2>
+                <button
+                  onClick={() => setShowAddMemberForm((current) => !current)}
+                  style={{
+                    border: 'none',
+                    borderRadius: 14,
+                    padding: '12px 16px',
+                    background: '#2d5e94',
+                    color: '#fff',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {showAddMemberForm ? 'Close Add Members' : 'Add Members'}
+                </button>
+              </div>
 
               {!sessionUser ? (
                 <div
@@ -2433,6 +2591,60 @@ export default function Page() {
                 </div>
               ) : (
                 <>
+                  {showAddMemberForm ? (
+                    <div
+                      style={{
+                        marginBottom: 18,
+                        border: '1px solid #d7e0e8',
+                        borderRadius: 20,
+                        padding: 18,
+                        background: '#f8fbfd',
+                        display: 'grid',
+                        gap: 12,
+                      }}
+                    >
+                      <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720' }}>Add a new member</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+                        <input
+                          value={memberCreateForm.displayName}
+                          onChange={(event) => setMemberCreateForm({ ...memberCreateForm, displayName: event.target.value })}
+                          placeholder="Display name"
+                          style={fieldStyle()}
+                        />
+                        <input
+                          value={memberCreateForm.email}
+                          onChange={(event) => setMemberCreateForm({ ...memberCreateForm, email: event.target.value })}
+                          placeholder="Email"
+                          style={fieldStyle()}
+                        />
+                        <input
+                          type="password"
+                          value={memberCreateForm.password}
+                          onChange={(event) => setMemberCreateForm({ ...memberCreateForm, password: event.target.value })}
+                          placeholder="Password"
+                          style={fieldStyle()}
+                        />
+                      </div>
+                      <div>
+                        <button
+                          onClick={handleCreateMember}
+                          disabled={commissionerBusy}
+                          style={{
+                            border: 'none',
+                            borderRadius: 14,
+                            padding: '12px 16px',
+                            background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                            color: '#fff',
+                            fontWeight: 900,
+                            cursor: commissionerBusy ? 'wait' : 'pointer',
+                          }}
+                        >
+                          Create member
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+
                   {commissionerError ? (
                     <div
                       style={{
@@ -2624,6 +2836,9 @@ export default function Page() {
             </section>
           </main>
         )}
+
+        </>
+        ) : null}
 
         {activeStandingEntry ? (
           <div

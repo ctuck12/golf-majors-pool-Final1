@@ -372,6 +372,26 @@ export async function saveRosterForUser(userId: string, tournamentId: Tournament
   return user.rosters[tournamentId] ?? [];
 }
 
+export async function updateUserPassword(userId: string, password: string) {
+  if (password.length < 8) {
+    throw new Error('Password must be at least 8 characters.');
+  }
+
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.id === userId);
+
+  if (!user) {
+    throw new Error('User account was not found.');
+  }
+
+  const passwordSalt = randomBytes(16).toString('hex');
+  user.passwordSalt = passwordSalt;
+  user.passwordHash = hashPassword(password, passwordSalt);
+
+  await writeDatabase(database);
+  return toPublicUser(user);
+}
+
 export async function listPoolMembers(userId: string) {
   const database = await readDatabase();
   const user = database.users.find((item) => item.id === userId);
