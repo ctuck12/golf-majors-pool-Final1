@@ -3375,12 +3375,6 @@ export default function Page() {
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
                   <span style={{ marginRight: 6 }}>➤</span>
-                  <strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool
-                  field.
-                </div>
-                <div>
-                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
-                  <span style={{ marginRight: 6 }}>➤</span>
                   The scores of all <strong>6 golfers</strong> on your roster count towards your score.
                 </div>
                 <div>
@@ -3389,6 +3383,12 @@ export default function Page() {
                   You’ll enter what you think the winning score for the champion will be (i.e. -12) when entering your
                   picks, to serve as a tiebreaker value.
                 </div>
+                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
+                  <span style={{ marginRight: 6 }}>➤</span>
+                  <strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool
+                  field.
+                </div>
+                <div>
               </div>
               <div style={{ margin: '20px 0', borderTop: '1px solid #d7dee6' }} />
               <div style={{ fontSize: 18, fontWeight: 700, color: '#0f1720' }}>
