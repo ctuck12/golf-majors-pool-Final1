@@ -687,6 +687,16 @@ export default function Page() {
 
   const tournament = TOURNAMENTS.find((item) => item.id === selectedTournament) ?? TOURNAMENTS[0];
   const canManagePool = canAccessCommissionerConsole(sessionUser);
+  const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
+  const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
+  const entriesTournamentId = getDefaultTournamentId(tournamentCardStatuses);
+  const entriesTournament = TOURNAMENTS.find((item) => item.id === entriesTournamentId) ?? TOURNAMENTS[0];
+  const entriesTournamentStatus = tournamentCardStatuses[entriesTournamentId];
+  const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE';
+  const entriesPreFieldView =
+    entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null;
+  const entriesDefaultLocked = isLineupLocked(entriesTournament.lockAt, nowTick);
+  const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? entriesDefaultLocked;
 
   const restoreServerSessionFromStoredAccount = async (storedAccount: LocalStoredAccount) => {
     try {
@@ -1263,16 +1273,6 @@ export default function Page() {
   const selectedCommissionerMember =
     commissionerMembers.find((member) => member.id === selectedCommissionerMemberId) ?? null;
 
-  const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
-  const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
-  const entriesTournamentId = getDefaultTournamentId(tournamentCardStatuses);
-  const entriesTournament = TOURNAMENTS.find((item) => item.id === entriesTournamentId) ?? TOURNAMENTS[0];
-  const entriesTournamentStatus = tournamentCardStatuses[entriesTournamentId];
-  const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE';
-  const entriesPreFieldView =
-    entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null;
-  const entriesDefaultLocked = isLineupLocked(entriesTournament.lockAt, nowTick);
-  const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? entriesDefaultLocked;
   const savedRoster = sessionUser?.rosters[entriesTournamentId] ?? [];
   const hasSubmittedRoster = savedRoster.length === REQUIRED_GOLFERS;
   const submittedEntries = poolEntries.filter((entry) => (entry.rosters[entriesTournamentId] ?? []).length === REQUIRED_GOLFERS);
