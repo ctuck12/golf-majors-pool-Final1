@@ -1362,7 +1362,7 @@ export default function Page() {
             background: 'linear-gradient(135deg, #173b63 0%, #102842 100%)',
             color: '#fff',
             borderRadius: 28,
-            padding: '18px 28px',
+            padding: '18px 28px 14px',
             boxShadow: '0 24px 64px rgba(9, 34, 51, 0.18)',
             position: 'relative',
           }}
@@ -1379,6 +1379,44 @@ export default function Page() {
                 background: 'transparent',
               }}
             />
+          </div>
+
+          <div
+            style={{
+              marginTop: 18,
+              paddingTop: 12,
+              borderTop: '1px solid rgba(112, 202, 220, 0.18)',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 12,
+              flexWrap: 'wrap',
+              paddingRight: sessionUser ? 72 : 0,
+            }}
+          >
+            {(['Standings', 'My entries', 'Details', 'Commissioner console'] as MainTab[])
+              .filter((tab) => tab !== 'Commissioner console' || canManagePool)
+              .map((tab) => {
+                const active = tab === mainTab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setMainTab(tab)}
+                    style={{
+                      border: 'none',
+                      borderBottom: active ? '3px solid #63d9ea' : '3px solid transparent',
+                      background: 'transparent',
+                      color: active ? '#63d9ea' : '#ffffff',
+                      padding: '8px 8px 10px',
+                      fontSize: 16,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    {tab}
+                  </button>
+                );
+              })}
           </div>
 
           {sessionUser ? (
@@ -1745,62 +1783,59 @@ export default function Page() {
 
         {sessionUser ? (
         <>
-        <section
-          style={{
-            marginTop: 24,
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            gap: 16,
-            overflowX: 'hidden',
-          }}
-        >
-          <div
+        {mainTab === 'Standings' ? (
+          <section
             style={{
+              marginTop: 24,
               display: 'flex',
-              gap: 6,
-              flexWrap: 'nowrap',
-              overflowX: 'auto',
-              overflowY: 'hidden',
-              width: '100%',
-              paddingBottom: 2,
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'thin',
-              overscrollBehaviorX: 'contain',
-              overscrollBehaviorY: 'none',
-              touchAction: 'pan-x',
-              borderBottom: '1px solid #d7e0e8',
+              overflowX: 'hidden',
             }}
           >
-            {TOURNAMENTS.map((item) => {
-              const active = item.id === selectedTournament;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setSelectedTournament(item.id)}
-                  style={{
-                    border: active ? '1px solid #d7e0e8' : '1px solid transparent',
-                    borderBottom: active ? '1px solid #fff' : '1px solid transparent',
-                    background: active ? '#fff' : 'transparent',
-                    color: active ? '#1f2f42' : '#46bfd1',
-                    borderRadius: '14px 14px 0 0',
-                    padding: '10px 12px 9px',
-                    width: TOURNAMENT_CARD_WIDTH,
-                    height: TOURNAMENT_CARD_HEIGHT,
-                    boxSizing: 'border-box',
-                    flex: '0 0 auto',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 13,
-                    fontWeight: active ? 500 : 400,
-                    lineHeight: 1.1,
-                    boxShadow: 'none',
-                    marginBottom: -1,
-                  }}
+            <div
+              style={{
+                display: 'flex',
+                gap: 6,
+                flexWrap: 'nowrap',
+                overflowX: 'auto',
+                overflowY: 'hidden',
+                width: '100%',
+                paddingBottom: 2,
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'thin',
+                overscrollBehaviorX: 'contain',
+                overscrollBehaviorY: 'none',
+                touchAction: 'pan-x',
+                borderBottom: '1px solid #d7e0e8',
+              }}
+            >
+              {TOURNAMENTS.map((item) => {
+                const active = item.id === selectedTournament;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setSelectedTournament(item.id)}
+                    style={{
+                      border: active ? '1px solid #d7e0e8' : '1px solid transparent',
+                      borderBottom: active ? '1px solid #fff' : '1px solid transparent',
+                      background: active ? '#fff' : 'transparent',
+                      color: active ? '#1f2f42' : '#46bfd1',
+                      borderRadius: '14px 14px 0 0',
+                      padding: '10px 12px 9px',
+                      width: TOURNAMENT_CARD_WIDTH,
+                      height: TOURNAMENT_CARD_HEIGHT,
+                      boxSizing: 'border-box',
+                      flex: '0 0 auto',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 13,
+                      fontWeight: active ? 500 : 400,
+                      lineHeight: 1.1,
+                      boxShadow: 'none',
+                      marginBottom: -1,
+                    }}
                   >
                     {TOURNAMENT_TAB_LOGOS[item.id] ? (
                       <img
@@ -1820,35 +1855,9 @@ export default function Page() {
                   </button>
                 );
               })}
-          </div>
-
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            {(['Standings', 'My entries', 'Details', 'Commissioner console'] as MainTab[])
-              .filter((tab) => tab !== 'Commissioner console' || canManagePool)
-              .map((tab) => {
-              const active = tab === mainTab;
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setMainTab(tab)}
-                  style={{
-                    border: active ? '1px solid #3f73ad' : '1px solid #d7e0e8',
-                    background: active ? '#3f73ad' : '#fff',
-                    color: active ? '#fff' : '#31424f',
-                    borderRadius: 999,
-                    padding: '10px 16px',
-                    fontSize: 14,
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    boxShadow: active ? '0 10px 20px rgba(63, 115, 173, 0.2)' : 'none',
-                  }}
-                >
-                  {tab}
-                </button>
-              );
-            })}
-          </div>
-        </section>
+            </div>
+          </section>
+        ) : null}
 
         {error ? (
           <div
