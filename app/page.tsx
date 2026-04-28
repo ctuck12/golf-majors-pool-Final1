@@ -3409,10 +3409,10 @@ export default function Page() {
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
                   <span style={{ marginRight: 6 }}>➤</span>
-                  <span style={{ color: '#63d9ea', fontWeight: 700, marginRight: 4 }}>?</span>
+                  <span style={{ color: '#dc2626', fontWeight: 800, fontSize: 20, marginRight: 4 }}>?</span>
                   <span style={{ marginRight: 10 }}>:</span>
                   <span>Clayton Tucker</span>
-                  <span style={{ margin: '0 4px 0 14px' }}>📞</span>
+                  <span style={{ margin: '0 3px 0 8px' }}>📞</span>
                   <span>(325.665.8299)</span>
                 </div>
               </div>
