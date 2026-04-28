@@ -660,6 +660,7 @@ export default function Page() {
   const [accountDisplayName, setAccountDisplayName] = useState('');
   const [accountBusy, setAccountBusy] = useState(false);
   const [accountMessage, setAccountMessage] = useState('');
+  const [myEntriesEditorOpen, setMyEntriesEditorOpen] = useState(false);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [memberCreateForm, setMemberCreateForm] = useState({
     displayName: '',
@@ -1256,8 +1257,11 @@ export default function Page() {
   const selectedCommissionerMember =
     commissionerMembers.find((member) => member.id === selectedCommissionerMemberId) ?? null;
 
+  const savedRoster = sessionUser?.rosters[selectedTournament] ?? [];
+  const hasSubmittedRoster = savedRoster.length === REQUIRED_GOLFERS;
   const rosterPlayers = selectedRoster.map((id) => playersById[id]).filter(Boolean);
   const orderedRosterPlayers = [...rosterPlayers].sort((left, right) => right.salary - left.salary);
+  const savedRosterPlayers = savedRoster.map((id) => playersById[id]).filter(Boolean);
   const salaryUsed = rosterPlayers.reduce((sum, player) => sum + player.salary, 0);
   const salaryRemaining = SALARY_CAP - salaryUsed;
   const playersNeeded = Math.max(0, REQUIRED_GOLFERS - selectedRoster.length);
@@ -1387,9 +1391,22 @@ export default function Page() {
 
       applySession(payload);
       setSaveMessage('Lineup saved to your account for this tournament.');
+      setMyEntriesEditorOpen(false);
     } catch (err) {
       setSaveMessage(err instanceof Error ? err.message : 'Unable to save lineup.');
     }
+  };
+
+  const openMyEntriesEditor = () => {
+    setSaveMessage('');
+    setSelectedRoster(savedRoster.length > 0 ? savedRoster : []);
+    setMyEntriesEditorOpen(true);
+    setMainTab('My entries');
+  };
+
+  const closeMyEntriesEditor = () => {
+    setMyEntriesEditorOpen(false);
+    setSaveMessage('');
   };
 
   const renderRosterCards = (background: string) => (
@@ -2193,7 +2210,7 @@ export default function Page() {
 
                     {picksOpenForTournament ? (
                       <button
-                        onClick={() => setMainTab('My entries')}
+                        onClick={openMyEntriesEditor}
                         style={{
                           marginTop: 24,
                           border: 'none',
@@ -2563,139 +2580,502 @@ export default function Page() {
               >
                 This tab is ready for saved entries, but you need to sign in first so the lineup belongs to your account.
               </div>
-            ) : null}
-
-            <section
-              style={{
-                background: '#fff',
-                borderRadius: 24,
-                padding: 22,
-                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
-              }}
-            >
-              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                My entries
-              </div>
-              <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
-                Build and save your {tournament.name} lineup
-              </h2>
-
-              <div
+            ) : sessionUser && !myEntriesEditorOpen ? (
+              <section
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
-                  gap: 20,
+                  background: '#fff',
+                  borderRadius: 24,
+                  padding: 22,
+                  boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                 }}
               >
-                <div
-                  style={{
-                    background: '#f8fbfd',
-                    border: '1px solid #e6edf1',
-                    borderRadius: 20,
-                    padding: 18,
-                  }}
-                >
-                  {renderRosterCards('#fff')}
-                  {renderBudgetCards('#fff', '1px solid #e6edf1')}
+                <h2 style={{ margin: 0, fontSize: 26, color: '#0f1720' }}>Manage Entries</h2>
+                <div style={{ marginTop: 18, color: '#0f1720', fontSize: 15, lineHeight: 1.6 }}>
+                  Make your picks for each entry below. You can modify your picks up until lineup lock unless the
+                  commissioner has manually reopened editing for the tournament.
+                </div>
 
-                  {saveMessage ? (
-                    <div
-                      style={{
-                        marginTop: 14,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        borderRadius: 14,
-                        background: '#eef4ff',
-                        color: '#2f5f96',
-                        padding: '12px 14px',
-                      }}
-                    >
-                      <CheckCircle2 size={16} />
-                      <span>{saveMessage}</span>
-                    </div>
-                  ) : null}
-
-                  <button
-                    onClick={handleSave}
+                {saveMessage ? (
+                  <div
                     style={{
-                      marginTop: 16,
-                      width: '100%',
-                      border: 'none',
-                      borderRadius: 16,
-                      padding: '14px 16px',
-                      background: canSave ? 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)' : '#cbd5df',
-                      color: '#fff',
-                      fontSize: 15,
-                      fontWeight: 900,
-                      cursor: canSave ? 'pointer' : 'not-allowed',
+                      marginTop: 18,
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
                       gap: 8,
+                      borderRadius: 14,
+                      background: '#eef4ff',
+                      color: '#2f5f96',
+                      padding: '12px 14px',
                     }}
                   >
-                    <Save size={16} />
-                    {sessionUser ? 'Save lineup' : 'Sign in to save'}
+                    <CheckCircle2 size={16} />
+                    <span>{saveMessage}</span>
+                  </div>
+                ) : null}
+
+                <div
+                  style={{
+                    marginTop: 24,
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(180px, 1fr) minmax(260px, 1.2fr) 160px',
+                    gap: 20,
+                    alignItems: 'center',
+                  }}
+                >
+                  <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>Entry</div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>{tournament.name} Picks</div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', textAlign: 'right' }}>Options</div>
+
+                  <div style={{ fontSize: 18, color: '#0f1720' }}>{userLabel}</div>
+                  <div>
+                    {hasSubmittedRoster ? (
+                      <div
+                        style={{
+                          borderRadius: 16,
+                          border: '1px solid #dce6ee',
+                          background: '#f8fbfd',
+                          padding: '12px 14px',
+                          display: 'grid',
+                          gap: 10,
+                        }}
+                      >
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                          {savedRosterPlayers.map((player) => (
+                            <span
+                              key={player.id}
+                              style={{
+                                borderRadius: 999,
+                                background: '#e8f3ff',
+                                color: '#2f5f96',
+                                padding: '7px 12px',
+                                fontSize: 13,
+                                fontWeight: 800,
+                              }}
+                            >
+                              {player.name}
+                            </span>
+                          ))}
+                        </div>
+                        <div style={{ color: '#5b6b79', fontSize: 13 }}>
+                          Roster submitted for {tournament.name}. You can reopen it with <strong>Edit Picks</strong>{' '}
+                          while lineups are unlocked.
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={openMyEntriesEditor}
+                        style={{
+                          border: 'none',
+                          borderRadius: 14,
+                          padding: '12px 18px',
+                          background: '#7ee5e6',
+                          color: '#0f1720',
+                          fontSize: 15,
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Make Your Picks
+                      </button>
+                    )}
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <button
+                      onClick={openMyEntriesEditor}
+                      style={{
+                        border: '1px solid #d7e0e8',
+                        borderRadius: 14,
+                        padding: '12px 18px',
+                        background: '#fff',
+                        color: '#0f1720',
+                        fontSize: 15,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {hasSubmittedRoster ? 'Edit Picks' : 'Open Pick Sheet'}
+                    </button>
+                  </div>
+                </div>
+              </section>
+            ) : sessionUser && (selectedTournamentStatus?.label === 'UP NEXT' || selectedTournamentStatus === null) ? (
+              <section
+                style={{
+                  background: '#fff',
+                  borderRadius: 24,
+                  padding: 22,
+                  boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+                  <h2 style={{ margin: 0, fontSize: 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
+                  <button
+                    onClick={closeMyEntriesEditor}
+                    style={{
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 14,
+                      padding: '12px 18px',
+                      background: '#fff',
+                      color: '#0f1720',
+                      fontSize: 14,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Back to entries
                   </button>
                 </div>
 
-                <section
+                <div
                   style={{
-                    background: '#fff',
-                    borderRadius: 20,
-                    padding: 18,
-                    border: '1px solid #e6edf1',
+                    marginTop: 18,
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(0, 1.55fr) minmax(320px, 0.85fr)',
+                    gap: 28,
+                    alignItems: 'start',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                    <Trophy size={18} color="#2f5f96" />
-                    <div style={{ fontSize: 18, fontWeight: 900 }}>Tracked golfers</div>
-                  </div>
+                  <div style={{ display: 'grid', gap: 20 }}>
+                    <div
+                      style={{
+                        borderRadius: 16,
+                        background: '#d8f6f7',
+                        color: '#0f1720',
+                        padding: '18px 22px',
+                        fontSize: 15,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      NOTE: Salaries are now determined by using a golfer&apos;s odds to win the tournament instead of
+                      using their Official World Golf Ranking. This was done to properly assign salaries to LIV golfers
+                      who will participate in majors.
+                    </div>
 
-                  <div style={{ display: 'grid', gap: 10 }}>
-                    {players.map((player) => {
-                      const selected = selectedRoster.includes(player.id);
-                      const disabled =
-                        !selected &&
-                        (locked || selectedRoster.length >= REQUIRED_GOLFERS || player.salary > salaryRemaining);
-
-                      return (
-                        <button
-                          key={player.id}
-                          onClick={() => togglePlayer(player.id)}
+                    <section
+                      style={{
+                        borderRadius: 18,
+                        border: '1px solid #dce6ee',
+                        overflow: 'hidden',
+                        background: '#fff',
+                      }}
+                    >
+                      <div
+                        style={{
+                          padding: 22,
+                          background: '#f3f6fa',
+                          borderBottom: '1px solid #dce6ee',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          gap: 16,
+                          alignItems: 'flex-start',
+                        }}
+                      >
+                        <div style={{ fontSize: 26, lineHeight: 1.25, fontWeight: 900, color: '#0f1720' }}>
+                          {selectedTournament === 'pga' ? 'PGA Championship' : tournament.name}
+                          <br />
+                          Tournament Field
+                        </div>
+                        <div
                           style={{
-                            textAlign: 'left',
-                            borderRadius: 16,
-                            border: selected ? '2px solid #3f73ad' : disabled ? '1px solid #d7dee6' : '1px solid #e6edf1',
-                            background: selected ? '#eef4ff' : disabled ? '#f3f5f7' : '#fff',
-                            padding: 14,
-                            cursor: disabled ? 'not-allowed' : 'pointer',
-                            opacity: disabled ? 0.58 : 1,
+                            width: 340,
+                            maxWidth: '100%',
+                            borderRadius: 12,
+                            border: '1px solid #d7e0e8',
+                            background: '#fff',
+                            padding: '14px 18px',
+                            color: '#97a3ad',
+                            fontSize: 15,
                           }}
-                          disabled={disabled}
                         >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                            <div>
-                              <div style={{ fontWeight: 800, color: disabled ? '#748391' : '#0f1720' }}>{player.name}</div>
-                              <div style={{ marginTop: 4, color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 13 }}>
-                                OWGR {player.worldRank} | {player.odds}
-                              </div>
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
-                              <div style={{ color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 12 }}>
-                                ${player.salary.toLocaleString()}
-                              </div>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
+                          Player search
+                        </div>
+                      </div>
+
+                      <div style={{ padding: 20, minHeight: 430 }}>
+                        <div
+                          style={{
+                            borderRadius: 14,
+                            background: '#f7f0da',
+                            color: '#7a5a00',
+                            padding: '18px 20px',
+                            fontSize: 15,
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          Picks can not be entered until the tournament field has been finalized and world golf
+                          rankings have been updated for the week (usually by Monday morning, the week of the
+                          tournament).
+                        </div>
+                      </div>
+                    </section>
                   </div>
-                </section>
-              </div>
-            </section>
+
+                  <aside style={{ display: 'grid', gap: 18 }}>
+                    <div
+                      style={{
+                        borderRadius: 16,
+                        border: '1px solid #dce6ee',
+                        padding: '16px 20px',
+                        background: '#fff',
+                      }}
+                    >
+                      <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
+                      <div style={{ marginTop: 4, fontSize: 44, lineHeight: 1, fontWeight: 900, color: '#198754' }}>
+                        ${SALARY_CAP.toLocaleString()}
+                      </div>
+                      <div style={{ marginTop: 12, color: '#0f1720', fontSize: 15 }}>
+                        Avg Rem./Player: ${(SALARY_CAP / REQUIRED_GOLFERS).toLocaleString()}
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: 30, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
+                    <div
+                      style={{
+                        borderRadius: 16,
+                        background: '#d8f6f7',
+                        padding: '16px 20px',
+                        color: '#0f1720',
+                        fontSize: 15,
+                      }}
+                    >
+                      No players selected
+                    </div>
+                    <div style={{ color: '#0f1720', fontSize: 14 }}>
+                      Click the plus sign to add a golfer or the minus sign to remove them.
+                    </div>
+
+                    <div style={{ display: 'grid', gap: 14 }}>
+                      {Array.from({ length: REQUIRED_GOLFERS }, (_, index) => (
+                        <div
+                          key={`placeholder-slot-${index + 1}`}
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: '70px minmax(0, 1fr)',
+                            alignItems: 'center',
+                            borderRadius: 14,
+                            border: '1px solid #d7e0e8',
+                            background: '#fff',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <div
+                            style={{
+                              minHeight: 92,
+                              background: 'linear-gradient(180deg, #e7eaee 0%, #d8dde3 100%)',
+                            }}
+                          />
+                          <div style={{ padding: '0 18px', fontSize: 18, color: '#556572' }}>Golfer #{index + 1}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <input
+                      disabled
+                      placeholder="Enter tiebreak value*"
+                      style={{
+                        ...fieldStyle(),
+                        opacity: 0.78,
+                      }}
+                    />
+                    <button
+                      disabled
+                      style={{
+                        width: 170,
+                        border: 'none',
+                        borderRadius: 14,
+                        padding: '14px 18px',
+                        background: '#dfe5eb',
+                        color: '#566675',
+                        fontSize: 15,
+                        fontWeight: 900,
+                        cursor: 'not-allowed',
+                      }}
+                    >
+                      Submit Roster
+                    </button>
+                    <div style={{ color: '#5b6b79', fontSize: 13, lineHeight: 1.65 }}>
+                      * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
+                      Use their total strokes, NOT score to par. Example: Enter 274 (NOT -14)
+                    </div>
+                  </aside>
+                </div>
+              </section>
+            ) : sessionUser ? (
+              <section
+                style={{
+                  background: '#fff',
+                  borderRadius: 24,
+                  padding: 22,
+                  boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                      Pick Sheet
+                    </div>
+                    <h2 style={{ margin: '6px 0 0', fontSize: 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
+                  </div>
+                  <button
+                    onClick={closeMyEntriesEditor}
+                    style={{
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 14,
+                      padding: '12px 18px',
+                      background: '#fff',
+                      color: '#0f1720',
+                      fontSize: 14,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Back to entries
+                  </button>
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 18,
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+                    gap: 20,
+                  }}
+                >
+                  <div style={{ display: 'grid', gap: 18 }}>
+                    <div
+                      style={{
+                        borderRadius: 16,
+                        background: '#d8f6f7',
+                        color: '#0f1720',
+                        padding: '18px 22px',
+                        fontSize: 15,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      NOTE: Salaries are now determined by using a golfer&apos;s odds to win the tournament instead of
+                      using their Official World Golf Ranking. This was done to properly assign salaries to LIV golfers
+                      who will participate in majors.
+                    </div>
+
+                    <section
+                      style={{
+                        background: '#fff',
+                        borderRadius: 20,
+                        padding: 18,
+                        border: '1px solid #e6edf1',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                        <Trophy size={18} color="#2f5f96" />
+                        <div style={{ fontSize: 18, fontWeight: 900 }}>
+                          {selectedTournament === 'pga' ? 'PGA Championship' : tournament.name} Tournament Field
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gap: 10 }}>
+                        {players.map((player) => {
+                          const selected = selectedRoster.includes(player.id);
+                          const disabled =
+                            !selected &&
+                            (locked || selectedRoster.length >= REQUIRED_GOLFERS || player.salary > salaryRemaining);
+
+                          return (
+                            <button
+                              key={player.id}
+                              onClick={() => togglePlayer(player.id)}
+                              style={{
+                                textAlign: 'left',
+                                borderRadius: 16,
+                                border: selected
+                                  ? '2px solid #3f73ad'
+                                  : disabled
+                                    ? '1px solid #d7dee6'
+                                    : '1px solid #e6edf1',
+                                background: selected ? '#eef4ff' : disabled ? '#f3f5f7' : '#fff',
+                                padding: 14,
+                                cursor: disabled ? 'not-allowed' : 'pointer',
+                                opacity: disabled ? 0.58 : 1,
+                              }}
+                              disabled={disabled}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                                <div>
+                                  <div style={{ fontWeight: 800, color: disabled ? '#748391' : '#0f1720' }}>
+                                    {player.name}
+                                  </div>
+                                  <div style={{ marginTop: 4, color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 13 }}>
+                                    OWGR {player.worldRank} | {player.odds}
+                                  </div>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                  <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
+                                  <div style={{ color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 12 }}>
+                                    ${player.salary.toLocaleString()}
+                                  </div>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  </div>
+
+                  <div
+                    style={{
+                      background: '#f8fbfd',
+                      border: '1px solid #e6edf1',
+                      borderRadius: 20,
+                      padding: 18,
+                    }}
+                  >
+                    {renderRosterCards('#fff')}
+                    {renderBudgetCards('#fff', '1px solid #e6edf1')}
+
+                    {saveMessage ? (
+                      <div
+                        style={{
+                          marginTop: 14,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          borderRadius: 14,
+                          background: '#eef4ff',
+                          color: '#2f5f96',
+                          padding: '12px 14px',
+                        }}
+                      >
+                        <CheckCircle2 size={16} />
+                        <span>{saveMessage}</span>
+                      </div>
+                    ) : null}
+
+                    <button
+                      onClick={handleSave}
+                      style={{
+                        marginTop: 16,
+                        width: '100%',
+                        border: 'none',
+                        borderRadius: 16,
+                        padding: '14px 16px',
+                        background: canSave ? 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)' : '#cbd5df',
+                        color: '#fff',
+                        fontSize: 15,
+                        fontWeight: 900,
+                        cursor: canSave ? 'pointer' : 'not-allowed',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                      }}
+                    >
+                      <Save size={16} />
+                      Save lineup
+                    </button>
+                  </div>
+                </div>
+              </section>
+            ) : null}
           </main>
         )}
 
