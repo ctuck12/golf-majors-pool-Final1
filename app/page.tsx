@@ -3448,12 +3448,12 @@ export default function Page() {
                   <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Ace:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
                   <div style={{ margin: '6px 0 2px', borderTop: '2px solid #c5c7cc', width: '78%' }} />
                   <div style={{ fontSize: 15, fontWeight: 800 }}><strong>3 Birdie Streak:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>4 pts</span></div>
-                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Bogey Free Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Tourney Low Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>No Bogey Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Tourn. Low Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>pts</span></div>
                   <div style={{ margin: '6px 0 2px', borderTop: '2px solid #c5c7cc', width: '78%' }} />
-                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>1<sup>st</sup> Rnd Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>2<sup>nd</sup> Rnd Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>3<sup>rd</sup> Rnd Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Rnd 1 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Rnd 2 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Rnd 3 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
                 </div>
                 <div style={{ display: 'grid', gap: 8 }}>
                   <div style={{ display: 'grid', gap: 8 }}>
