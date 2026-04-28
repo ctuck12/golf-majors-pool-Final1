@@ -26,8 +26,6 @@ const REQUIRED_GOLFERS = 6;
 const STORAGE_PREFIX = 'golf-pool-live';
 const SALARY_MIN = 5000;
 const SALARY_MAX = 10800;
-const VEGAS_WEIGHT = 0.65;
-const WORLD_RANK_WEIGHT = 0.35;
 const DEFAULT_JOIN_CODE = 'MAJORS2026';
 const COMMISSIONER_EMAIL = 'ctuck12@gmail.com';
 const COMMISSIONER_DISPLAY_NAME = 'Clayton Tucker';
@@ -253,18 +251,13 @@ function buildPricedPlayers(
     odds: liveOddsMap[normalizeName(player.name)] ?? player.defaultOdds,
   }));
   const impliedProbabilities = playersWithOdds.map((player) => parseAmericanOdds(player.odds));
-  const ranks = playersWithOdds.map((player) => player.worldRank);
   const minProbability = Math.min(...impliedProbabilities);
   const maxProbability = Math.max(...impliedProbabilities);
-  const minRank = Math.min(...ranks);
-  const maxRank = Math.max(...ranks);
 
   return playersWithOdds.map((player) => {
     const oddsScore = normalizeValue(parseAmericanOdds(player.odds), minProbability, maxProbability);
-    const rankScore = 1 - normalizeValue(player.worldRank, minRank, maxRank);
-    const blendedScore = oddsScore * VEGAS_WEIGHT + rankScore * WORLD_RANK_WEIGHT;
     const salary =
-      Math.round((SALARY_MIN + blendedScore * (SALARY_MAX - SALARY_MIN)) / 100) * 100;
+      Math.round((SALARY_MIN + oddsScore * (SALARY_MAX - SALARY_MIN)) / 100) * 100;
 
     return {
       id: player.id,
@@ -3011,9 +3004,9 @@ export default function Page() {
                         lineHeight: 1.5,
                       }}
                     >
-                      NOTE: Salaries are now determined by using a golfer&apos;s odds to win the tournament instead of
-                      using their Official World Golf Ranking. This was done to properly assign salaries to LIV golfers
-                      who will participate in majors.
+                      NOTE: Salaries are now determined strictly by using a golfer&apos;s odds to win the tournament.
+                      Official World Golf Ranking is still displayed for reference, but it is not used in salary
+                      assignment.
                     </div>
 
                     <section
@@ -3217,9 +3210,9 @@ export default function Page() {
                         lineHeight: 1.5,
                       }}
                     >
-                      NOTE: Salaries are now determined by using a golfer&apos;s odds to win the tournament instead of
-                      using their Official World Golf Ranking. This was done to properly assign salaries to LIV golfers
-                      who will participate in majors.
+                      NOTE: Salaries are now determined strictly by using a golfer&apos;s odds to win the tournament.
+                      Official World Golf Ranking is still displayed for reference, but it is not used in salary
+                      assignment.
                     </div>
 
                     <section
@@ -3363,8 +3356,7 @@ export default function Page() {
                   <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
                   <span style={{ marginRight: 6 }}>➤</span>
                   For each major tournament, and The Players Championship, members select <strong>six golfers</strong>.
-                  Each golfer will have a salary assigned to them based on a blend of their world ranking and odds to
-                  win the tournament.
+                  Each golfer will have a salary assigned to them based strictly on their odds to win the tournament.
                 </div>
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
