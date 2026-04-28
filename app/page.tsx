@@ -1588,7 +1588,7 @@ export default function Page() {
           ) : null}
 
           {sessionUser ? (
-            <div style={{ position: 'absolute', right: 22, bottom: 16, zIndex: 30 }}>
+            <div style={{ position: 'absolute', right: 22, bottom: -6, zIndex: 30 }}>
               {accountMenuOpen ? (
                 <button
                   type="button"
@@ -2660,13 +2660,15 @@ export default function Page() {
                   style={{
                     marginTop: 24,
                     display: 'grid',
-                    gridTemplateColumns: 'minmax(180px, 1fr) minmax(260px, 1.2fr) 160px',
+                    gridTemplateColumns: 'minmax(220px, 1fr) minmax(320px, 420px) minmax(220px, 1fr)',
                     gap: 20,
                     alignItems: 'center',
                   }}
                 >
                   <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>Entry</div>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', textAlign: 'center' }}>
+                  <div
+                    style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', textAlign: 'center', justifySelf: 'center' }}
+                  >
                     {entriesTournamentId === 'pga' ? 'PGA Championship Picks' : `${entriesTournament.name} Picks`}
                   </div>
                   <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', textAlign: 'right' }}>Options</div>
