@@ -3437,7 +3437,13 @@ export default function Page() {
                   <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Birdie:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>3 pts</span></div>
                   <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Eagle:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>8 pts</span></div>
                   <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Albatross:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>13 pts</span></div>
-                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Ace:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
+                  <div>
+                    <img
+                      src="/ace-points.png"
+                      alt="Ace: 10 pts"
+                      style={{ display: 'block', maxWidth: 168, width: '100%', height: 'auto' }}
+                    />
+                  </div>
                   <div style={{ margin: '6px 0 2px', borderTop: '2px solid #c5c7cc', width: '78%' }} />
                   <div style={{ fontSize: 15, fontWeight: 800 }}><strong>3 Birdie Streak:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>4 pts</span></div>
                   <div style={{ fontSize: 15, fontWeight: 800 }}><strong>No Bogey Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
