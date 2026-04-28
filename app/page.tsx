@@ -3380,7 +3380,7 @@ export default function Page() {
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
                   <span style={{ marginRight: 6 }}>➤</span>
-                  You’ll enter what you think the winning score for the champion will be (i.e. -12) when entering your
+                  You’ll enter what you think the winning score for the champion will be (i.e. 276) when entering your
                   picks, to serve as a tiebreaker value.
                 </div>
                 <div>
@@ -3445,7 +3445,7 @@ export default function Page() {
                   <div style={{ margin: '6px 0 2px', borderTop: '2px solid #c5c7cc', width: '78%' }} />
                   <div style={{ fontSize: 15, fontWeight: 800 }}><strong>3 Birdie Streak:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>4 pts</span></div>
                   <div style={{ fontSize: 15, fontWeight: 800 }}><strong>No Bogey Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Tourn. Low Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Tourn. Low Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
                   <div style={{ margin: '6px 0 2px', borderTop: '2px solid #c5c7cc', width: '78%' }} />
                   <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Rnd 1 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
                   <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Rnd 2 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
