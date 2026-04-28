@@ -1434,7 +1434,7 @@ export default function Page() {
                     position: 'absolute',
                     right: 0,
                     bottom: 54,
-                    width: 380,
+                    width: 336,
                     borderRadius: 18,
                     background: '#fff',
                     color: '#0f1720',
@@ -1545,10 +1545,15 @@ export default function Page() {
                             background: '#fff',
                             color: '#0f1720',
                             fontWeight: 800,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                             cursor: 'pointer',
                           }}
                         >
-                          Edit Display Name
+                          <span>Edit</span>
+                          <span>Display Name</span>
                         </button>
                       </>
                     ) : null}
@@ -1593,27 +1598,6 @@ export default function Page() {
                       </button>
                     ) : null}
 
-                    {accountPreferencesView !== 'root' ? (
-                      <button
-                        onClick={() => {
-                          setAccountPreferencesView(accountPreferencesView === 'preferences' ? 'root' : 'preferences');
-                          setAccountMessage('');
-                        }}
-                        style={{
-                          flex: 1,
-                          minWidth: 0,
-                          border: '1px solid #d7e0e8',
-                          borderRadius: 12,
-                          padding: '12px 14px',
-                          background: '#fff',
-                          color: '#0f1720',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Back
-                      </button>
-                    ) : null}
                     <button
                       onClick={handleLogout}
                       disabled={authBusy}
