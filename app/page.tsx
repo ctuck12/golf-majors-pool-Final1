@@ -1588,7 +1588,7 @@ export default function Page() {
           ) : null}
 
           {sessionUser ? (
-            <div style={{ position: 'absolute', right: 22, bottom: 8, zIndex: 30 }}>
+            <div style={{ position: 'absolute', right: 22, bottom: 16, zIndex: 30 }}>
               {accountMenuOpen ? (
                 <button
                   type="button"
@@ -2666,13 +2666,13 @@ export default function Page() {
                   }}
                 >
                   <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>Entry</div>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', textAlign: 'center' }}>
                     {entriesTournamentId === 'pga' ? 'PGA Championship Picks' : `${entriesTournament.name} Picks`}
                   </div>
                   <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', textAlign: 'right' }}>Options</div>
 
                   <div style={{ fontSize: 18, color: '#0f1720' }}>{userLabel}</div>
-                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ display: 'grid', justifyItems: 'center' }}>
                     {hasSubmittedRoster ? (
                       <div
                         style={{
