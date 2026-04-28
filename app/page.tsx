@@ -3384,8 +3384,8 @@ export default function Page() {
                   picks, to serve as a tiebreaker value.
                 </div>
                 <div>
-                  <span style={{ color: '#43b36b', marginRight: 6 }}>??</span>
-                  <span style={{ marginRight: 6 }}>?</span>
+                  <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
+                  <span style={{ marginRight: 6 }}>➤</span>
                   <strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool
                   field.
                 </div>
