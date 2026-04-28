@@ -3406,7 +3406,7 @@ export default function Page() {
                   <span style={{ marginRight: 6 }}>➤</span>
                   Venmo: @claytont743
                 </div>
-                <div>
+                <div style={{ marginTop: -4 }}>
                   <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
                   <span style={{ marginRight: 6 }}>➤</span>
                   <span style={{ color: '#dc2626', fontWeight: 800, fontSize: 20, marginRight: 4 }}>?</span>
