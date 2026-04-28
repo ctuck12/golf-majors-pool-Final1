@@ -5,8 +5,11 @@ import {
   AlertCircle,
   CircleUserRound,
   CheckCircle2,
+  History,
   Lock,
   LogIn,
+  MoreVertical,
+  Pencil,
   RefreshCw,
   Save,
   Trophy,
@@ -661,6 +664,8 @@ export default function Page() {
   const [accountBusy, setAccountBusy] = useState(false);
   const [accountMessage, setAccountMessage] = useState('');
   const [myEntriesEditorOpen, setMyEntriesEditorOpen] = useState(false);
+  const [myEntriesMenuOpen, setMyEntriesMenuOpen] = useState(false);
+  const [myEntriesDetailView, setMyEntriesDetailView] = useState<'none' | 'history' | 'rename'>('none');
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [memberCreateForm, setMemberCreateForm] = useState({
     displayName: '',
@@ -804,18 +809,18 @@ export default function Page() {
 
   useEffect(() => {
     if (sessionUser) {
-      setSelectedRoster(sessionUser.rosters[selectedTournament] ?? DEFAULT_ROSTERS[selectedTournament]);
+      setSelectedRoster(sessionUser.rosters[entriesTournamentId] ?? DEFAULT_ROSTERS[entriesTournamentId]);
       return;
     }
 
-    setSelectedRoster(readRoster(selectedTournament));
-  }, [selectedTournament, sessionUser]);
+    setSelectedRoster(readRoster(entriesTournamentId));
+  }, [entriesTournamentId, sessionUser]);
 
   useEffect(() => {
     if (!sessionUser) {
-      saveGuestRoster(selectedTournament, selectedRoster);
+      saveGuestRoster(entriesTournamentId, selectedRoster);
     }
-  }, [selectedTournament, selectedRoster, sessionUser]);
+  }, [entriesTournamentId, selectedRoster, sessionUser]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNowTick(Date.now()), 60000);
@@ -1066,6 +1071,7 @@ export default function Page() {
         ),
       });
       setAccountMessage('Display name updated.');
+      setMyEntriesDetailView('none');
     } catch (err) {
       setAccountMessage(err instanceof Error ? err.message : 'Unable to update display name.');
     } finally {
@@ -1257,8 +1263,28 @@ export default function Page() {
   const selectedCommissionerMember =
     commissionerMembers.find((member) => member.id === selectedCommissionerMemberId) ?? null;
 
-  const savedRoster = sessionUser?.rosters[selectedTournament] ?? [];
+  const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
+  const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
+  const entriesTournamentId = getDefaultTournamentId(tournamentCardStatuses);
+  const entriesTournament = TOURNAMENTS.find((item) => item.id === entriesTournamentId) ?? TOURNAMENTS[0];
+  const entriesTournamentStatus = tournamentCardStatuses[entriesTournamentId];
+  const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE';
+  const entriesPreFieldView =
+    entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null;
+  const entriesDefaultLocked = isLineupLocked(entriesTournament.lockAt, nowTick);
+  const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? entriesDefaultLocked;
+  const savedRoster = sessionUser?.rosters[entriesTournamentId] ?? [];
   const hasSubmittedRoster = savedRoster.length === REQUIRED_GOLFERS;
+  const submittedEntries = poolEntries.filter((entry) => (entry.rosters[entriesTournamentId] ?? []).length === REQUIRED_GOLFERS);
+  const otherSubmittedEntriesCount = sessionUser
+    ? submittedEntries.filter((entry) => entry.id !== sessionUser.id).length
+    : submittedEntries.length;
+  const submittedCommissionerMembers = commissionerMembers.filter(
+    (member) => (member.rosters[entriesTournamentId] ?? []).length === REQUIRED_GOLFERS,
+  );
+  const pendingCommissionerMembers = commissionerMembers.filter(
+    (member) => (member.rosters[entriesTournamentId] ?? []).length !== REQUIRED_GOLFERS,
+  );
   const rosterPlayers = selectedRoster.map((id) => playersById[id]).filter(Boolean);
   const orderedRosterPlayers = [...rosterPlayers].sort((left, right) => right.salary - left.salary);
   const savedRosterPlayers = savedRoster.map((id) => playersById[id]).filter(Boolean);
@@ -1269,8 +1295,6 @@ export default function Page() {
     playersNeeded > 0 ? Math.max(0, Math.floor(salaryRemaining / playersNeeded)) : 0;
   const defaultLocked = isLineupLocked(tournament.lockAt, nowTick);
   const locked = pool?.lineupLocks?.[selectedTournament] ?? defaultLocked;
-  const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
-  const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
   const showFutureTournamentView =
     selectedTournamentStatus?.label === 'UP NEXT' ||
@@ -1288,7 +1312,11 @@ export default function Page() {
           {
             id: sessionUser?.id ?? 'guest-entry',
             name: userLabel,
-            rosters: { [selectedTournament]: selectedRoster },
+            rosters: {
+              [selectedTournament]:
+                sessionUser?.rosters[selectedTournament] ??
+                (selectedTournament === entriesTournamentId ? selectedRoster : DEFAULT_ROSTERS[selectedTournament]),
+            },
           },
           ...STATIC_ENTRIES,
         ];
@@ -1342,10 +1370,10 @@ export default function Page() {
     Boolean(sessionUser) &&
     selectedRoster.length === REQUIRED_GOLFERS &&
     salaryUsed <= SALARY_CAP &&
-    !locked;
+    !entriesLocked;
 
   const togglePlayer = (playerId: number) => {
-    if (locked) {
+    if (entriesLocked) {
       return;
     }
 
@@ -1384,7 +1412,7 @@ export default function Page() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tournamentId: selectedTournament,
+          tournamentId: entriesTournamentId,
           roster: selectedRoster,
         }),
       });
@@ -1399,6 +1427,8 @@ export default function Page() {
 
   const openMyEntriesEditor = () => {
     setSaveMessage('');
+    setMyEntriesMenuOpen(false);
+    setMyEntriesDetailView('none');
     setSelectedRoster(savedRoster.length > 0 ? savedRoster : []);
     setMyEntriesEditorOpen(true);
     setMainTab('My entries');
@@ -1406,6 +1436,8 @@ export default function Page() {
 
   const closeMyEntriesEditor = () => {
     setMyEntriesEditorOpen(false);
+    setMyEntriesMenuOpen(false);
+    setMyEntriesDetailView('none');
     setSaveMessage('');
   };
 
@@ -2208,24 +2240,35 @@ export default function Page() {
                         : 'Picks can not be entered until the tournament field has been finalized and entered in our system (usually Monday morning the week of the tournament).'}
                     </div>
 
-                    {picksOpenForTournament ? (
-                      <button
-                        onClick={openMyEntriesEditor}
-                        style={{
-                          marginTop: 24,
-                          border: 'none',
-                          borderRadius: 16,
-                          padding: '14px 22px',
-                          background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
-                          color: '#fff',
-                          fontSize: 16,
-                          fontWeight: 900,
-                          cursor: 'pointer',
-                          boxShadow: '0 14px 28px rgba(63, 115, 173, 0.22)',
-                        }}
-                      >
-                        Make Your Picks
-                      </button>
+                    {picksOpenForTournament && selectedTournament === entriesTournamentId && sessionUser ? (
+                      <div style={{ marginTop: 24, display: 'grid', gap: 12 }}>
+                        <div style={{ color: '#5b6b79', fontSize: 14 }}>
+                          {otherSubmittedEntriesCount} other {otherSubmittedEntriesCount === 1 ? 'user has' : 'users have'} already
+                          submitted picks for this tournament.
+                        </div>
+                        <div>
+                          <button
+                            onClick={openMyEntriesEditor}
+                            style={{
+                              border: 'none',
+                              borderRadius: 16,
+                              padding: '14px 22px',
+                              background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                              color: '#fff',
+                              fontSize: 16,
+                              fontWeight: 900,
+                              cursor: 'pointer',
+                              boxShadow: '0 14px 28px rgba(63, 115, 173, 0.22)',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 8,
+                            }}
+                          >
+                            <Pencil size={16} />
+                            {hasSubmittedRoster ? 'Edit Picks' : 'Make Your Picks'}
+                          </button>
+                        </div>
+                      </div>
                     ) : null}
                   </div>
                 </div>
@@ -2623,11 +2666,13 @@ export default function Page() {
                   }}
                 >
                   <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>Entry</div>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>{tournament.name} Picks</div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>
+                    {entriesTournamentId === 'pga' ? 'PGA Championship Picks' : `${entriesTournament.name} Picks`}
+                  </div>
                   <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', textAlign: 'right' }}>Options</div>
 
                   <div style={{ fontSize: 18, color: '#0f1720' }}>{userLabel}</div>
-                  <div>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
                     {hasSubmittedRoster ? (
                       <div
                         style={{
@@ -2657,7 +2702,7 @@ export default function Page() {
                           ))}
                         </div>
                         <div style={{ color: '#5b6b79', fontSize: 13 }}>
-                          Roster submitted for {tournament.name}. You can reopen it with <strong>Edit Picks</strong>{' '}
+                          Roster submitted for {entriesTournament.name}. You can reopen it with <strong>Edit Picks</strong>{' '}
                           while lineups are unlocked.
                         </div>
                       </div>
@@ -2673,32 +2718,250 @@ export default function Page() {
                           fontSize: 15,
                           fontWeight: 900,
                           cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 8,
                         }}
                       >
+                        <Pencil size={14} />
                         Make Your Picks
                       </button>
                     )}
                   </div>
-                  <div style={{ textAlign: 'right' }}>
+                  <div style={{ textAlign: 'right', position: 'relative' }}>
                     <button
-                      onClick={openMyEntriesEditor}
+                      onClick={() => setMyEntriesMenuOpen((current) => !current)}
                       style={{
                         border: '1px solid #d7e0e8',
                         borderRadius: 14,
-                        padding: '12px 18px',
+                        width: 48,
+                        height: 48,
                         background: '#fff',
                         color: '#0f1720',
-                        fontSize: 15,
-                        fontWeight: 800,
                         cursor: 'pointer',
                       }}
                     >
-                      {hasSubmittedRoster ? 'Edit Picks' : 'Open Pick Sheet'}
+                      <MoreVertical size={18} />
                     </button>
+                    {myEntriesMenuOpen ? (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 56,
+                          right: 0,
+                          width: 240,
+                          borderRadius: 16,
+                          border: '1px solid #d7e0e8',
+                          background: '#fff',
+                          boxShadow: '0 18px 40px rgba(9, 34, 51, 0.14)',
+                          padding: 8,
+                          display: 'grid',
+                          gap: 4,
+                          zIndex: 10,
+                        }}
+                      >
+                        <button
+                          onClick={() => {
+                            setMyEntriesMenuOpen(false);
+                            openMyEntriesEditor();
+                          }}
+                          style={{
+                            border: 'none',
+                            borderRadius: 12,
+                            background: '#fff',
+                            padding: '12px 14px',
+                            textAlign: 'left',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            color: '#0f1720',
+                            fontSize: 15,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <Pencil size={15} />
+                          <span>{hasSubmittedRoster ? 'Edit Picks' : 'Make Your Picks'}</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMyEntriesMenuOpen(false);
+                            setMyEntriesDetailView('history');
+                          }}
+                          style={{
+                            border: 'none',
+                            borderRadius: 12,
+                            background: '#fff',
+                            padding: '12px 14px',
+                            textAlign: 'left',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            color: '#0f1720',
+                            fontSize: 15,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <History size={15} />
+                          <span>View Pick History</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMyEntriesMenuOpen(false);
+                            setAccountDisplayName(sessionUser.displayName);
+                            setMyEntriesDetailView('rename');
+                          }}
+                          style={{
+                            border: 'none',
+                            borderRadius: 12,
+                            background: '#fff',
+                            padding: '12px 14px',
+                            textAlign: 'left',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            color: '#0f1720',
+                            fontSize: 15,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <CircleUserRound size={15} />
+                          <span>Rename Entry</span>
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
+
+                {myEntriesDetailView === 'history' ? (
+                  <div
+                    style={{
+                      marginTop: 20,
+                      borderRadius: 18,
+                      border: '1px solid #d7e0e8',
+                      background: '#f8fbfd',
+                      padding: 18,
+                      display: 'grid',
+                      gap: 14,
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>Pick History</div>
+                      <button
+                        onClick={() => setMyEntriesDetailView('none')}
+                        style={{
+                          border: '1px solid #d7e0e8',
+                          borderRadius: 12,
+                          padding: '10px 14px',
+                          background: '#fff',
+                          color: '#0f1720',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Close
+                      </button>
+                    </div>
+                    <div style={{ display: 'grid', gap: 12 }}>
+                      {TOURNAMENTS.map((event) => {
+                        const historyPlayers = (sessionUser.rosters[event.id] ?? []).map((id) => playersById[id]).filter(Boolean);
+                        return (
+                          <div
+                            key={`history-${event.id}`}
+                            style={{
+                              borderRadius: 16,
+                              border: '1px solid #dce6ee',
+                              background: '#fff',
+                              padding: 14,
+                              display: 'grid',
+                              gap: 10,
+                            }}
+                          >
+                            <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{event.name}</div>
+                            {historyPlayers.length > 0 ? (
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                {historyPlayers.map((player) => (
+                                  <span
+                                    key={`history-player-${event.id}-${player.id}`}
+                                    style={{
+                                      borderRadius: 999,
+                                      background: '#e8f3ff',
+                                      color: '#2f5f96',
+                                      padding: '7px 12px',
+                                      fontSize: 13,
+                                      fontWeight: 800,
+                                    }}
+                                  >
+                                    {player.name}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <div style={{ color: '#6b7b88', fontSize: 14 }}>No submitted roster saved for this event yet.</div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
+
+                {myEntriesDetailView === 'rename' ? (
+                  <div
+                    style={{
+                      marginTop: 20,
+                      borderRadius: 18,
+                      border: '1px solid #d7e0e8',
+                      background: '#f8fbfd',
+                      padding: 18,
+                      display: 'grid',
+                      gap: 14,
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>Rename Entry</div>
+                      <button
+                        onClick={() => setMyEntriesDetailView('none')}
+                        style={{
+                          border: '1px solid #d7e0e8',
+                          borderRadius: 12,
+                          padding: '10px 14px',
+                          background: '#fff',
+                          color: '#0f1720',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Close
+                      </button>
+                    </div>
+                    <input
+                      value={accountDisplayName}
+                      onChange={(event) => setAccountDisplayName(event.target.value)}
+                      placeholder="Display name"
+                      style={{ ...fieldStyle(), maxWidth: 420 }}
+                    />
+                    <div>
+                      <button
+                        onClick={handleUpdateOwnDisplayName}
+                        disabled={accountBusy}
+                        style={{
+                          border: 'none',
+                          borderRadius: 14,
+                          padding: '12px 18px',
+                          background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                          color: '#fff',
+                          fontSize: 15,
+                          fontWeight: 900,
+                          cursor: accountBusy ? 'wait' : 'pointer',
+                        }}
+                      >
+                        Save Entry Name
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
               </section>
-            ) : sessionUser && (selectedTournamentStatus?.label === 'UP NEXT' || selectedTournamentStatus === null) ? (
+            ) : sessionUser && entriesPreFieldView ? (
               <section
                 style={{
                   background: '#fff',
@@ -2771,7 +3034,7 @@ export default function Page() {
                         }}
                       >
                         <div style={{ fontSize: 26, lineHeight: 1.25, fontWeight: 900, color: '#0f1720' }}>
-                          {selectedTournament === 'pga' ? 'PGA Championship' : tournament.name}
+                          {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
                           <br />
                           Tournament Field
                         </div>
@@ -2968,7 +3231,7 @@ export default function Page() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                         <Trophy size={18} color="#2f5f96" />
                         <div style={{ fontSize: 18, fontWeight: 900 }}>
-                          {selectedTournament === 'pga' ? 'PGA Championship' : tournament.name} Tournament Field
+                          {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name} Tournament Field
                         </div>
                       </div>
 
@@ -2977,7 +3240,7 @@ export default function Page() {
                           const selected = selectedRoster.includes(player.id);
                           const disabled =
                             !selected &&
-                            (locked || selectedRoster.length >= REQUIRED_GOLFERS || player.salary > salaryRemaining);
+                            (entriesLocked || selectedRoster.length >= REQUIRED_GOLFERS || player.salary > salaryRemaining);
 
                           return (
                             <button
@@ -3291,6 +3554,79 @@ export default function Page() {
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                Submission status
+              </div>
+              <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
+                {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name} pick submissions
+              </h2>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                  gap: 20,
+                }}
+              >
+                <div
+                  style={{
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 20,
+                    padding: 18,
+                    background: '#f8fbfd',
+                    display: 'grid',
+                    gap: 12,
+                  }}
+                >
+                  <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>Submitted Picks</div>
+                  {submittedCommissionerMembers.length > 0 ? (
+                    submittedCommissionerMembers.map((member) => (
+                      <div
+                        key={`submitted-${member.id}`}
+                        style={{ borderRadius: 14, background: '#fff', padding: '12px 14px', color: '#0f1720', fontWeight: 700 }}
+                      >
+                        {member.displayName}
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ color: '#6b7b88' }}>No registered members have submitted picks yet.</div>
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 20,
+                    padding: 18,
+                    background: '#f8fbfd',
+                    display: 'grid',
+                    gap: 12,
+                  }}
+                >
+                  <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>Still Need Picks</div>
+                  {pendingCommissionerMembers.length > 0 ? (
+                    pendingCommissionerMembers.map((member) => (
+                      <div
+                        key={`pending-${member.id}`}
+                        style={{ borderRadius: 14, background: '#fff', padding: '12px 14px', color: '#0f1720', fontWeight: 700 }}
+                      >
+                        {member.displayName}
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ color: '#6b7b88' }}>Everyone with a registered account has submitted picks.</div>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+              }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                 Member management
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -3313,7 +3649,7 @@ export default function Page() {
                 </button>
               </div>
 
-              {!sessionUser ? (
+              {!canManagePool ? (
                 <div
                   style={{
                     borderRadius: 18,
