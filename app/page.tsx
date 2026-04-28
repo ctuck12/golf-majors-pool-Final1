@@ -1588,7 +1588,7 @@ export default function Page() {
           ) : null}
 
           {sessionUser ? (
-            <div style={{ position: 'absolute', right: 22, bottom: -6, zIndex: 30 }}>
+            <div style={{ position: 'absolute', right: 22, bottom: 6, zIndex: 30 }}>
               {accountMenuOpen ? (
                 <button
                   type="button"
