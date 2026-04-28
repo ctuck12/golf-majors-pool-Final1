@@ -295,6 +295,39 @@ function canAccessCommissionerConsole(user: AuthUser | null) {
   return user.email.trim().toLowerCase() === COMMISSIONER_EMAIL && user.displayName.trim() === COMMISSIONER_DISPLAY_NAME;
 }
 
+function readStoredSession() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(`${STORAGE_PREFIX}:session`);
+    if (!raw) {
+      return null;
+    }
+
+    return JSON.parse(raw) as SessionPayload;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredSession(payload: SessionPayload) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(`${STORAGE_PREFIX}:session`, JSON.stringify(payload));
+}
+
+function clearStoredSession() {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.removeItem(`${STORAGE_PREFIX}:session`);
+}
+
 function readRoster(tournamentId: TournamentId) {
   if (typeof window === 'undefined') {
     return DEFAULT_ROSTERS[tournamentId];
@@ -585,13 +618,22 @@ export default function Page() {
 
       try {
         const payload = await readJson<SessionPayload>('/api/auth/session', { cache: 'no-store' });
-        setSessionUser(payload.user);
-        setPool(payload.pool);
-        setPoolEntries(payload.entries);
+        if (payload.user) {
+          setSessionUser(payload.user);
+          setPool(payload.pool);
+          setPoolEntries(payload.entries);
+          writeStoredSession(payload);
+        } else {
+          const stored = readStoredSession();
+          setSessionUser(stored?.user ?? null);
+          setPool(stored?.pool ?? null);
+          setPoolEntries(stored?.entries ?? []);
+        }
       } catch {
-        setSessionUser(null);
-        setPool(null);
-        setPoolEntries([]);
+        const stored = readStoredSession();
+        setSessionUser(stored?.user ?? null);
+        setPool(stored?.pool ?? null);
+        setPoolEntries(stored?.entries ?? []);
       } finally {
         setSessionLoading(false);
       }
@@ -599,6 +641,19 @@ export default function Page() {
 
     void loadSession();
   }, []);
+
+  useEffect(() => {
+    if (sessionUser) {
+      writeStoredSession({
+        user: sessionUser,
+        pool,
+        entries: poolEntries,
+      });
+      return;
+    }
+
+    clearStoredSession();
+  }, [pool, poolEntries, sessionUser]);
 
   useEffect(() => {
     if (sessionUser) {
@@ -717,6 +772,11 @@ export default function Page() {
     setSessionUser(payload.user);
     setPool(payload.pool);
     setPoolEntries(payload.entries);
+    if (payload.user) {
+      writeStoredSession(payload);
+    } else {
+      clearStoredSession();
+    }
     setAuthError('');
     setAuthSuccess(successMessage ?? '');
   };
@@ -798,6 +858,7 @@ export default function Page() {
       setAccountMenuOpen(false);
       setAccountPassword('');
       setAccountMessage('');
+      clearStoredSession();
       setSaveMessage('');
       setAuthSuccess('Signed out.');
     } catch (err) {
