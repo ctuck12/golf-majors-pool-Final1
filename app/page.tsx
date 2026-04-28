@@ -3389,7 +3389,6 @@ export default function Page() {
                   <strong>1st, 2nd and 3rd places pay out</strong>, and amounts vary based on the size of the pool
                   field.
                 </div>
-                <div>
               </div>
               <div style={{ margin: '20px 0', borderTop: '1px solid #d7dee6' }} />
               <div style={{ fontSize: 18, fontWeight: 700, color: '#0f1720' }}>
