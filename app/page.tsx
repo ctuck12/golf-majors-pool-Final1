@@ -1382,7 +1382,25 @@ export default function Page() {
           </div>
 
           {sessionUser ? (
-            <div style={{ position: 'absolute', right: 22, bottom: 18 }}>
+            <div style={{ position: 'absolute', right: 22, bottom: 18, zIndex: 30 }}>
+              {accountMenuOpen ? (
+                <button
+                  type="button"
+                  aria-label="Close account menu"
+                  onClick={() => setAccountMenuOpen(false)}
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    border: 'none',
+                    background: 'transparent',
+                    cursor: 'default',
+                    padding: 0,
+                    margin: 0,
+                    zIndex: 10,
+                  }}
+                />
+              ) : null}
+
               <button
                 onClick={() => {
                   setAccountMenuOpen((current) => !current);
@@ -1392,6 +1410,8 @@ export default function Page() {
                   setAccountDisplayName(sessionUser.displayName);
                 }}
                 style={{
+                  position: 'relative',
+                  zIndex: 20,
                   width: 42,
                   height: 42,
                   borderRadius: 999,
@@ -1409,16 +1429,18 @@ export default function Page() {
 
               {accountMenuOpen ? (
                 <div
+                  onClick={(event) => event.stopPropagation()}
                   style={{
                     position: 'absolute',
                     right: 0,
                     bottom: 54,
-                    width: 280,
+                    width: 380,
                     borderRadius: 18,
                     background: '#fff',
                     color: '#0f1720',
                     padding: 16,
                     boxShadow: '0 18px 40px rgba(9, 34, 51, 0.22)',
+                    zIndex: 20,
                   }}
                 >
                   <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
@@ -1469,6 +1491,7 @@ export default function Page() {
                         }}
                         style={{
                           flex: 1,
+                          minWidth: 0,
                           border: 'none',
                           borderRadius: 12,
                           padding: '12px 14px',
@@ -1491,6 +1514,7 @@ export default function Page() {
                           }}
                           style={{
                             flex: 1,
+                            minWidth: 0,
                             border: 'none',
                             borderRadius: 12,
                             padding: '12px 14px',
@@ -1509,6 +1533,7 @@ export default function Page() {
                           }}
                           style={{
                             flex: 1,
+                            minWidth: 0,
                             border: '1px solid #d7e0e8',
                             borderRadius: 12,
                             padding: '12px 14px',
@@ -1529,6 +1554,7 @@ export default function Page() {
                         disabled={accountBusy}
                         style={{
                           flex: 1,
+                          minWidth: 0,
                           border: 'none',
                           borderRadius: 12,
                           padding: '12px 14px',
@@ -1548,6 +1574,7 @@ export default function Page() {
                         disabled={accountBusy}
                         style={{
                           flex: 1,
+                          minWidth: 0,
                           border: 'none',
                           borderRadius: 12,
                           padding: '12px 14px',
@@ -1569,6 +1596,7 @@ export default function Page() {
                         }}
                         style={{
                           flex: 1,
+                          minWidth: 0,
                           border: '1px solid #d7e0e8',
                           borderRadius: 12,
                           padding: '12px 14px',
@@ -1586,6 +1614,7 @@ export default function Page() {
                       disabled={authBusy}
                       style={{
                         flex: 1,
+                        minWidth: 0,
                         border: '1px solid #d7e0e8',
                         borderRadius: 12,
                         padding: '12px 14px',
