@@ -207,6 +207,12 @@ type SessionPayload = {
   error?: string;
 };
 
+type LocalStoredAccount = {
+  email: string;
+  password: string;
+  session: SessionPayload;
+};
+
 function parseAmericanOdds(odds: string) {
   const numeric = Number(odds.replace('+', ''));
 
@@ -326,6 +332,64 @@ function clearStoredSession() {
   }
 
   window.localStorage.removeItem(`${STORAGE_PREFIX}:session`);
+}
+
+function readStoredAccounts() {
+  if (typeof window === 'undefined') {
+    return [] as LocalStoredAccount[];
+  }
+
+  try {
+    const raw = window.localStorage.getItem(`${STORAGE_PREFIX}:accounts`);
+    if (!raw) {
+      return [];
+    }
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as LocalStoredAccount[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredAccounts(accounts: LocalStoredAccount[]) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(`${STORAGE_PREFIX}:accounts`, JSON.stringify(accounts));
+}
+
+function upsertStoredAccount(session: SessionPayload, password?: string) {
+  if (!session.user) {
+    return;
+  }
+
+  const accounts = readStoredAccounts();
+  const normalizedEmail = session.user.email.trim().toLowerCase();
+  const existing = accounts.find((account) => account.email.trim().toLowerCase() === normalizedEmail);
+
+  if (existing) {
+    existing.session = session;
+    if (password) {
+      existing.password = password;
+    }
+  } else if (password) {
+    accounts.push({
+      email: session.user.email,
+      password,
+      session,
+    });
+  }
+
+  writeStoredAccounts(accounts);
+}
+
+function findStoredAccount(email: string, password: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  return readStoredAccounts().find(
+    (account) => account.email.trim().toLowerCase() === normalizedEmail && account.password === password,
+  ) ?? null;
 }
 
 function readRoster(tournamentId: TournamentId) {
@@ -623,6 +687,7 @@ export default function Page() {
           setPool(payload.pool);
           setPoolEntries(payload.entries);
           writeStoredSession(payload);
+          upsertStoredAccount(payload);
         } else {
           const stored = readStoredSession();
           setSessionUser(stored?.user ?? null);
@@ -774,6 +839,7 @@ export default function Page() {
     setPoolEntries(payload.entries);
     if (payload.user) {
       writeStoredSession(payload);
+      upsertStoredAccount(payload);
     } else {
       clearStoredSession();
     }
@@ -793,6 +859,7 @@ export default function Page() {
         body: JSON.stringify(registerForm),
       });
 
+      upsertStoredAccount(payload, registerForm.password);
       applySession(payload, 'Account created and signed in.');
       setRegisterForm({ displayName: '', email: '', password: '' });
     } catch (err) {
@@ -814,10 +881,18 @@ export default function Page() {
         body: JSON.stringify(loginForm),
       });
 
+      upsertStoredAccount(payload, loginForm.password);
       applySession(payload, 'Signed in successfully.');
       setLoginForm({ email: '', password: '' });
     } catch (err) {
-      setAuthError(err instanceof Error ? err.message : 'Unable to sign in.');
+      const fallbackAccount = findStoredAccount(loginForm.email, loginForm.password);
+
+      if (fallbackAccount) {
+        applySession(fallbackAccount.session, 'Signed in successfully.');
+        setLoginForm({ email: '', password: '' });
+      } else {
+        setAuthError(err instanceof Error ? err.message : 'Unable to sign in.');
+      }
     } finally {
       setAuthBusy(false);
     }
@@ -873,12 +948,20 @@ export default function Page() {
     setAccountMessage('');
 
     try {
-      await readJson<{ user: AuthUser }>('/api/account', {
+      const payload = await readJson<{ user: AuthUser }>('/api/account', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: accountPassword }),
       });
 
+      upsertStoredAccount(
+        {
+          user: payload.user,
+          pool,
+          entries: poolEntries,
+        },
+        accountPassword,
+      );
       setAccountPassword('');
       setAccountMessage('Password updated.');
     } catch (err) {
