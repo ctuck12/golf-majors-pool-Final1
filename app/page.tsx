@@ -1362,7 +1362,7 @@ export default function Page() {
             background: 'linear-gradient(135deg, #173b63 0%, #102842 100%)',
             color: '#fff',
             borderRadius: 28,
-            padding: '18px 28px 14px',
+            padding: sessionUser ? '14px 28px 10px' : '14px 28px',
             boxShadow: '0 24px 64px rgba(9, 34, 51, 0.18)',
             position: 'relative',
           }}
@@ -1373,7 +1373,7 @@ export default function Page() {
               alt="Golf Majors Pool"
               style={{
                 display: 'block',
-                width: 'min(100%, 420px)',
+                width: 'min(100%, 360px)',
                 height: 'auto',
                 objectFit: 'contain',
                 background: 'transparent',
@@ -1381,43 +1381,45 @@ export default function Page() {
             />
           </div>
 
-          <div
-            style={{
-              marginTop: 18,
-              paddingTop: 12,
-              borderTop: '1px solid rgba(112, 202, 220, 0.18)',
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 12,
-              flexWrap: 'wrap',
-              paddingRight: sessionUser ? 72 : 0,
-            }}
-          >
-            {(['Standings', 'My entries', 'Details', 'Commissioner console'] as MainTab[])
-              .filter((tab) => tab !== 'Commissioner console' || canManagePool)
-              .map((tab) => {
-                const active = tab === mainTab;
-                return (
-                  <button
-                    key={tab}
-                    onClick={() => setMainTab(tab)}
-                    style={{
-                      border: 'none',
-                      borderBottom: active ? '3px solid #63d9ea' : '3px solid transparent',
-                      background: 'transparent',
-                      color: active ? '#63d9ea' : '#ffffff',
-                      padding: '8px 8px 10px',
-                      fontSize: 16,
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    {tab}
-                  </button>
-                );
-              })}
-          </div>
+          {sessionUser ? (
+            <div
+              style={{
+                marginTop: 12,
+                paddingTop: 10,
+                borderTop: '1px solid rgba(112, 202, 220, 0.18)',
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 12,
+                flexWrap: 'wrap',
+                paddingRight: 72,
+              }}
+            >
+              {(['Standings', 'My entries', 'Details', 'Commissioner console'] as MainTab[])
+                .filter((tab) => tab !== 'Commissioner console' || canManagePool)
+                .map((tab) => {
+                  const active = tab === mainTab;
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => setMainTab(tab)}
+                      style={{
+                        border: 'none',
+                        borderBottom: active ? '3px solid #63d9ea' : '3px solid transparent',
+                        background: 'transparent',
+                        color: active ? '#63d9ea' : '#ffffff',
+                        padding: '7px 8px 9px',
+                        fontSize: 16,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        lineHeight: 1.1,
+                      }}
+                    >
+                      {tab}
+                    </button>
+                  );
+                })}
+            </div>
+          ) : null}
 
           {sessionUser ? (
             <div style={{ position: 'absolute', right: 22, bottom: 18, zIndex: 30 }}>
