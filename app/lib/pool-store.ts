@@ -9,6 +9,11 @@ export const DEFAULT_POOL_JOIN_CODE = 'MAJORS2026';
 export const TOURNAMENT_IDS = ['players', 'masters', 'pga', 'us-open', 'open'] as const;
 
 export type TournamentId = (typeof TOURNAMENT_IDS)[number];
+export type TournamentPayouts = {
+  first: number;
+  second: number;
+  third: number;
+};
 
 type StoredUser = {
   id: string;
@@ -34,6 +39,7 @@ type StoredPool = {
   joinCode: string;
   memberUserIds: string[];
   lineupLocks: Partial<Record<TournamentId, boolean>>;
+  payouts: Partial<Record<TournamentId, TournamentPayouts>>;
   createdAt: string;
 };
 
@@ -62,6 +68,7 @@ export type PublicPool = {
   name: string;
   joinCode: string;
   lineupLocks: Partial<Record<TournamentId, boolean>>;
+  payouts: Partial<Record<TournamentId, TournamentPayouts>>;
 };
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -140,6 +147,7 @@ async function ensureDataFile() {
           joinCode: DEFAULT_POOL_JOIN_CODE,
           memberUserIds: [],
           lineupLocks: {},
+          payouts: {},
           createdAt,
         },
       ],
@@ -163,6 +171,7 @@ async function readDatabase() {
           joinCode: DEFAULT_POOL_JOIN_CODE,
           memberUserIds: [],
           lineupLocks: {},
+          payouts: {},
           createdAt: nowIso(),
         },
       ];
@@ -170,6 +179,7 @@ async function readDatabase() {
   parsed.pools = parsed.pools.map((pool) => ({
     ...pool,
     lineupLocks: pool.lineupLocks ?? {},
+    payouts: pool.payouts ?? {},
   }));
 
   parsed.sessions = parsed.sessions.filter((session) => new Date(session.expiresAt).getTime() > Date.now());
@@ -321,6 +331,7 @@ export async function getSessionContext(token: string | undefined) {
           name: activePool.name,
           joinCode: activePool.joinCode,
           lineupLocks: activePool.lineupLocks,
+          payouts: activePool.payouts,
         }
       : null,
     entries,
@@ -362,6 +373,7 @@ export async function joinPoolForUser(userId: string, joinCode: string) {
     name: pool.name,
     joinCode: pool.joinCode,
     lineupLocks: pool.lineupLocks,
+    payouts: pool.payouts,
   } satisfies PublicPool;
 }
 
@@ -566,5 +578,43 @@ export async function updatePoolLineupLock(
     name: activePool.name,
     joinCode: activePool.joinCode,
     lineupLocks: activePool.lineupLocks,
+    payouts: activePool.payouts,
+  } satisfies PublicPool;
+}
+
+export async function updatePoolPayouts(
+  requestingUserId: string,
+  tournamentId: TournamentId,
+  payouts: TournamentPayouts,
+) {
+  const database = await readDatabase();
+  const requestingUser = database.users.find((item) => item.id === requestingUserId);
+
+  if (!requestingUser) {
+    throw new Error('User account was not found.');
+  }
+
+  const activePool =
+    database.pools.find((pool) => requestingUser.poolIds.includes(pool.id)) ??
+    database.pools.find((pool) => pool.id === DEFAULT_POOL_ID);
+
+  if (!activePool) {
+    throw new Error('Pool was not found.');
+  }
+
+  activePool.payouts = activePool.payouts ?? {};
+  activePool.payouts[tournamentId] = {
+    first: payouts.first,
+    second: payouts.second,
+    third: payouts.third,
+  };
+  await writeDatabase(database);
+
+  return {
+    id: activePool.id,
+    name: activePool.name,
+    joinCode: activePool.joinCode,
+    lineupLocks: activePool.lineupLocks,
+    payouts: activePool.payouts,
   } satisfies PublicPool;
 }

@@ -167,6 +167,7 @@ type PoolInfo = {
   name: string;
   joinCode: string;
   lineupLocks: Partial<Record<TournamentId, boolean>>;
+  payouts: Partial<Record<TournamentId, { first: number; second: number; third: number }>>;
 };
 
 type PoolEntry = {
@@ -649,6 +650,11 @@ export default function Page() {
   const [commissionerBusy, setCommissionerBusy] = useState(false);
   const [commissionerError, setCommissionerError] = useState('');
   const [commissionerSuccess, setCommissionerSuccess] = useState('');
+  const [payoutForm, setPayoutForm] = useState({
+    first: '',
+    second: '',
+    third: '',
+  });
   const [selectedCommissionerMemberId, setSelectedCommissionerMemberId] = useState<string | null>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [accountPreferencesView, setAccountPreferencesView] = useState<'root' | 'preferences' | 'password' | 'displayName'>('root');
@@ -690,6 +696,8 @@ export default function Page() {
     entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null;
   const entriesDefaultLocked = isLineupLocked(entriesTournament.lockAt, nowTick);
   const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? entriesDefaultLocked;
+  const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
+  const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
 
   const restoreServerSessionFromStoredAccount = async (storedAccount: LocalStoredAccount) => {
     try {
@@ -835,6 +843,14 @@ export default function Page() {
       setMainTab('Standings');
     }
   }, [canManagePool, mainTab]);
+
+  useEffect(() => {
+    setPayoutForm({
+      first: commissionerTournamentPayouts?.first ? String(commissionerTournamentPayouts.first) : '',
+      second: commissionerTournamentPayouts?.second ? String(commissionerTournamentPayouts.second) : '',
+      third: commissionerTournamentPayouts?.third ? String(commissionerTournamentPayouts.third) : '',
+    });
+  }, [commissionerTournamentPayouts?.first, commissionerTournamentPayouts?.second, commissionerTournamentPayouts?.third]);
 
   useEffect(() => {
     let active = true;
@@ -1129,6 +1145,38 @@ export default function Page() {
       setCommissionerSuccess(`Lineup lock ${payload.pool.lineupLocks[selectedTournament] ? 'enabled' : 'disabled'}.`);
     } catch (err) {
       setCommissionerError(err instanceof Error ? err.message : 'Unable to update lineup lock.');
+    } finally {
+      setCommissionerBusy(false);
+    }
+  };
+
+  const handleSavePayouts = async () => {
+    if (!sessionUser || !canManagePool || !pool) {
+      return;
+    }
+
+    setCommissionerBusy(true);
+    setCommissionerError('');
+    setCommissionerSuccess('');
+
+    try {
+      const payload = await readJson<{ pool: PoolInfo }>('/api/commissioner/payouts', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tournamentId: entriesTournamentId,
+          first: Number(payoutForm.first),
+          second: Number(payoutForm.second),
+          third: Number(payoutForm.third),
+        }),
+      });
+
+      setPool(payload.pool);
+      setCommissionerSuccess(
+        `${entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name} payouts saved.`,
+      );
+    } catch (err) {
+      setCommissionerError(err instanceof Error ? err.message : 'Unable to update payouts.');
     } finally {
       setCommissionerBusy(false);
     }
@@ -1505,6 +1553,9 @@ export default function Page() {
       </div>
     </div>
   );
+
+  const formatPayoutAmount = (value: number | undefined) =>
+    typeof value === 'number' && Number.isFinite(value) ? `$${value.toLocaleString()}` : '--';
 
   return (
     <div
@@ -2190,6 +2241,77 @@ export default function Page() {
                   </span>
                 </div>
               </div>
+
+              {!showFinalTournamentView ? (
+                <div
+                  style={{
+                    marginTop: 14,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: 16,
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <div
+                      style={{
+                        borderRadius: 999,
+                        background: '#eef4ff',
+                        color: '#2f5f96',
+                        padding: '6px 10px',
+                        fontSize: 13,
+                        fontWeight: 800,
+                      }}
+                    >
+                      1st: {formatPayoutAmount(selectedTournamentPayouts?.first)}
+                    </div>
+                    <div
+                      style={{
+                        borderRadius: 999,
+                        background: '#eef4ff',
+                        color: '#2f5f96',
+                        padding: '6px 10px',
+                        fontSize: 13,
+                        fontWeight: 800,
+                      }}
+                    >
+                      2nd: {formatPayoutAmount(selectedTournamentPayouts?.second)}
+                    </div>
+                    <div
+                      style={{
+                        borderRadius: 999,
+                        background: '#eef4ff',
+                        color: '#2f5f96',
+                        padding: '6px 10px',
+                        fontSize: 13,
+                        fontWeight: 800,
+                      }}
+                    >
+                      3rd: {formatPayoutAmount(selectedTournamentPayouts?.third)}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      gap: 16,
+                      flexWrap: 'wrap',
+                      color: '#5b6b79',
+                      fontSize: 14,
+                    }}
+                  >
+                    <span>
+                      <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $25
+                    </span>
+                    <span>
+                      <strong style={{ color: '#0f1720' }}>Venmo:</strong> @claytont743
+                    </span>
+                  </div>
+                </div>
+              ) : null}
 
               {showFutureTournamentView ? (
                 <div
@@ -3539,6 +3661,98 @@ export default function Page() {
                     Pool members
                   </div>
                   <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{poolEntries.length}</div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  marginTop: 16,
+                  border: '1px solid #e6edf1',
+                  borderRadius: 18,
+                  padding: 16,
+                  background: '#f8fbfd',
+                  display: 'grid',
+                  gap: 14,
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                    Tournament payouts
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800, color: '#0f1720' }}>
+                    {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
+                  </div>
+                  <div style={{ marginTop: 6, fontSize: 13, color: '#5b6b79' }}>
+                    Set the 1st, 2nd, and 3rd place payout amounts for the upcoming or active tournament.
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                    gap: 12,
+                    alignItems: 'end',
+                  }}
+                >
+                  <label style={{ display: 'grid', gap: 6 }}>
+                    <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                      1st place
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={payoutForm.first}
+                      onChange={(event) => setPayoutForm((current) => ({ ...current, first: event.target.value }))}
+                      placeholder="0"
+                      style={fieldStyle()}
+                    />
+                  </label>
+                  <label style={{ display: 'grid', gap: 6 }}>
+                    <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                      2nd place
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={payoutForm.second}
+                      onChange={(event) => setPayoutForm((current) => ({ ...current, second: event.target.value }))}
+                      placeholder="0"
+                      style={fieldStyle()}
+                    />
+                  </label>
+                  <label style={{ display: 'grid', gap: 6 }}>
+                    <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                      3rd place
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={payoutForm.third}
+                      onChange={(event) => setPayoutForm((current) => ({ ...current, third: event.target.value }))}
+                      placeholder="0"
+                      style={fieldStyle()}
+                    />
+                  </label>
+                  <button
+                    onClick={handleSavePayouts}
+                    disabled={!canManagePool || commissionerBusy}
+                    style={{
+                      border: 'none',
+                      borderRadius: 14,
+                      padding: '12px 16px',
+                      background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                      color: '#fff',
+                      fontWeight: 900,
+                      cursor: !canManagePool || commissionerBusy ? 'not-allowed' : 'pointer',
+                      minHeight: 52,
+                    }}
+                  >
+                    Save payouts
+                  </button>
                 </div>
               </div>
             </section>
