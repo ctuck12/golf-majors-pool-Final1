@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import {
   buildPlaceholderScoreBreakdown,
+  SCORING_RULES,
   type GolferScoreBreakdown,
 } from './lib/scoring';
 
@@ -130,7 +131,7 @@ const PLAYER_POOL = [
 
 const DEFAULT_ROSTERS: Record<string, number[]> = {
   players: [1, 2, 8, 10, 12, 14],
-  masters: [1, 2, 4, 8, 10, 12],
+  masters: [1, 2, 3, 4, 5, 6],
   pga: [1, 3, 5, 8, 10, 11],
   'us-open': [1, 2, 5, 7, 10, 14],
   open: [2, 3, 5, 6, 8, 12],
@@ -188,6 +189,7 @@ type StandingGolfer = ReturnType<typeof buildPricedPlayers>[number] & {
   position: string;
   thru: string;
   score: string;
+  total: string;
   points: number;
   holesRemaining: number;
   scoreBreakdown: GolferScoreBreakdown;
@@ -626,12 +628,40 @@ function fieldStyle() {
   } satisfies CSSProperties;
 }
 
+function formatPointValue(value: number) {
+  return value % 1 === 0 ? String(value) : value.toFixed(1);
+}
+
+function formatCurrentRoundScore(value: string | undefined, fallback: string) {
+  const candidate = value && value !== '--' ? value : fallback;
+
+  if (!candidate || candidate === '--') {
+    return '--';
+  }
+
+  if (candidate === 'E' || candidate === 'F' || candidate === 'CUT' || candidate === 'MDF' || candidate === 'WD' || candidate === 'DQ') {
+    return candidate;
+  }
+
+  const numeric = Number(candidate);
+  if (Number.isNaN(numeric)) {
+    return candidate;
+  }
+
+  if (numeric === 0) {
+    return 'E';
+  }
+
+  return numeric > 0 ? `+${numeric}` : `${numeric}`;
+}
+
 export default function Page() {
   const initialTournament = getDefaultTournamentId(getTournamentCardStatuses());
   const [mainTab, setMainTab] = useState<MainTab>('Standings');
   const [selectedTournament, setSelectedTournament] = useState<TournamentId>(initialTournament);
   const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTERS[initialTournament]);
   const [activeStandingEntryId, setActiveStandingEntryId] = useState<string | null>(null);
+  const [activeStandingGolferId, setActiveStandingGolferId] = useState<number | null>(null);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
   const [feed, setFeed] = useState<FeedResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -1413,6 +1443,7 @@ export default function Page() {
           position,
           thru,
           score,
+          total: live?.total ?? '--',
           points: scoreBreakdown.totalPoints,
           holesRemaining: scoreBreakdown.holesRemaining,
           scoreBreakdown,
@@ -1509,7 +1540,7 @@ export default function Page() {
   const tournamentStartLabel = formatTournamentStartDate(displayTournamentWindow.inProgressAt);
 
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
-  const liveStandingEntries =
+  const liveStandingEntries = (
     poolEntries.length > 0
       ? poolEntries
       : [
@@ -1523,11 +1554,28 @@ export default function Page() {
             },
           },
           ...STATIC_ENTRIES,
-        ];
+        ]
+  ).map((entry) =>
+    entry.name === COMMISSIONER_DISPLAY_NAME && selectedTournament === 'masters'
+      ? {
+          ...entry,
+          rosters: {
+            ...entry.rosters,
+            masters: DEFAULT_ROSTERS.masters,
+          },
+        }
+      : entry,
+  );
 
   const standings: StandingEntry[] = liveStandingEntries
     .map((entry) => {
-      const picks = entry.rosters[selectedTournament] ?? [];
+      const savedRoster = entry.rosters[selectedTournament];
+      const picks =
+        savedRoster && savedRoster.length > 0
+          ? savedRoster
+          : entry.name === COMMISSIONER_DISPLAY_NAME
+            ? DEFAULT_ROSTERS[selectedTournament]
+            : [];
       const golfers = picks.map((id) => playersById[id]).filter(Boolean);
       const rosterPoints = golfers.reduce((sum, golfer) => sum + golfer.points, 0);
       const holesRemaining = golfers.reduce((sum, golfer) => sum + golfer.holesRemaining, 0);
@@ -1556,6 +1604,23 @@ export default function Page() {
     .map((entry, index) => ({ ...entry, place: index + 1 }));
 
   const activeStandingEntry = standings.find((entry) => entry.id === activeStandingEntryId) ?? null;
+  const activeStandingGolfers = activeStandingEntry
+    ? [...activeStandingEntry.golfers].sort((left, right) => {
+        if (right.points !== left.points) {
+          return right.points - left.points;
+        }
+
+        const leftPos = Number(left.position.replace('T', ''));
+        const rightPos = Number(right.position.replace('T', ''));
+
+        if (!Number.isNaN(leftPos) && !Number.isNaN(rightPos) && leftPos !== rightPos) {
+          return leftPos - rightPos;
+        }
+
+        return left.salary - right.salary;
+      })
+    : [];
+  const activeStandingGolfer = activeStandingGolfers.find((golfer) => golfer.id === activeStandingGolferId) ?? null;
   const pickedGolferIds = new Set(standings.flatMap((entry) => entry.golfers.map((golfer) => golfer.id)));
   const eventLeaderboardRows = [...players]
     .filter((player) => pickedGolferIds.has(player.id))
@@ -1633,6 +1698,7 @@ export default function Page() {
     setAccountMenuOpen(false);
     setMyEntriesMenuOpen(false);
     setActiveStandingEntryId(null);
+    setActiveStandingGolferId(null);
     setCommissionerMemberModalOpen(false);
 
     if (tab === 'Standings') {
@@ -2651,7 +2717,10 @@ export default function Page() {
                           <td style={{ padding: '16px 18px 16px 0', fontSize: 16 }}>{entry.place}</td>
                           <td style={{ padding: '16px 18px 16px 0' }}>
                             <button
-                              onClick={() => setActiveStandingEntryId(entry.id)}
+                              onClick={() => {
+                                setActiveStandingGolferId(null);
+                                setActiveStandingEntryId(entry.id);
+                              }}
                               style={{
                                 border: 'none',
                                 background: 'transparent',
@@ -2701,7 +2770,10 @@ export default function Page() {
                             <td style={{ padding: '16px 0', fontWeight: 800, color: '#2f5f96' }}>#{entry.place}</td>
                             <td style={{ padding: '16px 0' }}>
                               <button
-                                onClick={() => setActiveStandingEntryId(entry.id)}
+                                onClick={() => {
+                                  setActiveStandingGolferId(null);
+                                  setActiveStandingEntryId(entry.id);
+                                }}
                                 style={{
                                   border: 'none',
                                   background: 'transparent',
@@ -4839,7 +4911,10 @@ export default function Page() {
 
         {activeStandingEntry ? (
           <div
-            onClick={() => setActiveStandingEntryId(null)}
+            onClick={() => {
+              setActiveStandingGolferId(null);
+              setActiveStandingEntryId(null);
+            }}
             style={{
               position: 'fixed',
               inset: 0,
@@ -4874,7 +4949,10 @@ export default function Page() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setActiveStandingEntryId(null)}
+                  onClick={() => {
+                    setActiveStandingGolferId(null);
+                    setActiveStandingEntryId(null);
+                  }}
                   style={{
                     border: '1px solid #d7e0e8',
                     borderRadius: 999,
@@ -4924,14 +5002,25 @@ export default function Page() {
 
               <div style={{ marginTop: 20, display: 'grid', gap: 12 }}>
                 {activeStandingEntry.golfers.length > 0 ? (
-                  activeStandingEntry.golfers.map((golfer, index) => (
-                    <div
+                  activeStandingGolfers.map((golfer, index) => {
+                    const pickedCount = standings.reduce(
+                      (sum, entry) => sum + entry.golfers.filter((entryGolfer) => entryGolfer.id === golfer.id).length,
+                      0,
+                    );
+                    const isActiveGolfer = activeStandingGolferId === golfer.id;
+
+                    return (
+                    <button
                       key={golfer.id}
+                      onClick={() => setActiveStandingGolferId(golfer.id)}
                       style={{
+                        width: '100%',
                         border: '1px solid #e6edf1',
                         borderRadius: 18,
                         padding: 16,
-                        background: '#fff',
+                        background: isActiveGolfer ? '#eef4ff' : '#fff',
+                        textAlign: 'left',
+                        cursor: 'pointer',
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
@@ -4940,58 +5029,25 @@ export default function Page() {
                             Roster {index + 1}
                           </div>
                           <div style={{ marginTop: 4, fontSize: 22, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                          <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
-                            OWGR {golfer.worldRank} | {golfer.odds} | Pos {golfer.position} | Thru {golfer.thru}
+                          <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                            <span>Holes Rem: {golfer.holesRemaining}</span>
+                            <span>Picked: {pickedCount}</span>
+                            <span>${golfer.salary.toLocaleString()}</span>
+                          </div>
+                          <div style={{ marginTop: 6, color: '#50616f', fontSize: 14, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                            <span>Pos: {golfer.position}</span>
+                            <span>Current Round: {formatCurrentRoundScore(golfer.total, golfer.score)}</span>
                           </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                             Tournament points
                           </div>
-                          <div style={{ marginTop: 6, fontSize: 28, fontWeight: 900 }}>{golfer.points}</div>
+                          <div style={{ marginTop: 6, fontSize: 28, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
                         </div>
                       </div>
-
-                      <div
-                        style={{
-                          marginTop: 16,
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                          gap: 10,
-                        }}
-                      >
-                        <div style={{ borderRadius: 14, background: '#f6fbfd', padding: 14 }}>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                            Placement points
-                          </div>
-                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900 }}>{golfer.scoreBreakdown.placementPoints}</div>
-                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            Position {golfer.position} earns full tied-place points
-                          </div>
-                        </div>
-                        <div style={{ borderRadius: 14, background: '#eef4ff', padding: 14 }}>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
-                            Hole and streak points
-                          </div>
-                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: '#2f5f96' }}>
-                            {golfer.scoreBreakdown.holePoints + golfer.scoreBreakdown.streakPoints}
-                          </div>
-                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            Awaiting live scorecard integration
-                          </div>
-                        </div>
-                        <div style={{ borderRadius: 14, background: '#f9fafb', padding: 14 }}>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                            Holes remaining
-                          </div>
-                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900 }}>{golfer.holesRemaining}</div>
-                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            Cut players automatically go to zero
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
+                    </button>
+                  )})
                 ) : (
                   <div
                     style={{
@@ -5010,15 +5066,147 @@ export default function Page() {
               <div
                 style={{
                   marginTop: 18,
-                  borderRadius: 16,
-                  background: '#f5f9fb',
-                  padding: 14,
-                  color: '#50616f',
-                  lineHeight: 1.5,
+                  display: 'grid',
+                  gridTemplateColumns: '1fr auto auto',
+                  gap: 16,
+                  alignItems: 'center',
+                  borderTop: '1px solid #e6edf1',
+                  paddingTop: 16,
                 }}
               >
-                This scoring panel is now built around your custom points system. Hole-by-hole and round-based categories
-                are scaffolded in the UI and will populate from Slash Golf scorecards once the API key is added.
+                <div style={{ color: '#50616f', fontSize: 18 }}>
+                  Total holes rem.: <strong>{activeStandingEntry.holesRemaining}</strong>
+                </div>
+                <div style={{ color: '#50616f', fontSize: 18 }}>
+                  Tiebreak value: <strong>{activeStandingEntry.tieBreakValue}</strong>
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#0f1720' }}>
+                  Total {formatPointValue(activeStandingEntry.rosterPoints)}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {activeStandingGolfer ? (
+          <div
+            onClick={() => setActiveStandingGolferId(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 32, 0.45)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
+              zIndex: 60,
+            }}
+          >
+            <div
+              onClick={(event) => event.stopPropagation()}
+              style={{
+                width: 'min(760px, 100%)',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                background: '#fff',
+                borderRadius: 24,
+                padding: 24,
+                boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                    Player scoring breakdown
+                  </div>
+                  <h3 style={{ margin: '6px 0 0', fontSize: 28, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
+                  <div style={{ marginTop: 6, color: '#6b7b88', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                    <span>Position: {activeStandingGolfer.position}</span>
+                    <span>Current Round: {formatCurrentRoundScore(activeStandingGolfer.total, activeStandingGolfer.score)}</span>
+                    <span>Holes Rem: {activeStandingGolfer.holesRemaining}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setActiveStandingGolferId(null)}
+                  style={{
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 999,
+                    background: '#fff',
+                    padding: '8px 14px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+
+              <div
+                style={{
+                  marginTop: 18,
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+                  gap: 12,
+                }}
+              >
+                <div style={{ borderRadius: 18, background: '#f6fbfd', padding: 16, border: '1px solid #e6edf1' }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>Picked</div>
+                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>
+                    {standings.reduce(
+                      (sum, entry) => sum + entry.golfers.filter((golfer) => golfer.id === activeStandingGolfer.id).length,
+                      0,
+                    )}
+                  </div>
+                </div>
+                <div style={{ borderRadius: 18, background: '#f6fbfd', padding: 16, border: '1px solid #e6edf1' }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>Salary</div>
+                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>${activeStandingGolfer.salary.toLocaleString()}</div>
+                </div>
+                <div style={{ borderRadius: 18, background: '#eef4ff', padding: 16, border: '1px solid #c7d8ee' }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Points</div>
+                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900, color: '#2f5f96' }}>{formatPointValue(activeStandingGolfer.points)}</div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 20, display: 'grid', gap: 10 }}>
+                {[
+                  ['Pars', activeStandingGolfer.scoreBreakdown.statLine.par, activeStandingGolfer.scoreBreakdown.statLine.par * SCORING_RULES.par],
+                  ['Birdies', activeStandingGolfer.scoreBreakdown.statLine.birdie, activeStandingGolfer.scoreBreakdown.statLine.birdie * SCORING_RULES.birdie],
+                  ['Eagles', activeStandingGolfer.scoreBreakdown.statLine.eagle, activeStandingGolfer.scoreBreakdown.statLine.eagle * SCORING_RULES.eagle],
+                  ['Albatrosses', activeStandingGolfer.scoreBreakdown.statLine.albatross, activeStandingGolfer.scoreBreakdown.statLine.albatross * SCORING_RULES.albatross],
+                  ['Aces', activeStandingGolfer.scoreBreakdown.statLine.holeInOne, activeStandingGolfer.scoreBreakdown.statLine.holeInOne * SCORING_RULES.holeInOne],
+                  ['Bogeys', activeStandingGolfer.scoreBreakdown.statLine.bogey, activeStandingGolfer.scoreBreakdown.statLine.bogey * SCORING_RULES.bogey],
+                  ['Double Bogeys', activeStandingGolfer.scoreBreakdown.statLine.doubleBogey, activeStandingGolfer.scoreBreakdown.statLine.doubleBogey * SCORING_RULES.doubleBogey],
+                  ['Triple Bogey+', activeStandingGolfer.scoreBreakdown.statLine.tripleOrWorse, activeStandingGolfer.scoreBreakdown.statLine.tripleOrWorse * SCORING_RULES.tripleOrWorse],
+                  ['3 Birdie Streaks', activeStandingGolfer.scoreBreakdown.statLine.threeBirdieStreaks, activeStandingGolfer.scoreBreakdown.statLine.threeBirdieStreaks * SCORING_RULES.threeBirdieStreak],
+                  ['No Bogey Rnds', activeStandingGolfer.scoreBreakdown.statLine.bogeyFreeRounds, activeStandingGolfer.scoreBreakdown.statLine.bogeyFreeRounds * SCORING_RULES.bogeyFreeRound],
+                  ['Tourn Low Rnds', activeStandingGolfer.scoreBreakdown.statLine.lowRounds, activeStandingGolfer.scoreBreakdown.statLine.lowRounds * SCORING_RULES.tourneyLowRound],
+                  ['Rnd 1 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.first ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.first ? SCORING_RULES.firstRoundLeader : 0],
+                  ['Rnd 2 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.second ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.second ? SCORING_RULES.secondRoundLeader : 0],
+                  ['Rnd 3 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? SCORING_RULES.thirdRoundLeader : 0],
+                  ['Leaderboard Place', activeStandingGolfer.position, activeStandingGolfer.scoreBreakdown.placementPoints],
+                  ['Cut Players', activeStandingGolfer.scoreBreakdown.madeCut === false ? 1 : 0, activeStandingGolfer.scoreBreakdown.cutPenaltyPoints],
+                ].map(([label, count, points]) => (
+                  <div
+                    key={String(label)}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(180px, 1.3fr) minmax(120px, 0.7fr) minmax(120px, 0.7fr)',
+                      gap: 12,
+                      alignItems: 'center',
+                      border: '1px solid #e6edf1',
+                      borderRadius: 16,
+                      padding: '12px 14px',
+                      background: '#fff',
+                    }}
+                  >
+                    <div style={{ fontWeight: 800, color: '#0f1720' }}>{label}</div>
+                    <div style={{ color: '#6b7b88' }}>Count: {String(count)}</div>
+                    <div style={{ textAlign: 'right', fontWeight: 800, color: Number(points) < 0 ? '#cc2944' : '#2f5f96' }}>
+                      {formatPointValue(Number(points))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
