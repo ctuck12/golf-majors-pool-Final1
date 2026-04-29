@@ -4348,9 +4348,9 @@ export default function Page() {
                   }}
                 >
                   <div>Display Name</div>
-                  <div>Email</div>
-                  <div># of Tourn. Submitted Picks</div>
-                  <div style={{ textAlign: 'right' }}>Edit</div>
+                  <div style={{ textAlign: 'center' }}>Email</div>
+                  <div style={{ textAlign: 'center' }}># of Tourn. Submitted Picks</div>
+                  <div style={{ textAlign: 'center' }}>Edit</div>
                 </div>
 
                 {commissionerBusy && commissionerMembers.length === 0 ? (
@@ -4371,11 +4371,11 @@ export default function Page() {
                       }}
                     >
                       <div style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{member.displayName}</div>
-                      <div style={{ fontSize: 15, color: '#31424f' }}>{member.email}</div>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: '#0f1720' }}>
+                      <div style={{ fontSize: 15, color: '#31424f', textAlign: 'center' }}>{member.email}</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>
                         {TOURNAMENTS.filter((event) => (member.rosters[event.id] ?? []).length > 0).length}
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
                         <button
                           onClick={() => openCommissionerMemberModal(member.id)}
                           style={{
