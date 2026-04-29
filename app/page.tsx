@@ -657,6 +657,8 @@ export default function Page() {
   const [commissionerSuccess, setCommissionerSuccess] = useState('');
   const [commissionerConsoleView, setCommissionerConsoleView] = useState<'dashboard' | 'members' | 'member-picks'>('dashboard');
   const [commissionerMemberSearch, setCommissionerMemberSearch] = useState('');
+  const [entriesPlayerSearch, setEntriesPlayerSearch] = useState('');
+  const [commissionerPlayerSearch, setCommissionerPlayerSearch] = useState('');
   const [commissionerMemberModalOpen, setCommissionerMemberModalOpen] = useState(false);
   const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email'>('menu');
   const [commissionerRosterMemberId, setCommissionerRosterMemberId] = useState<string | null>(null);
@@ -710,6 +712,17 @@ export default function Page() {
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
   const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
   const commissionerTournamentLabel = entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name;
+  const entriesTournamentCourseName =
+    entriesTournamentId === 'players'
+      ? 'TPC Sawgrass'
+      : entriesTournamentId === 'masters'
+        ? 'Augusta National Golf Club'
+        : entriesTournamentId === 'pga'
+          ? 'Aronimink Golf Club'
+          : entriesTournamentId === 'us-open'
+            ? 'Shinnecock Hills Golf Club'
+            : 'Royal Birkdale Golf Club';
+  const entriesTournamentPar = TOURNAMENT_PARS[entriesTournamentId];
 
   const restoreServerSessionFromStoredAccount = async (storedAccount: LocalStoredAccount) => {
     try {
@@ -1428,6 +1441,24 @@ export default function Page() {
   });
   const commissionerRosterMember =
     commissionerMembers.find((member) => member.id === commissionerRosterMemberId) ?? null;
+  const filteredEntriesPlayers = players.filter((player) => {
+    const query = entriesPlayerSearch.trim().toLowerCase();
+
+    if (!query) {
+      return true;
+    }
+
+    return player.name.toLowerCase().includes(query);
+  });
+  const filteredCommissionerPlayers = players.filter((player) => {
+    const query = commissionerPlayerSearch.trim().toLowerCase();
+
+    if (!query) {
+      return true;
+    }
+
+    return player.name.toLowerCase().includes(query);
+  });
 
   const savedRoster = sessionUser?.rosters[entriesTournamentId] ?? [];
   const hasSubmittedRoster = savedRoster.length === REQUIRED_GOLFERS;
@@ -1662,7 +1693,7 @@ export default function Page() {
     setSaveMessage('');
   };
 
-  const renderRosterCards = (background: string) => (
+  const renderRosterCards = (background: string, allowRemove = false) => (
     <div style={{ display: 'grid', gap: 10 }}>
       {orderedRosterPlayers.map((player, index) => (
         <div
@@ -1687,9 +1718,31 @@ export default function Page() {
               OWGR {player.worldRank} | ${player.salary.toLocaleString()}
             </div>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontWeight: 900, fontSize: 20 }}>{player.points}</div>
-            <div style={{ fontSize: 12, color: '#2f5f96' }}>{player.holesRemaining} holes left</div>
+          <div style={{ display: 'grid', justifyItems: 'end', gap: 8 }}>
+            {allowRemove ? (
+              <button
+                type="button"
+                onClick={() => togglePlayer(player.id)}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 999,
+                  border: '1px solid #c9d7e6',
+                  background: '#eef4ff',
+                  color: '#2f5f96',
+                  fontSize: 22,
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  cursor: 'pointer',
+                }}
+              >
+                −
+              </button>
+            ) : null}
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontWeight: 900, fontSize: 20 }}>{player.points}</div>
+              <div style={{ fontSize: 12, color: '#2f5f96' }}>{player.holesRemaining} holes left</div>
+            </div>
           </div>
         </div>
       ))}
@@ -3315,21 +3368,6 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'grid', gap: 20 }}>
-                    <div
-                      style={{
-                        borderRadius: 16,
-                        background: '#d8f6f7',
-                        color: '#0f1720',
-                        padding: '18px 22px',
-                        fontSize: 15,
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      NOTE: Salaries are now determined strictly by using a golfer&apos;s odds to win the tournament.
-                      Official World Golf Ranking is still displayed for reference, but it is not used in salary
-                      assignment.
-                    </div>
-
                     <section
                       style={{
                         borderRadius: 18,
@@ -3349,25 +3387,53 @@ export default function Page() {
                           alignItems: 'flex-start',
                         }}
                       >
-                        <div style={{ fontSize: 26, lineHeight: 1.25, fontWeight: 900, color: '#0f1720' }}>
-                          {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
-                          <br />
-                          Tournament Field
+                        <div>
+                          <div style={{ fontSize: 26, lineHeight: 1.25, fontWeight: 900, color: '#0f1720' }}>
+                            {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
+                          </div>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'baseline',
+                              gap: 8,
+                              flexWrap: 'wrap',
+                              marginTop: 8,
+                              color: '#5b6b79',
+                            }}
+                          >
+                            <span style={{ fontSize: 18, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
+                            <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
+                          </div>
                         </div>
-                        <div
+                        <label
                           style={{
                             width: 340,
                             maxWidth: '100%',
                             borderRadius: 12,
                             border: '1px solid #d7e0e8',
                             background: '#fff',
-                            padding: '14px 18px',
-                            color: '#97a3ad',
-                            fontSize: 15,
+                            padding: '0 18px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12,
                           }}
                         >
-                          Player search
-                        </div>
+                          <Search size={18} color="#8a98a6" />
+                          <input
+                            value={entriesPlayerSearch}
+                            onChange={(event) => setEntriesPlayerSearch(event.target.value)}
+                            placeholder="Player search"
+                            style={{
+                              border: 'none',
+                              outline: 'none',
+                              width: '100%',
+                              fontSize: 15,
+                              color: '#0f1720',
+                              padding: '14px 0',
+                              background: 'transparent',
+                            }}
+                          />
+                        </label>
                       </div>
 
                       <div style={{ padding: 20, minHeight: 430 }}>
@@ -3408,17 +3474,6 @@ export default function Page() {
                     </div>
 
                     <div style={{ fontSize: 30, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
-                    <div
-                      style={{
-                        borderRadius: 16,
-                        background: '#d8f6f7',
-                        padding: '16px 20px',
-                        color: '#0f1720',
-                        fontSize: 15,
-                      }}
-                    >
-                      No players selected
-                    </div>
                     <div style={{ color: '#0f1720', fontSize: 14 }}>
                       Click the plus sign to add a golfer or the minus sign to remove them.
                     </div>
@@ -3521,21 +3576,6 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'grid', gap: 18 }}>
-                    <div
-                      style={{
-                        borderRadius: 16,
-                        background: '#d8f6f7',
-                        color: '#0f1720',
-                        padding: '18px 22px',
-                        fontSize: 15,
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      NOTE: Salaries are now determined strictly by using a golfer&apos;s odds to win the tournament.
-                      Official World Golf Ranking is still displayed for reference, but it is not used in salary
-                      assignment.
-                    </div>
-
                     <section
                       style={{
                         background: '#fff',
@@ -3544,15 +3584,61 @@ export default function Page() {
                         border: '1px solid #e6edf1',
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                        <Trophy size={18} color="#2f5f96" />
-                        <div style={{ fontSize: 18, fontWeight: 900 }}>
-                          {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name} Tournament Field
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, marginBottom: 14, alignItems: 'flex-start' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Trophy size={18} color="#2f5f96" />
+                            <div style={{ fontSize: 18, fontWeight: 900 }}>
+                              {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
+                            </div>
+                          </div>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'baseline',
+                              gap: 8,
+                              flexWrap: 'wrap',
+                              marginTop: 8,
+                              color: '#5b6b79',
+                            }}
+                          >
+                            <span style={{ fontSize: 16, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
+                            <span style={{ fontSize: 14, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
+                          </div>
                         </div>
+                        <label
+                          style={{
+                            minWidth: 280,
+                            maxWidth: 320,
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            border: '1px solid #d7e0e8',
+                            borderRadius: 14,
+                            background: '#fff',
+                            padding: '0 14px',
+                          }}
+                        >
+                          <Search size={18} color="#6b7b88" />
+                          <input
+                            value={entriesPlayerSearch}
+                            onChange={(event) => setEntriesPlayerSearch(event.target.value)}
+                            placeholder="Player search"
+                            style={{
+                              border: 'none',
+                              outline: 'none',
+                              width: '100%',
+                              padding: '12px 0',
+                              fontSize: 15,
+                              background: 'transparent',
+                            }}
+                          />
+                        </label>
                       </div>
 
                       <div style={{ display: 'grid', gap: 10 }}>
-                        {players.map((player) => {
+                        {filteredEntriesPlayers.map((player) => {
                           const selected = selectedRoster.includes(player.id);
                           const disabled =
                             !selected &&
@@ -3608,7 +3694,7 @@ export default function Page() {
                       padding: 18,
                     }}
                   >
-                    {renderRosterCards('#fff')}
+                    {renderRosterCards('#fff', true)}
                     {renderBudgetCards('#fff', '1px solid #e6edf1')}
 
                     {saveMessage ? (
@@ -4362,19 +4448,6 @@ export default function Page() {
                 }}
               >
                 <div style={{ display: 'grid', gap: 18 }}>
-                  <div
-                    style={{
-                      borderRadius: 18,
-                      background: '#e0f7f8',
-                      padding: 18,
-                      color: '#0f1720',
-                      fontSize: 16,
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    NOTE: Salaries are now determined by using a golfer&apos;s odds to win the tournament instead of using their Official World Golf Ranking. This was done to properly assign salaries to LIV golfers who will participate in majors.
-                  </div>
-
                   <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
                     <div
                       style={{
@@ -4388,10 +4461,25 @@ export default function Page() {
                         borderBottom: '1px solid #d7e0e8',
                       }}
                     >
-                      <div style={{ fontSize: 22, fontWeight: 900, color: '#0f1720' }}>
-                        {commissionerTournamentLabel} Tournament Field
+                      <div>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: '#0f1720' }}>
+                          {commissionerTournamentLabel}
+                        </div>
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            gap: 8,
+                            flexWrap: 'wrap',
+                            marginTop: 8,
+                            color: '#5b6b79',
+                          }}
+                        >
+                          <span style={{ fontSize: 16, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
+                          <span style={{ fontSize: 14, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
+                        </div>
                       </div>
-                      <div
+                      <label
                         style={{
                           minWidth: 280,
                           display: 'flex',
@@ -4400,16 +4488,29 @@ export default function Page() {
                           border: '1px solid #d7e0e8',
                           borderRadius: 14,
                           background: '#fff',
-                          padding: '12px 14px',
+                          padding: '0 14px',
                         }}
                       >
                         <Search size={18} color="#6b7b88" />
-                        <span style={{ color: '#8a98a6' }}>Player search</span>
-                      </div>
+                        <input
+                          value={commissionerPlayerSearch}
+                          onChange={(event) => setCommissionerPlayerSearch(event.target.value)}
+                          placeholder="Player search"
+                          style={{
+                            border: 'none',
+                            outline: 'none',
+                            width: '100%',
+                            padding: '12px 0',
+                            fontSize: 15,
+                            background: 'transparent',
+                            color: '#0f1720',
+                          }}
+                        />
+                      </label>
                     </div>
 
                     <div style={{ padding: 20, display: 'grid', gap: 12, maxHeight: 960, overflowY: 'auto' }}>
-                      {players.map((player) => {
+                      {filteredCommissionerPlayers.map((player) => {
                         const isSelected = commissionerRosterSelection.includes(player.id);
                         const isDisabled =
                           !isSelected &&
@@ -4421,9 +4522,9 @@ export default function Page() {
                             onClick={() => toggleCommissionerRosterPlayer(player.id)}
                             disabled={isDisabled}
                             style={{
-                              border: isSelected ? '2px solid #2f855a' : '1px solid #d7e0e8',
+                              border: isSelected ? '2px solid #3f73ad' : '1px solid #d7e0e8',
                               borderRadius: 18,
-                              background: isSelected ? '#eefaf5' : '#fff',
+                              background: isSelected ? '#eef4ff' : '#fff',
                               padding: 16,
                               cursor: isDisabled ? 'not-allowed' : 'pointer',
                               textAlign: 'left',
@@ -4458,9 +4559,6 @@ export default function Page() {
 
                   <div style={{ display: 'grid', gap: 12 }}>
                     <div style={{ fontSize: 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
-                    <div style={{ borderRadius: 16, background: '#dff6f7', padding: '16px 18px', color: '#0f1720', fontSize: 16 }}>
-                      {commissionerRosterPlayers.length === 0 ? 'No players selected' : `${commissionerRosterPlayers.length} players selected`}
-                    </div>
                     <div style={{ fontSize: 15, color: '#31424f' }}>
                       Click the plus sign to add a golfer or the minus sign to remove them.
                     </div>
@@ -4485,11 +4583,31 @@ export default function Page() {
                           </div>
                           <div style={{ padding: '14px 18px', display: 'grid', alignContent: 'center', gap: 4 }}>
                             {golfer ? (
-                              <>
-                                <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Roster {index + 1}</div>
-                                <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                                <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | ${golfer.salary.toLocaleString()}</div>
-                              </>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                                <div>
+                                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Roster {index + 1}</div>
+                                  <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                  <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | ${golfer.salary.toLocaleString()}</div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleCommissionerRosterPlayer(golfer.id)}
+                                  style={{
+                                    width: 34,
+                                    height: 34,
+                                    borderRadius: 999,
+                                    border: '1px solid #c9d7e6',
+                                    background: '#eef4ff',
+                                    color: '#2f5f96',
+                                    fontSize: 22,
+                                    fontWeight: 900,
+                                    lineHeight: 1,
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  −
+                                </button>
+                              </div>
                             ) : (
                               <div style={{ fontSize: 18, color: '#50616f' }}>Golfer #{index + 1}</div>
                             )}
