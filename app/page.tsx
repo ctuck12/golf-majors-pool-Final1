@@ -17,6 +17,7 @@ import {
   Search,
   Trash2,
   Trophy,
+  User,
   UserPlus,
   Users,
 } from 'lucide-react';
