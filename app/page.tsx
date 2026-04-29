@@ -3,15 +3,19 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import {
   AlertCircle,
+  ArrowLeft,
   CircleUserRound,
   CheckCircle2,
   History,
   Lock,
   LogIn,
+  Mail,
   MoreVertical,
   Pencil,
   RefreshCw,
   Save,
+  Search,
+  Trash2,
   Trophy,
   UserPlus,
   Users,
@@ -650,6 +654,12 @@ export default function Page() {
   const [commissionerBusy, setCommissionerBusy] = useState(false);
   const [commissionerError, setCommissionerError] = useState('');
   const [commissionerSuccess, setCommissionerSuccess] = useState('');
+  const [commissionerConsoleView, setCommissionerConsoleView] = useState<'dashboard' | 'members' | 'member-picks'>('dashboard');
+  const [commissionerMemberSearch, setCommissionerMemberSearch] = useState('');
+  const [commissionerMemberModalOpen, setCommissionerMemberModalOpen] = useState(false);
+  const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email'>('menu');
+  const [commissionerRosterMemberId, setCommissionerRosterMemberId] = useState<string | null>(null);
+  const [commissionerRosterSelection, setCommissionerRosterSelection] = useState<number[]>([]);
   const [payoutForm, setPayoutForm] = useState({
     first: '',
     second: '',
@@ -698,6 +708,7 @@ export default function Page() {
   const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? entriesDefaultLocked;
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
   const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
+  const commissionerTournamentLabel = entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name;
 
   const restoreServerSessionFromStoredAccount = async (storedAccount: LocalStoredAccount) => {
     try {
@@ -1188,6 +1199,28 @@ export default function Page() {
     setCommissionerSuccess('');
   };
 
+  const openCommissionerMemberModal = (memberId: string) => {
+    handleSelectCommissionerMember(memberId);
+    setCommissionerMemberModalView('menu');
+    setCommissionerMemberModalOpen(true);
+  };
+
+  const openCommissionerMemberPicks = (memberId: string) => {
+    const member = commissionerMembers.find((item) => item.id === memberId);
+
+    if (!member) {
+      return;
+    }
+
+    setSelectedCommissionerMemberId(memberId);
+    setCommissionerRosterMemberId(memberId);
+    setCommissionerRosterSelection(member.rosters[entriesTournamentId] ?? []);
+    setCommissionerMemberModalOpen(false);
+    setCommissionerConsoleView('member-picks');
+    setCommissionerError('');
+    setCommissionerSuccess('');
+  };
+
   const handleSaveCommissionerMember = async () => {
     if (!selectedCommissionerMemberId) {
       return;
@@ -1257,9 +1290,76 @@ export default function Page() {
       setSessionUser((current) => (current?.id === selectedCommissionerMemberId ? null : current));
       setPool((current) => (sessionUser?.id === selectedCommissionerMemberId ? null : current));
       setSelectedCommissionerMemberId(null);
+      setCommissionerRosterMemberId((current) => (current === selectedCommissionerMemberId ? null : current));
+      setCommissionerMemberModalOpen(false);
+      setCommissionerConsoleView((current) => (current === 'member-picks' ? 'members' : current));
       setCommissionerSuccess('Member deleted.');
     } catch (err) {
       setCommissionerError(err instanceof Error ? err.message : 'Unable to delete member.');
+    } finally {
+      setCommissionerBusy(false);
+    }
+  };
+
+  const toggleCommissionerRosterPlayer = (playerId: number) => {
+    if (commissionerRosterSelection.includes(playerId)) {
+      setCommissionerRosterSelection(commissionerRosterSelection.filter((id) => id !== playerId));
+      return;
+    }
+
+    if (commissionerRosterSelection.length >= REQUIRED_GOLFERS) {
+      return;
+    }
+
+    const next = [...commissionerRosterSelection, playerId];
+    const nextSalary = next.reduce((sum, id) => sum + playersById[id].salary, 0);
+
+    if (nextSalary > SALARY_CAP) {
+      return;
+    }
+
+    setCommissionerRosterSelection(next);
+  };
+
+  const handleSaveCommissionerRoster = async () => {
+    if (!commissionerRosterMember) {
+      return;
+    }
+
+    setCommissionerBusy(true);
+    setCommissionerError('');
+    setCommissionerSuccess('');
+
+    try {
+      const payload = await readJson<{ member: CommissionerMember }>(
+        `/api/commissioner/members/${commissionerRosterMember.id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            rosters: {
+              [entriesTournamentId]: commissionerRosterSelection,
+            },
+          }),
+        },
+      );
+
+      setCommissionerMembers((current) =>
+        current.map((member) => (member.id === payload.member.id ? payload.member : member)),
+      );
+      setPoolEntries((current) =>
+        current.map((entry) =>
+          entry.id === payload.member.id
+            ? { ...entry, name: payload.member.displayName, rosters: payload.member.rosters }
+            : entry,
+        ),
+      );
+      setSessionUser((current) => (current && current.id === payload.member.id ? payload.member : current));
+      setCommissionerSuccess(`${payload.member.displayName}'s ${commissionerTournamentLabel} picks were saved.`);
+      setCommissionerConsoleView('members');
+      setCommissionerRosterMemberId(null);
+    } catch (err) {
+      setCommissionerError(err instanceof Error ? err.message : 'Unable to save member picks.');
     } finally {
       setCommissionerBusy(false);
     }
@@ -1313,6 +1413,20 @@ export default function Page() {
   );
   const selectedCommissionerMember =
     commissionerMembers.find((member) => member.id === selectedCommissionerMemberId) ?? null;
+  const filteredCommissionerMembers = commissionerMembers.filter((member) => {
+    const query = commissionerMemberSearch.trim().toLowerCase();
+
+    if (!query) {
+      return true;
+    }
+
+    return (
+      member.displayName.toLowerCase().includes(query) ||
+      member.email.toLowerCase().includes(query)
+    );
+  });
+  const commissionerRosterMember =
+    commissionerMembers.find((member) => member.id === commissionerRosterMemberId) ?? null;
 
   const savedRoster = sessionUser?.rosters[entriesTournamentId] ?? [];
   const hasSubmittedRoster = savedRoster.length === REQUIRED_GOLFERS;
@@ -1334,6 +1448,21 @@ export default function Page() {
   const playersNeeded = Math.max(0, REQUIRED_GOLFERS - selectedRoster.length);
   const averageRemainingPerPlayer =
     playersNeeded > 0 ? Math.max(0, Math.floor(salaryRemaining / playersNeeded)) : 0;
+  const commissionerRosterPlayers = commissionerRosterSelection.map((id) => playersById[id]).filter(Boolean);
+  const commissionerOrderedRosterPlayers = [...commissionerRosterPlayers].sort(
+    (left, right) => right.salary - left.salary,
+  );
+  const commissionerSalaryUsed = commissionerRosterPlayers.reduce((sum, player) => sum + player.salary, 0);
+  const commissionerSalaryRemaining = SALARY_CAP - commissionerSalaryUsed;
+  const commissionerPlayersNeeded = Math.max(0, REQUIRED_GOLFERS - commissionerRosterSelection.length);
+  const commissionerAverageRemainingPerPlayer =
+    commissionerPlayersNeeded > 0
+      ? Math.max(0, Math.floor(commissionerSalaryRemaining / commissionerPlayersNeeded))
+      : 0;
+  const canSaveCommissionerRoster =
+    !!commissionerRosterMember &&
+    commissionerRosterSelection.length === REQUIRED_GOLFERS &&
+    commissionerSalaryUsed <= SALARY_CAP;
   const defaultLocked = isLineupLocked(tournament.lockAt, nowTick);
   const locked = pool?.lineupLocks?.[selectedTournament] ?? defaultLocked;
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
@@ -2503,9 +2632,9 @@ export default function Page() {
                   >
                     Live scoring is now points-first. Hole-by-hole categories, streaks, round bonuses, and final finish
                     bonuses are scaffolded for the upcoming Slash Golf integration.
-                  </div>
-                </>
-              )}
+                </div>
+              </>
+            )}
             </section>
 
             <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20 }}>
@@ -2749,8 +2878,8 @@ export default function Page() {
               >
                 <h2 style={{ margin: 0, fontSize: 26, color: '#0f1720' }}>Manage Entries</h2>
                 <div style={{ marginTop: 18, color: '#0f1720', fontSize: 15, lineHeight: 1.6 }}>
-                  Make your picks for each entry below. You can modify your picks up until lineup lock unless the
-                  commissioner has manually reopened editing for the tournament.
+                  Make your picks for each entry below. You can submit or modify your picks up until the first tee
+                  time of Round 1.
                 </div>
 
                 {saveMessage ? (
@@ -3603,6 +3732,8 @@ export default function Page() {
 
         {mainTab === 'Commissioner console' && (
           <main style={{ marginTop: 24, display: 'grid', gap: 20 }}>
+            {commissionerConsoleView === 'dashboard' ? (
+              <>
             <section
               style={{
                 background: '#fff',
@@ -3838,19 +3969,87 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                Member management
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
-                  Edit pool members and saved lineups
-                </h2>
+              <button
+                onClick={() => setCommissionerConsoleView('members')}
+                style={{
+                  width: '100%',
+                  border: '1px solid #d7e0e8',
+                  borderRadius: 22,
+                  background: '#fff',
+                  padding: 22,
+                  display: 'grid',
+                  gridTemplateColumns: '100px minmax(0, 1fr)',
+                  gap: 22,
+                  alignItems: 'center',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                }}
+              >
+                <div
+                  style={{
+                    width: 82,
+                    height: 82,
+                    borderRadius: 18,
+                    background: '#0f1720',
+                    color: '#78f0f6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Users size={46} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#0f1720' }}>Member Management</div>
+                  <div style={{ marginTop: 8, fontSize: 18, lineHeight: 1.45, color: '#31424f' }}>
+                    A full member listing showing participation for this year.
+                  </div>
+                </div>
+              </button>
+            </section>
+              </>
+            ) : commissionerConsoleView === 'members' ? (
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                display: 'grid',
+                gap: 18,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <button
+                    onClick={() => setCommissionerConsoleView('dashboard')}
+                    style={{
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 999,
+                      background: '#fff',
+                      width: 44,
+                      height: 44,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                      Commissioner console
+                    </div>
+                    <h2 style={{ margin: '6px 0 0', fontSize: 34, color: '#0f1720' }}>Member Management</h2>
+                  </div>
+                </div>
                 <button
                   onClick={() => setShowAddMemberForm((current) => !current)}
                   style={{
                     border: 'none',
                     borderRadius: 14,
-                    padding: '12px 16px',
+                    padding: '12px 18px',
                     background: '#2d5e94',
                     color: '#fff',
                     fontWeight: 900,
@@ -3861,267 +4060,590 @@ export default function Page() {
                 </button>
               </div>
 
-              {!canManagePool ? (
+              {showAddMemberForm ? (
                 <div
                   style={{
-                    borderRadius: 18,
-                    background: '#fff8e7',
-                    color: '#9a6700',
-                    border: '1px solid #f0d28a',
-                    padding: '16px 18px',
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 20,
+                    padding: 18,
+                    background: '#f8fbfd',
+                    display: 'grid',
+                    gap: 12,
                   }}
                 >
-                  Sign in to load and manage pool members.
-                </div>
-              ) : (
-                <>
-                  {showAddMemberForm ? (
-                    <div
+                  <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720' }}>Add a new member</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+                    <input
+                      value={memberCreateForm.displayName}
+                      onChange={(event) => setMemberCreateForm({ ...memberCreateForm, displayName: event.target.value })}
+                      placeholder="Display name"
+                      style={fieldStyle()}
+                    />
+                    <input
+                      value={memberCreateForm.email}
+                      onChange={(event) => setMemberCreateForm({ ...memberCreateForm, email: event.target.value })}
+                      placeholder="Email"
+                      style={fieldStyle()}
+                    />
+                    <input
+                      type="password"
+                      value={memberCreateForm.password}
+                      onChange={(event) => setMemberCreateForm({ ...memberCreateForm, password: event.target.value })}
+                      placeholder="Password"
+                      style={fieldStyle()}
+                    />
+                  </div>
+                  <div>
+                    <button
+                      onClick={handleCreateMember}
+                      disabled={commissionerBusy}
                       style={{
-                        marginBottom: 18,
-                        border: '1px solid #d7e0e8',
-                        borderRadius: 20,
-                        padding: 18,
-                        background: '#f8fbfd',
-                        display: 'grid',
-                        gap: 12,
+                        border: 'none',
+                        borderRadius: 14,
+                        padding: '12px 16px',
+                        background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                        color: '#fff',
+                        fontWeight: 900,
+                        cursor: commissionerBusy ? 'wait' : 'pointer',
                       }}
                     >
-                      <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720' }}>Add a new member</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-                        <input
-                          value={memberCreateForm.displayName}
-                          onChange={(event) => setMemberCreateForm({ ...memberCreateForm, displayName: event.target.value })}
-                          placeholder="Display name"
-                          style={fieldStyle()}
-                        />
-                        <input
-                          value={memberCreateForm.email}
-                          onChange={(event) => setMemberCreateForm({ ...memberCreateForm, email: event.target.value })}
-                          placeholder="Email"
-                          style={fieldStyle()}
-                        />
-                        <input
-                          type="password"
-                          value={memberCreateForm.password}
-                          onChange={(event) => setMemberCreateForm({ ...memberCreateForm, password: event.target.value })}
-                          placeholder="Password"
-                          style={fieldStyle()}
-                        />
+                      Create member
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {commissionerError ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    borderRadius: 16,
+                    background: '#fff5f5',
+                    color: '#a61b1b',
+                    border: '1px solid #fecaca',
+                    padding: '14px 16px',
+                  }}
+                >
+                  <AlertCircle size={18} />
+                  <span>{commissionerError}</span>
+                </div>
+              ) : null}
+
+              {commissionerSuccess ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    borderRadius: 16,
+                    background: '#eef4ff',
+                    color: '#2f5f96',
+                    border: '1px solid #c7d8ee',
+                    padding: '14px 16px',
+                  }}
+                >
+                  <CheckCircle2 size={18} />
+                  <span>{commissionerSuccess}</span>
+                </div>
+              ) : null}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#31424f' }}>
+                  {commissionerMembers.length} Active Members
+                </div>
+                <div
+                  style={{
+                    minWidth: 280,
+                    maxWidth: 360,
+                    flex: '1 1 280px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 14,
+                    background: '#fff',
+                    padding: '12px 14px',
+                  }}
+                >
+                  <Search size={18} color="#6b7b88" />
+                  <input
+                    value={commissionerMemberSearch}
+                    onChange={(event) => setCommissionerMemberSearch(event.target.value)}
+                    placeholder="Search"
+                    style={{ ...fieldStyle(), border: 'none', padding: 0 }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ border: '1px solid #e6edf1', borderRadius: 22, overflow: 'hidden', background: '#fff' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
+                    gap: 16,
+                    padding: '18px 22px',
+                    background: '#f8fbfd',
+                    color: '#5b6b79',
+                    fontSize: 13,
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  <div>Display Name</div>
+                  <div>Email</div>
+                  <div># of Tourn. Submitted Picks</div>
+                  <div style={{ textAlign: 'right' }}>Edit</div>
+                </div>
+
+                {commissionerBusy && commissionerMembers.length === 0 ? (
+                  <div style={{ padding: 24, color: '#6b7b88' }}>Loading members...</div>
+                ) : filteredCommissionerMembers.length === 0 ? (
+                  <div style={{ padding: 24, color: '#6b7b88' }}>No members matched your search.</div>
+                ) : (
+                  filteredCommissionerMembers.map((member) => (
+                    <div
+                      key={member.id}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
+                        gap: 16,
+                        padding: '20px 22px',
+                        borderTop: '1px solid #e6edf1',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{member.displayName}</div>
+                      <div style={{ fontSize: 15, color: '#31424f' }}>{member.email}</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#0f1720' }}>
+                        {TOURNAMENTS.filter((event) => (member.rosters[event.id] ?? []).length > 0).length}
                       </div>
-                      <div>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <button
-                          onClick={handleCreateMember}
-                          disabled={commissionerBusy}
+                          onClick={() => openCommissionerMemberModal(member.id)}
                           style={{
-                            border: 'none',
+                            border: '1px solid #d7e0e8',
                             borderRadius: 14,
-                            padding: '12px 16px',
-                            background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
-                            color: '#fff',
-                            fontWeight: 900,
-                            cursor: commissionerBusy ? 'wait' : 'pointer',
+                            background: '#fff',
+                            width: 48,
+                            height: 48,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
                           }}
                         >
-                          Create member
+                          <Pencil size={18} />
                         </button>
                       </div>
                     </div>
-                  ) : null}
+                  ))
+                )}
+              </div>
+            </section>
+            ) : commissionerConsoleView === 'member-picks' ? (
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                display: 'grid',
+                gap: 18,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => {
+                    setCommissionerConsoleView('members');
+                    setCommissionerRosterMemberId(null);
+                  }}
+                  style={{
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 999,
+                    background: '#fff',
+                    width: 44,
+                    height: 44,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                    Member pick sheet
+                  </div>
+                  <h2 style={{ margin: '6px 0 0', fontSize: 34, color: '#0f1720' }}>
+                    Pick Sheet for {commissionerRosterMember?.displayName ?? 'Member'}
+                  </h2>
+                </div>
+              </div>
 
-                  {commissionerError ? (
-                    <div
-                      style={{
-                        marginBottom: 14,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        borderRadius: 16,
-                        background: '#fff5f5',
-                        color: '#a61b1b',
-                        border: '1px solid #fecaca',
-                        padding: '14px 16px',
-                      }}
-                    >
-                      <AlertCircle size={18} />
-                      <span>{commissionerError}</span>
-                    </div>
-                  ) : null}
-
-                  {commissionerSuccess ? (
-                    <div
-                      style={{
-                        marginBottom: 14,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        borderRadius: 16,
-                        background: '#eef4ff',
-                        color: '#2f5f96',
-                        border: '1px solid #c7d8ee',
-                        padding: '14px 16px',
-                      }}
-                    >
-                      <CheckCircle2 size={18} />
-                      <span>{commissionerSuccess}</span>
-                    </div>
-                  ) : null}
-
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(0, 1.45fr) minmax(320px, 0.8fr)',
+                  gap: 22,
+                  alignItems: 'start',
+                }}
+              >
+                <div style={{ display: 'grid', gap: 18 }}>
                   <div
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'minmax(260px, 0.8fr) minmax(0, 1.4fr)',
-                      gap: 20,
+                      borderRadius: 18,
+                      background: '#e0f7f8',
+                      padding: 18,
+                      color: '#0f1720',
+                      fontSize: 16,
+                      lineHeight: 1.5,
                     }}
                   >
+                    NOTE: Salaries are now determined by using a golfer&apos;s odds to win the tournament instead of using their Official World Golf Ranking. This was done to properly assign salaries to LIV golfers who will participate in majors.
+                  </div>
+
+                  <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
                     <div
                       style={{
-                        border: '1px solid #e6edf1',
-                        borderRadius: 20,
-                        padding: 14,
-                        background: '#f8fbfd',
-                        display: 'grid',
-                        gap: 10,
+                        padding: 22,
+                        background: '#f7f9fb',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        gap: 12,
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        borderBottom: '1px solid #d7e0e8',
                       }}
                     >
-                      {commissionerBusy && commissionerMembers.length === 0 ? (
-                        <div style={{ color: '#6b7b88' }}>Loading members...</div>
-                      ) : commissionerMembers.length === 0 ? (
-                        <div style={{ color: '#6b7b88' }}>No pool members found yet.</div>
-                      ) : (
-                        commissionerMembers.map((member) => (
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#0f1720' }}>
+                        {commissionerTournamentLabel} Tournament Field
+                      </div>
+                      <div
+                        style={{
+                          minWidth: 280,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          border: '1px solid #d7e0e8',
+                          borderRadius: 14,
+                          background: '#fff',
+                          padding: '12px 14px',
+                        }}
+                      >
+                        <Search size={18} color="#6b7b88" />
+                        <span style={{ color: '#8a98a6' }}>Player search</span>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: 20, display: 'grid', gap: 12, maxHeight: 960, overflowY: 'auto' }}>
+                      {players.map((player) => {
+                        const isSelected = commissionerRosterSelection.includes(player.id);
+                        const isDisabled =
+                          !isSelected &&
+                          (commissionerRosterSelection.length >= REQUIRED_GOLFERS || player.salary > commissionerSalaryRemaining);
+
+                        return (
                           <button
-                            key={member.id}
-                            onClick={() => handleSelectCommissionerMember(member.id)}
+                            key={`commissioner-player-${player.id}`}
+                            onClick={() => toggleCommissionerRosterPlayer(player.id)}
+                            disabled={isDisabled}
                             style={{
-                              border: member.id === selectedCommissionerMemberId ? '2px solid #3f73ad' : '1px solid #d7e0e8',
-                              borderRadius: 16,
-                              background: member.id === selectedCommissionerMemberId ? '#eef4ff' : '#fff',
-                              padding: 14,
+                              border: isSelected ? '2px solid #2f855a' : '1px solid #d7e0e8',
+                              borderRadius: 18,
+                              background: isSelected ? '#eefaf5' : '#fff',
+                              padding: 16,
+                              cursor: isDisabled ? 'not-allowed' : 'pointer',
                               textAlign: 'left',
-                              cursor: 'pointer',
+                              opacity: isDisabled ? 0.45 : 1,
                             }}
                           >
-                            <div style={{ fontWeight: 800, color: '#0f1720' }}>{member.displayName}</div>
-                            <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>{member.email}</div>
-                            <div style={{ marginTop: 6, color: '#2f5f96', fontSize: 12, fontWeight: 800 }}>
-                              {TOURNAMENTS.filter((event) => (member.rosters[event.id] ?? []).length > 0).length} saved lineup(s)
+                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+                              <div style={{ fontSize: 28, fontWeight: 900, color: '#0f1720', minWidth: 24 }}>{isSelected ? '−' : '+'}</div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
+                                <div style={{ marginTop: 4, fontSize: 14, color: '#607282' }}>
+                                  OWGR {player.worldRank} | {player.odds}
+                                </div>
+                              </div>
+                              <div style={{ fontSize: 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
                             </div>
                           </button>
-                        ))
-                      )}
-                    </div>
-
-                    <div
-                      style={{
-                        border: '1px solid #e6edf1',
-                        borderRadius: 20,
-                        padding: 18,
-                        background: '#fff',
-                      }}
-                    >
-                      {selectedCommissionerMember ? (
-                        <div style={{ display: 'grid', gap: 14 }}>
-                          <div>
-                            <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                              Editing member
-                            </div>
-                            <div style={{ marginTop: 6, fontSize: 24, fontWeight: 900, color: '#0f1720' }}>
-                              {selectedCommissionerMember.displayName}
-                            </div>
-                          </div>
-
-                          <input
-                            value={memberEditForm.displayName}
-                            onChange={(event) => setMemberEditForm({ ...memberEditForm, displayName: event.target.value })}
-                            placeholder="Display name"
-                            style={fieldStyle()}
-                          />
-                          <input
-                            value={memberEditForm.email}
-                            onChange={(event) => setMemberEditForm({ ...memberEditForm, email: event.target.value })}
-                            placeholder="Email"
-                            style={fieldStyle()}
-                          />
-                          <input
-                            type="password"
-                            value={memberEditForm.password}
-                            onChange={(event) => setMemberEditForm({ ...memberEditForm, password: event.target.value })}
-                            placeholder="New password (leave blank to keep current)"
-                            style={fieldStyle()}
-                          />
-
-                          <div style={{ fontSize: 12, color: '#6b7b88' }}>
-                            Edit picks as comma-separated golfer IDs.
-                            {' '}Available golfers:
-                            {' '}
-                            {PLAYER_POOL.map((player) => `${player.id} ${player.name}`).join(' • ')}
-                          </div>
-
-                          {TOURNAMENTS.map((event) => (
-                            <div key={event.id} style={{ display: 'grid', gap: 8 }}>
-                              <div style={{ fontSize: 13, fontWeight: 800, color: '#31424f' }}>{event.name} picks</div>
-                              <input
-                                value={memberEditForm.rosters[event.id]}
-                                onChange={(eventInput) =>
-                                  setMemberEditForm({
-                                    ...memberEditForm,
-                                    rosters: { ...memberEditForm.rosters, [event.id]: eventInput.target.value },
-                                  })
-                                }
-                                placeholder="Example: 1, 2, 5, 8, 10, 14"
-                                style={fieldStyle()}
-                              />
-                            </div>
-                          ))}
-
-                          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                            <button
-                              onClick={handleSaveCommissionerMember}
-                              disabled={commissionerBusy}
-                              style={{
-                                border: 'none',
-                                borderRadius: 16,
-                                padding: '14px 18px',
-                                background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
-                                color: '#fff',
-                                fontWeight: 900,
-                                cursor: commissionerBusy ? 'wait' : 'pointer',
-                              }}
-                            >
-                              Save member changes
-                            </button>
-                            <button
-                              onClick={handleDeleteCommissionerMember}
-                              disabled={commissionerBusy}
-                              style={{
-                                border: '1px solid #fecaca',
-                                borderRadius: 16,
-                                padding: '14px 18px',
-                                background: '#fff5f5',
-                                color: '#a61b1b',
-                                fontWeight: 900,
-                                cursor: commissionerBusy ? 'wait' : 'pointer',
-                              }}
-                            >
-                              Delete account
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div style={{ color: '#6b7b88' }}>
-                          Select a member on the left to edit their display name, email, password, and saved picks.
-                        </div>
-                      )}
+                        );
+                      })}
                     </div>
                   </div>
-                </>
-              )}
+                </div>
+
+                <div style={{ display: 'grid', gap: 18 }}>
+                  <div style={{ border: '1px solid #d7e0e8', borderRadius: 18, padding: 20, background: '#fff' }}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
+                    <div style={{ marginTop: 4, fontSize: 36, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
+                    <div style={{ marginTop: 8, fontSize: 16, color: '#31424f' }}>
+                      Avg Rem./Player: ${commissionerAverageRemainingPerPlayer.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gap: 12 }}>
+                    <div style={{ fontSize: 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
+                    <div style={{ borderRadius: 16, background: '#dff6f7', padding: '16px 18px', color: '#0f1720', fontSize: 16 }}>
+                      {commissionerRosterPlayers.length === 0 ? 'No players selected' : `${commissionerRosterPlayers.length} players selected`}
+                    </div>
+                    <div style={{ fontSize: 15, color: '#31424f' }}>
+                      Click the plus sign to add a golfer or the minus sign to remove them.
+                    </div>
+
+                    {Array.from({ length: REQUIRED_GOLFERS }, (_, index) => {
+                      const golfer = commissionerOrderedRosterPlayers[index];
+                      return (
+                        <div
+                          key={`commissioner-roster-slot-${index}`}
+                          style={{
+                            border: '1px solid #d7e0e8',
+                            borderRadius: 18,
+                            background: '#fff',
+                            minHeight: 96,
+                            display: 'grid',
+                            gridTemplateColumns: '96px minmax(0, 1fr)',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <div style={{ background: '#f6f7f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <User size={56} color="#c5cad0" />
+                          </div>
+                          <div style={{ padding: '14px 18px', display: 'grid', alignContent: 'center', gap: 4 }}>
+                            {golfer ? (
+                              <>
+                                <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Roster {index + 1}</div>
+                                <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | ${golfer.salary.toLocaleString()}</div>
+                              </>
+                            ) : (
+                              <div style={{ fontSize: 18, color: '#50616f' }}>Golfer #{index + 1}</div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    <button
+                      onClick={handleSaveCommissionerRoster}
+                      disabled={!canSaveCommissionerRoster || commissionerBusy}
+                      style={{
+                        marginTop: 4,
+                        width: 'fit-content',
+                        border: 'none',
+                        borderRadius: 14,
+                        padding: '12px 18px',
+                        background: canSaveCommissionerRoster ? '#e7ebef' : '#f2f4f6',
+                        color: canSaveCommissionerRoster ? '#0f1720' : '#98a3ad',
+                        fontWeight: 900,
+                        cursor: !canSaveCommissionerRoster || commissionerBusy ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      Submit Roster
+                    </button>
+                  </div>
+                </div>
+              </div>
             </section>
+            ) : null}
           </main>
         )}
 
-        </>
+        {commissionerMemberModalOpen && selectedCommissionerMember ? (
+          <div
+            onClick={() => setCommissionerMemberModalOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 32, 0.55)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
+              zIndex: 60,
+            }}
+          >
+            <div
+              onClick={(event) => event.stopPropagation()}
+              style={{
+                width: 'min(520px, 100%)',
+                background: '#fff',
+                borderRadius: 24,
+                padding: 24,
+                boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
+                display: 'grid',
+                gap: 18,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>Member options</div>
+                  <div style={{ marginTop: 6, fontSize: 28, fontWeight: 900, color: '#0f1720' }}>
+                    {selectedCommissionerMember.displayName}
+                  </div>
+                  <div style={{ marginTop: 6, fontSize: 15, color: '#607282' }}>{selectedCommissionerMember.email}</div>
+                </div>
+                <button
+                  onClick={() => setCommissionerMemberModalOpen(false)}
+                  style={{
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 999,
+                    background: '#fff',
+                    width: 40,
+                    height: 40,
+                    fontSize: 20,
+                    cursor: 'pointer',
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              {commissionerMemberModalView === 'menu' ? (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <button
+                    onClick={() => setCommissionerMemberModalView('displayName')}
+                    style={{
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 16,
+                      background: '#fff',
+                      padding: '16px 18px',
+                      textAlign: 'left',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Edit Display Name
+                  </button>
+                  <button
+                    onClick={() => setCommissionerMemberModalView('email')}
+                    style={{
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 16,
+                      background: '#fff',
+                      padding: '16px 18px',
+                      textAlign: 'left',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Edit Email
+                  </button>
+                  <button
+                    onClick={() => openCommissionerMemberPicks(selectedCommissionerMember.id)}
+                    style={{
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 16,
+                      background: '#eef8fb',
+                      padding: '16px 18px',
+                      textAlign: 'left',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Manage or Submit Picks
+                  </button>
+                  <button
+                    onClick={handleDeleteCommissionerMember}
+                    disabled={commissionerBusy}
+                    style={{
+                      border: '1px solid #fecaca',
+                      borderRadius: 16,
+                      background: '#fff5f5',
+                      padding: '16px 18px',
+                      textAlign: 'left',
+                      color: '#a61b1b',
+                      fontWeight: 800,
+                      cursor: commissionerBusy ? 'wait' : 'pointer',
+                    }}
+                  >
+                    Delete Member
+                  </button>
+                </div>
+              ) : commissionerMemberModalView === 'displayName' ? (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <input
+                    value={memberEditForm.displayName}
+                    onChange={(event) => setMemberEditForm({ ...memberEditForm, displayName: event.target.value })}
+                    placeholder="Display name"
+                    style={fieldStyle()}
+                  />
+                  <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => setCommissionerMemberModalView('menu')}
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveCommissionerMember}
+                      disabled={commissionerBusy}
+                      style={{
+                        border: 'none',
+                        borderRadius: 14,
+                        padding: '12px 16px',
+                        background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                        color: '#fff',
+                        fontWeight: 900,
+                        cursor: commissionerBusy ? 'wait' : 'pointer',
+                      }}
+                    >
+                      Save Display Name
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 16,
+                      background: '#fff',
+                      padding: '0 14px',
+                    }}
+                  >
+                    <Mail size={18} color="#607282" />
+                    <input
+                      value={memberEditForm.email}
+                      onChange={(event) => setMemberEditForm({ ...memberEditForm, email: event.target.value })}
+                      placeholder="Email"
+                      style={{ ...fieldStyle(), border: 'none', paddingLeft: 0, paddingRight: 0 }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => setCommissionerMemberModalView('menu')}
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveCommissionerMember}
+                      disabled={commissionerBusy}
+                      style={{
+                        border: 'none',
+                        borderRadius: 14,
+                        padding: '12px 16px',
+                        background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                        color: '#fff',
+                        fontWeight: 900,
+                        cursor: commissionerBusy ? 'wait' : 'pointer',
+                      }}
+                    >
+                      Save Email
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         ) : null}
 
         {activeStandingEntry ? (
@@ -4309,6 +4831,8 @@ export default function Page() {
               </div>
             </div>
           </div>
+        ) : null}
+        </>
         ) : null}
       </div>
     </div>
