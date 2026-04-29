@@ -1471,6 +1471,8 @@ export default function Page() {
     selectedTournamentStatus?.label === 'UP NEXT' ||
     selectedTournamentStatus?.label === 'ACTIVE' ||
     selectedTournamentStatus === null;
+  const showLivePayoutStrip =
+    selectedTournamentStatus?.label === 'IN PROGRESS' || selectedTournamentStatus?.label === 'LOCKED';
   const displayTournamentWindow = getDisplayTournamentWindow(tournament, new Date(nowTick));
   const picksOpenForTournament = selectedTournamentStatus?.label === 'ACTIVE';
   const tournamentStartLabel = formatTournamentStartDate(displayTournamentWindow.inProgressAt);
@@ -2431,63 +2433,64 @@ export default function Page() {
                     flexWrap: 'wrap',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  {showLivePayoutStrip ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <div
+                        style={{
+                          borderRadius: 999,
+                          background: '#eef4ff',
+                          color: '#2f5f96',
+                          padding: '6px 10px',
+                          fontSize: 13,
+                          fontWeight: 800,
+                        }}
+                      >
+                        1st: {formatPayoutAmount(selectedTournamentPayouts?.first)}
+                      </div>
+                      <div
+                        style={{
+                          borderRadius: 999,
+                          background: '#eef4ff',
+                          color: '#2f5f96',
+                          padding: '6px 10px',
+                          fontSize: 13,
+                          fontWeight: 800,
+                        }}
+                      >
+                        2nd: {formatPayoutAmount(selectedTournamentPayouts?.second)}
+                      </div>
+                      <div
+                        style={{
+                          borderRadius: 999,
+                          background: '#eef4ff',
+                          color: '#2f5f96',
+                          padding: '6px 10px',
+                          fontSize: 13,
+                          fontWeight: 800,
+                        }}
+                      >
+                        3rd: {formatPayoutAmount(selectedTournamentPayouts?.third)}
+                      </div>
+                    </div>
+                  ) : (
                     <div
                       style={{
-                        borderRadius: 999,
-                        background: '#eef4ff',
-                        color: '#2f5f96',
-                        padding: '6px 10px',
-                        fontSize: 13,
-                        fontWeight: 800,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 16,
+                        flexWrap: 'wrap',
+                        color: '#5b6b79',
+                        fontSize: 14,
                       }}
                     >
-                      1st: {formatPayoutAmount(selectedTournamentPayouts?.first)}
+                      <span>
+                        <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $25
+                      </span>
+                      <span>
+                        <strong style={{ color: '#0f1720' }}>Venmo:</strong> @claytont743
+                      </span>
                     </div>
-                    <div
-                      style={{
-                        borderRadius: 999,
-                        background: '#eef4ff',
-                        color: '#2f5f96',
-                        padding: '6px 10px',
-                        fontSize: 13,
-                        fontWeight: 800,
-                      }}
-                    >
-                      2nd: {formatPayoutAmount(selectedTournamentPayouts?.second)}
-                    </div>
-                    <div
-                      style={{
-                        borderRadius: 999,
-                        background: '#eef4ff',
-                        color: '#2f5f96',
-                        padding: '6px 10px',
-                        fontSize: 13,
-                        fontWeight: 800,
-                      }}
-                    >
-                      3rd: {formatPayoutAmount(selectedTournamentPayouts?.third)}
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'flex-end',
-                      gap: 16,
-                      flexWrap: 'wrap',
-                      color: '#5b6b79',
-                      fontSize: 14,
-                    }}
-                  >
-                    <span>
-                      <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $25
-                    </span>
-                    <span>
-                      <strong style={{ color: '#0f1720' }}>Venmo:</strong> @claytont743
-                    </span>
-                  </div>
+                  )}
                 </div>
               ) : null}
 
