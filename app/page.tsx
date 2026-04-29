@@ -2115,7 +2115,7 @@ export default function Page() {
           >
             <div
               style={{
-                width: 'min(520px, 100%)',
+                width: 'min(640px, 100%)',
                 minHeight: 344,
                 background: '#fff',
                 borderRadius: 24,
