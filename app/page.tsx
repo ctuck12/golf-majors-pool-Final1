@@ -2116,10 +2116,13 @@ export default function Page() {
             <div
               style={{
                 width: 'min(520px, 100%)',
+                minHeight: 344,
                 background: '#fff',
                 borderRadius: 24,
                 padding: 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
@@ -2129,7 +2132,7 @@ export default function Page() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gap: 12 }}>
+              <div style={{ display: 'grid', gap: 12, flex: 1 }}>
                 {authMode === 'register' ? (
                   <input
                     value={registerForm.displayName}
@@ -2177,7 +2180,7 @@ export default function Page() {
                   }}
                   disabled={authBusy}
                 >
-                  {authMode === 'login' ? 'Sign in to the pool' : 'Create account'}
+                  {authMode === 'login' ? 'Sign in' : 'Create account'}
                 </button>
               </div>
 
