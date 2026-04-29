@@ -1596,13 +1596,61 @@ export default function Page() {
     }
   };
 
+  const handleMainTabChange = (tab: MainTab) => {
+    setAccountMenuOpen(false);
+    setMyEntriesMenuOpen(false);
+    setActiveStandingEntryId(null);
+    setCommissionerMemberModalOpen(false);
+
+    if (tab === 'Standings') {
+      setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date())));
+      setSelectedLeaderboardPlayerId(null);
+      setCommissionerConsoleView('dashboard');
+      setCommissionerRosterMemberId(null);
+      setCommissionerMemberSearch('');
+      setShowAddMemberForm(false);
+      setMyEntriesEditorOpen(false);
+      setMyEntriesDetailView('none');
+    } else if (tab === 'My entries') {
+      setMyEntriesEditorOpen(false);
+      setMyEntriesDetailView('none');
+      setSaveMessage('');
+      setSelectedLeaderboardPlayerId(null);
+      setCommissionerConsoleView('dashboard');
+      setCommissionerRosterMemberId(null);
+      setCommissionerMemberSearch('');
+      setShowAddMemberForm(false);
+    } else if (tab === 'Details') {
+      setMyEntriesEditorOpen(false);
+      setMyEntriesDetailView('none');
+      setSaveMessage('');
+      setSelectedLeaderboardPlayerId(null);
+      setCommissionerConsoleView('dashboard');
+      setCommissionerRosterMemberId(null);
+      setCommissionerMemberSearch('');
+      setShowAddMemberForm(false);
+    } else if (tab === 'Commissioner console') {
+      setMyEntriesEditorOpen(false);
+      setMyEntriesDetailView('none');
+      setSaveMessage('');
+      setSelectedLeaderboardPlayerId(null);
+      setCommissionerConsoleView('dashboard');
+      setCommissionerRosterMemberId(null);
+      setCommissionerMemberSearch('');
+      setShowAddMemberForm(false);
+    }
+
+    setMainTab(tab);
+  };
+
   const openMyEntriesEditor = () => {
     setSaveMessage('');
     setMyEntriesMenuOpen(false);
     setMyEntriesDetailView('none');
     setSelectedRoster(savedRoster.length > 0 ? savedRoster : []);
     setMyEntriesEditorOpen(true);
-    setMainTab('My entries');
+    handleMainTabChange('My entries');
+    setMyEntriesEditorOpen(true);
   };
 
   const closeMyEntriesEditor = () => {
@@ -1741,7 +1789,7 @@ export default function Page() {
                   return (
                     <button
                       key={tab}
-                      onClick={() => setMainTab(tab)}
+                      onClick={() => handleMainTabChange(tab)}
                       style={{
                         border: 'none',
                         borderBottom: active ? '3px solid #63d9ea' : '3px solid transparent',
@@ -2976,6 +3024,23 @@ export default function Page() {
                     )}
                   </div>
                   <div style={{ textAlign: 'right', position: 'relative' }}>
+                    {myEntriesMenuOpen ? (
+                      <button
+                        type="button"
+                        aria-label="Close entry options"
+                        onClick={() => setMyEntriesMenuOpen(false)}
+                        style={{
+                          position: 'fixed',
+                          inset: 0,
+                          border: 'none',
+                          background: 'transparent',
+                          cursor: 'default',
+                          padding: 0,
+                          margin: 0,
+                          zIndex: 5,
+                        }}
+                      />
+                    ) : null}
                     <button
                       onClick={() => setMyEntriesMenuOpen((current) => !current)}
                       style={{
@@ -2992,6 +3057,7 @@ export default function Page() {
                     </button>
                     {myEntriesMenuOpen ? (
                       <div
+                        onClick={(event) => event.stopPropagation()}
                         style={{
                           position: 'absolute',
                           top: 56,
