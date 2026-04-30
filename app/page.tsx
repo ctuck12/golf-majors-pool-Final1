@@ -191,6 +191,7 @@ type PoolEntry = {
   id: string;
   name: string;
   rosters: Partial<Record<TournamentId, number[]>>;
+  tieBreaks: Partial<Record<TournamentId, number>>;
 };
 
 type CommissionerMember = AuthUser;
@@ -216,9 +217,9 @@ type StandingEntry = PoolEntry & {
 };
 
 const STATIC_ENTRIES: PoolEntry[] = [
-  { id: 'static-2', name: 'Brady S.', rosters: { pga: [1, 3, 5, 7, 9, 11] } },
-  { id: 'static-3', name: 'Megan T.', rosters: { pga: [2, 4, 6, 8, 12, 13] } },
-  { id: 'static-4', name: 'Ryan H.', rosters: { pga: [3, 4, 5, 9, 10, 14] } },
+  { id: 'static-2', name: 'Brady S.', rosters: { pga: [1, 3, 5, 7, 9, 11] }, tieBreaks: {} },
+  { id: 'static-3', name: 'Megan T.', rosters: { pga: [2, 4, 6, 8, 12, 13] }, tieBreaks: {} },
+  { id: 'static-4', name: 'Ryan H.', rosters: { pga: [3, 4, 5, 9, 10, 14] }, tieBreaks: {} },
 ];
 
 type SessionPayload = {
@@ -1180,7 +1181,7 @@ export default function Page() {
       });
 
       setCommissionerMembers((current) => [...current, payload.member]);
-      setPoolEntries((current) => [...current, { id: payload.member.id, name: payload.member.displayName, rosters: payload.member.rosters }]);
+      setPoolEntries((current) => [...current, { id: payload.member.id, name: payload.member.displayName, rosters: payload.member.rosters, tieBreaks: payload.member.tieBreaks ?? {} }]);
       setMemberCreateForm({ displayName: '', email: '', password: '' });
       setShowAddMemberForm(false);
       setCommissionerSuccess('Member added.');
@@ -1570,6 +1571,7 @@ export default function Page() {
                 sessionUser?.rosters[selectedTournament] ??
                 (selectedTournament === entriesTournamentId ? selectedRoster : DEFAULT_ROSTERS[selectedTournament]),
             },
+            tieBreaks: sessionUser?.tieBreaks ?? {},
           },
           ...STATIC_ENTRIES,
         ]
