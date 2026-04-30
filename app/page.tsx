@@ -97,6 +97,15 @@ const TOURNAMENT_PARS: Partial<Record<TournamentId, number>> = {
   open: 70,
 };
 
+// 12pm EST/EDT on the Friday (Round 2) of each tournament
+const TOURNAMENT_CUT_SHOW_AT: Partial<Record<TournamentId, string>> = {
+  players: '2026-03-13T12:00:00-04:00',
+  masters: '2026-04-10T12:00:00-04:00',
+  pga: '2026-05-15T12:00:00-04:00',
+  'us-open': '2026-06-19T12:00:00-04:00',
+  open: '2026-07-17T12:00:00-04:00',
+};
+
 const TOURNAMENT_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
   players: 46,
   pga: 46,
@@ -158,6 +167,7 @@ type FeedResponse = {
   oddsSource?: string;
   source: string;
   status: string;
+  projectedCut?: string | null;
 };
 
 type AuthUser = {
@@ -1531,6 +1541,10 @@ export default function Page() {
   const defaultLocked = isLineupLocked(tournament.lockAt, nowTick);
   const locked = pool?.lineupLocks?.[selectedTournament] ?? defaultLocked;
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
+  const showProjectedCut = (() => {
+    const showAt = TOURNAMENT_CUT_SHOW_AT[selectedTournament];
+    return showAt ? Date.now() >= new Date(showAt).getTime() : false;
+  })();
   const showFutureTournamentView =
     selectedTournamentStatus?.label === 'UP NEXT' ||
     selectedTournamentStatus?.label === 'ACTIVE' ||
@@ -2435,6 +2449,11 @@ export default function Page() {
                         <span style={{ fontSize: 18, fontWeight: 500 }}>TPC Sawgrass</span>
                         <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.players}</span>
                       </div>
+                      {showProjectedCut && feed?.projectedCut ? (
+                        <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
+                          Projected Cut: {feed.projectedCut}
+                        </div>
+                      ) : null}
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
@@ -2454,6 +2473,11 @@ export default function Page() {
                         <span style={{ fontSize: 18, fontWeight: 500 }}>Augusta National Golf Club</span>
                         <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.masters}</span>
                       </div>
+                      {showProjectedCut && feed?.projectedCut ? (
+                        <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
+                          Projected Cut: {feed.projectedCut}
+                        </div>
+                      ) : null}
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
@@ -2473,6 +2497,11 @@ export default function Page() {
                         <span style={{ fontSize: 18, fontWeight: 500 }}>Aronimink Golf Club</span>
                         <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.pga}</span>
                       </div>
+                      {showProjectedCut && feed?.projectedCut ? (
+                        <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
+                          Projected Cut: {feed.projectedCut}
+                        </div>
+                      ) : null}
                     </>
                   ) : selectedTournament === 'us-open' ? (
                     <>
@@ -2492,6 +2521,11 @@ export default function Page() {
                         <span style={{ fontSize: 18, fontWeight: 500 }}>Shinnecock Hills Golf Club</span>
                         <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS['us-open']}</span>
                       </div>
+                      {showProjectedCut && feed?.projectedCut ? (
+                        <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
+                          Projected Cut: {feed.projectedCut}
+                        </div>
+                      ) : null}
                     </>
                   ) : selectedTournament === 'open' ? (
                     <>
@@ -2511,6 +2545,11 @@ export default function Page() {
                         <span style={{ fontSize: 18, fontWeight: 500 }}>Royal Birkdale Golf Club</span>
                         <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.open}</span>
                       </div>
+                      {showProjectedCut && feed?.projectedCut ? (
+                        <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
+                          Projected Cut: {feed.projectedCut}
+                        </div>
+                      ) : null}
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
                       <img

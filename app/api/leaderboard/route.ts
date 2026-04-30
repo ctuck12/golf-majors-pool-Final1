@@ -62,6 +62,7 @@ type LockedOddsSnapshot = {
 };
 
 const SCORE_TOKEN = /^(E|CUT|WD|DQ|MDF|[+-]\d+)$/i;
+const CUT_SCORE_TOKEN = /^(E|[+-]\d+)$/i;
 const LOCKED_ODDS_DIR = path.join(process.cwd(), 'data');
 const LOCKED_ODDS_FILE = path.join(LOCKED_ODDS_DIR, 'locked-odds.json');
 
@@ -156,6 +157,24 @@ function parseRow(line: string): LeaderboardRow | null {
     thru,
     total,
   };
+}
+
+function findProjectedCut(lines: string[]): string | null {
+  for (let i = 0; i < lines.length; i++) {
+    const lower = lines[i].toLowerCase();
+    if (lower.includes('projected cut') || lower.includes('proj. cut') || lower.includes('cut line')) {
+      const tokens = lines[i].split(' ');
+      for (const token of tokens) {
+        if (CUT_SCORE_TOKEN.test(token)) return token;
+      }
+      for (let j = i + 1; j <= Math.min(i + 3, lines.length - 1); j++) {
+        for (const token of lines[j].split(' ')) {
+          if (CUT_SCORE_TOKEN.test(token)) return token;
+        }
+      }
+    }
+  }
+  return null;
 }
 
 function findStatus(lines: string[]) {
@@ -316,6 +335,7 @@ export async function GET(request: Request) {
   const html = await response.text();
   const lines = htmlToLines(html);
   const status = findStatus(lines);
+  const projectedCut = findProjectedCut(lines);
   const oddsLockAt = TOURNAMENT_ODDS_LOCK_AT[tournamentId];
   const shouldLockOdds = oddsLockAt ? Date.now() >= new Date(oddsLockAt).getTime() : false;
   const lockedOddsSnapshot = shouldLockOdds ? await readLockedOddsSnapshot(tournamentId) : null;
@@ -366,6 +386,7 @@ export async function GET(request: Request) {
     oddsSource: liveOdds.source,
     tournamentId,
     status,
+    projectedCut,
     fetchedAt: new Date().toISOString(),
     players,
     odds: liveOdds.players,
