@@ -73,7 +73,7 @@ const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
   players: '/the-players-championship-logo.png',
   masters: '/the-masters-logo.png',
   pga: '/pga-aronimink-logo.png',
-  'us-open': '/us-open-logo.png',
+  'us-open': '/us-open-shinnecock-logo.gif',
   open: '/the-open-logo.png',
 };
 
@@ -2649,7 +2649,12 @@ export default function Page() {
                   </div>
                   <div style={{ color: '#0f1720', fontSize: 17, lineHeight: 1.55 }}>
                     <div style={{ fontSize: 20 }}>
-                      {selectedTournament === 'pga' ? 'The PGA Championship' : tournament.name} begins on{' '}
+                      {selectedTournament === 'pga'
+                        ? 'The PGA Championship'
+                        : selectedTournament === 'us-open'
+                          ? 'The U.S. Open'
+                          : tournament.name}{' '}
+                      begins on{' '}
                       {tournamentStartLabel}.
                     </div>
                     <div style={{ marginTop: 14 }}>
