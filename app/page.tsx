@@ -74,7 +74,7 @@ const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
   masters: '/the-masters-logo.png',
   pga: '/pga-aronimink-logo.png',
   'us-open': '/us-open-shinnecock-logo.gif',
-  open: '/the-open-logo.png',
+  open: '/the-open-royal-birkdale-logo.png',
 };
 
 const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
@@ -2653,6 +2653,8 @@ export default function Page() {
                         ? 'The PGA Championship'
                         : selectedTournament === 'us-open'
                           ? 'The U.S. Open'
+                          : selectedTournament === 'open'
+                            ? 'The Open Championship'
                           : tournament.name}{' '}
                       begins on{' '}
                       {tournamentStartLabel}.
