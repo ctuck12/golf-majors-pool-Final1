@@ -2233,9 +2233,7 @@ export default function Page() {
                     placeholder="Display name"
                     style={fieldStyle()}
                   />
-                ) : (
-                  <div style={{ height: 48 }} />
-                )}
+                ) : null}
 
                 <input
                   value={authMode === 'login' ? loginForm.email : registerForm.email}
