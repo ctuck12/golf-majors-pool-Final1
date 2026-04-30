@@ -4189,6 +4189,53 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
+              <button
+                onClick={() => setCommissionerConsoleView('members')}
+                style={{
+                  width: '100%',
+                  border: '1px solid #d7e0e8',
+                  borderRadius: 22,
+                  background: '#fff',
+                  padding: 22,
+                  display: 'grid',
+                  gridTemplateColumns: '100px minmax(0, 1fr)',
+                  gap: 22,
+                  alignItems: 'center',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                }}
+              >
+                <div
+                  style={{
+                    width: 82,
+                    height: 82,
+                    borderRadius: 18,
+                    background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Users size={46} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#0f1720' }}>Member Management</div>
+                  <div style={{ marginTop: 8, fontSize: 18, lineHeight: 1.45, color: '#31424f' }}>
+                    A full member listing showing participation for this year.
+                  </div>
+                </div>
+              </button>
+            </section>
+
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+              }}
+            >
               <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                 Submission status
               </div>
@@ -4252,53 +4299,6 @@ export default function Page() {
                   )}
                 </div>
               </div>
-            </section>
-
-            <section
-              style={{
-                background: '#fff',
-                borderRadius: 24,
-                padding: 22,
-                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
-              }}
-            >
-              <button
-                onClick={() => setCommissionerConsoleView('members')}
-                style={{
-                  width: '100%',
-                  border: '1px solid #d7e0e8',
-                  borderRadius: 22,
-                  background: '#fff',
-                  padding: 22,
-                  display: 'grid',
-                  gridTemplateColumns: '100px minmax(0, 1fr)',
-                  gap: 22,
-                  alignItems: 'center',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                }}
-              >
-                <div
-                  style={{
-                    width: 82,
-                    height: 82,
-                    borderRadius: 18,
-                    background: '#0f1720',
-                    color: '#78f0f6',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Users size={46} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 32, fontWeight: 900, color: '#0f1720' }}>Member Management</div>
-                  <div style={{ marginTop: 8, fontSize: 18, lineHeight: 1.45, color: '#31424f' }}>
-                    A full member listing showing participation for this year.
-                  </div>
-                </div>
-              </button>
             </section>
               </>
             ) : commissionerConsoleView === 'members' ? (
