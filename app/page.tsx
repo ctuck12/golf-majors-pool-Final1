@@ -4949,7 +4949,7 @@ export default function Page() {
                     {activeStandingEntry.name} - {tournament.name}
                   </h3>
                   <div style={{ marginTop: 6, color: '#6b7b88', fontSize: 14 }}>
-                    *Click the players name for Scoring Breakdown
+                    *Click players name for scoring breakdown
                   </div>
                 </div>
                 <button
