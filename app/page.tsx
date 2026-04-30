@@ -4990,24 +4990,24 @@ export default function Page() {
               ref={entryBreakdownRef}
               onClick={(event) => event.stopPropagation()}
               style={{
-                width: 'min(760px, 100%)',
+                width: 'min(620px, 100%)',
                 maxHeight: '90vh',
                 overflowY: 'auto',
                 background: '#fff',
-                borderRadius: 24,
-                padding: 24,
+                borderRadius: 20,
+                padding: 16,
                 boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                     Entry breakdown
                   </div>
-                  <h3 style={{ margin: '6px 0 0', fontSize: 28, color: '#0f1720' }}>
+                  <h3 style={{ margin: '4px 0 0', fontSize: 20, color: '#0f1720' }}>
                     {activeStandingEntry.name} - {tournament.name}
                   </h3>
-                  <div style={{ marginTop: 6, color: '#6b7b88', fontSize: 14 }}>
+                  <div style={{ marginTop: 2, color: '#6b7b88', fontSize: 12 }}>
                     *Click players name for scoring breakdown
                   </div>
                 </div>
@@ -5030,7 +5030,7 @@ export default function Page() {
                 </button>
               </div>
 
-              <div style={{ marginTop: 20, display: 'grid', gap: 12 }}>
+              <div style={{ marginTop: 12, display: 'grid', gap: 8 }}>
                 {activeStandingEntry.golfers.length > 0 ? (
                   activeStandingGolfers.map((golfer, index) => {
                     const pickedCount = standings.reduce(
@@ -5046,33 +5046,33 @@ export default function Page() {
                       style={{
                         width: '100%',
                         border: '1px solid #e6edf1',
-                        borderRadius: 18,
-                        padding: 16,
+                        borderRadius: 12,
+                        padding: '10px 12px',
                         background: isActiveGolfer ? '#eef4ff' : '#fff',
                         textAlign: 'left',
                         cursor: 'pointer',
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
-                        <div>
-                          <div style={{ fontSize: 22, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                          <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                          <div style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                             <span>Holes Rem: {golfer.holesRemaining}</span>
                             <span>Picked: {pickedCount}</span>
                             <span>${golfer.salary.toLocaleString()}</span>
                           </div>
                           {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
-                            <div style={{ marginTop: 6, fontSize: 14, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
+                            <div style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
                           ) : (
-                            <div style={{ marginTop: 6, color: '#50616f', fontSize: 14, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                            <div style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                               <span>Pos: {golfer.position}</span>
                               <span>Tourn. Score: {golfer.score}</span>
                               <span>Current Round: {formatCurrentRoundScore(golfer.total, golfer.score)}</span>
                             </div>
                           )}
                         </div>
-                        <div style={{ textAlign: 'right', minWidth: 56 }}>
-                          <div style={{ fontSize: 28, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
+                        <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
+                          <div style={{ fontSize: 22, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
                         </div>
                       </div>
                     </button>
