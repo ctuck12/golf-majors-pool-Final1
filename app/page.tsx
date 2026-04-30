@@ -663,6 +663,7 @@ export default function Page() {
   const [activeStandingEntryId, setActiveStandingEntryId] = useState<string | null>(null);
   const [activeStandingGolferId, setActiveStandingGolferId] = useState<number | null>(null);
   const entryBreakdownRef = useRef<HTMLDivElement>(null);
+  const [showPointsSystem, setShowPointsSystem] = useState(false);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
   const [feed, setFeed] = useState<FeedResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -4911,6 +4912,7 @@ export default function Page() {
         {activeStandingEntry ? (
           <div
             onClick={() => {
+              setShowPointsSystem(false);
               setActiveStandingGolferId(null);
               setActiveStandingEntryId(null);
             }}
@@ -4952,6 +4954,7 @@ export default function Page() {
                 </div>
                 <button
                   onClick={() => {
+                    setShowPointsSystem(false);
                     setActiveStandingGolferId(null);
                     setActiveStandingEntryId(null);
                   }}
@@ -5055,6 +5058,7 @@ export default function Page() {
           <div
             onClick={(e) => {
               const rect = entryBreakdownRef.current?.getBoundingClientRect();
+              setShowPointsSystem(false);
               if (rect && e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
                 setActiveStandingGolferId(null);
               } else {
@@ -5106,6 +5110,21 @@ export default function Page() {
                     >
                       Points: {formatPointValue(activeStandingGolfer.points)}
                     </div>
+                    <button
+                      onClick={() => setShowPointsSystem(true)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        fontSize: 12,
+                        color: '#2f5f96',
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                        fontWeight: 600,
+                      }}
+                    >
+                      Click here for points system
+                    </button>
                   </div>
                   <div style={{ marginTop: 6, color: '#6b7b88', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                     <span>Position: {activeStandingGolfer.position}</span>
@@ -5115,7 +5134,7 @@ export default function Page() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setActiveStandingGolferId(null)}
+                  onClick={() => { setShowPointsSystem(false); setActiveStandingGolferId(null); }}
                   style={{
                     border: '1px solid #d7e0e8',
                     borderRadius: 999,
@@ -5172,6 +5191,118 @@ export default function Page() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {showPointsSystem ? (
+          <div
+            onClick={(e) => {
+              const rect = entryBreakdownRef.current?.getBoundingClientRect();
+              if (rect && e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                setShowPointsSystem(false);
+              } else {
+                setShowPointsSystem(false);
+                setActiveStandingGolferId(null);
+                setActiveStandingEntryId(null);
+              }
+            }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 32, 0.55)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
+              zIndex: 70,
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: 'min(760px, 100%)',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                background: '#fff',
+                borderRadius: 24,
+                padding: 24,
+                boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'flex-start', marginBottom: 18 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 18, fontWeight: 700, color: '#0f1720' }}>
+                  <span style={{ fontSize: 18 }}>{'📊'}</span>
+                  <span>Points are awarded as follows:</span>
+                </div>
+                <button
+                  onClick={() => setShowPointsSystem(false)}
+                  style={{
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 999,
+                    background: '#fff',
+                    padding: '8px 14px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                >
+                  Back
+                </button>
+              </div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                  gap: 36,
+                  color: '#0f1720',
+                  fontSize: 15,
+                  lineHeight: 1.35,
+                }}
+              >
+                <div style={{ display: 'grid', gap: 8 }}>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Triple+:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-5 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Double:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-3 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Bogey:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-1 pts</span></div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #c5c7cc', width: '78%' }} />
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Par:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>.5 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Birdie:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>3 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Eagle:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>8 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Albatross:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>13 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Ace:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #c5c7cc', width: '78%' }} />
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>3 Birdie Streak:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>4 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>No Bogey Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Tourn Low Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #c5c7cc', width: '78%' }} />
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Rnd 1 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Rnd 2 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Rnd 3 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                </div>
+                <div style={{ display: 'grid', gap: 8 }}>
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    <div style={{ fontSize: 15, fontWeight: 800 }}><span style={{ marginRight: 10 }}>{'🥇'}</span><strong>1st Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>40 pts</span></div>
+                    <div style={{ fontSize: 15, fontWeight: 800 }}><span style={{ marginRight: 10 }}>{'🥈'}</span><strong>2nd Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>25 pts</span></div>
+                    <div style={{ fontSize: 15, fontWeight: 800 }}><span style={{ marginRight: 10 }}>{'🥉'}</span><strong>3rd Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>20 pts</span></div>
+                  </div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #c5c7cc', width: '78%' }} />
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>4th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>18 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>5th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>16 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>6th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>14 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>7th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>12 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>8th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>9th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>9 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>10th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>8 pts</span></div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #c5c7cc', width: '78%' }} />
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>11-15th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>7 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>16-20th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>21-25th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>26-30th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>3 pts</span></div>
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>31-40th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>1 pts</span></div>
+                  <div style={{ margin: '6px 0 2px', borderTop: '2px solid #c5c7cc', width: '78%' }} />
+                  <div style={{ fontSize: 15, fontWeight: 800 }}><strong>Cut Players:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-10 pts</span></div>
+                </div>
               </div>
             </div>
           </div>
