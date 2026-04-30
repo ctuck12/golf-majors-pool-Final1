@@ -2706,38 +2706,30 @@ export default function Page() {
                       {standings.map((entry) => (
                         <tr
                           key={entry.id}
+                          onClick={() => {
+                            setActiveStandingGolferId(null);
+                            setActiveStandingEntryId(entry.id);
+                          }}
                           style={{
                             borderTop: '1px solid #e7edf2',
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
                                 ? '#eef4ff'
                                 : 'transparent',
+                            cursor: 'pointer',
                           }}
                         >
                           <td style={{ padding: '16px 18px 16px 0', fontSize: 16 }}>{entry.place}</td>
                           <td style={{ padding: '16px 18px 16px 0' }}>
-                            <button
-                              onClick={() => {
-                                setActiveStandingGolferId(null);
-                                setActiveStandingEntryId(entry.id);
-                              }}
+                            <div
                               style={{
-                                border: 'none',
-                                background: 'transparent',
-                                padding: 0,
                                 fontSize: 18,
                                 color: '#0f1720',
-                                cursor: 'pointer',
                                 textAlign: 'left',
                               }}
                             >
                               {entry.name}
-                            </button>
-                            {selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId) ? (
-                              <div style={{ marginTop: 6, fontSize: 12, fontWeight: 800, color: '#2f5f96', textTransform: 'uppercase' }}>
-                                Picked selected golfer
-                              </div>
-                            ) : null}
+                            </div>
                           </td>
                           <td style={{ padding: '16px 18px 16px 0', textAlign: 'center', fontSize: 18 }}>
                             {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
@@ -2766,27 +2758,26 @@ export default function Page() {
                       </thead>
                       <tbody>
                         {standings.map((entry) => (
-                          <tr key={entry.id} style={{ borderTop: '1px solid #edf1f4' }}>
+                          <tr
+                            key={entry.id}
+                            onClick={() => {
+                              setActiveStandingGolferId(null);
+                              setActiveStandingEntryId(entry.id);
+                            }}
+                            style={{ borderTop: '1px solid #edf1f4', cursor: 'pointer' }}
+                          >
                             <td style={{ padding: '16px 0', fontWeight: 800, color: '#2f5f96' }}>#{entry.place}</td>
                             <td style={{ padding: '16px 0' }}>
-                              <button
-                                onClick={() => {
-                                  setActiveStandingGolferId(null);
-                                  setActiveStandingEntryId(entry.id);
-                                }}
+                              <div
                                 style={{
-                                  border: 'none',
-                                  background: 'transparent',
-                                  padding: 0,
                                   fontWeight: 700,
                                   color: '#0f1720',
-                                  cursor: 'pointer',
                                   textAlign: 'left',
                                   fontSize: 18,
                                 }}
                               >
                                 {entry.name}
-                              </button>
+                              </div>
                               <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
                                 {entry.golfers.map((golfer) => golfer.name.split(' ')[0]).join(', ') || 'No lineup saved'}
                               </div>
@@ -4966,40 +4957,6 @@ export default function Page() {
                 </button>
               </div>
 
-              <div
-                style={{
-                  marginTop: 18,
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                  gap: 12,
-                }}
-              >
-                <div style={{ borderRadius: 18, background: '#f6fbfd', padding: 16, border: '1px solid #e6edf1' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Roster size
-                  </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>{activeStandingEntry.golfers.length}</div>
-                </div>
-                <div style={{ borderRadius: 18, background: '#f6fbfd', padding: 16, border: '1px solid #e6edf1' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Roster points
-                  </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>{activeStandingEntry.rosterPoints}</div>
-                </div>
-                <div style={{ borderRadius: 18, background: '#eef4ff', padding: 16, border: '1px solid #c7d8ee' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
-                    Holes remaining
-                  </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900, color: '#2f5f96' }}>{activeStandingEntry.holesRemaining}</div>
-                </div>
-                <div style={{ borderRadius: 18, background: '#f9fafb', padding: 16, border: '1px solid #e6edf1' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Tie-break
-                  </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>{activeStandingEntry.tieBreakValue}</div>
-                </div>
-              </div>
-
               <div style={{ marginTop: 20, display: 'grid', gap: 12 }}>
                 {activeStandingEntry.golfers.length > 0 ? (
                   activeStandingGolfers.map((golfer, index) => {
@@ -5036,6 +4993,7 @@ export default function Page() {
                           </div>
                           <div style={{ marginTop: 6, color: '#50616f', fontSize: 14, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                             <span>Pos: {golfer.position}</span>
+                            <span>Tourn. Score: {golfer.score}</span>
                             <span>Current Round: {formatCurrentRoundScore(golfer.total, golfer.score)}</span>
                           </div>
                         </div>
@@ -5075,7 +5033,7 @@ export default function Page() {
                 }}
               >
                 <div style={{ color: '#50616f', fontSize: 18 }}>
-                  Total holes rem.: <strong>{activeStandingEntry.holesRemaining}</strong>
+                  Total holes rem: <strong>{activeStandingEntry.holesRemaining}</strong>
                 </div>
                 <div style={{ color: '#50616f', fontSize: 18 }}>
                   Tiebreak value: <strong>{activeStandingEntry.tieBreakValue}</strong>
@@ -5090,7 +5048,10 @@ export default function Page() {
 
         {activeStandingGolfer ? (
           <div
-            onClick={() => setActiveStandingGolferId(null)}
+            onClick={() => {
+              setActiveStandingGolferId(null);
+              setActiveStandingEntryId(null);
+            }}
             style={{
               position: 'fixed',
               inset: 0,
@@ -5122,6 +5083,7 @@ export default function Page() {
                   <h3 style={{ margin: '6px 0 0', fontSize: 28, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
                   <div style={{ marginTop: 6, color: '#6b7b88', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                     <span>Position: {activeStandingGolfer.position}</span>
+                    <span>Tourn. Score: {activeStandingGolfer.score}</span>
                     <span>Current Round: {formatCurrentRoundScore(activeStandingGolfer.total, activeStandingGolfer.score)}</span>
                     <span>Holes Rem: {activeStandingGolfer.holesRemaining}</span>
                   </div>
@@ -5137,7 +5099,7 @@ export default function Page() {
                     cursor: 'pointer',
                   }}
                 >
-                  Close
+                  Back
                 </button>
               </div>
 
