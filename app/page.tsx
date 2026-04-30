@@ -3,21 +3,27 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import {
   AlertCircle,
+  ArrowLeft,
   CircleUserRound,
   CheckCircle2,
   History,
   Lock,
   LogIn,
+  Mail,
   MoreVertical,
   Pencil,
   RefreshCw,
   Save,
+  Search,
+  Trash2,
   Trophy,
+  User,
   UserPlus,
   Users,
 } from 'lucide-react';
 import {
   buildPlaceholderScoreBreakdown,
+  SCORING_RULES,
   type GolferScoreBreakdown,
 } from './lib/scoring';
 
@@ -66,9 +72,9 @@ const TOURNAMENTS = [
 const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
   players: '/the-players-championship-logo.png',
   masters: '/the-masters-logo.png',
-  pga: '/pga-of-america-logo.png',
-  'us-open': '/us-open-logo.png',
-  open: '/the-open-logo.png',
+  pga: '/pga-aronimink-logo.png',
+  'us-open': '/us-open-shinnecock-logo.gif',
+  open: '/the-open-royal-birkdale-logo.png',
 };
 
 const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
@@ -125,7 +131,7 @@ const PLAYER_POOL = [
 
 const DEFAULT_ROSTERS: Record<string, number[]> = {
   players: [1, 2, 8, 10, 12, 14],
-  masters: [1, 2, 4, 8, 10, 12],
+  masters: [1, 2, 3, 4, 5, 6],
   pga: [1, 3, 5, 8, 10, 11],
   'us-open': [1, 2, 5, 7, 10, 14],
   open: [2, 3, 5, 6, 8, 12],
@@ -183,6 +189,7 @@ type StandingGolfer = ReturnType<typeof buildPricedPlayers>[number] & {
   position: string;
   thru: string;
   score: string;
+  total: string;
   points: number;
   holesRemaining: number;
   scoreBreakdown: GolferScoreBreakdown;
@@ -621,12 +628,40 @@ function fieldStyle() {
   } satisfies CSSProperties;
 }
 
+function formatPointValue(value: number) {
+  return value % 1 === 0 ? String(value) : value.toFixed(1);
+}
+
+function formatCurrentRoundScore(value: string | undefined, fallback: string) {
+  const candidate = value && value !== '--' ? value : fallback;
+
+  if (!candidate || candidate === '--') {
+    return '--';
+  }
+
+  if (candidate === 'E' || candidate === 'F' || candidate === 'CUT' || candidate === 'MDF' || candidate === 'WD' || candidate === 'DQ') {
+    return candidate;
+  }
+
+  const numeric = Number(candidate);
+  if (Number.isNaN(numeric)) {
+    return candidate;
+  }
+
+  if (numeric === 0) {
+    return 'E';
+  }
+
+  return numeric > 0 ? `+${numeric}` : `${numeric}`;
+}
+
 export default function Page() {
   const initialTournament = getDefaultTournamentId(getTournamentCardStatuses());
   const [mainTab, setMainTab] = useState<MainTab>('Standings');
   const [selectedTournament, setSelectedTournament] = useState<TournamentId>(initialTournament);
   const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTERS[initialTournament]);
   const [activeStandingEntryId, setActiveStandingEntryId] = useState<string | null>(null);
+  const [activeStandingGolferId, setActiveStandingGolferId] = useState<number | null>(null);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
   const [feed, setFeed] = useState<FeedResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -650,6 +685,14 @@ export default function Page() {
   const [commissionerBusy, setCommissionerBusy] = useState(false);
   const [commissionerError, setCommissionerError] = useState('');
   const [commissionerSuccess, setCommissionerSuccess] = useState('');
+  const [commissionerConsoleView, setCommissionerConsoleView] = useState<'dashboard' | 'members' | 'member-picks'>('dashboard');
+  const [commissionerMemberSearch, setCommissionerMemberSearch] = useState('');
+  const [entriesPlayerSearch, setEntriesPlayerSearch] = useState('');
+  const [commissionerPlayerSearch, setCommissionerPlayerSearch] = useState('');
+  const [commissionerMemberModalOpen, setCommissionerMemberModalOpen] = useState(false);
+  const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email'>('menu');
+  const [commissionerRosterMemberId, setCommissionerRosterMemberId] = useState<string | null>(null);
+  const [commissionerRosterSelection, setCommissionerRosterSelection] = useState<number[]>([]);
   const [payoutForm, setPayoutForm] = useState({
     first: '',
     second: '',
@@ -698,6 +741,18 @@ export default function Page() {
   const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? entriesDefaultLocked;
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
   const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
+  const commissionerTournamentLabel = entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name;
+  const entriesTournamentCourseName =
+    entriesTournamentId === 'players'
+      ? 'TPC Sawgrass'
+      : entriesTournamentId === 'masters'
+        ? 'Augusta National Golf Club'
+        : entriesTournamentId === 'pga'
+          ? 'Aronimink Golf Club'
+          : entriesTournamentId === 'us-open'
+            ? 'Shinnecock Hills Golf Club'
+            : 'Royal Birkdale Golf Club';
+  const entriesTournamentPar = TOURNAMENT_PARS[entriesTournamentId];
 
   const restoreServerSessionFromStoredAccount = async (storedAccount: LocalStoredAccount) => {
     try {
@@ -1188,6 +1243,28 @@ export default function Page() {
     setCommissionerSuccess('');
   };
 
+  const openCommissionerMemberModal = (memberId: string) => {
+    handleSelectCommissionerMember(memberId);
+    setCommissionerMemberModalView('menu');
+    setCommissionerMemberModalOpen(true);
+  };
+
+  const openCommissionerMemberPicks = (memberId: string) => {
+    const member = commissionerMembers.find((item) => item.id === memberId);
+
+    if (!member) {
+      return;
+    }
+
+    setSelectedCommissionerMemberId(memberId);
+    setCommissionerRosterMemberId(memberId);
+    setCommissionerRosterSelection(member.rosters[entriesTournamentId] ?? []);
+    setCommissionerMemberModalOpen(false);
+    setCommissionerConsoleView('member-picks');
+    setCommissionerError('');
+    setCommissionerSuccess('');
+  };
+
   const handleSaveCommissionerMember = async () => {
     if (!selectedCommissionerMemberId) {
       return;
@@ -1257,9 +1334,76 @@ export default function Page() {
       setSessionUser((current) => (current?.id === selectedCommissionerMemberId ? null : current));
       setPool((current) => (sessionUser?.id === selectedCommissionerMemberId ? null : current));
       setSelectedCommissionerMemberId(null);
+      setCommissionerRosterMemberId((current) => (current === selectedCommissionerMemberId ? null : current));
+      setCommissionerMemberModalOpen(false);
+      setCommissionerConsoleView((current) => (current === 'member-picks' ? 'members' : current));
       setCommissionerSuccess('Member deleted.');
     } catch (err) {
       setCommissionerError(err instanceof Error ? err.message : 'Unable to delete member.');
+    } finally {
+      setCommissionerBusy(false);
+    }
+  };
+
+  const toggleCommissionerRosterPlayer = (playerId: number) => {
+    if (commissionerRosterSelection.includes(playerId)) {
+      setCommissionerRosterSelection(commissionerRosterSelection.filter((id) => id !== playerId));
+      return;
+    }
+
+    if (commissionerRosterSelection.length >= REQUIRED_GOLFERS) {
+      return;
+    }
+
+    const next = [...commissionerRosterSelection, playerId];
+    const nextSalary = next.reduce((sum, id) => sum + playersById[id].salary, 0);
+
+    if (nextSalary > SALARY_CAP) {
+      return;
+    }
+
+    setCommissionerRosterSelection(next);
+  };
+
+  const handleSaveCommissionerRoster = async () => {
+    if (!commissionerRosterMember) {
+      return;
+    }
+
+    setCommissionerBusy(true);
+    setCommissionerError('');
+    setCommissionerSuccess('');
+
+    try {
+      const payload = await readJson<{ member: CommissionerMember }>(
+        `/api/commissioner/members/${commissionerRosterMember.id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            rosters: {
+              [entriesTournamentId]: commissionerRosterSelection,
+            },
+          }),
+        },
+      );
+
+      setCommissionerMembers((current) =>
+        current.map((member) => (member.id === payload.member.id ? payload.member : member)),
+      );
+      setPoolEntries((current) =>
+        current.map((entry) =>
+          entry.id === payload.member.id
+            ? { ...entry, name: payload.member.displayName, rosters: payload.member.rosters }
+            : entry,
+        ),
+      );
+      setSessionUser((current) => (current && current.id === payload.member.id ? payload.member : current));
+      setCommissionerSuccess(`${payload.member.displayName}'s ${commissionerTournamentLabel} picks were saved.`);
+      setCommissionerConsoleView('members');
+      setCommissionerRosterMemberId(null);
+    } catch (err) {
+      setCommissionerError(err instanceof Error ? err.message : 'Unable to save member picks.');
     } finally {
       setCommissionerBusy(false);
     }
@@ -1299,6 +1443,7 @@ export default function Page() {
           position,
           thru,
           score,
+          total: live?.total ?? '--',
           points: scoreBreakdown.totalPoints,
           holesRemaining: scoreBreakdown.holesRemaining,
           scoreBreakdown,
@@ -1313,6 +1458,38 @@ export default function Page() {
   );
   const selectedCommissionerMember =
     commissionerMembers.find((member) => member.id === selectedCommissionerMemberId) ?? null;
+  const filteredCommissionerMembers = commissionerMembers.filter((member) => {
+    const query = commissionerMemberSearch.trim().toLowerCase();
+
+    if (!query) {
+      return true;
+    }
+
+    return (
+      member.displayName.toLowerCase().includes(query) ||
+      member.email.toLowerCase().includes(query)
+    );
+  });
+  const commissionerRosterMember =
+    commissionerMembers.find((member) => member.id === commissionerRosterMemberId) ?? null;
+  const filteredEntriesPlayers = players.filter((player) => {
+    const query = entriesPlayerSearch.trim().toLowerCase();
+
+    if (!query) {
+      return true;
+    }
+
+    return player.name.toLowerCase().includes(query);
+  });
+  const filteredCommissionerPlayers = players.filter((player) => {
+    const query = commissionerPlayerSearch.trim().toLowerCase();
+
+    if (!query) {
+      return true;
+    }
+
+    return player.name.toLowerCase().includes(query);
+  });
 
   const savedRoster = sessionUser?.rosters[entriesTournamentId] ?? [];
   const hasSubmittedRoster = savedRoster.length === REQUIRED_GOLFERS;
@@ -1334,6 +1511,21 @@ export default function Page() {
   const playersNeeded = Math.max(0, REQUIRED_GOLFERS - selectedRoster.length);
   const averageRemainingPerPlayer =
     playersNeeded > 0 ? Math.max(0, Math.floor(salaryRemaining / playersNeeded)) : 0;
+  const commissionerRosterPlayers = commissionerRosterSelection.map((id) => playersById[id]).filter(Boolean);
+  const commissionerOrderedRosterPlayers = [...commissionerRosterPlayers].sort(
+    (left, right) => right.salary - left.salary,
+  );
+  const commissionerSalaryUsed = commissionerRosterPlayers.reduce((sum, player) => sum + player.salary, 0);
+  const commissionerSalaryRemaining = SALARY_CAP - commissionerSalaryUsed;
+  const commissionerPlayersNeeded = Math.max(0, REQUIRED_GOLFERS - commissionerRosterSelection.length);
+  const commissionerAverageRemainingPerPlayer =
+    commissionerPlayersNeeded > 0
+      ? Math.max(0, Math.floor(commissionerSalaryRemaining / commissionerPlayersNeeded))
+      : 0;
+  const canSaveCommissionerRoster =
+    !!commissionerRosterMember &&
+    commissionerRosterSelection.length === REQUIRED_GOLFERS &&
+    commissionerSalaryUsed <= SALARY_CAP;
   const defaultLocked = isLineupLocked(tournament.lockAt, nowTick);
   const locked = pool?.lineupLocks?.[selectedTournament] ?? defaultLocked;
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
@@ -1341,12 +1533,14 @@ export default function Page() {
     selectedTournamentStatus?.label === 'UP NEXT' ||
     selectedTournamentStatus?.label === 'ACTIVE' ||
     selectedTournamentStatus === null;
+  const showLivePayoutStrip =
+    selectedTournamentStatus?.label === 'IN PROGRESS' || selectedTournamentStatus?.label === 'LOCKED';
   const displayTournamentWindow = getDisplayTournamentWindow(tournament, new Date(nowTick));
   const picksOpenForTournament = selectedTournamentStatus?.label === 'ACTIVE';
   const tournamentStartLabel = formatTournamentStartDate(displayTournamentWindow.inProgressAt);
 
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
-  const liveStandingEntries =
+  const liveStandingEntries = (
     poolEntries.length > 0
       ? poolEntries
       : [
@@ -1360,11 +1554,28 @@ export default function Page() {
             },
           },
           ...STATIC_ENTRIES,
-        ];
+        ]
+  ).map((entry) =>
+    entry.name === COMMISSIONER_DISPLAY_NAME && selectedTournament === 'masters'
+      ? {
+          ...entry,
+          rosters: {
+            ...entry.rosters,
+            masters: DEFAULT_ROSTERS.masters,
+          },
+        }
+      : entry,
+  );
 
   const standings: StandingEntry[] = liveStandingEntries
     .map((entry) => {
-      const picks = entry.rosters[selectedTournament] ?? [];
+      const savedRoster = entry.rosters[selectedTournament];
+      const picks =
+        savedRoster && savedRoster.length > 0
+          ? savedRoster
+          : entry.name === COMMISSIONER_DISPLAY_NAME
+            ? DEFAULT_ROSTERS[selectedTournament]
+            : [];
       const golfers = picks.map((id) => playersById[id]).filter(Boolean);
       const rosterPoints = golfers.reduce((sum, golfer) => sum + golfer.points, 0);
       const holesRemaining = golfers.reduce((sum, golfer) => sum + golfer.holesRemaining, 0);
@@ -1393,6 +1604,23 @@ export default function Page() {
     .map((entry, index) => ({ ...entry, place: index + 1 }));
 
   const activeStandingEntry = standings.find((entry) => entry.id === activeStandingEntryId) ?? null;
+  const activeStandingGolfers = activeStandingEntry
+    ? [...activeStandingEntry.golfers].sort((left, right) => {
+        if (right.points !== left.points) {
+          return right.points - left.points;
+        }
+
+        const leftPos = Number(left.position.replace('T', ''));
+        const rightPos = Number(right.position.replace('T', ''));
+
+        if (!Number.isNaN(leftPos) && !Number.isNaN(rightPos) && leftPos !== rightPos) {
+          return leftPos - rightPos;
+        }
+
+        return left.salary - right.salary;
+      })
+    : [];
+  const activeStandingGolfer = activeStandingGolfers.find((golfer) => golfer.id === activeStandingGolferId) ?? null;
   const pickedGolferIds = new Set(standings.flatMap((entry) => entry.golfers.map((golfer) => golfer.id)));
   const eventLeaderboardRows = [...players]
     .filter((player) => pickedGolferIds.has(player.id))
@@ -1466,13 +1694,62 @@ export default function Page() {
     }
   };
 
+  const handleMainTabChange = (tab: MainTab) => {
+    setAccountMenuOpen(false);
+    setMyEntriesMenuOpen(false);
+    setActiveStandingEntryId(null);
+    setActiveStandingGolferId(null);
+    setCommissionerMemberModalOpen(false);
+
+    if (tab === 'Standings') {
+      setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date())));
+      setSelectedLeaderboardPlayerId(null);
+      setCommissionerConsoleView('dashboard');
+      setCommissionerRosterMemberId(null);
+      setCommissionerMemberSearch('');
+      setShowAddMemberForm(false);
+      setMyEntriesEditorOpen(false);
+      setMyEntriesDetailView('none');
+    } else if (tab === 'My entries') {
+      setMyEntriesEditorOpen(false);
+      setMyEntriesDetailView('none');
+      setSaveMessage('');
+      setSelectedLeaderboardPlayerId(null);
+      setCommissionerConsoleView('dashboard');
+      setCommissionerRosterMemberId(null);
+      setCommissionerMemberSearch('');
+      setShowAddMemberForm(false);
+    } else if (tab === 'Details') {
+      setMyEntriesEditorOpen(false);
+      setMyEntriesDetailView('none');
+      setSaveMessage('');
+      setSelectedLeaderboardPlayerId(null);
+      setCommissionerConsoleView('dashboard');
+      setCommissionerRosterMemberId(null);
+      setCommissionerMemberSearch('');
+      setShowAddMemberForm(false);
+    } else if (tab === 'Commissioner console') {
+      setMyEntriesEditorOpen(false);
+      setMyEntriesDetailView('none');
+      setSaveMessage('');
+      setSelectedLeaderboardPlayerId(null);
+      setCommissionerConsoleView('dashboard');
+      setCommissionerRosterMemberId(null);
+      setCommissionerMemberSearch('');
+      setShowAddMemberForm(false);
+    }
+
+    setMainTab(tab);
+  };
+
   const openMyEntriesEditor = () => {
     setSaveMessage('');
     setMyEntriesMenuOpen(false);
     setMyEntriesDetailView('none');
     setSelectedRoster(savedRoster.length > 0 ? savedRoster : []);
     setMyEntriesEditorOpen(true);
-    setMainTab('My entries');
+    handleMainTabChange('My entries');
+    setMyEntriesEditorOpen(true);
   };
 
   const closeMyEntriesEditor = () => {
@@ -1482,7 +1759,7 @@ export default function Page() {
     setSaveMessage('');
   };
 
-  const renderRosterCards = (background: string) => (
+  const renderRosterCards = (background: string, allowRemove = false) => (
     <div style={{ display: 'grid', gap: 10 }}>
       {orderedRosterPlayers.map((player, index) => (
         <div
@@ -1507,9 +1784,31 @@ export default function Page() {
               OWGR {player.worldRank} | ${player.salary.toLocaleString()}
             </div>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontWeight: 900, fontSize: 20 }}>{player.points}</div>
-            <div style={{ fontSize: 12, color: '#2f5f96' }}>{player.holesRemaining} holes left</div>
+          <div style={{ display: 'grid', justifyItems: 'end', gap: 8 }}>
+            {allowRemove ? (
+              <button
+                type="button"
+                onClick={() => togglePlayer(player.id)}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 999,
+                  border: '1px solid #c9d7e6',
+                  background: '#eef4ff',
+                  color: '#2f5f96',
+                  fontSize: 22,
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  cursor: 'pointer',
+                }}
+              >
+                −
+              </button>
+            ) : null}
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontWeight: 900, fontSize: 20 }}>{player.points}</div>
+              <div style={{ fontSize: 12, color: '#2f5f96' }}>{player.holesRemaining} holes left</div>
+            </div>
           </div>
         </div>
       ))}
@@ -1611,7 +1910,7 @@ export default function Page() {
                   return (
                     <button
                       key={tab}
-                      onClick={() => setMainTab(tab)}
+                      onClick={() => handleMainTabChange(tab)}
                       style={{
                         border: 'none',
                         borderBottom: active ? '3px solid #63d9ea' : '3px solid transparent',
@@ -1882,11 +2181,14 @@ export default function Page() {
           >
             <div
               style={{
-                width: 'min(520px, 100%)',
+                width: 'min(640px, 100%)',
+                minHeight: 344,
                 background: '#fff',
                 borderRadius: 24,
                 padding: 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
@@ -1896,7 +2198,7 @@ export default function Page() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gap: 12 }}>
+              <div style={{ display: 'grid', gap: 12, flex: 1 }}>
                 {authMode === 'register' ? (
                   <input
                     value={registerForm.displayName}
@@ -1944,7 +2246,7 @@ export default function Page() {
                   }}
                   disabled={authBusy}
                 >
-                  {authMode === 'login' ? 'Sign in to the pool' : 'Create account'}
+                  {authMode === 'login' ? 'Sign in' : 'Create account'}
                 </button>
               </div>
 
@@ -2253,63 +2555,64 @@ export default function Page() {
                     flexWrap: 'wrap',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  {showLivePayoutStrip ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <div
+                        style={{
+                          borderRadius: 999,
+                          background: '#eef4ff',
+                          color: '#2f5f96',
+                          padding: '6px 10px',
+                          fontSize: 13,
+                          fontWeight: 800,
+                        }}
+                      >
+                        1st: {formatPayoutAmount(selectedTournamentPayouts?.first)}
+                      </div>
+                      <div
+                        style={{
+                          borderRadius: 999,
+                          background: '#eef4ff',
+                          color: '#2f5f96',
+                          padding: '6px 10px',
+                          fontSize: 13,
+                          fontWeight: 800,
+                        }}
+                      >
+                        2nd: {formatPayoutAmount(selectedTournamentPayouts?.second)}
+                      </div>
+                      <div
+                        style={{
+                          borderRadius: 999,
+                          background: '#eef4ff',
+                          color: '#2f5f96',
+                          padding: '6px 10px',
+                          fontSize: 13,
+                          fontWeight: 800,
+                        }}
+                      >
+                        3rd: {formatPayoutAmount(selectedTournamentPayouts?.third)}
+                      </div>
+                    </div>
+                  ) : (
                     <div
                       style={{
-                        borderRadius: 999,
-                        background: '#eef4ff',
-                        color: '#2f5f96',
-                        padding: '6px 10px',
-                        fontSize: 13,
-                        fontWeight: 800,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 16,
+                        flexWrap: 'wrap',
+                        color: '#5b6b79',
+                        fontSize: 14,
                       }}
                     >
-                      1st: {formatPayoutAmount(selectedTournamentPayouts?.first)}
+                      <span>
+                        <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $25
+                      </span>
+                      <span>
+                        <strong style={{ color: '#0f1720' }}>Venmo:</strong> @claytont743
+                      </span>
                     </div>
-                    <div
-                      style={{
-                        borderRadius: 999,
-                        background: '#eef4ff',
-                        color: '#2f5f96',
-                        padding: '6px 10px',
-                        fontSize: 13,
-                        fontWeight: 800,
-                      }}
-                    >
-                      2nd: {formatPayoutAmount(selectedTournamentPayouts?.second)}
-                    </div>
-                    <div
-                      style={{
-                        borderRadius: 999,
-                        background: '#eef4ff',
-                        color: '#2f5f96',
-                        padding: '6px 10px',
-                        fontSize: 13,
-                        fontWeight: 800,
-                      }}
-                    >
-                      3rd: {formatPayoutAmount(selectedTournamentPayouts?.third)}
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'flex-end',
-                      gap: 16,
-                      flexWrap: 'wrap',
-                      color: '#5b6b79',
-                      fontSize: 14,
-                    }}
-                  >
-                    <span>
-                      <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $25
-                    </span>
-                    <span>
-                      <strong style={{ color: '#0f1720' }}>Venmo:</strong> @claytont743
-                    </span>
-                  </div>
+                  )}
                 </div>
               ) : null}
 
@@ -2346,7 +2649,14 @@ export default function Page() {
                   </div>
                   <div style={{ color: '#0f1720', fontSize: 17, lineHeight: 1.55 }}>
                     <div style={{ fontSize: 20 }}>
-                      {selectedTournament === 'pga' ? 'The PGA Championship' : tournament.name} begins on{' '}
+                      {selectedTournament === 'pga'
+                        ? 'The PGA Championship'
+                        : selectedTournament === 'us-open'
+                          ? 'The U.S. Open'
+                          : selectedTournament === 'open'
+                            ? 'The Open Championship'
+                          : tournament.name}{' '}
+                      begins on{' '}
                       {tournamentStartLabel}.
                     </div>
                     <div style={{ marginTop: 14 }}>
@@ -2403,35 +2713,30 @@ export default function Page() {
                       {standings.map((entry) => (
                         <tr
                           key={entry.id}
+                          onClick={() => {
+                            setActiveStandingGolferId(null);
+                            setActiveStandingEntryId(entry.id);
+                          }}
                           style={{
                             borderTop: '1px solid #e7edf2',
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
                                 ? '#eef4ff'
                                 : 'transparent',
+                            cursor: 'pointer',
                           }}
                         >
                           <td style={{ padding: '16px 18px 16px 0', fontSize: 16 }}>{entry.place}</td>
                           <td style={{ padding: '16px 18px 16px 0' }}>
-                            <button
-                              onClick={() => setActiveStandingEntryId(entry.id)}
+                            <div
                               style={{
-                                border: 'none',
-                                background: 'transparent',
-                                padding: 0,
                                 fontSize: 18,
                                 color: '#0f1720',
-                                cursor: 'pointer',
                                 textAlign: 'left',
                               }}
                             >
                               {entry.name}
-                            </button>
-                            {selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId) ? (
-                              <div style={{ marginTop: 6, fontSize: 12, fontWeight: 800, color: '#2f5f96', textTransform: 'uppercase' }}>
-                                Picked selected golfer
-                              </div>
-                            ) : null}
+                            </div>
                           </td>
                           <td style={{ padding: '16px 18px 16px 0', textAlign: 'center', fontSize: 18 }}>
                             {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
@@ -2460,24 +2765,26 @@ export default function Page() {
                       </thead>
                       <tbody>
                         {standings.map((entry) => (
-                          <tr key={entry.id} style={{ borderTop: '1px solid #edf1f4' }}>
+                          <tr
+                            key={entry.id}
+                            onClick={() => {
+                              setActiveStandingGolferId(null);
+                              setActiveStandingEntryId(entry.id);
+                            }}
+                            style={{ borderTop: '1px solid #edf1f4', cursor: 'pointer' }}
+                          >
                             <td style={{ padding: '16px 0', fontWeight: 800, color: '#2f5f96' }}>#{entry.place}</td>
                             <td style={{ padding: '16px 0' }}>
-                              <button
-                                onClick={() => setActiveStandingEntryId(entry.id)}
+                              <div
                                 style={{
-                                  border: 'none',
-                                  background: 'transparent',
-                                  padding: 0,
                                   fontWeight: 700,
                                   color: '#0f1720',
-                                  cursor: 'pointer',
                                   textAlign: 'left',
                                   fontSize: 18,
                                 }}
                               >
                                 {entry.name}
-                              </button>
+                              </div>
                               <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
                                 {entry.golfers.map((golfer) => golfer.name.split(' ')[0]).join(', ') || 'No lineup saved'}
                               </div>
@@ -2503,9 +2810,9 @@ export default function Page() {
                   >
                     Live scoring is now points-first. Hole-by-hole categories, streaks, round bonuses, and final finish
                     bonuses are scaffolded for the upcoming Slash Golf integration.
-                  </div>
-                </>
-              )}
+                </div>
+              </>
+            )}
             </section>
 
             <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20 }}>
@@ -2749,8 +3056,8 @@ export default function Page() {
               >
                 <h2 style={{ margin: 0, fontSize: 26, color: '#0f1720' }}>Manage Entries</h2>
                 <div style={{ marginTop: 18, color: '#0f1720', fontSize: 15, lineHeight: 1.6 }}>
-                  Make your picks for each entry below. You can modify your picks up until lineup lock unless the
-                  commissioner has manually reopened editing for the tournament.
+                  Make your picks for each entry below. You can submit or modify your picks up until the first tee
+                  time of Round 1.
                 </div>
 
                 {saveMessage ? (
@@ -2846,6 +3153,23 @@ export default function Page() {
                     )}
                   </div>
                   <div style={{ textAlign: 'right', position: 'relative' }}>
+                    {myEntriesMenuOpen ? (
+                      <button
+                        type="button"
+                        aria-label="Close entry options"
+                        onClick={() => setMyEntriesMenuOpen(false)}
+                        style={{
+                          position: 'fixed',
+                          inset: 0,
+                          border: 'none',
+                          background: 'transparent',
+                          cursor: 'default',
+                          padding: 0,
+                          margin: 0,
+                          zIndex: 5,
+                        }}
+                      />
+                    ) : null}
                     <button
                       onClick={() => setMyEntriesMenuOpen((current) => !current)}
                       style={{
@@ -2862,6 +3186,7 @@ export default function Page() {
                     </button>
                     {myEntriesMenuOpen ? (
                       <div
+                        onClick={(event) => event.stopPropagation()}
                         style={{
                           position: 'absolute',
                           top: 56,
@@ -3116,21 +3441,6 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'grid', gap: 20 }}>
-                    <div
-                      style={{
-                        borderRadius: 16,
-                        background: '#d8f6f7',
-                        color: '#0f1720',
-                        padding: '18px 22px',
-                        fontSize: 15,
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      NOTE: Salaries are now determined strictly by using a golfer&apos;s odds to win the tournament.
-                      Official World Golf Ranking is still displayed for reference, but it is not used in salary
-                      assignment.
-                    </div>
-
                     <section
                       style={{
                         borderRadius: 18,
@@ -3150,25 +3460,53 @@ export default function Page() {
                           alignItems: 'flex-start',
                         }}
                       >
-                        <div style={{ fontSize: 26, lineHeight: 1.25, fontWeight: 900, color: '#0f1720' }}>
-                          {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
-                          <br />
-                          Tournament Field
+                        <div>
+                          <div style={{ fontSize: 26, lineHeight: 1.25, fontWeight: 900, color: '#0f1720' }}>
+                            {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
+                          </div>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'baseline',
+                              gap: 8,
+                              flexWrap: 'wrap',
+                              marginTop: 8,
+                              color: '#5b6b79',
+                            }}
+                          >
+                            <span style={{ fontSize: 18, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
+                            <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
+                          </div>
                         </div>
-                        <div
+                        <label
                           style={{
                             width: 340,
                             maxWidth: '100%',
                             borderRadius: 12,
                             border: '1px solid #d7e0e8',
                             background: '#fff',
-                            padding: '14px 18px',
-                            color: '#97a3ad',
-                            fontSize: 15,
+                            padding: '0 18px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12,
                           }}
                         >
-                          Player search
-                        </div>
+                          <Search size={18} color="#8a98a6" />
+                          <input
+                            value={entriesPlayerSearch}
+                            onChange={(event) => setEntriesPlayerSearch(event.target.value)}
+                            placeholder="Player search"
+                            style={{
+                              border: 'none',
+                              outline: 'none',
+                              width: '100%',
+                              fontSize: 15,
+                              color: '#0f1720',
+                              padding: '14px 0',
+                              background: 'transparent',
+                            }}
+                          />
+                        </label>
                       </div>
 
                       <div style={{ padding: 20, minHeight: 430 }}>
@@ -3209,17 +3547,6 @@ export default function Page() {
                     </div>
 
                     <div style={{ fontSize: 30, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
-                    <div
-                      style={{
-                        borderRadius: 16,
-                        background: '#d8f6f7',
-                        padding: '16px 20px',
-                        color: '#0f1720',
-                        fontSize: 15,
-                      }}
-                    >
-                      No players selected
-                    </div>
                     <div style={{ color: '#0f1720', fontSize: 14 }}>
                       Click the plus sign to add a golfer or the minus sign to remove them.
                     </div>
@@ -3322,21 +3649,6 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'grid', gap: 18 }}>
-                    <div
-                      style={{
-                        borderRadius: 16,
-                        background: '#d8f6f7',
-                        color: '#0f1720',
-                        padding: '18px 22px',
-                        fontSize: 15,
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      NOTE: Salaries are now determined strictly by using a golfer&apos;s odds to win the tournament.
-                      Official World Golf Ranking is still displayed for reference, but it is not used in salary
-                      assignment.
-                    </div>
-
                     <section
                       style={{
                         background: '#fff',
@@ -3345,15 +3657,61 @@ export default function Page() {
                         border: '1px solid #e6edf1',
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                        <Trophy size={18} color="#2f5f96" />
-                        <div style={{ fontSize: 18, fontWeight: 900 }}>
-                          {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name} Tournament Field
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, marginBottom: 14, alignItems: 'flex-start' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Trophy size={18} color="#2f5f96" />
+                            <div style={{ fontSize: 18, fontWeight: 900 }}>
+                              {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
+                            </div>
+                          </div>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'baseline',
+                              gap: 8,
+                              flexWrap: 'wrap',
+                              marginTop: 8,
+                              color: '#5b6b79',
+                            }}
+                          >
+                            <span style={{ fontSize: 16, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
+                            <span style={{ fontSize: 14, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
+                          </div>
                         </div>
+                        <label
+                          style={{
+                            minWidth: 280,
+                            maxWidth: 320,
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            border: '1px solid #d7e0e8',
+                            borderRadius: 14,
+                            background: '#fff',
+                            padding: '0 14px',
+                          }}
+                        >
+                          <Search size={18} color="#6b7b88" />
+                          <input
+                            value={entriesPlayerSearch}
+                            onChange={(event) => setEntriesPlayerSearch(event.target.value)}
+                            placeholder="Player search"
+                            style={{
+                              border: 'none',
+                              outline: 'none',
+                              width: '100%',
+                              padding: '12px 0',
+                              fontSize: 15,
+                              background: 'transparent',
+                            }}
+                          />
+                        </label>
                       </div>
 
                       <div style={{ display: 'grid', gap: 10 }}>
-                        {players.map((player) => {
+                        {filteredEntriesPlayers.map((player) => {
                           const selected = selectedRoster.includes(player.id);
                           const disabled =
                             !selected &&
@@ -3409,7 +3767,7 @@ export default function Page() {
                       padding: 18,
                     }}
                   >
-                    {renderRosterCards('#fff')}
+                    {renderRosterCards('#fff', true)}
                     {renderBudgetCards('#fff', '1px solid #e6edf1')}
 
                     {saveMessage ? (
@@ -3484,7 +3842,7 @@ export default function Page() {
                   <span style={{ color: '#43b36b', marginRight: 6 }}>🟢</span>
                   <span style={{ marginRight: 6 }}>➤</span>
                   Participants will be assigned a fixed salary cap of <strong>$50,000</strong> they must stay under in
-                  order to create their 6-player roster. Thes 6 golfers make up their player roster for that specific
+                  order to create their 6-player roster. These 6 golfers make up their player roster for that specific
                   tournament.
                 </div>
                 <div>
@@ -3603,6 +3961,8 @@ export default function Page() {
 
         {mainTab === 'Commissioner console' && (
           <main style={{ marginTop: 24, display: 'grid', gap: 20 }}>
+            {commissionerConsoleView === 'dashboard' ? (
+              <>
             <section
               style={{
                 background: '#fff',
@@ -3838,19 +4198,87 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                Member management
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
-                  Edit pool members and saved lineups
-                </h2>
+              <button
+                onClick={() => setCommissionerConsoleView('members')}
+                style={{
+                  width: '100%',
+                  border: '1px solid #d7e0e8',
+                  borderRadius: 22,
+                  background: '#fff',
+                  padding: 22,
+                  display: 'grid',
+                  gridTemplateColumns: '100px minmax(0, 1fr)',
+                  gap: 22,
+                  alignItems: 'center',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                }}
+              >
+                <div
+                  style={{
+                    width: 82,
+                    height: 82,
+                    borderRadius: 18,
+                    background: '#0f1720',
+                    color: '#78f0f6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Users size={46} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#0f1720' }}>Member Management</div>
+                  <div style={{ marginTop: 8, fontSize: 18, lineHeight: 1.45, color: '#31424f' }}>
+                    A full member listing showing participation for this year.
+                  </div>
+                </div>
+              </button>
+            </section>
+              </>
+            ) : commissionerConsoleView === 'members' ? (
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                display: 'grid',
+                gap: 18,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <button
+                    onClick={() => setCommissionerConsoleView('dashboard')}
+                    style={{
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 999,
+                      background: '#fff',
+                      width: 44,
+                      height: 44,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                      Commissioner console
+                    </div>
+                    <h2 style={{ margin: '6px 0 0', fontSize: 34, color: '#0f1720' }}>Member Management</h2>
+                  </div>
+                </div>
                 <button
                   onClick={() => setShowAddMemberForm((current) => !current)}
                   style={{
                     border: 'none',
                     borderRadius: 14,
-                    padding: '12px 16px',
+                    padding: '12px 18px',
                     background: '#2d5e94',
                     color: '#fff',
                     fontWeight: 900,
@@ -3861,272 +4289,630 @@ export default function Page() {
                 </button>
               </div>
 
-              {!canManagePool ? (
+              {showAddMemberForm ? (
                 <div
                   style={{
-                    borderRadius: 18,
-                    background: '#fff8e7',
-                    color: '#9a6700',
-                    border: '1px solid #f0d28a',
-                    padding: '16px 18px',
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 20,
+                    padding: 18,
+                    background: '#f8fbfd',
+                    display: 'grid',
+                    gap: 12,
                   }}
                 >
-                  Sign in to load and manage pool members.
-                </div>
-              ) : (
-                <>
-                  {showAddMemberForm ? (
-                    <div
+                  <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720' }}>Add a new member</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+                    <input
+                      value={memberCreateForm.displayName}
+                      onChange={(event) => setMemberCreateForm({ ...memberCreateForm, displayName: event.target.value })}
+                      placeholder="Display name"
+                      style={fieldStyle()}
+                    />
+                    <input
+                      value={memberCreateForm.email}
+                      onChange={(event) => setMemberCreateForm({ ...memberCreateForm, email: event.target.value })}
+                      placeholder="Email"
+                      style={fieldStyle()}
+                    />
+                    <input
+                      type="password"
+                      value={memberCreateForm.password}
+                      onChange={(event) => setMemberCreateForm({ ...memberCreateForm, password: event.target.value })}
+                      placeholder="Password"
+                      style={fieldStyle()}
+                    />
+                  </div>
+                  <div>
+                    <button
+                      onClick={handleCreateMember}
+                      disabled={commissionerBusy}
                       style={{
-                        marginBottom: 18,
-                        border: '1px solid #d7e0e8',
-                        borderRadius: 20,
-                        padding: 18,
-                        background: '#f8fbfd',
-                        display: 'grid',
-                        gap: 12,
+                        border: 'none',
+                        borderRadius: 14,
+                        padding: '12px 16px',
+                        background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                        color: '#fff',
+                        fontWeight: 900,
+                        cursor: commissionerBusy ? 'wait' : 'pointer',
                       }}
                     >
-                      <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720' }}>Add a new member</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-                        <input
-                          value={memberCreateForm.displayName}
-                          onChange={(event) => setMemberCreateForm({ ...memberCreateForm, displayName: event.target.value })}
-                          placeholder="Display name"
-                          style={fieldStyle()}
-                        />
-                        <input
-                          value={memberCreateForm.email}
-                          onChange={(event) => setMemberCreateForm({ ...memberCreateForm, email: event.target.value })}
-                          placeholder="Email"
-                          style={fieldStyle()}
-                        />
-                        <input
-                          type="password"
-                          value={memberCreateForm.password}
-                          onChange={(event) => setMemberCreateForm({ ...memberCreateForm, password: event.target.value })}
-                          placeholder="Password"
-                          style={fieldStyle()}
-                        />
+                      Create member
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {commissionerError ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    borderRadius: 16,
+                    background: '#fff5f5',
+                    color: '#a61b1b',
+                    border: '1px solid #fecaca',
+                    padding: '14px 16px',
+                  }}
+                >
+                  <AlertCircle size={18} />
+                  <span>{commissionerError}</span>
+                </div>
+              ) : null}
+
+              {commissionerSuccess ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    borderRadius: 16,
+                    background: '#eef4ff',
+                    color: '#2f5f96',
+                    border: '1px solid #c7d8ee',
+                    padding: '14px 16px',
+                  }}
+                >
+                  <CheckCircle2 size={18} />
+                  <span>{commissionerSuccess}</span>
+                </div>
+              ) : null}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#31424f' }}>
+                  {commissionerMembers.length} Active Members
+                </div>
+                <div
+                  style={{
+                    minWidth: 280,
+                    maxWidth: 360,
+                    flex: '1 1 280px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 14,
+                    background: '#fff',
+                    padding: '12px 14px',
+                  }}
+                >
+                  <Search size={18} color="#6b7b88" />
+                  <input
+                    value={commissionerMemberSearch}
+                    onChange={(event) => setCommissionerMemberSearch(event.target.value)}
+                    placeholder="Search"
+                    style={{ ...fieldStyle(), border: 'none', padding: 0 }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ border: '1px solid #e6edf1', borderRadius: 22, overflow: 'hidden', background: '#fff' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
+                    gap: 16,
+                    padding: '18px 22px',
+                    background: '#f8fbfd',
+                    color: '#5b6b79',
+                    fontSize: 13,
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  <div>Display Name</div>
+                  <div style={{ textAlign: 'center' }}>Email</div>
+                  <div style={{ textAlign: 'center' }}># of Tourn. Submitted Picks</div>
+                  <div style={{ textAlign: 'center' }}>Edit</div>
+                </div>
+
+                {commissionerBusy && commissionerMembers.length === 0 ? (
+                  <div style={{ padding: 24, color: '#6b7b88' }}>Loading members...</div>
+                ) : filteredCommissionerMembers.length === 0 ? (
+                  <div style={{ padding: 24, color: '#6b7b88' }}>No members matched your search.</div>
+                ) : (
+                  filteredCommissionerMembers.map((member) => (
+                    <div
+                      key={member.id}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
+                        gap: 16,
+                        padding: '20px 22px',
+                        borderTop: '1px solid #e6edf1',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{member.displayName}</div>
+                      <div style={{ fontSize: 15, color: '#31424f', textAlign: 'center' }}>{member.email}</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>
+                        {TOURNAMENTS.filter((event) => (member.rosters[event.id] ?? []).length > 0).length}
                       </div>
-                      <div>
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
                         <button
-                          onClick={handleCreateMember}
-                          disabled={commissionerBusy}
+                          onClick={() => openCommissionerMemberModal(member.id)}
                           style={{
-                            border: 'none',
+                            border: '1px solid #d7e0e8',
                             borderRadius: 14,
-                            padding: '12px 16px',
-                            background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
-                            color: '#fff',
-                            fontWeight: 900,
-                            cursor: commissionerBusy ? 'wait' : 'pointer',
+                            background: '#fff',
+                            width: 48,
+                            height: 48,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
                           }}
                         >
-                          Create member
+                          <Pencil size={18} />
                         </button>
                       </div>
                     </div>
-                  ) : null}
+                  ))
+                )}
+              </div>
+            </section>
+            ) : commissionerConsoleView === 'member-picks' ? (
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                display: 'grid',
+                gap: 18,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => {
+                    setCommissionerConsoleView('members');
+                    setCommissionerRosterMemberId(null);
+                  }}
+                  style={{
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 999,
+                    background: '#fff',
+                    width: 44,
+                    height: 44,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                    Member pick sheet
+                  </div>
+                  <h2 style={{ margin: '6px 0 0', fontSize: 34, color: '#0f1720' }}>
+                    Pick Sheet for {commissionerRosterMember?.displayName ?? 'Member'}
+                  </h2>
+                </div>
+              </div>
 
-                  {commissionerError ? (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(0, 1.45fr) minmax(320px, 0.8fr)',
+                  gap: 22,
+                  alignItems: 'start',
+                }}
+              >
+                <div style={{ display: 'grid', gap: 18 }}>
+                  <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
                     <div
                       style={{
-                        marginBottom: 14,
+                        padding: 22,
+                        background: '#f7f9fb',
                         display: 'flex',
+                        justifyContent: 'space-between',
+                        gap: 12,
                         alignItems: 'center',
-                        gap: 10,
-                        borderRadius: 16,
-                        background: '#fff5f5',
-                        color: '#a61b1b',
-                        border: '1px solid #fecaca',
-                        padding: '14px 16px',
+                        flexWrap: 'wrap',
+                        borderBottom: '1px solid #d7e0e8',
                       }}
                     >
-                      <AlertCircle size={18} />
-                      <span>{commissionerError}</span>
+                      <div>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: '#0f1720' }}>
+                          {commissionerTournamentLabel}
+                        </div>
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            gap: 8,
+                            flexWrap: 'wrap',
+                            marginTop: 8,
+                            color: '#5b6b79',
+                          }}
+                        >
+                          <span style={{ fontSize: 16, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
+                          <span style={{ fontSize: 14, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
+                        </div>
+                      </div>
+                      <label
+                        style={{
+                          minWidth: 280,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          border: '1px solid #d7e0e8',
+                          borderRadius: 14,
+                          background: '#fff',
+                          padding: '0 14px',
+                        }}
+                      >
+                        <Search size={18} color="#6b7b88" />
+                        <input
+                          value={commissionerPlayerSearch}
+                          onChange={(event) => setCommissionerPlayerSearch(event.target.value)}
+                          placeholder="Player search"
+                          style={{
+                            border: 'none',
+                            outline: 'none',
+                            width: '100%',
+                            padding: '12px 0',
+                            fontSize: 15,
+                            background: 'transparent',
+                            color: '#0f1720',
+                          }}
+                        />
+                      </label>
                     </div>
-                  ) : null}
 
-                  {commissionerSuccess ? (
-                    <div
-                      style={{
-                        marginBottom: 14,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        borderRadius: 16,
-                        background: '#eef4ff',
-                        color: '#2f5f96',
-                        border: '1px solid #c7d8ee',
-                        padding: '14px 16px',
-                      }}
-                    >
-                      <CheckCircle2 size={18} />
-                      <span>{commissionerSuccess}</span>
-                    </div>
-                  ) : null}
+                    <div style={{ padding: 20, display: 'grid', gap: 12, maxHeight: 960, overflowY: 'auto' }}>
+                      {filteredCommissionerPlayers.map((player) => {
+                        const isSelected = commissionerRosterSelection.includes(player.id);
+                        const isDisabled =
+                          !isSelected &&
+                          (commissionerRosterSelection.length >= REQUIRED_GOLFERS || player.salary > commissionerSalaryRemaining);
 
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'minmax(260px, 0.8fr) minmax(0, 1.4fr)',
-                      gap: 20,
-                    }}
-                  >
-                    <div
-                      style={{
-                        border: '1px solid #e6edf1',
-                        borderRadius: 20,
-                        padding: 14,
-                        background: '#f8fbfd',
-                        display: 'grid',
-                        gap: 10,
-                      }}
-                    >
-                      {commissionerBusy && commissionerMembers.length === 0 ? (
-                        <div style={{ color: '#6b7b88' }}>Loading members...</div>
-                      ) : commissionerMembers.length === 0 ? (
-                        <div style={{ color: '#6b7b88' }}>No pool members found yet.</div>
-                      ) : (
-                        commissionerMembers.map((member) => (
+                        return (
                           <button
-                            key={member.id}
-                            onClick={() => handleSelectCommissionerMember(member.id)}
+                            key={`commissioner-player-${player.id}`}
+                            onClick={() => toggleCommissionerRosterPlayer(player.id)}
+                            disabled={isDisabled}
                             style={{
-                              border: member.id === selectedCommissionerMemberId ? '2px solid #3f73ad' : '1px solid #d7e0e8',
-                              borderRadius: 16,
-                              background: member.id === selectedCommissionerMemberId ? '#eef4ff' : '#fff',
-                              padding: 14,
+                              border: isSelected ? '2px solid #3f73ad' : '1px solid #d7e0e8',
+                              borderRadius: 18,
+                              background: isSelected ? '#eef4ff' : '#fff',
+                              padding: 16,
+                              cursor: isDisabled ? 'not-allowed' : 'pointer',
                               textAlign: 'left',
-                              cursor: 'pointer',
+                              opacity: isDisabled ? 0.45 : 1,
                             }}
                           >
-                            <div style={{ fontWeight: 800, color: '#0f1720' }}>{member.displayName}</div>
-                            <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>{member.email}</div>
-                            <div style={{ marginTop: 6, color: '#2f5f96', fontSize: 12, fontWeight: 800 }}>
-                              {TOURNAMENTS.filter((event) => (member.rosters[event.id] ?? []).length > 0).length} saved lineup(s)
+                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+                              <div style={{ fontSize: 28, fontWeight: 900, color: '#0f1720', minWidth: 24 }}>{isSelected ? '−' : '+'}</div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
+                                <div style={{ marginTop: 4, fontSize: 14, color: '#607282' }}>
+                                  OWGR {player.worldRank} | {player.odds}
+                                </div>
+                              </div>
+                              <div style={{ fontSize: 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
                             </div>
                           </button>
-                        ))
-                      )}
-                    </div>
-
-                    <div
-                      style={{
-                        border: '1px solid #e6edf1',
-                        borderRadius: 20,
-                        padding: 18,
-                        background: '#fff',
-                      }}
-                    >
-                      {selectedCommissionerMember ? (
-                        <div style={{ display: 'grid', gap: 14 }}>
-                          <div>
-                            <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                              Editing member
-                            </div>
-                            <div style={{ marginTop: 6, fontSize: 24, fontWeight: 900, color: '#0f1720' }}>
-                              {selectedCommissionerMember.displayName}
-                            </div>
-                          </div>
-
-                          <input
-                            value={memberEditForm.displayName}
-                            onChange={(event) => setMemberEditForm({ ...memberEditForm, displayName: event.target.value })}
-                            placeholder="Display name"
-                            style={fieldStyle()}
-                          />
-                          <input
-                            value={memberEditForm.email}
-                            onChange={(event) => setMemberEditForm({ ...memberEditForm, email: event.target.value })}
-                            placeholder="Email"
-                            style={fieldStyle()}
-                          />
-                          <input
-                            type="password"
-                            value={memberEditForm.password}
-                            onChange={(event) => setMemberEditForm({ ...memberEditForm, password: event.target.value })}
-                            placeholder="New password (leave blank to keep current)"
-                            style={fieldStyle()}
-                          />
-
-                          <div style={{ fontSize: 12, color: '#6b7b88' }}>
-                            Edit picks as comma-separated golfer IDs.
-                            {' '}Available golfers:
-                            {' '}
-                            {PLAYER_POOL.map((player) => `${player.id} ${player.name}`).join(' • ')}
-                          </div>
-
-                          {TOURNAMENTS.map((event) => (
-                            <div key={event.id} style={{ display: 'grid', gap: 8 }}>
-                              <div style={{ fontSize: 13, fontWeight: 800, color: '#31424f' }}>{event.name} picks</div>
-                              <input
-                                value={memberEditForm.rosters[event.id]}
-                                onChange={(eventInput) =>
-                                  setMemberEditForm({
-                                    ...memberEditForm,
-                                    rosters: { ...memberEditForm.rosters, [event.id]: eventInput.target.value },
-                                  })
-                                }
-                                placeholder="Example: 1, 2, 5, 8, 10, 14"
-                                style={fieldStyle()}
-                              />
-                            </div>
-                          ))}
-
-                          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                            <button
-                              onClick={handleSaveCommissionerMember}
-                              disabled={commissionerBusy}
-                              style={{
-                                border: 'none',
-                                borderRadius: 16,
-                                padding: '14px 18px',
-                                background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
-                                color: '#fff',
-                                fontWeight: 900,
-                                cursor: commissionerBusy ? 'wait' : 'pointer',
-                              }}
-                            >
-                              Save member changes
-                            </button>
-                            <button
-                              onClick={handleDeleteCommissionerMember}
-                              disabled={commissionerBusy}
-                              style={{
-                                border: '1px solid #fecaca',
-                                borderRadius: 16,
-                                padding: '14px 18px',
-                                background: '#fff5f5',
-                                color: '#a61b1b',
-                                fontWeight: 900,
-                                cursor: commissionerBusy ? 'wait' : 'pointer',
-                              }}
-                            >
-                              Delete account
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div style={{ color: '#6b7b88' }}>
-                          Select a member on the left to edit their display name, email, password, and saved picks.
-                        </div>
-                      )}
+                        );
+                      })}
                     </div>
                   </div>
-                </>
-              )}
+                </div>
+
+                <div style={{ display: 'grid', gap: 18 }}>
+                  <div style={{ border: '1px solid #d7e0e8', borderRadius: 18, padding: 20, background: '#fff' }}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
+                    <div style={{ marginTop: 4, fontSize: 36, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
+                    <div style={{ marginTop: 8, fontSize: 16, color: '#31424f' }}>
+                      Avg Rem./Player: ${commissionerAverageRemainingPerPlayer.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gap: 12 }}>
+                    <div style={{ fontSize: 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
+                    <div style={{ fontSize: 15, color: '#31424f' }}>
+                      Click the plus sign to add a golfer or the minus sign to remove them.
+                    </div>
+
+                    {Array.from({ length: REQUIRED_GOLFERS }, (_, index) => {
+                      const golfer = commissionerOrderedRosterPlayers[index];
+                      return (
+                        <div
+                          key={`commissioner-roster-slot-${index}`}
+                          style={{
+                            border: '1px solid #d7e0e8',
+                            borderRadius: 18,
+                            background: '#fff',
+                            minHeight: 96,
+                            display: 'grid',
+                            gridTemplateColumns: '96px minmax(0, 1fr)',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <div style={{ background: '#f6f7f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <User size={56} color="#c5cad0" />
+                          </div>
+                          <div style={{ padding: '14px 18px', display: 'grid', alignContent: 'center', gap: 4 }}>
+                            {golfer ? (
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                                <div>
+                                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Roster {index + 1}</div>
+                                  <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                  <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | ${golfer.salary.toLocaleString()}</div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleCommissionerRosterPlayer(golfer.id)}
+                                  style={{
+                                    width: 34,
+                                    height: 34,
+                                    borderRadius: 999,
+                                    border: '1px solid #c9d7e6',
+                                    background: '#eef4ff',
+                                    color: '#2f5f96',
+                                    fontSize: 22,
+                                    fontWeight: 900,
+                                    lineHeight: 1,
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  −
+                                </button>
+                              </div>
+                            ) : (
+                              <div style={{ fontSize: 18, color: '#50616f' }}>Golfer #{index + 1}</div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    <button
+                      onClick={handleSaveCommissionerRoster}
+                      disabled={!canSaveCommissionerRoster || commissionerBusy}
+                      style={{
+                        marginTop: 4,
+                        width: 'fit-content',
+                        border: 'none',
+                        borderRadius: 14,
+                        padding: '12px 18px',
+                        background: canSaveCommissionerRoster ? '#e7ebef' : '#f2f4f6',
+                        color: canSaveCommissionerRoster ? '#0f1720' : '#98a3ad',
+                        fontWeight: 900,
+                        cursor: !canSaveCommissionerRoster || commissionerBusy ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      Submit Roster
+                    </button>
+                  </div>
+                </div>
+              </div>
             </section>
+            ) : null}
           </main>
         )}
 
-        </>
+        {commissionerMemberModalOpen && selectedCommissionerMember ? (
+          <div
+            onClick={() => setCommissionerMemberModalOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 32, 0.55)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
+              zIndex: 60,
+            }}
+          >
+            <div
+              onClick={(event) => event.stopPropagation()}
+              style={{
+                width: 'min(520px, 100%)',
+                background: '#fff',
+                borderRadius: 24,
+                padding: 24,
+                boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
+                display: 'grid',
+                gap: 18,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>Member options</div>
+                  <div style={{ marginTop: 6, fontSize: 28, fontWeight: 900, color: '#0f1720' }}>
+                    {selectedCommissionerMember.displayName}
+                  </div>
+                  <div style={{ marginTop: 6, fontSize: 15, color: '#607282' }}>{selectedCommissionerMember.email}</div>
+                </div>
+                <button
+                  onClick={() => setCommissionerMemberModalOpen(false)}
+                  style={{
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 999,
+                    background: '#fff',
+                    width: 40,
+                    height: 40,
+                    fontSize: 20,
+                    cursor: 'pointer',
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              {commissionerMemberModalView === 'menu' ? (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <button
+                    onClick={() => setCommissionerMemberModalView('displayName')}
+                    style={{
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 16,
+                      background: '#fff',
+                      padding: '16px 18px',
+                      textAlign: 'left',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Edit Display Name
+                  </button>
+                  <button
+                    onClick={() => setCommissionerMemberModalView('email')}
+                    style={{
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 16,
+                      background: '#fff',
+                      padding: '16px 18px',
+                      textAlign: 'left',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Edit Email
+                  </button>
+                  <button
+                    onClick={() => openCommissionerMemberPicks(selectedCommissionerMember.id)}
+                    style={{
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 16,
+                      background: '#eef8fb',
+                      padding: '16px 18px',
+                      textAlign: 'left',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Manage or Submit Picks
+                  </button>
+                  <button
+                    onClick={handleDeleteCommissionerMember}
+                    disabled={commissionerBusy}
+                    style={{
+                      border: '1px solid #fecaca',
+                      borderRadius: 16,
+                      background: '#fff5f5',
+                      padding: '16px 18px',
+                      textAlign: 'left',
+                      color: '#a61b1b',
+                      fontWeight: 800,
+                      cursor: commissionerBusy ? 'wait' : 'pointer',
+                    }}
+                  >
+                    Delete Member
+                  </button>
+                </div>
+              ) : commissionerMemberModalView === 'displayName' ? (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <input
+                    value={memberEditForm.displayName}
+                    onChange={(event) => setMemberEditForm({ ...memberEditForm, displayName: event.target.value })}
+                    placeholder="Display name"
+                    style={fieldStyle()}
+                  />
+                  <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => setCommissionerMemberModalView('menu')}
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveCommissionerMember}
+                      disabled={commissionerBusy}
+                      style={{
+                        border: 'none',
+                        borderRadius: 14,
+                        padding: '12px 16px',
+                        background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                        color: '#fff',
+                        fontWeight: 900,
+                        cursor: commissionerBusy ? 'wait' : 'pointer',
+                      }}
+                    >
+                      Save Display Name
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 16,
+                      background: '#fff',
+                      padding: '0 14px',
+                    }}
+                  >
+                    <Mail size={18} color="#607282" />
+                    <input
+                      value={memberEditForm.email}
+                      onChange={(event) => setMemberEditForm({ ...memberEditForm, email: event.target.value })}
+                      placeholder="Email"
+                      style={{ ...fieldStyle(), border: 'none', paddingLeft: 0, paddingRight: 0 }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => setCommissionerMemberModalView('menu')}
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveCommissionerMember}
+                      disabled={commissionerBusy}
+                      style={{
+                        border: 'none',
+                        borderRadius: 14,
+                        padding: '12px 16px',
+                        background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                        color: '#fff',
+                        fontWeight: 900,
+                        cursor: commissionerBusy ? 'wait' : 'pointer',
+                      }}
+                    >
+                      Save Email
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         ) : null}
 
         {activeStandingEntry ? (
           <div
-            onClick={() => setActiveStandingEntryId(null)}
+            onClick={() => {
+              setActiveStandingGolferId(null);
+              setActiveStandingEntryId(null);
+            }}
             style={{
               position: 'fixed',
               inset: 0,
@@ -4155,13 +4941,18 @@ export default function Page() {
                   <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                     Entry breakdown
                   </div>
-                  <h3 style={{ margin: '6px 0 0', fontSize: 28, color: '#0f1720' }}>{activeStandingEntry.name}</h3>
-                  <div style={{ marginTop: 6, color: '#6b7b88' }}>
-                    Place #{activeStandingEntry.place} in {tournament.name}
+                  <h3 style={{ margin: '6px 0 0', fontSize: 28, color: '#0f1720' }}>
+                    {activeStandingEntry.name} - {tournament.name}
+                  </h3>
+                  <div style={{ marginTop: 6, color: '#6b7b88', fontSize: 14 }}>
+                    *Click the players name for Scoring Breakdown
                   </div>
                 </div>
                 <button
-                  onClick={() => setActiveStandingEntryId(null)}
+                  onClick={() => {
+                    setActiveStandingGolferId(null);
+                    setActiveStandingEntryId(null);
+                  }}
                   style={{
                     border: '1px solid #d7e0e8',
                     borderRadius: 999,
@@ -4175,110 +4966,49 @@ export default function Page() {
                 </button>
               </div>
 
-              <div
-                style={{
-                  marginTop: 18,
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                  gap: 12,
-                }}
-              >
-                <div style={{ borderRadius: 18, background: '#f6fbfd', padding: 16, border: '1px solid #e6edf1' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Roster size
-                  </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>{activeStandingEntry.golfers.length}</div>
-                </div>
-                <div style={{ borderRadius: 18, background: '#f6fbfd', padding: 16, border: '1px solid #e6edf1' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Roster points
-                  </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>{activeStandingEntry.rosterPoints}</div>
-                </div>
-                <div style={{ borderRadius: 18, background: '#eef4ff', padding: 16, border: '1px solid #c7d8ee' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
-                    Holes remaining
-                  </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900, color: '#2f5f96' }}>{activeStandingEntry.holesRemaining}</div>
-                </div>
-                <div style={{ borderRadius: 18, background: '#f9fafb', padding: 16, border: '1px solid #e6edf1' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Tie-break
-                  </div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>{activeStandingEntry.tieBreakValue}</div>
-                </div>
-              </div>
-
               <div style={{ marginTop: 20, display: 'grid', gap: 12 }}>
                 {activeStandingEntry.golfers.length > 0 ? (
-                  activeStandingEntry.golfers.map((golfer, index) => (
-                    <div
+                  activeStandingGolfers.map((golfer, index) => {
+                    const pickedCount = standings.reduce(
+                      (sum, entry) => sum + entry.golfers.filter((entryGolfer) => entryGolfer.id === golfer.id).length,
+                      0,
+                    );
+                    const isActiveGolfer = activeStandingGolferId === golfer.id;
+
+                    return (
+                    <button
                       key={golfer.id}
+                      onClick={() => setActiveStandingGolferId(golfer.id)}
                       style={{
+                        width: '100%',
                         border: '1px solid #e6edf1',
                         borderRadius: 18,
                         padding: 16,
-                        background: '#fff',
+                        background: isActiveGolfer ? '#eef4ff' : '#fff',
+                        textAlign: 'left',
+                        cursor: 'pointer',
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
                         <div>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
-                            Roster {index + 1}
+                          <div style={{ fontSize: 22, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                          <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                            <span>Holes Rem: {golfer.holesRemaining}</span>
+                            <span>Picked: {pickedCount}</span>
+                            <span>${golfer.salary.toLocaleString()}</span>
                           </div>
-                          <div style={{ marginTop: 4, fontSize: 22, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                          <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13 }}>
-                            OWGR {golfer.worldRank} | {golfer.odds} | Pos {golfer.position} | Thru {golfer.thru}
-                          </div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                            Tournament points
-                          </div>
-                          <div style={{ marginTop: 6, fontSize: 28, fontWeight: 900 }}>{golfer.points}</div>
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          marginTop: 16,
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                          gap: 10,
-                        }}
-                      >
-                        <div style={{ borderRadius: 14, background: '#f6fbfd', padding: 14 }}>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                            Placement points
-                          </div>
-                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900 }}>{golfer.scoreBreakdown.placementPoints}</div>
-                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            Position {golfer.position} earns full tied-place points
+                          <div style={{ marginTop: 6, color: '#50616f', fontSize: 14, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                            <span>Pos: {golfer.position}</span>
+                            <span>Tourn. Score: {golfer.score}</span>
+                            <span>Current Round: {formatCurrentRoundScore(golfer.total, golfer.score)}</span>
                           </div>
                         </div>
-                        <div style={{ borderRadius: 14, background: '#eef4ff', padding: 14 }}>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
-                            Hole and streak points
-                          </div>
-                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900, color: '#2f5f96' }}>
-                            {golfer.scoreBreakdown.holePoints + golfer.scoreBreakdown.streakPoints}
-                          </div>
-                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            Awaiting live scorecard integration
-                          </div>
-                        </div>
-                        <div style={{ borderRadius: 14, background: '#f9fafb', padding: 14 }}>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                            Holes remaining
-                          </div>
-                          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 900 }}>{golfer.holesRemaining}</div>
-                          <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                            Cut players automatically go to zero
-                          </div>
+                        <div style={{ textAlign: 'right', minWidth: 56 }}>
+                          <div style={{ fontSize: 28, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    </button>
+                  )})
                 ) : (
                   <div
                     style={{
@@ -4297,18 +5027,149 @@ export default function Page() {
               <div
                 style={{
                   marginTop: 18,
-                  borderRadius: 16,
-                  background: '#f5f9fb',
-                  padding: 14,
-                  color: '#50616f',
-                  lineHeight: 1.5,
+                  display: 'grid',
+                  gridTemplateColumns: '1fr auto auto',
+                  gap: 16,
+                  alignItems: 'center',
+                  borderTop: '1px solid #e6edf1',
+                  paddingTop: 16,
                 }}
               >
-                This scoring panel is now built around your custom points system. Hole-by-hole and round-based categories
-                are scaffolded in the UI and will populate from Slash Golf scorecards once the API key is added.
+                <div style={{ color: '#50616f', fontSize: 18 }}>
+                  Total holes rem: <strong>{activeStandingEntry.holesRemaining}</strong>
+                </div>
+                <div style={{ color: '#50616f', fontSize: 18 }}>
+                  Tiebreak value: <strong>{activeStandingEntry.tieBreakValue}</strong>
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#0f1720' }}>
+                  Total {formatPointValue(activeStandingEntry.rosterPoints)}
+                </div>
               </div>
             </div>
           </div>
+        ) : null}
+
+        {activeStandingGolfer ? (
+          <div
+            onClick={() => {
+              setActiveStandingGolferId(null);
+              setActiveStandingEntryId(null);
+            }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 32, 0.45)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
+              zIndex: 60,
+            }}
+          >
+            <div
+              onClick={(event) => event.stopPropagation()}
+              style={{
+                width: 'min(760px, 100%)',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                background: '#fff',
+                borderRadius: 24,
+                padding: 24,
+                boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                    Player scoring breakdown
+                  </div>
+                  <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <h3 style={{ margin: 0, fontSize: 28, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
+                    <div
+                      style={{
+                        borderRadius: 999,
+                        background: '#eef4ff',
+                        border: '1px solid #c7d8ee',
+                        padding: '4px 10px',
+                        fontSize: 15,
+                        fontWeight: 900,
+                        color: '#2f5f96',
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      Points: {formatPointValue(activeStandingGolfer.points)}
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 6, color: '#6b7b88', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                    <span>Position: {activeStandingGolfer.position}</span>
+                    <span>Tourn. Score: {activeStandingGolfer.score}</span>
+                    <span>Current Round: {formatCurrentRoundScore(activeStandingGolfer.total, activeStandingGolfer.score)}</span>
+                    <span>Holes Rem: {activeStandingGolfer.holesRemaining}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setActiveStandingGolferId(null)}
+                  style={{
+                    border: '1px solid #d7e0e8',
+                    borderRadius: 999,
+                    background: '#fff',
+                    padding: '8px 14px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Back
+                </button>
+              </div>
+
+              <div style={{ marginTop: 20, display: 'grid', gap: 10 }}>
+                {[
+                  ['Pars', activeStandingGolfer.scoreBreakdown.statLine.par, activeStandingGolfer.scoreBreakdown.statLine.par * SCORING_RULES.par],
+                  ['Birdies', activeStandingGolfer.scoreBreakdown.statLine.birdie, activeStandingGolfer.scoreBreakdown.statLine.birdie * SCORING_RULES.birdie],
+                  ['Eagles', activeStandingGolfer.scoreBreakdown.statLine.eagle, activeStandingGolfer.scoreBreakdown.statLine.eagle * SCORING_RULES.eagle],
+                  ['Albatrosses', activeStandingGolfer.scoreBreakdown.statLine.albatross, activeStandingGolfer.scoreBreakdown.statLine.albatross * SCORING_RULES.albatross],
+                  ['Aces', activeStandingGolfer.scoreBreakdown.statLine.holeInOne, activeStandingGolfer.scoreBreakdown.statLine.holeInOne * SCORING_RULES.holeInOne],
+                  ['Bogeys', activeStandingGolfer.scoreBreakdown.statLine.bogey, activeStandingGolfer.scoreBreakdown.statLine.bogey * SCORING_RULES.bogey],
+                  ['Double Bogeys', activeStandingGolfer.scoreBreakdown.statLine.doubleBogey, activeStandingGolfer.scoreBreakdown.statLine.doubleBogey * SCORING_RULES.doubleBogey],
+                  ['Triple Bogey+', activeStandingGolfer.scoreBreakdown.statLine.tripleOrWorse, activeStandingGolfer.scoreBreakdown.statLine.tripleOrWorse * SCORING_RULES.tripleOrWorse],
+                  ['3 Birdie Streaks', activeStandingGolfer.scoreBreakdown.statLine.threeBirdieStreaks, activeStandingGolfer.scoreBreakdown.statLine.threeBirdieStreaks * SCORING_RULES.threeBirdieStreak],
+                  ['No Bogey Rnds', activeStandingGolfer.scoreBreakdown.statLine.bogeyFreeRounds, activeStandingGolfer.scoreBreakdown.statLine.bogeyFreeRounds * SCORING_RULES.bogeyFreeRound],
+                  ['Tourn Low Rnds', activeStandingGolfer.scoreBreakdown.statLine.lowRounds, activeStandingGolfer.scoreBreakdown.statLine.lowRounds * SCORING_RULES.tourneyLowRound],
+                  ['Rnd 1 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.first ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.first ? SCORING_RULES.firstRoundLeader : 0],
+                  ['Rnd 2 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.second ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.second ? SCORING_RULES.secondRoundLeader : 0],
+                  ['Rnd 3 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? SCORING_RULES.thirdRoundLeader : 0],
+                  ['Cut Players', activeStandingGolfer.scoreBreakdown.madeCut === false ? 1 : 0, activeStandingGolfer.scoreBreakdown.cutPenaltyPoints],
+                ]
+                  .filter(([, count]) => Number(count) > 0)
+                  .concat([['Leaderboard Place', activeStandingGolfer.position, activeStandingGolfer.scoreBreakdown.placementPoints] as const])
+                  .map(([label, count, points]) => (
+                  <div
+                    key={String(label)}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(180px, 1.3fr) minmax(120px, 0.7fr) minmax(120px, 0.7fr)',
+                      gap: 12,
+                      alignItems: 'center',
+                      border: '1px solid #e6edf1',
+                      borderRadius: 16,
+                      padding: '12px 14px',
+                      background: '#fff',
+                    }}
+                  >
+                    <div style={{ fontWeight: 800, color: '#0f1720' }}>{label}</div>
+                    <div style={{ color: '#6b7b88' }}>
+                      {label === 'Leaderboard Place' ? `Position: ${String(count)}` : `Count: ${String(count)}`}
+                    </div>
+                    <div style={{ textAlign: 'right', fontWeight: 800, color: Number(points) < 0 ? '#cc2944' : '#2f5f96' }}>
+                      {formatPointValue(Number(points))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
+        </>
         ) : null}
       </div>
     </div>
