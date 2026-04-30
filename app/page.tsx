@@ -3204,7 +3204,7 @@ export default function Page() {
                         ${SALARY_CAP.toLocaleString()}
                       </div>
                       <div style={{ marginTop: 12, color: '#0f1720', fontSize: 15 }}>
-                        Avg Rem./Player: ${(SALARY_CAP / REQUIRED_GOLFERS).toLocaleString()}
+                        Avg Rem./Player: ${Math.round(SALARY_CAP / REQUIRED_GOLFERS).toLocaleString()}
                       </div>
                     </div>
 
