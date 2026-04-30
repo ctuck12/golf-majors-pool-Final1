@@ -72,7 +72,7 @@ const TOURNAMENTS = [
 const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
   players: '/the-players-championship-logo.png',
   masters: '/the-masters-logo.png',
-  pga: '/pga-of-america-logo.png',
+  pga: '/pga-aronimink-logo.png',
   'us-open': '/us-open-logo.png',
   open: '/the-open-logo.png',
 };
