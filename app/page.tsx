@@ -5083,7 +5083,23 @@ export default function Page() {
                   <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                     Player scoring breakdown
                   </div>
-                  <h3 style={{ margin: '6px 0 0', fontSize: 28, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
+                  <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <h3 style={{ margin: 0, fontSize: 28, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
+                    <div
+                      style={{
+                        borderRadius: 999,
+                        background: '#eef4ff',
+                        border: '1px solid #c7d8ee',
+                        padding: '4px 10px',
+                        fontSize: 15,
+                        fontWeight: 900,
+                        color: '#2f5f96',
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      Points: {formatPointValue(activeStandingGolfer.points)}
+                    </div>
+                  </div>
                   <div style={{ marginTop: 6, color: '#6b7b88', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                     <span>Position: {activeStandingGolfer.position}</span>
                     <span>Tourn. Score: {activeStandingGolfer.score}</span>
@@ -5106,33 +5122,6 @@ export default function Page() {
                 </button>
               </div>
 
-              <div
-                style={{
-                  marginTop: 18,
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
-                  gap: 12,
-                }}
-              >
-                <div style={{ borderRadius: 18, background: '#f6fbfd', padding: 16, border: '1px solid #e6edf1' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>Picked</div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>
-                    {standings.reduce(
-                      (sum, entry) => sum + entry.golfers.filter((golfer) => golfer.id === activeStandingGolfer.id).length,
-                      0,
-                    )}
-                  </div>
-                </div>
-                <div style={{ borderRadius: 18, background: '#f6fbfd', padding: 16, border: '1px solid #e6edf1' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>Salary</div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900 }}>${activeStandingGolfer.salary.toLocaleString()}</div>
-                </div>
-                <div style={{ borderRadius: 18, background: '#eef4ff', padding: 16, border: '1px solid #c7d8ee' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Points</div>
-                  <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900, color: '#2f5f96' }}>{formatPointValue(activeStandingGolfer.points)}</div>
-                </div>
-              </div>
-
               <div style={{ marginTop: 20, display: 'grid', gap: 10 }}>
                 {[
                   ['Pars', activeStandingGolfer.scoreBreakdown.statLine.par, activeStandingGolfer.scoreBreakdown.statLine.par * SCORING_RULES.par],
@@ -5149,9 +5138,11 @@ export default function Page() {
                   ['Rnd 1 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.first ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.first ? SCORING_RULES.firstRoundLeader : 0],
                   ['Rnd 2 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.second ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.second ? SCORING_RULES.secondRoundLeader : 0],
                   ['Rnd 3 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? SCORING_RULES.thirdRoundLeader : 0],
-                  ['Leaderboard Place', activeStandingGolfer.position, activeStandingGolfer.scoreBreakdown.placementPoints],
                   ['Cut Players', activeStandingGolfer.scoreBreakdown.madeCut === false ? 1 : 0, activeStandingGolfer.scoreBreakdown.cutPenaltyPoints],
-                ].map(([label, count, points]) => (
+                ]
+                  .filter(([, count]) => Number(count) > 0)
+                  .concat([['Leaderboard Place', activeStandingGolfer.position, activeStandingGolfer.scoreBreakdown.placementPoints] as const])
+                  .map(([label, count, points]) => (
                   <div
                     key={String(label)}
                     style={{
@@ -5166,7 +5157,9 @@ export default function Page() {
                     }}
                   >
                     <div style={{ fontWeight: 800, color: '#0f1720' }}>{label}</div>
-                    <div style={{ color: '#6b7b88' }}>Count: {String(count)}</div>
+                    <div style={{ color: '#6b7b88' }}>
+                      {label === 'Leaderboard Place' ? `Position: ${String(count)}` : `Count: ${String(count)}`}
+                    </div>
                     <div style={{ textAlign: 'right', fontWeight: 800, color: Number(points) < 0 ? '#cc2944' : '#2f5f96' }}>
                       {formatPointValue(Number(points))}
                     </div>
