@@ -17,7 +17,6 @@ import {
   Search,
   Trash2,
   Trophy,
-  User,
   UserPlus,
   Users,
 } from 'lucide-react';
@@ -3606,22 +3605,13 @@ export default function Page() {
                         <div
                           key={`placeholder-slot-${index + 1}`}
                           style={{
-                            display: 'grid',
-                            gridTemplateColumns: '70px minmax(0, 1fr)',
-                            alignItems: 'center',
                             borderRadius: 14,
                             border: '1px solid #d7e0e8',
                             background: '#fff',
-                            overflow: 'hidden',
+                            padding: '16px 18px',
                           }}
                         >
-                          <div
-                            style={{
-                              minHeight: 92,
-                              background: 'linear-gradient(180deg, #e7eaee 0%, #d8dde3 100%)',
-                            }}
-                          />
-                          <div style={{ padding: '0 18px', fontSize: 18, color: '#556572' }}>Golfer #{index + 1}</div>
+                          <div style={{ fontSize: 18, color: '#556572' }}>Golfer #{index + 1}</div>
                         </div>
                       ))}
                     </div>
@@ -4719,15 +4709,9 @@ export default function Page() {
                             border: '1px solid #d7e0e8',
                             borderRadius: 18,
                             background: '#fff',
-                            minHeight: 96,
-                            display: 'grid',
-                            gridTemplateColumns: '96px minmax(0, 1fr)',
-                            overflow: 'hidden',
+                            minHeight: 60,
                           }}
                         >
-                          <div style={{ background: '#f6f7f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <User size={56} color="#c5cad0" />
-                          </div>
                           <div style={{ padding: '14px 18px', display: 'grid', alignContent: 'center', gap: 4 }}>
                             {golfer ? (
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
