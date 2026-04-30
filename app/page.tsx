@@ -5002,11 +5002,15 @@ export default function Page() {
                             <span>Picked: {pickedCount}</span>
                             <span>${golfer.salary.toLocaleString()}</span>
                           </div>
-                          <div style={{ marginTop: 6, color: '#50616f', fontSize: 14, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                            <span>Pos: {golfer.position}</span>
-                            <span>Tourn. Score: {golfer.score}</span>
-                            <span>Current Round: {formatCurrentRoundScore(golfer.total, golfer.score)}</span>
-                          </div>
+                          {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
+                            <div style={{ marginTop: 6, fontSize: 14, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
+                          ) : (
+                            <div style={{ marginTop: 6, color: '#50616f', fontSize: 14, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                              <span>Pos: {golfer.position}</span>
+                              <span>Tourn. Score: {golfer.score}</span>
+                              <span>Current Round: {formatCurrentRoundScore(golfer.total, golfer.score)}</span>
+                            </div>
+                          )}
                         </div>
                         <div style={{ textAlign: 'right', minWidth: 56 }}>
                           <div style={{ fontSize: 28, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
