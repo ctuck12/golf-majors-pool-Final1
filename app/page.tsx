@@ -176,6 +176,7 @@ type AuthUser = {
   displayName: string;
   poolIds: string[];
   rosters: Partial<Record<TournamentId, number[]>>;
+  tieBreaks: Partial<Record<TournamentId, number>>;
 };
 
 type PoolInfo = {
@@ -700,6 +701,7 @@ export default function Page() {
   const [commissionerConsoleView, setCommissionerConsoleView] = useState<'dashboard' | 'members' | 'member-picks'>('dashboard');
   const [commissionerMemberSearch, setCommissionerMemberSearch] = useState('');
   const [entriesPlayerSearch, setEntriesPlayerSearch] = useState('');
+  const [tieBreakInput, setTieBreakInput] = useState('');
   const [commissionerPlayerSearch, setCommissionerPlayerSearch] = useState('');
   const [commissionerMemberModalOpen, setCommissionerMemberModalOpen] = useState(false);
   const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email'>('menu');
@@ -1595,7 +1597,7 @@ export default function Page() {
       const golfers = picks.map((id) => playersById[id]).filter(Boolean);
       const rosterPoints = golfers.reduce((sum, golfer) => sum + golfer.points, 0);
       const holesRemaining = golfers.reduce((sum, golfer) => sum + golfer.holesRemaining, 0);
-      const tieBreakValue = picks.reduce((sum, id) => sum + id, 0) + 270;
+      const tieBreakValue = entry.tieBreaks?.[selectedTournament] ?? (picks.reduce((sum, id) => sum + id, 0) + 270);
 
       return {
         ...entry,
@@ -1651,10 +1653,12 @@ export default function Page() {
       return right.points - left.points;
     });
 
+  const tieBreakValid = /^\d{3}$/.test(tieBreakInput);
   const canSave =
     Boolean(sessionUser) &&
     selectedRoster.length === REQUIRED_GOLFERS &&
     salaryUsed <= SALARY_CAP &&
+    tieBreakValid &&
     !entriesLocked;
 
   const togglePlayer = (playerId: number) => {
@@ -1699,6 +1703,7 @@ export default function Page() {
         body: JSON.stringify({
           tournamentId: entriesTournamentId,
           roster: selectedRoster,
+          tieBreak: parseInt(tieBreakInput, 10),
         }),
       });
 
@@ -1763,6 +1768,8 @@ export default function Page() {
     setMyEntriesMenuOpen(false);
     setMyEntriesDetailView('none');
     setSelectedRoster(savedRoster.length > 0 ? savedRoster : []);
+    const savedTieBreak = sessionUser?.tieBreaks?.[entriesTournamentId];
+    setTieBreakInput(savedTieBreak != null ? String(savedTieBreak) : '');
     setMyEntriesEditorOpen(true);
     handleMainTabChange('My entries');
     setMyEntriesEditorOpen(true);
@@ -3618,11 +3625,16 @@ export default function Page() {
                     </div>
 
                     <input
-                      disabled
+                      value={tieBreakInput}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                        setTieBreakInput(val);
+                      }}
                       placeholder="Enter tiebreak value*"
+                      inputMode="numeric"
+                      maxLength={3}
                       style={{
                         ...fieldStyle(),
-                        opacity: 0.78,
                       }}
                     />
                     <button
@@ -3811,6 +3823,21 @@ export default function Page() {
                     {renderRosterCards('#fff', true)}
                     {renderBudgetCards('#fff', '1px solid #e6edf1')}
 
+                    <input
+                      value={tieBreakInput}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                        setTieBreakInput(val);
+                      }}
+                      placeholder="Enter tiebreak value*"
+                      inputMode="numeric"
+                      maxLength={3}
+                      style={{
+                        ...fieldStyle(),
+                        marginTop: 14,
+                      }}
+                    />
+
                     {saveMessage ? (
                       <div
                         style={{
@@ -3851,6 +3878,10 @@ export default function Page() {
                       <Save size={16} />
                       Save lineup
                     </button>
+                    <div style={{ color: '#5b6b79', fontSize: 13, lineHeight: 1.65, marginTop: 8 }}>
+                      * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
+                      Use their total strokes, NOT score to par. Example: Enter 274 (NOT -14)
+                    </div>
                   </div>
                 </div>
               </section>

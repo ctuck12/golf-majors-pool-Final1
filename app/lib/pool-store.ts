@@ -23,6 +23,7 @@ type StoredUser = {
   passwordSalt: string;
   poolIds: string[];
   rosters: Partial<Record<TournamentId, number[]>>;
+  tieBreaks: Partial<Record<TournamentId, number>>;
   createdAt: string;
 };
 
@@ -55,12 +56,14 @@ export type PublicUser = {
   displayName: string;
   poolIds: string[];
   rosters: Partial<Record<TournamentId, number[]>>;
+  tieBreaks: Partial<Record<TournamentId, number>>;
 };
 
 export type PublicPoolEntry = {
   id: string;
   name: string;
   rosters: Partial<Record<TournamentId, number[]>>;
+  tieBreaks: Partial<Record<TournamentId, number>>;
 };
 
 export type PublicPool = {
@@ -127,6 +130,7 @@ function toPublicUser(user: StoredUser): PublicUser {
     displayName: user.displayName,
     poolIds: user.poolIds,
     rosters: user.rosters,
+    tieBreaks: user.tieBreaks ?? {},
   };
 }
 
@@ -182,6 +186,11 @@ async function readDatabase() {
     payouts: pool.payouts ?? {},
   }));
 
+  parsed.users = parsed.users.map((user) => ({
+    ...user,
+    tieBreaks: user.tieBreaks ?? {},
+  }));
+
   parsed.sessions = parsed.sessions.filter((session) => new Date(session.expiresAt).getTime() > Date.now());
   return parsed;
 }
@@ -229,6 +238,7 @@ export async function registerUser(input: {
     passwordSalt,
     poolIds: [],
     rosters: {},
+    tieBreaks: {},
     createdAt: nowIso(),
   };
 
@@ -320,6 +330,7 @@ export async function getSessionContext(token: string | undefined) {
           id: item.id,
           name: item.displayName,
           rosters: item.rosters,
+          tieBreaks: item.tieBreaks ?? {},
         }))
     : [];
 
@@ -393,6 +404,22 @@ export async function saveRosterForUser(userId: string, tournamentId: Tournament
   await writeDatabase(database);
 
   return user.rosters[tournamentId] ?? [];
+}
+
+export async function saveTieBreakForUser(userId: string, tournamentId: TournamentId, tieBreak: number) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.id === userId);
+
+  if (!user) {
+    throw new Error('User account was not found.');
+  }
+
+  if (!user.tieBreaks) {
+    user.tieBreaks = {};
+  }
+
+  user.tieBreaks[tournamentId] = tieBreak;
+  await writeDatabase(database);
 }
 
 export async function updateUserAccount(

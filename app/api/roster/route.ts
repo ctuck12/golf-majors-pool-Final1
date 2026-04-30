@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import {
   getSessionContext,
   saveRosterForUser,
+  saveTieBreakForUser,
   SESSION_COOKIE_NAME,
   TOURNAMENT_IDS,
   type TournamentId,
@@ -41,13 +42,18 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = (await request.json()) as { tournamentId?: string; roster?: unknown };
+    const body = (await request.json()) as { tournamentId?: string; roster?: unknown; tieBreak?: unknown };
 
     if (!body.tournamentId || !isTournamentId(body.tournamentId)) {
       return NextResponse.json({ error: 'Unknown tournament.' }, { status: 400 });
     }
 
     const roster = await saveRosterForUser(session.user.id, body.tournamentId, body.roster);
+
+    const tieBreakNum = typeof body.tieBreak === 'number' ? body.tieBreak : parseInt(String(body.tieBreak ?? ''), 10);
+    if (!Number.isNaN(tieBreakNum) && tieBreakNum >= 100 && tieBreakNum <= 999) {
+      await saveTieBreakForUser(session.user.id, body.tournamentId, tieBreakNum);
+    }
     const refreshedSession = await getSessionContext(token);
 
     return NextResponse.json({
