@@ -2222,7 +2222,10 @@ export default function Page() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gap: 12, flex: 1 }}>
+              <form
+                onSubmit={(e) => { e.preventDefault(); authMode === 'login' ? handleLogin() : handleRegister(); }}
+                style={{ display: 'grid', gap: 12, flex: 1 }}
+              >
                 {authMode === 'register' ? (
                   <input
                     value={registerForm.displayName}
@@ -2254,7 +2257,7 @@ export default function Page() {
                   style={fieldStyle()}
                 />
                 <button
-                  onClick={authMode === 'login' ? handleLogin : handleRegister}
+                  type="submit"
                   style={{
                     border: 'none',
                     borderRadius: 16,
@@ -2272,7 +2275,7 @@ export default function Page() {
                 >
                   {authMode === 'login' ? 'Sign in' : 'Create account'}
                 </button>
-              </div>
+              </form>
 
               <button
                 onClick={() => {
