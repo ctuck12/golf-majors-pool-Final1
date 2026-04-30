@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import {
   AlertCircle,
   ArrowLeft,
@@ -662,6 +662,7 @@ export default function Page() {
   const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTERS[initialTournament]);
   const [activeStandingEntryId, setActiveStandingEntryId] = useState<string | null>(null);
   const [activeStandingGolferId, setActiveStandingGolferId] = useState<number | null>(null);
+  const entryBreakdownRef = useRef<HTMLDivElement>(null);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
   const [feed, setFeed] = useState<FeedResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -4925,6 +4926,7 @@ export default function Page() {
             }}
           >
             <div
+              ref={entryBreakdownRef}
               onClick={(event) => event.stopPropagation()}
               style={{
                 width: 'min(760px, 100%)',
@@ -5051,9 +5053,14 @@ export default function Page() {
 
         {activeStandingGolfer ? (
           <div
-            onClick={() => {
-              setActiveStandingGolferId(null);
-              setActiveStandingEntryId(null);
+            onClick={(e) => {
+              const rect = entryBreakdownRef.current?.getBoundingClientRect();
+              if (rect && e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                setActiveStandingGolferId(null);
+              } else {
+                setActiveStandingGolferId(null);
+                setActiveStandingEntryId(null);
+              }
             }}
             style={{
               position: 'fixed',
