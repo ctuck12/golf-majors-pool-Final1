@@ -2199,13 +2199,13 @@ export default function Page() {
           <section
             style={{
               marginTop: 24,
-              display: 'grid',
+              display: 'flex',
               justifyContent: 'center',
             }}
           >
             <div
               style={{
-                width: 'min(640px, 100%)',
+                width: 'min(480px, calc(100vw - 48px))',
                 minHeight: 344,
                 background: '#fff',
                 borderRadius: 24,
