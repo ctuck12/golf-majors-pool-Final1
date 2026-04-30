@@ -4941,9 +4941,11 @@ export default function Page() {
                   <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                     Entry breakdown
                   </div>
-                  <h3 style={{ margin: '6px 0 0', fontSize: 28, color: '#0f1720' }}>{activeStandingEntry.name}</h3>
-                  <div style={{ marginTop: 6, color: '#6b7b88' }}>
-                    Place #{activeStandingEntry.place} in {tournament.name}
+                  <h3 style={{ margin: '6px 0 0', fontSize: 28, color: '#0f1720' }}>
+                    {activeStandingEntry.name} - {tournament.name}
+                  </h3>
+                  <div style={{ marginTop: 6, color: '#6b7b88', fontSize: 14 }}>
+                    *Click the players name for Scoring Breakdown
                   </div>
                 </div>
                 <button
@@ -4989,10 +4991,7 @@ export default function Page() {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
                         <div>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
-                            Roster {index + 1}
-                          </div>
-                          <div style={{ marginTop: 4, fontSize: 22, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                          <div style={{ fontSize: 22, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                           <div style={{ marginTop: 4, color: '#6b7b88', fontSize: 13, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                             <span>Holes Rem: {golfer.holesRemaining}</span>
                             <span>Picked: {pickedCount}</span>
@@ -5004,11 +5003,8 @@ export default function Page() {
                             <span>Current Round: {formatCurrentRoundScore(golfer.total, golfer.score)}</span>
                           </div>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                            Tournament points
-                          </div>
-                          <div style={{ marginTop: 6, fontSize: 28, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
+                        <div style={{ textAlign: 'right', minWidth: 56 }}>
+                          <div style={{ fontSize: 28, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
                         </div>
                       </div>
                     </button>
