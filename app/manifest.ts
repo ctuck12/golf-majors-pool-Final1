@@ -3,7 +3,7 @@ import type { MetadataRoute } from 'next';
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Golf Majors Pool',
-    short_name: 'GMP',
+    short_name: 'Golf Majors Pool',
     description: 'Season-long majors golf pool',
     start_url: '/',
     display: 'standalone',

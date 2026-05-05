@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'GMP',
+    title: 'Golf Majors Pool',
   },
   icons: {
     apple: '/apple-touch-icon.png',
