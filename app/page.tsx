@@ -3100,7 +3100,7 @@ export default function Page() {
         )}
 
         {mainTab === 'My entries' && (
-          <main style={{ marginTop: 24, display: 'grid', gap: 20 }}>
+          <main style={{ marginTop: isMobile ? 14 : 24, display: 'grid', gap: isMobile ? 12 : 20 }}>
             {!sessionUser ? (
               <div
                 style={{
@@ -3108,7 +3108,8 @@ export default function Page() {
                   background: '#fff8e7',
                   color: '#9a6700',
                   border: '1px solid #f0d28a',
-                  padding: '16px 18px',
+                  padding: isMobile ? '12px 14px' : '16px 18px',
+                  fontSize: isMobile ? 13 : 15,
                 }}
               >
                 This tab is ready for saved entries, but you need to sign in first so the lineup belongs to your account.
@@ -3117,66 +3118,66 @@ export default function Page() {
               <section
                 style={{
                   background: '#fff',
-                  borderRadius: 24,
-                  padding: 22,
+                  borderRadius: 20,
+                  padding: isMobile ? 14 : 22,
                   boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                 }}
               >
-                <h2 style={{ margin: 0, fontSize: 26, color: '#0f1720' }}>Manage Entries</h2>
-                <div style={{ marginTop: 18, color: '#0f1720', fontSize: 15, lineHeight: 1.6 }}>
-                  Make your picks for each entry below. You can submit or modify your picks up until the first tee
-                  time of Round 1.
+                <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 26, color: '#0f1720' }}>Manage Entries</h2>
+                <div style={{ marginTop: isMobile ? 8 : 18, color: '#0f1720', fontSize: isMobile ? 12 : 15, lineHeight: 1.5 }}>
+                  Make your picks for each entry below. You can submit or modify your picks up until the first tee time of Round 1.
                 </div>
 
                 {saveMessage ? (
                   <div
                     style={{
-                      marginTop: 18,
+                      marginTop: isMobile ? 10 : 18,
                       display: 'flex',
                       alignItems: 'center',
                       gap: 8,
                       borderRadius: 14,
                       background: '#eef4ff',
                       color: '#2f5f96',
-                      padding: '12px 14px',
+                      padding: isMobile ? '8px 10px' : '12px 14px',
+                      fontSize: isMobile ? 12 : 14,
                     }}
                   >
-                    <CheckCircle2 size={16} />
+                    <CheckCircle2 size={14} />
                     <span>{saveMessage}</span>
                   </div>
                 ) : null}
 
                 <div
                   style={{
-                    marginTop: 24,
+                    marginTop: isMobile ? 12 : 24,
                     display: 'grid',
-                    gridTemplateColumns: 'minmax(220px, 1fr) minmax(320px, 420px) minmax(220px, 1fr)',
-                    gap: 20,
+                    gridTemplateColumns: isMobile ? '1fr auto auto' : 'minmax(220px, 1fr) minmax(320px, 420px) minmax(220px, 1fr)',
+                    gap: isMobile ? 8 : 20,
                     alignItems: 'center',
                   }}
                 >
-                  <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>Entry</div>
+                  <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 900, color: '#0f1720', display: isMobile ? 'none' : undefined }}>Entry</div>
                   <div
-                    style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', textAlign: 'center', justifySelf: 'center' }}
+                    style={{ fontSize: isMobile ? 11 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'center', justifySelf: 'center', display: isMobile ? 'none' : undefined }}
                   >
                     {entriesTournamentId === 'pga' ? 'PGA Championship Picks' : `${entriesTournament.name} Picks`}
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', textAlign: 'right' }}>Options</div>
+                  <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'right', display: isMobile ? 'none' : undefined }}>Options</div>
 
-                  <div style={{ fontSize: 18, color: '#0f1720' }}>{userLabel}</div>
-                  <div style={{ display: 'grid', justifyItems: 'center' }}>
+                  <div style={{ fontSize: isMobile ? 14 : 18, color: '#0f1720', fontWeight: isMobile ? 600 : 400 }}>{userLabel}</div>
+                  <div style={{ display: 'grid', justifyItems: isMobile ? 'end' : 'center' }}>
                     {hasSubmittedRoster ? (
                       <div
                         style={{
-                          borderRadius: 16,
+                          borderRadius: 12,
                           border: '1px solid #dce6ee',
                           background: '#f8fbfd',
-                          padding: '12px 14px',
+                          padding: isMobile ? '8px 10px' : '12px 14px',
                           display: 'grid',
-                          gap: 10,
+                          gap: isMobile ? 6 : 10,
                         }}
                       >
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                           {savedRosterPlayers.map((player) => (
                             <span
                               key={player.id}
@@ -3184,8 +3185,8 @@ export default function Page() {
                                 borderRadius: 999,
                                 background: '#e8f3ff',
                                 color: '#2f5f96',
-                                padding: '7px 12px',
-                                fontSize: 13,
+                                padding: isMobile ? '4px 8px' : '7px 12px',
+                                fontSize: isMobile ? 11 : 13,
                                 fontWeight: 800,
                               }}
                             >
@@ -3193,7 +3194,7 @@ export default function Page() {
                             </span>
                           ))}
                         </div>
-                        <div style={{ color: '#5b6b79', fontSize: 13 }}>
+                        <div style={{ color: '#5b6b79', fontSize: isMobile ? 11 : 13 }}>
                           Roster submitted for {entriesTournament.name}. You can reopen it with <strong>Edit Picks</strong>{' '}
                           while lineups are unlocked.
                         </div>
@@ -3203,19 +3204,20 @@ export default function Page() {
                         onClick={openMyEntriesEditor}
                         style={{
                           border: 'none',
-                          borderRadius: 14,
-                          padding: '12px 18px',
+                          borderRadius: 12,
+                          padding: isMobile ? '8px 12px' : '12px 18px',
                           background: '#7ee5e6',
                           color: '#0f1720',
-                          fontSize: 15,
+                          fontSize: isMobile ? 12 : 15,
                           fontWeight: 900,
                           cursor: 'pointer',
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: 8,
+                          gap: 6,
+                          whiteSpace: 'nowrap',
                         }}
                       >
-                        <Pencil size={14} />
+                        <Pencil size={12} />
                         Make Your Picks
                       </button>
                     )}
@@ -3242,15 +3244,15 @@ export default function Page() {
                       onClick={() => setMyEntriesMenuOpen((current) => !current)}
                       style={{
                         border: '1px solid #d7e0e8',
-                        borderRadius: 14,
-                        width: 48,
-                        height: 48,
+                        borderRadius: 10,
+                        width: isMobile ? 34 : 48,
+                        height: isMobile ? 34 : 48,
                         background: '#fff',
                         color: '#0f1720',
                         cursor: 'pointer',
                       }}
                     >
-                      <MoreVertical size={18} />
+                      <MoreVertical size={isMobile ? 14 : 18} />
                     </button>
                     {myEntriesMenuOpen ? (
                       <div
