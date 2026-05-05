@@ -2766,15 +2766,15 @@ export default function Page() {
                   </div>
                 </div>
               ) : showFinalTournamentView ? (
-                <div style={{ marginTop: 28, overflowX: 'auto' }}>
+                <div style={{ marginTop: isMobile ? 14 : 28, overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: 12 }}>
-                        <th style={{ padding: '0 18px 14px 0' }}>Rank</th>
-                        <th style={{ padding: '0 18px 14px 0' }}>Entry</th>
-                        <th style={{ padding: '0 18px 14px 0', textAlign: 'center' }}>Roster Points</th>
-                        <th style={{ padding: '0 18px 14px 0', textAlign: 'center' }}>Holes Remaining</th>
-                        <th style={{ padding: '0 0 14px', textAlign: 'center' }}>Tie-break</th>
+                      <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: isMobile ? 10 : 12 }}>
+                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 18px 14px 0' }}>Rank</th>
+                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 18px 14px 0' }}>Entry</th>
+                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 18px 14px 0', textAlign: 'center' }}>Roster Points</th>
+                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 18px 14px 0', textAlign: 'center' }}>Holes Remaining</th>
+                        <th style={{ padding: isMobile ? '0 0 8px' : '0 0 14px', textAlign: 'center' }}>Tie-break</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -2794,11 +2794,11 @@ export default function Page() {
                             cursor: 'pointer',
                           }}
                         >
-                          <td style={{ padding: '16px 18px 16px 0', fontSize: 16 }}>{entry.place}</td>
-                          <td style={{ padding: '16px 18px 16px 0' }}>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '16px 18px 16px 0', fontSize: isMobile ? 12 : 16 }}>{entry.place}</td>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '16px 18px 16px 0' }}>
                             <div
                               style={{
-                                fontSize: 18,
+                                fontSize: isMobile ? 13 : 18,
                                 color: '#0f1720',
                                 textAlign: 'left',
                               }}
@@ -2806,13 +2806,13 @@ export default function Page() {
                               {entry.name}
                             </div>
                           </td>
-                          <td style={{ padding: '16px 18px 16px 0', textAlign: 'center', fontSize: 18 }}>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '16px 18px 16px 0', textAlign: 'center', fontSize: isMobile ? 12 : 18 }}>
                             {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
                           </td>
-                          <td style={{ padding: '16px 18px 16px 0', textAlign: 'center', fontSize: 18 }}>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '16px 18px 16px 0', textAlign: 'center', fontSize: isMobile ? 12 : 18 }}>
                             {entry.holesRemaining}
                           </td>
-                          <td style={{ padding: '16px 0', textAlign: 'center', fontSize: 18 }}>{entry.tieBreakValue}</td>
+                          <td style={{ padding: isMobile ? '10px 0' : '16px 0', textAlign: 'center', fontSize: isMobile ? 12 : 18 }}>{entry.tieBreakValue}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -2820,15 +2820,15 @@ export default function Page() {
                 </div>
               ) : (
                 <>
-                  <div style={{ marginTop: 18, overflowX: 'auto' }}>
+                  <div style={{ marginTop: isMobile ? 10 : 18, overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                       <thead>
-                        <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: 12, textTransform: 'uppercase' }}>
-                          <th style={{ padding: '0 0 12px' }}>Place</th>
-                          <th style={{ padding: '0 0 12px' }}>Entry</th>
-                          <th style={{ padding: '0 0 12px' }}>Roster points</th>
-                          <th style={{ padding: '0 0 12px' }}>Holes left</th>
-                          <th style={{ padding: '0 0 12px' }}>Tie-break</th>
+                        <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: isMobile ? 10 : 12, textTransform: 'uppercase' }}>
+                          <th style={{ padding: isMobile ? '0 0 8px' : '0 0 12px' }}>Place</th>
+                          <th style={{ padding: isMobile ? '0 0 8px' : '0 0 12px' }}>Entry</th>
+                          <th style={{ padding: isMobile ? '0 0 8px' : '0 0 12px' }}>Roster points</th>
+                          <th style={{ padding: isMobile ? '0 0 8px' : '0 0 12px' }}>Holes left</th>
+                          <th style={{ padding: isMobile ? '0 0 8px' : '0 0 12px' }}>Tie-break</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -2841,25 +2841,25 @@ export default function Page() {
                             }}
                             style={{ borderTop: '1px solid #edf1f4', cursor: 'pointer' }}
                           >
-                            <td style={{ padding: '16px 0', fontWeight: 800, color: '#2f5f96' }}>#{entry.place}</td>
-                            <td style={{ padding: '16px 0' }}>
+                            <td style={{ padding: isMobile ? '10px 0' : '16px 0', fontWeight: 800, color: '#2f5f96', fontSize: isMobile ? 12 : 14 }}>#{entry.place}</td>
+                            <td style={{ padding: isMobile ? '10px 0' : '16px 0' }}>
                               <div
                                 style={{
                                   fontWeight: 700,
                                   color: '#0f1720',
                                   textAlign: 'left',
-                                  fontSize: 18,
+                                  fontSize: isMobile ? 13 : 18,
                                 }}
                               >
                                 {entry.name}
                               </div>
-                              <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
+                              <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#6b7b88' }}>
                                 {entry.golfers.map((golfer) => golfer.name.split(' ')[0]).join(', ') || 'No lineup saved'}
                               </div>
                             </td>
-                            <td style={{ padding: '16px 0', fontWeight: 900, fontSize: 18 }}>{entry.rosterPoints}</td>
-                            <td style={{ padding: '16px 0', fontWeight: 700 }}>{entry.holesRemaining}</td>
-                            <td style={{ padding: '16px 0', fontWeight: 700, color: '#2f5f96' }}>{entry.tieBreakValue}</td>
+                            <td style={{ padding: isMobile ? '10px 0' : '16px 0', fontWeight: 900, fontSize: isMobile ? 12 : 18 }}>{entry.rosterPoints}</td>
+                            <td style={{ padding: isMobile ? '10px 0' : '16px 0', fontWeight: 700, fontSize: isMobile ? 12 : 14 }}>{entry.holesRemaining}</td>
+                            <td style={{ padding: isMobile ? '10px 0' : '16px 0', fontWeight: 700, color: '#2f5f96', fontSize: isMobile ? 12 : 14 }}>{entry.tieBreakValue}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -2888,23 +2888,23 @@ export default function Page() {
                 <section
                   style={{
                     background: '#fff',
-                    borderRadius: 24,
-                    padding: 22,
+                    borderRadius: 20,
+                    padding: isMobile ? 14 : 22,
                     boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-                    <h3 style={{ margin: 0, fontSize: 30, color: '#0f1720' }}>{tournament.name} Leaderboard</h3>
+                    <h3 style={{ margin: 0, fontSize: isMobile ? 17 : 30, color: '#0f1720' }}>{tournament.name} Leaderboard</h3>
                   </div>
-                  <div style={{ marginTop: 24, overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <div style={{ marginTop: isMobile ? 12 : 24, overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 14 }}>
                       <thead>
-                        <tr style={{ textAlign: 'left', fontSize: 12, color: '#5b6b79' }}>
-                          <th style={{ padding: '10px 8px', border: '1px solid #d7dee6' }}>Pos.</th>
-                          <th style={{ padding: '10px 8px', border: '1px solid #d7dee6' }}>Player</th>
-                          <th style={{ padding: '10px 8px', border: '1px solid #d7dee6' }}>Total</th>
-                          <th style={{ padding: '10px 8px', border: '1px solid #d7dee6' }}>Thru</th>
-                          <th style={{ padding: '10px 8px', border: '1px solid #d7dee6' }}>Times Picked</th>
+                        <tr style={{ textAlign: 'left', fontSize: isMobile ? 10 : 12, color: '#5b6b79' }}>
+                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Pos.</th>
+                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Player</th>
+                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Total</th>
+                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Thru</th>
+                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Times Picked</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -2925,11 +2925,11 @@ export default function Page() {
                                 cursor: 'pointer',
                               }}
                             >
-                              <td style={{ padding: '8px', border: '1px solid #e7edf2' }}>{player.position}</td>
-                              <td style={{ padding: '8px', border: '1px solid #e7edf2', fontWeight: activePlayer ? 800 : 400 }}>{player.name}</td>
-                              <td style={{ padding: '8px', border: '1px solid #e7edf2' }}>{player.score}</td>
-                              <td style={{ padding: '8px', border: '1px solid #e7edf2' }}>{player.thru}</td>
-                              <td style={{ padding: '8px', border: '1px solid #e7edf2', textAlign: 'center' }}>
+                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2' }}>{player.position}</td>
+                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', fontWeight: activePlayer ? 800 : 400 }}>{player.name}</td>
+                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2' }}>{player.score}</td>
+                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2' }}>{player.thru}</td>
+                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', textAlign: 'center' }}>
                                 {timesPicked}
                               </td>
                             </tr>
