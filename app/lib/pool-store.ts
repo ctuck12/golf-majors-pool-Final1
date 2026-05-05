@@ -1,7 +1,5 @@
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
+import { Redis } from '@upstash/redis';
 
 export const SESSION_COOKIE_NAME = 'golf-pool-session';
 export const DEFAULT_POOL_ID = 'golf-majors-pool';
@@ -74,11 +72,12 @@ export type PublicPool = {
   payouts: Partial<Record<TournamentId, TournamentPayouts>>;
 };
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DATA_ROOT =
-  process.env.POOL_DATA_DIR ??
-  (process.env.VERCEL ? path.join(os.tmpdir(), 'golf-majors-pool-data') : DATA_DIR);
-const DATA_FILE = path.join(DATA_ROOT, 'pool-data.json');
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
+
+const DB_KEY = 'pool-database';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
 function nowIso() {
@@ -134,70 +133,49 @@ function toPublicUser(user: StoredUser): PublicUser {
   };
 }
 
-async function ensureDataFile() {
-  await mkdir(DATA_ROOT, { recursive: true });
+async function readDatabase(): Promise<StoredDatabase> {
+  const stored = await redis.get<StoredDatabase>(DB_KEY);
 
-  try {
-    await readFile(DATA_FILE, 'utf8');
-  } catch {
-    const createdAt = nowIso();
-    const initialData: StoredDatabase = {
-      users: [],
-      sessions: [],
-      pools: [
-        {
-          id: DEFAULT_POOL_ID,
-          name: 'Golf Majors Pool',
-          joinCode: DEFAULT_POOL_JOIN_CODE,
-          memberUserIds: [],
-          lineupLocks: {},
-          payouts: {},
-          createdAt,
-        },
-      ],
-    };
+  const defaultPool = {
+    id: DEFAULT_POOL_ID,
+    name: 'Golf Majors Pool',
+    joinCode: DEFAULT_POOL_JOIN_CODE,
+    memberUserIds: [] as string[],
+    lineupLocks: {} as Partial<Record<TournamentId, boolean>>,
+    payouts: {} as Partial<Record<TournamentId, TournamentPayouts>>,
+    createdAt: nowIso(),
+  };
 
-    await writeFile(DATA_FILE, JSON.stringify(initialData, null, 2), 'utf8');
+  const database: StoredDatabase = stored ?? {
+    users: [],
+    sessions: [],
+    pools: [defaultPool],
+  };
+
+  if (!database.pools.length) {
+    database.pools = [defaultPool];
   }
-}
 
-async function readDatabase() {
-  await ensureDataFile();
-  const raw = await readFile(DATA_FILE, 'utf8');
-  const parsed = JSON.parse(raw) as StoredDatabase;
-
-  parsed.pools = parsed.pools.length
-    ? parsed.pools
-    : [
-        {
-          id: DEFAULT_POOL_ID,
-          name: 'Golf Majors Pool',
-          joinCode: DEFAULT_POOL_JOIN_CODE,
-          memberUserIds: [],
-          lineupLocks: {},
-          payouts: {},
-          createdAt: nowIso(),
-        },
-      ];
-
-  parsed.pools = parsed.pools.map((pool) => ({
+  database.pools = database.pools.map((pool) => ({
     ...pool,
     lineupLocks: pool.lineupLocks ?? {},
     payouts: pool.payouts ?? {},
   }));
 
-  parsed.users = parsed.users.map((user) => ({
+  database.users = database.users.map((user) => ({
     ...user,
     tieBreaks: user.tieBreaks ?? {},
   }));
 
-  parsed.sessions = parsed.sessions.filter((session) => new Date(session.expiresAt).getTime() > Date.now());
-  return parsed;
+  database.sessions = database.sessions.filter(
+    (session) => new Date(session.expiresAt).getTime() > Date.now(),
+  );
+
+  return database;
 }
 
-async function writeDatabase(database: StoredDatabase) {
-  await ensureDataFile();
-  await writeFile(DATA_FILE, JSON.stringify(database, null, 2), 'utf8');
+async function writeDatabase(database: StoredDatabase): Promise<void> {
+  await redis.set(DB_KEY, database);
 }
 
 export async function registerUser(input: {
