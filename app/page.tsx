@@ -3123,8 +3123,8 @@ export default function Page() {
                   boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                 }}
               >
-                <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 26, color: '#0f1720' }}>Manage Entries</h2>
-                <div style={{ marginTop: isMobile ? 8 : 18, color: '#0f1720', fontSize: isMobile ? 12 : 15, lineHeight: 1.5 }}>
+                <h2 style={{ margin: 0, fontSize: isMobile ? 15 : 26, color: '#0f1720' }}>Manage Entries</h2>
+                <div style={{ marginTop: isMobile ? 6 : 18, color: '#0f1720', fontSize: isMobile ? 11 : 15, lineHeight: 1.45 }}>
                   Make your picks for each entry below. You can submit or modify your picks up until the first tee time of Round 1.
                 </div>
 
@@ -3149,23 +3149,23 @@ export default function Page() {
 
                 <div
                   style={{
-                    marginTop: isMobile ? 12 : 24,
+                    marginTop: isMobile ? 10 : 24,
                     display: 'grid',
-                    gridTemplateColumns: isMobile ? '1fr auto auto' : 'minmax(220px, 1fr) minmax(320px, 420px) minmax(220px, 1fr)',
-                    gap: isMobile ? 8 : 20,
+                    gridTemplateColumns: isMobile ? 'auto 1fr auto' : 'minmax(220px, 1fr) minmax(320px, 420px) minmax(220px, 1fr)',
+                    gap: isMobile ? '6px 8px' : 20,
                     alignItems: 'center',
                   }}
                 >
-                  <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 900, color: '#0f1720', display: isMobile ? 'none' : undefined }}>Entry</div>
+                  <div style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720' }}>Entry</div>
                   <div
-                    style={{ fontSize: isMobile ? 11 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'center', justifySelf: 'center', display: isMobile ? 'none' : undefined }}
+                    style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'center', justifySelf: 'center' }}
                   >
                     {entriesTournamentId === 'pga' ? 'PGA Championship Picks' : `${entriesTournament.name} Picks`}
                   </div>
-                  <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'right', display: isMobile ? 'none' : undefined }}>Options</div>
+                  <div style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'right' }}>Options</div>
 
-                  <div style={{ fontSize: isMobile ? 14 : 18, color: '#0f1720', fontWeight: isMobile ? 600 : 400 }}>{userLabel}</div>
-                  <div style={{ display: 'grid', justifyItems: isMobile ? 'end' : 'center' }}>
+                  <div style={{ fontSize: isMobile ? 12 : 18, color: '#0f1720', fontWeight: isMobile ? 600 : 400 }}>{userLabel}</div>
+                  <div style={{ display: 'grid', justifyItems: 'center' }}>
                     {hasSubmittedRoster ? (
                       <div
                         style={{
