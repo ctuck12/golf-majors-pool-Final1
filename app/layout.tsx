@@ -14,6 +14,10 @@ export const metadata: Metadata = {
     title: 'Golf Majors Pool',
   },
   icons: {
+    icon: [
+      { url: '/gmp-favicon.png', type: 'image/png' },
+    ],
+    shortcut: '/gmp-favicon.png',
     apple: '/apple-touch-icon.png',
   },
 };
