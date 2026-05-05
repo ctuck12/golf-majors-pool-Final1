@@ -1,5 +1,8 @@
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
-import { Redis } from '@upstash/redis';
+import Redis from 'ioredis';
+
+// Module-level singleton — reused across warm serverless invocations
+const redis = new Redis(process.env.REDIS_URL!, { lazyConnect: false, maxRetriesPerRequest: 3 });
 
 export const SESSION_COOKIE_NAME = 'golf-pool-session';
 export const DEFAULT_POOL_ID = 'golf-majors-pool';
@@ -72,11 +75,6 @@ export type PublicPool = {
   payouts: Partial<Record<TournamentId, TournamentPayouts>>;
 };
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
-
 const DB_KEY = 'pool-database';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
@@ -134,7 +132,8 @@ function toPublicUser(user: StoredUser): PublicUser {
 }
 
 async function readDatabase(): Promise<StoredDatabase> {
-  const stored = await redis.get<StoredDatabase>(DB_KEY);
+  const raw = await redis.get(DB_KEY);
+  const stored: StoredDatabase | null = raw ? (JSON.parse(raw) as StoredDatabase) : null;
 
   const defaultPool = {
     id: DEFAULT_POOL_ID,
@@ -175,7 +174,7 @@ async function readDatabase(): Promise<StoredDatabase> {
 }
 
 async function writeDatabase(database: StoredDatabase): Promise<void> {
-  await redis.set(DB_KEY, database);
+  await redis.set(DB_KEY, JSON.stringify(database));
 }
 
 export async function registerUser(input: {
