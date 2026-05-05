@@ -2377,10 +2377,10 @@ export default function Page() {
                       borderBottom: active ? '1px solid #fff' : '1px solid transparent',
                       background: active ? '#fff' : 'transparent',
                       color: active ? '#1f2f42' : '#46bfd1',
-                      borderRadius: '14px 14px 0 0',
-                      padding: '10px 12px 9px',
-                      width: TOURNAMENT_CARD_WIDTH,
-                      height: TOURNAMENT_CARD_HEIGHT,
+                      borderRadius: '10px 10px 0 0',
+                      padding: isMobile ? '5px 6px 4px' : '10px 12px 9px',
+                      width: isMobile ? 72 : TOURNAMENT_CARD_WIDTH,
+                      height: isMobile ? 34 : TOURNAMENT_CARD_HEIGHT,
                       boxSizing: 'border-box',
                       flex: '0 0 auto',
                       textAlign: 'center',
@@ -2388,7 +2388,7 @@ export default function Page() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: 13,
+                      fontSize: 11,
                       fontWeight: active ? 500 : 400,
                       lineHeight: 1.1,
                       boxShadow: 'none',
@@ -2402,7 +2402,7 @@ export default function Page() {
                         style={{
                           maxWidth: '100%',
                           width: '100%',
-                          height: TOURNAMENT_TAB_LOGO_HEIGHTS[item.id] ?? 40,
+                          height: isMobile ? 22 : (TOURNAMENT_TAB_LOGO_HEIGHTS[item.id] ?? 40),
                           objectFit: 'contain',
                           display: 'block',
                         }}
@@ -2452,16 +2452,16 @@ export default function Page() {
             <section
               style={{
                 background: '#fff',
-                borderRadius: 24,
-                padding: 22,
+                borderRadius: 20,
+                padding: isMobile ? 14 : 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
                 <div>
                   {selectedTournament === 'players' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: 30, fontWeight: 800, color: '#0f1720' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
                         The Players Championship
                       </h2>
                       <div
@@ -2474,8 +2474,8 @@ export default function Page() {
                           flexWrap: 'wrap',
                         }}
                       >
-                        <span style={{ fontSize: 18, fontWeight: 500 }}>TPC Sawgrass</span>
-                        <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.players}</span>
+                        <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>TPC Sawgrass</span>
+                        <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.players}</span>
                       </div>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
@@ -2485,7 +2485,7 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: 30, fontWeight: 800, color: '#0f1720' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
                         The Masters
                       </h2>
                       <div
@@ -2498,8 +2498,8 @@ export default function Page() {
                           flexWrap: 'wrap',
                         }}
                       >
-                        <span style={{ fontSize: 18, fontWeight: 500 }}>Augusta National Golf Club</span>
-                        <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.masters}</span>
+                        <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Augusta National Golf Club</span>
+                        <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.masters}</span>
                       </div>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
@@ -2509,7 +2509,7 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: 30, fontWeight: 800, color: '#0f1720' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
                         PGA Championship
                       </h2>
                       <div
@@ -2522,8 +2522,8 @@ export default function Page() {
                           flexWrap: 'wrap',
                         }}
                       >
-                        <span style={{ fontSize: 18, fontWeight: 500 }}>Aronimink Golf Club</span>
-                        <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.pga}</span>
+                        <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Aronimink Golf Club</span>
+                        <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.pga}</span>
                       </div>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
@@ -2533,7 +2533,7 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'us-open' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: 30, fontWeight: 800, color: '#0f1720' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
                         U.S. Open
                       </h2>
                       <div
@@ -2546,8 +2546,8 @@ export default function Page() {
                           flexWrap: 'wrap',
                         }}
                       >
-                        <span style={{ fontSize: 18, fontWeight: 500 }}>Shinnecock Hills Golf Club</span>
-                        <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS['us-open']}</span>
+                        <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Shinnecock Hills Golf Club</span>
+                        <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS['us-open']}</span>
                       </div>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
@@ -2557,7 +2557,7 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'open' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: 30, fontWeight: 800, color: '#0f1720' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
                         The Open Championship
                       </h2>
                       <div
@@ -2570,8 +2570,8 @@ export default function Page() {
                           flexWrap: 'wrap',
                         }}
                       >
-                        <span style={{ fontSize: 18, fontWeight: 500 }}>Royal Birkdale Golf Club</span>
-                        <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.open}</span>
+                        <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Royal Birkdale Golf Club</span>
+                        <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.open}</span>
                       </div>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
@@ -2597,20 +2597,20 @@ export default function Page() {
                     </h2>
                   )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
-                  <RefreshCw size={15} />
-                  <span>
-                    {showFutureTournamentView
-                      ? picksOpenForTournament
+                {!(showFutureTournamentView && !picksOpenForTournament) ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
+                    <RefreshCw size={15} />
+                    <span>
+                      {showFutureTournamentView
                         ? 'Pool is open for lineup building'
-                        : 'Tournament field not open for picks yet'
-                      : showFinalTournamentView
-                      ? 'Final tournament snapshot'
-                      : isLoading
-                        ? 'Refreshing live scores...'
-                        : formatRefresh(feed?.fetchedAt ?? null)}
-                  </span>
-                </div>
+                        : showFinalTournamentView
+                        ? 'Final tournament snapshot'
+                        : isLoading
+                          ? 'Refreshing live scores...'
+                          : formatRefresh(feed?.fetchedAt ?? null)}
+                    </span>
+                  </div>
+                ) : null}
               </div>
 
               {!showFinalTournamentView ? (
@@ -2688,10 +2688,10 @@ export default function Page() {
               {showFutureTournamentView ? (
                 <div
                   style={{
-                    marginTop: 28,
+                    marginTop: isMobile ? 14 : 28,
                     display: 'grid',
-                    gridTemplateColumns: 'minmax(180px, 240px) minmax(0, 1fr)',
-                    gap: 28,
+                    gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : 'minmax(180px, 240px) minmax(0, 1fr)',
+                    gap: isMobile ? 14 : 28,
                     alignItems: 'start',
                   }}
                 >
@@ -2700,7 +2700,7 @@ export default function Page() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      minHeight: 180,
+                      minHeight: isMobile ? 80 : 180,
                     }}
                   >
                     {TOURNAMENT_CARD_LOGOS[selectedTournament] ? (
@@ -2709,15 +2709,15 @@ export default function Page() {
                         alt={tournament.name}
                         style={{
                           maxWidth: '100%',
-                          maxHeight: 180,
+                          maxHeight: isMobile ? 90 : 180,
                           objectFit: 'contain',
                           display: 'block',
                         }}
                       />
                     ) : null}
                   </div>
-                  <div style={{ color: '#0f1720', fontSize: 17, lineHeight: 1.55 }}>
-                    <div style={{ fontSize: 20 }}>
+                  <div style={{ color: '#0f1720', fontSize: isMobile ? 14 : 17, lineHeight: 1.55 }}>
+                    <div style={{ fontSize: isMobile ? 15 : 20 }}>
                       {selectedTournament === 'pga'
                         ? 'The PGA Championship'
                         : selectedTournament === 'us-open'
