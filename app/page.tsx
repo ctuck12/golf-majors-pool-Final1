@@ -3478,27 +3478,12 @@ export default function Page() {
                 style={{
                   background: '#fff',
                   borderRadius: 24,
-                  padding: 22,
+                  padding: isMobile ? 14 : 22,
                   boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
-                  <h2 style={{ margin: 0, fontSize: 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
-                  <button
-                    onClick={closeMyEntriesEditor}
-                    style={{
-                      border: '1px solid #d7e0e8',
-                      borderRadius: 14,
-                      padding: '12px 18px',
-                      background: '#fff',
-                      color: '#0f1720',
-                      fontSize: 14,
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Back to entries
-                  </button>
+                  <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
                 </div>
 
                 <div
@@ -3521,7 +3506,7 @@ export default function Page() {
                     >
                       <div
                         style={{
-                          padding: 22,
+                          padding: isMobile ? 12 : 22,
                           background: '#f3f6fa',
                           borderBottom: '1px solid #dce6ee',
                           display: 'flex',
@@ -3531,7 +3516,7 @@ export default function Page() {
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: 26, lineHeight: 1.25, fontWeight: 900, color: '#0f1720' }}>
+                          <div style={{ fontSize: isMobile ? 16 : 26, lineHeight: 1.25, fontWeight: 900, color: '#0f1720' }}>
                             {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
                           </div>
                           <div
@@ -3544,8 +3529,8 @@ export default function Page() {
                               color: '#5b6b79',
                             }}
                           >
-                            <span style={{ fontSize: 18, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
-                            <span style={{ fontSize: 16, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
+                            <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
+                            <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
                           </div>
                         </div>
                         <label
@@ -3565,7 +3550,7 @@ export default function Page() {
                           <input
                             value={entriesPlayerSearch}
                             onChange={(event) => setEntriesPlayerSearch(event.target.value)}
-                            placeholder="Player search"
+                            placeholder="Search"
                             style={{
                               border: 'none',
                               outline: 'none',
@@ -3586,7 +3571,7 @@ export default function Page() {
                             background: '#f7f0da',
                             color: '#7a5a00',
                             padding: '18px 20px',
-                            fontSize: 15,
+                            fontSize: isMobile ? 12 : 15,
                             lineHeight: 1.5,
                           }}
                         >
@@ -3607,16 +3592,16 @@ export default function Page() {
                         background: '#fff',
                       }}
                     >
-                      <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
-                      <div style={{ marginTop: 4, fontSize: 44, lineHeight: 1, fontWeight: 900, color: '#198754' }}>
+                      <div style={{ fontSize: isMobile ? 13 : 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
+                      <div style={{ marginTop: 4, fontSize: isMobile ? 28 : 44, lineHeight: 1, fontWeight: 900, color: '#198754' }}>
                         ${SALARY_CAP.toLocaleString()}
                       </div>
-                      <div style={{ marginTop: 12, color: '#0f1720', fontSize: 15 }}>
+                      <div style={{ marginTop: 12, color: '#0f1720', fontSize: isMobile ? 12 : 15 }}>
                         Avg Rem./Player: ${Math.round(SALARY_CAP / REQUIRED_GOLFERS).toLocaleString()}
                       </div>
                     </div>
 
-                    <div style={{ fontSize: 30, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
+                    <div style={{ fontSize: isMobile ? 18 : 30, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
                     <div style={{ color: '#0f1720', fontSize: 14 }}>
                       Click the plus sign to add a golfer or the minus sign to remove them.
                     </div>
@@ -3629,10 +3614,10 @@ export default function Page() {
                             borderRadius: 14,
                             border: '1px solid #d7e0e8',
                             background: '#fff',
-                            padding: '16px 18px',
+                            padding: isMobile ? '10px 12px' : '16px 18px',
                           }}
                         >
-                          <div style={{ fontSize: 18, color: '#556572' }}>Golfer #{index + 1}</div>
+                          <div style={{ fontSize: isMobile ? 13 : 18, color: '#556572' }}>Golfer #{index + 1}</div>
                         </div>
                       ))}
                     </div>
@@ -3678,7 +3663,7 @@ export default function Page() {
                 style={{
                   background: '#fff',
                   borderRadius: 24,
-                  padding: 22,
+                  padding: isMobile ? 14 : 22,
                   boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                 }}
               >
@@ -3687,23 +3672,8 @@ export default function Page() {
                     <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                       Pick Sheet
                     </div>
-                    <h2 style={{ margin: '6px 0 0', fontSize: 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
+                    <h2 style={{ margin: '6px 0 0', fontSize: isMobile ? 18 : 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
                   </div>
-                  <button
-                    onClick={closeMyEntriesEditor}
-                    style={{
-                      border: '1px solid #d7e0e8',
-                      borderRadius: 14,
-                      padding: '12px 18px',
-                      background: '#fff',
-                      color: '#0f1720',
-                      fontSize: 14,
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Back to entries
-                  </button>
                 </div>
 
                 <div
@@ -3727,7 +3697,7 @@ export default function Page() {
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <Trophy size={18} color="#2f5f96" />
-                            <div style={{ fontSize: 18, fontWeight: 900 }}>
+                            <div style={{ fontSize: isMobile ? 13 : 18, fontWeight: 900 }}>
                               {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
                             </div>
                           </div>
@@ -3741,8 +3711,8 @@ export default function Page() {
                               color: '#5b6b79',
                             }}
                           >
-                            <span style={{ fontSize: 16, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
-                            <span style={{ fontSize: 14, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
+                            <span style={{ fontSize: isMobile ? 12 : 16, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
+                            <span style={{ fontSize: isMobile ? 11 : 14, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
                           </div>
                         </div>
                         <label
@@ -3763,7 +3733,7 @@ export default function Page() {
                           <input
                             value={entriesPlayerSearch}
                             onChange={(event) => setEntriesPlayerSearch(event.target.value)}
-                            placeholder="Player search"
+                            placeholder="Search"
                             style={{
                               border: 'none',
                               outline: 'none',
@@ -4653,7 +4623,7 @@ export default function Page() {
                         <input
                           value={commissionerPlayerSearch}
                           onChange={(event) => setCommissionerPlayerSearch(event.target.value)}
-                          placeholder="Player search"
+                          placeholder="Search"
                           style={{
                             border: 'none',
                             outline: 'none',
