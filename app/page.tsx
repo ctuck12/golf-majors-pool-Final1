@@ -741,6 +741,8 @@ export default function Page() {
     } as Record<TournamentId, string>,
   });
 
+  const [isMobile, setIsMobile] = useState(false);
+
   const tournament = TOURNAMENTS.find((item) => item.id === selectedTournament) ?? TOURNAMENTS[0];
   const canManagePool = canAccessCommissionerConsole(sessionUser);
   const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
@@ -812,6 +814,13 @@ export default function Page() {
       return latestSession;
     }
   };
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -1888,13 +1897,13 @@ export default function Page() {
           'radial-gradient(circle at top left, rgba(72, 126, 196, 0.18), transparent 28%), linear-gradient(180deg, #f7fbff 0%, #edf3fb 100%)',
       }}
     >
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 20px 40px' }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '12px 10px 32px' : '32px 20px 40px' }}>
         <header
           style={{
             background: 'linear-gradient(135deg, #173b63 0%, #102842 100%)',
             color: '#fff',
             borderRadius: 28,
-            padding: sessionUser ? '10px 28px 6px' : '10px 28px',
+            padding: isMobile ? (sessionUser ? '8px 12px 4px' : '10px 12px') : (sessionUser ? '10px 28px 6px' : '10px 28px'),
             boxShadow: '0 24px 64px rgba(9, 34, 51, 0.18)',
             position: 'relative',
           }}
@@ -1905,7 +1914,7 @@ export default function Page() {
               alt="Golf Majors Pool"
               style={{
                 display: 'block',
-                width: 'min(100%, 380px)',
+                width: isMobile ? 'min(100%, 260px)' : 'min(100%, 380px)',
                 height: 'auto',
                 objectFit: 'contain',
                 background: 'transparent',
@@ -1920,11 +1929,17 @@ export default function Page() {
                 paddingTop: 8,
                 borderTop: '1px solid rgba(112, 202, 220, 0.18)',
                 display: 'flex',
-                justifyContent: 'center',
-                gap: 12,
-                flexWrap: 'wrap',
-                paddingLeft: 72,
-                paddingRight: 72,
+                justifyContent: isMobile ? 'flex-start' : 'center',
+                gap: isMobile ? 0 : 4,
+                flexWrap: 'nowrap',
+                overflowX: 'auto',
+                overscrollBehaviorX: 'contain',
+                touchAction: 'pan-x',
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'none',
+                paddingLeft: isMobile ? 4 : 32,
+                paddingRight: isMobile ? 4 : 32,
+                paddingBottom: 2,
               }}
             >
               {(['Standings', 'My entries', 'Details', 'Commissioner console'] as MainTab[])
@@ -1940,11 +1955,13 @@ export default function Page() {
                         borderBottom: active ? '3px solid #63d9ea' : '3px solid transparent',
                         background: 'transparent',
                         color: active ? '#63d9ea' : '#ffffff',
-                        padding: '7px 8px 9px',
-                        fontSize: 16,
+                        padding: isMobile ? '6px 10px 8px' : '7px 12px 9px',
+                        fontSize: isMobile ? 13 : 15,
                         fontWeight: 800,
                         cursor: 'pointer',
                         lineHeight: 1.1,
+                        whiteSpace: 'nowrap',
+                        flex: '0 0 auto',
                       }}
                     >
                       {tab}
@@ -2424,7 +2441,7 @@ export default function Page() {
             style={{
               marginTop: 24,
               display: 'grid',
-              gridTemplateColumns: showFutureTournamentView
+              gridTemplateColumns: (isMobile || showFutureTournamentView)
                 ? 'minmax(0, 1fr)'
                 : showFinalTournamentView
                 ? 'minmax(0, 1.7fr) minmax(360px, 0.9fr)'
@@ -3487,7 +3504,7 @@ export default function Page() {
                   style={{
                     marginTop: 18,
                     display: 'grid',
-                    gridTemplateColumns: 'minmax(0, 1.55fr) minmax(320px, 0.85fr)',
+                    gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : 'minmax(0, 1.55fr) minmax(320px, 0.85fr)',
                     gap: 28,
                     alignItems: 'start',
                   }}
@@ -3692,7 +3709,7 @@ export default function Page() {
                   style={{
                     marginTop: 18,
                     display: 'grid',
-                    gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+                    gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : 'minmax(0, 1fr) minmax(0, 1fr)',
                     gap: 20,
                   }}
                 >
@@ -4582,7 +4599,7 @@ export default function Page() {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'minmax(0, 1.45fr) minmax(320px, 0.8fr)',
+                  gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : 'minmax(0, 1.45fr) minmax(320px, 0.8fr)',
                   gap: 22,
                   alignItems: 'start',
                 }}
