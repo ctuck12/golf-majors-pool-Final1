@@ -2020,14 +2020,15 @@ export default function Page() {
                 <div
                   onClick={(event) => event.stopPropagation()}
                   style={{
-                    position: 'absolute',
-                    right: 0,
-                    bottom: 54,
-                    width: 336,
+                    position: isMobile ? 'fixed' : 'absolute',
+                    right: isMobile ? 10 : 0,
+                    top: isMobile ? 100 : 'auto',
+                    bottom: isMobile ? 'auto' : 54,
+                    width: isMobile ? 270 : 336,
                     borderRadius: 18,
                     background: '#fff',
                     color: '#0f1720',
-                    padding: 16,
+                    padding: isMobile ? 12 : 16,
                     boxShadow: '0 18px 40px rgba(9, 34, 51, 0.22)',
                     zIndex: 20,
                   }}
@@ -2035,7 +2036,7 @@ export default function Page() {
                   <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                     Account
                   </div>
-                  <div style={{ marginTop: 6, fontSize: 20, fontWeight: 900 }}>{sessionUser.displayName}</div>
+                  <div style={{ marginTop: 6, fontSize: isMobile ? 16 : 20, fontWeight: 900 }}>{sessionUser.displayName}</div>
                   <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>{sessionUser.email}</div>
 
                   {accountPreferencesView === 'password' ? (
@@ -2071,7 +2072,7 @@ export default function Page() {
                       {accountMessage}
                     </div>
                   ) : null}
-                  <div style={{ marginTop: 14, display: 'flex', gap: 8 }}>
+                  <div style={{ marginTop: isMobile ? 10 : 14, display: 'flex', gap: 8 }}>
                     {accountPreferencesView === 'root' ? (
                       <button
                         onClick={() => {
@@ -4015,89 +4016,89 @@ export default function Page() {
         )}
 
         {mainTab === 'Commissioner console' && (
-          <main style={{ marginTop: 24, display: 'grid', gap: 20 }}>
+          <main style={{ marginTop: isMobile ? 12 : 24, display: 'grid', gap: isMobile ? 12 : 20 }}>
             {commissionerConsoleView === 'dashboard' ? (
               <>
             <section
               style={{
                 background: '#fff',
                 borderRadius: 24,
-                padding: 22,
+                padding: isMobile ? 14 : 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                 Commissioner console
               </div>
-              <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
+              <h2 style={{ margin: isMobile ? '4px 0 10px' : '6px 0 18px', fontSize: isMobile ? 16 : 26, color: '#0f1720' }}>
                 Live feed and pool status for {tournament.name}
               </h2>
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                  gap: 14,
+                  gridTemplateColumns: isMobile ? 'repeat(2, minmax(0, 1fr))' : 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: isMobile ? 8 : 14,
                 }}
               >
-                <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
-                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 12 : 18, padding: isMobile ? 10 : 16, background: '#f8fbfd' }}>
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Source
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>Slash Golf API</div>
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800 }}>Slash Golf API</div>
                 </div>
-                <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
-                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 12 : 18, padding: isMobile ? 10 : 16, background: '#f8fbfd' }}>
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Last sync
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{formatRefresh(feed?.fetchedAt ?? null)}</div>
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800 }}>{formatRefresh(feed?.fetchedAt ?? null)}</div>
                 </div>
                 <button
                   onClick={handleToggleLineupLock}
                   disabled={!canManagePool || commissionerBusy}
                   style={{
                     border: '1px solid #e6edf1',
-                    borderRadius: 18,
-                    padding: 16,
+                    borderRadius: isMobile ? 12 : 18,
+                    padding: isMobile ? 10 : 16,
                     background: '#f8fbfd',
                     textAlign: 'left',
                     cursor: !canManagePool || commissionerBusy ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Lineup lock
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{locked ? 'Locked' : 'Unlocked'}</div>
-                  <div style={{ marginTop: 8, fontSize: 13, color: '#5b6b79' }}>
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800 }}>{locked ? 'Locked' : 'Unlocked'}</div>
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
                     {locked ? 'Click to unlock roster editing' : 'Click to lock roster editing'}
                   </div>
                 </button>
-                <div style={{ border: '1px solid #e6edf1', borderRadius: 18, padding: 16, background: '#f8fbfd' }}>
-                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 12 : 18, padding: isMobile ? 10 : 16, background: '#f8fbfd' }}>
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Pool members
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800 }}>{poolEntries.length}</div>
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800 }}>{poolEntries.length}</div>
                 </div>
               </div>
 
               <div
                 style={{
-                  marginTop: 16,
+                  marginTop: isMobile ? 8 : 16,
                   border: '1px solid #e6edf1',
-                  borderRadius: 18,
-                  padding: 16,
+                  borderRadius: isMobile ? 12 : 18,
+                  padding: isMobile ? 10 : 16,
                   background: '#f8fbfd',
                   display: 'grid',
-                  gap: 14,
+                  gap: isMobile ? 8 : 14,
                 }}
               >
                 <div>
-                  <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Tournament payouts
                   </div>
-                  <div style={{ marginTop: 8, fontSize: 18, fontWeight: 800, color: '#0f1720' }}>
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800, color: '#0f1720' }}>
                     {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
                   </div>
-                  <div style={{ marginTop: 6, fontSize: 13, color: '#5b6b79' }}>
+                  <div style={{ marginTop: isMobile ? 4 : 6, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
                     Set the 1st, 2nd, and 3rd place payout amounts for the upcoming or active tournament.
                   </div>
                 </div>
@@ -4176,7 +4177,7 @@ export default function Page() {
               style={{
                 background: '#fff',
                 borderRadius: 24,
-                padding: 22,
+                padding: isMobile ? 14 : 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
@@ -4185,12 +4186,12 @@ export default function Page() {
                 style={{
                   width: '100%',
                   border: '1px solid #d7e0e8',
-                  borderRadius: 22,
+                  borderRadius: isMobile ? 14 : 22,
                   background: '#fff',
-                  padding: 22,
+                  padding: isMobile ? 12 : 22,
                   display: 'grid',
-                  gridTemplateColumns: '100px minmax(0, 1fr)',
-                  gap: 22,
+                  gridTemplateColumns: isMobile ? '52px minmax(0, 1fr)' : '100px minmax(0, 1fr)',
+                  gap: isMobile ? 12 : 22,
                   alignItems: 'center',
                   textAlign: 'left',
                   cursor: 'pointer',
@@ -4198,9 +4199,9 @@ export default function Page() {
               >
                 <div
                   style={{
-                    width: 82,
-                    height: 82,
-                    borderRadius: 18,
+                    width: isMobile ? 52 : 82,
+                    height: isMobile ? 52 : 82,
+                    borderRadius: isMobile ? 12 : 18,
                     background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
                     color: '#fff',
                     display: 'flex',
@@ -4208,11 +4209,11 @@ export default function Page() {
                     justifyContent: 'center',
                   }}
                 >
-                  <Users size={46} />
+                  <Users size={isMobile ? 28 : 46} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 32, fontWeight: 900, color: '#0f1720' }}>Member Management</div>
-                  <div style={{ marginTop: 8, fontSize: 18, lineHeight: 1.45, color: '#31424f' }}>
+                  <div style={{ fontSize: isMobile ? 18 : 32, fontWeight: 900, color: '#0f1720' }}>Member Management</div>
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 12 : 18, lineHeight: 1.45, color: '#31424f' }}>
                     A full member listing showing participation for this year.
                   </div>
                 </div>
@@ -4223,70 +4224,70 @@ export default function Page() {
               style={{
                 background: '#fff',
                 borderRadius: 24,
-                padding: 22,
+                padding: isMobile ? 14 : 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                 Submission status
               </div>
-              <h2 style={{ margin: '6px 0 18px', fontSize: 26, color: '#0f1720' }}>
+              <h2 style={{ margin: isMobile ? '4px 0 10px' : '6px 0 18px', fontSize: isMobile ? 16 : 26, color: '#0f1720' }}>
                 {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name} pick submissions
               </h2>
               <div
                 style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                  gap: 20,
+                  gap: isMobile ? 10 : 20,
                 }}
               >
                 <div
                   style={{
                     border: '1px solid #d7e0e8',
-                    borderRadius: 20,
-                    padding: 18,
+                    borderRadius: isMobile ? 12 : 20,
+                    padding: isMobile ? 10 : 18,
                     background: '#f8fbfd',
                     display: 'grid',
-                    gap: 12,
+                    gap: isMobile ? 6 : 12,
                   }}
                 >
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>Submitted Picks</div>
+                  <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 900, color: '#0f1720' }}>Submitted Picks</div>
                   {submittedCommissionerMembers.length > 0 ? (
                     submittedCommissionerMembers.map((member) => (
                       <div
                         key={`submitted-${member.id}`}
-                        style={{ borderRadius: 14, background: '#fff', padding: '12px 14px', color: '#0f1720', fontWeight: 700 }}
+                        style={{ borderRadius: 10, background: '#fff', padding: isMobile ? '6px 8px' : '12px 14px', color: '#0f1720', fontWeight: 700, fontSize: isMobile ? 12 : 14 }}
                       >
                         {member.displayName}
                       </div>
                     ))
                   ) : (
-                    <div style={{ color: '#6b7b88' }}>No registered members have submitted picks yet.</div>
+                    <div style={{ color: '#6b7b88', fontSize: isMobile ? 11 : 14 }}>No registered members have submitted picks yet.</div>
                   )}
                 </div>
 
                 <div
                   style={{
                     border: '1px solid #d7e0e8',
-                    borderRadius: 20,
-                    padding: 18,
+                    borderRadius: isMobile ? 12 : 20,
+                    padding: isMobile ? 10 : 18,
                     background: '#f8fbfd',
                     display: 'grid',
-                    gap: 12,
+                    gap: isMobile ? 6 : 12,
                   }}
                 >
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>Still Need Picks</div>
+                  <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 900, color: '#0f1720' }}>Still Need Picks</div>
                   {pendingCommissionerMembers.length > 0 ? (
                     pendingCommissionerMembers.map((member) => (
                       <div
                         key={`pending-${member.id}`}
-                        style={{ borderRadius: 14, background: '#fff', padding: '12px 14px', color: '#0f1720', fontWeight: 700 }}
+                        style={{ borderRadius: 10, background: '#fff', padding: isMobile ? '6px 8px' : '12px 14px', color: '#0f1720', fontWeight: 700, fontSize: isMobile ? 12 : 14 }}
                       >
                         {member.displayName}
                       </div>
                     ))
                   ) : (
-                    <div style={{ color: '#6b7b88' }}>Everyone with a registered account has submitted picks.</div>
+                    <div style={{ color: '#6b7b88', fontSize: isMobile ? 11 : 14 }}>Everyone with a registered account has submitted picks.</div>
                   )}
                 </div>
               </div>
