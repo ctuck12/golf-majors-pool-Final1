@@ -4298,35 +4298,36 @@ export default function Page() {
               style={{
                 background: '#fff',
                 borderRadius: 24,
-                padding: 22,
+                padding: isMobile ? 14 : 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                 display: 'grid',
-                gap: 18,
+                gap: isMobile ? 10 : 18,
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: isMobile ? 10 : 18, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 14 }}>
                   <button
                     onClick={() => setCommissionerConsoleView('dashboard')}
                     style={{
                       border: '1px solid #d7e0e8',
                       borderRadius: 999,
                       background: '#fff',
-                      width: 44,
-                      height: 44,
+                      width: isMobile ? 32 : 44,
+                      height: isMobile ? 32 : 44,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       cursor: 'pointer',
+                      flexShrink: 0,
                     }}
                   >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={isMobile ? 14 : 20} />
                   </button>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                    <div style={{ fontSize: isMobile ? 10 : 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                       Commissioner console
                     </div>
-                    <h2 style={{ margin: '6px 0 0', fontSize: 34, color: '#0f1720' }}>Member Management</h2>
+                    <h2 style={{ margin: isMobile ? '2px 0 0' : '6px 0 0', fontSize: isMobile ? 18 : 34, color: '#0f1720' }}>Member Management</h2>
                   </div>
                 </div>
                 <button
@@ -4334,10 +4335,11 @@ export default function Page() {
                   style={{
                     border: 'none',
                     borderRadius: 14,
-                    padding: '12px 18px',
+                    padding: isMobile ? '8px 12px' : '12px 18px',
                     background: '#2d5e94',
                     color: '#fff',
                     fontWeight: 900,
+                    fontSize: isMobile ? 12 : 14,
                     cursor: 'pointer',
                   }}
                 >
@@ -4434,74 +4436,74 @@ export default function Page() {
                 </div>
               ) : null}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-                <div style={{ fontSize: 16, fontWeight: 700, color: '#31424f' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: isMobile ? 8 : 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: '#31424f' }}>
                   {commissionerMembers.length} Active Members
                 </div>
                 <div
                   style={{
-                    minWidth: 280,
+                    minWidth: isMobile ? 0 : 280,
                     maxWidth: 360,
-                    flex: '1 1 280px',
+                    flex: isMobile ? '1 1 auto' : '1 1 280px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 10,
+                    gap: 8,
                     border: '1px solid #d7e0e8',
-                    borderRadius: 14,
+                    borderRadius: 12,
                     background: '#fff',
-                    padding: '12px 14px',
+                    padding: isMobile ? '8px 10px' : '12px 14px',
                   }}
                 >
-                  <Search size={18} color="#6b7b88" />
+                  <Search size={isMobile ? 14 : 18} color="#6b7b88" />
                   <input
                     value={commissionerMemberSearch}
                     onChange={(event) => setCommissionerMemberSearch(event.target.value)}
                     placeholder="Search"
-                    style={{ ...fieldStyle(), border: 'none', padding: 0 }}
+                    style={{ ...fieldStyle(), border: 'none', padding: 0, fontSize: isMobile ? 12 : 15 }}
                   />
                 </div>
               </div>
 
-              <div style={{ border: '1px solid #e6edf1', borderRadius: 22, overflow: 'hidden', background: '#fff' }}>
+              <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 14 : 22, overflow: 'hidden', background: '#fff' }}>
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
-                    gap: 16,
-                    padding: '18px 22px',
+                    gridTemplateColumns: isMobile ? 'minmax(0, 1fr) minmax(0, 1fr) 40px' : 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
+                    gap: isMobile ? 8 : 16,
+                    padding: isMobile ? '8px 12px' : '18px 22px',
                     background: '#f8fbfd',
                     color: '#5b6b79',
-                    fontSize: 13,
+                    fontSize: isMobile ? 10 : 13,
                     fontWeight: 800,
                     textTransform: 'uppercase',
                   }}
                 >
                   <div>Display Name</div>
                   <div style={{ textAlign: 'center' }}>Email</div>
-                  <div style={{ textAlign: 'center' }}># of Tourn. Submitted Picks</div>
+                  <div style={{ textAlign: 'center', display: isMobile ? 'none' : 'block' }}># of Tourn. Submitted Picks</div>
                   <div style={{ textAlign: 'center' }}>Edit</div>
                 </div>
 
                 {commissionerBusy && commissionerMembers.length === 0 ? (
-                  <div style={{ padding: 24, color: '#6b7b88' }}>Loading members...</div>
+                  <div style={{ padding: isMobile ? 14 : 24, color: '#6b7b88', fontSize: isMobile ? 12 : 14 }}>Loading members...</div>
                 ) : filteredCommissionerMembers.length === 0 ? (
-                  <div style={{ padding: 24, color: '#6b7b88' }}>No members matched your search.</div>
+                  <div style={{ padding: isMobile ? 14 : 24, color: '#6b7b88', fontSize: isMobile ? 12 : 14 }}>No members matched your search.</div>
                 ) : (
                   filteredCommissionerMembers.map((member) => (
                     <div
                       key={member.id}
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
-                        gap: 16,
-                        padding: '20px 22px',
+                        gridTemplateColumns: isMobile ? 'minmax(0, 1fr) minmax(0, 1fr) 40px' : 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
+                        gap: isMobile ? 8 : 16,
+                        padding: isMobile ? '10px 12px' : '20px 22px',
                         borderTop: '1px solid #e6edf1',
                         alignItems: 'center',
                       }}
                     >
-                      <div style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{member.displayName}</div>
-                      <div style={{ fontSize: 15, color: '#31424f', textAlign: 'center' }}>{member.email}</div>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>
+                      <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 800, color: '#0f1720' }}>{member.displayName}</div>
+                      <div style={{ fontSize: isMobile ? 11 : 15, color: '#31424f', textAlign: 'center' }}>{member.email}</div>
+                      <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: '#0f1720', textAlign: 'center', display: isMobile ? 'none' : 'block' }}>
                         {TOURNAMENTS.filter((event) => (member.rosters[event.id] ?? []).length > 0).length}
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -4509,17 +4511,17 @@ export default function Page() {
                           onClick={() => openCommissionerMemberModal(member.id)}
                           style={{
                             border: '1px solid #d7e0e8',
-                            borderRadius: 14,
+                            borderRadius: isMobile ? 10 : 14,
                             background: '#fff',
-                            width: 48,
-                            height: 48,
+                            width: isMobile ? 34 : 48,
+                            height: isMobile ? 34 : 48,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: 'pointer',
                           }}
                         >
-                          <Pencil size={18} />
+                          <Pencil size={isMobile ? 13 : 18} />
                         </button>
                       </div>
                     </div>
