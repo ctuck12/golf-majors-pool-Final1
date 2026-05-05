@@ -613,7 +613,6 @@ function formatTournamentStartDate(value: Date) {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
-    year: 'numeric',
   }).format(value);
 }
 
@@ -1972,7 +1971,7 @@ export default function Page() {
           ) : null}
 
           {sessionUser ? (
-            <div style={{ position: 'absolute', right: 22, bottom: 6, zIndex: 30 }}>
+            <div style={{ position: 'absolute', right: isMobile ? 10 : 22, bottom: isMobile ? 62 : 6, zIndex: 30 }}>
               {accountMenuOpen ? (
                 <button
                   type="button"
@@ -2378,9 +2377,9 @@ export default function Page() {
                       background: active ? '#fff' : 'transparent',
                       color: active ? '#1f2f42' : '#46bfd1',
                       borderRadius: '10px 10px 0 0',
-                      padding: isMobile ? '5px 6px 4px' : '10px 12px 9px',
-                      width: isMobile ? 72 : TOURNAMENT_CARD_WIDTH,
-                      height: isMobile ? 34 : TOURNAMENT_CARD_HEIGHT,
+                      padding: isMobile ? '6px 8px 5px' : '10px 12px 9px',
+                      width: isMobile ? 92 : TOURNAMENT_CARD_WIDTH,
+                      height: isMobile ? 42 : TOURNAMENT_CARD_HEIGHT,
                       boxSizing: 'border-box',
                       flex: '0 0 auto',
                       textAlign: 'center',
@@ -2402,7 +2401,7 @@ export default function Page() {
                         style={{
                           maxWidth: '100%',
                           width: '100%',
-                          height: isMobile ? 22 : (TOURNAMENT_TAB_LOGO_HEIGHTS[item.id] ?? 40),
+                          height: isMobile ? 28 : (TOURNAMENT_TAB_LOGO_HEIGHTS[item.id] ?? 40),
                           objectFit: 'contain',
                           display: 'block',
                         }}
