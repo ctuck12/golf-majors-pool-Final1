@@ -4076,7 +4076,7 @@ export default function Page() {
                   <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Pool members
                   </div>
-                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800 }}>{poolEntries.length}</div>
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800 }}>{commissionerMembers.length > 0 ? commissionerMembers.length : poolEntries.length}</div>
                 </div>
               </div>
 
