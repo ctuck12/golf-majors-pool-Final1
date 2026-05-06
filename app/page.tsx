@@ -4632,7 +4632,7 @@ export default function Page() {
                     value={commissionerMemberSearch}
                     onChange={(event) => setCommissionerMemberSearch(event.target.value)}
                     placeholder="Search"
-                    style={{ ...fieldStyle(), border: 'none', padding: 0, fontSize: isMobile ? 12 : 15 }}
+                    style={{ ...fieldStyle(), border: 'none', outline: 'none', padding: 0, fontSize: isMobile ? 12 : 15 }}
                   />
                 </div>
               </div>
@@ -4652,20 +4652,21 @@ export default function Page() {
                   }}
                 >
                   {(['displayName', 'email'] as const).map((col) => (
-                    <button
-                      key={col}
-                      onClick={() => setCommissionerMemberSort((prev) => ({
-                        column: col,
-                        direction: prev.column === col && prev.direction === 'asc' ? 'desc' : 'asc',
-                      }))}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4, color: '#5b6b79', fontSize: isMobile ? 10 : 13, fontWeight: 800, textTransform: 'uppercase', textAlign: 'left' }}
-                    >
-                      {col === 'displayName' ? 'Display Name' : 'Email'}
-                      <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1, gap: 1 }}>
-                        <span style={{ fontSize: isMobile ? 8 : 10, opacity: commissionerMemberSort.column === col && commissionerMemberSort.direction === 'asc' ? 1 : 0.3 }}>▲</span>
-                        <span style={{ fontSize: isMobile ? 8 : 10, opacity: commissionerMemberSort.column === col && commissionerMemberSort.direction === 'desc' ? 1 : 0.3 }}>▼</span>
-                      </span>
-                    </button>
+                    <div key={col} style={{ display: 'flex', justifyContent: (!isMobile && col === 'email') ? 'center' : 'flex-start' }}>
+                      <button
+                        onClick={() => setCommissionerMemberSort((prev) => ({
+                          column: col,
+                          direction: prev.column === col && prev.direction === 'asc' ? 'desc' : 'asc',
+                        }))}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4, color: '#5b6b79', fontSize: isMobile ? 10 : 13, fontWeight: 800, textTransform: 'uppercase' }}
+                      >
+                        {col === 'displayName' ? 'Display Name' : 'Email'}
+                        <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1, gap: 1 }}>
+                          <span style={{ fontSize: isMobile ? 8 : 10, opacity: commissionerMemberSort.column === col && commissionerMemberSort.direction === 'asc' ? 1 : 0.3 }}>▲</span>
+                          <span style={{ fontSize: isMobile ? 8 : 10, opacity: commissionerMemberSort.column === col && commissionerMemberSort.direction === 'desc' ? 1 : 0.3 }}>▼</span>
+                        </span>
+                      </button>
+                    </div>
                   ))}
                   <div style={{ textAlign: 'center', display: isMobile ? 'none' : 'block' }}># of Tourn. Submitted Picks</div>
                   <div style={{ textAlign: 'center' }}>Edit</div>
