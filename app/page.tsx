@@ -1041,6 +1041,16 @@ export default function Page() {
     setAccountDisplayName(sessionUser?.displayName ?? '');
   }, [sessionUser]);
 
+  useEffect(() => {
+    if (!commissionerSuccess) return;
+    const timer = window.setTimeout(() => setCommissionerSuccess(''), 6000);
+    return () => window.clearTimeout(timer);
+  }, [commissionerSuccess]);
+
+  useEffect(() => {
+    setCommissionerSuccess('');
+  }, [mainTab, commissionerConsoleView]);
+
   const applySession = (payload: SessionPayload) => {
     setSessionUser(payload.user);
     setPool(payload.pool);
