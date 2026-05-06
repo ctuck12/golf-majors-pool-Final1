@@ -3929,8 +3929,8 @@ export default function Page() {
                       </div>
 
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                          <div style={{ width: 36, textAlign: 'center', flexShrink: 0, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#8a97a3', letterSpacing: '0.04em', lineHeight: 1.2 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                          <div style={{ width: 22, textAlign: 'center', flexShrink: 0, fontSize: 9, fontWeight: 800, textTransform: 'uppercase', color: '#8a97a3', letterSpacing: '0.04em', lineHeight: 1.2 }}>
                             World<br />Rank
                           </div>
                         </div>
@@ -3944,9 +3944,9 @@ export default function Page() {
                           return (
                             <div
                               key={player.id}
-                              style={{ display: 'flex', gap: 10, alignItems: 'center', opacity: disabled ? 0.58 : 1 }}
+                              style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: disabled ? 0.58 : 1 }}
                             >
-                              <div style={{ width: 36, textAlign: 'center', flexShrink: 0, fontSize: 16, fontWeight: 900, color: '#0f1720' }}>
+                              <div style={{ width: 22, textAlign: 'center', flexShrink: 0, fontSize: 13, fontWeight: 900, color: '#0f1720' }}>
                                 {player.worldRank}
                               </div>
                               <button
@@ -4857,8 +4857,8 @@ export default function Page() {
                     </div>
 
                     <div style={{ padding: 20, maxHeight: 960, overflowY: 'auto' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                        <div style={{ width: 36, textAlign: 'center', flexShrink: 0, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#8a97a3', letterSpacing: '0.04em', lineHeight: 1.2 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                        <div style={{ width: 22, textAlign: 'center', flexShrink: 0, fontSize: 9, fontWeight: 800, textTransform: 'uppercase', color: '#8a97a3', letterSpacing: '0.04em', lineHeight: 1.2 }}>
                           World<br />Rank
                         </div>
                       </div>
@@ -4872,9 +4872,9 @@ export default function Page() {
                         return (
                           <div
                             key={`commissioner-player-${player.id}`}
-                            style={{ display: 'flex', gap: 12, alignItems: 'center', opacity: isDisabled ? 0.45 : 1 }}
+                            style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: isDisabled ? 0.45 : 1 }}
                           >
-                            <div style={{ width: 36, textAlign: 'center', flexShrink: 0, fontSize: 16, fontWeight: 900, color: '#0f1720' }}>
+                            <div style={{ width: 22, textAlign: 'center', flexShrink: 0, fontSize: 13, fontWeight: 900, color: '#0f1720' }}>
                               {player.worldRank}
                             </div>
                             <div
