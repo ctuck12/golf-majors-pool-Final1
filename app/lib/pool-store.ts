@@ -399,6 +399,29 @@ export async function saveTieBreakForUser(userId: string, tournamentId: Tourname
   await writeDatabase(database);
 }
 
+export async function resetUserPassword(email: string, newPassword: string) {
+  const database = await readDatabase();
+  const user = database.users.find((item) => item.email === email.toLowerCase().trim());
+
+  if (!user) {
+    throw new Error('No account found with that email address.');
+  }
+
+  if (newPassword.length < 8) {
+    throw new Error('Password must be at least 8 characters.');
+  }
+
+  const passwordSalt = randomBytes(16).toString('hex');
+  user.passwordSalt = passwordSalt;
+  user.passwordHash = hashPassword(newPassword, passwordSalt);
+  await writeDatabase(database);
+}
+
+export async function checkEmailExists(email: string) {
+  const database = await readDatabase();
+  return database.users.some((item) => item.email === email.toLowerCase().trim());
+}
+
 export async function updateUserAccount(
   userId: string,
   updates: {

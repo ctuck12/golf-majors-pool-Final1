@@ -690,6 +690,13 @@ export default function Page() {
   const [authError, setAuthError] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [authMode, setAuthMode] = useState<AuthMode>('login');
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotEmailExists, setForgotEmailExists] = useState(false);
+  const [forgotNewPassword, setForgotNewPassword] = useState('');
+  const [showForgotNewPassword, setShowForgotNewPassword] = useState(false);
+  const [forgotBusy, setForgotBusy] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState('');
   const [registerForm, setRegisterForm] = useState({
     displayName: '',
     email: '',
@@ -2317,26 +2324,159 @@ export default function Page() {
                 </button>
               </form>
 
-              <button
-                onClick={() => {
-                  setAuthMode((current) => (current === 'login' ? 'register' : 'login'));
-                  setAuthError('');
-                }}
-                style={{
-                  marginTop: 14,
-                  border: 'none',
-                  background: 'transparent',
-                  color: '#2f5f96',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  padding: 0,
-                }}
-              >
-                {authMode === 'login'
-                  ? 'New Member? Click here to register'
-                  : 'Already have an account? Click here to sign in'}
-              </button>
+              {authMode === 'register' && (
+                <button
+                  onClick={() => { setAuthMode('login'); setAuthError(''); }}
+                  style={{ marginTop: 14, border: 'none', background: 'transparent', color: '#2f5f96', fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                >
+                  Already have an account? Click here to sign in
+                </button>
+              )}
+
+              {authMode === 'login' && (
+                <div style={{ marginTop: 10, fontSize: 13, fontWeight: 700, color: '#2f5f96', display: 'flex', gap: 4, justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForgotOpen(true);
+                      setForgotEmail('');
+                      setForgotEmailExists(false);
+                      setForgotNewPassword('');
+                      setForgotMessage('');
+                      setShowForgotNewPassword(false);
+                    }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#2f5f96', fontSize: 13, fontWeight: 700, textDecoration: 'underline' }}
+                  >
+                    Forgot Password?
+                  </button>
+                  <span style={{ color: '#5b6b79' }}>or sign up</span>
+                  <button
+                    type="button"
+                    onClick={() => { setAuthMode('register'); setAuthError(''); }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#2f5f96', fontSize: 13, fontWeight: 700, textDecoration: 'underline' }}
+                  >
+                    here
+                  </button>
+                </div>
+              )}
+
+              {forgotOpen && (
+                <div
+                  onClick={() => setForgotOpen(false)}
+                  style={{ position: 'fixed', inset: 0, background: 'rgba(9,34,51,0.45)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+                >
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ background: '#fff', borderRadius: 20, padding: 28, width: '100%', maxWidth: 400, boxShadow: '0 18px 48px rgba(9,34,51,0.25)' }}
+                  >
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720', marginBottom: 16 }}>Forgot Password</div>
+
+                    {!forgotEmailExists ? (
+                      <>
+                        <input
+                          type="email"
+                          value={forgotEmail}
+                          onChange={(e) => setForgotEmail(e.target.value)}
+                          placeholder="Enter your email"
+                          style={{ ...fieldStyle(), width: '100%', boxSizing: 'border-box' }}
+                        />
+                        {forgotMessage && (
+                          <div style={{ marginTop: 10, fontSize: 13, color: '#a61b1b' }}>{forgotMessage}</div>
+                        )}
+                        <button
+                          type="button"
+                          disabled={forgotBusy}
+                          onClick={async () => {
+                            setForgotBusy(true);
+                            setForgotMessage('');
+                            try {
+                              const res = await fetch('/api/auth/reset-password', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ email: forgotEmail }),
+                              });
+                              const data = await res.json();
+                              if (data.exists) {
+                                setForgotEmailExists(true);
+                              } else {
+                                setForgotMessage('No account found with that email address.');
+                              }
+                            } catch {
+                              setForgotMessage('Something went wrong. Please try again.');
+                            } finally {
+                              setForgotBusy(false);
+                            }
+                          }}
+                          style={{ marginTop: 14, width: '100%', border: 'none', borderRadius: 14, padding: '13px 16px', background: 'linear-gradient(135deg, #487dc2 0%, #3c6ea9 100%)', color: '#fff', fontSize: 15, fontWeight: 900, cursor: forgotBusy ? 'wait' : 'pointer' }}
+                        >
+                          {forgotBusy ? 'Checking…' : 'Continue'}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 14, color: '#5b6b79', marginBottom: 12 }}>
+                          Account found for <strong>{forgotEmail}</strong>. Enter your new password below.
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', borderRadius: 14, border: '1px solid #d7e0e8', background: '#fff' }}>
+                          <input
+                            type={showForgotNewPassword ? 'text' : 'password'}
+                            value={forgotNewPassword}
+                            onChange={(e) => setForgotNewPassword(e.target.value)}
+                            placeholder="New password (min 8 chars)"
+                            style={{ flex: 1, border: 'none', outline: 'none', padding: '12px 14px', fontSize: 15, background: 'transparent', minWidth: 0 }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowForgotNewPassword((v) => !v)}
+                            style={{ padding: '0 12px', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7b88', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                          >
+                            {showForgotNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
+                        {forgotMessage && (
+                          <div style={{ marginTop: 10, fontSize: 13, color: forgotMessage === 'Password updated successfully.' ? '#1f8d4e' : '#a61b1b' }}>{forgotMessage}</div>
+                        )}
+                        <button
+                          type="button"
+                          disabled={forgotBusy}
+                          onClick={async () => {
+                            setForgotBusy(true);
+                            setForgotMessage('');
+                            try {
+                              const res = await fetch('/api/auth/reset-password', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ email: forgotEmail, newPassword: forgotNewPassword }),
+                              });
+                              const data = await res.json();
+                              if (res.ok) {
+                                setForgotMessage('Password updated successfully.');
+                                setTimeout(() => setForgotOpen(false), 1500);
+                              } else {
+                                setForgotMessage(data.error ?? 'Something went wrong.');
+                              }
+                            } catch {
+                              setForgotMessage('Something went wrong. Please try again.');
+                            } finally {
+                              setForgotBusy(false);
+                            }
+                          }}
+                          style={{ marginTop: 14, width: '100%', border: 'none', borderRadius: 14, padding: '13px 16px', background: 'linear-gradient(135deg, #315f95 0%, #284f7d 100%)', color: '#fff', fontSize: 15, fontWeight: 900, cursor: forgotBusy ? 'wait' : 'pointer' }}
+                        >
+                          {forgotBusy ? 'Updating…' : 'Update Password'}
+                        </button>
+                      </>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setForgotOpen(false)}
+                      style={{ marginTop: 12, width: '100%', border: '1px solid #d7e0e8', borderRadius: 14, padding: '11px 16px', background: '#fff', color: '#5b6b79', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         ) : (
