@@ -4832,7 +4832,13 @@ export default function Page() {
                       </label>
                     </div>
 
-                    <div style={{ padding: 20, display: 'grid', gap: 12, maxHeight: 960, overflowY: 'auto' }}>
+                    <div style={{ padding: 20, maxHeight: 960, overflowY: 'auto' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                        <div style={{ width: 36, textAlign: 'center', flexShrink: 0, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#8a97a3', letterSpacing: '0.04em', lineHeight: 1.2 }}>
+                          World<br />Rank
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gap: 12 }}>
                       {filteredCommissionerPlayers.map((player) => {
                         const isSelected = commissionerRosterSelection.includes(player.id);
                         const isDisabled =
@@ -4842,48 +4848,52 @@ export default function Page() {
                         return (
                           <div
                             key={`commissioner-player-${player.id}`}
-                            style={{
-                              border: isSelected ? '2px solid #3f73ad' : '1px solid #d7e0e8',
-                              borderRadius: 18,
-                              background: isSelected ? '#eef4ff' : '#fff',
-                              padding: 16,
-                              opacity: isDisabled ? 0.45 : 1,
-                            }}
+                            style={{ display: 'flex', gap: 12, alignItems: 'center', opacity: isDisabled ? 0.45 : 1 }}
                           >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
-                              <div style={{ textAlign: 'center', minWidth: 52, flexShrink: 0 }}>
-                                <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#8a97a3', letterSpacing: '0.04em' }}>World Rank</div>
-                                <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{player.worldRank}</div>
-                              </div>
-                              <button
-                                onClick={() => toggleCommissionerRosterPlayer(player.id)}
-                                disabled={isDisabled}
-                                style={{
-                                  fontSize: 28,
-                                  fontWeight: 900,
-                                  color: '#0f1720',
-                                  minWidth: 24,
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: isDisabled ? 'not-allowed' : 'pointer',
-                                  padding: 0,
-                                  lineHeight: 1,
-                                  flexShrink: 0,
-                                }}
-                              >
-                                {isSelected ? '−' : '+'}
-                              </button>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
-                                <div style={{ marginTop: 4, fontSize: 14, color: '#607282' }}>
-                                  {player.odds}
+                            <div style={{ width: 36, textAlign: 'center', flexShrink: 0, fontSize: 16, fontWeight: 900, color: '#0f1720' }}>
+                              {player.worldRank}
+                            </div>
+                            <div
+                              style={{
+                                flex: 1,
+                                border: isSelected ? '2px solid #3f73ad' : '1px solid #d7e0e8',
+                                borderRadius: 18,
+                                background: isSelected ? '#eef4ff' : '#fff',
+                                padding: 16,
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+                                <button
+                                  onClick={() => toggleCommissionerRosterPlayer(player.id)}
+                                  disabled={isDisabled}
+                                  style={{
+                                    fontSize: 28,
+                                    fontWeight: 900,
+                                    color: '#0f1720',
+                                    minWidth: 24,
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                    padding: 0,
+                                    lineHeight: 1,
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  {isSelected ? '−' : '+'}
+                                </button>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
+                                  <div style={{ marginTop: 4, fontSize: 14, color: '#607282' }}>
+                                    {player.odds}
+                                  </div>
                                 </div>
+                                <div style={{ fontSize: 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
                               </div>
-                              <div style={{ fontSize: 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
                             </div>
                           </div>
                         );
                       })}
+                      </div>
                     </div>
                   </div>
                 </div>
