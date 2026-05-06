@@ -3066,7 +3066,7 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-                    <h3 style={{ margin: 0, fontSize: isMobile ? 17 : 30, color: '#0f1720' }}>{tournament.name} Leaderboard</h3>
+                    <h3 style={{ margin: 0, fontSize: isMobile ? 17 : 30, color: '#0f1720', textAlign: isMobile ? 'center' : 'left', fontWeight: 'bold', width: isMobile ? '100%' : undefined }}>{tournament.name} Leaderboard</h3>
                   </div>
                   <div style={{ marginTop: isMobile ? 12 : 24, overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 14 }}>
