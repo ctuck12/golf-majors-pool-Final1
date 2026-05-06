@@ -8,7 +8,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id:  3, name: 'Xander Schauffele',    pgaTourId: 48081, defaultOdds: '+1200',   worldRank:   3 },
   { id:  4, name: 'Collin Morikawa',      pgaTourId: 50525, defaultOdds: '+1600',   worldRank:   4 },
   { id:  5, name: 'Ludvig Aberg',         pgaTourId: 61692, defaultOdds: '+1800',   worldRank:   5 },
-  { id:  6, name: 'Tommy Fleetwood',      pgaTourId: 30978, defaultOdds: '+3500',   worldRank:  12 },
+  { id:  6, name: 'Tommy Fleetwood',      pgaTourId: 30911, defaultOdds: '+3500',   worldRank:  12 },
   { id:  7, name: 'Patrick Cantlay',      pgaTourId: 35891, defaultOdds: '+3000',   worldRank:  10 },
   { id:  8, name: 'Hideki Matsuyama',     pgaTourId: 34046, defaultOdds: '+4000',   worldRank:  13 },
   { id:  9, name: 'Brooks Koepka',        pgaTourId: 35450, defaultOdds: '+4500',   worldRank:  18 },
