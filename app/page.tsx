@@ -929,6 +929,14 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    const statuses = getTournamentCardStatuses(new Date(nowTick));
+    const inProgress = TOURNAMENTS.find((t) => statuses[t.id]?.label === 'IN PROGRESS');
+    if (inProgress) {
+      setSelectedTournament(inProgress.id);
+    }
+  }, [nowTick]);
+
+  useEffect(() => {
     if (mainTab === 'Commissioner console' && !canManagePool) {
       setMainTab('Standings');
     }
@@ -2899,32 +2907,31 @@ export default function Page() {
                     </div>
 
                     {picksOpenForTournament && selectedTournament === entriesTournamentId && sessionUser ? (
-                      <div style={{ marginTop: 24, display: 'grid', gap: 12 }}>
-                        <div style={{ color: '#5b6b79', fontSize: 14 }}>
-                          {otherSubmittedEntriesCount} other {otherSubmittedEntriesCount === 1 ? 'user has' : 'users have'} already
-                          submitted picks for this tournament.
-                        </div>
-                        <div>
-                          <button
-                            onClick={openMyEntriesEditor}
-                            style={{
-                              border: 'none',
-                              borderRadius: 16,
-                              padding: '14px 22px',
-                              background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
-                              color: '#fff',
-                              fontSize: 16,
-                              fontWeight: 900,
-                              cursor: 'pointer',
-                              boxShadow: '0 14px 28px rgba(63, 115, 173, 0.22)',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: 8,
-                            }}
-                          >
-                            <Pencil size={16} />
-                            {hasSubmittedRoster ? 'Edit Picks' : 'Make Your Picks'}
-                          </button>
+                      <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+                        <button
+                          onClick={openMyEntriesEditor}
+                          style={{
+                            border: 'none',
+                            borderRadius: 16,
+                            padding: '14px 22px',
+                            background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                            color: '#fff',
+                            fontSize: 16,
+                            fontWeight: 900,
+                            cursor: 'pointer',
+                            boxShadow: '0 14px 28px rgba(63, 115, 173, 0.22)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          <Pencil size={16} />
+                          {hasSubmittedRoster ? 'Edit Picks' : 'Make Your Picks'}
+                        </button>
+                        <div style={{ color: '#5b6b79', fontSize: 14, fontWeight: 600 }}>
+                          Members with submitted picks:{' '}
+                          <span style={{ color: '#0f1720', fontWeight: 900 }}>{submittedEntries.length}</span>
                         </div>
                       </div>
                     ) : null}
