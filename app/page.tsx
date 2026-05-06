@@ -4665,11 +4665,11 @@ export default function Page() {
                 </div>
               </div>
 
-              <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 14 : 22, overflow: 'hidden', background: '#fff' }}>
+              <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 14 : 22, overflowX: isMobile ? 'auto' : 'hidden', overflowY: 'hidden', background: '#fff' }}>
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: isMobile ? 'minmax(0, 1fr) minmax(0, 1fr) 40px' : 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
+                    gridTemplateColumns: isMobile ? '140px 190px 100px 46px' : 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
                     gap: isMobile ? 8 : 16,
                     padding: isMobile ? '8px 12px' : '18px 22px',
                     background: '#f8fbfd',
@@ -4680,7 +4680,14 @@ export default function Page() {
                   }}
                 >
                   {(['displayName', 'email'] as const).map((col) => (
-                    <div key={col} style={{ display: 'flex', justifyContent: (!isMobile && col === 'email') ? 'center' : 'flex-start' }}>
+                    <div
+                      key={col}
+                      style={{
+                        display: 'flex',
+                        justifyContent: (!isMobile && col === 'email') ? 'center' : 'flex-start',
+                        ...(isMobile && col === 'displayName' ? { position: 'sticky', left: 0, background: '#f8fbfd', zIndex: 2 } : {}),
+                      }}
+                    >
                       <button
                         onClick={() => setCommissionerMemberSort((prev) => ({
                           column: col,
@@ -4696,8 +4703,8 @@ export default function Page() {
                       </button>
                     </div>
                   ))}
-                  <div style={{ textAlign: 'center', display: isMobile ? 'none' : 'block' }}># of Tourn. Submitted Picks</div>
-                  <div style={{ textAlign: 'center' }}>Edit</div>
+                  <div style={{ textAlign: 'center', fontSize: isMobile ? 9 : 13 }}># of Tourn. Submitted Picks</div>
+                  <div style={{ textAlign: 'center', ...(isMobile ? { position: 'sticky', right: 0, background: '#f8fbfd', zIndex: 2 } : {}) }}>Edit</div>
                 </div>
 
                 {commissionerBusy && commissionerMembers.length === 0 ? (
@@ -4710,24 +4717,24 @@ export default function Page() {
                       key={member.id}
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: isMobile ? 'minmax(0, 1fr) minmax(0, 1fr) 40px' : 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
+                        gridTemplateColumns: isMobile ? '140px 190px 100px 46px' : 'minmax(220px, 1.1fr) minmax(260px, 1.25fr) minmax(180px, 0.8fr) 90px',
                         gap: isMobile ? 8 : 16,
                         padding: isMobile ? '10px 12px' : '20px 22px',
                         borderTop: '1px solid #e6edf1',
                         alignItems: 'center',
                       }}
                     >
-                      <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 800, color: '#0f1720', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 800, color: '#0f1720', display: 'flex', alignItems: 'center', gap: 6, ...(isMobile ? { position: 'sticky', left: 0, background: '#fff', zIndex: 1, paddingRight: 4 } : {}) }}>
                         {member.displayName}
                         {member.email.trim().toLowerCase() === COMMISSIONER_EMAIL && (
                           <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#2d5e94', color: '#fff', borderRadius: 4, width: isMobile ? 16 : 20, height: isMobile ? 16 : 20, fontSize: isMobile ? 10 : 12, fontWeight: 900, flexShrink: 0 }}>C</span>
                         )}
                       </div>
                       <div style={{ fontSize: isMobile ? 11 : 15, color: '#31424f', textAlign: isMobile ? 'left' : 'center' }}>{member.email}</div>
-                      <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: '#0f1720', textAlign: 'center', display: isMobile ? 'none' : 'block' }}>
+                      <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>
                         {TOURNAMENTS.filter((event) => (member.rosters[event.id] ?? []).length > 0).length}
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', ...(isMobile ? { position: 'sticky', right: 0, background: '#fff', zIndex: 1 } : {}) }}>
                         <button
                           onClick={() => openCommissionerMemberModal(member.id)}
                           style={{
