@@ -25,8 +25,8 @@ export default function Icon() {
         <img
           src={dataUrl}
           style={{
-            width: '128%',
-            height: '128%',
+            width: '136%',
+            height: '136%',
             objectFit: 'contain',
           }}
         />
