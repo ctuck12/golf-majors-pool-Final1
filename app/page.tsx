@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
 import {
   AlertCircle,
   ArrowLeft,
@@ -125,39 +126,7 @@ const TOURNAMENT_CARD_HEIGHT = 54;
 const pgaPhoto = (pgaId: number) =>
   `https://pga-tour-res.cloudinary.com/image/upload/c_fill,d_headshots_default.png,f_auto,g_face:center,h_350,q_auto,w_280/headshots_${pgaId}.png`;
 
-const PLAYER_PHOTO_URLS: Record<number, string> = {
-  1:  pgaPhoto(46046), // Scottie Scheffler
-  2:  pgaPhoto(28237), // Rory McIlroy
-  3:  pgaPhoto(48081), // Xander Schauffele
-  4:  pgaPhoto(50525), // Collin Morikawa
-  5:  pgaPhoto(61692), // Ludvig Aberg
-  6:  pgaPhoto(30978), // Tommy Fleetwood
-  7:  pgaPhoto(35891), // Patrick Cantlay
-  8:  pgaPhoto(34046), // Hideki Matsuyama
-  9:  pgaPhoto(35450), // Brooks Koepka
-  10: pgaPhoto(34360), // Jordan Spieth
-  11: pgaPhoto(57806), // Will Zalatoris
-  12: pgaPhoto(59740), // Min Woo Lee
-  13: pgaPhoto(60327), // Sahith Theegala
-  14: pgaPhoto(62959), // Akshay Bhatia
-};
-
-const PLAYER_POOL = [
-  { id: 1, name: 'Scottie Scheffler', defaultOdds: '+450', worldRank: 1 },
-  { id: 2, name: 'Rory McIlroy', defaultOdds: '+900', worldRank: 2 },
-  { id: 3, name: 'Xander Schauffele', defaultOdds: '+1200', worldRank: 3 },
-  { id: 4, name: 'Collin Morikawa', defaultOdds: '+1600', worldRank: 4 },
-  { id: 5, name: 'Ludvig Aberg', defaultOdds: '+1800', worldRank: 5 },
-  { id: 6, name: 'Tommy Fleetwood', defaultOdds: '+3500', worldRank: 12 },
-  { id: 7, name: 'Patrick Cantlay', defaultOdds: '+3000', worldRank: 10 },
-  { id: 8, name: 'Hideki Matsuyama', defaultOdds: '+4000', worldRank: 13 },
-  { id: 9, name: 'Brooks Koepka', defaultOdds: '+4500', worldRank: 18 },
-  { id: 10, name: 'Jordan Spieth', defaultOdds: '+5000', worldRank: 22 },
-  { id: 11, name: 'Will Zalatoris', defaultOdds: '+5500', worldRank: 28 },
-  { id: 12, name: 'Min Woo Lee', defaultOdds: '+7000', worldRank: 34 },
-  { id: 13, name: 'Sahith Theegala', defaultOdds: '+8000', worldRank: 30 },
-  { id: 14, name: 'Akshay Bhatia', defaultOdds: '+9000', worldRank: 37 },
-] as const;
+const PLAYER_POOL = PLAYER_POOL_WITH_PGA_IDS;
 
 const DEFAULT_ROSTERS: Record<string, number[]> = {
   players: [1, 2, 8, 10, 12, 14],
@@ -284,6 +253,7 @@ function buildPricedPlayers(
     name: string;
     defaultOdds: string;
     worldRank: number;
+    pgaTourId: number;
   }>,
   liveOddsMap: Record<string, string>,
 ) {
@@ -306,6 +276,7 @@ function buildPricedPlayers(
       worldRank: player.worldRank,
       odds: player.odds,
       salary,
+      pgaTourId: player.pgaTourId,
     };
   });
 }
@@ -1865,13 +1836,11 @@ export default function Page() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {PLAYER_PHOTO_URLS[player.id] ? (
-              <img
-                src={PLAYER_PHOTO_URLS[player.id]}
-                alt={player.name}
-                style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
-              />
-            ) : null}
+            <img
+              src={pgaPhoto(player.pgaTourId)}
+              alt={player.name}
+              style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+            />
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
                 GOLFER {index + 1}
@@ -4995,13 +4964,11 @@ export default function Page() {
                             {golfer ? (
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                  {PLAYER_PHOTO_URLS[golfer.id] ? (
-                                    <img
-                                      src={PLAYER_PHOTO_URLS[golfer.id]}
-                                      alt={golfer.name}
-                                      style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
-                                    />
-                                  ) : null}
+                                  <img
+                                    src={pgaPhoto(golfer.pgaTourId)}
+                                    alt={golfer.name}
+                                    style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                  />
                                   <div>
                                     <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Golfer {index + 1}</div>
                                     <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>

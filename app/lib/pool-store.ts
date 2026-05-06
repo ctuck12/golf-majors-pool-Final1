@@ -105,7 +105,7 @@ function sanitizeRoster(roster: unknown) {
   for (const value of roster) {
     const numeric = Number(value);
 
-    if (!Number.isInteger(numeric) || numeric < 1 || numeric > 14 || seen.has(numeric)) {
+    if (!Number.isInteger(numeric) || numeric < 1 || numeric > 89 || seen.has(numeric)) {
       continue;
     }
 
