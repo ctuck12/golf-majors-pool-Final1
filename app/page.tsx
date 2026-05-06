@@ -716,6 +716,7 @@ export default function Page() {
   const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email' | 'confirmDelete'>('menu');
   const [commissionerRosterMemberId, setCommissionerRosterMemberId] = useState<string | null>(null);
   const [commissionerRosterSelection, setCommissionerRosterSelection] = useState<number[]>([]);
+  const [commissionerTieBreakInput, setCommissionerTieBreakInput] = useState('');
   const [payoutForm, setPayoutForm] = useState({
     first: '',
     second: '',
@@ -1312,6 +1313,8 @@ export default function Page() {
     setSelectedCommissionerMemberId(memberId);
     setCommissionerRosterMemberId(memberId);
     setCommissionerRosterSelection(member.rosters[entriesTournamentId] ?? []);
+    const existingTieBreak = member.tieBreaks?.[entriesTournamentId];
+    setCommissionerTieBreakInput(existingTieBreak != null ? String(existingTieBreak) : '');
     setCommissionerMemberModalOpen(false);
     setCommissionerConsoleView('member-picks');
     setCommissionerError('');
@@ -1437,6 +1440,8 @@ export default function Page() {
             rosters: {
               [entriesTournamentId]: commissionerRosterSelection,
             },
+            tieBreak: parseInt(commissionerTieBreakInput, 10),
+            tieBreakTournamentId: entriesTournamentId,
           }),
         },
       );
@@ -1578,7 +1583,8 @@ export default function Page() {
   const canSaveCommissionerRoster =
     !!commissionerRosterMember &&
     commissionerRosterSelection.length === REQUIRED_GOLFERS &&
-    commissionerSalaryUsed <= SALARY_CAP;
+    commissionerSalaryUsed <= SALARY_CAP &&
+    /^\d{3}$/.test(commissionerTieBreakInput);
   const defaultLocked = isLineupLocked(tournament.lockAt, nowTick);
   const locked = pool?.lineupLocks?.[selectedTournament] ?? defaultLocked;
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
@@ -4991,6 +4997,18 @@ export default function Page() {
                       );
                     })}
 
+                    <input
+                      value={commissionerTieBreakInput}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                        setCommissionerTieBreakInput(val);
+                      }}
+                      placeholder="Enter tiebreak value*"
+                      inputMode="numeric"
+                      maxLength={3}
+                      style={{ ...fieldStyle(), marginTop: 4 }}
+                    />
+
                     <button
                       onClick={handleSaveCommissionerRoster}
                       disabled={!canSaveCommissionerRoster || commissionerBusy}
@@ -5008,6 +5026,10 @@ export default function Page() {
                     >
                       Submit Roster
                     </button>
+
+                    <div style={{ fontSize: 13, color: '#607282', marginTop: 4 }}>
+                      * - The tiebreak value is your predicted total score for the winning golfer of this tournament. Use their total strokes, NOT score to par. Example: Enter 274 (NOT -14)
+                    </div>
                   </div>
                 </div>
               </div>
