@@ -708,6 +708,7 @@ export default function Page() {
   const [commissionerSuccess, setCommissionerSuccess] = useState('');
   const [commissionerConsoleView, setCommissionerConsoleView] = useState<'dashboard' | 'members' | 'member-picks'>('dashboard');
   const [commissionerMemberSearch, setCommissionerMemberSearch] = useState('');
+  const [commissionerMemberSort, setCommissionerMemberSort] = useState<{ column: 'displayName' | 'email'; direction: 'asc' | 'desc' }>({ column: 'displayName', direction: 'asc' });
   const [entriesPlayerSearch, setEntriesPlayerSearch] = useState('');
   const [tieBreakInput, setTieBreakInput] = useState('');
   const [commissionerPlayerSearch, setCommissionerPlayerSearch] = useState('');
@@ -1492,18 +1493,18 @@ export default function Page() {
   );
   const selectedCommissionerMember =
     commissionerMembers.find((member) => member.id === selectedCommissionerMemberId) ?? null;
-  const filteredCommissionerMembers = commissionerMembers.filter((member) => {
-    const query = commissionerMemberSearch.trim().toLowerCase();
-
-    if (!query) {
-      return true;
-    }
-
-    return (
-      member.displayName.toLowerCase().includes(query) ||
-      member.email.toLowerCase().includes(query)
-    );
-  });
+  const filteredCommissionerMembers = commissionerMembers
+    .filter((member) => {
+      const query = commissionerMemberSearch.trim().toLowerCase();
+      if (!query) return true;
+      return member.displayName.toLowerCase().includes(query) || member.email.toLowerCase().includes(query);
+    })
+    .sort((a, b) => {
+      const valA = a[commissionerMemberSort.column].toLowerCase();
+      const valB = b[commissionerMemberSort.column].toLowerCase();
+      const cmp = valA.localeCompare(valB);
+      return commissionerMemberSort.direction === 'asc' ? cmp : -cmp;
+    });
   const commissionerRosterMember =
     commissionerMembers.find((member) => member.id === commissionerRosterMemberId) ?? null;
   const filteredEntriesPlayers = players.filter((player) => {
@@ -4650,8 +4651,22 @@ export default function Page() {
                     textTransform: 'uppercase',
                   }}
                 >
-                  <div>Display Name</div>
-                  <div style={{ textAlign: 'center' }}>Email</div>
+                  {(['displayName', 'email'] as const).map((col) => (
+                    <button
+                      key={col}
+                      onClick={() => setCommissionerMemberSort((prev) => ({
+                        column: col,
+                        direction: prev.column === col && prev.direction === 'asc' ? 'desc' : 'asc',
+                      }))}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4, color: '#5b6b79', fontSize: isMobile ? 10 : 13, fontWeight: 800, textTransform: 'uppercase', textAlign: 'left' }}
+                    >
+                      {col === 'displayName' ? 'Display Name' : 'Email'}
+                      <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1, gap: 1 }}>
+                        <span style={{ fontSize: isMobile ? 8 : 10, opacity: commissionerMemberSort.column === col && commissionerMemberSort.direction === 'asc' ? 1 : 0.3 }}>▲</span>
+                        <span style={{ fontSize: isMobile ? 8 : 10, opacity: commissionerMemberSort.column === col && commissionerMemberSort.direction === 'desc' ? 1 : 0.3 }}>▼</span>
+                      </span>
+                    </button>
+                  ))}
                   <div style={{ textAlign: 'center', display: isMobile ? 'none' : 'block' }}># of Tourn. Submitted Picks</div>
                   <div style={{ textAlign: 'center' }}>Edit</div>
                 </div>
@@ -4674,7 +4689,7 @@ export default function Page() {
                       }}
                     >
                       <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 800, color: '#0f1720' }}>{member.displayName}</div>
-                      <div style={{ fontSize: isMobile ? 11 : 15, color: '#31424f', textAlign: 'center' }}>{member.email}</div>
+                      <div style={{ fontSize: isMobile ? 11 : 15, color: '#31424f', textAlign: isMobile ? 'left' : 'center' }}>{member.email}</div>
                       <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: '#0f1720', textAlign: 'center', display: isMobile ? 'none' : 'block' }}>
                         {TOURNAMENTS.filter((event) => (member.rosters[event.id] ?? []).length > 0).length}
                       </div>
