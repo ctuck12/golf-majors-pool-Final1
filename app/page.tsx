@@ -4540,7 +4540,7 @@ export default function Page() {
                 gap: 18,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                 <button
                   onClick={() => {
                     setCommissionerConsoleView('members');
@@ -4556,17 +4556,18 @@ export default function Page() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
+                    flexShrink: 0,
                   }}
                 >
                   <ArrowLeft size={20} />
                 </button>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.05em' }}>
                     Member pick sheet
                   </div>
-                  <h2 style={{ margin: '6px 0 0', fontSize: 34, color: '#0f1720' }}>
-                    Pick Sheet for {commissionerRosterMember?.displayName ?? 'Member'}
-                  </h2>
+                  <div style={{ margin: '2px 0 0', fontSize: 20, fontWeight: 900, color: '#0f1720' }}>
+                    {commissionerRosterMember?.displayName ?? 'Member'}
+                  </div>
                 </div>
               </div>
 
@@ -4648,31 +4649,44 @@ export default function Page() {
                           (commissionerRosterSelection.length >= REQUIRED_GOLFERS || player.salary > commissionerSalaryRemaining);
 
                         return (
-                          <button
+                          <div
                             key={`commissioner-player-${player.id}`}
-                            onClick={() => toggleCommissionerRosterPlayer(player.id)}
-                            disabled={isDisabled}
                             style={{
                               border: isSelected ? '2px solid #3f73ad' : '1px solid #d7e0e8',
                               borderRadius: 18,
                               background: isSelected ? '#eef4ff' : '#fff',
-                              padding: 16,
-                              cursor: isDisabled ? 'not-allowed' : 'pointer',
-                              textAlign: 'left',
+                              padding: '10px 14px',
                               opacity: isDisabled ? 0.45 : 1,
                             }}
                           >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
-                              <div style={{ fontSize: 28, fontWeight: 900, color: '#0f1720', minWidth: 24 }}>{isSelected ? '−' : '+'}</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+                              <button
+                                onClick={() => toggleCommissionerRosterPlayer(player.id)}
+                                disabled={isDisabled}
+                                style={{
+                                  fontSize: 22,
+                                  fontWeight: 900,
+                                  color: '#0f1720',
+                                  minWidth: 22,
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                  padding: 0,
+                                  lineHeight: 1,
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {isSelected ? '−' : '+'}
+                              </button>
                               <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
-                                <div style={{ marginTop: 4, fontSize: 14, color: '#607282' }}>
+                                <div style={{ fontSize: 13, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
+                                <div style={{ marginTop: 3, fontSize: 11, color: '#607282' }}>
                                   OWGR {player.worldRank} | {player.odds}
                                 </div>
                               </div>
-                              <div style={{ fontSize: 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
+                              <div style={{ fontSize: 14, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
                             </div>
-                          </button>
+                          </div>
                         );
                       })}
                     </div>
