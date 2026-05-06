@@ -713,7 +713,7 @@ export default function Page() {
   const [tieBreakInput, setTieBreakInput] = useState('');
   const [commissionerPlayerSearch, setCommissionerPlayerSearch] = useState('');
   const [commissionerMemberModalOpen, setCommissionerMemberModalOpen] = useState(false);
-  const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email'>('menu');
+  const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email' | 'confirmDelete'>('menu');
   const [commissionerRosterMemberId, setCommissionerRosterMemberId] = useState<string | null>(null);
   const [commissionerRosterSelection, setCommissionerRosterSelection] = useState<number[]>([]);
   const [payoutForm, setPayoutForm] = useState({
@@ -3918,7 +3918,13 @@ export default function Page() {
                         </label>
                       </div>
 
-                      <div style={{ display: 'grid', gap: 10 }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                          <div style={{ width: 36, textAlign: 'center', flexShrink: 0, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#8a97a3', letterSpacing: '0.04em', lineHeight: 1.2 }}>
+                            World<br />Rank
+                          </div>
+                        </div>
+                        <div style={{ display: 'grid', gap: 10 }}>
                         {filteredEntriesPlayers.map((player) => {
                           const selected = selectedRoster.includes(player.id);
                           const disabled =
@@ -3926,43 +3932,51 @@ export default function Page() {
                             (entriesLocked || selectedRoster.length >= REQUIRED_GOLFERS || player.salary > salaryRemaining);
 
                           return (
-                            <button
+                            <div
                               key={player.id}
-                              onClick={() => togglePlayer(player.id)}
-                              style={{
-                                textAlign: 'left',
-                                borderRadius: 16,
-                                border: selected
-                                  ? '2px solid #3f73ad'
-                                  : disabled
-                                    ? '1px solid #d7dee6'
-                                    : '1px solid #e6edf1',
-                                background: selected ? '#eef4ff' : disabled ? '#f3f5f7' : '#fff',
-                                padding: 14,
-                                cursor: disabled ? 'not-allowed' : 'pointer',
-                                opacity: disabled ? 0.58 : 1,
-                              }}
-                              disabled={disabled}
+                              style={{ display: 'flex', gap: 10, alignItems: 'center', opacity: disabled ? 0.58 : 1 }}
                             >
-                              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                                <div>
-                                  <div style={{ fontWeight: 800, color: disabled ? '#748391' : '#0f1720' }}>
-                                    {player.name}
-                                  </div>
-                                  <div style={{ marginTop: 4, color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 13 }}>
-                                    OWGR {player.worldRank} | {player.odds}
-                                  </div>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                  <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
-                                  <div style={{ color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 12 }}>
-                                    ${player.salary.toLocaleString()}
-                                  </div>
-                                </div>
+                              <div style={{ width: 36, textAlign: 'center', flexShrink: 0, fontSize: 16, fontWeight: 900, color: '#0f1720' }}>
+                                {player.worldRank}
                               </div>
-                            </button>
+                              <button
+                                onClick={() => togglePlayer(player.id)}
+                                style={{
+                                  flex: 1,
+                                  textAlign: 'left',
+                                  borderRadius: 16,
+                                  border: selected
+                                    ? '2px solid #3f73ad'
+                                    : disabled
+                                      ? '1px solid #d7dee6'
+                                      : '1px solid #e6edf1',
+                                  background: selected ? '#eef4ff' : disabled ? '#f3f5f7' : '#fff',
+                                  padding: 14,
+                                  cursor: disabled ? 'not-allowed' : 'pointer',
+                                }}
+                                disabled={disabled}
+                              >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                                  <div>
+                                    <div style={{ fontWeight: 800, color: disabled ? '#748391' : '#0f1720' }}>
+                                      {player.name}
+                                    </div>
+                                    <div style={{ marginTop: 4, color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 13 }}>
+                                      {player.odds}
+                                    </div>
+                                  </div>
+                                  <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
+                                    <div style={{ color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 12 }}>
+                                      ${player.salary.toLocaleString()}
+                                    </div>
+                                  </div>
+                                </div>
+                              </button>
+                            </div>
                           );
                         })}
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -5080,7 +5094,7 @@ export default function Page() {
                     Manage or Submit Picks
                   </button>
                   <button
-                    onClick={handleDeleteCommissionerMember}
+                    onClick={() => setCommissionerMemberModalView('confirmDelete')}
                     disabled={commissionerBusy}
                     style={{
                       border: '1px solid #fecaca',
@@ -5125,6 +5139,35 @@ export default function Page() {
                       }}
                     >
                       Save Display Name
+                    </button>
+                  </div>
+                </div>
+              ) : commissionerMemberModalView === 'confirmDelete' ? (
+                <div style={{ display: 'grid', gap: 16 }}>
+                  <div style={{ fontSize: 15, color: '#0f1720' }}>
+                    Are you sure you want to delete <strong>{selectedCommissionerMember?.displayName}</strong>? This cannot be undone.
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => setCommissionerMemberModalView('menu')}
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDeleteCommissionerMember}
+                      disabled={commissionerBusy}
+                      style={{
+                        border: 'none',
+                        borderRadius: 14,
+                        padding: '12px 16px',
+                        background: '#a61b1b',
+                        color: '#fff',
+                        fontWeight: 900,
+                        cursor: commissionerBusy ? 'wait' : 'pointer',
+                      }}
+                    >
+                      Confirm Delete
                     </button>
                   </div>
                 </div>
