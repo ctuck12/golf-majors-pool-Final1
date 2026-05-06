@@ -4495,10 +4495,7 @@ export default function Page() {
                     <ArrowLeft size={isMobile ? 14 : 20} />
                   </button>
                   <div>
-                    <div style={{ fontSize: isMobile ? 10 : 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                      Commissioner console
-                    </div>
-                    <h2 style={{ margin: isMobile ? '2px 0 0' : '6px 0 0', fontSize: isMobile ? 18 : 34, color: '#0f1720' }}>Member Management</h2>
+                    <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 34, color: '#0f1720' }}>Member Management</h2>
                   </div>
                 </div>
                 <button
@@ -4696,7 +4693,12 @@ export default function Page() {
                         alignItems: 'center',
                       }}
                     >
-                      <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 800, color: '#0f1720' }}>{member.displayName}</div>
+                      <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 800, color: '#0f1720', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {member.displayName}
+                        {member.email.trim().toLowerCase() === COMMISSIONER_EMAIL && (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#2d5e94', color: '#fff', borderRadius: 4, width: isMobile ? 16 : 20, height: isMobile ? 16 : 20, fontSize: isMobile ? 10 : 12, fontWeight: 900, flexShrink: 0 }}>C</span>
+                        )}
+                      </div>
                       <div style={{ fontSize: isMobile ? 11 : 15, color: '#31424f', textAlign: isMobile ? 'left' : 'center' }}>{member.email}</div>
                       <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: '#0f1720', textAlign: 'center', display: isMobile ? 'none' : 'block' }}>
                         {TOURNAMENTS.filter((event) => (member.rosters[event.id] ?? []).length > 0).length}
