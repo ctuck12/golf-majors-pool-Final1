@@ -122,6 +122,26 @@ const TOURNAMENT_CARD_LOGO_SIZES: Partial<Record<TournamentId, { width: number; 
 const TOURNAMENT_CARD_WIDTH = 148;
 const TOURNAMENT_CARD_HEIGHT = 54;
 
+const pgaPhoto = (pgaId: number) =>
+  `https://pga-tour-res.cloudinary.com/image/upload/c_fill,d_headshots_default.png,f_auto,g_face:center,h_350,q_auto,w_280/headshots_${pgaId}.png`;
+
+const PLAYER_PHOTO_URLS: Record<number, string> = {
+  1:  pgaPhoto(46046), // Scottie Scheffler
+  2:  pgaPhoto(28237), // Rory McIlroy
+  3:  pgaPhoto(48081), // Xander Schauffele
+  4:  pgaPhoto(50525), // Collin Morikawa
+  5:  pgaPhoto(61692), // Ludvig Aberg
+  6:  pgaPhoto(30978), // Tommy Fleetwood
+  7:  pgaPhoto(35891), // Patrick Cantlay
+  8:  pgaPhoto(34046), // Hideki Matsuyama
+  9:  pgaPhoto(35450), // Brooks Koepka
+  10: pgaPhoto(34360), // Jordan Spieth
+  11: pgaPhoto(57806), // Will Zalatoris
+  12: pgaPhoto(59740), // Min Woo Lee
+  13: pgaPhoto(60327), // Sahith Theegala
+  14: pgaPhoto(62959), // Akshay Bhatia
+};
+
 const PLAYER_POOL = [
   { id: 1, name: 'Scottie Scheffler', defaultOdds: '+450', worldRank: 1 },
   { id: 2, name: 'Rory McIlroy', defaultOdds: '+900', worldRank: 2 },
@@ -1844,13 +1864,22 @@ export default function Page() {
             background,
           }}
         >
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
-              Roster {index + 1}
-            </div>
-            <div style={{ fontWeight: 700 }}>{player.name}</div>
-            <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-              OWGR {player.worldRank} | ${player.salary.toLocaleString()}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {PLAYER_PHOTO_URLS[player.id] ? (
+              <img
+                src={PLAYER_PHOTO_URLS[player.id]}
+                alt={player.name}
+                style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+              />
+            ) : null}
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
+                GOLFER {index + 1}
+              </div>
+              <div style={{ fontWeight: 700 }}>{player.name}</div>
+              <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
+                OWGR {player.worldRank} | ${player.salary.toLocaleString()}
+              </div>
             </div>
           </div>
           <div style={{ display: 'grid', justifyItems: 'end', gap: 8 }}>
@@ -4965,10 +4994,19 @@ export default function Page() {
                           <div style={{ padding: '14px 18px', display: 'grid', alignContent: 'center', gap: 4 }}>
                             {golfer ? (
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                                <div>
-                                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Golfer {index + 1}</div>
-                                  <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                                  <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | ${golfer.salary.toLocaleString()}</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                  {PLAYER_PHOTO_URLS[golfer.id] ? (
+                                    <img
+                                      src={PLAYER_PHOTO_URLS[golfer.id]}
+                                      alt={golfer.name}
+                                      style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                    />
+                                  ) : null}
+                                  <div>
+                                    <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Golfer {index + 1}</div>
+                                    <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                    <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | ${golfer.salary.toLocaleString()}</div>
+                                  </div>
                                 </div>
                                 <button
                                   type="button"
