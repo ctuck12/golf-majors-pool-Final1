@@ -15,9 +15,9 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/golf-icon.png', type: 'image/png' },
+      { url: '/golf-circle-icon.png', type: 'image/png' },
     ],
-    shortcut: '/golf-icon.png',
+    shortcut: '/golf-circle-icon.png',
     apple: '/apple-touch-icon.png',
   },
 };
