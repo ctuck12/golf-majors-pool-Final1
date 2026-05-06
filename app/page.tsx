@@ -2276,7 +2276,7 @@ export default function Page() {
                   placeholder="Email"
                   style={fieldStyle()}
                 />
-                <div style={{ position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', borderRadius: 14, border: '1px solid #d7e0e8', background: '#fff' }}>
                   <input
                     type={showAuthPassword ? 'text' : 'password'}
                     value={authMode === 'login' ? loginForm.password : registerForm.password}
@@ -2286,12 +2286,12 @@ export default function Page() {
                         : setRegisterForm({ ...registerForm, password: event.target.value })
                     }
                     placeholder="Password"
-                    style={{ ...fieldStyle(), paddingRight: 40 }}
+                    style={{ flex: 1, border: 'none', outline: 'none', padding: '12px 14px', fontSize: 15, background: 'transparent', minWidth: 0 }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowAuthPassword((v) => !v)}
-                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#6b7b88', display: 'flex', alignItems: 'center' }}
+                    style={{ padding: '0 12px', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7b88', display: 'flex', alignItems: 'center', flexShrink: 0 }}
                   >
                     {showAuthPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
