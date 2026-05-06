@@ -6,6 +6,8 @@ import {
   ArrowLeft,
   CircleUserRound,
   CheckCircle2,
+  Eye,
+  EyeOff,
   History,
   Lock,
   LogIn,
@@ -715,6 +717,9 @@ export default function Page() {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [accountPreferencesView, setAccountPreferencesView] = useState<'root' | 'preferences' | 'password' | 'displayName'>('root');
   const [accountPassword, setAccountPassword] = useState('');
+  const [showAccountPassword, setShowAccountPassword] = useState(false);
+  const [showAuthPassword, setShowAuthPassword] = useState(false);
+  const [showMemberPassword, setShowMemberPassword] = useState(false);
   const [accountDisplayName, setAccountDisplayName] = useState('');
   const [accountBusy, setAccountBusy] = useState(false);
   const [accountMessage, setAccountMessage] = useState('');
@@ -2040,13 +2045,22 @@ export default function Page() {
                   <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>{sessionUser.email}</div>
 
                   {accountPreferencesView === 'password' ? (
-                    <input
-                      type="password"
-                      value={accountPassword}
-                      onChange={(event) => setAccountPassword(event.target.value)}
-                      placeholder="New password"
-                      style={{ ...fieldStyle(), marginTop: 14 }}
-                    />
+                    <div style={{ position: 'relative', marginTop: 14 }}>
+                      <input
+                        type={showAccountPassword ? 'text' : 'password'}
+                        value={accountPassword}
+                        onChange={(event) => setAccountPassword(event.target.value)}
+                        placeholder="New password"
+                        style={{ ...fieldStyle(), marginTop: 0, paddingRight: 40 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAccountPassword((v) => !v)}
+                        style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#6b7b88', display: 'flex', alignItems: 'center' }}
+                      >
+                        {showAccountPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   ) : null}
 
                   {accountPreferencesView === 'displayName' ? (
@@ -2262,17 +2276,26 @@ export default function Page() {
                   placeholder="Email"
                   style={fieldStyle()}
                 />
-                <input
-                  type="password"
-                  value={authMode === 'login' ? loginForm.password : registerForm.password}
-                  onChange={(event) =>
-                    authMode === 'login'
-                      ? setLoginForm({ ...loginForm, password: event.target.value })
-                      : setRegisterForm({ ...registerForm, password: event.target.value })
-                  }
-                  placeholder="Password"
-                  style={fieldStyle()}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showAuthPassword ? 'text' : 'password'}
+                    value={authMode === 'login' ? loginForm.password : registerForm.password}
+                    onChange={(event) =>
+                      authMode === 'login'
+                        ? setLoginForm({ ...loginForm, password: event.target.value })
+                        : setRegisterForm({ ...registerForm, password: event.target.value })
+                    }
+                    placeholder="Password"
+                    style={{ ...fieldStyle(), paddingRight: 40 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAuthPassword((v) => !v)}
+                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#6b7b88', display: 'flex', alignItems: 'center' }}
+                  >
+                    {showAuthPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
                 <button
                   type="submit"
                   style={{
@@ -4372,13 +4395,22 @@ export default function Page() {
                       placeholder="Email"
                       style={fieldStyle()}
                     />
-                    <input
-                      type="password"
-                      value={memberCreateForm.password}
-                      onChange={(event) => setMemberCreateForm({ ...memberCreateForm, password: event.target.value })}
-                      placeholder="Password"
-                      style={fieldStyle()}
-                    />
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showMemberPassword ? 'text' : 'password'}
+                        value={memberCreateForm.password}
+                        onChange={(event) => setMemberCreateForm({ ...memberCreateForm, password: event.target.value })}
+                        placeholder="Password"
+                        style={{ ...fieldStyle(), paddingRight: 40 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowMemberPassword((v) => !v)}
+                        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#6b7b88', display: 'flex', alignItems: 'center' }}
+                      >
+                        {showMemberPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <button
