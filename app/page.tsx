@@ -4560,14 +4560,9 @@ export default function Page() {
                 >
                   <ArrowLeft size={20} />
                 </button>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Member pick sheet
-                  </div>
-                  <h2 style={{ margin: '6px 0 0', fontSize: 34, color: '#0f1720' }}>
-                    Pick Sheet for {commissionerRosterMember?.displayName ?? 'Member'}
-                  </h2>
-                </div>
+                <h2 style={{ margin: 0, fontSize: 34, color: '#0f1720' }}>
+                  Pick Sheet for {commissionerRosterMember?.displayName ?? 'Member'}
+                </h2>
               </div>
 
               <div
@@ -4648,22 +4643,35 @@ export default function Page() {
                           (commissionerRosterSelection.length >= REQUIRED_GOLFERS || player.salary > commissionerSalaryRemaining);
 
                         return (
-                          <button
+                          <div
                             key={`commissioner-player-${player.id}`}
-                            onClick={() => toggleCommissionerRosterPlayer(player.id)}
-                            disabled={isDisabled}
                             style={{
                               border: isSelected ? '2px solid #3f73ad' : '1px solid #d7e0e8',
                               borderRadius: 18,
                               background: isSelected ? '#eef4ff' : '#fff',
                               padding: 16,
-                              cursor: isDisabled ? 'not-allowed' : 'pointer',
-                              textAlign: 'left',
                               opacity: isDisabled ? 0.45 : 1,
                             }}
                           >
                             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
-                              <div style={{ fontSize: 28, fontWeight: 900, color: '#0f1720', minWidth: 24 }}>{isSelected ? '−' : '+'}</div>
+                              <button
+                                onClick={() => toggleCommissionerRosterPlayer(player.id)}
+                                disabled={isDisabled}
+                                style={{
+                                  fontSize: 28,
+                                  fontWeight: 900,
+                                  color: '#0f1720',
+                                  minWidth: 24,
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                  padding: 0,
+                                  lineHeight: 1,
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {isSelected ? '−' : '+'}
+                              </button>
                               <div style={{ flex: 1 }}>
                                 <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
                                 <div style={{ marginTop: 4, fontSize: 14, color: '#607282' }}>
@@ -4672,7 +4680,7 @@ export default function Page() {
                               </div>
                               <div style={{ fontSize: 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
                             </div>
-                          </button>
+                          </div>
                         );
                       })}
                     </div>
