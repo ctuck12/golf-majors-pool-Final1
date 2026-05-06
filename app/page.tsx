@@ -4851,6 +4851,10 @@ export default function Page() {
                             }}
                           >
                             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+                              <div style={{ textAlign: 'center', minWidth: 52, flexShrink: 0 }}>
+                                <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#8a97a3', letterSpacing: '0.04em' }}>World Rank</div>
+                                <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{player.worldRank}</div>
+                              </div>
                               <button
                                 onClick={() => toggleCommissionerRosterPlayer(player.id)}
                                 disabled={isDisabled}
@@ -4872,7 +4876,7 @@ export default function Page() {
                               <div style={{ flex: 1 }}>
                                 <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
                                 <div style={{ marginTop: 4, fontSize: 14, color: '#607282' }}>
-                                  OWGR {player.worldRank} | {player.odds}
+                                  {player.odds}
                                 </div>
                               </div>
                               <div style={{ fontSize: 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
@@ -4915,7 +4919,7 @@ export default function Page() {
                             {golfer ? (
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
                                 <div>
-                                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Roster {index + 1}</div>
+                                  <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Golfer {index + 1}</div>
                                   <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                                   <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | ${golfer.salary.toLocaleString()}</div>
                                 </div>
@@ -4939,7 +4943,7 @@ export default function Page() {
                                 </button>
                               </div>
                             ) : (
-                              <div style={{ fontSize: 18, color: '#50616f' }}>Golfer #{index + 1}</div>
+                              <div style={{ fontSize: 18, color: '#50616f' }}>GOLFER {index + 1}</div>
                             )}
                           </div>
                         </div>
