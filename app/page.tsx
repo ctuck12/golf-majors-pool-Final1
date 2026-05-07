@@ -5289,7 +5289,9 @@ export default function Page() {
                     {activeStandingEntry.name} - {tournament.name}
                   </h3>
                   <div style={{ marginTop: 2, color: '#6b7b88', fontSize: 12 }}>
-                    *Click players name for scoring breakdown
+                    {isMobile
+                      ? 'Tap player for details; Tap "Cur. Rnd." for scorecard'
+                      : '*Click player for scoring details; Click "Current Round" for scorecard'}
                   </div>
                 </div>
                 <button
