@@ -644,6 +644,16 @@ function formatPointValue(value: number) {
   return value % 1 === 0 ? String(value) : value.toFixed(1);
 }
 
+// Tied positions keep the T prefix with no ordinal (T7, T21).
+// Solo positions get an ordinal suffix (1st, 2nd, 3rd).
+function formatPosition(position: string): string {
+  if (!position || position === '--') return position;
+  if (position.startsWith('T')) return position; // tied — no suffix
+  const num = Number(position);
+  if (Number.isNaN(num)) return position; // CUT, WD, DQ, etc.
+  return ordinal(position);
+}
+
 function ordinal(position: string): string {
   const tie = position.startsWith('T');
   const num = Number(position.replace('T', ''));
@@ -5358,7 +5368,7 @@ export default function Page() {
                           <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                             <span>Holes Rem: {golfer.holesRemaining}</span>
                             <span>Picked: {pickedCount}</span>
-                            <span>Pos: {golfer.position}</span>
+                            <span>Pos: {formatPosition(golfer.position)}</span>
                           </div>
                           {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
                             <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
