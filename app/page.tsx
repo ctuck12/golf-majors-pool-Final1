@@ -5288,9 +5288,9 @@ export default function Page() {
                   <h3 style={{ margin: '4px 0 0', fontSize: 20, color: '#0f1720' }}>
                     {activeStandingEntry.name} - {tournament.name}
                   </h3>
-                  <div style={{ marginTop: 2, color: '#6b7b88', fontSize: 12 }}>
+                  <div style={{ marginTop: 2, color: '#6b7b88', fontSize: isMobile ? 10.5 : 12 }}>
                     {isMobile
-                      ? 'Tap player for details; Tap "Cur. Rnd." for scorecard'
+                      ? '*Tap player for details; Tap "Current Rnd" for scorecard'
                       : '*Click player for scoring details; Click "Current Round" for scorecard'}
                   </div>
                 </div>
@@ -5348,13 +5348,12 @@ export default function Page() {
                           <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                             <span>Holes Rem: {golfer.holesRemaining}</span>
                             <span>Picked: {pickedCount}</span>
-                            <span>${golfer.salary.toLocaleString()}</span>
+                            <span>Pos: {golfer.position}</span>
                           </div>
                           {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
                             <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
                           ) : (
                             <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                              <span>Pos: {golfer.position}</span>
                               <span>Tourn. Score: {golfer.score}</span>
                               <button
                                 onClick={(e) => {
@@ -5368,7 +5367,7 @@ export default function Page() {
                                 }}
                                 style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'underline' }}
                               >
-                                Current Round: {formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}
+                                Current Rnd: {formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}
                               </button>
                             </div>
                           )}
