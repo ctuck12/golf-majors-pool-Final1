@@ -565,6 +565,13 @@ export async function GET(request: Request) {
       const thru = normalizeThru(row);
       const total = normalizeTotalStrokes(row);
 
+      // Most recent round's score to par (prefer current tournament round, else latest available)
+      const latestRound = (row.rounds ?? []).reduce<SlashGolfLeaderboardRow['rounds'][0] | null>(
+        (best, r) => best === null || parseMongo(r.roundId) > parseMongo(best.roundId) ? r : best,
+        null,
+      );
+      const currentRoundScore: string | null = latestRound?.scoreToPar ?? null;
+
       const storedScorecard = scorecardCache?.players[row.playerId];
       const rounds = storedScorecard?.rounds ?? [];
 
@@ -586,7 +593,7 @@ export async function GET(request: Request) {
             })
           : buildPlaceholderScoreBreakdown({ position, score, thru });
 
-      return { position, score, thru, total, canonicalName: poolPlayer.name, scoreBreakdown };
+      return { position, score, thru, total, currentRoundScore, canonicalName: poolPlayer.name, scoreBreakdown };
     })
     .filter(Boolean);
 

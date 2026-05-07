@@ -144,6 +144,7 @@ type FeedRow = {
   score: string;
   thru: string;
   total?: string;
+  currentRoundScore?: string | null;
   canonicalName?: string;
   scoreBreakdown?: GolferScoreBreakdown;
 };
@@ -197,6 +198,7 @@ type StandingGolfer = ReturnType<typeof buildPricedPlayers>[number] & {
   thru: string;
   score: string;
   total: string;
+  currentRoundScore: string | null;
   points: number;
   holesRemaining: number;
   scoreBreakdown: GolferScoreBreakdown;
@@ -1502,6 +1504,7 @@ export default function Page() {
           thru,
           score,
           total: live?.total ?? '--',
+          currentRoundScore: live?.currentRoundScore ?? null,
           points: scoreBreakdown.totalPoints,
           holesRemaining: scoreBreakdown.holesRemaining,
           scoreBreakdown,
@@ -5363,7 +5366,7 @@ export default function Page() {
                                 }}
                                 style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'underline' }}
                               >
-                                Current Round: {formatCurrentRoundScore(golfer.total, golfer.score)}
+                                Current Round: {formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}
                               </button>
                             </div>
                           )}
