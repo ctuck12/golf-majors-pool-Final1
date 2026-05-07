@@ -5750,6 +5750,38 @@ export default function Page() {
 
                 const fmt = (n: number) => n > 0 ? `+${n}` : n === 0 ? 'E' : `${n}`;
 
+                // Standard golf scorecard notation applied to each hole score
+                const badge = (score: number, par: number): React.CSSProperties => {
+                  const base: React.CSSProperties = {
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    width: 24, height: 24, boxSizing: 'border-box', fontSize: 13,
+                  };
+                  if (!score || !par) return base;
+                  const diff = score - par;
+                  const r = '#dc2626'; // red — under par
+                  const k = '#0f1720'; // dark — over par
+                  const g = '#fff';    // gap between rings
+                  // hole-in-one or eagle → 2 circles (checked before albatross so HIO on par-4 = 2 circles)
+                  if (score === 1 || diff === -2)
+                    return { ...base, borderRadius: '50%', border: `2px solid ${r}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${r}` };
+                  // albatross → 3 circles
+                  if (diff <= -3)
+                    return { ...base, borderRadius: '50%', border: `2px solid ${r}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${r},0 0 0 6px ${g},0 0 0 8px ${r}` };
+                  // birdie → 1 circle
+                  if (diff === -1)
+                    return { ...base, borderRadius: '50%', border: `2px solid ${r}` };
+                  // bogey → 1 square
+                  if (diff === 1)
+                    return { ...base, border: `2px solid ${k}` };
+                  // double bogey → 2 squares
+                  if (diff === 2)
+                    return { ...base, border: `2px solid ${k}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${k}` };
+                  // triple bogey or worse → 3 squares
+                  if (diff >= 3)
+                    return { ...base, border: `2px solid ${k}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${k},0 0 0 6px ${g},0 0 0 8px ${k}` };
+                  return base; // par — no decoration
+                };
+
                 return (
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: '#2f5f96', marginBottom: 10 }}>Round {rnd.round}</div>
@@ -5776,11 +5808,11 @@ export default function Page() {
                           </tr>
                           <tr>
                             <td style={{ ...labelCell, background: '#fff' }}>Score</td>
-                            {front.map(h => <td key={h.hole} style={baseCell}>{h.label}</td>)}
-                            <td style={subtotalCell}>{front.some(h => h.score !== null) ? fmt(frontScore) : '--'}</td>
-                            {back.map(h => <td key={h.hole} style={baseCell}>{h.label}</td>)}
-                            <td style={subtotalCell}>{back.some(h => h.score !== null) ? fmt(backScore) : '--'}</td>
-                            <td style={totalCell}>{rnd.holes.some(h => h.score !== null) ? fmt(totalScore) : '--'}</td>
+                            {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '8px 8px' }}><span style={badge(h.score ?? 0, h.par)}>{h.label}</span></td>)}
+                            <td style={subtotalCell}>{frontScore > 0 ? frontScore : '--'}</td>
+                            {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '8px 8px' }}><span style={badge(h.score ?? 0, h.par)}>{h.label}</span></td>)}
+                            <td style={subtotalCell}>{backScore > 0 ? backScore : '--'}</td>
+                            <td style={totalCell}>{totalScore > 0 ? totalScore : '--'}</td>
                           </tr>
                         </tbody>
                       </table>
