@@ -30,7 +30,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 23, name: 'Cameron Young',        pgaTourId: 57366, defaultOdds: '+4000',   worldRank:  24 },
   { id: 24, name: 'Wyndham Clark',        pgaTourId: 51766, defaultOdds: '+4000',   worldRank:  19 },
   { id: 25, name: 'Sam Burns',            pgaTourId: 47504, defaultOdds: '+4500',   worldRank:  22 },
-  { id: 26, name: 'Rich Beem',             pgaTourId: 10124, defaultOdds: '+100000', worldRank: 800 },
+  { id: 26, name: 'Rich Beem',             pgaTourId: 23614, defaultOdds: '+100000', worldRank: 800 },
   { id: 27, name: 'Jason Day',            pgaTourId: 28089, defaultOdds: '+5500',   worldRank:  35 },
   { id: 28, name: 'Cameron Smith',        pgaTourId: 35891, defaultOdds: '+5000',   worldRank:  25 },
   { id: 29, name: 'Russell Henley',       pgaTourId: 34098, defaultOdds: '+5000',   worldRank:  32 },
@@ -91,9 +91,9 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 84, name: 'Jimmy Walker',         pgaTourId: 25632, defaultOdds: '+50000',  worldRank: 300 },
   { id: 85, name: 'Martin Kaymer',        pgaTourId: 27408, defaultOdds: '+50000',  worldRank: 200 },
   { id: 86, name: 'Tiger Woods',          pgaTourId:  8793, defaultOdds: '+100000', worldRank: 600 },
-  { id: 87, name: 'Padraig Harrington',   pgaTourId:  1503, defaultOdds: '+75000',  worldRank: 400 },
-  { id: 88, name: 'John Daly',            pgaTourId:   356, defaultOdds: '+100000', worldRank: 700 },
-  { id: 89, name: 'Y.E. Yang',            pgaTourId: 21222, defaultOdds: '+100000', worldRank: 900 },
+  { id: 87, name: 'Padraig Harrington',   pgaTourId: 20766, defaultOdds: '+75000',  worldRank: 400 },
+  { id: 88, name: 'John Daly',            pgaTourId:  1249, defaultOdds: '+100000', worldRank: 700 },
+  { id: 89, name: 'Y.E. Yang',            pgaTourId: 24663, defaultOdds: '+100000', worldRank: 900 },
 ] as const;
 
 export type PlayerPoolEntry = (typeof PLAYER_POOL_WITH_PGA_IDS)[number];
