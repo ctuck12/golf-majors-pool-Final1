@@ -47,6 +47,7 @@ export async function GET(request: Request) {
       const roundsRaw = await fetchScorecard(meta.slashGolfTournId, meta.year, playerId);
       const rounds = roundsRaw.map((r) => ({
         round: parseMongo(r.roundId),
+        score: r.currentRoundScore ?? null,
         holes: Object.entries(r.holes ?? {})
           .sort(([a], [b]) => Number(a) - Number(b))
           .map(([, h]) => ({
@@ -77,15 +78,20 @@ export async function GET(request: Request) {
       return Response.json({
         courseName: meta.courseName,
         par: meta.par,
-        rounds: stored.rounds.map((r) => ({
-          round: r.roundId,
-          holes: r.holes.map((h) => ({
-            hole: h.holeNumber,
-            par: h.par,
-            score: h.score,
-            label: String(h.score),
-          })),
-        })),
+        rounds: stored.rounds.map((r) => {
+          const toPar = r.holes.reduce((sum, h) => sum + h.score - h.par, 0);
+          const score = toPar === 0 ? 'E' : toPar > 0 ? `+${toPar}` : String(toPar);
+          return {
+            round: r.roundId,
+            score,
+            holes: r.holes.map((h) => ({
+              hole: h.holeNumber,
+              par: h.par,
+              score: h.score,
+              label: String(h.score),
+            })),
+          };
+        }),
         source: 'slash-golf-cache',
       });
     }

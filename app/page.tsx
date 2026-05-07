@@ -5802,7 +5802,12 @@ export default function Page() {
 
                 return (
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#2f5f96', marginBottom: 10 }}>Round {rnd.round}</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#2f5f96', marginBottom: 10, display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                      Round {rnd.round}
+                      {rnd.score != null && rnd.score !== '' && (
+                        <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 12 }}>Score: {rnd.score}</span>
+                      )}
+                    </div>
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 560 }}>
                         <thead>
