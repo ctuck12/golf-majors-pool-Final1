@@ -3140,7 +3140,7 @@ export default function Page() {
                                 cursor: 'pointer',
                               }}
                             >
-                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2' }}>{player.position}</td>
+                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2' }}>{formatPosition(player.position)}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', fontWeight: activePlayer ? 800 : 400 }}>{player.name}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2' }}>{player.score}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2' }}>{player.thru}</td>
