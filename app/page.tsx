@@ -644,6 +644,18 @@ function formatPointValue(value: number) {
   return value % 1 === 0 ? String(value) : value.toFixed(1);
 }
 
+function ordinal(position: string): string {
+  const tie = position.startsWith('T');
+  const num = Number(position.replace('T', ''));
+  if (Number.isNaN(num)) return position;
+  const suffix = num % 100 >= 11 && num % 100 <= 13 ? 'th'
+    : num % 10 === 1 ? 'st'
+    : num % 10 === 2 ? 'nd'
+    : num % 10 === 3 ? 'rd'
+    : 'th';
+  return `${tie ? 'T' : ''}${num}${suffix}`;
+}
+
 function formatCurrentRoundScore(value: string | undefined, fallback: string) {
   const candidate = value && value !== '--' ? value : fallback;
 
@@ -5528,7 +5540,7 @@ export default function Page() {
                   ['Triple Bogey+', activeStandingGolfer.scoreBreakdown.statLine.tripleOrWorse, activeStandingGolfer.scoreBreakdown.statLine.tripleOrWorse * SCORING_RULES.tripleOrWorse],
                   ['3 Birdie Streaks', activeStandingGolfer.scoreBreakdown.statLine.threeBirdieStreaks, activeStandingGolfer.scoreBreakdown.statLine.threeBirdieStreaks * SCORING_RULES.threeBirdieStreak],
                   ['No Bogey Rnds', activeStandingGolfer.scoreBreakdown.statLine.bogeyFreeRounds, activeStandingGolfer.scoreBreakdown.statLine.bogeyFreeRounds * SCORING_RULES.bogeyFreeRound],
-                  ['Tourn Low Rnds', activeStandingGolfer.scoreBreakdown.statLine.lowRounds, activeStandingGolfer.scoreBreakdown.statLine.lowRounds * SCORING_RULES.tourneyLowRound],
+                  ['Tourn Low Rnd', activeStandingGolfer.scoreBreakdown.statLine.lowRounds, activeStandingGolfer.scoreBreakdown.statLine.lowRounds * SCORING_RULES.tourneyLowRound],
                   ['Rnd 1 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.first ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.first ? SCORING_RULES.firstRoundLeader : 0],
                   ['Rnd 2 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.second ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.second ? SCORING_RULES.secondRoundLeader : 0],
                   ['Rnd 3 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? SCORING_RULES.thirdRoundLeader : 0],
@@ -5552,7 +5564,7 @@ export default function Page() {
                   >
                     <div style={{ fontWeight: 800, fontSize: 13, color: '#0f1720' }}>{label}</div>
                     <div style={{ color: '#6b7b88', fontSize: 12 }}>
-                      {label === 'Leaderboard Place' ? `Position: ${String(count)}` : `Count: ${String(count)}`}
+                      {label === 'Leaderboard Place' ? `Position: ${ordinal(String(count))}` : `Count: ${String(count)}`}
                     </div>
                     <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : '#2f5f96' }}>
                       {formatPointValue(Number(points))}
