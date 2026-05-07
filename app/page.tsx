@@ -5374,7 +5374,7 @@ export default function Page() {
                             <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
                           ) : (
                             <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                              <span>Tourn. Score: {golfer.score}</span>
+                              <span>Score: {golfer.score}</span>
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
