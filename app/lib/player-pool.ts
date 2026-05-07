@@ -98,6 +98,16 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   // ── Late additions ───────────────────────────────────────────────────────────
   { id: 90, name: 'Patrick Reed',         pgaTourId: 34360, defaultOdds: '+15000',  worldRank: 100 },
   { id: 91, name: 'Max Homa',             pgaTourId: 39977, defaultOdds: '+8000',   worldRank:  58 },
+  { id: 92, name: 'Brian Campbell',       pgaTourId: 46443, defaultOdds: '+25000',  worldRank: 200 },
+  { id: 93, name: 'Michael Brennan',      pgaTourId: 61522, defaultOdds: '+50000',  worldRank: 300 },
+  { id: 94, name: 'Harris English',       pgaTourId: 34099, defaultOdds: '+12000',  worldRank:  90 },
+  { id: 95, name: 'Sergio Garcia',        pgaTourId: 21209, defaultOdds: '+20000',  worldRank: 120 },
+  { id: 96, name: 'Haotong Li',           pgaTourId: 35296, defaultOdds: '+15000',  worldRank: 100 },
+  { id: 97, name: 'Ben An',               pgaTourId: 33948, defaultOdds: '+10000',  worldRank:  75 },
+  { id: 98, name: 'Sungjae Im',           pgaTourId: 39971, defaultOdds: '+6000',   worldRank:  45 },
+  { id: 99, name: 'Danny Willett',        pgaTourId: 32139, defaultOdds: '+12000',  worldRank:  90 },
+  { id: 100, name: 'Bubba Watson',        pgaTourId: 25804, defaultOdds: '+50000',  worldRank: 300 },
+  { id: 101, name: 'Zach Johnson',        pgaTourId: 24024, defaultOdds: '+50000',  worldRank: 200 },
 ] as const;
 
 export type PlayerPoolEntry = (typeof PLAYER_POOL_WITH_PGA_IDS)[number];
