@@ -5562,7 +5562,11 @@ export default function Page() {
                   >
                     <div style={{ fontWeight: 800, fontSize: 13, color: '#0f1720' }}>{label}</div>
                     <div style={{ color: '#6b7b88', fontSize: 12 }}>
-                      {label === 'Leaderboard Place' ? `Position: ${ordinal(String(count))}` : `Count: ${String(count)}`}
+                      {label === 'Leaderboard Place'
+                        ? `Position: ${ordinal(String(count))}`
+                        : ['Tourn Low Rnd', 'Rnd 1 Leader', 'Rnd 2 Leader', 'Rnd 3 Leader', 'Cut Players'].includes(String(label))
+                        ? ''
+                        : `Count: ${String(count)}`}
                     </div>
                     <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : '#2f5f96' }}>
                       {formatPointValue(Number(points))}
