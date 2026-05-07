@@ -116,7 +116,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 107, name: 'Angel Cabrera',       pgaTourId: 20848, defaultOdds: '+100000', worldRank: 900 },
   { id: 108, name: 'Louis Oosthuizen',    pgaTourId: 26329, defaultOdds: '+15000',  worldRank: 110 },
   { id: 109, name: 'Charl Schwartzel',    pgaTourId: 26331, defaultOdds: '+50000',  worldRank: 400 },
-  { id: 110, name: 'Ernie Els',           pgaTourId:  6522, defaultOdds: '+100000', worldRank: 700 },
+  { id: 110, name: 'Ernie Els',           pgaTourId:  6522, defaultOdds: '+100000', worldRank: 700, photoUrl: '/player-photos/ernie-els.jpg' },
   { id: 111, name: 'Vijay Singh',         pgaTourId:  6567, defaultOdds: '+100000', worldRank: 800 },
 ] as const;
 
