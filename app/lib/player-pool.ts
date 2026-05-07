@@ -94,6 +94,10 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 87, name: 'Padraig Harrington',   pgaTourId: 20766, defaultOdds: '+75000',  worldRank: 400 },
   { id: 88, name: 'John Daly',            pgaTourId:  1249, defaultOdds: '+100000', worldRank: 700, photoUrl: '/player-photos/john-daly.jpg' },
   { id: 89, name: 'Y.E. Yang',            pgaTourId: 24663, defaultOdds: '+100000', worldRank: 900 },
+
+  // ── Late additions ───────────────────────────────────────────────────────────
+  { id: 90, name: 'Patrick Reed',         pgaTourId: 34360, defaultOdds: '+15000',  worldRank: 100 },
+  { id: 91, name: 'Max Homa',             pgaTourId: 39977, defaultOdds: '+8000',   worldRank:  58 },
 ] as const;
 
 export type PlayerPoolEntry = (typeof PLAYER_POOL_WITH_PGA_IDS)[number];
