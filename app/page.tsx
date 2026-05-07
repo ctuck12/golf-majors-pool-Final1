@@ -5460,37 +5460,41 @@ export default function Page() {
                     style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#e6edf1' }}
                   />
                   <div>
-                  <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                    <h3 className="breakdown-scoring-name" style={{ margin: 0, fontSize: 20, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
-                    <div
-                      style={{
-                        borderRadius: 999,
-                        background: '#eef4ff',
-                        border: '1px solid #c7d8ee',
-                        padding: '3px 8px',
-                        fontSize: 13,
-                        fontWeight: 900,
-                        color: '#2f5f96',
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      Points: {formatPointValue(activeStandingGolfer.points)}
+                  <div style={{ marginTop: 4 }}>
+                    <h3 className="breakdown-scoring-name" style={{ margin: '0 0 6px', fontSize: 20, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'nowrap' }}>
+                      <div
+                        style={{
+                          borderRadius: 999,
+                          background: '#eef4ff',
+                          border: '1px solid #c7d8ee',
+                          padding: '3px 8px',
+                          fontSize: 13,
+                          fontWeight: 900,
+                          color: '#2f5f96',
+                          lineHeight: 1.2,
+                          flexShrink: 0,
+                        }}
+                      >
+                        Points: {formatPointValue(activeStandingGolfer.points)}
+                      </div>
+                      <button
+                        onClick={() => setShowPointsSystem(true)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          padding: 0,
+                          fontSize: 12,
+                          color: '#2f5f96',
+                          cursor: 'pointer',
+                          textDecoration: 'underline',
+                          fontWeight: 600,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        Click here for points system
+                      </button>
                     </div>
-                    <button
-                      onClick={() => setShowPointsSystem(true)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        padding: 0,
-                        fontSize: 12,
-                        color: '#2f5f96',
-                        cursor: 'pointer',
-                        textDecoration: 'underline',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Click here for points system
-                    </button>
                   </div>
                 </div>
                 </div>
