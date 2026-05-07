@@ -5283,9 +5283,6 @@ export default function Page() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Entry breakdown
-                  </div>
                   <h3 style={{ margin: '4px 0 0', fontSize: 20, color: '#0f1720' }}>
                     {activeStandingEntry.name} - {tournament.name}
                   </h3>
