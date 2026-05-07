@@ -658,12 +658,13 @@ function ordinal(position: string): string {
   const tie = position.startsWith('T');
   const num = Number(position.replace('T', ''));
   if (Number.isNaN(num)) return position;
+  if (tie) return `T${num}`; // tied — no ordinal suffix
   const suffix = num % 100 >= 11 && num % 100 <= 13 ? 'th'
     : num % 10 === 1 ? 'st'
     : num % 10 === 2 ? 'nd'
     : num % 10 === 3 ? 'rd'
     : 'th';
-  return `${tie ? 'T' : ''}${num}${suffix}`;
+  return `${num}${suffix}`;
 }
 
 function formatCurrentRoundScore(value: string | undefined, fallback: string) {
