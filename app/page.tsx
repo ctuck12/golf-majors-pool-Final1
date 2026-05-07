@@ -254,6 +254,7 @@ function buildPricedPlayers(
     defaultOdds: string;
     worldRank: number;
     pgaTourId: number;
+    photoUrl?: string;
   }>,
   liveOddsMap: Record<string, string>,
 ) {
@@ -277,6 +278,7 @@ function buildPricedPlayers(
       odds: player.odds,
       salary,
       pgaTourId: player.pgaTourId,
+      photoUrl: player.photoUrl,
     };
   });
 }
@@ -1837,7 +1839,7 @@ export default function Page() {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <img
-              src={pgaPhoto(player.pgaTourId)}
+              src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
               alt={player.name}
               style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
             />
@@ -4965,7 +4967,7 @@ export default function Page() {
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                   <img
-                                    src={pgaPhoto(golfer.pgaTourId)}
+                                    src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                     alt={golfer.name}
                                     style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
                                   />

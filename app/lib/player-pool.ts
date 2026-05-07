@@ -90,7 +90,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 83, name: 'Phil Mickelson',       pgaTourId:  1810, defaultOdds: '+50000',  worldRank: 250 },
   { id: 84, name: 'Jimmy Walker',         pgaTourId: 25632, defaultOdds: '+50000',  worldRank: 300 },
   { id: 85, name: 'Martin Kaymer',        pgaTourId: 27408, defaultOdds: '+50000',  worldRank: 200 },
-  { id: 86, name: 'Tiger Woods',          pgaTourId:  8793, defaultOdds: '+100000', worldRank: 600 },
+  { id: 86, name: 'Tiger Woods',          pgaTourId:  8793, defaultOdds: '+100000', worldRank: 600, photoUrl: '/player-photos/tiger-woods.jpg' },
   { id: 87, name: 'Padraig Harrington',   pgaTourId: 20766, defaultOdds: '+75000',  worldRank: 400 },
   { id: 88, name: 'John Daly',            pgaTourId:  1249, defaultOdds: '+100000', worldRank: 700 },
   { id: 89, name: 'Y.E. Yang',            pgaTourId: 24663, defaultOdds: '+100000', worldRank: 900 },
