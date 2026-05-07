@@ -5288,6 +5288,7 @@ export default function Page() {
             <div
               ref={entryBreakdownRef}
               onClick={(event) => event.stopPropagation()}
+              className="breakdown-modal"
               style={{
                 width: 'min(620px, 100%)',
                 maxHeight: '90vh',
@@ -5356,19 +5357,20 @@ export default function Page() {
                         <img
                           src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                           alt={golfer.name}
+                          className="breakdown-golfer-photo"
                           style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#e6edf1' }}
                         />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                          <div style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                          <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                          <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                             <span>Holes Rem: {golfer.holesRemaining}</span>
                             <span>Picked: {pickedCount}</span>
                             <span>${golfer.salary.toLocaleString()}</span>
                           </div>
                           {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
-                            <div style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
+                            <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
                           ) : (
-                            <div style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                            <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                               <span>Pos: {golfer.position}</span>
                               <span>Tourn. Score: {golfer.score}</span>
                               <span>Current Round: {formatCurrentRoundScore(golfer.total, golfer.score)}</span>
@@ -5376,7 +5378,7 @@ export default function Page() {
                           )}
                         </div>
                         <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                          <div style={{ fontSize: 22, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
+                          <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
                         </div>
                       </div>
                     </button>
@@ -5446,6 +5448,7 @@ export default function Page() {
           >
             <div
               onClick={(event) => event.stopPropagation()}
+              className="breakdown-modal"
               style={{
                 width: 'min(620px, 100%)',
                 maxHeight: '90vh',
@@ -5461,6 +5464,7 @@ export default function Page() {
                   <img
                     src={activeStandingGolfer.photoUrl ?? pgaPhoto(activeStandingGolfer.pgaTourId)}
                     alt={activeStandingGolfer.name}
+                    className="breakdown-scoring-photo"
                     style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#e6edf1' }}
                   />
                   <div>
@@ -5468,7 +5472,7 @@ export default function Page() {
                     Player scoring breakdown
                   </div>
                   <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                    <h3 style={{ margin: 0, fontSize: 20, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
+                    <h3 className="breakdown-scoring-name" style={{ margin: 0, fontSize: 20, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
                     <div
                       style={{
                         borderRadius: 999,
@@ -5499,7 +5503,7 @@ export default function Page() {
                       Click here for points system
                     </button>
                   </div>
-                  <div style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <div className="breakdown-scoring-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                     <span>Position: {activeStandingGolfer.position}</span>
                     <span>Tourn. Score: {activeStandingGolfer.score}</span>
                     <span>Current Round: {formatCurrentRoundScore(activeStandingGolfer.total, activeStandingGolfer.score)}</span>

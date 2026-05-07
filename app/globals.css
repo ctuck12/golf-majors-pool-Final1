@@ -43,3 +43,35 @@ button {
 ::-webkit-scrollbar-thumb:hover {
   background: #8fa0b0;
 }
+
+/* Entry Breakdown / Player Scoring Breakdown — desktop sizing */
+@media (min-width: 768px) {
+  .breakdown-modal {
+    width: min(780px, 100%) !important;
+    padding: 28px !important;
+    border-radius: 24px !important;
+  }
+  .breakdown-golfer-photo {
+    width: 56px !important;
+    height: 56px !important;
+  }
+  .breakdown-golfer-name {
+    font-size: 18px !important;
+  }
+  .breakdown-golfer-subtext {
+    font-size: 13px !important;
+  }
+  .breakdown-golfer-points {
+    font-size: 26px !important;
+  }
+  .breakdown-scoring-photo {
+    width: 72px !important;
+    height: 72px !important;
+  }
+  .breakdown-scoring-name {
+    font-size: 24px !important;
+  }
+  .breakdown-scoring-subtext {
+    font-size: 13px !important;
+  }
+}
