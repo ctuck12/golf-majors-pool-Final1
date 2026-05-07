@@ -3787,9 +3787,6 @@ export default function Page() {
                     </div>
 
                     <div style={{ fontSize: isMobile ? 18 : 30, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
-                    <div style={{ color: '#0f1720', fontSize: 14 }}>
-                      Click the plus sign to add a golfer or the minus sign to remove them.
-                    </div>
 
                     <div style={{ display: 'grid', gap: 14 }}>
                       {Array.from({ length: REQUIRED_GOLFERS }, (_, index) => (
@@ -4927,9 +4924,6 @@ export default function Page() {
 
                   <div style={{ display: 'grid', gap: 12 }}>
                     <div style={{ fontSize: 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
-                    <div style={{ fontSize: 15, color: '#31424f' }}>
-                      Click the plus sign to add a golfer or the minus sign to remove them.
-                    </div>
 
                     {Array.from({ length: REQUIRED_GOLFERS }, (_, index) => {
                       const golfer = commissionerOrderedRosterPlayers[index];
