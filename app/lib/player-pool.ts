@@ -87,7 +87,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 80, name: 'Michael Thorbjornsen', pgaTourId: 57364, defaultOdds: '+25000',  worldRank: 140 },
   { id: 81, name: 'Aldrich Potgieter',    pgaTourId: 63343, defaultOdds: '+25000',  worldRank: 150 },
   { id: 82, name: 'Ben Kern',             pgaTourId: 55752, defaultOdds: '+25000',  worldRank: 130 },
-  { id: 83, name: 'Phil Mickelson',       pgaTourId:  1810, defaultOdds: '+50000',  worldRank: 250 },
+  { id: 83, name: 'Phil Mickelson',       pgaTourId:  1810, defaultOdds: '+50000',  worldRank: 250, photoUrl: '/player-photos/phil-mickelson.jpg' },
   { id: 84, name: 'Jimmy Walker',         pgaTourId: 25632, defaultOdds: '+50000',  worldRank: 300 },
   { id: 85, name: 'Martin Kaymer',        pgaTourId: 27408, defaultOdds: '+50000',  worldRank: 200 },
   { id: 86, name: 'Tiger Woods',          pgaTourId:  8793, defaultOdds: '+100000', worldRank: 600, photoUrl: '/player-photos/tiger-woods.jpg' },
