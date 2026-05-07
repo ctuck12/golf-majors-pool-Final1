@@ -1844,12 +1844,9 @@ export default function Page() {
               style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
             />
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>
-                GOLFER {index + 1}
-              </div>
               <div style={{ fontWeight: 700 }}>{player.name}</div>
               <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                OWGR {player.worldRank} | {player.odds} | <span style={{ fontWeight: 800, color: '#3f73ad' }}>${player.salary.toLocaleString()}</span>
+                OWGR {player.worldRank} | {player.odds} | <span style={{ fontWeight: 800, fontSize: 15, color: '#3f73ad' }}>${player.salary.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -4956,9 +4953,8 @@ export default function Page() {
                                     style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
                                   />
                                   <div>
-                                    <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Golfer {index + 1}</div>
                                     <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                                    <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | {golfer.odds} | <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span></div>
+                                    <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | {golfer.odds} | <span style={{ fontWeight: 800, fontSize: 16, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span></div>
                                   </div>
                                 </div>
                                 <button
