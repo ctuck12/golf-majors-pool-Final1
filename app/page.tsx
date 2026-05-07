@@ -5679,14 +5679,14 @@ export default function Page() {
         {scorecardGolferName ? (
           <div
             onClick={() => { setScorecardGolferName(null); setScorecardData(null); }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, zIndex: 80 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 80 }}
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              style={{ width: 'min(740px, 100%)', maxHeight: '90vh', overflowY: 'auto', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.25)' }}
+              style={{ width: 'min(960px, 100%)', maxHeight: '90vh', overflowY: 'auto', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.25)' }}
             >
               {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <img
                     src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
@@ -5696,11 +5696,7 @@ export default function Page() {
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.05em' }}>Scorecard</div>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>{scorecardGolferName}</div>
-                    {scorecardData && (
-                      <div style={{ fontSize: 13, color: '#607282' }}>
-                        {scorecardData.courseName}&nbsp;&nbsp;<em>Par {scorecardData.par}</em>
-                      </div>
-                    )}
+                    {scorecardData && <div style={{ fontSize: 13, color: '#607282' }}>{scorecardData.courseName}</div>}
                   </div>
                 </div>
                 <button
@@ -5718,70 +5714,88 @@ export default function Page() {
                 <div style={{ textAlign: 'center', color: '#607282', padding: '32px 0', fontSize: 15 }}>
                   Scorecard data is not yet available for this round.
                 </div>
-              ) : (
-                <div style={{ display: 'grid', gap: 20 }}>
-                  {scorecardData.rounds.map((rnd) => {
-                    const front = rnd.holes.filter(h => h.hole <= 9);
-                    const back  = rnd.holes.filter(h => h.hole >= 10);
-                    const frontPar   = front.reduce((s, h) => s + (h.par || 0), 0);
-                    const backPar    = back.reduce((s,  h) => s + (h.par || 0), 0);
-                    const frontScore = front.reduce((s, h) => s + (h.score ?? 0), 0);
-                    const backScore  = back.reduce((s,  h) => s + (h.score ?? 0), 0);
+              ) : (() => {
+                // Show only the current (latest) round that has hole data
+                const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
+                const front = rnd.holes.filter(h => h.hole <= 9);
+                const back  = rnd.holes.filter(h => h.hole >= 10);
+                const frontPar    = front.reduce((s, h) => s + (h.par || 0), 0);
+                const backPar     = back.reduce((s,  h) => s + (h.par || 0), 0);
+                const frontScore  = front.reduce((s, h) => s + (h.score ?? 0), 0);
+                const backScore   = back.reduce((s,  h) => s + (h.score ?? 0), 0);
+                const totalScore  = frontScore + backScore;
 
-                    const cellStyle = (bg?: string): React.CSSProperties => ({
-                      padding: '6px 4px', textAlign: 'center', fontSize: 13, fontWeight: 600,
-                      background: bg ?? 'transparent', whiteSpace: 'nowrap',
-                    });
-                    const headerCell = (label: string, bg = '#f1f5f9'): React.CSSProperties => ({
-                      ...cellStyle(bg), fontWeight: 800, fontSize: 12, color: '#5b6b79',
-                    });
+                const border = '1px solid #d1d9e0';
+                const thickBorder = '2px solid #9ab0c4';
 
-                    return (
-                      <div key={rnd.round}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#3f73ad', marginBottom: 8 }}>Round {rnd.round}</div>
-                        {rnd.holes.length > 0 ? (
-                          <div style={{ overflowX: 'auto' }}>
-                            <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 540 }}>
-                              <thead>
-                                <tr style={{ background: '#f1f5f9' }}>
-                                  <th style={headerCell('Hole')}>Hole</th>
-                                  {front.map(h => <th key={h.hole} style={cellStyle('#f1f5f9')}>{h.hole}</th>)}
-                                  <th style={cellStyle('#dbeafe')}>OUT</th>
-                                  {back.map(h => <th key={h.hole} style={cellStyle('#f1f5f9')}>{h.hole}</th>)}
-                                  <th style={cellStyle('#dbeafe')}>IN</th>
-                                  <th style={cellStyle('#bfdbfe')}>TOT</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr>
-                                  <td style={{ ...cellStyle('#f8fafc'), fontWeight: 800, color: '#5b6b79', fontSize: 12 }}>Par</td>
-                                  {front.map(h => <td key={h.hole} style={cellStyle('#f8fafc')}>{h.par || '--'}</td>)}
-                                  <td style={{ ...cellStyle('#dbeafe'), fontWeight: 700 }}>{frontPar || '--'}</td>
-                                  {back.map(h => <td key={h.hole} style={cellStyle('#f8fafc')}>{h.par || '--'}</td>)}
-                                  <td style={{ ...cellStyle('#dbeafe'), fontWeight: 700 }}>{backPar || '--'}</td>
-                                  <td style={{ ...cellStyle('#bfdbfe'), fontWeight: 800 }}>{(frontPar + backPar) || '--'}</td>
-                                </tr>
-                                <tr>
-                                  <td style={{ ...cellStyle(), fontWeight: 800, color: '#0f1720', fontSize: 12 }}>Score</td>
-                                  {front.map(h => <td key={h.hole} style={cellStyle()}>{h.label}</td>)}
-                                  <td style={{ ...cellStyle('#dbeafe'), fontWeight: 700 }}>{frontScore > 0 ? `+${frontScore}` : frontScore === 0 ? 'E' : frontScore}</td>
-                                  {back.map(h => <td key={h.hole} style={cellStyle()}>{h.label}</td>)}
-                                  <td style={{ ...cellStyle('#dbeafe'), fontWeight: 700 }}>{backScore > 0 ? `+${backScore}` : backScore === 0 ? 'E' : backScore}</td>
-                                  <td style={{ ...cellStyle('#bfdbfe'), fontWeight: 800 }}>{frontScore + backScore > 0 ? `+${frontScore + backScore}` : frontScore + backScore === 0 ? 'E' : frontScore + backScore}</td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        ) : (
-                          <div style={{ color: '#607282', fontSize: 14 }}>
-                            Round {rnd.round} score: {typeof rnd.score === 'number' ? (rnd.score > 0 ? `+${rnd.score}` : rnd.score === 0 ? 'E' : rnd.score) : rnd.score ?? '--'}
-                          </div>
-                        )}
+                const baseCell: React.CSSProperties = {
+                  border, padding: '7px 5px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap',
+                };
+                const labelCell: React.CSSProperties = {
+                  ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase',
+                  background: '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 72, color: '#374151',
+                };
+                const subtotalCell: React.CSSProperties = {
+                  ...baseCell, fontWeight: 800, background: '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
+                };
+                const totalCell: React.CSSProperties = {
+                  ...baseCell, fontWeight: 900, background: '#1e3a5f', color: '#fff', borderLeft: thickBorder,
+                };
+                const holeHeaderCell: React.CSSProperties = {
+                  ...baseCell, fontWeight: 700, background: '#0f1720', color: '#fff', fontSize: 12,
+                };
+                const subtotalHeaderCell: React.CSSProperties = {
+                  ...holeHeaderCell, background: '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder,
+                };
+                const totalHeaderCell: React.CSSProperties = {
+                  ...holeHeaderCell, background: '#1e3a5f', borderLeft: thickBorder,
+                };
+
+                const fmt = (n: number) => n > 0 ? `+${n}` : n === 0 ? 'E' : `${n}`;
+
+                return (
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#2f5f96', marginBottom: 10 }}>Round {rnd.round}</div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 560 }}>
+                        <thead>
+                          <tr>
+                            <th style={{ ...labelCell, background: '#0f1720', color: '#fff' }}>HOLE</th>
+                            {front.map(h => <th key={h.hole} style={holeHeaderCell}>{h.hole}</th>)}
+                            <th style={subtotalHeaderCell}>Front</th>
+                            {back.map(h => <th key={h.hole} style={holeHeaderCell}>{h.hole}</th>)}
+                            <th style={subtotalHeaderCell}>Back</th>
+                            <th style={totalHeaderCell}>TOTAL</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td style={labelCell}>Par</td>
+                            {front.map(h => <td key={h.hole} style={baseCell}>{h.par || '--'}</td>)}
+                            <td style={subtotalCell}>{frontPar || '--'}</td>
+                            {back.map(h => <td key={h.hole} style={baseCell}>{h.par || '--'}</td>)}
+                            <td style={subtotalCell}>{backPar || '--'}</td>
+                            <td style={totalCell}>{(frontPar + backPar) || '--'}</td>
+                          </tr>
+                          <tr>
+                            <td style={{ ...labelCell, background: '#fff' }}>Score</td>
+                            {front.map(h => <td key={h.hole} style={baseCell}>{h.label}</td>)}
+                            <td style={subtotalCell}>{front.some(h => h.score !== null) ? fmt(frontScore) : '--'}</td>
+                            {back.map(h => <td key={h.hole} style={baseCell}>{h.label}</td>)}
+                            <td style={subtotalCell}>{back.some(h => h.score !== null) ? fmt(backScore) : '--'}</td>
+                            <td style={totalCell}>{rnd.holes.some(h => h.score !== null) ? fmt(totalScore) : '--'}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    {rnd.holes.length === 0 && (
+                      <div style={{ color: '#607282', fontSize: 14, marginTop: 12 }}>
+                        Round {rnd.round} score: {typeof rnd.score === 'number' ? fmt(rnd.score) : rnd.score ?? '--'}
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         ) : null}
