@@ -1841,7 +1841,7 @@ export default function Page() {
             <img
               src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
               alt={player.name}
-              style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+              className="roster-card-photo" style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
             />
             <div>
               <div style={{ fontWeight: 700 }}>{player.name}</div>
@@ -3963,16 +3963,16 @@ export default function Page() {
                               >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                                   <div>
-                                    <div style={{ fontWeight: 800, color: disabled ? '#748391' : '#0f1720' }}>
+                                    <div className="picksheet-player-name" style={{ fontWeight: 800, color: disabled ? '#748391' : '#0f1720' }}>
                                       {player.name}
                                     </div>
-                                    <div style={{ marginTop: 4, color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 13 }}>
+                                    <div className="picksheet-player-subtext" style={{ marginTop: 4, color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 13 }}>
                                       OWGR: {player.worldRank} | {player.odds}
                                     </div>
                                   </div>
                                   <div style={{ textAlign: 'right' }}>
                                     <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
-                                    <div style={{ color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 12 }}>
+                                    <div className="picksheet-player-salary-right" style={{ color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 12 }}>
                                       ${player.salary.toLocaleString()}
                                     </div>
                                   </div>
@@ -4950,7 +4950,7 @@ export default function Page() {
                                   <img
                                     src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                     alt={golfer.name}
-                                    style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                    className="roster-card-photo" style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
                                   />
                                   <div>
                                     <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>

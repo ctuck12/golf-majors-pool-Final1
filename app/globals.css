@@ -44,6 +44,23 @@ button {
   background: #8fa0b0;
 }
 
+/* Pick sheet player rows and roster card photo — desktop sizing */
+@media (min-width: 768px) {
+  .picksheet-player-name {
+    font-size: 17px !important;
+  }
+  .picksheet-player-subtext {
+    font-size: 14px !important;
+  }
+  .picksheet-player-salary-right {
+    font-size: 14px !important;
+  }
+  .roster-card-photo {
+    width: 62px !important;
+    height: 62px !important;
+  }
+}
+
 /* Entry Breakdown / Player Scoring Breakdown — desktop sizing */
 @media (min-width: 768px) {
   .breakdown-modal {
