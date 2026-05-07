@@ -465,8 +465,22 @@ export async function GET(request: Request) {
         projectedCut,
       });
     } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      // 400 "not found" = tournament hasn't started yet — return graceful empty state
+      if (msg.includes('400') && msg.toLowerCase().includes('not found')) {
+        return Response.json({
+          source: 'not-started',
+          oddsSource: 'no odds page configured',
+          tournamentId,
+          status: 'Not Started',
+          projectedCut: null,
+          fetchedAt: new Date().toISOString(),
+          players: [],
+          odds: [],
+        });
+      }
       return Response.json(
-        { error: `Slash Golf API error: ${err instanceof Error ? err.message : String(err)}` },
+        { error: `Slash Golf API error: ${msg}` },
         { status: 502 },
       );
     }
