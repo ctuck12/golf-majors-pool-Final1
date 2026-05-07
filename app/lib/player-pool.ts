@@ -92,7 +92,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 85, name: 'Martin Kaymer',        pgaTourId: 27408, defaultOdds: '+50000',  worldRank: 200 },
   { id: 86, name: 'Tiger Woods',          pgaTourId:  8793, defaultOdds: '+100000', worldRank: 600, photoUrl: '/player-photos/tiger-woods.jpg' },
   { id: 87, name: 'Padraig Harrington',   pgaTourId: 20766, defaultOdds: '+75000',  worldRank: 400 },
-  { id: 88, name: 'John Daly',            pgaTourId:  1249, defaultOdds: '+100000', worldRank: 700 },
+  { id: 88, name: 'John Daly',            pgaTourId:  1249, defaultOdds: '+100000', worldRank: 700, photoUrl: '/player-photos/john-daly.jpg' },
   { id: 89, name: 'Y.E. Yang',            pgaTourId: 24663, defaultOdds: '+100000', worldRank: 900 },
 ] as const;
 
