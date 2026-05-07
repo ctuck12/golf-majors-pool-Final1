@@ -1849,7 +1849,7 @@ export default function Page() {
               </div>
               <div style={{ fontWeight: 700 }}>{player.name}</div>
               <div style={{ marginTop: 4, fontSize: 13, color: '#6b7b88' }}>
-                OWGR {player.worldRank} | ${player.salary.toLocaleString()}
+                OWGR {player.worldRank} | {player.odds} | ${player.salary.toLocaleString()}
               </div>
             </div>
           </div>
@@ -3935,11 +3935,6 @@ export default function Page() {
                       </div>
 
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                          <div style={{ width: 22, textAlign: 'center', flexShrink: 0, fontSize: 9, fontWeight: 800, textTransform: 'uppercase', color: '#8a97a3', letterSpacing: '0.04em', lineHeight: 1.2 }}>
-                            World<br />Rank
-                          </div>
-                        </div>
                         <div style={{ display: 'grid', gap: 10 }}>
                         {filteredEntriesPlayers.map((player) => {
                           const selected = selectedRoster.includes(player.id);
@@ -3952,9 +3947,6 @@ export default function Page() {
                               key={player.id}
                               style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: disabled ? 0.58 : 1 }}
                             >
-                              <div style={{ width: 22, textAlign: 'center', flexShrink: 0, fontSize: 13, fontWeight: 900, color: '#0f1720' }}>
-                                {player.worldRank}
-                              </div>
                               <button
                                 onClick={() => togglePlayer(player.id)}
                                 style={{
@@ -3978,7 +3970,7 @@ export default function Page() {
                                       {player.name}
                                     </div>
                                     <div style={{ marginTop: 4, color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 13 }}>
-                                      {player.odds}
+                                      OWGR: {player.worldRank} | {player.odds}
                                     </div>
                                   </div>
                                   <div style={{ textAlign: 'right' }}>
@@ -4870,11 +4862,6 @@ export default function Page() {
                     </div>
 
                     <div style={{ padding: 20, maxHeight: 960, overflowY: 'auto' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                        <div style={{ width: 22, textAlign: 'center', flexShrink: 0, fontSize: 9, fontWeight: 800, textTransform: 'uppercase', color: '#8a97a3', letterSpacing: '0.04em', lineHeight: 1.2 }}>
-                          World<br />Rank
-                        </div>
-                      </div>
                       <div style={{ display: 'grid', gap: 12 }}>
                       {filteredCommissionerPlayers.map((player) => {
                         const isSelected = commissionerRosterSelection.includes(player.id);
@@ -4887,9 +4874,6 @@ export default function Page() {
                             key={`commissioner-player-${player.id}`}
                             style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: isDisabled ? 0.45 : 1 }}
                           >
-                            <div style={{ width: 22, textAlign: 'center', flexShrink: 0, fontSize: 13, fontWeight: 900, color: '#0f1720' }}>
-                              {player.worldRank}
-                            </div>
                             <div
                               style={{
                                 flex: 1,
@@ -4921,7 +4905,7 @@ export default function Page() {
                                 <div style={{ flex: 1 }}>
                                   <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
                                   <div style={{ marginTop: 4, fontSize: 14, color: '#607282' }}>
-                                    {player.odds}
+                                    OWGR: {player.worldRank} | {player.odds}
                                   </div>
                                 </div>
                                 <div style={{ fontSize: 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
@@ -4974,7 +4958,7 @@ export default function Page() {
                                   <div>
                                     <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#2f5f96' }}>Golfer {index + 1}</div>
                                     <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                                    <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | ${golfer.salary.toLocaleString()}</div>
+                                    <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | {golfer.odds} | ${golfer.salary.toLocaleString()}</div>
                                   </div>
                                 </div>
                                 <button
