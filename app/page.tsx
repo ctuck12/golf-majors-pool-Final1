@@ -2685,7 +2685,7 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.players}</span>
                       </div>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: '#2f5f96' }}>
                           Projected Cut: {feed.projectedCut}
                         </div>
                       ) : null}
@@ -2709,7 +2709,7 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.masters}</span>
                       </div>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: '#2f5f96' }}>
                           Projected Cut: {feed.projectedCut}
                         </div>
                       ) : null}
@@ -2733,7 +2733,7 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.pga}</span>
                       </div>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: '#2f5f96' }}>
                           Projected Cut: {feed.projectedCut}
                         </div>
                       ) : null}
@@ -2757,7 +2757,7 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS['us-open']}</span>
                       </div>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: '#2f5f96' }}>
                           Projected Cut: {feed.projectedCut}
                         </div>
                       ) : null}
@@ -2781,7 +2781,7 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.open}</span>
                       </div>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: 18, fontWeight: 500, color: '#5b6b79' }}>
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: '#2f5f96' }}>
                           Projected Cut: {feed.projectedCut}
                         </div>
                       ) : null}
@@ -2804,14 +2804,12 @@ export default function Page() {
                     </h2>
                   )}
                 </div>
-                {!(showFutureTournamentView && !picksOpenForTournament) ? (
+                {!(showFutureTournamentView && !picksOpenForTournament) && !showFinalTournamentView ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
                     <RefreshCw size={15} />
                     <span>
                       {showFutureTournamentView
                         ? 'Pool is open for lineup building'
-                        : showFinalTournamentView
-                        ? 'Final tournament snapshot'
                         : isLoading
                           ? 'Refreshing live scores...'
                           : formatRefresh(feed?.fetchedAt ?? null)}
