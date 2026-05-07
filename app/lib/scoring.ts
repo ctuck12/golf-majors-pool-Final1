@@ -108,6 +108,149 @@ export function estimateHolesRemaining(thru: string | undefined, status: string 
   return Math.max(0, 72 - completedHoles);
 }
 
+export type ScorecardRound = {
+  roundId: number;
+  holes: Array<{ holeNumber: number; par: number; score: number }>;
+};
+
+export function computeFullScoreBreakdown(params: {
+  position: string;
+  score: string;
+  thru: string;
+  rounds: ScorecardRound[];
+  roundLeadersAwarded: { first: boolean; second: boolean; third: boolean };
+  tournamentLowRoundScore: number | null;
+}): GolferScoreBreakdown {
+  const placement = placementPoints(params.position);
+  const holesRemaining = estimateHolesRemaining(params.thru, params.score);
+
+  const madeCut =
+    params.score === 'CUT' || params.score === 'MDF'
+      ? false
+      : params.thru === 'F'
+        ? true
+        : null;
+  const cutPenalty = madeCut === false ? SCORING_RULES.cutPlayer : 0;
+
+  let tripleOrWorse = 0,
+    doubleBogey = 0,
+    bogey = 0,
+    par = 0,
+    birdie = 0,
+    eagle = 0,
+    albatross = 0,
+    holeInOne = 0;
+  let threeBirdieStreaks = 0;
+  let bogeyFreeRounds = 0;
+  let lowRounds = 0;
+  const completedRoundTotals: number[] = [];
+
+  for (const round of params.rounds) {
+    if (!round.holes.length) continue;
+
+    let roundBogeyFree = true;
+    let consecutiveBirdies = 0;
+    let roundTotal = 0;
+
+    for (const hole of round.holes) {
+      const diff = hole.score - hole.par;
+      roundTotal += hole.score;
+
+      if (hole.score === 1) {
+        holeInOne++;
+      } else if (diff <= -3) {
+        albatross++;
+      } else if (diff === -2) {
+        eagle++;
+      } else if (diff === -1) {
+        birdie++;
+      } else if (diff === 0) {
+        par++;
+      } else if (diff === 1) {
+        bogey++;
+        roundBogeyFree = false;
+      } else if (diff === 2) {
+        doubleBogey++;
+        roundBogeyFree = false;
+      } else {
+        tripleOrWorse++;
+        roundBogeyFree = false;
+      }
+
+      // 3-birdie streak: non-overlapping, resets after awarding
+      if (diff === -1) {
+        consecutiveBirdies++;
+        if (consecutiveBirdies === 3) {
+          threeBirdieStreaks++;
+          consecutiveBirdies = 0;
+        }
+      } else {
+        consecutiveBirdies = 0;
+      }
+    }
+
+    if (roundBogeyFree && round.holes.length === 18) bogeyFreeRounds++;
+    if (round.holes.length === 18) completedRoundTotals.push(roundTotal);
+  }
+
+  // Low round: player's 18-hole round matches the tournament low
+  if (params.tournamentLowRoundScore !== null) {
+    for (const total of completedRoundTotals) {
+      if (total === params.tournamentLowRoundScore) lowRounds++;
+    }
+  }
+
+  const holePoints =
+    tripleOrWorse * SCORING_RULES.tripleOrWorse +
+    doubleBogey * SCORING_RULES.doubleBogey +
+    bogey * SCORING_RULES.bogey +
+    par * SCORING_RULES.par +
+    birdie * SCORING_RULES.birdie +
+    eagle * SCORING_RULES.eagle +
+    albatross * SCORING_RULES.albatross +
+    holeInOne * SCORING_RULES.holeInOne;
+
+  const streakPoints = threeBirdieStreaks * SCORING_RULES.threeBirdieStreak;
+
+  const roundBonusPoints =
+    bogeyFreeRounds * SCORING_RULES.bogeyFreeRound +
+    lowRounds * SCORING_RULES.tourneyLowRound;
+
+  const roundLeaderPoints =
+    (params.roundLeadersAwarded.first ? SCORING_RULES.firstRoundLeader : 0) +
+    (params.roundLeadersAwarded.second ? SCORING_RULES.secondRoundLeader : 0) +
+    (params.roundLeadersAwarded.third ? SCORING_RULES.thirdRoundLeader : 0);
+
+  const totalPoints =
+    holePoints + streakPoints + roundBonusPoints + roundLeaderPoints + placement + cutPenalty;
+
+  return {
+    holePoints,
+    streakPoints,
+    roundBonusPoints: roundBonusPoints + roundLeaderPoints,
+    placementPoints: placement,
+    cutPenaltyPoints: cutPenalty,
+    totalPoints,
+    holesRemaining,
+    madeCut,
+    tiePosition: params.position,
+    roundLeadersAwarded: params.roundLeadersAwarded,
+    statLine: {
+      tripleOrWorse,
+      doubleBogey,
+      bogey,
+      par,
+      birdie,
+      eagle,
+      albatross,
+      holeInOne,
+      threeBirdieStreaks,
+      bogeyFreeRounds,
+      lowRounds,
+    },
+  };
+}
+
 export function buildPlaceholderScoreBreakdown(params: {
   position: string;
   score: string;

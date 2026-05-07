@@ -609,6 +609,17 @@ export async function updatePoolLineupLock(
   } satisfies PublicPool;
 }
 
+export async function getSelectedPlayerIdsForTournament(tournamentId: TournamentId): Promise<Set<number>> {
+  const db = await readDatabase();
+  const selected = new Set<number>();
+  for (const user of db.users) {
+    for (const id of user.rosters[tournamentId] ?? []) {
+      selected.add(id);
+    }
+  }
+  return selected;
+}
+
 export async function updatePoolPayouts(
   requestingUserId: string,
   tournamentId: TournamentId,

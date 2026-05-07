@@ -145,6 +145,7 @@ type FeedRow = {
   thru: string;
   total?: string;
   canonicalName?: string;
+  scoreBreakdown?: GolferScoreBreakdown;
 };
 
 type ScorecardHole = { hole: number; par: number; score: number | null; label: string };
@@ -981,7 +982,7 @@ export default function Page() {
     void loadFeed();
     const timer = window.setInterval(() => {
       void loadFeed();
-    }, 180000);
+    }, 90000);
 
     return () => {
       active = false;
@@ -1491,11 +1492,9 @@ export default function Page() {
         const score = live?.score ?? '--';
         const position = live?.position ?? '--';
         const thru = live?.thru ?? '--';
-        const scoreBreakdown = buildPlaceholderScoreBreakdown({
-          position,
-          score,
-          thru,
-        });
+        const scoreBreakdown =
+          live?.scoreBreakdown ??
+          buildPlaceholderScoreBreakdown({ position, score, thru });
 
         return {
           ...player,

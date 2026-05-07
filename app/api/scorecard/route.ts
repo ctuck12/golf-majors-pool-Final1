@@ -1,105 +1,101 @@
 export const dynamic = 'force-dynamic';
 
-const TOURNAMENT_FEEDS: Record<string, { espnTournamentId: string; courseName: string; par: number }> = {
-  players:  { espnTournamentId: '401811937', courseName: 'TPC Sawgrass',              par: 72 },
-  masters:  { espnTournamentId: '401811941', courseName: 'Augusta National Golf Club', par: 72 },
-  pga:      { espnTournamentId: '401811947', courseName: 'Aronimink Golf Club',        par: 70 },
-  'us-open':{ espnTournamentId: '401811952', courseName: 'Oakmont Country Club',       par: 70 },
-  open:     { espnTournamentId: '401811957', courseName: 'Royal Portrush Golf Club',   par: 71 },
-};
+import { fetchScorecard, parseMongo } from '@/app/lib/slashgolf';
+import { TOURNAMENT_META } from '@/app/lib/tournament-config';
+import { getScorecardCache } from '@/app/lib/scorecard-store';
 
-const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
-
-function norm(s: string) {
-  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\./g, '').trim();
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function findCompetitor(competitors: any[], playerName: string) {
-  const target = norm(playerName);
-  return competitors.find((c) => {
-    const display = norm(c.athlete?.displayName ?? '');
-    return display === target || display.includes(target) || target.includes(display);
-  });
+function normName(s: string) {
+  return s
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/\./g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const tournamentId = searchParams.get('tournamentId') ?? 'pga';
-  const playerName  = searchParams.get('playerName') ?? '';
+  const playerName = searchParams.get('playerName') ?? '';
 
-  const feed = TOURNAMENT_FEEDS[tournamentId];
-  if (!feed) return Response.json({ error: 'Unknown tournament' }, { status: 400 });
+  const meta = TOURNAMENT_META[tournamentId];
+  if (!meta) return Response.json({ error: 'Unknown tournament' }, { status: 400 });
 
-  const headers = { 'user-agent': UA };
+  // ── 1. Look up the player's Slash Golf playerId from the leaderboard cache ─
+  let playerId: string | null = null;
 
   try {
-    // ── 1. Try ESPN scorecard endpoint (hole-by-hole) ──────────────────────────
-    const scRes = await fetch(
-      `https://site.web.api.espn.com/apis/site/v2/sports/golf/leaderboard/scorecards?event=${feed.espnTournamentId}`,
-      { cache: 'no-store', headers },
+    const { readFile } = await import('node:fs/promises');
+    const { default: path } = await import('node:path');
+    const dataRoot = process.env.VERCEL ? '/tmp/golf-pool-data' : path.join(process.cwd(), 'data');
+    const cacheFile = path.join(dataRoot, 'leaderboard-cache', `${tournamentId}.json`);
+    const raw = JSON.parse(await readFile(cacheFile, 'utf8')) as {
+      leaderboard: Array<{ playerId: string; firstName: string; lastName: string }>;
+    };
+    const match = raw.leaderboard.find(
+      (r) => normName(`${r.firstName} ${r.lastName}`) === normName(playerName),
     );
-
-    if (scRes.ok) {
-      const scData = await scRes.json();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const competitors: any[] = scData.scorecards ?? scData.competitors ?? [];
-      const competitor = findCompetitor(competitors, playerName);
-
-      if (competitor) {
-        const rounds: { round: number; holes: { hole: number; par: number; score: number | null; label: string }[] }[] = [];
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        for (const round of (competitor.rounds ?? competitor.scorecardEntries ?? [])) {
-          const roundNum = round.period ?? round.round ?? rounds.length + 1;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const holes = (round.linescores ?? round.holes ?? []).map((h: any, idx: number) => ({
-            hole: h.hole?.number ?? h.holeNumber ?? idx + 1,
-            par:  h.hole?.par ?? h.par ?? 0,
-            score: h.score?.value ?? h.value ?? null,
-            label: h.score?.displayValue ?? h.displayValue ?? '--',
-          }));
-          if (holes.length) rounds.push({ round: roundNum, holes });
-        }
-
-        if (rounds.length) {
-          const courseName = scData.event?.venues?.[0]?.fullName ?? feed.courseName;
-          const par = Number(scData.event?.competitions?.[0]?.parValue ?? feed.par);
-          return Response.json({ courseName, par, rounds, source: 'espn-scorecards' });
-        }
-      }
-    }
-
-    // ── 2. Fall back to ESPN leaderboard JSON for round totals ─────────────────
-    const lbRes = await fetch(
-      `https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=${feed.espnTournamentId}`,
-      { cache: 'no-store', headers },
-    );
-
-    if (!lbRes.ok) throw new Error(`ESPN leaderboard ${lbRes.status}`);
-
-    const lbData = await lbRes.json();
-    const event = lbData.events?.[0];
-    const competition = event?.competitions?.[0];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const competitors: any[] = competition?.competitors ?? [];
-    const courseName = event?.venues?.[0]?.fullName ?? feed.courseName;
-    const par = Number(competition?.parValue ?? feed.par);
-
-    const competitor = findCompetitor(competitors, playerName);
-    if (!competitor) {
-      return Response.json({ courseName, par, rounds: [], source: 'espn-leaderboard', message: 'Player not found' });
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rounds = (competitor.linescores ?? []).map((ls: any, i: number) => ({
-      round: i + 1,
-      score: ls.value ?? ls.displayValue ?? '--',
-      holes: [],
-    }));
-
-    return Response.json({ courseName, par, rounds, source: 'espn-leaderboard' });
+    if (match?.playerId) playerId = String(match.playerId);
   } catch {
-    return Response.json({ courseName: feed.courseName, par: feed.par, rounds: [], source: 'error' });
+    // Cache not yet written — proceed to fallback
   }
+
+  // ── 2. Always fetch live from Slash Golf (shows current in-progress round) ─
+  if (playerId) {
+    try {
+      const roundsRaw = await fetchScorecard(meta.slashGolfTournId, meta.year, playerId);
+      const rounds = roundsRaw.map((r) => ({
+        round: parseMongo(r.roundId),
+        holes: Object.entries(r.holes ?? {})
+          .sort(([a], [b]) => Number(a) - Number(b))
+          .map(([, h]) => ({
+            hole: parseMongo(h.holeId),
+            par: parseMongo(h.par),
+            score: parseMongo(h.holeScore),
+            label: String(parseMongo(h.holeScore)),
+          })),
+      }));
+      return Response.json({
+        courseName: meta.courseName,
+        par: meta.par,
+        rounds,
+        source: 'slash-golf-live',
+      });
+    } catch {
+      // Fall through to cache fallback
+    }
+  }
+
+  // ── 3. Fall back to scorecard cache (completed rounds only) ───────────────
+  const cache = await getScorecardCache(tournamentId);
+  if (cache) {
+    const stored = Object.values(cache.players).find(
+      (p) => normName(p.playerName) === normName(playerName),
+    );
+    if (stored?.rounds.length) {
+      return Response.json({
+        courseName: meta.courseName,
+        par: meta.par,
+        rounds: stored.rounds.map((r) => ({
+          round: r.roundId,
+          holes: r.holes.map((h) => ({
+            hole: h.holeNumber,
+            par: h.par,
+            score: h.score,
+            label: String(h.score),
+          })),
+        })),
+        source: 'slash-golf-cache',
+      });
+    }
+  }
+
+  return Response.json({
+    courseName: meta.courseName,
+    par: meta.par,
+    rounds: [],
+    source: 'unavailable',
+    message: playerId ? 'Scorecard fetch failed' : 'Player not found in tournament field',
+  });
 }
