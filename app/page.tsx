@@ -5460,9 +5460,6 @@ export default function Page() {
                     style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#e6edf1' }}
                   />
                   <div>
-                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                    Player scoring breakdown
-                  </div>
                   <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                     <h3 className="breakdown-scoring-name" style={{ margin: 0, fontSize: 20, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
                     <div
