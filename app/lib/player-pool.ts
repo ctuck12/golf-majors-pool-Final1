@@ -119,6 +119,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 110, name: 'Ernie Els',           pgaTourId:  6522, defaultOdds: '+100000', worldRank: 700, photoUrl: '/player-photos/ernie-els.jpg' },
   { id: 111, name: 'Vijay Singh',         pgaTourId:  6567, defaultOdds: '+100000', worldRank: 800, photoUrl: '/player-photos/vijay-singh.jpg' },
   { id: 112, name: 'Marco Penge',         pgaTourId: 51003, defaultOdds: '+20000',  worldRank: 160 },
+  { id: 113, name: 'Francesco Molinari',  pgaTourId: 25198, defaultOdds: '+50000',  worldRank: 350 },
 ] as const;
 
 export type PlayerPoolEntry = (typeof PLAYER_POOL_WITH_PGA_IDS)[number];
