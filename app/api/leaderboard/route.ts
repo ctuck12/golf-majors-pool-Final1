@@ -499,6 +499,23 @@ export async function GET(request: Request) {
     if (currentRound <= 3) {
       await captureRoundLeader(tournamentId, currentRound, rows);
     }
+
+    // Backfill any prior rounds whose data is missing (handles cold starts and
+    // tournaments that completed before the system was running).
+    for (let rndId = 1; rndId < currentRound; rndId++) {
+      // Low round: derive strokes from the final leaderboard's rounds array.
+      if (!lowRoundStore[tournamentId]?.[String(rndId)]) {
+        await captureLowRound(tournamentId, rndId, rows);
+      }
+      // Round leader: requires the round-specific leaderboard (positions differ).
+      if (rndId <= 3 && !roundLeaderStore[tournamentId]?.[String(rndId)]) {
+        try {
+          const histLb = await fetchLeaderboard(meta.slashGolfTournId, meta.year, rndId);
+          await captureRoundLeader(tournamentId, rndId, histLb.leaderboardRows ?? []);
+        } catch { /* not available — skip */ }
+      }
+    }
+
     await refreshScorecards(
       tournamentId,
       meta.slashGolfTournId,
