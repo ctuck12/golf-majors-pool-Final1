@@ -147,6 +147,10 @@ type FeedRow = {
   canonicalName?: string;
 };
 
+type ScorecardHole = { hole: number; par: number; score: number | null; label: string };
+type ScorecardRound = { round: number; score?: number | string; holes: ScorecardHole[] };
+type ScorecardData = { courseName: string; par: number; rounds: ScorecardRound[]; source: string; message?: string };
+
 type FeedResponse = {
   fetchedAt: string;
   players: FeedRow[];
@@ -667,6 +671,10 @@ export default function Page() {
   const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTERS[initialTournament]);
   const [activeStandingEntryId, setActiveStandingEntryId] = useState<string | null>(null);
   const [activeStandingGolferId, setActiveStandingGolferId] = useState<number | null>(null);
+  const [scorecardGolferName, setScorecardGolferName] = useState<string | null>(null);
+  const [scorecardGolferPhoto, setScorecardGolferPhoto] = useState<{pgaTourId: number; photoUrl?: string} | null>(null);
+  const [scorecardData, setScorecardData] = useState<ScorecardData | null>(null);
+  const [scorecardLoading, setScorecardLoading] = useState(false);
   const entryBreakdownRef = useRef<HTMLDivElement>(null);
   const [showPointsSystem, setShowPointsSystem] = useState(false);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
@@ -5332,7 +5340,7 @@ export default function Page() {
                           src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                           alt={golfer.name}
                           className="breakdown-golfer-photo"
-                          style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#e6edf1' }}
+                          style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#e6edf1' }}
                         />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
@@ -5347,7 +5355,20 @@ export default function Page() {
                             <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                               <span>Pos: {golfer.position}</span>
                               <span>Tourn. Score: {golfer.score}</span>
-                              <span>Current Round: {formatCurrentRoundScore(golfer.total, golfer.score)}</span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setScorecardGolferName(golfer.name);
+                                  setScorecardGolferPhoto({ pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl });
+                                  setScorecardData(null);
+                                  setScorecardLoading(true);
+                                  fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}`)
+                                    .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
+                                }}
+                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'underline' }}
+                              >
+                                Current Round: {formatCurrentRoundScore(golfer.total, golfer.score)}
+                              </button>
                             </div>
                           )}
                         </div>
@@ -5476,12 +5497,6 @@ export default function Page() {
                     >
                       Click here for points system
                     </button>
-                  </div>
-                  <div className="breakdown-scoring-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                    <span>Position: {activeStandingGolfer.position}</span>
-                    <span>Tourn. Score: {activeStandingGolfer.score}</span>
-                    <span>Current Round: {formatCurrentRoundScore(activeStandingGolfer.total, activeStandingGolfer.score)}</span>
-                    <span>Holes Rem: {activeStandingGolfer.holesRemaining}</span>
                   </div>
                 </div>
                 </div>
@@ -5659,6 +5674,118 @@ export default function Page() {
             </div>
           </div>
         ) : null}
+
+        {/* Scorecard popup */}
+        {scorecardGolferName ? (
+          <div
+            onClick={() => { setScorecardGolferName(null); setScorecardData(null); }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, zIndex: 80 }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: 'min(740px, 100%)', maxHeight: '90vh', overflowY: 'auto', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.25)' }}
+            >
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <img
+                    src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
+                    alt={scorecardGolferName}
+                    style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', background: '#e6edf1', flexShrink: 0 }}
+                  />
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.05em' }}>Scorecard</div>
+                    <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>{scorecardGolferName}</div>
+                    {scorecardData && (
+                      <div style={{ fontSize: 13, color: '#607282' }}>
+                        {scorecardData.courseName}&nbsp;&nbsp;<em>Par {scorecardData.par}</em>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setScorecardGolferName(null); setScorecardData(null); }}
+                  style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
+                >
+                  Close
+                </button>
+              </div>
+
+              {/* Body */}
+              {scorecardLoading ? (
+                <div style={{ textAlign: 'center', color: '#607282', padding: '32px 0', fontSize: 15 }}>Loading scorecard…</div>
+              ) : !scorecardData || scorecardData.rounds.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#607282', padding: '32px 0', fontSize: 15 }}>
+                  Scorecard data is not yet available for this round.
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: 20 }}>
+                  {scorecardData.rounds.map((rnd) => {
+                    const front = rnd.holes.filter(h => h.hole <= 9);
+                    const back  = rnd.holes.filter(h => h.hole >= 10);
+                    const frontPar   = front.reduce((s, h) => s + (h.par || 0), 0);
+                    const backPar    = back.reduce((s,  h) => s + (h.par || 0), 0);
+                    const frontScore = front.reduce((s, h) => s + (h.score ?? 0), 0);
+                    const backScore  = back.reduce((s,  h) => s + (h.score ?? 0), 0);
+
+                    const cellStyle = (bg?: string): React.CSSProperties => ({
+                      padding: '6px 4px', textAlign: 'center', fontSize: 13, fontWeight: 600,
+                      background: bg ?? 'transparent', whiteSpace: 'nowrap',
+                    });
+                    const headerCell = (label: string, bg = '#f1f5f9'): React.CSSProperties => ({
+                      ...cellStyle(bg), fontWeight: 800, fontSize: 12, color: '#5b6b79',
+                    });
+
+                    return (
+                      <div key={rnd.round}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#3f73ad', marginBottom: 8 }}>Round {rnd.round}</div>
+                        {rnd.holes.length > 0 ? (
+                          <div style={{ overflowX: 'auto' }}>
+                            <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 540 }}>
+                              <thead>
+                                <tr style={{ background: '#f1f5f9' }}>
+                                  <th style={headerCell('Hole')}>Hole</th>
+                                  {front.map(h => <th key={h.hole} style={cellStyle('#f1f5f9')}>{h.hole}</th>)}
+                                  <th style={cellStyle('#dbeafe')}>OUT</th>
+                                  {back.map(h => <th key={h.hole} style={cellStyle('#f1f5f9')}>{h.hole}</th>)}
+                                  <th style={cellStyle('#dbeafe')}>IN</th>
+                                  <th style={cellStyle('#bfdbfe')}>TOT</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td style={{ ...cellStyle('#f8fafc'), fontWeight: 800, color: '#5b6b79', fontSize: 12 }}>Par</td>
+                                  {front.map(h => <td key={h.hole} style={cellStyle('#f8fafc')}>{h.par || '--'}</td>)}
+                                  <td style={{ ...cellStyle('#dbeafe'), fontWeight: 700 }}>{frontPar || '--'}</td>
+                                  {back.map(h => <td key={h.hole} style={cellStyle('#f8fafc')}>{h.par || '--'}</td>)}
+                                  <td style={{ ...cellStyle('#dbeafe'), fontWeight: 700 }}>{backPar || '--'}</td>
+                                  <td style={{ ...cellStyle('#bfdbfe'), fontWeight: 800 }}>{(frontPar + backPar) || '--'}</td>
+                                </tr>
+                                <tr>
+                                  <td style={{ ...cellStyle(), fontWeight: 800, color: '#0f1720', fontSize: 12 }}>Score</td>
+                                  {front.map(h => <td key={h.hole} style={cellStyle()}>{h.label}</td>)}
+                                  <td style={{ ...cellStyle('#dbeafe'), fontWeight: 700 }}>{frontScore > 0 ? `+${frontScore}` : frontScore === 0 ? 'E' : frontScore}</td>
+                                  {back.map(h => <td key={h.hole} style={cellStyle()}>{h.label}</td>)}
+                                  <td style={{ ...cellStyle('#dbeafe'), fontWeight: 700 }}>{backScore > 0 ? `+${backScore}` : backScore === 0 ? 'E' : backScore}</td>
+                                  <td style={{ ...cellStyle('#bfdbfe'), fontWeight: 800 }}>{frontScore + backScore > 0 ? `+${frontScore + backScore}` : frontScore + backScore === 0 ? 'E' : frontScore + backScore}</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : (
+                          <div style={{ color: '#607282', fontSize: 14 }}>
+                            Round {rnd.round} score: {typeof rnd.score === 'number' ? (rnd.score > 0 ? `+${rnd.score}` : rnd.score === 0 ? 'E' : rnd.score) : rnd.score ?? '--'}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : null}
+
         </>
         ) : null}
       </div>
