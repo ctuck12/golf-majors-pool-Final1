@@ -5711,7 +5711,12 @@ export default function Page() {
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.05em' }}>Scorecard</div>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>{scorecardGolferName}</div>
-                    {scorecardData && <div style={{ fontSize: 13, color: '#607282' }}>{scorecardData.courseName}</div>}
+                    {scorecardData && (
+                      <div style={{ fontSize: 13, color: '#607282', display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                        <span>{scorecardData.courseName}</span>
+                        <span style={{ fontSize: 11, fontStyle: 'italic' }}>Par: {scorecardData.par}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <button
