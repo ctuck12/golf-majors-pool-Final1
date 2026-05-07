@@ -5353,6 +5353,11 @@ export default function Page() {
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
+                        <img
+                          src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
+                          alt={golfer.name}
+                          style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#e6edf1' }}
+                        />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                           <div style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -5452,7 +5457,13 @@ export default function Page() {
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
-                <div>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  <img
+                    src={activeStandingGolfer.photoUrl ?? pgaPhoto(activeStandingGolfer.pgaTourId)}
+                    alt={activeStandingGolfer.name}
+                    style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#e6edf1' }}
+                  />
+                  <div>
                   <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                     Player scoring breakdown
                   </div>
@@ -5494,6 +5505,7 @@ export default function Page() {
                     <span>Current Round: {formatCurrentRoundScore(activeStandingGolfer.total, activeStandingGolfer.score)}</span>
                     <span>Holes Rem: {activeStandingGolfer.holesRemaining}</span>
                   </div>
+                </div>
                 </div>
                 <button
                   onClick={() => { setShowPointsSystem(false); setActiveStandingGolferId(null); }}
