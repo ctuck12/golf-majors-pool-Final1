@@ -2899,10 +2899,18 @@ export default function Page() {
                       }}
                     >
                       <span>
-                        <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $25
+                        <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $30
                       </span>
                       <span>
-                        <strong style={{ color: '#0f1720' }}>Venmo:</strong> @claytont743
+                        <strong style={{ color: '#0f1720' }}>Venmo:</strong>{' '}
+                        {isMobile ? (
+                          <a
+                            href="venmo://paycharge?txn=pay&recipients=claytont743"
+                            style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}
+                          >
+                            @claytont743
+                          </a>
+                        ) : '@claytont743'}
                       </span>
                     </div>
                   )}
@@ -4161,7 +4169,7 @@ export default function Page() {
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
                   <span style={{ marginRight: 4 }}>➤</span>
-                  Entry Fee: $25
+                  Entry Fee: $30
                 </div>
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
@@ -5524,7 +5532,7 @@ export default function Page() {
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        Click here for points system
+                        {isMobile ? 'Tap for points system' : 'Click here for points system'}
                       </button>
                     </div>
                   </div>
