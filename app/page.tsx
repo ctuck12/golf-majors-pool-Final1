@@ -5410,7 +5410,7 @@ export default function Page() {
                           )}
                         </div>
                         <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                          <div className="breakdown-golfer-points" style={{ fontSize: isMobile ? 22 : 18, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
+                          <div className="breakdown-golfer-points" style={{ fontSize: isMobile ? 22 : 18, fontWeight: 900, color: '#2f5f96' }}>{formatPointValue(golfer.points)}</div>
                         </div>
                       </div>
                     </button>
@@ -5725,7 +5725,7 @@ export default function Page() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              style={{ width: 'min(960px, 100%)', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.25)' }}
+              style={{ width: 'min(1140px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.25)' }}
             >
               {/* Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
@@ -5776,11 +5776,11 @@ export default function Page() {
                 const thickBorder = '2px solid #9ab0c4';
 
                 const baseCell: React.CSSProperties = {
-                  border, padding: '7px 5px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap',
+                  border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap',
                 };
                 const labelCell: React.CSSProperties = {
                   ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase',
-                  background: '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 72, color: '#374151',
+                  background: '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151',
                 };
                 const subtotalCell: React.CSSProperties = {
                   ...baseCell, fontWeight: 800, background: '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
@@ -5863,9 +5863,9 @@ export default function Page() {
                           </tr>
                           <tr>
                             <td style={{ ...labelCell, background: '#fff' }}>Score</td>
-                            {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '8px 8px' }}><span style={badge(h.score ?? 0, h.par)}>{h.label}</span></td>)}
+                            {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}><span style={badge(h.score ?? 0, h.par)}>{h.label}</span></td>)}
                             <td style={subtotalCell}>{frontScore > 0 ? frontScore : '--'}</td>
-                            {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '8px 8px' }}><span style={badge(h.score ?? 0, h.par)}>{h.label}</span></td>)}
+                            {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}><span style={badge(h.score ?? 0, h.par)}>{h.label}</span></td>)}
                             <td style={subtotalCell}>{backScore > 0 ? backScore : '--'}</td>
                             <td style={totalCell}>{totalScore > 0 ? totalScore : '--'}</td>
                           </tr>
