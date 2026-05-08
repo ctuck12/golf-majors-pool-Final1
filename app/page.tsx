@@ -3787,7 +3787,7 @@ export default function Page() {
                               border: 'none',
                               outline: 'none',
                               width: '100%',
-                              fontSize: 15,
+                              fontSize: isMobile ? 16 : 15,
                               color: '#0f1720',
                               padding: '14px 0',
                               background: 'transparent',
@@ -3968,7 +3968,7 @@ export default function Page() {
                               outline: 'none',
                               width: '100%',
                               padding: '12px 0',
-                              fontSize: 15,
+                              fontSize: isMobile ? 16 : 15,
                               background: 'transparent',
                             }}
                           />
@@ -4894,7 +4894,7 @@ export default function Page() {
                             outline: 'none',
                             width: '100%',
                             padding: isMobile ? '10px 0' : '12px 0',
-                            fontSize: isMobile ? 13 : 15,
+                            fontSize: isMobile ? 16 : 15,
                             background: 'transparent',
                             color: '#0f1720',
                           }}
