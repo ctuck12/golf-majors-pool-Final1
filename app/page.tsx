@@ -2702,7 +2702,7 @@ export default function Page() {
                       >
                         <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>TPC Sawgrass</span>
                         {showProjectedCut && feed?.projectedCut ? (
-                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>Projected Cut: {feed.projectedCut}</span>
+                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
                         ) : null}
                       </div>
                       <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
@@ -2724,7 +2724,7 @@ export default function Page() {
                       >
                         <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Augusta National Golf Club</span>
                         {showProjectedCut && feed?.projectedCut ? (
-                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>Projected Cut: {feed.projectedCut}</span>
+                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
                         ) : null}
                       </div>
                       <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
@@ -2746,7 +2746,7 @@ export default function Page() {
                       >
                         <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Aronimink Golf Club</span>
                         {showProjectedCut && feed?.projectedCut ? (
-                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>Projected Cut: {feed.projectedCut}</span>
+                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
                         ) : null}
                       </div>
                       <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
@@ -2768,7 +2768,7 @@ export default function Page() {
                       >
                         <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Shinnecock Hills Golf Club</span>
                         {showProjectedCut && feed?.projectedCut ? (
-                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>Projected Cut: {feed.projectedCut}</span>
+                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
                         ) : null}
                       </div>
                       <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
@@ -2790,7 +2790,7 @@ export default function Page() {
                       >
                         <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Royal Birkdale Golf Club</span>
                         {showProjectedCut && feed?.projectedCut ? (
-                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>Projected Cut: {feed.projectedCut}</span>
+                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
                         ) : null}
                       </div>
                       <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
