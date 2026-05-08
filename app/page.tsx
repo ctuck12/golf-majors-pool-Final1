@@ -1863,14 +1863,14 @@ export default function Page() {
   };
 
   const renderRosterCards = (background: string, allowRemove = false) => (
-    <div style={{ display: 'grid', gap: isMobile ? 14 : 10 }}>
+    <div style={{ display: 'grid', gap: isMobile ? 10 : 10 }}>
       {orderedRosterPlayers.map((player, index) => (
         <div
           key={player.id}
           style={{
             border: '1px solid #e6edf1',
             borderRadius: 16,
-            padding: isMobile ? 22 : 18,
+            padding: isMobile ? '16px 16px' : '16px 20px',
             display: 'flex',
             justifyContent: 'space-between',
             gap: 12,
@@ -1878,16 +1878,16 @@ export default function Page() {
             background,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 14 : 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 10 }}>
             <img
               src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
               alt={player.name}
-              className="roster-card-photo" style={{ width: isMobile ? 64 : 58, height: isMobile ? 64 : 58, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+              className="roster-card-photo" style={{ width: isMobile ? 58 : 58, height: isMobile ? 58 : 58, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
             />
             <div>
-              <div style={{ fontWeight: 700, fontSize: isMobile ? 17 : undefined }}>{player.name}</div>
-              <div style={{ marginTop: 4, fontSize: isMobile ? 14 : 13, color: '#6b7b88' }}>
-                OWGR {player.worldRank} | {player.odds} | <span style={{ fontWeight: 800, fontSize: isMobile ? 16 : 15, color: '#3f73ad' }}>${player.salary.toLocaleString()}</span>
+              <div style={{ fontWeight: 700, fontSize: isMobile ? 17 : 20 }}>{player.name}</div>
+              <div style={{ marginTop: 4, fontSize: isMobile ? 13 : 14, color: '#6b7b88' }}>
+                OWGR {player.worldRank} | {player.odds} | <span style={{ fontWeight: 800, fontSize: isMobile ? 14 : 16, color: '#3f73ad' }}>${player.salary.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -1913,7 +1913,7 @@ export default function Page() {
               </button>
             ) : null}
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontWeight: 900, fontSize: isMobile ? 24 : 20 }}>{player.points}</div>
+              <div style={{ fontWeight: 900, fontSize: isMobile ? 20 : 20 }}>{player.points}</div>
               <div style={{ fontSize: isMobile ? 13 : 12, color: '#2f5f96' }}>{player.holesRemaining} holes left</div>
             </div>
           </div>
@@ -3417,11 +3417,26 @@ export default function Page() {
                                 borderRadius: 999,
                                 background: '#e8f3ff',
                                 color: '#2f5f96',
-                                padding: isMobile ? '4px 8px' : '7px 12px',
+                                padding: isMobile ? '3px 10px 3px 3px' : '5px 14px 5px 5px',
                                 fontSize: isMobile ? 11 : 13,
                                 fontWeight: 800,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: isMobile ? 5 : 7,
                               }}
                             >
+                              <img
+                                src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
+                                alt={player.name}
+                                style={{
+                                  width: isMobile ? 26 : 30,
+                                  height: isMobile ? 26 : 30,
+                                  borderRadius: '50%',
+                                  objectFit: 'cover',
+                                  background: '#c5d9f0',
+                                  flexShrink: 0,
+                                }}
+                              />
                               {player.name}
                             </span>
                           ))}
