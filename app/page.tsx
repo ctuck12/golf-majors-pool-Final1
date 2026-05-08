@@ -3042,7 +3042,7 @@ export default function Page() {
             )}
             </section>
 
-            <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20 }}>
+            <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20, alignSelf: isMobile ? undefined : 'start' }}>
               {showFinalTournamentView ? (
                 <section
                   style={{
