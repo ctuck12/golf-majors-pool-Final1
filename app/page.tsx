@@ -5316,7 +5316,7 @@ export default function Page() {
                 overflowY: 'auto',
                 background: '#fff',
                 borderRadius: 20,
-                padding: 16,
+                padding: isMobile ? 16 : 12,
                 boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
               }}
             >
@@ -5328,7 +5328,7 @@ export default function Page() {
                   <div style={{ marginTop: 2, color: '#6b7b88', fontSize: isMobile ? 10.5 : 12 }}>
                     {isMobile
                       ? '*Tap player for details; Tap "Current Rnd" for scorecard'
-                      : '*Click player for scoring details; Click "Current Round" for scorecard'}
+                      : '*Click player for scoring details; Click "Current Rnd" for scorecard'}
                   </div>
                 </div>
                 <button
@@ -5350,7 +5350,7 @@ export default function Page() {
                 </button>
               </div>
 
-              <div style={{ marginTop: 12, display: 'grid', gap: 8 }}>
+              <div style={{ marginTop: isMobile ? 12 : 6, display: 'grid', gap: isMobile ? 8 : 5 }}>
                 {activeStandingEntry.golfers.length > 0 ? (
                   activeStandingGolfers.map((golfer, index) => {
                     const pickedCount = standings.reduce(
@@ -5367,7 +5367,7 @@ export default function Page() {
                         width: '100%',
                         border: '1px solid #e6edf1',
                         borderRadius: 12,
-                        padding: '10px 12px',
+                        padding: isMobile ? '10px 12px' : '7px 12px',
                         background: isActiveGolfer ? '#eef4ff' : '#fff',
                         textAlign: 'left',
                         cursor: 'pointer',
@@ -5378,19 +5378,19 @@ export default function Page() {
                           src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                           alt={golfer.name}
                           className="breakdown-golfer-photo"
-                          style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#e6edf1' }}
+                          style={{ width: isMobile ? 52 : 42, height: isMobile ? 52 : 42, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#e6edf1' }}
                         />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                          <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                          <div className="breakdown-golfer-name" style={{ fontSize: isMobile ? 16 : 14, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                          <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: isMobile ? 12 : 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                             <span>Holes Rem: {golfer.holesRemaining}</span>
                             <span>Picked: {pickedCount}</span>
                             <span>Pos: {formatPosition(golfer.position)}</span>
                           </div>
                           {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
-                            <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
+                            <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: isMobile ? 12 : 11, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
                           ) : (
-                            <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                            <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: isMobile ? 12 : 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                               <span>Score: {golfer.score}</span>
                               <button
                                 onClick={(e) => {
@@ -5410,7 +5410,7 @@ export default function Page() {
                           )}
                         </div>
                         <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                          <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
+                          <div className="breakdown-golfer-points" style={{ fontSize: isMobile ? 22 : 18, fontWeight: 900 }}>{formatPointValue(golfer.points)}</div>
                         </div>
                       </div>
                     </button>
@@ -5432,22 +5432,22 @@ export default function Page() {
 
               <div
                 style={{
-                  marginTop: 18,
+                  marginTop: isMobile ? 18 : 10,
                   display: 'grid',
                   gridTemplateColumns: '1fr auto auto',
                   gap: 16,
                   alignItems: 'center',
                   borderTop: '1px solid #e6edf1',
-                  paddingTop: 16,
+                  paddingTop: isMobile ? 16 : 10,
                 }}
               >
-                <div style={{ color: '#50616f', fontSize: 18 }}>
+                <div style={{ color: '#50616f', fontSize: isMobile ? 18 : 15 }}>
                   Total holes rem: <strong>{activeStandingEntry.holesRemaining}</strong>
                 </div>
-                <div style={{ color: '#50616f', fontSize: 18 }}>
+                <div style={{ color: '#50616f', fontSize: isMobile ? 18 : 15 }}>
                   Tiebreak value: <strong>{activeStandingEntry.tieBreakValue}</strong>
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#0f1720' }}>
+                <div style={{ fontSize: isMobile ? 18 : 15, fontWeight: 800, color: '#0f1720' }}>
                   Total {formatPointValue(activeStandingEntry.rosterPoints)}
                 </div>
               </div>
