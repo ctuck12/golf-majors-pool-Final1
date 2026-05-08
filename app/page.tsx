@@ -3383,12 +3383,18 @@ export default function Page() {
                   style={{
                     marginTop: isMobile ? 10 : 24,
                     display: 'grid',
-                    gridTemplateColumns: isMobile ? 'auto 1fr auto' : 'minmax(220px, 1fr) minmax(320px, 420px) minmax(220px, 1fr)',
+                    gridTemplateColumns: (isMobile && hasSubmittedRoster)
+                      ? '1fr auto'
+                      : isMobile
+                        ? 'auto 1fr auto'
+                        : 'minmax(220px, 1fr) minmax(320px, 420px) minmax(220px, 1fr)',
                     gap: isMobile ? '6px 8px' : 20,
                     alignItems: 'center',
                   }}
                 >
-                  <div style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720' }}>Entry</div>
+                  {!(isMobile && hasSubmittedRoster) && (
+                    <div style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720' }}>Entry</div>
+                  )}
                   <div
                     style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'center', justifySelf: 'center' }}
                   >
@@ -3396,8 +3402,10 @@ export default function Page() {
                   </div>
                   <div style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'right' }}>Options</div>
 
-                  <div style={{ fontSize: isMobile ? 12 : 18, color: '#0f1720', fontWeight: isMobile ? 600 : 400 }}>{userLabel}</div>
-                  <div style={{ display: 'grid', justifyItems: 'center' }}>
+                  {!(isMobile && hasSubmittedRoster) && (
+                    <div style={{ fontSize: isMobile ? 12 : 18, color: '#0f1720', fontWeight: isMobile ? 600 : 400 }}>{userLabel}</div>
+                  )}
+                  <div style={{ display: 'grid', justifyItems: (isMobile && hasSubmittedRoster) ? 'stretch' : 'center' }}>
                     {hasSubmittedRoster ? (
                       <div
                         style={{
@@ -3417,20 +3425,20 @@ export default function Page() {
                                 borderRadius: 999,
                                 background: '#e8f3ff',
                                 color: '#2f5f96',
-                                padding: isMobile ? '3px 10px 3px 3px' : '5px 14px 5px 5px',
-                                fontSize: isMobile ? 11 : 13,
+                                padding: isMobile ? '4px 14px 4px 4px' : '5px 14px 5px 5px',
+                                fontSize: isMobile ? 15 : 13,
                                 fontWeight: 800,
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: isMobile ? 5 : 7,
+                                gap: isMobile ? 8 : 7,
                               }}
                             >
                               <img
                                 src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
                                 alt={player.name}
                                 style={{
-                                  width: isMobile ? 26 : 30,
-                                  height: isMobile ? 26 : 30,
+                                  width: isMobile ? 40 : 30,
+                                  height: isMobile ? 40 : 30,
                                   borderRadius: '50%',
                                   objectFit: 'cover',
                                   background: '#c5d9f0',
