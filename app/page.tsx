@@ -1870,7 +1870,7 @@ export default function Page() {
           style={{
             border: '1px solid #e6edf1',
             borderRadius: 16,
-            padding: 14,
+            padding: 18,
             display: 'flex',
             justifyContent: 'space-between',
             gap: 12,
@@ -1882,7 +1882,7 @@ export default function Page() {
             <img
               src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
               alt={player.name}
-              className="roster-card-photo" style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+              className="roster-card-photo" style={{ width: 58, height: 58, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
             />
             <div>
               <div style={{ fontWeight: 700 }}>{player.name}</div>
@@ -1931,11 +1931,11 @@ export default function Page() {
         gap: 10,
       }}
     >
-      <div style={{ borderRadius: 16, background, padding: 14, border }}>
+      <div style={{ borderRadius: 16, background, padding: 18, border }}>
         <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>Salary used</div>
         <div style={{ marginTop: 6, fontSize: 22, fontWeight: 900 }}>${salaryUsed.toLocaleString()}</div>
       </div>
-      <div style={{ borderRadius: 16, background, padding: 14, border }}>
+      <div style={{ borderRadius: 16, background, padding: 18, border }}>
         <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>Remaining</div>
         <div
           style={{
@@ -1948,7 +1948,7 @@ export default function Page() {
           ${salaryRemaining.toLocaleString()}
         </div>
       </div>
-      <div style={{ borderRadius: 16, background, padding: 14, border }}>
+      <div style={{ borderRadius: 16, background, padding: 18, border }}>
         <div style={{ fontSize: 12, color: '#5b6b79', textTransform: 'uppercase', fontWeight: 800 }}>
           Avg/player left
         </div>
@@ -3812,7 +3812,7 @@ export default function Page() {
                       style={{
                         borderRadius: 16,
                         border: '1px solid #dce6ee',
-                        padding: '16px 20px',
+                        padding: '22px 26px',
                         background: '#fff',
                       }}
                     >
@@ -4953,9 +4953,9 @@ export default function Page() {
                 </div>
 
                 <div style={{ display: 'grid', gap: 18 }}>
-                  <div style={{ border: '1px solid #d7e0e8', borderRadius: 18, padding: isMobile ? 12 : 20, background: '#fff' }}>
+                  <div style={{ border: '1px solid #d7e0e8', borderRadius: 18, padding: isMobile ? 16 : 26, background: '#fff' }}>
                     <div style={{ fontSize: isMobile ? 13 : 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
-                    <div style={{ marginTop: 4, fontSize: isMobile ? 28 : 36, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
+                    <div style={{ marginTop: 4, fontSize: isMobile ? 30 : 40, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
                     <div style={{ marginTop: 8, fontSize: isMobile ? 12 : 16, color: '#31424f' }}>
                       Avg Rem./Player: ${commissionerAverageRemainingPerPlayer.toLocaleString()}
                     </div>
@@ -4973,17 +4973,17 @@ export default function Page() {
                             border: '1px solid #d7e0e8',
                             borderRadius: isMobile ? 14 : 18,
                             background: '#fff',
-                            minHeight: isMobile ? 48 : 60,
+                            minHeight: isMobile ? 60 : 74,
                           }}
                         >
-                          <div style={{ padding: isMobile ? '10px 12px' : '14px 18px', display: 'grid', alignContent: 'center', gap: 4 }}>
+                          <div style={{ padding: isMobile ? '12px 14px' : '16px 20px', display: 'grid', alignContent: 'center', gap: 4 }}>
                             {golfer ? (
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 10 }}>
                                   <img
                                     src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                     alt={golfer.name}
-                                    className="roster-card-photo" style={{ width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                    className="roster-card-photo" style={{ width: isMobile ? 46 : 58, height: isMobile ? 46 : 58, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
                                   />
                                   <div>
                                     <div style={{ fontSize: isMobile ? 13 : 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
