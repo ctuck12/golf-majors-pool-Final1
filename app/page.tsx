@@ -5304,7 +5304,7 @@ export default function Page() {
               className="breakdown-modal"
               style={{
                 width: 'min(620px, 100%)',
-                maxHeight: '90vh',
+                maxHeight: 'calc(100vh - 40px)',
                 overflowY: 'auto',
                 background: '#fff',
                 borderRadius: 20,
@@ -5475,7 +5475,7 @@ export default function Page() {
               className="breakdown-modal"
               style={{
                 width: 'min(620px, 100%)',
-                maxHeight: '90vh',
+                maxHeight: 'calc(100vh - 40px)',
                 overflowY: 'auto',
                 background: '#fff',
                 borderRadius: 20,
@@ -5717,7 +5717,7 @@ export default function Page() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              style={{ width: 'min(960px, 100%)', maxHeight: '90vh', overflowY: 'auto', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.25)' }}
+              style={{ width: 'min(960px, 100%)', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.25)' }}
             >
               {/* Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
