@@ -3581,11 +3581,19 @@ export default function Page() {
                                       borderRadius: 999,
                                       background: '#e8f3ff',
                                       color: '#2f5f96',
-                                      padding: '7px 12px',
+                                      padding: '5px 12px 5px 5px',
                                       fontSize: 13,
                                       fontWeight: 800,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: 6,
                                     }}
                                   >
+                                    <img
+                                      src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
+                                      alt={player.name}
+                                      style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#c8d8e8' }}
+                                    />
                                     {player.name}
                                   </span>
                                 ))}
