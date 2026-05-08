@@ -2692,7 +2692,11 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : null}
+                      ) : (
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
+                          {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
+                        </div>
+                      )}
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
@@ -2701,7 +2705,11 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : null}
+                      ) : (
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
+                          {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
+                        </div>
+                      )}
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
@@ -2710,7 +2718,11 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : null}
+                      ) : (
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
+                          {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
+                        </div>
+                      )}
                     </>
                   ) : selectedTournament === 'us-open' ? (
                     <>
@@ -2719,7 +2731,11 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : null}
+                      ) : (
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
+                          {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
+                        </div>
+                      )}
                     </>
                   ) : selectedTournament === 'open' ? (
                     <>
@@ -2728,7 +2744,11 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : null}
+                      ) : (
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
+                          {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
+                        </div>
+                      )}
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
                       <img
@@ -2763,7 +2783,7 @@ export default function Page() {
                     </div>
                     {isMobile ? (
                       <div style={{ fontSize: 12, color: '#8fa0b0', textAlign: 'right' }}>
-                        Entry Fee: $30 (
+                        <span style={{ color: '#0f1720' }}>Entry Fee:</span> $30 (
                         <a
                           href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
                           style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 600 }}
