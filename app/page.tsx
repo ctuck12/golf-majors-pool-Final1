@@ -3445,7 +3445,7 @@ export default function Page() {
                                   flexShrink: 0,
                                 }}
                               />
-                              {isMobile ? player.name.split(' ').slice(-1)[0] : player.name}
+                              {player.name.split(' ').slice(-1)[0]}
                             </span>
                           ))}
                         </div>
