@@ -4197,7 +4197,15 @@ export default function Page() {
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
                   <span style={{ marginRight: 4 }}>➤</span>
-                  Venmo: @claytont743
+                  Venmo:{' '}
+                  {isMobile ? (
+                    <a
+                      href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
+                      style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}
+                    >
+                      @claytont743
+                    </a>
+                  ) : '@claytont743'}
                 </div>
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
@@ -4206,7 +4214,14 @@ export default function Page() {
                   <span style={{ marginRight: 8 }}>:</span>
                   <span>Clayton Tucker</span>
                   <span style={{ margin: '0 3px 0 6px' }}>📞</span>
-                  <span>(325.665.8299)</span>
+                  {isMobile ? (
+                    <a
+                      href="tel:+13256658299"
+                      style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}
+                    >
+                      (325.665.8299)
+                    </a>
+                  ) : '(325.665.8299)'}
                 </div>
               </div>
               <div style={{ margin: isMobile ? '12px 0 10px' : '24px 0 18px', borderTop: '1px solid #d7dee6' }} />
