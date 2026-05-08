@@ -2705,7 +2705,6 @@ export default function Page() {
                           <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
                         ) : null}
                       </div>
-                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
@@ -2727,7 +2726,6 @@ export default function Page() {
                           <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
                         ) : null}
                       </div>
-                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
@@ -2749,7 +2747,6 @@ export default function Page() {
                           <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
                         ) : null}
                       </div>
-                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
                     </>
                   ) : selectedTournament === 'us-open' ? (
                     <>
@@ -2771,7 +2768,6 @@ export default function Page() {
                           <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
                         ) : null}
                       </div>
-                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
                     </>
                   ) : selectedTournament === 'open' ? (
                     <>
@@ -2793,7 +2789,6 @@ export default function Page() {
                           <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
                         ) : null}
                       </div>
-                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
                       <img
@@ -2827,7 +2822,7 @@ export default function Page() {
                 ) : null}
               </div>
 
-              {!showFinalTournamentView ? (
+              {(!showFinalTournamentView || showLivePayoutStrip) ? (
                 <div
                   style={{
                     marginTop: 14,
