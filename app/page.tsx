@@ -2727,7 +2727,7 @@ export default function Page() {
                   ) : selectedTournament === 'us-open' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
-                        U.S. Open
+                        U.S. Open Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
