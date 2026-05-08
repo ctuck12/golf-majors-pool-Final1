@@ -2692,9 +2692,9 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : !showFutureTournamentView ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
-                          {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
+                      ) : !showFutureTournamentView && !isMobile ? (
+                        <div style={{ marginTop: 4, fontSize: 13, color: '#8fa0b0' }}>
+                          *Click entry to view roster
                         </div>
                       ) : null}
                     </>
@@ -2705,9 +2705,9 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : !showFutureTournamentView ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
-                          {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
+                      ) : !showFutureTournamentView && !isMobile ? (
+                        <div style={{ marginTop: 4, fontSize: 13, color: '#8fa0b0' }}>
+                          *Click entry to view roster
                         </div>
                       ) : null}
                     </>
@@ -2718,9 +2718,9 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : !showFutureTournamentView ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
-                          {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
+                      ) : !showFutureTournamentView && !isMobile ? (
+                        <div style={{ marginTop: 4, fontSize: 13, color: '#8fa0b0' }}>
+                          *Click entry to view roster
                         </div>
                       ) : null}
                     </>
@@ -2731,9 +2731,9 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : !showFutureTournamentView ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
-                          {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
+                      ) : !showFutureTournamentView && !isMobile ? (
+                        <div style={{ marginTop: 4, fontSize: 13, color: '#8fa0b0' }}>
+                          *Click entry to view roster
                         </div>
                       ) : null}
                     </>
@@ -2744,9 +2744,9 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : !showFutureTournamentView ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
-                          {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
+                      ) : !showFutureTournamentView && !isMobile ? (
+                        <div style={{ marginTop: 4, fontSize: 13, color: '#8fa0b0' }}>
+                          *Click entry to view roster
                         </div>
                       ) : null}
                     </>
