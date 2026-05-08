@@ -5275,7 +5275,7 @@ export default function Page() {
             <div
               ref={entryBreakdownRef}
               onClick={(event) => event.stopPropagation()}
-              className="breakdown-modal"
+              className="breakdown-modal entry-breakdown-modal"
               style={{
                 width: 'min(620px, 100%)',
                 maxHeight: 'calc(100vh - 40px)',

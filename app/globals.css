@@ -68,6 +68,9 @@ button {
     padding: 20px !important;
     border-radius: 24px !important;
   }
+  .entry-breakdown-modal {
+    width: min(600px, 100%) !important;
+  }
   .breakdown-golfer-photo {
     width: 52px !important;
     height: 52px !important;
