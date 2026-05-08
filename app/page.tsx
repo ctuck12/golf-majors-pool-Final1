@@ -2701,13 +2701,11 @@ export default function Page() {
                         }}
                       >
                         <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>TPC Sawgrass</span>
-                        <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.players}</span>
+                        {showProjectedCut && feed?.projectedCut ? (
+                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>Projected Cut: {feed.projectedCut}</span>
+                        ) : null}
                       </div>
-                      {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: '#2f5f96' }}>
-                          Projected Cut: {feed.projectedCut}
-                        </div>
-                      ) : null}
+                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
@@ -2725,13 +2723,11 @@ export default function Page() {
                         }}
                       >
                         <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Augusta National Golf Club</span>
-                        <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.masters}</span>
+                        {showProjectedCut && feed?.projectedCut ? (
+                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>Projected Cut: {feed.projectedCut}</span>
+                        ) : null}
                       </div>
-                      {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: '#2f5f96' }}>
-                          Projected Cut: {feed.projectedCut}
-                        </div>
-                      ) : null}
+                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
@@ -2749,13 +2745,11 @@ export default function Page() {
                         }}
                       >
                         <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Aronimink Golf Club</span>
-                        <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.pga}</span>
+                        {showProjectedCut && feed?.projectedCut ? (
+                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>Projected Cut: {feed.projectedCut}</span>
+                        ) : null}
                       </div>
-                      {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: '#2f5f96' }}>
-                          Projected Cut: {feed.projectedCut}
-                        </div>
-                      ) : null}
+                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
                     </>
                   ) : selectedTournament === 'us-open' ? (
                     <>
@@ -2773,13 +2767,11 @@ export default function Page() {
                         }}
                       >
                         <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Shinnecock Hills Golf Club</span>
-                        <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS['us-open']}</span>
+                        {showProjectedCut && feed?.projectedCut ? (
+                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>Projected Cut: {feed.projectedCut}</span>
+                        ) : null}
                       </div>
-                      {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: '#2f5f96' }}>
-                          Projected Cut: {feed.projectedCut}
-                        </div>
-                      ) : null}
+                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
                     </>
                   ) : selectedTournament === 'open' ? (
                     <>
@@ -2797,13 +2789,11 @@ export default function Page() {
                         }}
                       >
                         <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Royal Birkdale Golf Club</span>
-                        <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {TOURNAMENT_PARS.open}</span>
+                        {showProjectedCut && feed?.projectedCut ? (
+                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>Projected Cut: {feed.projectedCut}</span>
+                        ) : null}
                       </div>
-                      {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: '#2f5f96' }}>
-                          Projected Cut: {feed.projectedCut}
-                        </div>
-                      ) : null}
+                      <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0' }}>*Tap entry name to view roster</div>
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
                       <img
