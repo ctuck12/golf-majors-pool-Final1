@@ -3417,7 +3417,7 @@ export default function Page() {
                           gap: isMobile ? 6 : 10,
                         }}
                       >
-                        <div style={isMobile ? { display: 'flex', flexWrap: 'wrap', gap: 6 } : { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: isMobile ? 6 : 10 }}>
                           {savedRosterPlayers.map((player) => (
                             <span
                               key={player.id}
@@ -3445,7 +3445,7 @@ export default function Page() {
                                   flexShrink: 0,
                                 }}
                               />
-                              {player.name}
+                              {isMobile ? player.name.split(' ').slice(-1)[0] : player.name}
                             </span>
                           ))}
                         </div>
