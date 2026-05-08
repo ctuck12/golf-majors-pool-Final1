@@ -2905,7 +2905,7 @@ export default function Page() {
                         <strong style={{ color: '#0f1720' }}>Venmo:</strong>{' '}
                         {isMobile ? (
                           <a
-                            href="venmo://paycharge?txn=pay&recipients=claytont743"
+                            href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
                             style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}
                           >
                             @claytont743
