@@ -3425,20 +3425,20 @@ export default function Page() {
                                 borderRadius: 999,
                                 background: '#e8f3ff',
                                 color: '#2f5f96',
-                                padding: isMobile ? '4px 14px 4px 4px' : '5px 14px 5px 5px',
-                                fontSize: isMobile ? 15 : 13,
+                                padding: isMobile ? '4px 14px 4px 4px' : '6px 18px 6px 6px',
+                                fontSize: isMobile ? 15 : 17,
                                 fontWeight: 800,
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: isMobile ? 8 : 7,
+                                gap: isMobile ? 8 : 10,
                               }}
                             >
                               <img
                                 src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
                                 alt={player.name}
                                 style={{
-                                  width: isMobile ? 40 : 30,
-                                  height: isMobile ? 40 : 30,
+                                  width: isMobile ? 40 : 44,
+                                  height: isMobile ? 40 : 44,
                                   borderRadius: '50%',
                                   objectFit: 'cover',
                                   background: '#c5d9f0',
