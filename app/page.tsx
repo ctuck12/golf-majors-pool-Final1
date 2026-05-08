@@ -4819,7 +4819,7 @@ export default function Page() {
                 >
                   <ArrowLeft size={20} />
                 </button>
-                <h2 style={{ margin: 0, fontSize: 34, color: '#0f1720' }}>
+                <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 34, color: '#0f1720' }}>
                   Pick Sheet for {commissionerRosterMember?.displayName ?? 'Member'}
                 </h2>
               </div>
@@ -4836,18 +4836,18 @@ export default function Page() {
                   <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
                     <div
                       style={{
-                        padding: 22,
+                        padding: isMobile ? 12 : 22,
                         background: '#f7f9fb',
                         display: 'flex',
                         justifyContent: 'space-between',
                         gap: 12,
-                        alignItems: 'center',
+                        alignItems: isMobile ? 'flex-start' : 'center',
                         flexWrap: 'wrap',
                         borderBottom: '1px solid #d7e0e8',
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: 22, fontWeight: 900, color: '#0f1720' }}>
+                        <div style={{ fontSize: isMobile ? 16 : 22, fontWeight: 900, color: '#0f1720' }}>
                           {commissionerTournamentLabel}
                         </div>
                         <div
@@ -4860,13 +4860,13 @@ export default function Page() {
                             color: '#5b6b79',
                           }}
                         >
-                          <span style={{ fontSize: 16, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
-                          <span style={{ fontSize: 14, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
+                          <span style={{ fontSize: isMobile ? 13 : 16, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
+                          <span style={{ fontSize: isMobile ? 12 : 14, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
                         </div>
                       </div>
                       <label
                         style={{
-                          minWidth: 280,
+                          minWidth: isMobile ? 140 : 280,
                           display: 'flex',
                           alignItems: 'center',
                           gap: 10,
@@ -4885,8 +4885,8 @@ export default function Page() {
                             border: 'none',
                             outline: 'none',
                             width: '100%',
-                            padding: '12px 0',
-                            fontSize: 15,
+                            padding: isMobile ? '10px 0' : '12px 0',
+                            fontSize: isMobile ? 13 : 15,
                             background: 'transparent',
                             color: '#0f1720',
                           }}
@@ -4894,8 +4894,8 @@ export default function Page() {
                       </label>
                     </div>
 
-                    <div style={{ padding: 20, maxHeight: 960, overflowY: 'auto' }}>
-                      <div style={{ display: 'grid', gap: 12 }}>
+                    <div style={{ padding: isMobile ? 12 : 20, maxHeight: 960, overflowY: 'auto' }}>
+                      <div style={{ display: 'grid', gap: isMobile ? 8 : 12 }}>
                       {filteredCommissionerPlayers.map((player) => {
                         const isSelected = commissionerRosterSelection.includes(player.id);
                         const isDisabled =
@@ -4911,20 +4911,20 @@ export default function Page() {
                               style={{
                                 flex: 1,
                                 border: isSelected ? '2px solid #3f73ad' : '1px solid #d7e0e8',
-                                borderRadius: 18,
+                                borderRadius: isMobile ? 14 : 18,
                                 background: isSelected ? '#eef4ff' : '#fff',
-                                padding: 16,
+                                padding: isMobile ? 10 : 16,
                               }}
                             >
-                              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', gap: isMobile ? 10 : 16, alignItems: 'center' }}>
                                 <button
                                   onClick={() => toggleCommissionerRosterPlayer(player.id)}
                                   disabled={isDisabled}
                                   style={{
-                                    fontSize: 28,
+                                    fontSize: isMobile ? 20 : 28,
                                     fontWeight: 900,
                                     color: '#0f1720',
-                                    minWidth: 24,
+                                    minWidth: 20,
                                     background: 'none',
                                     border: 'none',
                                     cursor: isDisabled ? 'not-allowed' : 'pointer',
@@ -4936,12 +4936,12 @@ export default function Page() {
                                   {isSelected ? '−' : '+'}
                                 </button>
                                 <div style={{ flex: 1 }}>
-                                  <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
-                                  <div style={{ marginTop: 4, fontSize: 14, color: '#607282' }}>
+                                  <div style={{ fontSize: isMobile ? 13 : 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
+                                  <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 14, color: '#607282' }}>
                                     OWGR: {player.worldRank} | {player.odds}
                                   </div>
                                 </div>
-                                <div style={{ fontSize: 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
+                                <div style={{ fontSize: isMobile ? 13 : 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
                               </div>
                             </div>
                           </div>
@@ -4953,16 +4953,16 @@ export default function Page() {
                 </div>
 
                 <div style={{ display: 'grid', gap: 18 }}>
-                  <div style={{ border: '1px solid #d7e0e8', borderRadius: 18, padding: 20, background: '#fff' }}>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
-                    <div style={{ marginTop: 4, fontSize: 36, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
-                    <div style={{ marginTop: 8, fontSize: 16, color: '#31424f' }}>
+                  <div style={{ border: '1px solid #d7e0e8', borderRadius: 18, padding: isMobile ? 12 : 20, background: '#fff' }}>
+                    <div style={{ fontSize: isMobile ? 13 : 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
+                    <div style={{ marginTop: 4, fontSize: isMobile ? 28 : 36, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
+                    <div style={{ marginTop: 8, fontSize: isMobile ? 12 : 16, color: '#31424f' }}>
                       Avg Rem./Player: ${commissionerAverageRemainingPerPlayer.toLocaleString()}
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gap: 12 }}>
-                    <div style={{ fontSize: 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
+                  <div style={{ display: 'grid', gap: isMobile ? 10 : 12 }}>
+                    <div style={{ fontSize: isMobile ? 18 : 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
 
                     {Array.from({ length: REQUIRED_GOLFERS }, (_, index) => {
                       const golfer = commissionerOrderedRosterPlayers[index];
@@ -4971,23 +4971,23 @@ export default function Page() {
                           key={`commissioner-roster-slot-${index}`}
                           style={{
                             border: '1px solid #d7e0e8',
-                            borderRadius: 18,
+                            borderRadius: isMobile ? 14 : 18,
                             background: '#fff',
-                            minHeight: 60,
+                            minHeight: isMobile ? 48 : 60,
                           }}
                         >
-                          <div style={{ padding: '14px 18px', display: 'grid', alignContent: 'center', gap: 4 }}>
+                          <div style={{ padding: isMobile ? '10px 12px' : '14px 18px', display: 'grid', alignContent: 'center', gap: 4 }}>
                             {golfer ? (
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 10 }}>
                                   <img
                                     src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                     alt={golfer.name}
-                                    className="roster-card-photo" style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                    className="roster-card-photo" style={{ width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
                                   />
                                   <div>
-                                    <div style={{ fontSize: 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                                    <div style={{ fontSize: 14, color: '#607282' }}>OWGR {golfer.worldRank} | {golfer.odds} | <span style={{ fontWeight: 800, fontSize: 16, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span></div>
+                                    <div style={{ fontSize: isMobile ? 13 : 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                    <div style={{ fontSize: isMobile ? 11 : 14, color: '#607282' }}>OWGR {golfer.worldRank} | {golfer.odds} | <span style={{ fontWeight: 800, fontSize: isMobile ? 12 : 16, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span></div>
                                   </div>
                                 </div>
                                 <button
@@ -5010,7 +5010,7 @@ export default function Page() {
                                 </button>
                               </div>
                             ) : (
-                              <div style={{ fontSize: 18, color: '#50616f' }}>GOLFER {index + 1}</div>
+                              <div style={{ fontSize: isMobile ? 13 : 18, color: '#50616f' }}>GOLFER {index + 1}</div>
                             )}
                           </div>
                         </div>
