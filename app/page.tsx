@@ -2692,11 +2692,11 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : (
+                      ) : !showFutureTournamentView ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
                           {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
                         </div>
-                      )}
+                      ) : null}
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
@@ -2705,24 +2705,24 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : (
+                      ) : !showFutureTournamentView ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
                           {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
                         </div>
-                      )}
+                      ) : null}
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
-                        PGA Championship
+                        The PGA Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : (
+                      ) : !showFutureTournamentView ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
                           {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
                         </div>
-                      )}
+                      ) : null}
                     </>
                   ) : selectedTournament === 'us-open' ? (
                     <>
@@ -2731,11 +2731,11 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : (
+                      ) : !showFutureTournamentView ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
                           {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
                         </div>
-                      )}
+                      ) : null}
                     </>
                   ) : selectedTournament === 'open' ? (
                     <>
@@ -2744,11 +2744,11 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : (
+                      ) : !showFutureTournamentView ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 13, color: '#8fa0b0' }}>
                           {isMobile ? '*Tap entry to view roster' : '*Click entry to view roster'}
                         </div>
-                      )}
+                      ) : null}
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
                       <img
