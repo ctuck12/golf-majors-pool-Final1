@@ -654,6 +654,14 @@ function formatPosition(position: string): string {
   return ordinal(position);
 }
 
+function formatLeaderboardPosition(position: string): string {
+  if (!position || position === '--') return position;
+  if (position.startsWith('T')) return position; // tied — keep as T7, T21, etc.
+  const num = Number(position);
+  if (Number.isNaN(num)) return position; // CUT, WD, DQ, etc.
+  return String(num); // plain number, no ordinal suffix
+}
+
 function ordinal(position: string): string {
   const tie = position.startsWith('T');
   const num = Number(position.replace('T', ''));
@@ -3116,10 +3124,10 @@ export default function Page() {
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 14 }}>
                       <thead>
                         <tr style={{ textAlign: 'left', fontSize: isMobile ? 10 : 12, color: '#5b6b79' }}>
-                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Pos.</th>
+                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6', textAlign: 'center' }}>Pos.</th>
                           <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Player</th>
                           <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Total</th>
-                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Thru</th>
+                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6', textAlign: 'center' }}>Thru</th>
                           <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Times Picked</th>
                         </tr>
                       </thead>
@@ -3141,10 +3149,10 @@ export default function Page() {
                                 cursor: 'pointer',
                               }}
                             >
-                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2' }}>{formatPosition(player.position)}</td>
+                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', textAlign: 'center' }}>{formatLeaderboardPosition(player.position)}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', fontWeight: activePlayer ? 800 : 400 }}>{player.name}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2' }}>{player.score}</td>
-                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2' }}>{player.thru}</td>
+                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', textAlign: 'center' }}>{player.thru}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', textAlign: 'center' }}>
                                 {timesPicked}
                               </td>
