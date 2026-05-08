@@ -2683,7 +2683,7 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: isMobile ? 'flex-start' : 'center' }}>
                 <div>
                   {selectedTournament === 'players' ? (
                     <>
@@ -2792,7 +2792,12 @@ export default function Page() {
                         </a>
                         )
                       </div>
-                    ) : null}
+                    ) : (
+                      <div style={{ fontSize: 13, color: '#8fa0b0', textAlign: 'right', marginTop: 2 }}>
+                        <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $30{'   '}
+                        <strong style={{ color: '#0f1720' }}>Venmo:</strong> @claytont743
+                      </div>
+                    )}
                   </div>
                 ) : !(showFutureTournamentView && !picksOpenForTournament) && !showFinalTournamentView ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
