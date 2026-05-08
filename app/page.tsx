@@ -2697,7 +2697,7 @@ export default function Page() {
                   ) : selectedTournament === 'masters' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
-                        The Masters
+                        The Masters Tournament
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
@@ -2763,13 +2763,14 @@ export default function Page() {
                     </div>
                     {isMobile ? (
                       <div style={{ fontSize: 12, color: '#8fa0b0', textAlign: 'right' }}>
-                        Pay entry fee{' '}
+                        Entry Fee: $30 (
                         <a
                           href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
                           style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 600 }}
                         >
-                          here
+                          pay here
                         </a>
+                        )
                       </div>
                     ) : null}
                   </div>
