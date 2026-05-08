@@ -2683,112 +2683,52 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
                 <div>
                   {selectedTournament === 'players' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
                         The Players Championship
                       </h2>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'baseline',
-                          gap: 10,
-                          marginTop: 8,
-                          color: '#5b6b79',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>TPC Sawgrass</span>
-                        {showProjectedCut && feed?.projectedCut ? (
-                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
-                        ) : null}
-                      </div>
+                      {showProjectedCut && feed?.projectedCut ? (
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                      ) : null}
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
                         The Masters
                       </h2>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'baseline',
-                          gap: 10,
-                          marginTop: 8,
-                          color: '#5b6b79',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Augusta National Golf Club</span>
-                        {showProjectedCut && feed?.projectedCut ? (
-                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
-                        ) : null}
-                      </div>
+                      {showProjectedCut && feed?.projectedCut ? (
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                      ) : null}
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
                         PGA Championship
                       </h2>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'baseline',
-                          gap: 10,
-                          marginTop: 8,
-                          color: '#5b6b79',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Aronimink Golf Club</span>
-                        {showProjectedCut && feed?.projectedCut ? (
-                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
-                        ) : null}
-                      </div>
+                      {showProjectedCut && feed?.projectedCut ? (
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                      ) : null}
                     </>
                   ) : selectedTournament === 'us-open' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
                         U.S. Open
                       </h2>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'baseline',
-                          gap: 10,
-                          marginTop: 8,
-                          color: '#5b6b79',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Shinnecock Hills Golf Club</span>
-                        {showProjectedCut && feed?.projectedCut ? (
-                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
-                        ) : null}
-                      </div>
+                      {showProjectedCut && feed?.projectedCut ? (
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                      ) : null}
                     </>
                   ) : selectedTournament === 'open' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : 30, fontWeight: 800, color: '#0f1720' }}>
                         The Open Championship
                       </h2>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'baseline',
-                          gap: 10,
-                          marginTop: 8,
-                          color: '#5b6b79',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>Royal Birkdale Golf Club</span>
-                        {showProjectedCut && feed?.projectedCut ? (
-                          <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 700, color: '#2f5f96', fontStyle: 'italic' }}>(Projected Cut: {feed.projectedCut})</span>
-                        ) : null}
-                      </div>
+                      {showProjectedCut && feed?.projectedCut ? (
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                      ) : null}
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
                       <img
@@ -2808,7 +2748,32 @@ export default function Page() {
                     </h2>
                   )}
                 </div>
-                {!(showFutureTournamentView && !picksOpenForTournament) && !showFinalTournamentView ? (
+                {showLivePayoutStrip ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: '6px 10px', fontSize: 13, fontWeight: 800 }}>
+                        1st: {formatPayoutAmount(selectedTournamentPayouts?.first)}
+                      </div>
+                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: '6px 10px', fontSize: 13, fontWeight: 800 }}>
+                        2nd: {formatPayoutAmount(selectedTournamentPayouts?.second)}
+                      </div>
+                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: '6px 10px', fontSize: 13, fontWeight: 800 }}>
+                        3rd: {formatPayoutAmount(selectedTournamentPayouts?.third)}
+                      </div>
+                    </div>
+                    {isMobile ? (
+                      <div style={{ fontSize: 12, color: '#8fa0b0', textAlign: 'right' }}>
+                        Pay entry fee{' '}
+                        <a
+                          href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
+                          style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 600 }}
+                        >
+                          here
+                        </a>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : !(showFutureTournamentView && !picksOpenForTournament) && !showFinalTournamentView ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
                     <RefreshCw size={15} />
                     <span>
@@ -2822,83 +2787,32 @@ export default function Page() {
                 ) : null}
               </div>
 
-              {(!showFinalTournamentView || showLivePayoutStrip) ? (
+              {!showLivePayoutStrip && !showFinalTournamentView ? (
                 <div
                   style={{
                     marginTop: 14,
                     display: 'flex',
-                    justifyContent: 'space-between',
                     alignItems: 'center',
                     gap: 16,
                     flexWrap: 'wrap',
+                    color: '#5b6b79',
+                    fontSize: 14,
                   }}
                 >
-                  {showLivePayoutStrip ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <div
-                        style={{
-                          borderRadius: 999,
-                          background: '#eef4ff',
-                          color: '#2f5f96',
-                          padding: '6px 10px',
-                          fontSize: 13,
-                          fontWeight: 800,
-                        }}
+                  <span>
+                    <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $30
+                  </span>
+                  <span>
+                    <strong style={{ color: '#0f1720' }}>Venmo:</strong>{' '}
+                    {isMobile ? (
+                      <a
+                        href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
+                        style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}
                       >
-                        1st: {formatPayoutAmount(selectedTournamentPayouts?.first)}
-                      </div>
-                      <div
-                        style={{
-                          borderRadius: 999,
-                          background: '#eef4ff',
-                          color: '#2f5f96',
-                          padding: '6px 10px',
-                          fontSize: 13,
-                          fontWeight: 800,
-                        }}
-                      >
-                        2nd: {formatPayoutAmount(selectedTournamentPayouts?.second)}
-                      </div>
-                      <div
-                        style={{
-                          borderRadius: 999,
-                          background: '#eef4ff',
-                          color: '#2f5f96',
-                          padding: '6px 10px',
-                          fontSize: 13,
-                          fontWeight: 800,
-                        }}
-                      >
-                        3rd: {formatPayoutAmount(selectedTournamentPayouts?.third)}
-                      </div>
-                    </div>
-                  ) : (
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 16,
-                        flexWrap: 'wrap',
-                        color: '#5b6b79',
-                        fontSize: 14,
-                      }}
-                    >
-                      <span>
-                        <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $30
-                      </span>
-                      <span>
-                        <strong style={{ color: '#0f1720' }}>Venmo:</strong>{' '}
-                        {isMobile ? (
-                          <a
-                            href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
-                            style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}
-                          >
-                            @claytont743
-                          </a>
-                        ) : '@claytont743'}
-                      </span>
-                    </div>
-                  )}
+                        @claytont743
+                      </a>
+                    ) : '@claytont743'}
+                  </span>
                 </div>
               ) : null}
 
