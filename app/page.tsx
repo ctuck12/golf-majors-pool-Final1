@@ -5446,7 +5446,7 @@ export default function Page() {
           >
             <div
               onClick={(event) => event.stopPropagation()}
-              className="breakdown-modal"
+              className="breakdown-modal scoring-breakdown-modal"
               style={{
                 width: 'min(620px, 100%)',
                 maxHeight: 'calc(100vh - 40px)',

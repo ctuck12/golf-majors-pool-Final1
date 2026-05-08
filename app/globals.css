@@ -71,6 +71,9 @@ button {
   .entry-breakdown-modal {
     width: min(600px, 100%) !important;
   }
+  .scoring-breakdown-modal {
+    width: min(560px, 100%) !important;
+  }
   .breakdown-golfer-photo {
     width: 52px !important;
     height: 52px !important;
