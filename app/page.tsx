@@ -2794,8 +2794,8 @@ export default function Page() {
                       </div>
                     ) : (
                       <div style={{ fontSize: 13, color: '#8fa0b0', textAlign: 'right', marginTop: 2 }}>
-                        <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $30{'   '}
-                        <strong style={{ color: '#0f1720' }}>Venmo:</strong> @claytont743
+                        <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> <span style={{ color: '#5b6b79' }}>$30</span>{'   '}
+                        <strong style={{ color: '#0f1720' }}>Venmo:</strong> <span style={{ color: '#5b6b79' }}>@claytont743</span>
                       </div>
                     )}
                   </div>
