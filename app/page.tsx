@@ -3128,7 +3128,10 @@ export default function Page() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
                     <h3 style={{ margin: 0, fontSize: isMobile ? 17 : 30, color: '#0f1720', textAlign: isMobile ? 'center' : 'left', fontWeight: 'bold', width: isMobile ? '100%' : undefined }}>{tournament.name} Leaderboard</h3>
                   </div>
-                  <div style={{ marginTop: isMobile ? 12 : 24, overflowX: 'auto' }}>
+                  <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0', textAlign: isMobile ? 'center' : 'left' }}>
+                    {isMobile ? '*Tap player to see who picked them' : '*Click player to see who picked them'}
+                  </div>
+                  <div style={{ marginTop: isMobile ? 8 : 16, overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 14 }}>
                       <thead>
                         <tr style={{ textAlign: 'left', fontSize: isMobile ? 10 : 12, color: '#5b6b79' }}>
