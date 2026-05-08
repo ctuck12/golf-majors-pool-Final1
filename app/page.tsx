@@ -2782,15 +2782,14 @@ export default function Page() {
                       </div>
                     </div>
                     {isMobile ? (
-                      <div style={{ fontSize: 12, color: '#8fa0b0', textAlign: 'right' }}>
-                        <span style={{ color: '#0f1720' }}>Entry Fee:</span> $30 (
+                      <div style={{ fontSize: 12, textAlign: 'right' }}>
+                        <span style={{ color: '#0f1720', fontWeight: 700 }}>Entry Fee: $30</span>{' '}
                         <a
                           href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
-                          style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 600 }}
+                          style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 700 }}
                         >
-                          pay here
+                          (pay here)
                         </a>
-                        )
                       </div>
                     ) : (
                       <div style={{ fontSize: 13, color: '#8fa0b0', textAlign: 'right', marginTop: 2 }}>
