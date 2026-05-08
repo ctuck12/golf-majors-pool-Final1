@@ -5350,7 +5350,7 @@ export default function Page() {
                 </button>
               </div>
 
-              <div style={{ marginTop: isMobile ? 12 : 6, display: 'grid', gap: isMobile ? 8 : 5 }}>
+              <div style={{ marginTop: isMobile ? 12 : 10, display: 'grid', gap: isMobile ? 8 : 8 }}>
                 {activeStandingEntry.golfers.length > 0 ? (
                   activeStandingGolfers.map((golfer, index) => {
                     const pickedCount = standings.reduce(
@@ -5367,7 +5367,7 @@ export default function Page() {
                         width: '100%',
                         border: '1px solid #e6edf1',
                         borderRadius: 12,
-                        padding: isMobile ? '10px 12px' : '7px 12px',
+                        padding: isMobile ? '10px 12px' : '10px 14px',
                         background: isActiveGolfer ? '#eef4ff' : '#fff',
                         textAlign: 'left',
                         cursor: 'pointer',
@@ -5432,22 +5432,22 @@ export default function Page() {
 
               <div
                 style={{
-                  marginTop: isMobile ? 18 : 10,
+                  marginTop: isMobile ? 18 : 14,
                   display: 'grid',
                   gridTemplateColumns: '1fr auto auto',
                   gap: 16,
                   alignItems: 'center',
                   borderTop: '1px solid #e6edf1',
-                  paddingTop: isMobile ? 16 : 10,
+                  paddingTop: isMobile ? 16 : 14,
                 }}
               >
-                <div style={{ color: '#50616f', fontSize: isMobile ? 18 : 15 }}>
+                <div style={{ color: '#50616f', fontSize: isMobile ? 18 : 17 }}>
                   Total holes rem: <strong>{activeStandingEntry.holesRemaining}</strong>
                 </div>
-                <div style={{ color: '#50616f', fontSize: isMobile ? 18 : 15 }}>
+                <div style={{ color: '#50616f', fontSize: isMobile ? 18 : 17 }}>
                   Tiebreak value: <strong>{activeStandingEntry.tieBreakValue}</strong>
                 </div>
-                <div style={{ fontSize: isMobile ? 18 : 15, fontWeight: 800, color: '#0f1720' }}>
+  <div style={{ fontSize: isMobile ? 18 : 17, fontWeight: 800, color: '#0f1720' }}>
                   Total {formatPointValue(activeStandingEntry.rosterPoints)}
                 </div>
               </div>
