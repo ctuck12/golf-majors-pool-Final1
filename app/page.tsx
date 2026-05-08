@@ -2831,12 +2831,15 @@ export default function Page() {
                   <span>
                     <strong style={{ color: '#0f1720' }}>Venmo:</strong>{' '}
                     {isMobile ? (
-                      <a
-                        href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
-                        style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}
-                      >
-                        @claytont743
-                      </a>
+                      <>
+                        <span style={{ color: '#5b6b79' }}>@claytont743</span>{' '}
+                        <a
+                          href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
+                          style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 600 }}
+                        >
+                          (pay here)
+                        </a>
+                      </>
                     ) : '@claytont743'}
                   </span>
                 </div>
