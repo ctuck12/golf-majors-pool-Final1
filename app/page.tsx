@@ -3128,7 +3128,7 @@ export default function Page() {
                           <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Player</th>
                           <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6', textAlign: 'center' }}>Total</th>
                           <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6', textAlign: 'center' }}>Thru</th>
-                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Times Picked</th>
+                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6', textAlign: 'center' }}>Picked</th>
                         </tr>
                       </thead>
                       <tbody>
