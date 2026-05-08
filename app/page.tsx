@@ -3126,7 +3126,7 @@ export default function Page() {
                         <tr style={{ textAlign: 'left', fontSize: isMobile ? 10 : 12, color: '#5b6b79' }}>
                           <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6', textAlign: 'center' }}>Pos.</th>
                           <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Player</th>
-                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Total</th>
+                          <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6', textAlign: 'center' }}>Total</th>
                           <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6', textAlign: 'center' }}>Thru</th>
                           <th style={{ padding: isMobile ? '6px 4px' : '10px 8px', border: '1px solid #d7dee6' }}>Times Picked</th>
                         </tr>
@@ -3151,7 +3151,7 @@ export default function Page() {
                             >
                               <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', textAlign: 'center' }}>{formatLeaderboardPosition(player.position)}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', fontWeight: activePlayer ? 800 : 400 }}>{player.name}</td>
-                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2' }}>{player.score}</td>
+                              <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', textAlign: 'center' }}>{player.score}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', textAlign: 'center' }}>{player.thru}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '8px', border: '1px solid #e7edf2', textAlign: 'center' }}>
                                 {timesPicked}
