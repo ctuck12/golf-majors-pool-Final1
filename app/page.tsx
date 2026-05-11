@@ -4104,13 +4104,13 @@ export default function Page() {
                                       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                                     />
                                   </div>
-                                  <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                                  <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                     <div>
-                                      <div style={{ fontSize: isMobile ? 18 : 17, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                                      <div style={{ marginTop: 3, fontSize: isMobile ? 15 : 14, color: '#607282' }}>
+                                      <div style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                      <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 16, color: '#607282' }}>
                                         Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
                                       </div>
-                                      <div style={{ marginTop: 2, fontSize: isMobile ? 14 : 13, color: '#607282' }}>
+                                      <div style={{ marginTop: isMobile ? 2 : 1, fontSize: isMobile ? 14 : 14, color: '#607282' }}>
                                         World Rank: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
                                       </div>
                                     </div>
@@ -5123,13 +5123,13 @@ export default function Page() {
                                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                                   />
                                 </div>
-                                <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                                <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                   <div>
-                                    <div style={{ fontSize: isMobile ? 18 : 17, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                                    <div style={{ marginTop: 3, fontSize: isMobile ? 15 : 14, color: '#607282' }}>
+                                    <div style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                    <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 16, color: '#607282' }}>
                                       Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
                                     </div>
-                                    <div style={{ marginTop: 2, fontSize: isMobile ? 14 : 13, color: '#607282' }}>
+                                    <div style={{ marginTop: isMobile ? 2 : 1, fontSize: isMobile ? 14 : 14, color: '#607282' }}>
                                       World Rank: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
                                     </div>
                                   </div>
