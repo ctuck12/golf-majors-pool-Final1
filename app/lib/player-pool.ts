@@ -144,6 +144,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 135, name: 'Ryan Ruffels',        pgaTourId: 39251, defaultOdds: '+20000',  worldRank: 175 },
   { id: 136, name: 'Billy Horschel',      pgaTourId: 29420, defaultOdds: '+15000',  worldRank: 115 },
   { id: 137, name: 'Cam Davis',           pgaTourId: 45157, defaultOdds: '+15000',  worldRank: 120 },
+  { id: 138, name: 'Cameron Champ',       pgaTourId: 52372, defaultOdds: '+20000',  worldRank: 180 },
 ] as const;
 
 export type PlayerPoolEntry = (typeof PLAYER_POOL_WITH_PGA_IDS)[number];
