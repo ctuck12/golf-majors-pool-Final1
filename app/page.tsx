@@ -4103,7 +4103,7 @@ export default function Page() {
                                     src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                     alt={golfer.name}
                                     className="roster-card-photo"
-                                    style={{ width: isMobile ? 90 : 110, alignSelf: 'stretch', objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                    style={{ width: isMobile ? 90 : 110, height: '100%', alignSelf: 'stretch', objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
                                   />
                                   <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                     <div>
@@ -5122,7 +5122,7 @@ export default function Page() {
                                   src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                   alt={golfer.name}
                                   className="roster-card-photo"
-                                  style={{ width: isMobile ? 90 : 110, alignSelf: 'stretch', objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                  style={{ width: isMobile ? 90 : 110, height: '100%', alignSelf: 'stretch', objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
                                 />
                                 <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                   <div>
