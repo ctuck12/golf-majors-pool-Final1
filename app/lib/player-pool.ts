@@ -121,6 +121,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 112, name: 'Marco Penge',         pgaTourId: 51003, defaultOdds: '+20000',  worldRank: 160 },
   { id: 113, name: 'Francesco Molinari',  pgaTourId: 25198, defaultOdds: '+50000',  worldRank: 350 },
   { id: 114, name: 'Alex Fitzpatrick',    pgaTourId: 55721, defaultOdds: '+15000',  worldRank: 125 },
+  { id: 115, name: 'Tony Finau',          pgaTourId: 29725, defaultOdds: '+8000',   worldRank:  50 },
 ] as const;
 
 export type PlayerPoolEntry = (typeof PLAYER_POOL_WITH_PGA_IDS)[number];
