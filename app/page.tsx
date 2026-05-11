@@ -3994,7 +3994,7 @@ export default function Page() {
                         </label>
                       </div>
 
-                      <div style={{ maxHeight: isMobile ? 450 : 610, overflowY: 'auto' }}>
+                      <div style={{ maxHeight: isMobile ? 450 : 722, overflowY: 'auto' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>OWGR</div>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
@@ -4051,7 +4051,7 @@ export default function Page() {
                   <div style={{ display: 'grid', gap: 18 }}>
                     <div style={{ border: '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: '#fff' }}>
                       <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
-                      <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 28, fontWeight: 900, color: '#1f8d4e' }}>${salaryRemaining.toLocaleString()}</div>
+                      <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 34, fontWeight: 900, color: '#1f8d4e' }}>${salaryRemaining.toLocaleString()}</div>
                       <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: '#31424f' }}>
                         Avg Rem./Player: ${averageRemainingPerPlayer.toLocaleString()}
                       </div>
@@ -5011,7 +5011,7 @@ export default function Page() {
                       </label>
                     </div>
 
-                    <div style={{ maxHeight: isMobile ? 450 : 610, overflowY: 'auto' }}>
+                    <div style={{ maxHeight: isMobile ? 450 : 722, overflowY: 'auto' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
                         <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>OWGR</div>
                         <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
@@ -5068,7 +5068,7 @@ export default function Page() {
                 <div style={{ display: 'grid', gap: 18 }}>
                   <div style={{ border: '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: '#fff' }}>
                     <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
-                    <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 28, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
+                    <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 34, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
                     <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: '#31424f' }}>
                       Avg Rem./Player: ${commissionerAverageRemainingPerPlayer.toLocaleString()}
                     </div>
