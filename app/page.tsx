@@ -5517,6 +5517,7 @@ export default function Page() {
                         cursor: 'pointer',
                         display: 'flex',
                         overflow: 'hidden',
+                        height: isMobile ? undefined : 90,
                       }}
                     >
                       {isMobile ? (
