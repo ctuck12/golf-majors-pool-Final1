@@ -453,6 +453,22 @@ function saveGuestRoster(tournamentId: TournamentId, roster: number[]) {
   window.localStorage.setItem(key, JSON.stringify(roster));
 }
 
+function readFeedCache(tournamentId: TournamentId): FeedResponse | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(`${STORAGE_PREFIX}:feed:${tournamentId}`);
+    return raw ? (JSON.parse(raw) as FeedResponse) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeFeedCache(tournamentId: TournamentId, data: FeedResponse): void {
+  try {
+    window.localStorage.setItem(`${STORAGE_PREFIX}:feed:${tournamentId}`, JSON.stringify(data));
+  } catch {}
+}
+
 function nthWeekdayOfMonth(year: number, monthIndex: number, weekday: number, occurrence: number) {
   const firstOfMonth = new Date(year, monthIndex, 1);
   const offset = (weekday - firstOfMonth.getDay() + 7) % 7;
@@ -721,8 +737,8 @@ export default function Page() {
   const entryBreakdownRef = useRef<HTMLDivElement>(null);
   const [showPointsSystem, setShowPointsSystem] = useState(false);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
-  const [feed, setFeed] = useState<FeedResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [feed, setFeed] = useState<FeedResponse | null>(() => readFeedCache(initialTournament));
+  const [isLoading, setIsLoading] = useState(() => readFeedCache(initialTournament) === null);
   const [error, setError] = useState('');
   const [saveMessage, setSaveMessage] = useState('');
   const [nowTick, setNowTick] = useState(() => Date.now());
@@ -998,8 +1014,19 @@ export default function Page() {
   useEffect(() => {
     let active = true;
 
-    const loadFeed = async () => {
+    const cached = readFeedCache(selectedTournament);
+    if (cached) {
+      setFeed(cached);
+      setIsLoading(false);
+    } else {
+      setFeed(null);
       setIsLoading(true);
+    }
+
+    const loadFeed = async () => {
+      if (!readFeedCache(selectedTournament)) {
+        setIsLoading(true);
+      }
       setError('');
 
       try {
@@ -1009,6 +1036,7 @@ export default function Page() {
 
         if (active) {
           setFeed(payload);
+          writeFeedCache(selectedTournament, payload);
         }
       } catch (err) {
         if (active) {
