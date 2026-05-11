@@ -2915,7 +2915,7 @@ export default function Page() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      minHeight: isMobile ? 80 : 180,
+                      minHeight: isMobile ? 160 : 180,
                     }}
                   >
                     {TOURNAMENT_CARD_LOGOS[selectedTournament] ? (
@@ -2924,7 +2924,7 @@ export default function Page() {
                         alt={tournament.name}
                         style={{
                           maxWidth: '100%',
-                          maxHeight: isMobile ? 90 : 180,
+                          maxHeight: isMobile ? 170 : 180,
                           objectFit: 'contain',
                           display: 'block',
                         }}
@@ -2956,10 +2956,10 @@ export default function Page() {
                           style={{
                             border: 'none',
                             borderRadius: 16,
-                            padding: '14px 22px',
+                            padding: isMobile ? '10px 16px' : '14px 22px',
                             background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
                             color: '#fff',
-                            fontSize: 16,
+                            fontSize: isMobile ? 14 : 16,
                             fontWeight: 900,
                             cursor: 'pointer',
                             boxShadow: '0 14px 28px rgba(63, 115, 173, 0.22)',
@@ -2969,10 +2969,10 @@ export default function Page() {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          <Pencil size={16} />
+                          <Pencil size={isMobile ? 13 : 16} />
                           {hasSubmittedRoster ? 'Edit Picks' : 'Make Your Picks'}
                         </button>
-                        <div style={{ color: '#5b6b79', fontSize: 14, fontWeight: 600 }}>
+                        <div style={{ color: '#5b6b79', fontSize: isMobile ? 12 : 14, fontWeight: 600 }}>
                           Members with submitted picks:{' '}
                           <span style={{ color: '#0f1720', fontWeight: 900 }}>{submittedEntries.length}</span>
                         </div>
