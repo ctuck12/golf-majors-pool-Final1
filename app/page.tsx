@@ -4492,13 +4492,14 @@ export default function Page() {
               </h2>
               <div
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                  display: 'flex',
+                  alignItems: 'flex-start',
                   gap: isMobile ? 10 : 20,
                 }}
               >
                 <div
                   style={{
+                    flex: '1 1 0',
                     border: '1px solid #d7e0e8',
                     borderRadius: isMobile ? 12 : 20,
                     padding: isMobile ? 10 : 18,
@@ -4524,6 +4525,7 @@ export default function Page() {
 
                 <div
                   style={{
+                    flex: '1 1 0',
                     border: '1px solid #d7e0e8',
                     borderRadius: isMobile ? 12 : 20,
                     padding: isMobile ? 10 : 18,
