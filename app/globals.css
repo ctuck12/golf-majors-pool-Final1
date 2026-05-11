@@ -65,10 +65,10 @@ button {
     border-radius: 24px !important;
   }
   .entry-breakdown-modal {
-    width: min(600px, 100%) !important;
+    width: min(500px, 100%) !important;
   }
   .scoring-breakdown-modal {
-    width: min(560px, 100%) !important;
+    width: min(500px, 100%) !important;
   }
 
   .breakdown-golfer-name {
