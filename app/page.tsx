@@ -4086,17 +4086,17 @@ export default function Page() {
                             key={`entries-roster-slot-${index}`}
                             style={{
                               border: '1px solid #d7e0e8',
-                              borderRadius: isMobile ? 14 : 18,
+                              borderRadius: isMobile ? 14 : 14,
                               background: '#fff',
                               minHeight: isMobile ? 86 : undefined,
-                              height: isMobile ? undefined : 130,
+                              height: isMobile ? undefined : 96,
                               display: 'flex',
                               overflow: 'hidden',
                             }}
                           >
                               {golfer ? (
                                 <>
-                                  <div style={{ width: isMobile ? 90 : 110, flexShrink: 0, alignSelf: 'stretch', background: '#e8eef4', overflow: 'hidden', position: 'relative' }}>
+                                  <div style={{ width: isMobile ? 90 : 88, flexShrink: 0, alignSelf: 'stretch', background: '#e8eef4', overflow: 'hidden', position: 'relative' }}>
                                     <img
                                       src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                       alt={golfer.name}
@@ -4104,13 +4104,13 @@ export default function Page() {
                                       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                                     />
                                   </div>
-                                  <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                                  <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                     <div>
-                                      <div style={{ fontSize: isMobile ? 18 : 18, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                                      <div style={{ marginTop: 3, fontSize: isMobile ? 15 : 14, color: '#607282' }}>
+                                      <div style={{ fontSize: isMobile ? 18 : 15, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                      <div style={{ marginTop: 3, fontSize: isMobile ? 15 : 12, color: '#607282' }}>
                                         Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
                                       </div>
-                                      <div style={{ marginTop: 2, fontSize: isMobile ? 14 : 13, color: '#607282' }}>
+                                      <div style={{ marginTop: 2, fontSize: isMobile ? 14 : 11, color: '#607282' }}>
                                         World Rank: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
                                       </div>
                                     </div>
@@ -4118,13 +4118,13 @@ export default function Page() {
                                       type="button"
                                       onClick={() => togglePlayer(golfer.id)}
                                       style={{
-                                        width: isMobile ? 34 : 42,
-                                        height: isMobile ? 34 : 42,
-                                        borderRadius: 10,
+                                        width: isMobile ? 34 : 30,
+                                        height: isMobile ? 34 : 30,
+                                        borderRadius: 8,
                                         border: '1px solid #d7dee6',
                                         background: '#fff',
                                         color: '#0f1720',
-                                        fontSize: isMobile ? 20 : 22,
+                                        fontSize: isMobile ? 20 : 18,
                                         fontWeight: 400,
                                         cursor: 'pointer',
                                         display: 'flex',
@@ -5105,17 +5105,17 @@ export default function Page() {
                           key={`commissioner-roster-slot-${index}`}
                           style={{
                             border: '1px solid #d7e0e8',
-                            borderRadius: isMobile ? 14 : 18,
+                            borderRadius: isMobile ? 14 : 14,
                             background: '#fff',
                             minHeight: isMobile ? 86 : undefined,
-                            height: isMobile ? undefined : 130,
+                            height: isMobile ? undefined : 96,
                             display: 'flex',
                             overflow: 'hidden',
                           }}
                         >
                             {golfer ? (
                               <>
-                                <div style={{ width: isMobile ? 90 : 110, flexShrink: 0, alignSelf: 'stretch', background: '#e8eef4', overflow: 'hidden', position: 'relative' }}>
+                                <div style={{ width: isMobile ? 90 : 88, flexShrink: 0, alignSelf: 'stretch', background: '#e8eef4', overflow: 'hidden', position: 'relative' }}>
                                   <img
                                     src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                     alt={golfer.name}
@@ -5123,13 +5123,13 @@ export default function Page() {
                                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                                   />
                                 </div>
-                                <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                                <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                   <div>
-                                    <div style={{ fontSize: isMobile ? 18 : 18, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                                    <div style={{ marginTop: 3, fontSize: isMobile ? 15 : 14, color: '#607282' }}>
+                                    <div style={{ fontSize: isMobile ? 18 : 15, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                    <div style={{ marginTop: 3, fontSize: isMobile ? 15 : 12, color: '#607282' }}>
                                       Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
                                     </div>
-                                    <div style={{ marginTop: 2, fontSize: isMobile ? 14 : 13, color: '#607282' }}>
+                                    <div style={{ marginTop: 2, fontSize: isMobile ? 14 : 11, color: '#607282' }}>
                                       World Rank: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
                                     </div>
                                   </div>
@@ -5137,13 +5137,13 @@ export default function Page() {
                                     type="button"
                                     onClick={() => toggleCommissionerRosterPlayer(golfer.id)}
                                     style={{
-                                      width: isMobile ? 34 : 42,
-                                      height: isMobile ? 34 : 42,
-                                      borderRadius: 10,
+                                      width: isMobile ? 34 : 30,
+                                      height: isMobile ? 34 : 30,
+                                      borderRadius: 8,
                                       border: '1px solid #d7dee6',
                                       background: '#fff',
                                       color: '#0f1720',
-                                      fontSize: isMobile ? 20 : 22,
+                                      fontSize: isMobile ? 20 : 18,
                                       fontWeight: 400,
                                       cursor: 'pointer',
                                       display: 'flex',
