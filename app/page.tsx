@@ -4000,8 +4000,13 @@ export default function Page() {
                         </label>
                       </div>
 
-                      <div style={{ padding: isMobile ? 12 : 20, maxHeight: 960, overflowY: 'auto' }}>
-                        <div style={{ display: 'grid', gap: isMobile ? 8 : 12 }}>
+                      <div style={{ maxHeight: 960, overflowY: 'auto' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '52px 1fr 76px 44px' : '80px 1fr 110px 56px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
+                          <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>World Rank</div>
+                          <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>Player</div>
+                          <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>Salary</div>
+                          <div></div>
+                        </div>
                         {filteredEntriesPlayers.map((player) => {
                           const selected = selectedRoster.includes(player.id);
                           const disabled =
@@ -4011,49 +4016,43 @@ export default function Page() {
                           return (
                             <div
                               key={player.id}
-                              style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: disabled ? 0.45 : 1 }}
+                              style={{
+                                display: 'grid',
+                                gridTemplateColumns: isMobile ? '52px 1fr 76px 44px' : '80px 1fr 110px 56px',
+                                padding: isMobile ? '10px 12px' : '14px 20px',
+                                borderBottom: '1px solid #e6edf1',
+                                alignItems: 'center',
+                                opacity: disabled ? 0.45 : 1,
+                                background: selected ? '#eef4ff' : '#fff',
+                              }}
                             >
-                              <div
+                              <div style={{ fontSize: isMobile ? 13 : 15, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
+                              <div style={{ fontSize: isMobile ? 13 : 16, fontWeight: 700, color: '#0f1720' }}>{player.name}</div>
+                              <div style={{ fontSize: isMobile ? 13 : 15, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
+                              <button
+                                onClick={() => togglePlayer(player.id)}
+                                disabled={disabled}
                                 style={{
-                                  flex: 1,
-                                  border: selected ? '2px solid #3f73ad' : '1px solid #d7e0e8',
-                                  borderRadius: isMobile ? 14 : 18,
-                                  background: selected ? '#eef4ff' : '#fff',
-                                  padding: isMobile ? 10 : 16,
+                                  width: isMobile ? 32 : 40,
+                                  height: isMobile ? 32 : 40,
+                                  borderRadius: 10,
+                                  border: '1px solid #d7dee6',
+                                  background: '#fff',
+                                  color: '#0f1720',
+                                  fontSize: isMobile ? 18 : 22,
+                                  fontWeight: 400,
+                                  cursor: disabled ? 'not-allowed' : 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  flexShrink: 0,
                                 }}
                               >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: isMobile ? 10 : 16, alignItems: 'center' }}>
-                                  <button
-                                    onClick={() => togglePlayer(player.id)}
-                                    disabled={disabled}
-                                    style={{
-                                      fontSize: isMobile ? 20 : 28,
-                                      fontWeight: 900,
-                                      color: '#0f1720',
-                                      minWidth: 20,
-                                      background: 'none',
-                                      border: 'none',
-                                      cursor: disabled ? 'not-allowed' : 'pointer',
-                                      padding: 0,
-                                      lineHeight: 1,
-                                      flexShrink: 0,
-                                    }}
-                                  >
-                                    {selected ? '−' : '+'}
-                                  </button>
-                                  <div style={{ flex: 1 }}>
-                                    <div style={{ fontSize: isMobile ? 13 : 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
-                                    <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 14, color: '#607282' }}>
-                                      OWGR: {player.worldRank} | {player.odds}
-                                    </div>
-                                  </div>
-                                  <div style={{ fontSize: isMobile ? 13 : 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
-                                </div>
-                              </div>
+                                {selected ? '−' : '+'}
+                              </button>
                             </div>
                           );
                         })}
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -5001,8 +5000,13 @@ export default function Page() {
                       </label>
                     </div>
 
-                    <div style={{ padding: isMobile ? 12 : 20, maxHeight: 960, overflowY: 'auto' }}>
-                      <div style={{ display: 'grid', gap: isMobile ? 8 : 12 }}>
+                    <div style={{ maxHeight: 960, overflowY: 'auto' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '52px 1fr 76px 44px' : '80px 1fr 110px 56px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
+                        <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>World Rank</div>
+                        <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>Player</div>
+                        <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>Salary</div>
+                        <div></div>
+                      </div>
                       {filteredCommissionerPlayers.map((player) => {
                         const isSelected = commissionerRosterSelection.includes(player.id);
                         const isDisabled =
@@ -5012,49 +5016,43 @@ export default function Page() {
                         return (
                           <div
                             key={`commissioner-player-${player.id}`}
-                            style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: isDisabled ? 0.45 : 1 }}
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: isMobile ? '52px 1fr 76px 44px' : '80px 1fr 110px 56px',
+                              padding: isMobile ? '10px 12px' : '14px 20px',
+                              borderBottom: '1px solid #e6edf1',
+                              alignItems: 'center',
+                              opacity: isDisabled ? 0.45 : 1,
+                              background: isSelected ? '#eef4ff' : '#fff',
+                            }}
                           >
-                            <div
+                            <div style={{ fontSize: isMobile ? 13 : 15, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
+                            <div style={{ fontSize: isMobile ? 13 : 16, fontWeight: 700, color: '#0f1720' }}>{player.name}</div>
+                            <div style={{ fontSize: isMobile ? 13 : 15, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
+                            <button
+                              onClick={() => toggleCommissionerRosterPlayer(player.id)}
+                              disabled={isDisabled}
                               style={{
-                                flex: 1,
-                                border: isSelected ? '2px solid #3f73ad' : '1px solid #d7e0e8',
-                                borderRadius: isMobile ? 14 : 18,
-                                background: isSelected ? '#eef4ff' : '#fff',
-                                padding: isMobile ? 10 : 16,
+                                width: isMobile ? 32 : 40,
+                                height: isMobile ? 32 : 40,
+                                borderRadius: 10,
+                                border: '1px solid #d7dee6',
+                                background: '#fff',
+                                color: '#0f1720',
+                                fontSize: isMobile ? 18 : 22,
+                                fontWeight: 400,
+                                cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
                               }}
                             >
-                              <div style={{ display: 'flex', justifyContent: 'space-between', gap: isMobile ? 10 : 16, alignItems: 'center' }}>
-                                <button
-                                  onClick={() => toggleCommissionerRosterPlayer(player.id)}
-                                  disabled={isDisabled}
-                                  style={{
-                                    fontSize: isMobile ? 20 : 28,
-                                    fontWeight: 900,
-                                    color: '#0f1720',
-                                    minWidth: 20,
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: isDisabled ? 'not-allowed' : 'pointer',
-                                    padding: 0,
-                                    lineHeight: 1,
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  {isSelected ? '−' : '+'}
-                                </button>
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ fontSize: isMobile ? 13 : 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
-                                  <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 14, color: '#607282' }}>
-                                    OWGR: {player.worldRank} | {player.odds}
-                                  </div>
-                                </div>
-                                <div style={{ fontSize: isMobile ? 13 : 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
-                              </div>
-                            </div>
+                              {isSelected ? '−' : '+'}
+                            </button>
                           </div>
                         );
                       })}
-                      </div>
                     </div>
                   </div>
                 </div>
