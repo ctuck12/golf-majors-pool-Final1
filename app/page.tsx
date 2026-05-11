@@ -668,7 +668,7 @@ function fieldStyle() {
     borderRadius: 14,
     border: '1px solid #d7e0e8',
     padding: '12px 14px',
-    fontSize: 15,
+    fontSize: 16,
     background: '#fff',
   } satisfies CSSProperties;
 }
