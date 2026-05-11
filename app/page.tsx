@@ -2862,15 +2862,13 @@ export default function Page() {
                       </div>
                     ))}
                   </div>
-                ) : !(showFutureTournamentView && !picksOpenForTournament) && !showFinalTournamentView ? (
+                ) : !showFutureTournamentView && !showFinalTournamentView ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
                     <RefreshCw size={15} />
                     <span>
-                      {showFutureTournamentView
-                        ? 'Pool is open for lineup building'
-                        : isLoading
-                          ? 'Refreshing live scores...'
-                          : formatRefresh(feed?.fetchedAt ?? null)}
+                      {isLoading
+                        ? 'Refreshing live scores...'
+                        : formatRefresh(feed?.fetchedAt ?? null)}
                     </span>
                   </div>
                 ) : null}
