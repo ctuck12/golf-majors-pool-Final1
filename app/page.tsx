@@ -1624,21 +1624,15 @@ export default function Page() {
   const commissionerRosterMember =
     commissionerMembers.find((member) => member.id === commissionerRosterMemberId) ?? null;
   const filteredEntriesPlayers = players.filter((player) => {
+    if (selectedRoster.includes(player.id)) return false;
     const query = entriesPlayerSearch.trim().toLowerCase();
-
-    if (!query) {
-      return true;
-    }
-
+    if (!query) return true;
     return player.name.toLowerCase().includes(query);
   });
   const filteredCommissionerPlayers = players.filter((player) => {
+    if (commissionerRosterSelection.includes(player.id)) return false;
     const query = commissionerPlayerSearch.trim().toLowerCase();
-
-    if (!query) {
-      return true;
-    }
-
+    if (!query) return true;
     return player.name.toLowerCase().includes(query);
   });
 
@@ -4001,45 +3995,42 @@ export default function Page() {
                       </div>
 
                       <div style={{ maxHeight: 960, overflowY: 'auto' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '52px 1fr 76px 44px' : '80px 1fr 110px 56px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
-                          <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>World Rank</div>
-                          <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>Player</div>
-                          <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>Salary</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 120px 60px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>OWGR</div>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Player</div>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Salary</div>
                           <div></div>
                         </div>
                         {filteredEntriesPlayers.map((player) => {
-                          const selected = selectedRoster.includes(player.id);
-                          const disabled =
-                            !selected &&
-                            (entriesLocked || selectedRoster.length >= REQUIRED_GOLFERS || player.salary > salaryRemaining);
+                          const disabled = entriesLocked || selectedRoster.length >= REQUIRED_GOLFERS || player.salary > salaryRemaining;
 
                           return (
                             <div
                               key={player.id}
                               style={{
                                 display: 'grid',
-                                gridTemplateColumns: isMobile ? '52px 1fr 76px 44px' : '80px 1fr 110px 56px',
-                                padding: isMobile ? '10px 12px' : '14px 20px',
+                                gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 120px 60px',
+                                padding: isMobile ? '11px 12px' : '15px 20px',
                                 borderBottom: '1px solid #e6edf1',
                                 alignItems: 'center',
                                 opacity: disabled ? 0.45 : 1,
-                                background: selected ? '#eef4ff' : '#fff',
+                                background: '#fff',
                               }}
                             >
-                              <div style={{ fontSize: isMobile ? 13 : 15, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
-                              <div style={{ fontSize: isMobile ? 13 : 16, fontWeight: 700, color: '#0f1720' }}>{player.name}</div>
-                              <div style={{ fontSize: isMobile ? 13 : 15, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
+                              <div style={{ fontSize: isMobile ? 15 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
+                              <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 600, color: '#0f1720' }}>{player.name}</div>
+                              <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
                               <button
                                 onClick={() => togglePlayer(player.id)}
                                 disabled={disabled}
                                 style={{
-                                  width: isMobile ? 32 : 40,
-                                  height: isMobile ? 32 : 40,
+                                  width: isMobile ? 34 : 42,
+                                  height: isMobile ? 34 : 42,
                                   borderRadius: 10,
                                   border: '1px solid #d7dee6',
                                   background: '#fff',
                                   color: '#0f1720',
-                                  fontSize: isMobile ? 18 : 22,
+                                  fontSize: isMobile ? 20 : 24,
                                   fontWeight: 400,
                                   cursor: disabled ? 'not-allowed' : 'pointer',
                                   display: 'flex',
@@ -4048,7 +4039,7 @@ export default function Page() {
                                   flexShrink: 0,
                                 }}
                               >
-                                {selected ? '−' : '+'}
+                                +
                               </button>
                             </div>
                           );
@@ -4069,6 +4060,13 @@ export default function Page() {
                     <div style={{ display: 'grid', gap: isMobile ? 10 : 12 }}>
                       <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
 
+                      <div style={{ borderRadius: 10, background: '#d4f0ed', padding: isMobile ? '10px 14px' : '12px 16px', fontSize: isMobile ? 14 : 16, fontWeight: 600, color: '#0f4c47' }}>
+                        {selectedRoster.length} of {REQUIRED_GOLFERS} golfers selected
+                      </div>
+                      <div style={{ fontSize: isMobile ? 12 : 13, color: '#607282', marginTop: -4 }}>
+                        Click the plus sign to add a golfer or the minus sign to remove them.
+                      </div>
+
                       {Array.from({ length: REQUIRED_GOLFERS }, (_, index) => {
                         const golfer = orderedRosterPlayers[index];
                         return (
@@ -4078,45 +4076,58 @@ export default function Page() {
                               border: '1px solid #d7e0e8',
                               borderRadius: isMobile ? 14 : 18,
                               background: '#fff',
-                              minHeight: isMobile ? 80 : 74,
+                              minHeight: isMobile ? 86 : 96,
                             }}
                           >
-                            <div style={{ padding: isMobile ? '16px 16px' : '16px 20px', display: 'grid', alignContent: 'center', gap: 4 }}>
+                            <div style={{ padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                               {golfer ? (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 10 }}>
+                                <>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
                                     <img
                                       src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                       alt={golfer.name}
                                       className="roster-card-photo"
-                                      style={{ width: 58, height: 58, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                      style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
                                     />
                                     <div>
-                                      <div style={{ fontSize: isMobile ? 17 : 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                                      <div style={{ fontSize: isMobile ? 13 : 14, color: '#607282' }}>OWGR {golfer.worldRank} | {golfer.odds} | <span style={{ fontWeight: 800, fontSize: isMobile ? 14 : 16, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span></div>
+                                      <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                      <div style={{ marginTop: 3, fontSize: isMobile ? 13 : 14, color: '#607282' }}>
+                                        Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
+                                      </div>
+                                      <div style={{ marginTop: 2, fontSize: isMobile ? 12 : 13, color: '#607282' }}>
+                                        OWGR: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
+                                      </div>
                                     </div>
                                   </div>
                                   <button
                                     type="button"
                                     onClick={() => togglePlayer(golfer.id)}
                                     style={{
-                                      width: 34,
-                                      height: 34,
-                                      borderRadius: 999,
-                                      border: '1px solid #c9d7e6',
-                                      background: '#eef4ff',
-                                      color: '#2f5f96',
-                                      fontSize: 22,
-                                      fontWeight: 900,
-                                      lineHeight: 1,
+                                      width: isMobile ? 34 : 42,
+                                      height: isMobile ? 34 : 42,
+                                      borderRadius: 10,
+                                      border: '1px solid #d7dee6',
+                                      background: '#fff',
+                                      color: '#0f1720',
+                                      fontSize: isMobile ? 20 : 22,
+                                      fontWeight: 400,
                                       cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      flexShrink: 0,
                                     }}
                                   >
                                     −
                                   </button>
-                                </div>
+                                </>
                               ) : (
-                                <div style={{ fontSize: isMobile ? 17 : 18, color: '#50616f' }}>GOLFER {index + 1}</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
+                                  <div style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, background: '#e8eef4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <CircleUserRound size={isMobile ? 32 : 40} color="#a0b0be" />
+                                  </div>
+                                  <div style={{ fontSize: isMobile ? 16 : 18, color: '#50616f', fontWeight: 600 }}>Golfer #{index + 1}</div>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -5001,45 +5012,42 @@ export default function Page() {
                     </div>
 
                     <div style={{ maxHeight: 960, overflowY: 'auto' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '52px 1fr 76px 44px' : '80px 1fr 110px 56px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
-                        <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>World Rank</div>
-                        <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>Player</div>
-                        <div style={{ fontSize: isMobile ? 10 : 12, fontWeight: 700, color: '#0f1720' }}>Salary</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 120px 60px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
+                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>OWGR</div>
+                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Player</div>
+                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Salary</div>
                         <div></div>
                       </div>
                       {filteredCommissionerPlayers.map((player) => {
-                        const isSelected = commissionerRosterSelection.includes(player.id);
-                        const isDisabled =
-                          !isSelected &&
-                          (commissionerRosterSelection.length >= REQUIRED_GOLFERS || player.salary > commissionerSalaryRemaining);
+                        const isDisabled = commissionerRosterSelection.length >= REQUIRED_GOLFERS || player.salary > commissionerSalaryRemaining;
 
                         return (
                           <div
                             key={`commissioner-player-${player.id}`}
                             style={{
                               display: 'grid',
-                              gridTemplateColumns: isMobile ? '52px 1fr 76px 44px' : '80px 1fr 110px 56px',
-                              padding: isMobile ? '10px 12px' : '14px 20px',
+                              gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 120px 60px',
+                              padding: isMobile ? '11px 12px' : '15px 20px',
                               borderBottom: '1px solid #e6edf1',
                               alignItems: 'center',
                               opacity: isDisabled ? 0.45 : 1,
-                              background: isSelected ? '#eef4ff' : '#fff',
+                              background: '#fff',
                             }}
                           >
-                            <div style={{ fontSize: isMobile ? 13 : 15, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
-                            <div style={{ fontSize: isMobile ? 13 : 16, fontWeight: 700, color: '#0f1720' }}>{player.name}</div>
-                            <div style={{ fontSize: isMobile ? 13 : 15, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
+                            <div style={{ fontSize: isMobile ? 15 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
+                            <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 600, color: '#0f1720' }}>{player.name}</div>
+                            <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
                             <button
                               onClick={() => toggleCommissionerRosterPlayer(player.id)}
                               disabled={isDisabled}
                               style={{
-                                width: isMobile ? 32 : 40,
-                                height: isMobile ? 32 : 40,
+                                width: isMobile ? 34 : 42,
+                                height: isMobile ? 34 : 42,
                                 borderRadius: 10,
                                 border: '1px solid #d7dee6',
                                 background: '#fff',
                                 color: '#0f1720',
-                                fontSize: isMobile ? 18 : 22,
+                                fontSize: isMobile ? 20 : 24,
                                 fontWeight: 400,
                                 cursor: isDisabled ? 'not-allowed' : 'pointer',
                                 display: 'flex',
@@ -5048,7 +5056,7 @@ export default function Page() {
                                 flexShrink: 0,
                               }}
                             >
-                              {isSelected ? '−' : '+'}
+                              +
                             </button>
                           </div>
                         );
@@ -5069,6 +5077,13 @@ export default function Page() {
                   <div style={{ display: 'grid', gap: isMobile ? 10 : 12 }}>
                     <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
 
+                    <div style={{ borderRadius: 10, background: '#d4f0ed', padding: isMobile ? '10px 14px' : '12px 16px', fontSize: isMobile ? 14 : 16, fontWeight: 600, color: '#0f4c47' }}>
+                      {commissionerRosterSelection.length} of {REQUIRED_GOLFERS} golfers selected
+                    </div>
+                    <div style={{ fontSize: isMobile ? 12 : 13, color: '#607282', marginTop: -4 }}>
+                      Click the plus sign to add a golfer or the minus sign to remove them.
+                    </div>
+
                     {Array.from({ length: REQUIRED_GOLFERS }, (_, index) => {
                       const golfer = commissionerOrderedRosterPlayers[index];
                       return (
@@ -5078,44 +5093,58 @@ export default function Page() {
                             border: '1px solid #d7e0e8',
                             borderRadius: isMobile ? 14 : 18,
                             background: '#fff',
-                            minHeight: isMobile ? 80 : 74,
+                            minHeight: isMobile ? 86 : 96,
                           }}
                         >
-                          <div style={{ padding: isMobile ? '16px 16px' : '16px 20px', display: 'grid', alignContent: 'center', gap: 4 }}>
+                          <div style={{ padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                             {golfer ? (
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 10 }}>
+                              <>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
                                   <img
                                     src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                     alt={golfer.name}
-                                    className="roster-card-photo" style={{ width: isMobile ? 58 : 58, height: isMobile ? 58 : 58, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                    className="roster-card-photo"
+                                    style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
                                   />
                                   <div>
-                                    <div style={{ fontSize: isMobile ? 17 : 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                                    <div style={{ fontSize: isMobile ? 13 : 14, color: '#607282' }}>OWGR {golfer.worldRank} | {golfer.odds} | <span style={{ fontWeight: 800, fontSize: isMobile ? 14 : 16, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span></div>
+                                    <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                    <div style={{ marginTop: 3, fontSize: isMobile ? 13 : 14, color: '#607282' }}>
+                                      Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
+                                    </div>
+                                    <div style={{ marginTop: 2, fontSize: isMobile ? 12 : 13, color: '#607282' }}>
+                                      OWGR: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
+                                    </div>
                                   </div>
                                 </div>
                                 <button
                                   type="button"
                                   onClick={() => toggleCommissionerRosterPlayer(golfer.id)}
                                   style={{
-                                    width: 34,
-                                    height: 34,
-                                    borderRadius: 999,
-                                    border: '1px solid #c9d7e6',
-                                    background: '#eef4ff',
-                                    color: '#2f5f96',
-                                    fontSize: 22,
-                                    fontWeight: 900,
-                                    lineHeight: 1,
+                                    width: isMobile ? 34 : 42,
+                                    height: isMobile ? 34 : 42,
+                                    borderRadius: 10,
+                                    border: '1px solid #d7dee6',
+                                    background: '#fff',
+                                    color: '#0f1720',
+                                    fontSize: isMobile ? 20 : 22,
+                                    fontWeight: 400,
                                     cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexShrink: 0,
                                   }}
                                 >
                                   −
                                 </button>
-                              </div>
+                              </>
                             ) : (
-                              <div style={{ fontSize: isMobile ? 17 : 18, color: '#50616f' }}>GOLFER {index + 1}</div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
+                                <div style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, background: '#e8eef4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                  <CircleUserRound size={isMobile ? 32 : 40} color="#a0b0be" />
+                                </div>
+                                <div style={{ fontSize: isMobile ? 16 : 18, color: '#50616f', fontWeight: 600 }}>Golfer #{index + 1}</div>
+                              </div>
                             )}
                           </div>
                         </div>
