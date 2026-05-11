@@ -4099,12 +4099,14 @@ export default function Page() {
                           >
                               {golfer ? (
                                 <>
-                                  <img
-                                    src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
-                                    alt={golfer.name}
-                                    className="roster-card-photo"
-                                    style={{ width: isMobile ? 90 : 110, height: '100%', alignSelf: 'stretch', objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
-                                  />
+                                  <div style={{ width: isMobile ? 90 : 110, flexShrink: 0, alignSelf: 'stretch', background: '#e8eef4', overflow: 'hidden' }}>
+                                    <img
+                                      src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
+                                      alt={golfer.name}
+                                      className="roster-card-photo"
+                                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                    />
+                                  </div>
                                   <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                     <div>
                                       <div style={{ fontSize: isMobile ? 18 : 18, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
@@ -5118,12 +5120,14 @@ export default function Page() {
                         >
                             {golfer ? (
                               <>
-                                <img
-                                  src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
-                                  alt={golfer.name}
-                                  className="roster-card-photo"
-                                  style={{ width: isMobile ? 90 : 110, height: '100%', alignSelf: 'stretch', objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
-                                />
+                                <div style={{ width: isMobile ? 90 : 110, flexShrink: 0, alignSelf: 'stretch', background: '#e8eef4', overflow: 'hidden' }}>
+                                  <img
+                                    src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
+                                    alt={golfer.name}
+                                    className="roster-card-photo"
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                  />
+                                </div>
                                 <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                   <div>
                                     <div style={{ fontSize: isMobile ? 18 : 18, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
