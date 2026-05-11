@@ -99,6 +99,14 @@ const TOURNAMENT_PARS: Partial<Record<TournamentId, number>> = {
   open: 70,
 };
 
+const PICK_HISTORY_NAMES: Record<string, string> = {
+  players: 'The Players Championship',
+  masters: 'The Masters Tournament',
+  pga: 'PGA Championship',
+  'us-open': 'U.S. Open Championship',
+  open: 'The Open Championship',
+};
+
 // 12pm EDT on the Friday (Round 2) of each tournament
 const TOURNAMENT_CUT_SHOW_AT: Partial<Record<TournamentId, string>> = {
   players: '2026-03-13T12:00:00-04:00',
@@ -3630,7 +3638,7 @@ export default function Page() {
                               gap: 10,
                             }}
                           >
-                            <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{event.name}</div>
+                            <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
                             {historyPlayers.length > 0 ? (
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                                 {historyPlayers.map((player) => (
