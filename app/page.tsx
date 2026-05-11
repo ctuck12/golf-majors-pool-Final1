@@ -4074,18 +4074,19 @@ export default function Page() {
                               borderRadius: isMobile ? 14 : 18,
                               background: '#fff',
                               minHeight: isMobile ? 86 : 96,
+                              display: 'flex',
+                              overflow: 'hidden',
                             }}
                           >
-                            <div style={{ padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                               {golfer ? (
                                 <>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
-                                    <img
-                                      src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
-                                      alt={golfer.name}
-                                      className="roster-card-photo"
-                                      style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
-                                    />
+                                  <img
+                                    src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
+                                    alt={golfer.name}
+                                    className="roster-card-photo"
+                                    style={{ width: isMobile ? 90 : 110, alignSelf: 'stretch', objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                  />
+                                  <div style={{ flex: 1, padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                     <div>
                                       <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                                       <div style={{ marginTop: 3, fontSize: isMobile ? 13 : 14, color: '#607282' }}>
@@ -4095,38 +4096,37 @@ export default function Page() {
                                         World Rank: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
                                       </div>
                                     </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => togglePlayer(golfer.id)}
+                                      style={{
+                                        width: isMobile ? 34 : 42,
+                                        height: isMobile ? 34 : 42,
+                                        borderRadius: 10,
+                                        border: '1px solid #d7dee6',
+                                        background: '#fff',
+                                        color: '#0f1720',
+                                        fontSize: isMobile ? 20 : 22,
+                                        fontWeight: 400,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flexShrink: 0,
+                                      }}
+                                    >
+                                      −
+                                    </button>
                                   </div>
-                                  <button
-                                    type="button"
-                                    onClick={() => togglePlayer(golfer.id)}
-                                    style={{
-                                      width: isMobile ? 34 : 42,
-                                      height: isMobile ? 34 : 42,
-                                      borderRadius: 10,
-                                      border: '1px solid #d7dee6',
-                                      background: '#fff',
-                                      color: '#0f1720',
-                                      fontSize: isMobile ? 20 : 22,
-                                      fontWeight: 400,
-                                      cursor: 'pointer',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      flexShrink: 0,
-                                    }}
-                                  >
-                                    −
-                                  </button>
                                 </>
                               ) : (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
+                                <div style={{ flex: 1, padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
                                   <div style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, background: '#e8eef4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                     <CircleUserRound size={isMobile ? 32 : 40} color="#a0b0be" />
                                   </div>
                                   <div style={{ fontSize: isMobile ? 16 : 18, color: '#50616f', fontWeight: 600 }}>Golfer #{index + 1}</div>
                                 </div>
                               )}
-                            </div>
                           </div>
                         );
                       })}
@@ -5094,18 +5094,19 @@ export default function Page() {
                             borderRadius: isMobile ? 14 : 18,
                             background: '#fff',
                             minHeight: isMobile ? 86 : 96,
+                            display: 'flex',
+                            overflow: 'hidden',
                           }}
                         >
-                          <div style={{ padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                             {golfer ? (
                               <>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
-                                  <img
-                                    src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
-                                    alt={golfer.name}
-                                    className="roster-card-photo"
-                                    style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
-                                  />
+                                <img
+                                  src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
+                                  alt={golfer.name}
+                                  className="roster-card-photo"
+                                  style={{ width: isMobile ? 90 : 110, alignSelf: 'stretch', objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                />
+                                <div style={{ flex: 1, padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                   <div>
                                     <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                                     <div style={{ marginTop: 3, fontSize: isMobile ? 13 : 14, color: '#607282' }}>
@@ -5115,38 +5116,37 @@ export default function Page() {
                                       World Rank: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
                                     </div>
                                   </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleCommissionerRosterPlayer(golfer.id)}
+                                    style={{
+                                      width: isMobile ? 34 : 42,
+                                      height: isMobile ? 34 : 42,
+                                      borderRadius: 10,
+                                      border: '1px solid #d7dee6',
+                                      background: '#fff',
+                                      color: '#0f1720',
+                                      fontSize: isMobile ? 20 : 22,
+                                      fontWeight: 400,
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      flexShrink: 0,
+                                    }}
+                                  >
+                                    −
+                                  </button>
                                 </div>
-                                <button
-                                  type="button"
-                                  onClick={() => toggleCommissionerRosterPlayer(golfer.id)}
-                                  style={{
-                                    width: isMobile ? 34 : 42,
-                                    height: isMobile ? 34 : 42,
-                                    borderRadius: 10,
-                                    border: '1px solid #d7dee6',
-                                    background: '#fff',
-                                    color: '#0f1720',
-                                    fontSize: isMobile ? 20 : 22,
-                                    fontWeight: 400,
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  −
-                                </button>
                               </>
                             ) : (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
+                              <div style={{ flex: 1, padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
                                 <div style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, background: '#e8eef4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                   <CircleUserRound size={isMobile ? 32 : 40} color="#a0b0be" />
                                 </div>
                                 <div style={{ fontSize: isMobile ? 16 : 18, color: '#50616f', fontWeight: 600 }}>Golfer #{index + 1}</div>
                               </div>
                             )}
-                          </div>
                         </div>
                       );
                     })}
