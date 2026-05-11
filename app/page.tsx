@@ -4058,76 +4058,127 @@ export default function Page() {
                     </div>
                   </div>
 
-                  <div
-                    style={{
-                      background: '#f8fbfd',
-                      border: '1px solid #e6edf1',
-                      borderRadius: 20,
-                      padding: 18,
-                    }}
-                  >
-                    {renderRosterCards('#fff', true)}
-                    {renderBudgetCards('#fff', '1px solid #e6edf1')}
+                  <div style={{ display: 'grid', gap: 18 }}>
+                    <div style={{ border: '1px solid #d7e0e8', borderRadius: 18, padding: isMobile ? 16 : 26, background: '#fff' }}>
+                      <div style={{ fontSize: isMobile ? 13 : 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
+                      <div style={{ marginTop: 4, fontSize: isMobile ? 30 : 40, fontWeight: 900, color: '#1f8d4e' }}>${salaryRemaining.toLocaleString()}</div>
+                      <div style={{ marginTop: 8, fontSize: isMobile ? 12 : 16, color: '#31424f' }}>
+                        Avg Rem./Player: ${averageRemainingPerPlayer.toLocaleString()}
+                      </div>
+                    </div>
 
-                    <input
-                      value={tieBreakInput}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
-                        setTieBreakInput(val);
-                      }}
-                      placeholder="Enter tiebreak value*"
-                      inputMode="numeric"
-                      maxLength={3}
-                      style={{
-                        ...fieldStyle(),
-                        marginTop: 14,
-                      }}
-                    />
+                    <div style={{ display: 'grid', gap: isMobile ? 10 : 12 }}>
+                      <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
 
-                    {saveMessage ? (
-                      <div
+                      {Array.from({ length: REQUIRED_GOLFERS }, (_, index) => {
+                        const golfer = orderedRosterPlayers[index];
+                        return (
+                          <div
+                            key={`entries-roster-slot-${index}`}
+                            style={{
+                              border: '1px solid #d7e0e8',
+                              borderRadius: isMobile ? 14 : 18,
+                              background: '#fff',
+                              minHeight: isMobile ? 80 : 74,
+                            }}
+                          >
+                            <div style={{ padding: isMobile ? '16px 16px' : '16px 20px', display: 'grid', alignContent: 'center', gap: 4 }}>
+                              {golfer ? (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 10 }}>
+                                    <img
+                                      src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
+                                      alt={golfer.name}
+                                      className="roster-card-photo"
+                                      style={{ width: 58, height: 58, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#e8eef4' }}
+                                    />
+                                    <div>
+                                      <div style={{ fontSize: isMobile ? 17 : 20, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                      <div style={{ fontSize: isMobile ? 13 : 14, color: '#607282' }}>OWGR {golfer.worldRank} | {golfer.odds} | <span style={{ fontWeight: 800, fontSize: isMobile ? 14 : 16, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span></div>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => togglePlayer(golfer.id)}
+                                    style={{
+                                      width: 34,
+                                      height: 34,
+                                      borderRadius: 999,
+                                      border: '1px solid #c9d7e6',
+                                      background: '#eef4ff',
+                                      color: '#2f5f96',
+                                      fontSize: 22,
+                                      fontWeight: 900,
+                                      lineHeight: 1,
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    −
+                                  </button>
+                                </div>
+                              ) : (
+                                <div style={{ fontSize: isMobile ? 17 : 18, color: '#50616f' }}>GOLFER {index + 1}</div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      <input
+                        value={tieBreakInput}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                          setTieBreakInput(val);
+                        }}
+                        placeholder="Enter tiebreak value*"
+                        inputMode="numeric"
+                        maxLength={3}
+                        style={{ ...fieldStyle(), marginTop: 4 }}
+                      />
+
+                      {saveMessage ? (
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            borderRadius: 14,
+                            background: '#eef4ff',
+                            color: '#2f5f96',
+                            padding: '12px 14px',
+                          }}
+                        >
+                          <CheckCircle2 size={16} />
+                          <span>{saveMessage}</span>
+                        </div>
+                      ) : null}
+
+                      <button
+                        onClick={handleSave}
                         style={{
-                          marginTop: 14,
+                          width: 'fit-content',
+                          border: 'none',
+                          borderRadius: 14,
+                          padding: '12px 18px',
+                          background: canSave ? 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)' : '#cbd5df',
+                          color: '#fff',
+                          fontSize: 15,
+                          fontWeight: 900,
+                          cursor: canSave ? 'pointer' : 'not-allowed',
                           display: 'flex',
                           alignItems: 'center',
                           gap: 8,
-                          borderRadius: 14,
-                          background: '#eef4ff',
-                          color: '#2f5f96',
-                          padding: '12px 14px',
                         }}
                       >
-                        <CheckCircle2 size={16} />
-                        <span>{saveMessage}</span>
+                        <Save size={16} />
+                        Save lineup
+                      </button>
+                      <div style={{ color: '#5b6b79', fontSize: 13, lineHeight: 1.65 }}>
+                        * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
+                        Use their total strokes, NOT score to par. Example: Enter 274 (NOT -14)
                       </div>
-                    ) : null}
-
-                    <button
-                      onClick={handleSave}
-                      style={{
-                        marginTop: 16,
-                        width: '100%',
-                        border: 'none',
-                        borderRadius: 16,
-                        padding: '14px 16px',
-                        background: canSave ? 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)' : '#cbd5df',
-                        color: '#fff',
-                        fontSize: 15,
-                        fontWeight: 900,
-                        cursor: canSave ? 'pointer' : 'not-allowed',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                      }}
-                    >
-                      <Save size={16} />
-                      Save lineup
-                    </button>
-                    <div style={{ color: '#5b6b79', fontSize: 13, lineHeight: 1.65, marginTop: 8 }}>
-                      * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
-                      Use their total strokes, NOT score to par. Example: Enter 274 (NOT -14)
                     </div>
+                  </div>
                   </div>
                 </div>
               </section>
