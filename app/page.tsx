@@ -5455,7 +5455,7 @@ export default function Page() {
               onClick={(event) => event.stopPropagation()}
               className="breakdown-modal entry-breakdown-modal"
               style={{
-                width: 'min(620px, 100%)',
+                width: 'min(480px, 100%)',
                 maxHeight: 'calc(100vh - 40px)',
                 overflowY: 'auto',
                 background: '#fff',
@@ -5680,7 +5680,7 @@ export default function Page() {
               onClick={(event) => event.stopPropagation()}
               className="breakdown-modal scoring-breakdown-modal"
               style={{
-                width: 'min(620px, 100%)',
+                width: 'min(480px, 100%)',
                 maxHeight: 'calc(100vh - 40px)',
                 overflowY: 'auto',
                 background: '#fff',
