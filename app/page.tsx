@@ -3947,10 +3947,10 @@ export default function Page() {
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: isMobile ? 16 : 22, fontWeight: 900, color: '#0f1720' }}>
+                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
                             {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
                           </div>
-                          <div style={{ fontSize: isMobile ? 15 : 20, fontWeight: 900, color: '#0f1720' }}>
+                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
                             Tournament Field
                           </div>
                           <div
@@ -4967,10 +4967,10 @@ export default function Page() {
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: isMobile ? 16 : 22, fontWeight: 900, color: '#0f1720' }}>
+                        <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
                           {commissionerTournamentLabel}
                         </div>
-                        <div style={{ fontSize: isMobile ? 15 : 20, fontWeight: 900, color: '#0f1720' }}>
+                        <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
                           Tournament Field
                         </div>
                         <div
