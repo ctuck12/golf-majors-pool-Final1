@@ -3935,26 +3935,28 @@ export default function Page() {
                   style={{
                     marginTop: 18,
                     display: 'grid',
-                    gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : 'minmax(0, 1fr) minmax(0, 1fr)',
-                    gap: 20,
+                    gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : 'minmax(0, 1.45fr) minmax(320px, 0.8fr)',
+                    gap: 22,
+                    alignItems: 'start',
                   }}
                 >
                   <div style={{ display: 'grid', gap: 18 }}>
-                    <section
-                      style={{
-                        background: '#fff',
-                        borderRadius: 20,
-                        padding: 18,
-                        border: '1px solid #e6edf1',
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, marginBottom: 14, alignItems: 'flex-start' }}>
+                    <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
+                      <div
+                        style={{
+                          padding: isMobile ? 12 : 22,
+                          background: '#f7f9fb',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          gap: 12,
+                          alignItems: isMobile ? 'flex-start' : 'center',
+                          flexWrap: 'wrap',
+                          borderBottom: '1px solid #d7e0e8',
+                        }}
+                      >
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Trophy size={18} color="#2f5f96" />
-                            <div style={{ fontSize: isMobile ? 13 : 18, fontWeight: 900 }}>
-                              {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
-                            </div>
+                          <div style={{ fontSize: isMobile ? 16 : 22, fontWeight: 900, color: '#0f1720' }}>
+                            {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
                           </div>
                           <div
                             style={{
@@ -3966,15 +3968,13 @@ export default function Page() {
                               color: '#5b6b79',
                             }}
                           >
-                            <span style={{ fontSize: isMobile ? 12 : 16, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
-                            <span style={{ fontSize: isMobile ? 11 : 14, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
+                            <span style={{ fontSize: isMobile ? 13 : 16, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
+                            <span style={{ fontSize: isMobile ? 12 : 14, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
                           </div>
                         </div>
                         <label
                           style={{
-                            minWidth: 280,
-                            maxWidth: 320,
-                            width: '100%',
+                            minWidth: isMobile ? 140 : 280,
                             display: 'flex',
                             alignItems: 'center',
                             gap: 10,
@@ -3993,16 +3993,17 @@ export default function Page() {
                               border: 'none',
                               outline: 'none',
                               width: '100%',
-                              padding: '12px 0',
+                              padding: isMobile ? '10px 0' : '12px 0',
                               fontSize: isMobile ? 16 : 15,
                               background: 'transparent',
+                              color: '#0f1720',
                             }}
                           />
                         </label>
                       </div>
 
-                      <div>
-                        <div style={{ display: 'grid', gap: 10 }}>
+                      <div style={{ padding: isMobile ? 12 : 20, maxHeight: 960, overflowY: 'auto' }}>
+                        <div style={{ display: 'grid', gap: isMobile ? 8 : 12 }}>
                         {filteredEntriesPlayers.map((player) => {
                           const selected = selectedRoster.includes(player.id);
                           const disabled =
@@ -4012,48 +4013,51 @@ export default function Page() {
                           return (
                             <div
                               key={player.id}
-                              style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: disabled ? 0.58 : 1 }}
+                              style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: disabled ? 0.45 : 1 }}
                             >
-                              <button
-                                onClick={() => togglePlayer(player.id)}
+                              <div
                                 style={{
                                   flex: 1,
-                                  textAlign: 'left',
-                                  borderRadius: 16,
-                                  border: selected
-                                    ? '2px solid #3f73ad'
-                                    : disabled
-                                      ? '1px solid #d7dee6'
-                                      : '1px solid #e6edf1',
-                                  background: selected ? '#eef4ff' : disabled ? '#f3f5f7' : '#fff',
-                                  padding: 14,
-                                  cursor: disabled ? 'not-allowed' : 'pointer',
+                                  border: selected ? '2px solid #3f73ad' : '1px solid #d7e0e8',
+                                  borderRadius: isMobile ? 14 : 18,
+                                  background: selected ? '#eef4ff' : '#fff',
+                                  padding: isMobile ? 10 : 16,
                                 }}
-                                disabled={disabled}
                               >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                                  <div>
-                                    <div className="picksheet-player-name" style={{ fontWeight: 800, color: disabled ? '#748391' : '#0f1720' }}>
-                                      {player.name}
-                                    </div>
-                                    <div className="picksheet-player-subtext" style={{ marginTop: 4, color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 13 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: isMobile ? 10 : 16, alignItems: 'center' }}>
+                                  <button
+                                    onClick={() => togglePlayer(player.id)}
+                                    disabled={disabled}
+                                    style={{
+                                      fontSize: isMobile ? 20 : 28,
+                                      fontWeight: 900,
+                                      color: '#0f1720',
+                                      minWidth: 20,
+                                      background: 'none',
+                                      border: 'none',
+                                      cursor: disabled ? 'not-allowed' : 'pointer',
+                                      padding: 0,
+                                      lineHeight: 1,
+                                      flexShrink: 0,
+                                    }}
+                                  >
+                                    {selected ? '−' : '+'}
+                                  </button>
+                                  <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: isMobile ? 13 : 16, fontWeight: 900, color: '#0f1720' }}>{player.name}</div>
+                                    <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 14, color: '#607282' }}>
                                       OWGR: {player.worldRank} | {player.odds}
                                     </div>
                                   </div>
-                                  <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontWeight: 900, fontSize: 20 }}>{player.score}</div>
-                                    <div className="picksheet-player-salary-right" style={{ color: disabled ? '#8a97a3' : '#6b7b88', fontSize: 12 }}>
-                                      ${player.salary.toLocaleString()}
-                                    </div>
-                                  </div>
+                                  <div style={{ fontSize: isMobile ? 13 : 20, fontWeight: 800, color: '#607282' }}>${player.salary.toLocaleString()}</div>
                                 </div>
-                              </button>
+                              </div>
                             </div>
                           );
                         })}
                         </div>
                       </div>
-                    </section>
+                    </div>
                   </div>
 
                   <div
