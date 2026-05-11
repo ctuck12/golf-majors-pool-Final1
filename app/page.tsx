@@ -3252,7 +3252,6 @@ export default function Page() {
                     gap: 8,
                   }}
                 >
-                  <Save size={16} />
                   {sessionUser ? 'Submit Roster' : 'Sign in to save'}
                 </button>
               </section>
@@ -4197,7 +4196,6 @@ export default function Page() {
                           gap: 8,
                         }}
                       >
-                        <Save size={16} />
                         Submit Roster
                       </button>
                       <div style={{ color: '#5b6b79', fontSize: 13, lineHeight: 1.65 }}>
@@ -5192,8 +5190,9 @@ export default function Page() {
                         border: 'none',
                         borderRadius: 14,
                         padding: '12px 18px',
-                        background: canSaveCommissionerRoster ? '#e7ebef' : '#f2f4f6',
-                        color: canSaveCommissionerRoster ? '#0f1720' : '#98a3ad',
+                        background: canSaveCommissionerRoster ? 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)' : '#f2f4f6',
+                        color: canSaveCommissionerRoster ? '#fff' : '#98a3ad',
+                        boxShadow: canSaveCommissionerRoster ? '0 14px 28px rgba(63, 115, 173, 0.22)' : 'none',
                         fontWeight: 900,
                         cursor: !canSaveCommissionerRoster || commissionerBusy ? 'not-allowed' : 'pointer',
                       }}
