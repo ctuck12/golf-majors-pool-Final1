@@ -4092,7 +4092,8 @@ export default function Page() {
                               border: '1px solid #d7e0e8',
                               borderRadius: isMobile ? 14 : 18,
                               background: '#fff',
-                              minHeight: isMobile ? 86 : 96,
+                              minHeight: isMobile ? 86 : undefined,
+                              height: isMobile ? undefined : 130,
                               display: 'flex',
                               overflow: 'hidden',
                             }}
@@ -5113,7 +5114,8 @@ export default function Page() {
                             border: '1px solid #d7e0e8',
                             borderRadius: isMobile ? 14 : 18,
                             background: '#fff',
-                            minHeight: isMobile ? 86 : 96,
+                            minHeight: isMobile ? 86 : undefined,
+                            height: isMobile ? undefined : 130,
                             display: 'flex',
                             overflow: 'hidden',
                           }}
