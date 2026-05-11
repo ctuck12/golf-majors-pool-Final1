@@ -1124,6 +1124,20 @@ export default function Page() {
     setCommissionerSuccess('');
   }, [mainTab, commissionerConsoleView]);
 
+  useEffect(() => {
+    if (!selectedLeaderboardPlayerId) return;
+    const topEntry = standings.find((entry) =>
+      entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
+    );
+    if (!topEntry) return;
+    const el = document.querySelector<HTMLElement>(`[data-entry-id="${topEntry.id}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  // standings is a derived value; we only want to scroll on player selection changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLeaderboardPlayerId]);
+
   const applySession = (payload: SessionPayload) => {
     setSessionUser(payload.user);
     setPool(payload.pool);
@@ -2982,6 +2996,7 @@ export default function Page() {
                       {standings.map((entry) => (
                         <tr
                           key={entry.id}
+                          data-entry-id={entry.id}
                           onClick={() => {
                             setActiveStandingGolferId(null);
                             setActiveStandingEntryId(entry.id);
