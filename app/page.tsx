@@ -1824,7 +1824,6 @@ export default function Page() {
     Boolean(sessionUser) &&
     selectedRoster.length === REQUIRED_GOLFERS &&
     salaryUsed <= SALARY_CAP &&
-    tieBreakValid &&
     !entriesLocked;
 
   const togglePlayer = (playerId: number) => {
