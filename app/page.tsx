@@ -4079,10 +4079,6 @@ export default function Page() {
                     <div style={{ display: 'grid', gap: isMobile ? 10 : 12 }}>
                       <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
 
-                      <div style={{ borderRadius: 10, background: '#d4f0ed', padding: isMobile ? '10px 14px' : '12px 16px', fontSize: isMobile ? 14 : 16, fontWeight: 600, color: '#0f4c47' }}>
-                        {selectedRoster.length} of {REQUIRED_GOLFERS} golfers selected
-                      </div>
-
                       {Array.from({ length: REQUIRED_GOLFERS }, (_, index) => {
                         const golfer = orderedRosterPlayers[index];
                         return (
@@ -5098,9 +5094,6 @@ export default function Page() {
                   <div style={{ display: 'grid', gap: isMobile ? 10 : 12 }}>
                     <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
 
-                    <div style={{ borderRadius: 10, background: '#d4f0ed', padding: isMobile ? '10px 14px' : '12px 16px', fontSize: isMobile ? 14 : 16, fontWeight: 600, color: '#0f4c47' }}>
-                      {commissionerRosterSelection.length} of {REQUIRED_GOLFERS} golfers selected
-                    </div>
                     <div style={{ fontSize: isMobile ? 12 : 13, color: '#607282', marginTop: -4 }}>
                       Click the plus sign to add a golfer or the minus sign to remove them.
                     </div>
