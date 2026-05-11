@@ -3916,10 +3916,7 @@ export default function Page() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                      Pick Sheet
-                    </div>
-                    <h2 style={{ margin: '6px 0 0', fontSize: isMobile ? 18 : 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
+                    <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
                   </div>
                 </div>
 
@@ -4052,10 +4049,10 @@ export default function Page() {
                   </div>
 
                   <div style={{ display: 'grid', gap: 18 }}>
-                    <div style={{ border: '1px solid #d7e0e8', borderRadius: 18, padding: isMobile ? 16 : 26, background: '#fff' }}>
-                      <div style={{ fontSize: isMobile ? 13 : 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
-                      <div style={{ marginTop: 4, fontSize: isMobile ? 30 : 40, fontWeight: 900, color: '#1f8d4e' }}>${salaryRemaining.toLocaleString()}</div>
-                      <div style={{ marginTop: 8, fontSize: isMobile ? 12 : 16, color: '#31424f' }}>
+                    <div style={{ border: '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: '#fff' }}>
+                      <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
+                      <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 28, fontWeight: 900, color: '#1f8d4e' }}>${salaryRemaining.toLocaleString()}</div>
+                      <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: '#31424f' }}>
                         Avg Rem./Player: ${averageRemainingPerPlayer.toLocaleString()}
                       </div>
                     </div>
@@ -4065,9 +4062,6 @@ export default function Page() {
 
                       <div style={{ borderRadius: 10, background: '#d4f0ed', padding: isMobile ? '10px 14px' : '12px 16px', fontSize: isMobile ? 14 : 16, fontWeight: 600, color: '#0f4c47' }}>
                         {selectedRoster.length} of {REQUIRED_GOLFERS} golfers selected
-                      </div>
-                      <div style={{ fontSize: isMobile ? 12 : 13, color: '#607282', marginTop: -4 }}>
-                        Click the plus sign to add a golfer or the minus sign to remove them.
                       </div>
 
                       {Array.from({ length: REQUIRED_GOLFERS }, (_, index) => {
@@ -5072,10 +5066,10 @@ export default function Page() {
                 </div>
 
                 <div style={{ display: 'grid', gap: 18 }}>
-                  <div style={{ border: '1px solid #d7e0e8', borderRadius: 18, padding: isMobile ? 16 : 26, background: '#fff' }}>
-                    <div style={{ fontSize: isMobile ? 13 : 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
-                    <div style={{ marginTop: 4, fontSize: isMobile ? 30 : 40, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
-                    <div style={{ marginTop: 8, fontSize: isMobile ? 12 : 16, color: '#31424f' }}>
+                  <div style={{ border: '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: '#fff' }}>
+                    <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
+                    <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 28, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
+                    <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: '#31424f' }}>
                       Avg Rem./Player: ${commissionerAverageRemainingPerPlayer.toLocaleString()}
                     </div>
                   </div>
