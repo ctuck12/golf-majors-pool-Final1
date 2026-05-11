@@ -70,10 +70,7 @@ button {
   .scoring-breakdown-modal {
     width: min(560px, 100%) !important;
   }
-  .breakdown-golfer-photo {
-    width: 52px !important;
-    height: 52px !important;
-  }
+
   .breakdown-golfer-name {
     font-size: 17px !important;
   }
