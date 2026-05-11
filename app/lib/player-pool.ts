@@ -131,6 +131,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 122, name: 'Tom Hoge',            pgaTourId: 35532, defaultOdds: '+20000',  worldRank: 170 },
   { id: 123, name: 'Lucas Herbert',       pgaTourId: 39058, defaultOdds: '+20000',  worldRank: 165 },
   { id: 124, name: 'Wesley Bryan',        pgaTourId: 48084, defaultOdds: '+30000',  worldRank: 250 },
+  { id: 125, name: 'Tom Kim',             pgaTourId: 55182, defaultOdds: '+6000',   worldRank:  35 },
 ] as const;
 
 export type PlayerPoolEntry = (typeof PLAYER_POOL_WITH_PGA_IDS)[number];
