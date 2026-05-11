@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 
-const redis = new Redis(process.env.REDIS_URL!, { lazyConnect: false, maxRetriesPerRequest: 3 });
+const redis = new Redis(process.env.REDIS_URL!, { lazyConnect: true, maxRetriesPerRequest: 3 });
 const REGISTRY_KEY = 'player-photo-registry';
 
 export type PlayerPhotoRegistry = Record<string, number>; // normalized name → pgaTourId

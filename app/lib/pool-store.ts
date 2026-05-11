@@ -1,8 +1,9 @@
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import Redis from 'ioredis';
+import { PLAYER_POOL_WITH_PGA_IDS } from './player-pool';
 
 // Module-level singleton — reused across warm serverless invocations
-const redis = new Redis(process.env.REDIS_URL!, { lazyConnect: false, maxRetriesPerRequest: 3 });
+const redis = new Redis(process.env.REDIS_URL!, { lazyConnect: true, maxRetriesPerRequest: 3 });
 
 export const SESSION_COOKIE_NAME = 'golf-pool-session';
 export const DEFAULT_POOL_ID = 'golf-majors-pool';
@@ -77,6 +78,7 @@ export type PublicPool = {
 
 const DB_KEY = 'pool-database';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
+const MAX_PLAYER_ID = Math.max(...PLAYER_POOL_WITH_PGA_IDS.map((player) => player.id));
 
 function nowIso() {
   return new Date().toISOString();
@@ -105,7 +107,7 @@ function sanitizeRoster(roster: unknown) {
   for (const value of roster) {
     const numeric = Number(value);
 
-    if (!Number.isInteger(numeric) || numeric < 1 || numeric > 89 || seen.has(numeric)) {
+    if (!Number.isInteger(numeric) || numeric < 1 || numeric > MAX_PLAYER_ID || seen.has(numeric)) {
       continue;
     }
 
@@ -125,56 +127,64 @@ function toPublicUser(user: StoredUser): PublicUser {
     id: user.id,
     email: user.email,
     displayName: user.displayName,
-    poolIds: user.poolIds,
-    rosters: user.rosters,
+    poolIds: user.poolIds ?? [],
+    rosters: user.rosters ?? {},
     tieBreaks: user.tieBreaks ?? {},
   };
 }
 
-async function readDatabase(): Promise<StoredDatabase> {
-  const raw = await redis.get(DB_KEY);
-  const stored: StoredDatabase | null = raw ? (JSON.parse(raw) as StoredDatabase) : null;
-
-  const defaultPool = {
+function createDefaultPool(): StoredPool {
+  return {
     id: DEFAULT_POOL_ID,
     name: 'Golf Majors Pool',
     joinCode: DEFAULT_POOL_JOIN_CODE,
-    memberUserIds: [] as string[],
-    lineupLocks: {} as Partial<Record<TournamentId, boolean>>,
-    payouts: {} as Partial<Record<TournamentId, TournamentPayouts>>,
+    memberUserIds: [],
+    lineupLocks: {},
+    payouts: {},
     createdAt: nowIso(),
   };
+}
 
-  const database: StoredDatabase = stored ?? {
+function createInitialDatabase(): StoredDatabase {
+  return {
     users: [],
     sessions: [],
-    pools: [defaultPool],
+    pools: [createDefaultPool()],
   };
+}
 
-  if (!database.pools.length) {
-    database.pools = [defaultPool];
-  }
+function normalizeDatabase(database: StoredDatabase): StoredDatabase {
+  database.users = (database.users ?? []).map((user) => ({
+    ...user,
+    poolIds: user.poolIds ?? [],
+    rosters: user.rosters ?? {},
+    tieBreaks: user.tieBreaks ?? {},
+  }));
 
+  database.pools = (database.pools ?? []).length ? database.pools : [createDefaultPool()];
   database.pools = database.pools.map((pool) => ({
     ...pool,
+    memberUserIds: pool.memberUserIds ?? [],
     lineupLocks: pool.lineupLocks ?? {},
     payouts: pool.payouts ?? {},
   }));
 
-  database.users = database.users.map((user) => ({
-    ...user,
-    tieBreaks: user.tieBreaks ?? {},
-  }));
-
-  database.sessions = database.sessions.filter(
+  database.sessions = (database.sessions ?? []).filter(
     (session) => new Date(session.expiresAt).getTime() > Date.now(),
   );
 
   return database;
 }
 
+async function readDatabase(): Promise<StoredDatabase> {
+  const raw = await redis.get(DB_KEY);
+  const stored: StoredDatabase | null = raw ? (JSON.parse(raw) as StoredDatabase) : null;
+  return normalizeDatabase(stored ?? createInitialDatabase());
+}
+
 async function writeDatabase(database: StoredDatabase): Promise<void> {
-  await redis.set(DB_KEY, JSON.stringify(database));
+  const normalized = normalizeDatabase(database);
+  await redis.set(DB_KEY, JSON.stringify(normalized));
 }
 
 export async function registerUser(input: {
@@ -377,7 +387,14 @@ export async function saveRosterForUser(userId: string, tournamentId: Tournament
     throw new Error('User account was not found.');
   }
 
-  user.rosters[tournamentId] = sanitizeRoster(roster);
+  const sanitizedRoster = sanitizeRoster(roster);
+
+  if (sanitizedRoster.length !== 6) {
+    throw new Error('Roster must include exactly 6 valid golfers.');
+  }
+
+  user.rosters = user.rosters ?? {};
+  user.rosters[tournamentId] = sanitizedRoster;
   await writeDatabase(database);
 
   return user.rosters[tournamentId] ?? [];
@@ -391,10 +408,7 @@ export async function saveTieBreakForUser(userId: string, tournamentId: Tourname
     throw new Error('User account was not found.');
   }
 
-  if (!user.tieBreaks) {
-    user.tieBreaks = {};
-  }
-
+  user.tieBreaks = user.tieBreaks ?? {};
   user.tieBreaks[tournamentId] = tieBreak;
   await writeDatabase(database);
 }
@@ -540,6 +554,7 @@ export async function updatePoolMember(
   }
 
   if (updates.rosters) {
+    member.rosters = member.rosters ?? {};
     for (const tournamentId of TOURNAMENT_IDS) {
       if (Object.prototype.hasOwnProperty.call(updates.rosters, tournamentId)) {
         member.rosters[tournamentId] = sanitizeRoster(updates.rosters[tournamentId]);
