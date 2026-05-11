@@ -3253,7 +3253,7 @@ export default function Page() {
                   }}
                 >
                   <Save size={16} />
-                  {sessionUser ? 'Save lineup' : 'Sign in to save'}
+                  {sessionUser ? 'Submit Roster' : 'Sign in to save'}
                 </button>
               </section>
               ) : null}
@@ -4178,7 +4178,7 @@ export default function Page() {
                         }}
                       >
                         <Save size={16} />
-                        Save lineup
+                        Submit Roster
                       </button>
                       <div style={{ color: '#5b6b79', fontSize: 13, lineHeight: 1.65 }}>
                         * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
