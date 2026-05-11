@@ -99,13 +99,22 @@ const TOURNAMENT_PARS: Partial<Record<TournamentId, number>> = {
   open: 70,
 };
 
-// 12pm EST/EDT on the Friday (Round 2) of each tournament
+// 12pm EDT on the Friday (Round 2) of each tournament
 const TOURNAMENT_CUT_SHOW_AT: Partial<Record<TournamentId, string>> = {
   players: '2026-03-13T12:00:00-04:00',
   masters: '2026-04-10T12:00:00-04:00',
   pga: '2026-05-15T12:00:00-04:00',
   'us-open': '2026-06-19T12:00:00-04:00',
   open: '2026-07-17T12:00:00-04:00',
+};
+
+// Approximate first tee time (EDT) on the Saturday (Round 3) of each tournament
+const TOURNAMENT_CUT_HIDE_AT: Partial<Record<TournamentId, string>> = {
+  players: '2026-03-14T07:30:00-04:00',
+  masters: '2026-04-11T08:00:00-04:00',
+  pga: '2026-05-16T08:00:00-04:00',
+  'us-open': '2026-06-20T07:45:00-04:00',
+  open: '2026-07-18T01:35:00-04:00', // ~6:35 AM BST
 };
 
 const TOURNAMENT_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
@@ -1623,8 +1632,13 @@ export default function Page() {
   const locked = pool?.lineupLocks?.[selectedTournament] ?? defaultLocked;
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
   const showProjectedCut = (() => {
+    if (selectedTournamentStatus?.label !== 'IN PROGRESS') return false;
     const showAt = TOURNAMENT_CUT_SHOW_AT[selectedTournament];
-    return showAt ? Date.now() >= new Date(showAt).getTime() : false;
+    if (!showAt) return false;
+    const now = Date.now();
+    if (now < new Date(showAt).getTime()) return false;
+    const hideAt = TOURNAMENT_CUT_HIDE_AT[selectedTournament];
+    return hideAt ? now < new Date(hideAt).getTime() : true;
   })();
   const showFutureTournamentView =
     selectedTournamentStatus?.label === 'UP NEXT' ||
