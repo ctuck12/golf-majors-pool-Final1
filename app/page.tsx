@@ -2781,7 +2781,7 @@ export default function Page() {
                         3rd: {formatPayoutAmount(selectedTournamentPayouts?.third)}
                       </div>
                     </div>
-                    {isMobile ? (
+                    {!showFinalTournamentView && (isMobile ? (
                       <div style={{ fontSize: 12, textAlign: 'right' }}>
                         <span style={{ color: '#0f1720', fontWeight: 700 }}>Entry Fee: $30</span>{' '}
                         <a
@@ -2796,7 +2796,7 @@ export default function Page() {
                         <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> <span style={{ color: '#5b6b79' }}>$30</span>{'   '}
                         <strong style={{ color: '#0f1720' }}>Venmo:</strong> <span style={{ color: '#5b6b79' }}>@claytont743</span>
                       </div>
-                    )}
+                    ))}
                   </div>
                 ) : !(showFutureTournamentView && !picksOpenForTournament) && !showFinalTournamentView ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
@@ -2812,7 +2812,7 @@ export default function Page() {
                 ) : null}
               </div>
 
-              {!showLivePayoutStrip && !showFinalTournamentView ? (
+              {!showLivePayoutStrip && !showFinalTournamentView && picksOpenForTournament ? (
                 <div
                   style={{
                     marginTop: 14,
@@ -4127,24 +4127,28 @@ export default function Page() {
                 Entry &amp; Contact
               </div>
               <div style={{ marginTop: isMobile ? 8 : 14, display: 'grid', gap: isMobile ? 6 : 10, color: '#0f1720', lineHeight: 1.5, fontSize: isMobile ? 12 : 15 }}>
-                <div>
-                  <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
-                  <span style={{ marginRight: 4 }}>➤</span>
-                  Entry Fee: $30
-                </div>
-                <div>
-                  <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
-                  <span style={{ marginRight: 4 }}>➤</span>
-                  Venmo:{' '}
-                  {isMobile ? (
-                    <a
-                      href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
-                      style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}
-                    >
-                      @claytont743
-                    </a>
-                  ) : '@claytont743'}
-                </div>
+                {picksOpenForTournament && (
+                  <>
+                    <div>
+                      <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
+                      <span style={{ marginRight: 4 }}>➤</span>
+                      Entry Fee: $30
+                    </div>
+                    <div>
+                      <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
+                      <span style={{ marginRight: 4 }}>➤</span>
+                      Venmo:{' '}
+                      {isMobile ? (
+                        <a
+                          href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
+                          style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}
+                        >
+                          @claytont743
+                        </a>
+                      ) : '@claytont743'}
+                    </div>
+                  </>
+                )}
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
                   <span style={{ marginRight: 4 }}>➤</span>
