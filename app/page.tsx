@@ -4099,12 +4099,12 @@ export default function Page() {
                           >
                               {golfer ? (
                                 <>
-                                  <div style={{ width: isMobile ? 90 : 110, flexShrink: 0, alignSelf: 'stretch', background: '#e8eef4', overflow: 'hidden' }}>
+                                  <div style={{ width: isMobile ? 90 : 110, flexShrink: 0, alignSelf: 'stretch', background: '#e8eef4', overflow: 'hidden', position: 'relative' }}>
                                     <img
                                       src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                       alt={golfer.name}
                                       className="roster-card-photo"
-                                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                                     />
                                   </div>
                                   <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -5120,12 +5120,12 @@ export default function Page() {
                         >
                             {golfer ? (
                               <>
-                                <div style={{ width: isMobile ? 90 : 110, flexShrink: 0, alignSelf: 'stretch', background: '#e8eef4', overflow: 'hidden' }}>
+                                <div style={{ width: isMobile ? 90 : 110, flexShrink: 0, alignSelf: 'stretch', background: '#e8eef4', overflow: 'hidden', position: 'relative' }}>
                                   <img
                                     src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                     alt={golfer.name}
                                     className="roster-card-photo"
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                                   />
                                 </div>
                                 <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
