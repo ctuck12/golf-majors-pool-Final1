@@ -3994,7 +3994,7 @@ export default function Page() {
                         </label>
                       </div>
 
-                      <div style={{ maxHeight: isMobile ? 450 : 722, overflowY: 'auto' }}>
+                      <div style={{ maxHeight: isMobile ? 540 : 722, overflowY: 'auto' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>OWGR</div>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
@@ -5011,7 +5011,7 @@ export default function Page() {
                       </label>
                     </div>
 
-                    <div style={{ maxHeight: isMobile ? 450 : 722, overflowY: 'auto' }}>
+                    <div style={{ maxHeight: isMobile ? 540 : 722, overflowY: 'auto' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
                         <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>OWGR</div>
                         <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
