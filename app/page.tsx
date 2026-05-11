@@ -3950,6 +3950,9 @@ export default function Page() {
                           <div style={{ fontSize: isMobile ? 16 : 22, fontWeight: 900, color: '#0f1720' }}>
                             {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
                           </div>
+                          <div style={{ fontSize: isMobile ? 15 : 20, fontWeight: 900, color: '#0f1720' }}>
+                            Tournament Field
+                          </div>
                           <div
                             style={{
                               display: 'flex',
@@ -3994,9 +3997,9 @@ export default function Page() {
                         </label>
                       </div>
 
-                      <div style={{ maxHeight: 960, overflowY: 'auto' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 120px 60px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
-                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>OWGR</div>
+                      <div style={{ maxHeight: isMobile ? 450 : 610, overflowY: 'auto' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>OWGR</div>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Player</div>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Salary</div>
                           <div></div>
@@ -4009,7 +4012,7 @@ export default function Page() {
                               key={player.id}
                               style={{
                                 display: 'grid',
-                                gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 120px 60px',
+                                gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 155px 50px',
                                 padding: isMobile ? '11px 12px' : '15px 20px',
                                 borderBottom: '1px solid #e6edf1',
                                 alignItems: 'center',
@@ -4095,7 +4098,7 @@ export default function Page() {
                                         Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
                                       </div>
                                       <div style={{ marginTop: 2, fontSize: isMobile ? 12 : 13, color: '#607282' }}>
-                                        OWGR: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
+                                        World Rank: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
                                       </div>
                                     </div>
                                   </div>
@@ -4967,6 +4970,9 @@ export default function Page() {
                         <div style={{ fontSize: isMobile ? 16 : 22, fontWeight: 900, color: '#0f1720' }}>
                           {commissionerTournamentLabel}
                         </div>
+                        <div style={{ fontSize: isMobile ? 15 : 20, fontWeight: 900, color: '#0f1720' }}>
+                          Tournament Field
+                        </div>
                         <div
                           style={{
                             display: 'flex',
@@ -5011,9 +5017,9 @@ export default function Page() {
                       </label>
                     </div>
 
-                    <div style={{ maxHeight: 960, overflowY: 'auto' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 120px 60px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
-                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>OWGR</div>
+                    <div style={{ maxHeight: isMobile ? 450 : 610, overflowY: 'auto' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
+                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>OWGR</div>
                         <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Player</div>
                         <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Salary</div>
                         <div></div>
@@ -5026,7 +5032,7 @@ export default function Page() {
                             key={`commissioner-player-${player.id}`}
                             style={{
                               display: 'grid',
-                              gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 120px 60px',
+                              gridTemplateColumns: isMobile ? '52px 1fr 84px 44px' : '80px 1fr 155px 50px',
                               padding: isMobile ? '11px 12px' : '15px 20px',
                               borderBottom: '1px solid #e6edf1',
                               alignItems: 'center',
@@ -5112,7 +5118,7 @@ export default function Page() {
                                       Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
                                     </div>
                                     <div style={{ marginTop: 2, fontSize: isMobile ? 12 : 13, color: '#607282' }}>
-                                      OWGR: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
+                                      World Rank: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
                                     </div>
                                   </div>
                                 </div>
