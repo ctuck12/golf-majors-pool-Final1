@@ -3394,52 +3394,72 @@ export default function Page() {
                   )}
                   <div style={{ display: 'grid', justifyItems: (isMobile && hasSubmittedRoster) ? 'stretch' : 'center' }}>
                     {hasSubmittedRoster ? (
-                      <div
-                        style={{
-                          borderRadius: 12,
-                          border: '1px solid #dce6ee',
-                          background: '#f8fbfd',
-                          padding: isMobile ? '8px 10px' : '12px 14px',
-                          display: 'grid',
-                          gap: isMobile ? 6 : 10,
-                        }}
-                      >
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: isMobile ? 6 : 10 }}>
-                          {savedRosterPlayers.map((player) => (
-                            <span
-                              key={player.id}
-                              style={{
-                                borderRadius: 999,
-                                background: '#e8f3ff',
-                                color: '#2f5f96',
-                                padding: isMobile ? '4px 14px 4px 4px' : '6px 18px 6px 6px',
-                                fontSize: isMobile ? 15 : 17,
-                                fontWeight: 800,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: isMobile ? 8 : 10,
-                              }}
-                            >
-                              <img
-                                src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
-                                alt={player.name}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, width: '100%' }}>
+                        <div
+                          style={{
+                            borderRadius: 12,
+                            border: '1px solid #dce6ee',
+                            background: '#f8fbfd',
+                            padding: isMobile ? '8px 10px' : '12px 14px',
+                            display: 'grid',
+                            gap: isMobile ? 6 : 10,
+                            width: '100%',
+                          }}
+                        >
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: isMobile ? 6 : 10 }}>
+                            {savedRosterPlayers.map((player) => (
+                              <span
+                                key={player.id}
                                 style={{
-                                  width: isMobile ? 40 : 44,
-                                  height: isMobile ? 40 : 44,
-                                  borderRadius: '50%',
-                                  objectFit: 'cover',
-                                  background: '#c5d9f0',
-                                  flexShrink: 0,
+                                  borderRadius: 999,
+                                  background: '#e8f3ff',
+                                  color: '#2f5f96',
+                                  padding: isMobile ? '4px 14px 4px 4px' : '6px 18px 6px 6px',
+                                  fontSize: isMobile ? 15 : 17,
+                                  fontWeight: 800,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: isMobile ? 8 : 10,
                                 }}
-                              />
-                              {player.name.split(' ').slice(-1)[0]}
-                            </span>
-                          ))}
+                              >
+                                <img
+                                  src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
+                                  alt={player.name}
+                                  style={{
+                                    width: isMobile ? 40 : 44,
+                                    height: isMobile ? 40 : 44,
+                                    borderRadius: '50%',
+                                    objectFit: 'cover',
+                                    background: '#c5d9f0',
+                                    flexShrink: 0,
+                                  }}
+                                />
+                                {player.name.split(' ').slice(-1)[0]}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                        <div style={{ color: '#5b6b79', fontSize: isMobile ? 11 : 13 }}>
-                          Roster submitted for {entriesTournament.name}. You can reopen it with <strong>Edit Picks</strong>{' '}
-                          while lineups are unlocked.
-                        </div>
+                        <button
+                          onClick={openMyEntriesEditor}
+                          style={{
+                            border: 'none',
+                            borderRadius: 16,
+                            padding: isMobile ? '10px 16px' : '14px 22px',
+                            background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                            color: '#fff',
+                            fontSize: isMobile ? 14 : 16,
+                            fontWeight: 900,
+                            cursor: 'pointer',
+                            boxShadow: '0 14px 28px rgba(63, 115, 173, 0.22)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          <Pencil size={isMobile ? 13 : 16} />
+                          Edit Picks
+                        </button>
                       </div>
                     ) : (
                       <button
