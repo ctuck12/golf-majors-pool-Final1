@@ -961,7 +961,35 @@ export default function Page() {
       }
     };
 
+    const silentRefresh = async () => {
+      try {
+        const payload = await readJson<SessionPayload>('/api/auth/session', { cache: 'no-store' });
+        if (payload.user) {
+          setSessionUser(payload.user);
+          setPool(payload.pool);
+          setPoolEntries(payload.entries);
+          writeStoredSession(payload);
+        }
+      } catch {
+        // silent — don't disrupt the UI on background refresh
+      }
+    };
+
     void loadSession();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void silentRefresh();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    const refreshTimer = window.setInterval(() => void silentRefresh(), 60000);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.clearInterval(refreshTimer);
+    };
   }, []);
 
   useEffect(() => {
