@@ -45,6 +45,31 @@ button {
   background: #8fa0b0;
 }
 
+/* Portrait-only lock for phones — shows a blocker in landscape on touch phones (height < 500px),
+   but not on tablets whose landscape height is 768px+ */
+@media screen and (orientation: landscape) and (max-height: 500px) and (hover: none) and (pointer: coarse) {
+  body::before {
+    content: 'Please rotate your device to portrait mode';
+    position: fixed;
+    inset: 0;
+    background: #0a1628;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    z-index: 99999;
+    line-height: 1.5;
+  }
+
+  body > * {
+    display: none !important;
+  }
+}
+
 /* Pick sheet player rows and roster card photo — desktop sizing */
 @media (min-width: 768px) {
   .picksheet-player-name {

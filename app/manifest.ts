@@ -7,6 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Season-long majors golf pool',
     start_url: '/',
     display: 'standalone',
+    orientation: 'portrait',
     background_color: '#0a1628',
     theme_color: '#0a1628',
     icons: [
