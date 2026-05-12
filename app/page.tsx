@@ -6274,7 +6274,7 @@ export default function Page() {
                   alt={scorecardGolferName}
                   style={{ width: 56, objectFit: 'cover', objectPosition: 'top center', background: '#e6edf1', flexShrink: 0, display: 'block' }}
                 />
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '16px 20px 0 14px' }}>
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '16px 20px 4px 14px' }}>
                   <div>
                     {scorecardData && scorecardData.rounds.length > 0 && (() => {
                       const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
@@ -6291,6 +6291,12 @@ export default function Page() {
                         <span style={{ fontSize: 10, fontStyle: 'italic' }}>Par: {scorecardData.par}</span>
                       </div>
                     )}
+                    {scorecardData && scorecardData.rounds.length > 0 && (() => {
+                      const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
+                      return rnd && rnd.score != null && rnd.score !== '' ? (
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#0f1720', marginTop: 2 }}>Score: {rnd.score}</div>
+                      ) : null;
+                    })()}
                   </div>
                   <button
                     onClick={() => { setScorecardGolferName(null); setScorecardData(null); }}
@@ -6382,11 +6388,6 @@ export default function Page() {
 
                 return (
                   <div>
-                    {rnd.score != null && rnd.score !== '' && (
-                      <div style={{ textAlign: 'right', marginBottom: 2, fontSize: 13, fontWeight: 600, color: '#0f1720' }}>
-                        Score: {rnd.score}
-                      </div>
-                    )}
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 560 }}>
                         <thead>
