@@ -6027,19 +6027,19 @@ export default function Page() {
                 overflowY: 'auto',
                 background: '#fff',
                 borderRadius: 20,
-                padding: 16,
+                padding: 0,
+                overflow: 'hidden',
                 boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', alignItems: 'stretch' }}>
                   <img
                     src={activeStandingGolfer.photoUrl ?? pgaPhoto(activeStandingGolfer.pgaTourId)}
                     alt={activeStandingGolfer.name}
                     className="breakdown-scoring-photo"
-                    style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#e6edf1' }}
+                    style={{ width: 100, objectFit: 'cover', objectPosition: 'top center', flexShrink: 0, background: '#e6edf1', display: 'block' }}
                   />
-                  <div>
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '14px 14px 14px 12px' }}>
                   <div style={{ marginTop: 4 }}>
                     <h3 className="breakdown-scoring-name" style={{ margin: '0 0 6px', fontSize: 20, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'nowrap' }}>
@@ -6076,24 +6076,24 @@ export default function Page() {
                       </button>
                     </div>
                   </div>
+                  <button
+                    onClick={() => { setShowPointsSystem(false); setActiveStandingGolferId(null); }}
+                    style={{
+                      border: '1px solid #d7e0e8',
+                      borderRadius: 999,
+                      background: '#fff',
+                      padding: '8px 14px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                    }}
+                  >
+                    Back
+                  </button>
                 </div>
-                </div>
-                <button
-                  onClick={() => { setShowPointsSystem(false); setActiveStandingGolferId(null); }}
-                  style={{
-                    border: '1px solid #d7e0e8',
-                    borderRadius: 999,
-                    background: '#fff',
-                    padding: '8px 14px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Back
-                </button>
               </div>
 
-              <div style={{ marginTop: 12, display: 'grid', gap: 8 }}>
+              <div style={{ marginTop: 12, display: 'grid', gap: 8, padding: '0 16px 16px' }}>
                 {[
                   ['Pars', activeStandingGolfer.scoreBreakdown.statLine.par, activeStandingGolfer.scoreBreakdown.statLine.par * SCORING_RULES.par],
                   ['Birdies', activeStandingGolfer.scoreBreakdown.statLine.birdie, activeStandingGolfer.scoreBreakdown.statLine.birdie * SCORING_RULES.birdie],
