@@ -882,6 +882,7 @@ export default function Page() {
   const [accountBusy, setAccountBusy] = useState(false);
   const [accountMessage, setAccountMessage] = useState('');
   const [myEntriesEditorOpen, setMyEntriesEditorOpen] = useState(false);
+  const pickSheetOpenRef = useRef(false);
   const [myEntriesMenuOpen, setMyEntriesMenuOpen] = useState(false);
   const [myEntriesDetailView, setMyEntriesDetailView] = useState<'none' | 'history' | 'rename'>('none');
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
@@ -1050,6 +1051,7 @@ export default function Page() {
     };
 
     const silentRefresh = async () => {
+      if (pickSheetOpenRef.current) return;
       try {
         const payload = await readJson<SessionPayload>('/api/auth/session', { cache: 'no-store' });
         if (payload.user) {
@@ -1079,6 +1081,10 @@ export default function Page() {
       window.clearInterval(refreshTimer);
     };
   }, []);
+
+  useEffect(() => {
+    pickSheetOpenRef.current = myEntriesEditorOpen || !!commissionerRosterMemberId;
+  }, [myEntriesEditorOpen, commissionerRosterMemberId]);
 
   useEffect(() => {
     if (sessionLoading) {
