@@ -1879,18 +1879,22 @@ export default function Page() {
     });
   const commissionerRosterMember =
     commissionerMembers.find((member) => member.id === commissionerRosterMemberId) ?? null;
-  const filteredEntriesPlayers = players.filter((player) => {
-    if (selectedRoster.includes(player.id)) return false;
-    const query = entriesPlayerSearch.trim().toLowerCase();
-    if (!query) return true;
-    return player.name.toLowerCase().includes(query);
-  });
-  const filteredCommissionerPlayers = players.filter((player) => {
-    if (commissionerRosterSelection.includes(player.id)) return false;
-    const query = commissionerPlayerSearch.trim().toLowerCase();
-    if (!query) return true;
-    return player.name.toLowerCase().includes(query);
-  });
+  const filteredEntriesPlayers = players
+    .filter((player) => {
+      if (selectedRoster.includes(player.id)) return false;
+      const query = entriesPlayerSearch.trim().toLowerCase();
+      if (!query) return true;
+      return player.name.toLowerCase().includes(query);
+    })
+    .sort((a, b) => b.salary - a.salary);
+  const filteredCommissionerPlayers = players
+    .filter((player) => {
+      if (commissionerRosterSelection.includes(player.id)) return false;
+      const query = commissionerPlayerSearch.trim().toLowerCase();
+      if (!query) return true;
+      return player.name.toLowerCase().includes(query);
+    })
+    .sort((a, b) => b.salary - a.salary);
 
   const savedRoster = sessionUser?.rosters[entriesTournamentId] ?? [];
   const hasSubmittedRoster = savedRoster.length === REQUIRED_GOLFERS;
