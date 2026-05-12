@@ -155,6 +155,8 @@ const DEFAULT_ROSTERS: Record<string, number[]> = {
 
 type TournamentId = (typeof TOURNAMENTS)[number]['id'];
 type MainTab = 'Standings' | 'My entries' | 'Details' | 'Commissioner console';
+const MAIN_TABS: MainTab[] = ['Standings', 'My entries', 'Details', 'Commissioner console'];
+const MAIN_TAB_STORAGE_KEY = `${STORAGE_PREFIX}:main-tab`;
 
 type FeedRow = {
   position: string;
@@ -334,6 +336,23 @@ function canAccessCommissionerConsole(user: AuthUser | null) {
   }
 
   return user.email.trim().toLowerCase() === COMMISSIONER_EMAIL && user.displayName.trim() === COMMISSIONER_DISPLAY_NAME;
+}
+
+function readStoredMainTab() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const stored = window.localStorage.getItem(MAIN_TAB_STORAGE_KEY);
+  return MAIN_TABS.includes(stored as MainTab) ? (stored as MainTab) : null;
+}
+
+function writeStoredMainTab(tab: MainTab) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(MAIN_TAB_STORAGE_KEY, tab);
 }
 
 function readStoredSession() {
@@ -1023,6 +1042,13 @@ export default function Page() {
   useEffect(() => {
     const timer = window.setInterval(() => setNowTick(Date.now()), 60000);
     return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const storedTab = readStoredMainTab();
+    if (storedTab) {
+      setMainTab(storedTab);
+    }
   }, []);
 
   useEffect(() => {
@@ -1880,12 +1906,13 @@ export default function Page() {
     }
   };
 
-  const handleMainTabChange = (tab: MainTab) => {
+  const handleMainTabChange = (tab: MainTab, options?: { refreshAfterChange?: boolean }) => {
     setAccountMenuOpen(false);
     setMyEntriesMenuOpen(false);
     setActiveStandingEntryId(null);
     setActiveStandingGolferId(null);
     setCommissionerMemberModalOpen(false);
+    writeStoredMainTab(tab);
 
     if (tab === 'Standings') {
       setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date())));
@@ -1926,6 +1953,10 @@ export default function Page() {
     }
 
     setMainTab(tab);
+
+    if (options?.refreshAfterChange && typeof window !== 'undefined') {
+      window.setTimeout(() => window.location.reload(), 0);
+    }
   };
 
   const openMyEntriesEditor = () => {
@@ -2101,14 +2132,14 @@ export default function Page() {
                 paddingBottom: 2,
               }}
             >
-              {(['Standings', 'My entries', 'Details', 'Commissioner console'] as MainTab[])
+              {MAIN_TABS
                 .filter((tab) => tab !== 'Commissioner console' || canManagePool)
                 .map((tab) => {
                   const active = tab === mainTab;
                   return (
                     <button
                       key={tab}
-                      onClick={() => handleMainTabChange(tab)}
+                      onClick={() => handleMainTabChange(tab, { refreshAfterChange: true })}
                       style={{
                         border: 'none',
                         borderBottom: active ? '3px solid #63d9ea' : '3px solid transparent',
