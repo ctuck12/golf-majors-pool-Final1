@@ -1087,6 +1087,14 @@ export default function Page() {
   }, [myEntriesEditorOpen, commissionerRosterMemberId]);
 
   useEffect(() => {
+    if (!myEntriesEditorOpen) setEntriesPlayerSearch('');
+  }, [myEntriesEditorOpen]);
+
+  useEffect(() => {
+    if (!commissionerRosterMemberId) setCommissionerPlayerSearch('');
+  }, [commissionerRosterMemberId]);
+
+  useEffect(() => {
     if (sessionLoading) {
       return;
     }
