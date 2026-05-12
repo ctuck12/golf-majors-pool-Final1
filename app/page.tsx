@@ -925,6 +925,13 @@ export default function Page() {
   useEffect(() => {
     const loadSession = async () => {
       setSessionLoading(true);
+      const storedSnapshot = readStoredSession();
+
+      if (storedSnapshot?.user) {
+        setSessionUser(storedSnapshot.user);
+        setPool(storedSnapshot.pool);
+        setPoolEntries(storedSnapshot.entries);
+      }
 
       try {
         const payload = await readJson<SessionPayload>('/api/auth/session', { cache: 'no-store' });
@@ -1012,6 +1019,10 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    if (sessionLoading) {
+      return;
+    }
+
     if (sessionUser) {
       writeStoredSession({
         user: sessionUser,
@@ -1022,7 +1033,7 @@ export default function Page() {
     }
 
     clearStoredSession();
-  }, [pool, poolEntries, sessionUser]);
+  }, [pool, poolEntries, sessionLoading, sessionUser]);
 
   useEffect(() => {
     if (sessionUser) {
@@ -2078,6 +2089,59 @@ export default function Page() {
 
   const formatPayoutAmount = (value: number | undefined) =>
     typeof value === 'number' && Number.isFinite(value) ? `$${value.toLocaleString()}` : '--';
+
+  if (sessionLoading && !sessionUser) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          background:
+            'radial-gradient(circle at top left, rgba(72, 126, 196, 0.18), transparent 28%), linear-gradient(180deg, #f7fbff 0%, #edf3fb 100%)',
+        }}
+      >
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '12px 10px 32px' : '32px 20px 40px' }}>
+          <header
+            style={{
+              background: 'linear-gradient(135deg, #173b63 0%, #102842 100%)',
+              color: '#fff',
+              borderRadius: 28,
+              padding: isMobile ? '10px 12px' : '10px 28px',
+              boxShadow: '0 24px 64px rgba(9, 34, 51, 0.18)',
+              position: 'relative',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <img
+                src="/golf-majors-pool-logo-v11.png"
+                alt="Golf Majors Pool"
+                style={{
+                  display: 'block',
+                  width: isMobile ? 'min(100%, 260px)' : 'min(100%, 380px)',
+                  height: 'auto',
+                  objectFit: 'contain',
+                  background: 'transparent',
+                }}
+              />
+            </div>
+          </header>
+          <section
+            style={{
+              marginTop: 24,
+              background: '#fff',
+              borderRadius: 24,
+              padding: isMobile ? 24 : 32,
+              boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+              textAlign: 'center',
+              color: '#5b6b79',
+              fontWeight: 800,
+            }}
+          >
+            Loading your pool...
+          </section>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
