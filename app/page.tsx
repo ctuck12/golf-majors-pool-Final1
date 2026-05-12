@@ -71,6 +71,22 @@ const TOURNAMENTS = [
   },
 ] as const;
 
+const TOURNAMENT_LEADERBOARD_HEADER: Record<string, string> = {
+  players: 'The Players Leaderboard',
+  masters: 'The Masters Leaderboard',
+  pga: 'The PGA Leaderboard',
+  'us-open': 'U.S. Open Leaderboard',
+  open: 'The Open Leaderboard',
+};
+
+const TOURNAMENT_PICKS_HEADER: Record<string, string> = {
+  players: 'The Players Picks',
+  masters: 'The Masters Picks',
+  pga: 'PGA Championship Picks',
+  'us-open': 'U.S. Open Picks',
+  open: 'The Open Picks',
+};
+
 const TOURNAMENT_ENTRIES_INTRO: Record<string, string> = {
   players: 'Make or edit your picks for The Players Championship below.',
   masters: 'Make or edit your picks for The Masters below.',
@@ -3379,7 +3395,7 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-                    <h3 style={{ margin: 0, fontSize: isMobile ? 17 : 30, color: '#0f1720', textAlign: isMobile ? 'center' : 'left', fontWeight: 900, width: isMobile ? '100%' : undefined }}>{tournament.name} Leaderboard</h3>
+                    <h3 style={{ margin: 0, fontSize: isMobile ? 17 : 30, color: '#0f1720', textAlign: isMobile ? 'center' : 'left', fontWeight: 900, width: isMobile ? '100%' : undefined }}>{TOURNAMENT_LEADERBOARD_HEADER[tournament.id] ?? `${tournament.name} Leaderboard`}</h3>
                   </div>
                   <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 13, color: '#8fa0b0', textAlign: isMobile ? 'center' : 'left' }}>
                     {isMobile ? '*Tap player to highlight who picked them' : '*Click player to highlight who picked them'}
@@ -3653,7 +3669,7 @@ export default function Page() {
                   <div
                     style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'center', justifySelf: 'center' }}
                   >
-                    {entriesTournamentId === 'pga' ? 'PGA Championship Picks' : `${entriesTournament.name} Picks`}
+                    {TOURNAMENT_PICKS_HEADER[entriesTournamentId] ?? `${entriesTournament.name} Picks`}
                   </div>
                   <div style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'right' }}>Options</div>
 
