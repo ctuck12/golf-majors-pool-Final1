@@ -862,7 +862,7 @@ export default function Page() {
   const [tieBreakInput, setTieBreakInput] = useState('');
   const [commissionerPlayerSearch, setCommissionerPlayerSearch] = useState('');
   const [commissionerMemberModalOpen, setCommissionerMemberModalOpen] = useState(false);
-  const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email' | 'confirmDelete'>('menu');
+  const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email' | 'confirmDelete' | 'confirmClearPicks'>('menu');
   const [commissionerRosterMemberId, setCommissionerRosterMemberId] = useState<string | null>(null);
   const [commissionerRosterSelection, setCommissionerRosterSelection] = useState<number[]>([]);
   const [commissionerTieBreakInput, setCommissionerTieBreakInput] = useState('');
@@ -1648,6 +1648,46 @@ export default function Page() {
       setCommissionerSuccess('Member deleted.');
     } catch (err) {
       setCommissionerError(err instanceof Error ? err.message : 'Unable to delete member.');
+    } finally {
+      setCommissionerBusy(false);
+    }
+  };
+
+  const handleClearCommissionerMemberPicks = async () => {
+    if (!selectedCommissionerMemberId) return;
+
+    setCommissionerBusy(true);
+    setCommissionerError('');
+    setCommissionerSuccess('');
+
+    try {
+      const payload = await readJson<{ member: CommissionerMember }>(
+        `/api/commissioner/members/${selectedCommissionerMemberId}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rosters: { [entriesTournamentId]: [] } }),
+        },
+      );
+
+      setCommissionerMembers((current) =>
+        current.map((member) => (member.id === payload.member.id ? payload.member : member)),
+      );
+      setPoolEntries((current) =>
+        current.map((entry) =>
+          entry.id === payload.member.id
+            ? { ...entry, rosters: payload.member.rosters }
+            : entry,
+        ),
+      );
+      setSessionUser((current) =>
+        current && current.id === payload.member.id ? payload.member : current,
+      );
+      setCommissionerMemberModalOpen(false);
+      setCommissionerMemberModalView('menu');
+      setCommissionerSuccess(`Picks cleared for ${payload.member.displayName}.`);
+    } catch (err) {
+      setCommissionerError(err instanceof Error ? err.message : 'Unable to clear picks.');
     } finally {
       setCommissionerBusy(false);
     }
@@ -5526,6 +5566,22 @@ export default function Page() {
                     Manage or Submit Picks
                   </button>
                   <button
+                    onClick={() => setCommissionerMemberModalView('confirmClearPicks')}
+                    disabled={commissionerBusy}
+                    style={{
+                      border: '1px solid #fcd9a0',
+                      borderRadius: 16,
+                      background: '#fff8ee',
+                      padding: '16px 18px',
+                      textAlign: 'left',
+                      color: '#a06000',
+                      fontWeight: 800,
+                      cursor: commissionerBusy ? 'wait' : 'pointer',
+                    }}
+                  >
+                    Clear Picks
+                  </button>
+                  <button
                     onClick={() => setCommissionerMemberModalView('confirmDelete')}
                     disabled={commissionerBusy}
                     style={{
@@ -5571,6 +5627,35 @@ export default function Page() {
                       }}
                     >
                       Save Display Name
+                    </button>
+                  </div>
+                </div>
+              ) : commissionerMemberModalView === 'confirmClearPicks' ? (
+                <div style={{ display: 'grid', gap: 16 }}>
+                  <div style={{ fontSize: 15, color: '#0f1720' }}>
+                    Are you sure you want to clear picks for <strong>{selectedCommissionerMember?.displayName}</strong>? Their submitted roster will be removed for this tournament.
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => setCommissionerMemberModalView('menu')}
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleClearCommissionerMemberPicks}
+                      disabled={commissionerBusy}
+                      style={{
+                        border: 'none',
+                        borderRadius: 14,
+                        padding: '12px 16px',
+                        background: '#a06000',
+                        color: '#fff',
+                        fontWeight: 900,
+                        cursor: commissionerBusy ? 'wait' : 'pointer',
+                      }}
+                    >
+                      Confirm Clear
                     </button>
                   </div>
                 </div>
