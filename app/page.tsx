@@ -5524,10 +5524,6 @@ export default function Page() {
               <div style={{ marginTop: isMobile ? 12 : 10, display: 'grid', gap: isMobile ? 8 : 8 }}>
                 {activeStandingEntry.golfers.length > 0 ? (
                   activeStandingGolfers.map((golfer, index) => {
-                    const pickedCount = standings.reduce(
-                      (sum, entry) => sum + entry.golfers.filter((entryGolfer) => entryGolfer.id === golfer.id).length,
-                      0,
-                    );
                     const isActiveGolfer = activeStandingGolferId === golfer.id;
 
                     return (
@@ -5562,8 +5558,7 @@ export default function Page() {
                               <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                 <span>Holes Rem: {golfer.holesRemaining}</span>
-                                <span>Picked: {pickedCount}</span>
-                                <span>Pos: {formatPosition(golfer.position)}</span>
+                                <span>Position: {formatPosition(golfer.position)}</span>
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
@@ -5607,8 +5602,7 @@ export default function Page() {
                               <div className="breakdown-golfer-name" style={{ fontSize: 14, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                 <span>Holes Rem: {golfer.holesRemaining}</span>
-                                <span>Picked: {pickedCount}</span>
-                                <span>Pos: {formatPosition(golfer.position)}</span>
+                                <span>Position: {formatPosition(golfer.position)}</span>
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 11, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
