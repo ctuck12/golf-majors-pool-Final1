@@ -6276,7 +6276,17 @@ export default function Page() {
                 />
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '16px 20px 16px 14px' }}>
                   <div>
-                    <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.05em' }}>Scorecard</div>
+                    {scorecardData && scorecardData.rounds.length > 0 && (() => {
+                      const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
+                      return rnd ? (
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 2 }}>
+                          Round {rnd.round}
+                          {rnd.score != null && rnd.score !== '' && (
+                            <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 12 }}>Score: {rnd.score}</span>
+                          )}
+                        </div>
+                      ) : null;
+                    })()}
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>{scorecardGolferName}</div>
                     {scorecardData && (
                       <div style={{ fontSize: 11, color: '#607282', display: 'flex', alignItems: 'baseline', gap: 5 }}>
@@ -6375,12 +6385,6 @@ export default function Page() {
 
                 return (
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#2f5f96', marginBottom: 10, display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                      Round {rnd.round}
-                      {rnd.score != null && rnd.score !== '' && (
-                        <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 12 }}>Score: {rnd.score}</span>
-                      )}
-                    </div>
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 560 }}>
                         <thead>
