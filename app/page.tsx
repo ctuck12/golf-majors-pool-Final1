@@ -6171,7 +6171,7 @@ export default function Page() {
             <div
               onClick={(e) => e.stopPropagation()}
               style={{
-                width: 'min(620px, 100%)',
+                width: 'min(500px, 100%)',
                 maxHeight: '90vh',
                 overflowY: 'auto',
                 background: '#fff',
