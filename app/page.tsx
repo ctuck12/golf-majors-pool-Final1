@@ -31,6 +31,39 @@ import {
 
 const SALARY_CAP = 50000;
 const REQUIRED_GOLFERS = 6;
+
+// Exact salaries for the 2026 PGA Championship field (overrides the computed odds-based salary)
+const PGA_SALARY_OVERRIDES: Record<number, number> = {
+    1: 11900,   2: 10400,  16:  9200,  15:  9100,  23:  9100,
+    3:  8800,   5:  8600,   6:  8500,  20:  8100,   4:  8000,
+   18:  7900,  61:  7900,   7:  7700,  17:  7700,   9:  7700,
+   21:  7600,  29:  7600,   8:  7500,  10:  7500,  50:  7500,
+   22:  7400,  37:  7400,  90:  7400,  30:  7300,  19:  7300,
+   25:  7300,  31:  7300,  14:  7300,  12:  7300,  53:  7200,
+   54:  7200,  40:  7200,  35:  7200,  27:  7100,  45:  7100,
+   49:  7100,  33:  7100,  94:  7000,  55:  7000,  60:  7000,
+   38:  7000,  32:  7000, 116:  7000,  36:  7000, 114:  7000,
+   98:  7000,  66:  6900,  24:  6800, 146:  6800, 112:  6800,
+   80:  6800, 145:  6800,  57:  6700,  13:  6700, 121:  6700,
+   48:  6700, 126:  6700, 158:  6700,  91:  6600, 102:  6600,
+   28:  6600, 186:  6600,  72:  6600,  39:  6600,  75:  6600,
+   78:  6600,  74:  6600,  42:  6600, 193:  6600,  52:  6500,
+   34:  6500,  43:  6500,  93:  6500,  47:  6500, 119:  6500,
+   44:  6500,  68:  6400, 153:  6400, 157:  6400,  59:  6400,
+   58:  6400,  67:  6400, 148:  6400,  96:  6400, 139:  6400,
+   76:  6400,  81:  6400, 131:  6300,  51:  6300, 166:  6300,
+   63:  6300, 194:  6300, 151:  6300, 152:  6300, 136:  6300,
+  170:  6300, 149:  6300,  56:  6300, 159:  6200, 117:  6200,
+   64:  6200,  69:  6200,  70:  6200, 154:  6200,  79:  6200,
+   62:  6200, 150:  6200, 161:  6200, 171:  6200,  41:  6200,
+  168:  6200, 155:  6200,  65:  6100, 104:  6100, 169:  6100,
+   77:  6100, 163:  6100, 167:  6100, 164:  6100, 143:  6100,
+   71:  6100,  73:  6000,  46:  6000,  92:  6000, 165:  5900,
+   87:  5900,  85:  5900, 172:  5900, 185:  5900, 103:  5900,
+  173:  5900, 144:  5900,  89:  5900,  84:  5900, 174:  5900,
+  178:  5900, 181:  5900, 175:  5900,  82:  5900, 184:  5900,
+  190:  5900, 192:  5900, 188:  5900, 191:  5900, 183:  5800,
+};
 const STORAGE_PREFIX = 'golf-pool-live';
 const SALARY_MIN = 5000;
 const SALARY_MAX = 10800;
@@ -307,6 +340,7 @@ function buildPricedPlayers(
     photoUrl?: string;
   }>,
   liveOddsMap: Record<string, string>,
+  salaryOverrides?: Record<number, number>,
 ) {
   const playersWithOdds = playerPool.map((player) => ({
     ...player,
@@ -318,7 +352,7 @@ function buildPricedPlayers(
 
   return playersWithOdds.map((player) => {
     const oddsScore = normalizeValue(parseAmericanOdds(player.odds), minProbability, maxProbability);
-    const salary =
+    const salary = salaryOverrides?.[player.id] ??
       Math.round((SALARY_MIN + oddsScore * (SALARY_MAX - SALARY_MIN)) / 100) * 100;
 
     return {
@@ -1801,7 +1835,7 @@ export default function Page() {
 
   const players = useMemo(
     () =>
-      buildPricedPlayers(PLAYER_POOL, liveOddsMap).map((player) => {
+      buildPricedPlayers(PLAYER_POOL, liveOddsMap, PGA_SALARY_OVERRIDES).map((player) => {
         const live = feedMap[normalizeName(player.name)];
         const score = live?.score ?? '--';
         const position = live?.position ?? '--';
