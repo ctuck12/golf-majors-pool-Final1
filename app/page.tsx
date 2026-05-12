@@ -3275,7 +3275,7 @@ export default function Page() {
                           <Pencil size={isMobile ? 13 : 14} />
                           {hasSubmittedRoster ? 'Edit Picks' : 'Make Your Picks'}
                         </button>
-                        <div style={{ color: '#5b6b79', fontSize: isMobile ? 12 : 14, fontWeight: 600 }}>
+                        <div style={{ color: '#5b6b79', fontSize: isMobile ? 14 : 18, fontWeight: 600 }}>
                           Members with submitted picks:{' '}
                           <span style={{ color: '#0f1720', fontWeight: 900 }}>{submittedEntries.length}</span>
                         </div>
