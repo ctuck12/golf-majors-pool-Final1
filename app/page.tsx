@@ -6302,7 +6302,7 @@ export default function Page() {
               </div>
 
               {/* Body */}
-              <div style={{ padding: '6px 20px 20px', overflowX: 'auto' }}>
+              <div style={{ padding: '0 20px 20px', overflowX: 'auto' }}>
               {scorecardLoading ? (
                 <div style={{ textAlign: 'center', color: '#607282', padding: '32px 0', fontSize: 15 }}>Loading scorecard…</div>
               ) : !scorecardData || scorecardData.rounds.length === 0 ? (
@@ -6383,7 +6383,7 @@ export default function Page() {
                 return (
                   <div>
                     {rnd.score != null && rnd.score !== '' && (
-                      <div style={{ textAlign: 'right', marginBottom: 4, fontSize: 13, fontWeight: 600, color: '#0f1720' }}>
+                      <div style={{ textAlign: 'right', marginBottom: 2, fontSize: 13, fontWeight: 600, color: '#0f1720' }}>
                         Score: {rnd.score}
                       </div>
                     )}
