@@ -6276,7 +6276,7 @@ export default function Page() {
                 />
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '20px 20px 16px 20px' }}>
                   <div>
-                    <div style={{ fontSize: 19, fontWeight: 900, color: '#0f1720', lineHeight: 1.1 }}>{scorecardGolferName}</div>
+                    <div style={{ fontSize: !scorecardGolferName ? 19 : scorecardGolferName.length > 22 ? 13 : scorecardGolferName.length > 18 ? 15 : scorecardGolferName.length > 14 ? 17 : 19, fontWeight: 900, color: '#0f1720', lineHeight: 1.1, whiteSpace: 'nowrap' }}>{scorecardGolferName}</div>
                     {scorecardData && scorecardData.rounds.length > 0 && (() => {
                       const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
                       return rnd ? (
