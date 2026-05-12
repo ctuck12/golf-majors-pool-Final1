@@ -6272,18 +6272,18 @@ export default function Page() {
                 <img
                   src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
                   alt={scorecardGolferName}
-                  style={{ width: 68, objectFit: 'cover', objectPosition: 'top center', background: '#e6edf1', flexShrink: 0, display: 'block' }}
+                  style={{ width: 60, objectFit: 'cover', objectPosition: 'top center', background: '#e6edf1', flexShrink: 0, display: 'block' }}
                 />
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '20px 20px 16px 20px' }}>
                   <div>
-                    <div style={{ fontSize: 26, fontWeight: 900, color: '#0f1720', lineHeight: 1.1 }}>{scorecardGolferName}</div>
+                    <div style={{ fontSize: 19, fontWeight: 900, color: '#0f1720', lineHeight: 1.1 }}>{scorecardGolferName}</div>
                     {scorecardData && scorecardData.rounds.length > 0 && (() => {
                       const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
                       return rnd ? (
-                        <div style={{ fontSize: 15, fontWeight: 800, color: '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8 }}>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 5 }}>
                           Round {rnd.round}
                           {rnd.score != null && rnd.score !== '' && (
-                            <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 14 }}>Score: {rnd.score}</span>
+                            <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 11 }}>Score: {rnd.score}</span>
                           )}
                         </div>
                       ) : null;
