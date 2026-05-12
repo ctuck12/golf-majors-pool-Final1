@@ -71,6 +71,14 @@ const TOURNAMENTS = [
   },
 ] as const;
 
+const TOURNAMENT_ENTRIES_INTRO: Record<string, string> = {
+  players: 'Make or edit your picks for The Players Championship below.',
+  masters: 'Make or edit your picks for The Masters below.',
+  pga: 'Make or edit picks for the PGA Championship below.',
+  'us-open': 'Make or edit your picks for the U.S. Open Championship below.',
+  open: 'Make or edit picks for The Open Championship below.',
+};
+
 const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
   players: '/the-players-championship-logo.png',
   masters: '/the-masters-logo.png',
@@ -3604,7 +3612,7 @@ export default function Page() {
               >
                 <h2 style={{ margin: 0, fontSize: isMobile ? 15 : 26, color: '#0f1720' }}>Manage Entries</h2>
                 <div style={{ marginTop: isMobile ? 6 : 18, color: '#0f1720', fontSize: isMobile ? 11 : 15, lineHeight: 1.45 }}>
-                  Make or edit your picks for {entriesTournament.name} below. You can submit or modify your picks up until the first tee time of Round 1.
+                  {TOURNAMENT_ENTRIES_INTRO[entriesTournamentId] ?? `Make or edit your picks for ${entriesTournament.name} below.`} You can submit or modify your picks up until the first tee time of Round 1.
                 </div>
 
                 {saveMessage ? (
