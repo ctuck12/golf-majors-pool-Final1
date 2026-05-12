@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { startTransition, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
 import {
   AlertCircle,
@@ -681,6 +681,52 @@ async function readJson<T>(url: string, init?: RequestInit) {
   return payload;
 }
 
+function resetViewAfterMainTabChange() {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const activeElement = document.activeElement;
+  if (activeElement instanceof HTMLElement) {
+    activeElement.blur();
+  }
+
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+
+  let viewport = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+  const createdViewport = !viewport;
+  if (!viewport) {
+    viewport = document.createElement('meta');
+    viewport.name = 'viewport';
+    document.head.appendChild(viewport);
+  }
+
+  const previousViewport = viewport?.getAttribute('content');
+
+  if (viewport) {
+    const targetViewport = viewport;
+    targetViewport.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');
+
+    const settleView = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      if (createdViewport) {
+        targetViewport.remove();
+      } else if (previousViewport) {
+        targetViewport.setAttribute('content', previousViewport);
+      }
+    };
+
+    window.requestAnimationFrame(() => {
+      window.setTimeout(settleView, 80);
+    });
+  }
+}
+
 function fieldStyle() {
   return {
     width: '100%',
@@ -767,6 +813,8 @@ export default function Page() {
   const [feed, setFeed] = useState<FeedResponse | null>(() => readFeedCache(initialTournament));
   const [isLoading, setIsLoading] = useState(() => readFeedCache(initialTournament) === null);
   const [error, setError] = useState('');
+  const [feedRefreshNonce, setFeedRefreshNonce] = useState(0);
+  const [commissionerMembersRefreshNonce, setCommissionerMembersRefreshNonce] = useState(0);
   const [saveMessage, setSaveMessage] = useState('');
   const [nowTick, setNowTick] = useState(() => Date.now());
   const [sessionUser, setSessionUser] = useState<AuthUser | null>(null);
@@ -1131,7 +1179,7 @@ export default function Page() {
       active = false;
       window.clearInterval(timer);
     };
-  }, [selectedTournament]);
+  }, [feedRefreshNonce, selectedTournament]);
 
   useEffect(() => {
     const loadCommissionerMembers = async () => {
@@ -1155,7 +1203,7 @@ export default function Page() {
     };
 
     void loadCommissionerMembers();
-  }, [canManagePool, mainTab, sessionUser]);
+  }, [canManagePool, commissionerMembersRefreshNonce, mainTab, sessionUser]);
 
   useEffect(() => {
     if (!selectedCommissionerMemberId) {
@@ -1222,6 +1270,28 @@ export default function Page() {
       clearStoredSession();
     }
     setAuthError('');
+  };
+
+  const refreshCurrentSession = async () => {
+    try {
+      const payload = await readJson<SessionPayload>('/api/auth/session', { cache: 'no-store' });
+
+      if (payload.user) {
+        applySession(payload);
+        return;
+      }
+
+      const stored = readStoredSession();
+      const storedAccount = stored?.user ? findStoredAccountByEmail(stored.user.email) : null;
+
+      if (storedAccount) {
+        const restored = await restoreServerSessionFromStoredAccount(storedAccount);
+        upsertStoredAccount(restored, storedAccount.password);
+        applySession(restored);
+      }
+    } catch {
+      // Keep the current UI in place if a soft refresh misses the network.
+    }
   };
 
   const handleRegister = async () => {
@@ -1924,49 +1994,56 @@ export default function Page() {
     setActiveStandingGolferId(null);
     setCommissionerMemberModalOpen(false);
     writeStoredMainTab(tab);
+    setNowTick(Date.now());
 
-    if (tab === 'Standings') {
-      setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date())));
-      setSelectedLeaderboardPlayerId(null);
-      setCommissionerConsoleView('dashboard');
-      setCommissionerRosterMemberId(null);
-      setCommissionerMemberSearch('');
-      setShowAddMemberForm(false);
-      setMyEntriesEditorOpen(false);
-      setMyEntriesDetailView('none');
-    } else if (tab === 'My entries') {
-      setMyEntriesEditorOpen(false);
-      setMyEntriesDetailView('none');
-      setSaveMessage('');
-      setSelectedLeaderboardPlayerId(null);
-      setCommissionerConsoleView('dashboard');
-      setCommissionerRosterMemberId(null);
-      setCommissionerMemberSearch('');
-      setShowAddMemberForm(false);
-    } else if (tab === 'Details') {
-      setMyEntriesEditorOpen(false);
-      setMyEntriesDetailView('none');
-      setSaveMessage('');
-      setSelectedLeaderboardPlayerId(null);
-      setCommissionerConsoleView('dashboard');
-      setCommissionerRosterMemberId(null);
-      setCommissionerMemberSearch('');
-      setShowAddMemberForm(false);
-    } else if (tab === 'Commissioner console') {
-      setMyEntriesEditorOpen(false);
-      setMyEntriesDetailView('none');
-      setSaveMessage('');
-      setSelectedLeaderboardPlayerId(null);
-      setCommissionerConsoleView('dashboard');
-      setCommissionerRosterMemberId(null);
-      setCommissionerMemberSearch('');
-      setShowAddMemberForm(false);
-    }
+    startTransition(() => {
+      if (tab === 'Standings') {
+        setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date())));
+        setFeedRefreshNonce((value) => value + 1);
+        setSelectedLeaderboardPlayerId(null);
+        setCommissionerConsoleView('dashboard');
+        setCommissionerRosterMemberId(null);
+        setCommissionerMemberSearch('');
+        setShowAddMemberForm(false);
+        setMyEntriesEditorOpen(false);
+        setMyEntriesDetailView('none');
+      } else if (tab === 'My entries') {
+        setMyEntriesEditorOpen(false);
+        setMyEntriesDetailView('none');
+        setSaveMessage('');
+        setSelectedLeaderboardPlayerId(null);
+        setCommissionerConsoleView('dashboard');
+        setCommissionerRosterMemberId(null);
+        setCommissionerMemberSearch('');
+        setShowAddMemberForm(false);
+      } else if (tab === 'Details') {
+        setMyEntriesEditorOpen(false);
+        setMyEntriesDetailView('none');
+        setSaveMessage('');
+        setSelectedLeaderboardPlayerId(null);
+        setCommissionerConsoleView('dashboard');
+        setCommissionerRosterMemberId(null);
+        setCommissionerMemberSearch('');
+        setShowAddMemberForm(false);
+      } else if (tab === 'Commissioner console') {
+        setMyEntriesEditorOpen(false);
+        setMyEntriesDetailView('none');
+        setSaveMessage('');
+        setSelectedLeaderboardPlayerId(null);
+        setCommissionerConsoleView('dashboard');
+        setCommissionerRosterMemberId(null);
+        setCommissionerMemberSearch('');
+        setShowAddMemberForm(false);
+        setCommissionerMembersRefreshNonce((value) => value + 1);
+      }
 
-    setMainTab(tab);
+      setMainTab(tab);
+    });
 
-    if (options?.refreshAfterChange && typeof window !== 'undefined') {
-      window.setTimeout(() => window.location.reload(), 0);
+    resetViewAfterMainTabChange();
+
+    if (options?.refreshAfterChange) {
+      void refreshCurrentSession();
     }
   };
 
