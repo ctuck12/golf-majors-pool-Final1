@@ -6265,16 +6265,16 @@ export default function Page() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              style={{ width: 'min(1140px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.25)' }}
+              style={{ width: 'min(1140px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', overflow: 'hidden', background: '#fff', borderRadius: 20, padding: 0, boxShadow: '0 24px 60px rgba(9,34,51,0.25)' }}
             >
               {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <img
-                    src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
-                    alt={scorecardGolferName}
-                    style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', background: '#e6edf1', flexShrink: 0 }}
-                  />
+              <div style={{ display: 'flex', alignItems: 'stretch' }}>
+                <img
+                  src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
+                  alt={scorecardGolferName}
+                  style={{ width: 78, objectFit: 'cover', objectPosition: 'top center', background: '#e6edf1', flexShrink: 0, display: 'block' }}
+                />
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '16px 20px 16px 14px' }}>
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.05em' }}>Scorecard</div>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>{scorecardGolferName}</div>
@@ -6285,16 +6285,17 @@ export default function Page() {
                       </div>
                     )}
                   </div>
+                  <button
+                    onClick={() => { setScorecardGolferName(null); setScorecardData(null); }}
+                    style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
+                  >
+                    Close
+                  </button>
                 </div>
-                <button
-                  onClick={() => { setScorecardGolferName(null); setScorecardData(null); }}
-                  style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
-                >
-                  Close
-                </button>
               </div>
 
               {/* Body */}
+              <div style={{ padding: '18px 20px 20px', overflowX: 'auto' }}>
               {scorecardLoading ? (
                 <div style={{ textAlign: 'center', color: '#607282', padding: '32px 0', fontSize: 15 }}>Loading scorecard…</div>
               ) : !scorecardData || scorecardData.rounds.length === 0 ? (
@@ -6420,6 +6421,7 @@ export default function Page() {
                   </div>
                 );
               })()}
+              </div>
             </div>
           </div>
         ) : null}
