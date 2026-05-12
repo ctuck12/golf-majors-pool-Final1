@@ -6272,38 +6272,25 @@ export default function Page() {
                 <img
                   src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
                   alt={scorecardGolferName}
-                  style={{ width: 78, objectFit: 'cover', objectPosition: 'top center', background: '#e6edf1', flexShrink: 0, display: 'block' }}
+                  style={{ width: 56, objectFit: 'cover', objectPosition: 'top center', background: '#e6edf1', flexShrink: 0, display: 'block' }}
                 />
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '16px 20px 16px 14px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-                    <div>
-                      <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.05em' }}>Scorecard</div>
-                      <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>{scorecardGolferName}</div>
-                      {scorecardData && (
-                        <div style={{ fontSize: 11, color: '#607282', display: 'flex', alignItems: 'baseline', gap: 5 }}>
-                          <span>{scorecardData.courseName}</span>
-                          <span style={{ fontSize: 10, fontStyle: 'italic' }}>Par: {scorecardData.par}</span>
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => { setScorecardGolferName(null); setScorecardData(null); }}
-                      style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
-                    >
-                      Close
-                    </button>
-                  </div>
-                  {scorecardData && scorecardData.rounds.length > 0 && (() => {
-                    const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
-                    return rnd ? (
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 10 }}>
-                        Round {rnd.round}
-                        {rnd.score != null && rnd.score !== '' && (
-                          <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 12 }}>Score: {rnd.score}</span>
-                        )}
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '16px 20px 16px 14px' }}>
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.05em' }}>Scorecard</div>
+                    <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>{scorecardGolferName}</div>
+                    {scorecardData && (
+                      <div style={{ fontSize: 11, color: '#607282', display: 'flex', alignItems: 'baseline', gap: 5 }}>
+                        <span>{scorecardData.courseName}</span>
+                        <span style={{ fontSize: 10, fontStyle: 'italic' }}>Par: {scorecardData.par}</span>
                       </div>
-                    ) : null;
-                  })()}
+                    )}
+                  </div>
+                  <button
+                    onClick={() => { setScorecardGolferName(null); setScorecardData(null); }}
+                    style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
 
@@ -6388,6 +6375,12 @@ export default function Page() {
 
                 return (
                   <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#2f5f96', marginBottom: 10, display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                      Round {rnd.round}
+                      {rnd.score != null && rnd.score !== '' && (
+                        <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 12 }}>Score: {rnd.score}</span>
+                      )}
+                    </div>
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 560 }}>
                         <thead>
