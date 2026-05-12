@@ -3273,9 +3273,9 @@ export default function Page() {
                           }}
                         >
                           <Pencil size={isMobile ? 13 : 14} />
-                          {hasSubmittedRoster ? 'Edit Picks' : 'Make Your Picks'}
+                          {hasSubmittedRoster ? 'Edit Picks' : 'Make Picks'}
                         </button>
-                        <div style={{ color: '#5b6b79', fontSize: isMobile ? 14 : 18, fontWeight: 600 }}>
+                        <div style={{ color: '#5b6b79', fontSize: isMobile ? 14 : 22, fontWeight: 600 }}>
                           Members with submitted picks:{' '}
                           <span style={{ color: '#0f1720', fontWeight: 900 }}>{submittedEntries.length}</span>
                         </div>
@@ -3782,7 +3782,7 @@ export default function Page() {
                         }}
                       >
                         <Pencil size={12} />
-                        Make Your Picks
+                        Make Picks
                       </button>
                     )}
                   </div>
@@ -3856,7 +3856,7 @@ export default function Page() {
                           }}
                         >
                           <Pencil size={15} />
-                          <span>{hasSubmittedRoster ? 'Edit Picks' : 'Make Your Picks'}</span>
+                          <span>{hasSubmittedRoster ? 'Edit Picks' : 'Make Picks'}</span>
                         </button>
                         <button
                           onClick={() => {
