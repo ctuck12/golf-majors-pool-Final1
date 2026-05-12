@@ -3604,7 +3604,7 @@ export default function Page() {
               >
                 <h2 style={{ margin: 0, fontSize: isMobile ? 15 : 26, color: '#0f1720' }}>Manage Entries</h2>
                 <div style={{ marginTop: isMobile ? 6 : 18, color: '#0f1720', fontSize: isMobile ? 11 : 15, lineHeight: 1.45 }}>
-                  Make your picks for each entry below. You can submit or modify your picks up until the first tee time of Round 1.
+                  Make or edit your picks for {entriesTournament.name} below. You can submit or modify your picks up until the first tee time of Round 1.
                 </div>
 
                 {saveMessage ? (
