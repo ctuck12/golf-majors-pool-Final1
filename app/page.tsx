@@ -3073,10 +3073,6 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : !showFutureTournamentView && !isMobile ? (
-                        <div style={{ marginTop: 4, fontSize: 13, color: '#8fa0b0' }}>
-                          *Click entry to view roster
-                        </div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'masters' ? (
@@ -3086,10 +3082,6 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : !showFutureTournamentView && !isMobile ? (
-                        <div style={{ marginTop: 4, fontSize: 13, color: '#8fa0b0' }}>
-                          *Click entry to view roster
-                        </div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'pga' ? (
@@ -3099,10 +3091,6 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : !showFutureTournamentView && !isMobile ? (
-                        <div style={{ marginTop: 4, fontSize: 13, color: '#8fa0b0' }}>
-                          *Click entry to view roster
-                        </div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'us-open' ? (
@@ -3112,10 +3100,6 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : !showFutureTournamentView && !isMobile ? (
-                        <div style={{ marginTop: 4, fontSize: 13, color: '#8fa0b0' }}>
-                          *Click entry to view roster
-                        </div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'open' ? (
@@ -3125,10 +3109,6 @@ export default function Page() {
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
-                      ) : !showFutureTournamentView && !isMobile ? (
-                        <div style={{ marginTop: 4, fontSize: 13, color: '#8fa0b0' }}>
-                          *Click entry to view roster
-                        </div>
                       ) : null}
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
