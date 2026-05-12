@@ -3177,10 +3177,10 @@ export default function Page() {
                           style={{
                             border: 'none',
                             borderRadius: 16,
-                            padding: isMobile ? '10px 16px' : '14px 22px',
+                            padding: isMobile ? '10px 16px' : '11px 18px',
                             background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
                             color: '#fff',
-                            fontSize: isMobile ? 14 : 16,
+                            fontSize: isMobile ? 14 : 14,
                             fontWeight: 900,
                             cursor: 'pointer',
                             boxShadow: '0 14px 28px rgba(63, 115, 173, 0.22)',
@@ -3190,7 +3190,7 @@ export default function Page() {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          <Pencil size={isMobile ? 13 : 16} />
+                          <Pencil size={isMobile ? 13 : 14} />
                           {hasSubmittedRoster ? 'Edit Picks' : 'Make Your Picks'}
                         </button>
                         <div style={{ color: '#5b6b79', fontSize: isMobile ? 12 : 14, fontWeight: 600 }}>
@@ -3664,10 +3664,10 @@ export default function Page() {
                           style={{
                             border: 'none',
                             borderRadius: 16,
-                            padding: isMobile ? '10px 16px' : '14px 22px',
+                            padding: isMobile ? '10px 16px' : '11px 18px',
                             background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
                             color: '#fff',
-                            fontSize: isMobile ? 14 : 16,
+                            fontSize: isMobile ? 14 : 14,
                             fontWeight: 900,
                             cursor: 'pointer',
                             boxShadow: '0 14px 28px rgba(63, 115, 173, 0.22)',
@@ -3677,7 +3677,7 @@ export default function Page() {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          <Pencil size={isMobile ? 13 : 16} />
+                          <Pencil size={isMobile ? 13 : 14} />
                           Edit Picks
                         </button>
                       </div>
