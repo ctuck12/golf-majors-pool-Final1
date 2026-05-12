@@ -6279,11 +6279,8 @@ export default function Page() {
                     {scorecardData && scorecardData.rounds.length > 0 && (() => {
                       const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
                       return rnd ? (
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 2 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#2f5f96', marginBottom: 2 }}>
                           Round {rnd.round}
-                          {rnd.score != null && rnd.score !== '' && (
-                            <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 12 }}>Score: {rnd.score}</span>
-                          )}
                         </div>
                       ) : null;
                     })()}
@@ -6385,6 +6382,11 @@ export default function Page() {
 
                 return (
                   <div>
+                    {rnd.score != null && rnd.score !== '' && (
+                      <div style={{ textAlign: 'right', marginBottom: 8, fontSize: 13, fontWeight: 600, color: '#0f1720' }}>
+                        Score: {rnd.score}
+                      </div>
+                    )}
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 560 }}>
                         <thead>
