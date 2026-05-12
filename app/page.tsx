@@ -4409,7 +4409,7 @@ export default function Page() {
                                   </div>
                                   <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                     <div>
-                                      <div style={{ fontSize: isMobile ? (golfer.name.length > 22 ? 12 : golfer.name.length > 18 ? 14 : golfer.name.length > 14 ? 16 : 18) : (golfer.name.length > 22 ? 14 : golfer.name.length > 18 ? 16 : golfer.name.length > 14 ? 18 : 19), fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{golfer.name}</div>
+                                      <div style={{ fontSize: isMobile ? 18 : 19, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                                       <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 15, color: '#607282' }}>
                                         Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
                                       </div>
@@ -5428,7 +5428,7 @@ export default function Page() {
                                 </div>
                                 <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                   <div>
-                                    <div style={{ fontSize: isMobile ? (golfer.name.length > 22 ? 12 : golfer.name.length > 18 ? 14 : golfer.name.length > 14 ? 16 : 18) : (golfer.name.length > 22 ? 14 : golfer.name.length > 18 ? 16 : golfer.name.length > 14 ? 18 : 19), fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{golfer.name}</div>
+                                    <div style={{ fontSize: isMobile ? 18 : 19, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                                     <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 15, color: '#607282' }}>
                                       Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
                                     </div>
