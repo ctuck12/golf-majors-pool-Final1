@@ -502,6 +502,7 @@ export async function updatePoolMember(
     email?: string;
     password?: string;
     rosters?: Partial<Record<TournamentId, unknown>>;
+    tieBreaks?: Partial<Record<TournamentId, number | null>>;
   },
 ) {
   const database = await readDatabase();
@@ -558,6 +559,20 @@ export async function updatePoolMember(
     for (const tournamentId of TOURNAMENT_IDS) {
       if (Object.prototype.hasOwnProperty.call(updates.rosters, tournamentId)) {
         member.rosters[tournamentId] = sanitizeRoster(updates.rosters[tournamentId]);
+      }
+    }
+  }
+
+  if (updates.tieBreaks) {
+    member.tieBreaks = member.tieBreaks ?? {};
+    for (const tournamentId of TOURNAMENT_IDS) {
+      if (Object.prototype.hasOwnProperty.call(updates.tieBreaks, tournamentId)) {
+        const value = updates.tieBreaks[tournamentId];
+        if (value === null) {
+          delete member.tieBreaks[tournamentId];
+        } else if (typeof value === 'number') {
+          member.tieBreaks[tournamentId] = value;
+        }
       }
     }
   }

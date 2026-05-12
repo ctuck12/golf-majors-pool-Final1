@@ -1690,7 +1690,7 @@ export default function Page() {
         {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rosters: { [entriesTournamentId]: [] } }),
+          body: JSON.stringify({ rosters: { [entriesTournamentId]: [] }, tieBreaks: { [entriesTournamentId]: null } }),
         },
       );
 

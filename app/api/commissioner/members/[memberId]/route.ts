@@ -12,6 +12,23 @@ import {
 const COMMISSIONER_EMAIL = 'ctuck12@gmail.com';
 const COMMISSIONER_DISPLAY_NAME = 'Clayton Tucker';
 
+function parseTieBreaks(input: unknown) {
+  if (!input || typeof input !== 'object') {
+    return undefined;
+  }
+
+  const parsed: Partial<Record<TournamentId, number | null>> = {};
+
+  for (const tournamentId of TOURNAMENT_IDS) {
+    if (Object.prototype.hasOwnProperty.call(input, tournamentId)) {
+      const value = (input as Record<string, unknown>)[tournamentId];
+      parsed[tournamentId] = value === null ? null : typeof value === 'number' ? value : undefined;
+    }
+  }
+
+  return parsed;
+}
+
 function parseRosters(input: unknown) {
   if (!input || typeof input !== 'object') {
     return undefined;
@@ -51,6 +68,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ membe
       email?: string;
       password?: string;
       rosters?: unknown;
+      tieBreaks?: unknown;
     };
 
     const member = await updatePoolMember(session.user.id, memberId, {
@@ -58,6 +76,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ membe
       email: body.email,
       password: body.password,
       rosters: parseRosters(body.rosters),
+      tieBreaks: parseTieBreaks(body.tieBreaks),
     });
 
     return NextResponse.json({ member });
