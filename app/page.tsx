@@ -343,7 +343,7 @@ function readStoredMainTab() {
     return null;
   }
 
-  const stored = window.localStorage.getItem(MAIN_TAB_STORAGE_KEY);
+  const stored = window.sessionStorage.getItem(MAIN_TAB_STORAGE_KEY);
   return MAIN_TABS.includes(stored as MainTab) ? (stored as MainTab) : null;
 }
 
@@ -352,7 +352,15 @@ function writeStoredMainTab(tab: MainTab) {
     return;
   }
 
-  window.localStorage.setItem(MAIN_TAB_STORAGE_KEY, tab);
+  window.sessionStorage.setItem(MAIN_TAB_STORAGE_KEY, tab);
+}
+
+function clearStoredMainTab() {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.sessionStorage.removeItem(MAIN_TAB_STORAGE_KEY);
 }
 
 function readStoredSession() {
@@ -816,6 +824,12 @@ export default function Page() {
   const [feedRefreshNonce, setFeedRefreshNonce] = useState(0);
   const [commissionerMembersRefreshNonce, setCommissionerMembersRefreshNonce] = useState(0);
   const [saveMessage, setSaveMessage] = useState('');
+  useEffect(() => {
+    if (saveMessage === 'Lineup saved to your account for this tournament.') {
+      const t = setTimeout(() => setSaveMessage(''), 5000);
+      return () => clearTimeout(t);
+    }
+  }, [saveMessage]);
   const [nowTick, setNowTick] = useState(() => Date.now());
   const [sessionUser, setSessionUser] = useState<AuthUser | null>(null);
   const [pool, setPool] = useState<PoolInfo | null>(null);
@@ -1104,13 +1118,6 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const storedTab = readStoredMainTab();
-    if (storedTab) {
-      setMainTab(storedTab);
-    }
-  }, []);
-
-  useEffect(() => {
     const statuses = getTournamentCardStatuses(new Date(nowTick));
     const inProgress = TOURNAMENTS.find((t) => statuses[t.id]?.label === 'IN PROGRESS');
     if (inProgress) {
@@ -1366,6 +1373,8 @@ export default function Page() {
       setAccountDisplayName('');
       setAccountMessage('');
       clearStoredSession();
+      clearStoredMainTab();
+      setMainTab('Standings');
       setSaveMessage('');
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Unable to sign out.');
@@ -1993,7 +2002,6 @@ export default function Page() {
     setActiveStandingEntryId(null);
     setActiveStandingGolferId(null);
     setCommissionerMemberModalOpen(false);
-    writeStoredMainTab(tab);
     setNowTick(Date.now());
 
     startTransition(() => {
