@@ -707,7 +707,7 @@ function resetViewAfterMainTabChange() {
 
   if (viewport) {
     const targetViewport = viewport;
-    targetViewport.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');
+    targetViewport.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1');
 
     const settleView = () => {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -2171,7 +2171,7 @@ export default function Page() {
     return (
       <div
         style={{
-          minHeight: '100vh',
+          minHeight: '100svh',
           background:
             'radial-gradient(circle at top left, rgba(72, 126, 196, 0.18), transparent 28%), linear-gradient(180deg, #f7fbff 0%, #edf3fb 100%)',
         }}
@@ -2223,7 +2223,7 @@ export default function Page() {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        minHeight: '100svh',
         background:
           'radial-gradient(circle at top left, rgba(72, 126, 196, 0.18), transparent 28%), linear-gradient(180deg, #f7fbff 0%, #edf3fb 100%)',
       }}
