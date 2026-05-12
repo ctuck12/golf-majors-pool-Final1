@@ -6274,7 +6274,7 @@ export default function Page() {
                   alt={scorecardGolferName}
                   style={{ width: 56, objectFit: 'cover', objectPosition: 'top center', background: '#e6edf1', flexShrink: 0, display: 'block' }}
                 />
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '16px 20px 16px 14px' }}>
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '16px 20px 4px 14px' }}>
                   <div>
                     {scorecardData && scorecardData.rounds.length > 0 && (() => {
                       const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
