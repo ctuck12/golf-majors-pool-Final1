@@ -211,8 +211,8 @@ const DEFAULT_ROSTERS: Record<string, number[]> = {
 };
 
 type TournamentId = (typeof TOURNAMENTS)[number]['id'];
-type MainTab = 'Standings' | 'My entries' | 'Details' | 'Commissioner console';
-const MAIN_TABS: MainTab[] = ['Standings', 'My entries', 'Details', 'Commissioner console'];
+type MainTab = 'Standings' | 'My Entries' | 'Details' | 'Commissioner Hub';
+const MAIN_TABS: MainTab[] = ['Standings', 'My Entries', 'Details', 'Commissioner Hub'];
 const MAIN_TAB_STORAGE_KEY = `${STORAGE_PREFIX}:main-tab`;
 
 type FeedRow = {
@@ -1198,7 +1198,7 @@ export default function Page() {
   }, [nowTick]);
 
   useEffect(() => {
-    if (mainTab === 'Commissioner console' && !canManagePool) {
+    if (mainTab === 'Commissioner Hub' && !canManagePool) {
       setMainTab('Standings');
     }
   }, [canManagePool, mainTab]);
@@ -1262,7 +1262,7 @@ export default function Page() {
 
   useEffect(() => {
     const loadCommissionerMembers = async () => {
-      if (!sessionUser || !canManagePool || mainTab !== 'Commissioner console') {
+      if (!sessionUser || !canManagePool || mainTab !== 'Commissioner Hub') {
         return;
       }
 
@@ -2131,7 +2131,7 @@ export default function Page() {
         setShowAddMemberForm(false);
         setMyEntriesEditorOpen(false);
         setMyEntriesDetailView('none');
-      } else if (tab === 'My entries') {
+      } else if (tab === 'My Entries') {
         setMyEntriesEditorOpen(false);
         setMyEntriesDetailView('none');
         setSaveMessage('');
@@ -2149,7 +2149,7 @@ export default function Page() {
         setCommissionerRosterMemberId(null);
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
-      } else if (tab === 'Commissioner console') {
+      } else if (tab === 'Commissioner Hub') {
         setMyEntriesEditorOpen(false);
         setMyEntriesDetailView('none');
         setSaveMessage('');
@@ -2179,7 +2179,7 @@ export default function Page() {
     const savedTieBreak = sessionUser?.tieBreaks?.[entriesTournamentId];
     setTieBreakInput(savedTieBreak != null ? String(savedTieBreak) : '');
     setMyEntriesEditorOpen(true);
-    handleMainTabChange('My entries');
+    handleMainTabChange('My Entries');
     setMyEntriesEditorOpen(true);
   };
 
@@ -2398,7 +2398,7 @@ export default function Page() {
               }}
             >
               {MAIN_TABS
-                .filter((tab) => tab !== 'Commissioner console' || canManagePool)
+                .filter((tab) => tab !== 'Commissioner Hub' || canManagePool)
                 .map((tab) => {
                   const active = tab === mainTab;
                   return (
@@ -3620,7 +3620,7 @@ export default function Page() {
           </main>
         )}
 
-        {mainTab === 'My entries' && (
+        {mainTab === 'My Entries' && (
           <main style={{ marginTop: isMobile ? 14 : 24, display: 'grid', gap: isMobile ? 12 : 20 }}>
             {!sessionUser ? (
               <div
@@ -4674,7 +4674,7 @@ export default function Page() {
           </main>
         )}
 
-        {mainTab === 'Commissioner console' && (
+        {mainTab === 'Commissioner Hub' && (
           <main style={{ marginTop: isMobile ? 12 : 24, display: 'grid', gap: isMobile ? 12 : 20 }}>
             {commissionerConsoleView === 'dashboard' ? (
               <>
@@ -4687,7 +4687,7 @@ export default function Page() {
               }}
             >
               <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                Commissioner console
+                Commissioner Hub
               </div>
               <h2 style={{ margin: isMobile ? '4px 0 10px' : '6px 0 18px', fontSize: isMobile ? 16 : 26, color: '#0f1720' }}>
                 Live feed and pool status for {tournament.name}
