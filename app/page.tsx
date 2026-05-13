@@ -2951,7 +2951,7 @@ export default function Page() {
         {mainTab === 'Standings' ? (
           <section
             style={{
-              marginTop: 24,
+              marginTop: isMobile ? 8 : 24,
               display: 'flex',
               overflowX: 'hidden',
             }}
@@ -3046,7 +3046,7 @@ export default function Page() {
         {mainTab === 'Standings' && (
           <main
             style={{
-              marginTop: 24,
+              marginTop: isMobile ? 8 : 24,
               display: 'grid',
               gridTemplateColumns: (isMobile || showFutureTournamentView)
                 ? 'minmax(0, 1fr)'
