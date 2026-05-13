@@ -886,6 +886,7 @@ export default function Page() {
   const [scorecardData, setScorecardData] = useState<ScorecardData | null>(null);
   const [scorecardLoading, setScorecardLoading] = useState(false);
   const entryBreakdownRef = useRef<HTMLDivElement>(null);
+  const hasAutoSwitchedTournamentRef = useRef(false);
   const [showPointsSystem, setShowPointsSystem] = useState(false);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
   const [feed, setFeed] = useState<FeedResponse | null>(() => readFeedCache(initialTournament));
@@ -1271,6 +1272,25 @@ export default function Page() {
       window.clearInterval(timer);
     };
   }, [feedRefreshNonce, selectedTournament]);
+
+  // Auto-switch to the most recently completed tournament when the selected one has no data yet
+  useEffect(() => {
+    if (hasAutoSwitchedTournamentRef.current) return;
+    if (isLoading) return;
+    if (!feed) return;
+    if ((feed.players?.length ?? 0) > 0) return;
+
+    const currentIdx = TOURNAMENTS.findIndex((t) => t.id === selectedTournament);
+    const statuses = getTournamentCardStatuses();
+    for (let i = currentIdx - 1; i >= 0; i--) {
+      const t = TOURNAMENTS[i];
+      if (statuses[t.id]?.label === 'LOCKED') {
+        hasAutoSwitchedTournamentRef.current = true;
+        setSelectedTournament(t.id as TournamentId);
+        return;
+      }
+    }
+  }, [feed, isLoading, selectedTournament]);
 
   useEffect(() => {
     const loadCommissionerMembers = async () => {
