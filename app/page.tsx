@@ -4340,9 +4340,9 @@ export default function Page() {
                                 background: '#fff',
                               }}
                             >
-                              <div style={{ fontSize: isMobile ? 15 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
-                              <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>{player.name}</div>
-                              <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
+                              <div style={{ fontSize: isMobile ? 13 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
+                              <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>{player.name}</div>
+                              <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
                               <button
                                 onClick={() => togglePlayer(player.id)}
                                 disabled={disabled}
