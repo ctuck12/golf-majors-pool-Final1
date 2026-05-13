@@ -4392,7 +4392,7 @@ export default function Page() {
                               border: '1px solid #d7e0e8',
                               borderRadius: isMobile ? 14 : 14,
                               background: '#fff',
-                              minHeight: isMobile ? 108 : undefined,
+                              minHeight: isMobile ? 104 : undefined,
                               height: isMobile ? undefined : 96,
                               display: 'flex',
                               overflow: 'hidden',
