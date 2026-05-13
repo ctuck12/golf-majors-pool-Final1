@@ -3046,7 +3046,7 @@ export default function Page() {
         {mainTab === 'Standings' && (
           <main
             style={{
-              marginTop: isMobile ? 0 : 24,
+              marginTop: isMobile ? 4 : 24,
               display: 'grid',
               gridTemplateColumns: (isMobile || showFutureTournamentView)
                 ? 'minmax(0, 1fr)'
