@@ -45,6 +45,13 @@ button {
   background: #8fa0b0;
 }
 
+/* Remove gray background from player photos via multiply blend on white backgrounds */
+.roster-card-photo,
+.breakdown-golfer-photo,
+.breakdown-scoring-photo {
+  mix-blend-mode: multiply;
+}
+
 /* Pick sheet player rows and roster card photo — desktop sizing */
 @media (min-width: 768px) {
   .picksheet-player-name {
