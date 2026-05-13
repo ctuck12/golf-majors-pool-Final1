@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Scale down proportionally on phones narrower than Pro Max (~430px) */
+@media (max-width: 400px) {
+  html {
+    zoom: 0.915;
+  }
+}
+@media (max-width: 375px) {
+  html {
+    zoom: 0.872;
+  }
+}
+
 html,
 body {
   margin: 0;
