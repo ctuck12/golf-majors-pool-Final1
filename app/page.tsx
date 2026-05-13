@@ -886,7 +886,6 @@ export default function Page() {
   const [scorecardData, setScorecardData] = useState<ScorecardData | null>(null);
   const [scorecardLoading, setScorecardLoading] = useState(false);
   const entryBreakdownRef = useRef<HTMLDivElement>(null);
-  const hasAutoSwitchedTournamentRef = useRef(false);
   const [showPointsSystem, setShowPointsSystem] = useState(false);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
   const [feed, setFeed] = useState<FeedResponse | null>(() => readFeedCache(initialTournament));
@@ -1203,14 +1202,6 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const statuses = getTournamentCardStatuses(new Date(nowTick));
-    const inProgress = TOURNAMENTS.find((t) => statuses[t.id]?.label === 'IN PROGRESS');
-    if (inProgress) {
-      setSelectedTournament(inProgress.id);
-    }
-  }, [nowTick]);
-
-  useEffect(() => {
     if (mainTab === 'Commissioner Hub' && !canManagePool) {
       setMainTab('Standings');
     }
@@ -1273,24 +1264,6 @@ export default function Page() {
     };
   }, [feedRefreshNonce, selectedTournament]);
 
-  // Auto-switch to the most recently completed tournament when the selected one has no data yet
-  useEffect(() => {
-    if (hasAutoSwitchedTournamentRef.current) return;
-    if (isLoading) return;
-    if (!feed) return;
-    if ((feed.players?.length ?? 0) > 0) return;
-
-    const currentIdx = TOURNAMENTS.findIndex((t) => t.id === selectedTournament);
-    const statuses = getTournamentCardStatuses();
-    for (let i = currentIdx - 1; i >= 0; i--) {
-      const t = TOURNAMENTS[i];
-      if (statuses[t.id]?.label === 'LOCKED') {
-        hasAutoSwitchedTournamentRef.current = true;
-        setSelectedTournament(t.id as TournamentId);
-        return;
-      }
-    }
-  }, [feed, isLoading, selectedTournament]);
 
   useEffect(() => {
     const loadCommissionerMembers = async () => {
@@ -3000,7 +2973,7 @@ export default function Page() {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => { setSelectedTournament(item.id); void refreshCurrentSession(); }}
+                    onClick={() => { setSelectedTournament(item.id); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
                     style={{
                       border: active ? '1px solid #d7e0e8' : '1px solid transparent',
                       borderBottom: active ? '1px solid #fff' : '1px solid transparent',
