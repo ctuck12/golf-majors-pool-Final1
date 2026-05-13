@@ -31,9 +31,13 @@ import {
 // ── Auth ──────────────────────────────────────────────────────────────────
 
 function isAuthorized(request: Request): boolean {
+  // x-vercel-cron is set by Vercel's cron scheduler and stripped from all
+  // external requests at the edge, so it cannot be spoofed by outside callers
+  if (request.headers.get('x-vercel-cron') === '1') return true;
+  // CRON_SECRET fallback for local testing
   const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  return request.headers.get('authorization') === `Bearer ${secret}`;
+  if (secret && request.headers.get('authorization') === `Bearer ${secret}`) return true;
+  return false;
 }
 
 // ── Field parsing (same helpers as before) ────────────────────────────────
