@@ -2210,7 +2210,7 @@ export default function Page() {
             <img
               src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
               alt={player.name}
-              className="roster-card-photo" style={{ width: isMobile ? 58 : 58, height: isMobile ? 58 : 58, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#fff' }}
+              className="roster-card-photo" style={{ width: isMobile ? 68 : 68, height: isMobile ? 68 : 68, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#fff' }}
             />
             <div>
               <div style={{ fontWeight: 700, fontSize: isMobile ? 17 : 20 }}>{player.name}</div>
@@ -3728,8 +3728,8 @@ export default function Page() {
                                   src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
                                   alt={player.name}
                                   style={{
-                                    width: isMobile ? 40 : 44,
-                                    height: isMobile ? 40 : 44,
+                                    width: isMobile ? 48 : 52,
+                                    height: isMobile ? 48 : 52,
                                     borderRadius: '50%',
                                     objectFit: 'cover',
                                     background: '#fff',
@@ -3974,7 +3974,7 @@ export default function Page() {
                                     <img
                                       src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
                                       alt={player.name}
-                                      style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#fff', mixBlendMode: 'multiply' }}
+                                      style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#fff', mixBlendMode: 'multiply' }}
                                     />
                                     {player.name}
                                   </span>
@@ -4400,7 +4400,7 @@ export default function Page() {
                           >
                               {golfer ? (
                                 <>
-                                  <div style={{ width: isMobile ? 90 : 88, flexShrink: 0, alignSelf: 'stretch', background: '#fff', overflow: 'hidden', position: 'relative' }}>
+                                  <div style={{ width: isMobile ? 100 : 98, flexShrink: 0, alignSelf: 'stretch', background: '#fff', overflow: 'hidden', position: 'relative' }}>
                                     <img
                                       src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                       alt={golfer.name}
@@ -5419,7 +5419,7 @@ export default function Page() {
                         >
                             {golfer ? (
                               <>
-                                <div style={{ width: isMobile ? 90 : 88, flexShrink: 0, alignSelf: 'stretch', background: '#fff', overflow: 'hidden', position: 'relative' }}>
+                                <div style={{ width: isMobile ? 100 : 98, flexShrink: 0, alignSelf: 'stretch', background: '#fff', overflow: 'hidden', position: 'relative' }}>
                                   <img
                                     src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                                     alt={golfer.name}
@@ -5867,7 +5867,7 @@ export default function Page() {
                     >
                       {isMobile ? (
                         <>
-                          <div style={{ width: 80, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
+                          <div style={{ width: 92, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
                             <img
                               src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                               alt={golfer.name}
@@ -5911,7 +5911,7 @@ export default function Page() {
                         </>
                       ) : (
                         <>
-                          <div style={{ width: 60, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
+                          <div style={{ width: 70, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
                             <img
                               src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                               alt={golfer.name}
@@ -6038,7 +6038,7 @@ export default function Page() {
                     src={activeStandingGolfer.photoUrl ?? pgaPhoto(activeStandingGolfer.pgaTourId)}
                     alt={activeStandingGolfer.name}
                     className="breakdown-scoring-photo"
-                    style={{ width: 72, objectFit: 'cover', objectPosition: 'top center', flexShrink: 0, background: '#fff', display: 'block' }}
+                    style={{ width: 82, objectFit: 'cover', objectPosition: 'top center', flexShrink: 0, background: '#fff', display: 'block' }}
                   />
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '14px 14px 14px 12px' }}>
                   <div style={{ marginTop: 4 }}>
@@ -6273,7 +6273,7 @@ export default function Page() {
                 <img
                   src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
                   alt={scorecardGolferName}
-                  style={{ width: 60, objectFit: 'cover', objectPosition: 'top center', background: '#fff', flexShrink: 0, display: 'block', mixBlendMode: 'multiply', marginLeft: 20 }}
+                  style={{ width: 72, objectFit: 'cover', objectPosition: 'top center', background: '#fff', flexShrink: 0, display: 'block', mixBlendMode: 'multiply', marginLeft: 20 }}
                 />
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '20px 20px 16px 20px' }}>
                   <div>
