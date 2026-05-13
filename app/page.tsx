@@ -4567,28 +4567,24 @@ export default function Page() {
                 Entry &amp; Contact
               </div>
               <div style={{ marginTop: isMobile ? 8 : 14, display: 'grid', gap: isMobile ? 6 : 10, color: '#0f1720', lineHeight: 1.5, fontSize: isMobile ? 12 : 15 }}>
-                {picksOpenForTournament && (
-                  <>
-                    <div>
-                      <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
-                      <span style={{ marginRight: 4 }}>➤</span>
-                      Entry Fee: $30
-                    </div>
-                    <div>
-                      <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
-                      <span style={{ marginRight: 4 }}>➤</span>
-                      Venmo:{' '}
-                      {isMobile ? (
-                        <a
-                          href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
-                          style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}
-                        >
-                          @claytont743
-                        </a>
-                      ) : '@claytont743'}
-                    </div>
-                  </>
-                )}
+                <div>
+                  <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
+                  <span style={{ marginRight: 4 }}>➤</span>
+                  Entry Fee: $30
+                </div>
+                <div>
+                  <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
+                  <span style={{ marginRight: 4 }}>➤</span>
+                  Venmo:{' '}
+                  {isMobile ? (
+                    <a
+                      href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
+                      style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}
+                    >
+                      @claytont743
+                    </a>
+                  ) : '@claytont743'}
+                </div>
                 <div>
                   <span style={{ color: '#43b36b', marginRight: 4 }}>🟢</span>
                   <span style={{ marginRight: 4 }}>➤</span>
