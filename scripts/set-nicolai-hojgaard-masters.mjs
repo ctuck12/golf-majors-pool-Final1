@@ -8,22 +8,40 @@ const STAT_OVERRIDES_KEY = 'pool-stat-overrides';
 
 // 19 pars, 5 birdies, 1 eagle, 9 bogeys, 2 doubles = 36 holes = 2 rounds (CUT)
 // Round 1: 1 eagle, 2 birdies, 10 pars, 4 bogeys, 1 double = 18
-// Round 2: 0 eagles, 3 birdies,  9 pars, 5 bogeys, 1 double = 18
+// Round 2: 3 birdies interleaved (B,P,B,P,B,...), 9 pars, 5 bogeys, 1 double = 18
+// Birdies in R2 are interleaved so no 3 consecutive birdie streak is triggered
 function buildTwoRoundScorecard() {
+  // R1: Eagle(par5), Birdie, Par, Birdie, Par×9, Bogey×4, Double
+  //     Eagle resets streak; 2 birdies never consecutive → no streak
+  // R2: Birdie, Par, Birdie, Par, Birdie, Par×7, Bogey×5, Double
+  //     Birdies separated by pars → no streak
   const rounds = [
-    { eagles: 1, birdies: 2, pars: 10, bogeys: 4, doubles: 1 },
-    { eagles: 0, birdies: 3, pars:  9, bogeys: 5, doubles: 1 },
+    // E  B  P  B  P  P  P  P  P  P  P  P  P  Bog Bog Bog Bog  Dbl
+    [
+      { par: 5, score: 3 }, // eagle
+      { par: 4, score: 3 }, // birdie
+      { par: 4, score: 4 }, // par
+      { par: 4, score: 3 }, // birdie
+      ...Array(9).fill({ par: 4, score: 4 }),  // 9 pars
+      ...Array(4).fill({ par: 4, score: 5 }),  // 4 bogeys
+      { par: 4, score: 6 },                    // double
+    ],
+    // B  P  B  P  B  P  P  P  P  P  P  P  Bog Bog Bog Bog Bog  Dbl
+    [
+      { par: 4, score: 3 }, // birdie
+      { par: 4, score: 4 }, // par
+      { par: 4, score: 3 }, // birdie
+      { par: 4, score: 4 }, // par
+      { par: 4, score: 3 }, // birdie
+      ...Array(7).fill({ par: 4, score: 4 }),  // 7 pars
+      ...Array(5).fill({ par: 4, score: 5 }),  // 5 bogeys
+      { par: 4, score: 6 },                    // double
+    ],
   ];
-  return rounds.map(({ eagles, birdies, pars, bogeys, doubles }, idx) => {
-    const holes = [];
-    let n = 1;
-    for (let i = 0; i < eagles;  i++) holes.push({ holeNumber: n++, par: 5, score: 3 });
-    for (let i = 0; i < birdies; i++) holes.push({ holeNumber: n++, par: 4, score: 3 });
-    for (let i = 0; i < pars;    i++) holes.push({ holeNumber: n++, par: 4, score: 4 });
-    for (let i = 0; i < bogeys;  i++) holes.push({ holeNumber: n++, par: 4, score: 5 });
-    for (let i = 0; i < doubles; i++) holes.push({ holeNumber: n++, par: 4, score: 6 });
-    return { roundId: idx + 1, holes };
-  });
+  return rounds.map((holes, idx) => ({
+    roundId: idx + 1,
+    holes: holes.map((h, i) => ({ holeNumber: i + 1, par: h.par, score: h.score })),
+  }));
 }
 
 function normName(n) {

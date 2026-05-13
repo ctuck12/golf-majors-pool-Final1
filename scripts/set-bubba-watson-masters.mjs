@@ -9,19 +9,19 @@ const STAT_OVERRIDES_KEY = 'pool-stat-overrides';
 // 19 pars, 6 birdies, 11 bogeys = 36 holes = 2 rounds (CUT after R2)
 // Round 1: 10 pars, 3 birdies, 5 bogeys = 18 holes
 // Round 2:  9 pars, 3 birdies, 6 bogeys = 18 holes
+// Birdies interleaved (B,P,B,P,B,...) so no 3 consecutive birdie streak is triggered
 function buildTwoRoundScorecard() {
+  // Each sequence: birdie, par, birdie, par, birdie, then remaining pars then bogeys
   const rounds = [
-    { pars: 10, birdies: 3, bogeys: 5 },
-    { pars: 9,  birdies: 3, bogeys: 6 },
+    // B P B P B P P P P P P P Bog Bog Bog Bog Bog P  = 3B 10P 5Bog
+    [3,4,3,4,3,4,4,4,4,4,4,4,5,5,5,5,5,4],
+    // B P B P B P P P P P P P Bog Bog Bog Bog Bog Bog = 3B 9P 6Bog
+    [3,4,3,4,3,4,4,4,4,4,4,4,5,5,5,5,5,5],
   ];
-  return rounds.map(({ pars, birdies, bogeys }, idx) => {
-    const holes = [];
-    let n = 1;
-    for (let i = 0; i < birdies; i++) holes.push({ holeNumber: n++, par: 4, score: 3 });
-    for (let i = 0; i < pars;    i++) holes.push({ holeNumber: n++, par: 4, score: 4 });
-    for (let i = 0; i < bogeys;  i++) holes.push({ holeNumber: n++, par: 4, score: 5 });
-    return { roundId: idx + 1, holes };
-  });
+  return rounds.map((scores, idx) => ({
+    roundId: idx + 1,
+    holes: scores.map((score, i) => ({ holeNumber: i + 1, par: 4, score })),
+  }));
 }
 
 function normName(n) {
