@@ -56,6 +56,7 @@ export type LeaderboardCacheFile = {
   roundStatus: string;
   projectedCut: string | null;
   notStarted?: boolean;
+  tournamentComplete?: boolean; // all 4 rounds official; cron and scorecard live-fetch skip this
 };
 
 // ── Redis helpers ──────────────────────────────────────────────────────────

@@ -174,12 +174,34 @@ async function refreshLiveScorecards(
 
 // ── Per-tournament refresh ────────────────────────────────────────────────
 
+async function markTournamentComplete(
+  tournamentId: string,
+  existing: Awaited<ReturnType<typeof readLeaderboardCache>>,
+  rows: SlashGolfLeaderboardRow[],
+  currentRound: number,
+  roundStatus: string,
+  projectedCut: string | null,
+): Promise<void> {
+  await writeLeaderboardCache(tournamentId, {
+    cachedAt: existing?.cachedAt ?? new Date().toISOString(),
+    leaderboard: rows,
+    currentRound,
+    roundStatus,
+    projectedCut,
+    tournamentComplete: true,
+  });
+}
+
 async function refreshTournament(tournamentId: string): Promise<string> {
   const meta = TOURNAMENT_META[tournamentId];
   if (!meta) return 'unknown-tournament';
 
-  // If the cached entry is a recent not-started marker, skip — Redis TTL handles backoff
   const existing = await readLeaderboardCache(tournamentId);
+
+  // Permanently done — skip forever, all data is in Redis
+  if (existing?.tournamentComplete) return 'tournament-complete-skipped';
+
+  // not-started TTL handles its own backoff
   if (existing?.notStarted) return 'not-started-cached';
 
   let lb: SlashGolfLeaderboardResponse;
@@ -240,7 +262,20 @@ async function refreshTournament(tournamentId: string): Promise<string> {
     }
 
     await refreshScorecards(tournamentId, meta.slashGolfTournId, meta.year, rows, currentRound);
+
+    // Round 4 just finished — all data is now cached; stop polling forever
+    if (currentRound >= 4) {
+      await markTournamentComplete(tournamentId, existing, rows, currentRound, roundStatus, projectedCut);
+      return 'tournament-complete-marked';
+    }
+
     return `round-${currentRound}-complete-refreshed`;
+  }
+
+  // If round 4 is already complete and scorecards are current, mark and stop
+  if (roundComplete && currentRound >= 4 && (scorecardCache?.lastCompletedRound ?? 0) >= currentRound) {
+    await markTournamentComplete(tournamentId, existing, rows, currentRound, roundStatus, projectedCut);
+    return 'tournament-complete-marked';
   }
 
   // ── Live scorecard refresh for active rounds ────────────────────────────

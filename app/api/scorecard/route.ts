@@ -16,15 +16,15 @@ export async function GET(request: Request) {
   let playerId: string | null = null;
 
   const lbCache = await readLeaderboardCache(tournamentId);
-  if (lbCache) {
+  if (lbCache && !lbCache.notStarted) {
     const match = lbCache.leaderboard.find(
       (r) => normName(`${r.firstName} ${r.lastName}`) === normName(playerName),
     );
     if (match?.playerId) playerId = String(match.playerId);
   }
 
-  // ── 2. Always fetch live from Slash Golf (shows current in-progress round) ─
-  if (playerId) {
+  // ── 2. Live fetch — skipped for completed tournaments (data is in Redis cache) ─
+  if (playerId && !lbCache?.tournamentComplete) {
     try {
       const roundsRaw = await fetchScorecard(meta.slashGolfTournId, meta.year, playerId);
       const rounds = roundsRaw.map((r) => ({
