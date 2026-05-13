@@ -421,6 +421,10 @@ function clearStoredMainTab() {
   window.sessionStorage.removeItem(MAIN_TAB_STORAGE_KEY);
 }
 
+// Snapshots older than this are discarded so server-side admin changes
+// (roster edits, stat overrides) are visible within one TTL window.
+const SESSION_SNAPSHOT_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 function readStoredSession() {
   if (typeof window === 'undefined') {
     return null;
@@ -432,7 +436,12 @@ function readStoredSession() {
       return null;
     }
 
-    return JSON.parse(raw) as SessionPayload;
+    const parsed = JSON.parse(raw) as SessionPayload & { cachedAt?: number };
+    // Treat missing or stale snapshots as absent — forces a fresh API fetch
+    if (!parsed.cachedAt || Date.now() - parsed.cachedAt > SESSION_SNAPSHOT_TTL_MS) {
+      return null;
+    }
+    return parsed as SessionPayload;
   } catch {
     return null;
   }
@@ -443,7 +452,10 @@ function writeStoredSession(payload: SessionPayload) {
     return;
   }
 
-  window.localStorage.setItem(`${STORAGE_PREFIX}:session`, JSON.stringify(payload));
+  window.localStorage.setItem(
+    `${STORAGE_PREFIX}:session`,
+    JSON.stringify({ ...payload, cachedAt: Date.now() }),
+  );
 }
 
 function clearStoredSession() {
@@ -1971,16 +1983,6 @@ export default function Page() {
           },
           ...STATIC_ENTRIES,
         ]
-  ).map((entry) =>
-    entry.name === COMMISSIONER_DISPLAY_NAME && selectedTournament === 'masters'
-      ? {
-          ...entry,
-          rosters: {
-            ...entry.rosters,
-            masters: DEFAULT_ROSTERS.masters,
-          },
-        }
-      : entry,
   );
 
   const standings: StandingEntry[] = liveStandingEntries
