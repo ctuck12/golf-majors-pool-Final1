@@ -4968,7 +4968,7 @@ export default function Page() {
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: isMobile ? 10 : 18, alignItems: 'center', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 14 }}>
                   <button
-                    onClick={() => setCommissionerConsoleView('dashboard')}
+                    onClick={() => { setCommissionerConsoleView('dashboard'); setShowAddMemberForm(false); }}
                     style={{
                       border: '1px solid #d7e0e8',
                       borderRadius: 999,
@@ -5126,7 +5126,7 @@ export default function Page() {
                     value={commissionerMemberSearch}
                     onChange={(event) => setCommissionerMemberSearch(event.target.value)}
                     placeholder="Search"
-                    style={{ ...fieldStyle(), border: 'none', outline: 'none', padding: 0, fontSize: isMobile ? 12 : 15 }}
+                    style={{ ...fieldStyle(), border: 'none', outline: 'none', padding: 0, fontSize: isMobile ? 16 : 15 }}
                   />
                 </div>
               </div>
