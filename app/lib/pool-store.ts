@@ -650,6 +650,44 @@ export async function getSelectedPlayerIdsForTournament(tournamentId: Tournament
   return selected;
 }
 
+// ── Stat overrides (persistent Redis key for manual final-stat corrections) ─
+
+const STAT_OVERRIDES_KEY = 'pool-stat-overrides';
+
+export type StatOverrideEntry = {
+  position: string;
+  score: string;
+  thru: string;
+  statLine: {
+    par: number;
+    birdie: number;
+    eagle: number;
+    albatross: number;
+    holeInOne: number;
+    bogey: number;
+    doubleBogey: number;
+    tripleOrWorse: number;
+  };
+};
+
+// Key: `${tournamentId}:${canonicalPlayerName}`
+export type StatOverrides = Record<string, StatOverrideEntry>;
+
+export async function getStatOverrides(): Promise<StatOverrides> {
+  const raw = await redis.get(STAT_OVERRIDES_KEY);
+  return raw ? (JSON.parse(raw) as StatOverrides) : {};
+}
+
+export async function setStatOverride(
+  tournamentId: string,
+  playerName: string,
+  entry: StatOverrideEntry,
+): Promise<void> {
+  const overrides = await getStatOverrides();
+  overrides[`${tournamentId}:${playerName}`] = entry;
+  await redis.set(STAT_OVERRIDES_KEY, JSON.stringify(overrides));
+}
+
 export async function updatePoolPayouts(
   requestingUserId: string,
   tournamentId: TournamentId,

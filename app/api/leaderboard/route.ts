@@ -27,6 +27,7 @@ import {
 } from '@/app/lib/scoring';
 import {
   getSelectedPlayerIdsForTournament,
+  getStatOverrides,
   TOURNAMENT_IDS,
   type TournamentId,
 } from '@/app/lib/pool-store';
@@ -424,6 +425,86 @@ async function getOdds(
   return live;
 }
 
+// ── Synthetic round builder (for stat overrides) ─────────────────────────
+// Distributes a flat stat line across 4 synthetic 18-hole rounds so
+// computeFullScoreBreakdown can process it without hole-by-hole API data.
+// Birdies are spaced 2 apart to avoid triggering unintended 3-birdie streaks.
+
+function buildSyntheticRounds(statLine: {
+  par: number; birdie: number; eagle: number; albatross: number;
+  holeInOne: number; bogey: number; doubleBogey: number; tripleOrWorse: number;
+}): import('@/app/lib/scoring').ScorecardRound[] {
+  const holes: Array<{ holeNumber: number; par: number; score: number }> = [];
+  let holeNum = 0;
+
+  const push = (parVal: number, scoreVal: number) => {
+    holeNum++;
+    holes.push({ holeNumber: holeNum, par: parVal, score: scoreVal });
+  };
+
+  // Interleave strokes so no 3 consecutive birdies occur
+  const counts = {
+    albatross: statLine.albatross, eagle: statLine.eagle, birdie: statLine.birdie,
+    par: statLine.par, bogey: statLine.bogey, doubleBogey: statLine.doubleBogey,
+    tripleOrWorse: statLine.tripleOrWorse, holeInOne: statLine.holeInOne,
+  };
+
+  let consecutiveBirdies = 0;
+  const order: Array<[keyof typeof counts, number, number]> = [
+    ['holeInOne', 5, 1], ['albatross', 5, 2], ['eagle', 5, 3],
+    ['birdie', 4, 3], ['par', 4, 4], ['bogey', 4, 5],
+    ['doubleBogey', 4, 6], ['tripleOrWorse', 4, 7],
+  ];
+
+  // Build a flat sequence, inserting a par buffer after every 2nd birdie
+  const sequence: Array<{ par: number; score: number }> = [];
+  const remaining = { ...counts };
+
+  const types: Array<{ key: keyof typeof counts; par: number; score: number }> = [
+    { key: 'holeInOne', par: 3, score: 1 },
+    { key: 'albatross', par: 5, score: 2 },
+    { key: 'eagle', par: 5, score: 3 },
+    { key: 'birdie', par: 4, score: 3 },
+    { key: 'par', par: 4, score: 4 },
+    { key: 'bogey', par: 4, score: 5 },
+    { key: 'doubleBogey', par: 4, score: 6 },
+    { key: 'tripleOrWorse', par: 4, score: 7 },
+  ];
+
+  let birdiesSinceBuffer = 0;
+  for (const { key, par: p, score: s } of types) {
+    while (remaining[key] > 0) {
+      if ((key === 'birdie' || key === 'eagle' || key === 'albatross' || key === 'holeInOne') && birdiesSinceBuffer >= 2) {
+        // Insert a par buffer to break potential streak
+        sequence.push({ par: 4, score: 4 });
+        birdiesSinceBuffer = 0;
+        remaining.par = Math.max(0, remaining.par - 1);
+      }
+      sequence.push({ par: p, score: s });
+      if (key === 'birdie' || key === 'eagle' || key === 'albatross' || key === 'holeInOne') birdiesSinceBuffer++;
+      else birdiesSinceBuffer = 0;
+      remaining[key]--;
+    }
+  }
+
+  // Fill remaining holes with pars to reach exactly 72 holes
+  while (sequence.length < 72) sequence.push({ par: 4, score: 4 });
+
+  // Split into 4 rounds of 18 holes each
+  const rounds: import('@/app/lib/scoring').ScorecardRound[] = [];
+  for (let r = 0; r < 4; r++) {
+    rounds.push({
+      roundId: r + 1,
+      holes: sequence.slice(r * 18, (r + 1) * 18).map((h, i) => ({
+        holeNumber: i + 1,
+        par: h.par,
+        score: h.score,
+      })),
+    });
+  }
+  return rounds;
+}
+
 // ── Main handler ──────────────────────────────────────────────────────────
 
 export async function GET(request: Request) {
@@ -549,6 +630,7 @@ export async function GET(request: Request) {
   }
 
   const tournamentLowRound = getTournamentLowRoundScore(tournamentId, lowRoundStore);
+  const statOverrides = await getStatOverrides();
 
   // ── 3. Build scored player list ────────────────────────────────────────
   const poolByName = new Map(PLAYER_POOL_WITH_PGA_IDS.map((p) => [normName(p.name), p]));
@@ -572,28 +654,43 @@ export async function GET(request: Request) {
       );
       const currentRoundScore: string | null = latestRound?.scoreToPar ?? null;
 
-      const storedScorecard = scorecardCache?.players[row.playerId];
-      const rounds = storedScorecard?.rounds ?? [];
-
       const roundLeadersAwarded = getRoundLeadersAwarded(
         tournamentId,
         fullName,
         roundLeaderStore,
       );
 
-      const scoreBreakdown =
-        rounds.length > 0
-          ? computeFullScoreBreakdown({
-              position,
-              score,
-              thru,
-              rounds,
-              roundLeadersAwarded,
-              tournamentLowRoundScore: tournamentLowRound,
-            })
-          : buildPlaceholderScoreBreakdown({ position, score, thru });
+      // Check for a manual stat override (persisted in Redis)
+      const overrideKey = `${tournamentId}:${poolPlayer.name}`;
+      const override = statOverrides[overrideKey];
 
-      return { position, score, thru, total, currentRoundScore, canonicalName: poolPlayer.name, scoreBreakdown };
+      let scoreBreakdown;
+      if (override) {
+        scoreBreakdown = computeFullScoreBreakdown({
+          position: override.position,
+          score: override.score,
+          thru: override.thru,
+          rounds: buildSyntheticRounds(override.statLine),
+          roundLeadersAwarded,
+          tournamentLowRoundScore: tournamentLowRound,
+        });
+      } else {
+        const storedScorecard = scorecardCache?.players[row.playerId];
+        const rounds = storedScorecard?.rounds ?? [];
+        scoreBreakdown =
+          rounds.length > 0
+            ? computeFullScoreBreakdown({
+                position,
+                score,
+                thru,
+                rounds,
+                roundLeadersAwarded,
+                tournamentLowRoundScore: tournamentLowRound,
+              })
+            : buildPlaceholderScoreBreakdown({ position, score, thru });
+      }
+
+      return { position: override?.position ?? position, score: override?.score ?? score, thru: override?.thru ?? thru, total, currentRoundScore, canonicalName: poolPlayer.name, scoreBreakdown };
     })
     .filter(Boolean);
 
