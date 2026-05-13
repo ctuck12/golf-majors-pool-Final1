@@ -2358,7 +2358,7 @@ export default function Page() {
             background: 'linear-gradient(135deg, #173b63 0%, #102842 100%)',
             color: '#fff',
             borderRadius: 28,
-            padding: isMobile ? (sessionUser ? '8px 12px 4px' : '10px 12px') : (sessionUser ? '10px 28px 6px' : '10px 28px'),
+            padding: isMobile ? (sessionUser ? '4px 12px 4px' : '6px 12px') : (sessionUser ? '10px 28px 6px' : '10px 28px'),
             boxShadow: '0 24px 64px rgba(9, 34, 51, 0.18)',
             position: 'relative',
           }}
@@ -2380,7 +2380,7 @@ export default function Page() {
           {sessionUser ? (
             <div
               style={{
-                marginTop: 6,
+                marginTop: 2,
                 paddingTop: 8,
                 borderTop: '1px solid rgba(112, 202, 220, 0.18)',
                 display: 'flex',
