@@ -3134,13 +3134,13 @@ export default function Page() {
                 {showLivePayoutStrip ? (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: '6px 10px', fontSize: 13, fontWeight: 800 }}>
+                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: isMobile ? '3px 7px' : '6px 10px', fontSize: isMobile ? 10 : 13, fontWeight: 800 }}>
                         1st: {formatPayoutAmount(selectedTournamentPayouts?.first)}
                       </div>
-                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: '6px 10px', fontSize: 13, fontWeight: 800 }}>
+                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: isMobile ? '3px 7px' : '6px 10px', fontSize: isMobile ? 10 : 13, fontWeight: 800 }}>
                         2nd: {formatPayoutAmount(selectedTournamentPayouts?.second)}
                       </div>
-                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: '6px 10px', fontSize: 13, fontWeight: 800 }}>
+                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: isMobile ? '3px 7px' : '6px 10px', fontSize: isMobile ? 10 : 13, fontWeight: 800 }}>
                         3rd: {formatPayoutAmount(selectedTournamentPayouts?.third)}
                       </div>
                     </div>
