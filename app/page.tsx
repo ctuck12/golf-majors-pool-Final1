@@ -3009,7 +3009,7 @@ export default function Page() {
                         style={{
                           maxWidth: '100%',
                           width: '100%',
-                          height: isMobile ? (item.id === 'pga' || item.id === 'players' || item.id === 'masters' ? 36 : 28) : (TOURNAMENT_TAB_LOGO_HEIGHTS[item.id] ?? 40),
+                          height: isMobile ? (item.id === 'masters' ? 40 : item.id === 'pga' || item.id === 'players' ? 36 : 28) : (TOURNAMENT_TAB_LOGO_HEIGHTS[item.id] ?? 40),
                           objectFit: 'contain',
                           display: 'block',
                         }}
