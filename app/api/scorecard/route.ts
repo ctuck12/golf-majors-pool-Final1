@@ -2,17 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { fetchScorecard, parseMongo } from '@/app/lib/slashgolf';
 import { TOURNAMENT_META } from '@/app/lib/tournament-config';
-import { getScorecardCache } from '@/app/lib/scorecard-store';
-
-function normName(s: string) {
-  return s
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/\./g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+import { getScorecardCache, readLeaderboardCache, normName } from '@/app/lib/scorecard-store';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -25,20 +15,12 @@ export async function GET(request: Request) {
   // ── 1. Look up the player's Slash Golf playerId from the leaderboard cache ─
   let playerId: string | null = null;
 
-  try {
-    const { readFile } = await import('node:fs/promises');
-    const { default: path } = await import('node:path');
-    const dataRoot = process.env.VERCEL ? '/tmp/golf-pool-data' : path.join(process.cwd(), 'data');
-    const cacheFile = path.join(dataRoot, 'leaderboard-cache', `${tournamentId}.json`);
-    const raw = JSON.parse(await readFile(cacheFile, 'utf8')) as {
-      leaderboard: Array<{ playerId: string; firstName: string; lastName: string }>;
-    };
-    const match = raw.leaderboard.find(
+  const lbCache = await readLeaderboardCache(tournamentId);
+  if (lbCache) {
+    const match = lbCache.leaderboard.find(
       (r) => normName(`${r.firstName} ${r.lastName}`) === normName(playerName),
     );
     if (match?.playerId) playerId = String(match.playerId);
-  } catch {
-    // Cache not yet written — proceed to fallback
   }
 
   // ── 2. Always fetch live from Slash Golf (shows current in-progress round) ─

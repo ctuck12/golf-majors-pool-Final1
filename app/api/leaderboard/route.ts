@@ -1,86 +1,29 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
+export const dynamic = 'force-dynamic';
+
 import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
-import {
-  fetchLeaderboard,
-  fetchScorecard,
-  parseMongo,
-  type SlashGolfLeaderboardRow,
-  type SlashGolfLeaderboardResponse,
-} from '@/app/lib/slashgolf';
+import { parseMongo, type SlashGolfLeaderboardRow } from '@/app/lib/slashgolf';
 import { TOURNAMENT_META } from '@/app/lib/tournament-config';
 import {
   getScorecardCache,
-  saveScorecardCache,
-  mergeScorecardCache,
   getRoundLeaderStore,
-  saveRoundLeader,
   getRoundLeadersAwarded,
   getLowRoundStore,
-  saveLowRound,
   getTournamentLowRoundScore,
-  type StoredPlayerScorecards,
+  readLeaderboardCache,
+  normName,
 } from '@/app/lib/scorecard-store';
 import {
   computeFullScoreBreakdown,
   buildPlaceholderScoreBreakdown,
 } from '@/app/lib/scoring';
 import {
-  getSelectedPlayerIdsForTournament,
   getStatOverrides,
   TOURNAMENT_IDS,
   type TournamentId,
 } from '@/app/lib/pool-store';
+import redis from '@/app/lib/redis';
 
-export const dynamic = 'force-dynamic';
-
-// ── Leaderboard file cache ────────────────────────────────────────────────
-// 2-minute TTL keeps calls to ~840/tournament (28 active hours × 30/hr)
-
-const CACHE_TTL_MS = 120_000;
-const DATA_ROOT = process.env.VERCEL ? '/tmp/golf-pool-data' : path.join(process.cwd(), 'data');
-const CACHE_DIR = path.join(DATA_ROOT, 'leaderboard-cache');
-
-type LeaderboardCacheFile = {
-  cachedAt: string;
-  leaderboard: SlashGolfLeaderboardRow[];
-  currentRound: number;
-  roundStatus: string;
-  projectedCut: string | null;
-};
-
-async function readLeaderboardCache(tournamentId: string): Promise<LeaderboardCacheFile | null> {
-  try {
-    const raw = await readFile(path.join(CACHE_DIR, `${tournamentId}.json`), 'utf8');
-    return JSON.parse(raw) as LeaderboardCacheFile;
-  } catch {
-    return null;
-  }
-}
-
-async function writeLeaderboardCache(tournamentId: string, data: LeaderboardCacheFile) {
-  await mkdir(CACHE_DIR, { recursive: true });
-  await writeFile(
-    path.join(CACHE_DIR, `${tournamentId}.json`),
-    JSON.stringify(data, null, 2),
-    'utf8',
-  );
-}
-
-// ── Name normalization ────────────────────────────────────────────────────
-
-function normName(value: string) {
-  return value
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/\./g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase();
-}
-
-// ── Slash Golf field parsing ──────────────────────────────────────────────
-// Confirmed via live API — all numeric fields use MongoDB extended JSON format.
+// ── Field parsing ─────────────────────────────────────────────────────────
 
 function normalizeScore(row: SlashGolfLeaderboardRow): string {
   const status = String(row.status ?? '').toLowerCase();
@@ -88,17 +31,13 @@ function normalizeScore(row: SlashGolfLeaderboardRow): string {
   if (status === 'wd') return 'WD';
   if (status === 'dq') return 'DQ';
   if (status === 'mdf') return 'MDF';
-
-  // `total` is already a string like "-12", "+4", "E"
   const raw = String(row.total ?? '').trim();
   if (!raw || raw === '--') return '--';
   return raw;
 }
 
 function normalizeThru(row: SlashGolfLeaderboardRow): string {
-  const raw = String(row.thru ?? '').trim();
-  // Cut/WD players have thru="" — treat as "--"
-  return raw || '--';
+  return String(row.thru ?? '').trim() || '--';
 }
 
 function normalizePosition(row: SlashGolfLeaderboardRow): string {
@@ -109,164 +48,7 @@ function normalizeTotalStrokes(row: SlashGolfLeaderboardRow): string {
   return String(row.totalStrokesFromCompletedRounds ?? '--');
 }
 
-// Get total strokes (not to-par) for a specific round from the rounds array
-function getRoundStrokes(row: SlashGolfLeaderboardRow, roundNum: number): number | null {
-  const rnd = row.rounds?.find((r) => parseMongo(r.roundId) === roundNum);
-  if (!rnd) return null;
-  const s = parseMongo(rnd.strokes);
-  return s > 0 ? s : null;
-}
-
-function isRoundComplete(roundStatus: string): boolean {
-  const s = roundStatus.toLowerCase();
-  return s === 'complete' || s === 'official' || s === 'final';
-}
-
-function extractProjectedCut(lb: SlashGolfLeaderboardResponse): string | null {
-  const cut = lb.cutLines?.[0];
-  return cut?.cutScore ?? null;
-}
-
-// ── Round completion handlers ─────────────────────────────────────────────
-
-async function captureLowRound(
-  tournamentId: string,
-  roundId: number,
-  rows: SlashGolfLeaderboardRow[],
-) {
-  const scores = rows
-    .map((r) => getRoundStrokes(r, roundId))
-    .filter((s): s is number => s !== null);
-  if (!scores.length) return;
-  await saveLowRound(tournamentId, roundId, Math.min(...scores));
-}
-
-async function captureRoundLeader(
-  tournamentId: string,
-  roundId: number,
-  rows: SlashGolfLeaderboardRow[],
-) {
-  const leaders = rows.filter((r) => {
-    const pos = normalizePosition(r);
-    return pos === '1' || pos === 'T1';
-  });
-  if (!leaders.length) return;
-  const names = leaders.map((r) => `${r.firstName} ${r.lastName}`);
-  const leadScore = Number(String(leaders[0].total ?? '0').replace('+', '')) || 0;
-  await saveRoundLeader(tournamentId, roundId, names, leadScore);
-}
-
-async function refreshScorecards(
-  tournamentId: string,
-  slashGolfTournId: string,
-  year: string,
-  rows: SlashGolfLeaderboardRow[],
-  currentRound: number,
-): Promise<void> {
-  const rowByName = new Map<string, SlashGolfLeaderboardRow>();
-  for (const row of rows) {
-    rowByName.set(normName(`${row.firstName} ${row.lastName}`), row);
-  }
-
-  const players: Record<string, StoredPlayerScorecards> = {};
-
-  for (const poolPlayer of PLAYER_POOL_WITH_PGA_IDS) {
-    const row = rowByName.get(normName(poolPlayer.name));
-    if (!row?.playerId) continue;
-
-    try {
-      const rounds = await fetchScorecard(slashGolfTournId, year, row.playerId);
-
-      const stored = rounds
-        .filter((r) => r.roundComplete)
-        .map((r) => ({
-          roundId: parseMongo(r.roundId),
-          holes: Object.entries(r.holes ?? {})
-            .sort(([a], [b]) => Number(a) - Number(b))
-            .map(([, h]) => ({
-              holeNumber: parseMongo(h.holeId),
-              par: parseMongo(h.par),
-              score: parseMongo(h.holeScore),
-            }))
-            .filter((h) => h.par > 0 && h.score > 0),
-        }));
-
-      players[row.playerId] = {
-        playerId: row.playerId,
-        playerName: poolPlayer.name,
-        rounds: stored,
-        refreshedAt: new Date().toISOString(),
-      };
-    } catch {
-      // Player not in field or scorecard unavailable — skip silently
-    }
-  }
-
-  await saveScorecardCache(tournamentId, players, currentRound);
-}
-
-// ── Live scorecard refresh (selected players, in-round) ──────────────────
-// Adaptive TTL keeps monthly API budget intact:
-//   max(10 min, ceil(2.21 × N_selected) min)
-// 8 selected ≈ 18 min between refreshes; 12 selected ≈ 27 min.
-
-// 20k calls/month budget: 18,950 remaining after leaderboard (1,050)
-// interval_min = N × (35hr × 60min) / 18,950 = N × 0.1108 → floor at 5 min
-const LIVE_SCORECARD_MIN_TTL_MS = 5 * 60_000;
-
-async function refreshLiveScorecards(
-  tournamentId: string,
-  meta: (typeof TOURNAMENT_META)[string],
-  rows: SlashGolfLeaderboardRow[],
-  selectedPoolIds: Set<number>,
-): Promise<void> {
-  const rowByName = new Map<string, SlashGolfLeaderboardRow>();
-  for (const row of rows) {
-    rowByName.set(normName(`${row.firstName} ${row.lastName}`), row);
-  }
-
-  const updatedPlayers: Record<string, StoredPlayerScorecards> = {};
-
-  for (const poolPlayer of PLAYER_POOL_WITH_PGA_IDS) {
-    if (!selectedPoolIds.has(poolPlayer.id)) continue;
-    const row = rowByName.get(normName(poolPlayer.name));
-    if (!row?.playerId) continue;
-    const status = String(row.status ?? '').toLowerCase();
-    if (status === 'cut' || status === 'wd' || status === 'dq') continue;
-    // Only fetch players actively on the course — skip finished (F) and not-yet-started (--)
-    const thru = normalizeThru(row);
-    if (thru === 'F' || thru === '--') continue;
-
-    try {
-      const roundsRaw = await fetchScorecard(meta.slashGolfTournId, meta.year, row.playerId);
-      const stored = roundsRaw.map((r) => ({
-        roundId: parseMongo(r.roundId),
-        holes: Object.entries(r.holes ?? {})
-          .sort(([a], [b]) => Number(a) - Number(b))
-          .map(([, h]) => ({
-            holeNumber: parseMongo(h.holeId),
-            par: parseMongo(h.par),
-            score: parseMongo(h.holeScore),
-          }))
-          .filter((h) => h.par > 0 && h.score > 0),
-      }));
-      updatedPlayers[row.playerId] = {
-        playerId: row.playerId,
-        playerName: poolPlayer.name,
-        rounds: stored,
-        refreshedAt: new Date().toISOString(),
-      };
-    } catch {
-      // Player not in field or scorecard unavailable — skip silently
-    }
-  }
-
-  if (Object.keys(updatedPlayers).length > 0) {
-    await mergeScorecardCache(tournamentId, updatedPlayers);
-  }
-}
-
-// ── Odds (preserved from original) ───────────────────────────────────────
+// ── Odds ──────────────────────────────────────────────────────────────────
 
 const TOURNAMENT_ODDS_LOCK_AT: Record<string, string> = {
   players: '2026-03-09T08:00:00-05:00',
@@ -284,8 +66,7 @@ const TOURNAMENT_ODDS_PAGES: Record<string, string> = {
   open: 'https://www.oddschecker.com/us/golf/the-open-championship/winner',
 };
 
-const LOCKED_ODDS_DIR = DATA_ROOT;
-const LOCKED_ODDS_FILE = path.join(LOCKED_ODDS_DIR, 'locked-odds.json');
+const LOCKED_ODDS_KEY = 'locked-odds';
 
 type OddsRow = { canonicalName: string; odds: string };
 type LockedOddsSnapshot = { fetchedAt: string; lockedAt: string; players: OddsRow[] };
@@ -345,10 +126,7 @@ function extractOddsFromSection(lines: string[], watchedPlayers: string[]): Odds
     if (playerIndex < 0) continue;
     let foundOdds: string | null = null;
     for (let i = playerIndex + 1; i <= Math.min(playerIndex + 4, section.length - 1); i++) {
-      if (americanOddsPattern.test(section[i])) {
-        foundOdds = section[i];
-        break;
-      }
+      if (americanOddsPattern.test(section[i])) { foundOdds = section[i]; break; }
     }
     if (!foundOdds) continue;
     players.push({ canonicalName: watchedPlayer, odds: foundOdds });
@@ -357,21 +135,14 @@ function extractOddsFromSection(lines: string[], watchedPlayers: string[]): Odds
 }
 
 async function readLockedOddsStore(): Promise<Record<string, LockedOddsSnapshot>> {
-  try {
-    return JSON.parse(await readFile(LOCKED_ODDS_FILE, 'utf8')) as Record<
-      string,
-      LockedOddsSnapshot
-    >;
-  } catch {
-    return {};
-  }
+  const raw = await redis.get(LOCKED_ODDS_KEY);
+  return raw ? (JSON.parse(raw) as Record<string, LockedOddsSnapshot>) : {};
 }
 
 async function saveLockedOddsSnapshot(tournamentId: string, snapshot: LockedOddsSnapshot) {
-  await mkdir(LOCKED_ODDS_DIR, { recursive: true });
   const store = await readLockedOddsStore();
   store[tournamentId] = snapshot;
-  await writeFile(LOCKED_ODDS_FILE, JSON.stringify(store, null, 2), 'utf8');
+  await redis.set(LOCKED_ODDS_KEY, JSON.stringify(store));
 }
 
 async function getOdds(
@@ -388,10 +159,7 @@ async function getOdds(
   }
 
   const oddsPageUrl = TOURNAMENT_ODDS_PAGES[tournamentId];
-  let live: { source: string; players: OddsRow[] } = {
-    source: 'no odds page configured',
-    players: [],
-  };
+  let live: { source: string; players: OddsRow[] } = { source: 'no odds page configured', players: [] };
 
   if (oddsPageUrl) {
     try {
@@ -425,14 +193,7 @@ async function getOdds(
   return live;
 }
 
-// ── Synthetic round builder (for stat overrides) ─────────────────────────
-// Distributes a flat stat line across 4 synthetic 18-hole rounds so
-// computeFullScoreBreakdown can process it without hole-by-hole API data.
-// Each stat type's "extra" hole (when count % 4 != 0) is assigned to a
-// different round via a rotating counter, ensuring even spread and preventing
-// bogey-free rounds when the player had bogeys. Within each round, under-par
-// holes are interleaved one-for-one with par-or-worse holes so consecutive
-// birdies never reach 3.
+// ── Synthetic round builder ───────────────────────────────────────────────
 
 function buildSyntheticRounds(statLine: {
   par: number; birdie: number; eagle: number; albatross: number;
@@ -440,16 +201,12 @@ function buildSyntheticRounds(statLine: {
 }): import('@/app/lib/scoring').ScorecardRound[] {
   type Hole = { par: number; score: number };
   const buckets: Hole[][] = [[], [], [], []];
-
-  // Rotate which round receives the "extra" hole when count % 4 != 0,
-  // so different stat types' extras land in different rounds.
   let nextExtra = 0;
 
   const distribute = (count: number, parVal: number, scoreVal: number) => {
     const base = Math.floor(count / 4);
     const extras = count % 4;
     for (let r = 0; r < 4; r++) {
-      // Check if this round is one of the `extras` rounds starting at nextExtra
       let isExtra = false;
       for (let e = 0; e < extras; e++) {
         if (r === (nextExtra + e) % 4) { isExtra = true; break; }
@@ -470,11 +227,7 @@ function buildSyntheticRounds(statLine: {
   distribute(statLine.tripleOrWorse, 4, 7);
 
   return buckets.map((bucket, r) => {
-    // Pad to 18 if total strokes < 72
     while (bucket.length < 18) bucket.push({ par: 4, score: 4 });
-
-    // Interleave under-par and par-or-worse (max 1 consecutive under-par)
-    // so 3-birdie streaks can't accidentally appear
     const under = bucket.filter((h) => h.score < h.par);
     const other = bucket.filter((h) => h.score >= h.par);
     const seq: Hole[] = [];
@@ -483,7 +236,6 @@ function buildSyntheticRounds(statLine: {
       if (ui < under.length) seq.push(under[ui++]);
       if (oi < other.length) seq.push(other[oi++]);
     }
-
     return {
       roundId: r + 1,
       holes: seq.slice(0, 18).map((h, i) => ({ holeNumber: i + 1, par: h.par, score: h.score })),
@@ -502,123 +254,51 @@ export async function GET(request: Request) {
     return Response.json({ error: 'Unknown tournament id.' }, { status: 400 });
   }
 
-  // ── 1. Leaderboard with 2-minute file cache ────────────────────────────
-  let rows: SlashGolfLeaderboardRow[];
-  let currentRound: number;
-  let roundStatus: string;
-  let projectedCut: string | null;
-  let source: string;
-
+  // ── 1. Read leaderboard from Redis (cron keeps it fresh) ──────────────
   const cached = await readLeaderboardCache(tournamentId);
-  if (cached && Date.now() - new Date(cached.cachedAt).getTime() < CACHE_TTL_MS) {
-    rows = cached.leaderboard;
-    currentRound = cached.currentRound;
-    roundStatus = cached.roundStatus;
-    projectedCut = cached.projectedCut;
-    source = 'slash-golf-cache';
-  } else {
-    try {
-      const lb = await fetchLeaderboard(meta.slashGolfTournId, meta.year);
-      rows = lb.leaderboardRows ?? [];
-      currentRound = parseMongo(lb.roundId);  // top-level roundId = current round
-      roundStatus = lb.roundStatus ?? lb.status ?? '';
-      projectedCut = extractProjectedCut(lb);
-      source = 'slash-golf-live';
-      await writeLeaderboardCache(tournamentId, {
-        cachedAt: new Date().toISOString(),
-        leaderboard: rows,
-        currentRound,
-        roundStatus,
-        projectedCut,
-      });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      // 400 "not found" = tournament hasn't started yet — return graceful empty state
-      if (msg.includes('400') && msg.toLowerCase().includes('not found')) {
-        return Response.json({
-          source: 'not-started',
-          oddsSource: 'no odds page configured',
-          tournamentId,
-          status: 'Not Started',
-          projectedCut: null,
-          fetchedAt: new Date().toISOString(),
-          players: [],
-          odds: [],
-        });
-      }
-      return Response.json(
-        { error: `Slash Golf API error: ${msg}` },
-        { status: 502 },
-      );
-    }
-  }
 
-  // ── 2. Detect round completion → refresh scorecard & leader data ───────
-  let scorecardCache = await getScorecardCache(tournamentId);
-  let roundLeaderStore = await getRoundLeaderStore();
-  let lowRoundStore = await getLowRoundStore();
-
-  const roundComplete = isRoundComplete(roundStatus);
-  const needsRefresh = roundComplete && (scorecardCache?.lastCompletedRound ?? 0) < currentRound;
-
-  if (needsRefresh) {
-    await captureLowRound(tournamentId, currentRound, rows);
-    if (currentRound <= 3) {
-      await captureRoundLeader(tournamentId, currentRound, rows);
-    }
-
-    // Backfill any prior rounds whose data is missing (handles cold starts and
-    // tournaments that completed before the system was running).
-    for (let rndId = 1; rndId < currentRound; rndId++) {
-      // Low round: derive strokes from the final leaderboard's rounds array.
-      if (!lowRoundStore[tournamentId]?.[String(rndId)]) {
-        await captureLowRound(tournamentId, rndId, rows);
-      }
-      // Round leader: requires the round-specific leaderboard (positions differ).
-      if (rndId <= 3 && !roundLeaderStore[tournamentId]?.[String(rndId)]) {
-        try {
-          const histLb = await fetchLeaderboard(meta.slashGolfTournId, meta.year, rndId);
-          await captureRoundLeader(tournamentId, rndId, histLb.leaderboardRows ?? []);
-        } catch { /* not available — skip */ }
-      }
-    }
-
-    await refreshScorecards(
+  if (!cached) {
+    return Response.json({
+      source: 'loading',
+      oddsSource: 'no odds page configured',
       tournamentId,
-      meta.slashGolfTournId,
-      meta.year,
-      rows,
-      currentRound,
-    );
-    // Reload after refresh
-    scorecardCache = await getScorecardCache(tournamentId);
-    roundLeaderStore = await getRoundLeaderStore();
-    lowRoundStore = await getLowRoundStore();
+      status: 'Loading…',
+      projectedCut: null,
+      fetchedAt: new Date().toISOString(),
+      players: [],
+      odds: [],
+    });
   }
 
-  // ── 2b. Live scorecard refresh for selected players (during active round) ─
-  if (!roundComplete && TOURNAMENT_IDS.includes(tournamentId as TournamentId)) {
-    const selectedPoolIds = await getSelectedPlayerIdsForTournament(tournamentId as TournamentId);
-    const nSelected = selectedPoolIds.size;
-    if (nSelected > 0) {
-      const adaptiveTtlMs = Math.max(
-        LIVE_SCORECARD_MIN_TTL_MS,
-        Math.ceil(0.1108 * nSelected) * 60_000,
-      );
-      const lastLive = scorecardCache?.liveRefreshedAt;
-      const liveStale =
-        !lastLive || Date.now() - new Date(lastLive).getTime() > adaptiveTtlMs;
-      if (liveStale) {
-        await refreshLiveScorecards(tournamentId, meta, rows, selectedPoolIds);
-        scorecardCache = await getScorecardCache(tournamentId);
-      }
-    }
+  if (cached.notStarted) {
+    return Response.json({
+      source: 'not-started',
+      oddsSource: 'no odds page configured',
+      tournamentId,
+      status: 'Not Started',
+      projectedCut: null,
+      fetchedAt: cached.cachedAt,
+      players: [],
+      odds: [],
+    });
   }
+
+  const rows = cached.leaderboard;
+  const currentRound = cached.currentRound;
+  const roundStatus = cached.roundStatus;
+  const projectedCut = cached.projectedCut;
+
+  // ── 2. Load scoring support data (all from Redis) ─────────────────────
+  const [scorecardCache, roundLeaderStore, lowRoundStore, statOverrides] = await Promise.all([
+    getScorecardCache(tournamentId),
+    getRoundLeaderStore(),
+    getLowRoundStore(),
+    getStatOverrides(),
+  ]);
 
   const tournamentLowRound = getTournamentLowRoundScore(tournamentId, lowRoundStore);
-  const statOverrides = await getStatOverrides();
 
-  // ── 3. Build scored player list ────────────────────────────────────────
+  // ── 3. Build scored player list ───────────────────────────────────────
   const poolByName = new Map(PLAYER_POOL_WITH_PGA_IDS.map((p) => [normName(p.name), p]));
   const watchedPlayerNames = PLAYER_POOL_WITH_PGA_IDS.map((p) => p.name);
 
@@ -633,20 +313,14 @@ export async function GET(request: Request) {
       const thru = normalizeThru(row);
       const total = normalizeTotalStrokes(row);
 
-      // Most recent round's score to par (prefer current tournament round, else latest available)
       const latestRound = (row.rounds ?? []).reduce<SlashGolfLeaderboardRow['rounds'][0] | null>(
         (best, r) => best === null || parseMongo(r.roundId) > parseMongo(best.roundId) ? r : best,
         null,
       );
       const currentRoundScore: string | null = latestRound?.scoreToPar ?? null;
 
-      const roundLeadersAwarded = getRoundLeadersAwarded(
-        tournamentId,
-        fullName,
-        roundLeaderStore,
-      );
+      const roundLeadersAwarded = getRoundLeadersAwarded(tournamentId, fullName, roundLeaderStore);
 
-      // Check for a manual stat override (persisted in Redis)
       const overrideKey = `${tournamentId}:${poolPlayer.name}`;
       const override = statOverrides[overrideKey];
 
@@ -654,7 +328,7 @@ export async function GET(request: Request) {
       if (override) {
         scoreBreakdown = computeFullScoreBreakdown({
           position: override.position,
-          score,  // keep live API score-to-par for cut detection
+          score,
           thru: override.thru,
           rounds: buildSyntheticRounds(override.statLine),
           roundLeadersAwarded,
@@ -665,14 +339,7 @@ export async function GET(request: Request) {
         const rounds = storedScorecard?.rounds ?? [];
         scoreBreakdown =
           rounds.length > 0
-            ? computeFullScoreBreakdown({
-                position,
-                score,
-                thru,
-                rounds,
-                roundLeadersAwarded,
-                tournamentLowRoundScore: tournamentLowRound,
-              })
+            ? computeFullScoreBreakdown({ position, score, thru, rounds, roundLeadersAwarded, tournamentLowRoundScore: tournamentLowRound })
             : buildPlaceholderScoreBreakdown({ position, score, thru });
       }
 
@@ -680,9 +347,7 @@ export async function GET(request: Request) {
     })
     .filter(Boolean);
 
-  // ── 3b. Inject stat-override players absent from API rows ──────────────
-  // When a tournament is complete the API may drop players from the response.
-  // Any override whose player isn't already in `players` is synthesized here.
+  // ── 3b. Inject stat-override players absent from API rows ─────────────
   {
     const playersInApi = new Set<string>(players.map((p) => p!.canonicalName));
     const CUT_STATUSES = new Set(['CUT', 'WD', 'DQ', 'MDF']);
@@ -691,15 +356,11 @@ export async function GET(request: Request) {
       if (!key.startsWith(prefix)) continue;
       const playerName = key.slice(prefix.length);
       if (playersInApi.has(playerName)) continue;
-
       const poolPlayer = PLAYER_POOL_WITH_PGA_IDS.find((p) => p.name === playerName);
       if (!poolPlayer) continue;
-
-      // Infer score-to-par from position: valid numeric positions mean made cut
       const inferredScore = CUT_STATUSES.has(override.position.toUpperCase())
         ? override.position.toUpperCase()
         : 'E';
-
       const roundLeadersAwarded = getRoundLeadersAwarded(tournamentId, playerName, roundLeaderStore);
       const scoreBreakdown = computeFullScoreBreakdown({
         position: override.position,
@@ -709,24 +370,16 @@ export async function GET(request: Request) {
         roundLeadersAwarded,
         tournamentLowRoundScore: tournamentLowRound,
       });
-
-      players.push({
-        position: override.position,
-        score: inferredScore,
-        thru: override.thru,
-        total: '--',
-        currentRoundScore: null,
-        canonicalName: poolPlayer.name,
-        scoreBreakdown,
-      });
+      players.push({ position: override.position, score: inferredScore, thru: override.thru, total: '--', currentRoundScore: null, canonicalName: poolPlayer.name, scoreBreakdown });
     }
   }
 
-  // ── 4. Odds ────────────────────────────────────────────────────────────
+  // ── 4. Odds ───────────────────────────────────────────────────────────
   const odds = await getOdds(tournamentId, watchedPlayerNames);
 
   return Response.json({
-    source,
+    source: 'cache',
+    cachedAt: cached.cachedAt,
     oddsSource: odds.source,
     tournamentId,
     status: roundStatus || 'Status unavailable',

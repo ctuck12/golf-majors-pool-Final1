@@ -1,9 +1,6 @@
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
-import Redis from 'ioredis';
 import { PLAYER_POOL_WITH_PGA_IDS } from './player-pool';
-
-// Module-level singleton — reused across warm serverless invocations
-const redis = new Redis(process.env.REDIS_URL!, { lazyConnect: true, maxRetriesPerRequest: 3 });
+import redis from './redis';
 
 export const SESSION_COOKIE_NAME = 'golf-pool-session';
 export const DEFAULT_POOL_ID = 'golf-majors-pool';

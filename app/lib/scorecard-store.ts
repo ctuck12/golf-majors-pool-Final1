@@ -1,8 +1,17 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
+import redis from './redis';
+import type { SlashGolfLeaderboardRow } from './slashgolf';
 
-// Vercel's serverless root is read-only; /tmp is the only writable dir at runtime.
-const DATA_DIR = process.env.VERCEL ? '/tmp/golf-pool-data' : path.join(process.cwd(), 'data');
+// ── Name normalization ─────────────────────────────────────────────────────
+
+export function normName(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/\./g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -19,50 +28,60 @@ export type StoredPlayerScorecards = {
 export type ScorecardCacheFile = {
   tournamentId: string;
   lastCompletedRound: number;
-  players: Record<string, StoredPlayerScorecards>; // keyed by playerId
+  players: Record<string, StoredPlayerScorecards>;
   refreshedAt: string;
   liveRefreshedAt: string | null;
 };
 
 export type RoundLeaderEntry = {
-  leaders: string[];   // canonical player names
-  leadScore: number;   // total to par at the time (e.g. -8)
+  leaders: string[];
+  leadScore: number;
   capturedAt: string;
 };
 
 export type RoundLeaderStore = Record<
-  string, // tournamentId
-  Record<string, RoundLeaderEntry | null> // roundId string → entry
+  string,
+  Record<string, RoundLeaderEntry | null>
 >;
 
 export type TournamentLowRoundStore = Record<
-  string, // tournamentId
-  Record<string, number | null> // roundId string → lowest round total (strokes)
+  string,
+  Record<string, number | null>
 >;
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+export type LeaderboardCacheFile = {
+  cachedAt: string;
+  leaderboard: SlashGolfLeaderboardRow[];
+  currentRound: number;
+  roundStatus: string;
+  projectedCut: string | null;
+  notStarted?: boolean;
+};
 
-async function readJson<T>(filePath: string): Promise<T | null> {
-  try {
-    return JSON.parse(await readFile(filePath, 'utf8')) as T;
-  } catch {
-    return null;
-  }
+// ── Redis helpers ──────────────────────────────────────────────────────────
+
+async function rget<T>(key: string): Promise<T | null> {
+  const raw = await redis.get(key);
+  return raw ? (JSON.parse(raw) as T) : null;
 }
 
-async function writeJson(filePath: string, data: unknown): Promise<void> {
-  await mkdir(path.dirname(filePath), { recursive: true });
-  await writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
+async function rset(key: string, value: unknown, ttlSeconds?: number): Promise<void> {
+  const json = JSON.stringify(value);
+  if (ttlSeconds) {
+    await redis.setex(key, ttlSeconds, json);
+  } else {
+    await redis.set(key, json);
+  }
 }
 
 // ── Scorecard cache ────────────────────────────────────────────────────────
 
-function scorecardPath(tournamentId: string) {
-  return path.join(DATA_DIR, 'scorecard-cache', `${tournamentId}.json`);
+function scorecardKey(tournamentId: string) {
+  return `scorecard-cache:${tournamentId}`;
 }
 
 export async function getScorecardCache(tournamentId: string): Promise<ScorecardCacheFile | null> {
-  return readJson<ScorecardCacheFile>(scorecardPath(tournamentId));
+  return rget<ScorecardCacheFile>(scorecardKey(tournamentId));
 }
 
 export async function saveScorecardCache(
@@ -70,7 +89,7 @@ export async function saveScorecardCache(
   players: Record<string, StoredPlayerScorecards>,
   lastCompletedRound: number,
 ): Promise<void> {
-  await writeJson(scorecardPath(tournamentId), {
+  await rset(scorecardKey(tournamentId), {
     tournamentId,
     lastCompletedRound,
     players,
@@ -84,7 +103,7 @@ export async function mergeScorecardCache(
   updatedPlayers: Record<string, StoredPlayerScorecards>,
 ): Promise<void> {
   const existing = await getScorecardCache(tournamentId);
-  await writeJson(scorecardPath(tournamentId), {
+  await rset(scorecardKey(tournamentId), {
     tournamentId,
     lastCompletedRound: existing?.lastCompletedRound ?? 0,
     players: { ...(existing?.players ?? {}), ...updatedPlayers },
@@ -95,10 +114,10 @@ export async function mergeScorecardCache(
 
 // ── Round leaders ──────────────────────────────────────────────────────────
 
-const ROUND_LEADERS_PATH = path.join(DATA_DIR, 'round-leaders.json');
+const ROUND_LEADERS_KEY = 'round-leaders';
 
 export async function getRoundLeaderStore(): Promise<RoundLeaderStore> {
-  return (await readJson<RoundLeaderStore>(ROUND_LEADERS_PATH)) ?? {};
+  return (await rget<RoundLeaderStore>(ROUND_LEADERS_KEY)) ?? {};
 }
 
 export async function saveRoundLeader(
@@ -114,7 +133,7 @@ export async function saveRoundLeader(
     leadScore,
     capturedAt: new Date().toISOString(),
   };
-  await writeJson(ROUND_LEADERS_PATH, store);
+  await rset(ROUND_LEADERS_KEY, store);
 }
 
 export function getRoundLeadersAwarded(
@@ -131,10 +150,10 @@ export function getRoundLeadersAwarded(
 
 // ── Tournament low round ───────────────────────────────────────────────────
 
-const LOW_ROUNDS_PATH = path.join(DATA_DIR, 'tournament-low-rounds.json');
+const LOW_ROUNDS_KEY = 'low-rounds';
 
 export async function getLowRoundStore(): Promise<TournamentLowRoundStore> {
-  return (await readJson<TournamentLowRoundStore>(LOW_ROUNDS_PATH)) ?? {};
+  return (await rget<TournamentLowRoundStore>(LOW_ROUNDS_KEY)) ?? {};
 }
 
 export async function saveLowRound(
@@ -145,7 +164,7 @@ export async function saveLowRound(
   const store = await getLowRoundStore();
   store[tournamentId] ??= {};
   store[tournamentId][String(roundId)] = lowScore;
-  await writeJson(LOW_ROUNDS_PATH, store);
+  await rset(LOW_ROUNDS_KEY, store);
 }
 
 export function getTournamentLowRoundScore(
@@ -155,4 +174,26 @@ export function getTournamentLowRoundScore(
   const rounds = store[tournamentId] ?? {};
   const scores = Object.values(rounds).filter((s): s is number => s !== null);
   return scores.length ? Math.min(...scores) : null;
+}
+
+// ── Leaderboard cache ──────────────────────────────────────────────────────
+
+// not-started entries get a 30-minute TTL so the cron backs off automatically
+const NOT_STARTED_TTL_SECONDS = 30 * 60;
+
+function leaderboardKey(tournamentId: string) {
+  return `leaderboard-cache:${tournamentId}`;
+}
+
+export async function readLeaderboardCache(tournamentId: string): Promise<LeaderboardCacheFile | null> {
+  return rget<LeaderboardCacheFile>(leaderboardKey(tournamentId));
+}
+
+export async function writeLeaderboardCache(
+  tournamentId: string,
+  data: LeaderboardCacheFile,
+): Promise<void> {
+  // not-started entries expire on their own so the cron retries after 30 min
+  const ttl = data.notStarted ? NOT_STARTED_TTL_SECONDS : undefined;
+  await rset(leaderboardKey(tournamentId), data, ttl);
 }
