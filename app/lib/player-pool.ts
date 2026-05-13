@@ -150,6 +150,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 192, name: 'Timothy Wiseman',            pgaTourId: 55417, defaultOdds: '+100000', worldRank: 999 },
   { id: 193, name: 'Sudarshan Yellamaraju',      pgaTourId: 99999, defaultOdds: '+20000',  worldRank: 105 },
   { id: 194, name: 'Brandt Snedeker',            pgaTourId: 25818, defaultOdds: '+25000',  worldRank: 131 },
+  { id: 195, name: 'Bubba Watson',               pgaTourId: 25804, defaultOdds: '+100000', worldRank: 999 },
 ] as const;
 
 export type PlayerPoolEntry = (typeof PLAYER_POOL_WITH_PGA_IDS)[number];
