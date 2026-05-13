@@ -3286,8 +3286,8 @@ export default function Page() {
                         <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0' }}>Rank</th>
                         <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0' }}>Entry</th>
                         <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>Roster Points</th>
-                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>Holes Remaining</th>
-                        <th style={{ padding: isMobile ? '0 0 8px' : '0 0 8px', textAlign: 'center' }}>Tie-break</th>
+                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>{isMobile ? 'Holes Rem' : 'Holes Remaining'}</th>
+                        <th style={{ padding: isMobile ? '0 0 8px' : '0 0 8px', textAlign: 'center' }}>Tiebreak</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3342,7 +3342,7 @@ export default function Page() {
                           <th style={{ padding: isMobile ? '0 0 8px' : '0 0 12px' }}>Entry</th>
                           <th style={{ padding: isMobile ? '0 0 8px' : '0 0 12px' }}>Roster points</th>
                           <th style={{ padding: isMobile ? '0 0 8px' : '0 0 12px' }}>Holes left</th>
-                          <th style={{ padding: isMobile ? '0 0 8px' : '0 0 12px' }}>Tie-break</th>
+                          <th style={{ padding: isMobile ? '0 0 8px' : '0 0 12px' }}>Tiebreak</th>
                         </tr>
                       </thead>
                       <tbody>
