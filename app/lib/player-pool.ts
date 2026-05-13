@@ -112,7 +112,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 143, name: 'Chandler Blanchet',          pgaTourId: 54788, defaultOdds: '+30000',  worldRank: 112 },
   { id: 144, name: 'Jason Dufner',               pgaTourId: 25686, defaultOdds: '+50000',  worldRank: 992 },
   { id: 145, name: 'Thomas Detry',               pgaTourId: 33653, defaultOdds: '+10000',  worldRank:  61 },
-  { id: 146, name: 'David Puig',                 pgaTourId: 61193, defaultOdds: '+10000',  worldRank: 109 },
+  { id: 146, name: 'David Puig',                 pgaTourId: 61193, defaultOdds: '+10000',  worldRank: 109, photoUrl: 'https://cdn.sanity.io/images/2guez6v8/prd/c46890fb030a902de7f235b2bddf32006b860199-2747x2622.png?bg=ffffff&fit=crop&w=280&h=350' },
   { id: 148, name: 'Rasmus Neergaard-Petersen',  pgaTourId: 52689, defaultOdds: '+10000',  worldRank: 999 },
   { id: 149, name: 'Casey Jarvis',               pgaTourId: 57688, defaultOdds: '+10000',  worldRank:  72 },
   { id: 150, name: 'John Keefer',                pgaTourId: 63454, defaultOdds: '+15000',  worldRank:  74 },
