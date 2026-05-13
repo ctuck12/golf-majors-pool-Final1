@@ -136,7 +136,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 171, name: 'Daniel Brown',               pgaTourId: 57259, defaultOdds: '+30000',  worldRank: 999 },
   { id: 172, name: 'Jordan Gumberg',             pgaTourId: 51989, defaultOdds: '+50000',  worldRank: 315 },
   { id: 173, name: 'Luke Donald',                pgaTourId: 23983, defaultOdds: '+100000', worldRank: 970 },
-  { id: 174, name: 'Shaun Micheel',              pgaTourId:  6515, defaultOdds: '+100000', worldRank: 999 },
+  { id: 174, name: 'Shaun Micheel',              pgaTourId:  6515, defaultOdds: '+100000', worldRank: 999, photoUrl: 'https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/1414.png&w=280&h=350&scale=crop' },
   { id: 175, name: 'Jesse Droemer',              pgaTourId: 54954, defaultOdds: '+100000', worldRank: 999 },
   { id: 178, name: 'Tyler Collet',               pgaTourId: 59570, defaultOdds: '+100000', worldRank: 999 },
   { id: 181, name: 'Mark Geddes',                pgaTourId: 49893, defaultOdds: '+100000', worldRank: 999 },
