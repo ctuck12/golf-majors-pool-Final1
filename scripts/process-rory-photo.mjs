@@ -5,17 +5,15 @@ const outputPath = 'public/player-photos/rory-mcilroy.jpg';
 
 const { width, height } = await sharp(inputPath).metadata();
 
-// Zoom in ~15%: crop a centered 85% region then resize back to full
-const cropW = Math.round(width * 0.85);
-const cropH = Math.round(height * 0.85);
-const left = Math.round((width - cropW) / 2);
-const top = Math.round((height - cropH) / 2);
+// Match Justin Rose PGA Tour framing: head through upper chest, portrait 4:5 ratio
+// Take full width, top 78% of height → crops lower body, keeps cap-to-chest framing
+const cropH = Math.round(height * 0.78);
 
 await sharp(inputPath)
-  .extract({ left, top, width: cropW, height: cropH })
-  .resize(width, height)
+  .extract({ left: 0, top: 0, width, height: cropH })
+  .resize(280, 350)
   .flatten({ background: { r: 255, g: 255, b: 255 } })
   .jpeg({ quality: 95 })
   .toFile(outputPath);
 
-console.log(`Saved to ${outputPath} (cropped ${cropW}x${cropH} → ${width}x${height})`);
+console.log(`Saved to ${outputPath} (${width}x${cropH} → 280x350)`);

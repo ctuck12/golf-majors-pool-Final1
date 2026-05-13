@@ -6,7 +6,7 @@
 
 export const PLAYER_POOL_WITH_PGA_IDS = [
   { id:   1, name: 'Scottie Scheffler',          pgaTourId: 46046, defaultOdds: '+450',    worldRank:   1 },
-  { id:   2, name: 'Rory McIlroy',               pgaTourId: 28237, defaultOdds: '+900',    worldRank:   2, photoUrl: '/player-photos/rory-mcilroy.jpg' },
+  { id:   2, name: 'Rory McIlroy',               pgaTourId: 28237, defaultOdds: '+900',    worldRank:   2 },
   { id:   3, name: 'Xander Schauffele',          pgaTourId: 48081, defaultOdds: '+1200',   worldRank:  11 },
   { id:   4, name: 'Collin Morikawa',            pgaTourId: 50525, defaultOdds: '+1600',   worldRank:   5 },
   { id:   5, name: 'Ludvig Aberg',               pgaTourId: 52955, defaultOdds: '+1800',   worldRank:  15 },
