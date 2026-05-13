@@ -198,23 +198,25 @@ async function getOdds(
 function buildSyntheticRounds(statLine: {
   par: number; birdie: number; eagle: number; albatross: number;
   holeInOne: number; bogey: number; doubleBogey: number; tripleOrWorse: number;
+  numRounds?: number;
 }): import('@/app/lib/scoring').ScorecardRound[] {
   type Hole = { par: number; score: number };
-  const buckets: Hole[][] = [[], [], [], []];
+  const numRounds = statLine.numRounds ?? 4;
+  const buckets: Hole[][] = Array.from({ length: numRounds }, () => []);
   let nextExtra = 0;
 
   const distribute = (count: number, parVal: number, scoreVal: number) => {
-    const base = Math.floor(count / 4);
-    const extras = count % 4;
-    for (let r = 0; r < 4; r++) {
+    const base = Math.floor(count / numRounds);
+    const extras = count % numRounds;
+    for (let r = 0; r < numRounds; r++) {
       let isExtra = false;
       for (let e = 0; e < extras; e++) {
-        if (r === (nextExtra + e) % 4) { isExtra = true; break; }
+        if (r === (nextExtra + e) % numRounds) { isExtra = true; break; }
       }
       const n = base + (isExtra ? 1 : 0);
       for (let i = 0; i < n; i++) buckets[r].push({ par: parVal, score: scoreVal });
     }
-    nextExtra = (nextExtra + extras) % 4;
+    nextExtra = (nextExtra + extras) % numRounds;
   };
 
   distribute(statLine.holeInOne, 3, 1);
