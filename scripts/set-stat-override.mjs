@@ -7,7 +7,6 @@ const KEY = 'pool-stat-overrides';
 const overrideKey = 'masters:Sam Stevens';
 const entry = {
   position: 'T24',
-  score: 'F',   // finished (made cut)
   thru: 'F',
   statLine: {
     par: 41,

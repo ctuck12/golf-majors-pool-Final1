@@ -668,7 +668,7 @@ export async function GET(request: Request) {
       if (override) {
         scoreBreakdown = computeFullScoreBreakdown({
           position: override.position,
-          score: override.score,
+          score,  // keep live API score-to-par for cut detection
           thru: override.thru,
           rounds: buildSyntheticRounds(override.statLine),
           roundLeadersAwarded,
@@ -690,7 +690,7 @@ export async function GET(request: Request) {
             : buildPlaceholderScoreBreakdown({ position, score, thru });
       }
 
-      return { position: override?.position ?? position, score: override?.score ?? score, thru: override?.thru ?? thru, total, currentRoundScore, canonicalName: poolPlayer.name, scoreBreakdown };
+      return { position: override?.position ?? position, score, thru: override?.thru ?? thru, total, currentRoundScore, canonicalName: poolPlayer.name, scoreBreakdown };
     })
     .filter(Boolean);
 

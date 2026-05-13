@@ -656,7 +656,6 @@ const STAT_OVERRIDES_KEY = 'pool-stat-overrides';
 
 export type StatOverrideEntry = {
   position: string;
-  score: string;
   thru: string;
   statLine: {
     par: number;
