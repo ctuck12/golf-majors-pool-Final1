@@ -5863,7 +5863,7 @@ export default function Page() {
                         display: 'flex',
                         overflow: 'hidden',
                         height: isMobile ? undefined : 90,
-                        minHeight: isMobile ? 89 : undefined,
+                        minHeight: isMobile ? 85 : undefined,
                       }}
                     >
                       {isMobile ? (
