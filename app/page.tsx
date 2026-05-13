@@ -2358,7 +2358,7 @@ export default function Page() {
             background: 'linear-gradient(135deg, #173b63 0%, #102842 100%)',
             color: '#fff',
             borderRadius: 28,
-            padding: isMobile ? (sessionUser ? '1px 12px 4px' : '3px 12px') : (sessionUser ? '10px 28px 6px' : '10px 28px'),
+            padding: isMobile ? (sessionUser ? '0px 12px 2px' : '2px 12px') : (sessionUser ? '10px 28px 6px' : '10px 28px'),
             boxShadow: '0 24px 64px rgba(9, 34, 51, 0.18)',
             position: 'relative',
           }}
@@ -2369,7 +2369,7 @@ export default function Page() {
               alt="Golf Majors Pool"
               style={{
                 display: 'block',
-                width: isMobile ? 'min(100%, 260px)' : 'min(100%, 380px)',
+                width: isMobile ? 'min(100%, 278px)' : 'min(100%, 380px)',
                 height: 'auto',
                 objectFit: 'contain',
                 background: 'transparent',
