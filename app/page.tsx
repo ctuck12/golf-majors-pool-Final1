@@ -3068,7 +3068,7 @@ export default function Page() {
                 <div>
                   {selectedTournament === 'players' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 22 : 30), fontWeight: 800, color: '#0f1720' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
                         The Players Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
@@ -3077,7 +3077,7 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 22 : 30), fontWeight: 800, color: '#0f1720' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
                         The Masters Tournament
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
@@ -3086,7 +3086,7 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 22 : 30), fontWeight: 800, color: '#0f1720' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
                         The PGA Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
@@ -3095,7 +3095,7 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'us-open' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 22 : 30), fontWeight: 800, color: '#0f1720' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
                         U.S. Open Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
@@ -3104,7 +3104,7 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'open' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 22 : 30), fontWeight: 800, color: '#0f1720' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
                         The Open Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
