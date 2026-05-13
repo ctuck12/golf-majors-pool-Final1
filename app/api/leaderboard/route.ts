@@ -428,81 +428,67 @@ async function getOdds(
 // ── Synthetic round builder (for stat overrides) ─────────────────────────
 // Distributes a flat stat line across 4 synthetic 18-hole rounds so
 // computeFullScoreBreakdown can process it without hole-by-hole API data.
-// Birdies are spaced 2 apart to avoid triggering unintended 3-birdie streaks.
+// Each stat type's "extra" hole (when count % 4 != 0) is assigned to a
+// different round via a rotating counter, ensuring even spread and preventing
+// bogey-free rounds when the player had bogeys. Within each round, under-par
+// holes are interleaved one-for-one with par-or-worse holes so consecutive
+// birdies never reach 3.
 
 function buildSyntheticRounds(statLine: {
   par: number; birdie: number; eagle: number; albatross: number;
   holeInOne: number; bogey: number; doubleBogey: number; tripleOrWorse: number;
 }): import('@/app/lib/scoring').ScorecardRound[] {
-  const holes: Array<{ holeNumber: number; par: number; score: number }> = [];
-  let holeNum = 0;
+  type Hole = { par: number; score: number };
+  const buckets: Hole[][] = [[], [], [], []];
 
-  const push = (parVal: number, scoreVal: number) => {
-    holeNum++;
-    holes.push({ holeNumber: holeNum, par: parVal, score: scoreVal });
-  };
+  // Rotate which round receives the "extra" hole when count % 4 != 0,
+  // so different stat types' extras land in different rounds.
+  let nextExtra = 0;
 
-  // Interleave strokes so no 3 consecutive birdies occur
-  const counts = {
-    albatross: statLine.albatross, eagle: statLine.eagle, birdie: statLine.birdie,
-    par: statLine.par, bogey: statLine.bogey, doubleBogey: statLine.doubleBogey,
-    tripleOrWorse: statLine.tripleOrWorse, holeInOne: statLine.holeInOne,
-  };
-
-  let consecutiveBirdies = 0;
-  const order: Array<[keyof typeof counts, number, number]> = [
-    ['holeInOne', 5, 1], ['albatross', 5, 2], ['eagle', 5, 3],
-    ['birdie', 4, 3], ['par', 4, 4], ['bogey', 4, 5],
-    ['doubleBogey', 4, 6], ['tripleOrWorse', 4, 7],
-  ];
-
-  // Build a flat sequence, inserting a par buffer after every 2nd birdie
-  const sequence: Array<{ par: number; score: number }> = [];
-  const remaining = { ...counts };
-
-  const types: Array<{ key: keyof typeof counts; par: number; score: number }> = [
-    { key: 'holeInOne', par: 3, score: 1 },
-    { key: 'albatross', par: 5, score: 2 },
-    { key: 'eagle', par: 5, score: 3 },
-    { key: 'birdie', par: 4, score: 3 },
-    { key: 'par', par: 4, score: 4 },
-    { key: 'bogey', par: 4, score: 5 },
-    { key: 'doubleBogey', par: 4, score: 6 },
-    { key: 'tripleOrWorse', par: 4, score: 7 },
-  ];
-
-  let birdiesSinceBuffer = 0;
-  for (const { key, par: p, score: s } of types) {
-    while (remaining[key] > 0) {
-      if ((key === 'birdie' || key === 'eagle' || key === 'albatross' || key === 'holeInOne') && birdiesSinceBuffer >= 2) {
-        // Insert a par buffer to break potential streak
-        sequence.push({ par: 4, score: 4 });
-        birdiesSinceBuffer = 0;
-        remaining.par = Math.max(0, remaining.par - 1);
+  const distribute = (count: number, parVal: number, scoreVal: number) => {
+    const base = Math.floor(count / 4);
+    const extras = count % 4;
+    for (let r = 0; r < 4; r++) {
+      // Check if this round is one of the `extras` rounds starting at nextExtra
+      let isExtra = false;
+      for (let e = 0; e < extras; e++) {
+        if (r === (nextExtra + e) % 4) { isExtra = true; break; }
       }
-      sequence.push({ par: p, score: s });
-      if (key === 'birdie' || key === 'eagle' || key === 'albatross' || key === 'holeInOne') birdiesSinceBuffer++;
-      else birdiesSinceBuffer = 0;
-      remaining[key]--;
+      const n = base + (isExtra ? 1 : 0);
+      for (let i = 0; i < n; i++) buckets[r].push({ par: parVal, score: scoreVal });
     }
-  }
+    nextExtra = (nextExtra + extras) % 4;
+  };
 
-  // Fill remaining holes with pars to reach exactly 72 holes
-  while (sequence.length < 72) sequence.push({ par: 4, score: 4 });
+  distribute(statLine.holeInOne, 3, 1);
+  distribute(statLine.albatross, 5, 2);
+  distribute(statLine.eagle, 5, 3);
+  distribute(statLine.birdie, 4, 3);
+  distribute(statLine.par, 4, 4);
+  distribute(statLine.bogey, 4, 5);
+  distribute(statLine.doubleBogey, 4, 6);
+  distribute(statLine.tripleOrWorse, 4, 7);
 
-  // Split into 4 rounds of 18 holes each
-  const rounds: import('@/app/lib/scoring').ScorecardRound[] = [];
-  for (let r = 0; r < 4; r++) {
-    rounds.push({
+  return buckets.map((bucket, r) => {
+    // Pad to 18 if total strokes < 72
+    while (bucket.length < 18) bucket.push({ par: 4, score: 4 });
+
+    // Interleave under-par and par-or-worse (max 1 consecutive under-par)
+    // so 3-birdie streaks can't accidentally appear
+    const under = bucket.filter((h) => h.score < h.par);
+    const other = bucket.filter((h) => h.score >= h.par);
+    const seq: Hole[] = [];
+    let ui = 0, oi = 0;
+    while (ui < under.length || oi < other.length) {
+      if (ui < under.length) seq.push(under[ui++]);
+      if (oi < other.length) seq.push(other[oi++]);
+    }
+
+    return {
       roundId: r + 1,
-      holes: sequence.slice(r * 18, (r + 1) * 18).map((h, i) => ({
-        holeNumber: i + 1,
-        par: h.par,
-        score: h.score,
-      })),
-    });
-  }
-  return rounds;
+      holes: seq.slice(0, 18).map((h, i) => ({ holeNumber: i + 1, par: h.par, score: h.score })),
+    };
+  });
 }
 
 // ── Main handler ──────────────────────────────────────────────────────────
