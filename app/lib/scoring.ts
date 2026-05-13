@@ -88,15 +88,15 @@ export function normalizeTournamentScore(score: string | undefined) {
 }
 
 export function estimateHolesRemaining(thru: string | undefined, status: string | undefined) {
+  if (status === 'CUT' || status === 'MDF' || status === 'WD' || status === 'DQ') {
+    return 0;
+  }
+
   if (!thru || thru === '--') {
     return 72;
   }
 
   if (thru === 'F') {
-    return 0;
-  }
-
-  if (status === 'CUT' || status === 'MDF' || status === 'WD' || status === 'DQ') {
     return 0;
   }
 
