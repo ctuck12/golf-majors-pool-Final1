@@ -3057,6 +3057,7 @@ export default function Page() {
                 borderRadius: 20,
                 padding: isMobile ? 14 : 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                alignSelf: 'start',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: isMobile ? 'flex-start' : 'center' }}>
