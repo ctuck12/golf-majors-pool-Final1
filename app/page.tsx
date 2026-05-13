@@ -5867,7 +5867,7 @@ export default function Page() {
                     >
                       {isMobile ? (
                         <>
-                          <div style={{ width: 80, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
+                          <div style={{ width: 86, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
                             <img
                               src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                               alt={golfer.name}
