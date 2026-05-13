@@ -6038,7 +6038,7 @@ export default function Page() {
                     src={activeStandingGolfer.photoUrl ?? pgaPhoto(activeStandingGolfer.pgaTourId)}
                     alt={activeStandingGolfer.name}
                     className="breakdown-scoring-photo"
-                    style={{ width: 72, objectFit: 'cover', objectPosition: 'top center', flexShrink: 0, background: '#fff', display: 'block' }}
+                    style={{ width: 72, objectFit: 'cover', objectPosition: 'top center', flexShrink: 0, background: '#fff', display: 'block', marginLeft: 16 }}
                   />
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '14px 14px 14px 12px' }}>
                   <div style={{ marginTop: 4 }}>
@@ -6094,7 +6094,7 @@ export default function Page() {
                 </div>
               </div>
 
-              <div style={{ marginTop: 12, display: 'grid', gap: 8, padding: '0 16px 16px' }}>
+              <div style={{ marginTop: 3, display: 'grid', gap: 8, padding: '0 16px 16px' }}>
                 {[
                   ['Pars', activeStandingGolfer.scoreBreakdown.statLine.par, activeStandingGolfer.scoreBreakdown.statLine.par * SCORING_RULES.par],
                   ['Birdies', activeStandingGolfer.scoreBreakdown.statLine.birdie, activeStandingGolfer.scoreBreakdown.statLine.birdie * SCORING_RULES.birdie],
