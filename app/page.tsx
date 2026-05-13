@@ -5897,7 +5897,7 @@ export default function Page() {
                               )}
                             </div>
                             <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: '#2f5f96' }}>{formatPointValue(golfer.points)}</div>
+                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : '#2f5f96' }}>{formatPointValue(golfer.points)}</div>
                             </div>
                           </div>
                         </>
@@ -5941,7 +5941,7 @@ export default function Page() {
                               )}
                             </div>
                             <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                              <div className="breakdown-golfer-points" style={{ fontSize: 18, fontWeight: 900, color: '#2f5f96' }}>{formatPointValue(golfer.points)}</div>
+                              <div className="breakdown-golfer-points" style={{ fontSize: 18, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : '#2f5f96' }}>{formatPointValue(golfer.points)}</div>
                             </div>
                           </div>
                         </>
