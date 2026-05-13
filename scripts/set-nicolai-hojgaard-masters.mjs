@@ -58,7 +58,7 @@ if (row) {
   const overrides = raw ? JSON.parse(raw) : {};
   overrides['masters:Nicolai Hojgaard'] = {
     position: 'CUT',
-    thru: 'F',
+    thru: '--',
     statLine: {
       par: 19, birdie: 5, eagle: 1, albatross: 0, holeInOne: 0,
       bogey: 9, doubleBogey: 2, tripleOrWorse: 0, numRounds: 2,
