@@ -1852,7 +1852,7 @@ export default function Page() {
           total: live?.total ?? '--',
           currentRoundScore: live?.currentRoundScore ?? null,
           points: scoreBreakdown.totalPoints,
-          holesRemaining: scoreBreakdown.holesRemaining,
+          holesRemaining: (score === 'CUT' || score === 'MDF') ? 0 : scoreBreakdown.holesRemaining,
           scoreBreakdown,
         };
       }),
@@ -5881,7 +5881,7 @@ export default function Page() {
                               <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                 <span>Holes Rem: {golfer.holesRemaining}</span>
-                                <span>Position: {formatPosition(golfer.position)}</span>
+                                {golfer.score !== 'CUT' && golfer.score !== 'MDF' && <span>Position: {formatPosition(golfer.position)}</span>}
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
@@ -5925,7 +5925,7 @@ export default function Page() {
                               <div className="breakdown-golfer-name" style={{ fontSize: 14, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                 <span>Holes Rem: {golfer.holesRemaining}</span>
-                                <span>Position: {formatPosition(golfer.position)}</span>
+                                {golfer.score !== 'CUT' && golfer.score !== 'MDF' && <span>Position: {formatPosition(golfer.position)}</span>}
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 11, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
@@ -6111,10 +6111,9 @@ export default function Page() {
                   ['Rnd 1 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.first ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.first ? SCORING_RULES.firstRoundLeader : 0],
                   ['Rnd 2 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.second ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.second ? SCORING_RULES.secondRoundLeader : 0],
                   ['Rnd 3 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? SCORING_RULES.thirdRoundLeader : 0],
-                  ['Cut Players', activeStandingGolfer.scoreBreakdown.madeCut === false ? 1 : 0, activeStandingGolfer.scoreBreakdown.cutPenaltyPoints],
                 ]
                   .filter(([, count]) => Number(count) > 0)
-                  .concat([['Leaderboard Place', activeStandingGolfer.position, activeStandingGolfer.scoreBreakdown.placementPoints] as const])
+                  .concat([['Leaderboard Place', activeStandingGolfer.position, activeStandingGolfer.scoreBreakdown.madeCut === false ? activeStandingGolfer.scoreBreakdown.cutPenaltyPoints : activeStandingGolfer.scoreBreakdown.placementPoints] as const])
                   .map(([label, count, points]) => (
                   <div
                     key={String(label)}
@@ -6133,7 +6132,7 @@ export default function Page() {
                     <div style={{ color: '#6b7b88', fontSize: 12 }}>
                       {label === 'Leaderboard Place'
                         ? `Position: ${ordinal(String(count))}`
-                        : ['Tourn Low Rnd', 'Rnd 1 Leader', 'Rnd 2 Leader', 'Rnd 3 Leader', 'Cut Players'].includes(String(label))
+                        : ['Tourn Low Rnd', 'Rnd 1 Leader', 'Rnd 2 Leader', 'Rnd 3 Leader'].includes(String(label))
                         ? ''
                         : `Count: ${String(count)}`}
                     </div>
