@@ -2951,7 +2951,7 @@ export default function Page() {
         {mainTab === 'Standings' ? (
           <section
             style={{
-              marginTop: isMobile ? 8 : 24,
+              marginTop: isMobile ? 12 : 24,
               display: 'flex',
               overflowX: 'hidden',
             }}
