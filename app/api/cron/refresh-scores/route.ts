@@ -8,6 +8,7 @@ import {
   type SlashGolfLeaderboardRow,
   type SlashGolfLeaderboardResponse,
 } from '@/app/lib/slashgolf';
+import { fetchESPNTournament } from '@/app/lib/espn';
 import { TOURNAMENT_META } from '@/app/lib/tournament-config';
 import {
   getScorecardCache,
@@ -185,6 +186,84 @@ async function markTournamentComplete(
   });
 }
 
+async function refreshTournamentFromESPN(
+  tournamentId: string,
+  espnEventId: string,
+  existing: Awaited<ReturnType<typeof readLeaderboardCache>>,
+): Promise<string> {
+  let espnResult: Awaited<ReturnType<typeof fetchESPNTournament>>;
+  try {
+    espnResult = await fetchESPNTournament(espnEventId);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes('400')) {
+      await writeLeaderboardCache(tournamentId, {
+        cachedAt: new Date().toISOString(),
+        leaderboard: [],
+        currentRound: 0,
+        roundStatus: '',
+        projectedCut: null,
+        notStarted: true,
+      });
+      return 'not-started';
+    }
+    throw err;
+  }
+
+  const { leaderboardRows: rows, currentRound, roundStatus, projectedCut, playerScorecards } = espnResult;
+
+  await writeLeaderboardCache(tournamentId, {
+    cachedAt: new Date().toISOString(),
+    leaderboard: rows,
+    currentRound,
+    roundStatus,
+    projectedCut,
+  });
+
+  const [scorecardCache, lowRoundStore] = await Promise.all([
+    getScorecardCache(tournamentId),
+    getLowRoundStore(),
+  ]);
+
+  const roundComplete = isRoundComplete(roundStatus);
+  const needsFullRefresh = roundComplete && (scorecardCache?.lastCompletedRound ?? 0) < currentRound;
+
+  if (needsFullRefresh) {
+    await captureLowRound(tournamentId, currentRound, rows);
+    if (currentRound <= 3) await captureRoundLeader(tournamentId, currentRound, rows);
+
+    // Backfill low rounds from current data (ESPN has all round strokes in one response)
+    for (let rndId = 1; rndId < currentRound; rndId++) {
+      if (!lowRoundStore[tournamentId]?.[String(rndId)]) {
+        await captureLowRound(tournamentId, rndId, rows);
+      }
+    }
+
+    // All scorecard data comes embedded in the ESPN fetch — no per-player API calls needed
+    await saveScorecardCache(tournamentId, playerScorecards, currentRound);
+
+    if (currentRound >= 4) {
+      await markTournamentComplete(tournamentId, existing, rows, currentRound, roundStatus, projectedCut);
+      return 'tournament-complete-marked';
+    }
+
+    return `round-${currentRound}-complete-refreshed`;
+  }
+
+  if (roundComplete && currentRound >= 4 && (scorecardCache?.lastCompletedRound ?? 0) >= currentRound) {
+    await markTournamentComplete(tournamentId, existing, rows, currentRound, roundStatus, projectedCut);
+    return 'tournament-complete-marked';
+  }
+
+  // Live round — merge all player scorecards from embedded ESPN data (no per-player calls)
+  if (!roundComplete && Object.keys(playerScorecards).length > 0) {
+    await mergeScorecardCache(tournamentId, playerScorecards);
+    return 'live-scorecards-refreshed';
+  }
+
+  return 'leaderboard-refreshed';
+}
+
 async function refreshTournament(tournamentId: string): Promise<string> {
   const meta = TOURNAMENT_META[tournamentId];
   if (!meta) return 'unknown-tournament';
@@ -196,6 +275,11 @@ async function refreshTournament(tournamentId: string): Promise<string> {
 
   // not-started TTL handles its own backoff
   if (existing?.notStarted) return 'not-started-cached';
+
+  // ESPN path — one fetch returns both leaderboard and all scorecard data
+  if (meta.dataSource === 'espn' && meta.espnEventId) {
+    return refreshTournamentFromESPN(tournamentId, meta.espnEventId, existing);
+  }
 
   let lb: SlashGolfLeaderboardResponse;
   try {
