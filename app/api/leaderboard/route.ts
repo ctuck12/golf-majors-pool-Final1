@@ -694,6 +694,48 @@ export async function GET(request: Request) {
     })
     .filter(Boolean);
 
+  // ── 3b. Inject stat-override players absent from API rows ──────────────
+  // When a tournament is complete the API may drop players from the response.
+  // Any override whose player isn't already in `players` is synthesized here.
+  {
+    const playersInApi = new Set<string>(players.map((p) => p!.canonicalName));
+    const CUT_STATUSES = new Set(['CUT', 'WD', 'DQ', 'MDF']);
+    for (const [key, override] of Object.entries(statOverrides)) {
+      const prefix = `${tournamentId}:`;
+      if (!key.startsWith(prefix)) continue;
+      const playerName = key.slice(prefix.length);
+      if (playersInApi.has(playerName)) continue;
+
+      const poolPlayer = PLAYER_POOL_WITH_PGA_IDS.find((p) => p.name === playerName);
+      if (!poolPlayer) continue;
+
+      // Infer score-to-par from position: valid numeric positions mean made cut
+      const inferredScore = CUT_STATUSES.has(override.position.toUpperCase())
+        ? override.position.toUpperCase()
+        : 'E';
+
+      const roundLeadersAwarded = getRoundLeadersAwarded(tournamentId, playerName, roundLeaderStore);
+      const scoreBreakdown = computeFullScoreBreakdown({
+        position: override.position,
+        score: inferredScore,
+        thru: override.thru,
+        rounds: buildSyntheticRounds(override.statLine),
+        roundLeadersAwarded,
+        tournamentLowRoundScore: tournamentLowRound,
+      });
+
+      players.push({
+        position: override.position,
+        score: inferredScore,
+        thru: override.thru,
+        total: '--',
+        currentRoundScore: null,
+        canonicalName: poolPlayer.name,
+        scoreBreakdown,
+      });
+    }
+  }
+
   // ── 4. Odds ────────────────────────────────────────────────────────────
   const odds = await getOdds(tournamentId, watchedPlayerNames);
 
