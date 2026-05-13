@@ -5986,13 +5986,13 @@ export default function Page() {
                 }}
               >
                 <div style={{ color: '#50616f', fontSize: isMobile ? 18 : 17 }}>
-                  Total holes rem: <strong>{activeStandingEntry.holesRemaining}</strong>
+                  Tot. Holes Rem: <strong>{activeStandingEntry.holesRemaining}</strong>
                 </div>
                 <div style={{ color: '#50616f', fontSize: isMobile ? 18 : 17 }}>
-                  Tiebreak value: <strong>{activeStandingEntry.tieBreakValue}</strong>
+                  Tiebreak: <strong>{activeStandingEntry.tieBreakValue}</strong>
                 </div>
   <div style={{ fontSize: isMobile ? 18 : 17, fontWeight: 800, color: '#0f1720' }}>
-                  Total {formatPointValue(activeStandingEntry.rosterPoints)}
+                  Total: {formatPointValue(activeStandingEntry.rosterPoints)}
                 </div>
               </div>
             </div>
