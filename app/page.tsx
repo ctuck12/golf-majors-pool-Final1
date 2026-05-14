@@ -3454,38 +3454,42 @@ export default function Page() {
                     {isMobile ? '*Tap player to highlight who picked them' : '*Click player to highlight who picked them'}
                   </div>
                   <div style={{ marginTop: isMobile ? 8 : 16, overflowX: 'auto' }}>
+                    <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #d1dae3' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 12 }}>
                       <thead>
-                        <tr style={{ textAlign: 'left', fontSize: isMobile ? 10 : 11, color: '#5b6b79' }}>
-                          <th style={{ padding: isMobile ? '6px 4px' : '7px 6px', border: '1px solid #d7dee6', textAlign: 'center' }}>Pos.</th>
-                          <th style={{ padding: isMobile ? '6px 4px' : '7px 6px', border: '1px solid #d7dee6' }}>Player</th>
-                          <th style={{ padding: isMobile ? '6px 4px' : '7px 6px', border: '1px solid #d7dee6', textAlign: 'center' }}>Total</th>
-                          <th style={{ padding: isMobile ? '6px 4px' : '7px 6px', border: '1px solid #d7dee6', textAlign: 'center' }}>Thru</th>
-                          <th style={{ padding: isMobile ? '6px 4px' : '7px 6px', border: '1px solid #d7dee6', textAlign: 'center' }}>Picked</th>
+                        <tr style={{ background: '#0f1720', color: '#ffffff', fontSize: isMobile ? 10 : 11, textAlign: 'left' }}>
+                          <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Pos.</th>
+                          <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', fontWeight: 700, letterSpacing: '0.04em' }}>Player</th>
+                          <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Total</th>
+                          <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Thru</th>
+                          <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Picked</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {eventLeaderboardRows.map((player) => {
+                        {eventLeaderboardRows.map((player, rowIndex) => {
                           const timesPicked = standings.reduce(
                             (sum, entry) => sum + entry.golfers.filter((golfer) => golfer.id === player.id).length,
                             0,
                           );
                           const activePlayer = selectedLeaderboardPlayerId === player.id;
+                          const scoreNum = parseFloat(player.score);
+                          const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
+                          const rowBg = activePlayer ? '#dbeafe' : rowIndex % 2 === 0 ? '#ffffff' : '#f4f7fa';
 
                           return (
                             <tr
                               key={player.id}
                               onClick={() => setSelectedLeaderboardPlayerId(activePlayer ? null : player.id)}
                               style={{
-                                borderTop: '1px solid #e7edf2',
-                                background: activePlayer ? '#eef4ff' : 'transparent',
+                                background: rowBg,
+                                borderBottom: '1px solid #e2e8ef',
                                 cursor: 'pointer',
                               }}
                             >
-                              <td style={{ padding: isMobile ? '5px 4px' : '5px 6px', border: '1px solid #e7edf2', textAlign: 'center' }}>{formatLeaderboardPosition(player.position)}</td>
-                              <td style={{ padding: isMobile ? '5px 4px' : '5px 6px', border: '1px solid #e7edf2', fontWeight: activePlayer ? 800 : 400 }}>{player.name}</td>
-                              <td style={{ padding: isMobile ? '5px 4px' : '5px 6px', border: '1px solid #e7edf2', textAlign: 'center' }}>{player.score}</td>
-                              <td style={{ padding: isMobile ? '5px 4px' : '5px 6px', border: '1px solid #e7edf2', textAlign: 'center' }}>{(() => {
+                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
+                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
+                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 700, color: isUnderPar ? '#dc2626' : '#0f1720' }}>{player.score}</td>
+                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
                                 const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                 const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
                                 if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
@@ -3498,7 +3502,7 @@ export default function Page() {
                                 }
                                 return player.thru;
                               })()}</td>
-                              <td style={{ padding: isMobile ? '5px 4px' : '5px 6px', border: '1px solid #e7edf2', textAlign: 'center' }}>
+                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>
                                 {timesPicked}
                               </td>
                             </tr>
@@ -3506,6 +3510,7 @@ export default function Page() {
                         })}
                       </tbody>
                     </table>
+                    </div>
                   </div>
                 </section>
               ) : null}
