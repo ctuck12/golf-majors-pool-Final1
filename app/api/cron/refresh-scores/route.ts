@@ -25,9 +25,11 @@ import {
 } from '@/app/lib/scorecard-store';
 import {
   getSelectedPlayerIdsForTournament,
+  autoLockPoolLineup,
   TOURNAMENT_IDS,
   type TournamentId,
 } from '@/app/lib/pool-store';
+import redis from '@/app/lib/redis';
 
 
 // ── Field parsing (same helpers as before) ────────────────────────────────
@@ -190,6 +192,7 @@ async function refreshTournamentFromESPN(
   tournamentId: string,
   espnEventId: string,
   existing: Awaited<ReturnType<typeof readLeaderboardCache>>,
+  wasNotStarted = false,
 ): Promise<string> {
   let espnResult: Awaited<ReturnType<typeof fetchESPNTournament>>;
   try {
@@ -208,6 +211,11 @@ async function refreshTournamentFromESPN(
       return 'not-started';
     }
     throw err;
+  }
+
+  // First successful fetch after notStarted — auto-lock picks so nobody sneaks in a late change
+  if (wasNotStarted && TOURNAMENT_IDS.includes(tournamentId as TournamentId)) {
+    await autoLockPoolLineup(tournamentId as TournamentId);
   }
 
   const { leaderboardRows: rows, currentRound, roundStatus, projectedCut, playerScorecards } = espnResult;
@@ -273,12 +281,19 @@ async function refreshTournament(tournamentId: string): Promise<string> {
   // Permanently done — skip forever, all data is in Redis
   if (existing?.tournamentComplete) return 'tournament-complete-skipped';
 
-  // not-started TTL handles its own backoff
-  if (existing?.notStarted) return 'not-started-cached';
+  // not-started TTL handles its own backoff, UNLESS we're past the lock time —
+  // then force a fresh fetch so the transition to live doesn't stall for 30 min.
+  const wasNotStarted = !!existing?.notStarted;
+  if (wasNotStarted) {
+    const pastLock = meta.lockAtUtc && Date.now() >= new Date(meta.lockAtUtc).getTime();
+    if (!pastLock) return 'not-started-cached';
+    // Clear the stale notStarted entry so the fetch below proceeds cleanly.
+    await redis.del(`leaderboard-cache:${tournamentId}`);
+  }
 
   // ESPN path — one fetch returns both leaderboard and all scorecard data
   if (meta.dataSource === 'espn' && meta.espnEventId) {
-    return refreshTournamentFromESPN(tournamentId, meta.espnEventId, existing);
+    return refreshTournamentFromESPN(tournamentId, meta.espnEventId, existing, wasNotStarted);
   }
 
   let lb: SlashGolfLeaderboardResponse;

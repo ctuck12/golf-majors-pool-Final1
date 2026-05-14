@@ -8,6 +8,7 @@ import {
   TOURNAMENT_IDS,
   type TournamentId,
 } from '../../lib/pool-store';
+import { TOURNAMENT_META } from '../../lib/tournament-config';
 
 function isTournamentId(value: string): value is TournamentId {
   return TOURNAMENT_IDS.includes(value as TournamentId);
@@ -48,11 +49,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unknown tournament.' }, { status: 400 });
     }
 
-    const roster = await saveRosterForUser(session.user.id, body.tournamentId, body.roster);
+    // Server-side lock: explicit commissioner lock takes precedence; fall back to lockAtUtc.
+    const tournamentId = body.tournamentId;
+    const manualLock = session.pool?.lineupLocks?.[tournamentId];
+    if (manualLock === true) {
+      return NextResponse.json({ error: 'Picks are locked for this tournament.' }, { status: 403 });
+    }
+    if (manualLock !== false) {
+      const meta = TOURNAMENT_META[tournamentId];
+      if (meta?.lockAtUtc && Date.now() >= new Date(meta.lockAtUtc).getTime()) {
+        return NextResponse.json({ error: 'Picks are locked for this tournament.' }, { status: 403 });
+      }
+    }
+
+    const roster = await saveRosterForUser(session.user.id, tournamentId, body.roster);
 
     const tieBreakNum = typeof body.tieBreak === 'number' ? body.tieBreak : parseInt(String(body.tieBreak ?? ''), 10);
     if (!Number.isNaN(tieBreakNum) && tieBreakNum >= 100 && tieBreakNum <= 999) {
-      await saveTieBreakForUser(session.user.id, body.tournamentId, tieBreakNum);
+      await saveTieBreakForUser(session.user.id, tournamentId, tieBreakNum);
     }
     const refreshedSession = await getSessionContext(token);
 

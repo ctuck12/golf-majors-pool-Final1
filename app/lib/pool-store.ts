@@ -636,6 +636,16 @@ export async function updatePoolLineupLock(
   } satisfies PublicPool;
 }
 
+export async function autoLockPoolLineup(tournamentId: TournamentId): Promise<void> {
+  const database = await readDatabase();
+  const pool = database.pools.find((p) => p.id === DEFAULT_POOL_ID);
+  if (!pool) return;
+  if (pool.lineupLocks?.[tournamentId]) return; // already locked
+  pool.lineupLocks = pool.lineupLocks ?? {};
+  pool.lineupLocks[tournamentId] = true;
+  await writeDatabase(database);
+}
+
 export async function getSelectedPlayerIdsForTournament(tournamentId: TournamentId): Promise<Set<number>> {
   const db = await readDatabase();
   const selected = new Set<number>();
