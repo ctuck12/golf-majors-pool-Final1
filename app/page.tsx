@@ -3137,7 +3137,7 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 23 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
                         The PGA Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
@@ -3194,7 +3194,7 @@ export default function Page() {
                       </div>
                     </div>
                     {!showFinalTournamentView && (isMobile ? (
-                      <div style={{ fontSize: 9, textAlign: 'right' }}>
+                      <div style={{ fontSize: 11, textAlign: 'right' }}>
                         <span style={{ color: '#0f1720', fontWeight: 700 }}>Entry Fee: $30</span>{' '}
                         <a
                           href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
