@@ -869,8 +869,21 @@ function ordinal(position: string): string {
 }
 
 function formatTeeTime(teeTimeStr: string): string {
-  // ESPN format: "Thu May 14 14:27:00 PDT 2026" — V8 parses timezone abbreviations correctly
-  // Also handles ISO UTC strings. Convert to America/Chicago (CDT/CST auto).
+  // ESPN format: "Thu May 14 14:05:00 PDT 2026"
+  // ESPN stores times in EDT (UTC-4) but mislabels the timezone as "PDT" (UTC-7).
+  // Extract HH:MM directly and subtract 1 hour to convert EDT → CDT.
+  const espnMatch = teeTimeStr.match(/(\d{1,2}):(\d{2}):\d{2}/);
+  if (espnMatch) {
+    let h = parseInt(espnMatch[1], 10);
+    const min = parseInt(espnMatch[2], 10);
+    h -= 1; // EDT → CDT
+    if (h < 0) h += 24;
+    const suf = h >= 12 ? 'pm' : 'am';
+    const disp = h % 12 || 12;
+    const minStr = min === 0 ? '' : `:${String(min).padStart(2, '0')}`;
+    return `${disp}${minStr}${suf}`;
+  }
+  // Fallback for ISO UTC strings
   try {
     const d = new Date(teeTimeStr);
     if (!isNaN(d.getTime())) {
