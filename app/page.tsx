@@ -3461,7 +3461,7 @@ export default function Page() {
                       style={{
                         width: '100%',
                         boxSizing: 'border-box',
-                        padding: isMobile ? '7px 12px' : '8px 14px',
+                        padding: isMobile ? '4px 10px' : '6px 12px',
                         fontSize: isMobile ? 16 : 13,
                         border: '1px solid #d1dae3',
                         borderRadius: 8,
