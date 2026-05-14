@@ -3336,14 +3336,15 @@ export default function Page() {
                 </div>
               ) : showFinalTournamentView ? (
                 <div style={{ marginTop: isMobile ? 14 : 28, overflowX: 'auto' }}>
+                  <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #d1dae3' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: isMobile ? 10 : 11 }}>
-                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>Rank</th>
-                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0' }}>Entry</th>
-                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>Roster Points</th>
-                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>{isMobile ? 'Holes Rem' : 'Holes Remaining'}</th>
-                        <th style={{ padding: isMobile ? '0 0 8px' : '0 0 8px', textAlign: 'center' }}>Tiebreak</th>
+                      <tr style={{ background: '#173b63', color: '#ffffff', fontSize: isMobile ? 10 : 11, textAlign: 'left' }}>
+                        <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Rank</th>
+                        <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', fontWeight: 700, letterSpacing: '0.04em' }}>Entry</th>
+                        <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Roster Points</th>
+                        <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>{isMobile ? 'Holes Rem' : 'Holes Remaining'}</th>
+                        <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Tiebreak</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3356,16 +3357,16 @@ export default function Page() {
                             setActiveStandingEntryId(entry.id);
                           }}
                           style={{
-                            borderTop: '1px solid #e7edf2',
+                            borderBottom: '1px solid #e2e8ef',
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
-                                ? '#eef4ff'
-                                : 'transparent',
+                                ? '#dbeafe'
+                                : '#ffffff',
                             cursor: 'pointer',
                           }}
                         >
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', fontSize: isMobile ? 12 : 13, textAlign: 'center' }}>{entry.place}</td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0' }}>
+                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontSize: isMobile ? 12 : 13, textAlign: 'center' }}>{entry.place}</td>
+                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px' }}>
                             <div
                               style={{
                                 fontSize: isMobile ? 13 : 14,
@@ -3376,28 +3377,30 @@ export default function Page() {
                               {entry.name}
                             </div>
                           </td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14, }}>
+                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
                             {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
                           </td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
+                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
                             {entry.holesRemaining}
                           </td>
-                          <td style={{ padding: isMobile ? '10px 0' : '10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{entry.tieBreakValue}</td>
+                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{entry.tieBreakValue}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               ) : (
                 <div style={{ marginTop: isMobile ? 14 : 28, overflowX: 'auto' }}>
+                  <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #d1dae3' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: isMobile ? 10 : 11 }}>
-                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>Rank</th>
-                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0' }}>Entry</th>
-                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>Roster Points</th>
-                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>{isMobile ? 'Holes Rem' : 'Holes Remaining'}</th>
-                        <th style={{ padding: isMobile ? '0 0 8px' : '0 0 8px', textAlign: 'center' }}>Tiebreak</th>
+                      <tr style={{ background: '#173b63', color: '#ffffff', fontSize: isMobile ? 10 : 11, textAlign: 'left' }}>
+                        <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Rank</th>
+                        <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', fontWeight: 700, letterSpacing: '0.04em' }}>Entry</th>
+                        <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Roster Points</th>
+                        <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>{isMobile ? 'Holes Rem' : 'Holes Remaining'}</th>
+                        <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Tiebreak</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3410,31 +3413,32 @@ export default function Page() {
                             setActiveStandingEntryId(entry.id);
                           }}
                           style={{
-                            borderTop: '1px solid #e7edf2',
+                            borderBottom: '1px solid #e2e8ef',
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
-                                ? '#eef4ff'
-                                : 'transparent',
+                                ? '#dbeafe'
+                                : '#ffffff',
                             cursor: 'pointer',
                           }}
                         >
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', fontSize: isMobile ? 12 : 13, textAlign: 'center' }}>{entry.place}</td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0' }}>
+                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontSize: isMobile ? 12 : 13, textAlign: 'center' }}>{entry.place}</td>
+                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px' }}>
                             <div style={{ fontSize: isMobile ? 13 : 14, color: '#0f1720', textAlign: 'left' }}>
                               {entry.name}
                             </div>
                           </td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14, }}>
+                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
                             {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
                           </td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
+                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
                             {entry.holesRemaining}
                           </td>
-                          <td style={{ padding: isMobile ? '10px 0' : '10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{entry.tieBreakValue}</td>
+                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{entry.tieBreakValue}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 </div>
             )}
             </section>
