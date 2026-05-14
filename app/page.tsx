@@ -5905,8 +5905,7 @@ export default function Page() {
                         cursor: 'pointer',
                         display: 'flex',
                         overflow: 'hidden',
-                        height: isMobile ? undefined : 90,
-                        minHeight: isMobile ? 85 : undefined,
+                        minHeight: isMobile ? 85 : 100,
                       }}
                     >
                       {isMobile ? (
@@ -5923,14 +5922,19 @@ export default function Page() {
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
                                 <span>Holes Rem: {golfer.holesRemaining}</span>
-                                {golfer.score !== 'CUT' && golfer.score !== 'MDF' && <span>Position: {formatPosition(golfer.position)}</span>}
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
                               ) : (
-                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                   <span>Total: {golfer.score}</span>
+                                  <span>Position: {formatPosition(golfer.position)}</span>
+                                </div>
+                              )}
+                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
+                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -5945,8 +5949,9 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
+                                  <span>Thru: {golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : golfer.thru}</span>
                                 </div>
                               )}
                             </div>
@@ -5969,14 +5974,19 @@ export default function Page() {
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div className="breakdown-golfer-name" style={{ fontSize: 14, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
                                 <span>Holes Rem: {golfer.holesRemaining}</span>
-                                {golfer.score !== 'CUT' && golfer.score !== 'MDF' && <span>Position: {formatPosition(golfer.position)}</span>}
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 11, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
                               ) : (
-                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                   <span>Total: {golfer.score}</span>
+                                  <span>Position: {formatPosition(golfer.position)}</span>
+                                </div>
+                              )}
+                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
+                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -5991,8 +6001,9 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
+                                  <span>Thru: {golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : golfer.thru}</span>
                                 </div>
                               )}
                             </div>
