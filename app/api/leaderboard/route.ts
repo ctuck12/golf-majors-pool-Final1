@@ -335,14 +335,15 @@ export async function GET(request: Request) {
           rounds: buildSyntheticRounds(override.statLine),
           roundLeadersAwarded,
           tournamentLowRoundScore: tournamentLowRound,
+          currentRound,
         });
       } else {
         const storedScorecard = scorecardCache?.players[row.playerId];
         const rounds = storedScorecard?.rounds ?? [];
         scoreBreakdown =
           rounds.length > 0
-            ? computeFullScoreBreakdown({ position, score, thru, rounds, roundLeadersAwarded, tournamentLowRoundScore: tournamentLowRound })
-            : buildPlaceholderScoreBreakdown({ position, score, thru });
+            ? computeFullScoreBreakdown({ position, score, thru, rounds, roundLeadersAwarded, tournamentLowRoundScore: tournamentLowRound, currentRound })
+            : buildPlaceholderScoreBreakdown({ position, score, thru, currentRound });
       }
 
       const teeTime = (row.teeTime as string | null) ?? null;
@@ -372,6 +373,7 @@ export async function GET(request: Request) {
         rounds: buildSyntheticRounds(override.statLine),
         roundLeadersAwarded,
         tournamentLowRoundScore: tournamentLowRound,
+        currentRound,
       });
       players.push({ position: override.position, score: inferredScore, thru: override.thru, total: '--', currentRoundScore: null, teeTime: null, canonicalName: poolPlayer.name, scoreBreakdown });
     }

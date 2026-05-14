@@ -87,25 +87,29 @@ export function normalizeTournamentScore(score: string | undefined) {
   return Number.isNaN(numeric) ? 0 : numeric;
 }
 
-export function estimateHolesRemaining(thru: string | undefined, status: string | undefined) {
+export function estimateHolesRemaining(thru: string | undefined, status: string | undefined, currentRound = 1) {
   if (status === 'CUT' || status === 'MDF' || status === 'WD' || status === 'DQ') {
     return 0;
   }
 
+  const roundsLeft = 4 - currentRound;
+
   if (!thru || thru === '--') {
-    return 72;
+    // Haven't started current round yet — full remaining rounds including this one
+    return (roundsLeft + 1) * 18;
   }
 
   if (thru === 'F') {
-    return 0;
+    // Finished current round — only future rounds remain
+    return roundsLeft * 18;
   }
 
   const completedHoles = Number(thru);
   if (Number.isNaN(completedHoles)) {
-    return 72;
+    return (roundsLeft + 1) * 18;
   }
 
-  return Math.max(0, 72 - completedHoles);
+  return roundsLeft * 18 + Math.max(0, 18 - completedHoles);
 }
 
 export type ScorecardRound = {
@@ -120,9 +124,10 @@ export function computeFullScoreBreakdown(params: {
   rounds: ScorecardRound[];
   roundLeadersAwarded: { first: boolean; second: boolean; third: boolean };
   tournamentLowRoundScore: number | null;
+  currentRound?: number;
 }): GolferScoreBreakdown {
   const placement = placementPoints(params.position);
-  const holesRemaining = estimateHolesRemaining(params.thru, params.score);
+  const holesRemaining = estimateHolesRemaining(params.thru, params.score, params.currentRound ?? 1);
 
   const madeCut =
     params.score === 'CUT' || params.score === 'MDF'
@@ -255,9 +260,10 @@ export function buildPlaceholderScoreBreakdown(params: {
   position: string;
   score: string;
   thru: string;
+  currentRound?: number;
 }) {
   const placement = placementPoints(params.position);
-  const holesRemaining = estimateHolesRemaining(params.thru, params.score);
+  const holesRemaining = estimateHolesRemaining(params.thru, params.score, params.currentRound ?? 1);
   const madeCut =
     params.score === 'CUT' || params.score === 'MDF'
       ? false
