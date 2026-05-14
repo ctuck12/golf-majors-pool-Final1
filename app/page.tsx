@@ -3322,7 +3322,7 @@ export default function Page() {
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: isMobile ? 10 : 11 }}>
-                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: isMobile ? 'left' : 'center' }}>Rank</th>
+                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>Rank</th>
                         <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0' }}>Entry</th>
                         <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>Roster Points</th>
                         <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>{isMobile ? 'Holes Rem' : 'Holes Remaining'}</th>
@@ -3347,7 +3347,7 @@ export default function Page() {
                             cursor: 'pointer',
                           }}
                         >
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', fontSize: isMobile ? 12 : 13, textAlign: isMobile ? 'left' : 'center' }}>{entry.place}</td>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', fontSize: isMobile ? 12 : 13, textAlign: 'center' }}>{entry.place}</td>
                           <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0' }}>
                             <div
                               style={{
@@ -3376,7 +3376,7 @@ export default function Page() {
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ textAlign: 'left', color: '#5b6b79', fontSize: isMobile ? 10 : 11 }}>
-                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: isMobile ? 'left' : 'center' }}>Rank</th>
+                        <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>Rank</th>
                         <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0' }}>Entry</th>
                         <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>Roster Points</th>
                         <th style={{ padding: isMobile ? '0 8px 8px 0' : '0 12px 8px 0', textAlign: 'center' }}>{isMobile ? 'Holes Rem' : 'Holes Remaining'}</th>
@@ -3401,7 +3401,7 @@ export default function Page() {
                             cursor: 'pointer',
                           }}
                         >
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', fontSize: isMobile ? 12 : 13, textAlign: isMobile ? 'left' : 'center' }}>{entry.place}</td>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', fontSize: isMobile ? 12 : 13, textAlign: 'center' }}>{entry.place}</td>
                           <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0' }}>
                             <div style={{ fontSize: isMobile ? 13 : 14, color: '#0f1720', textAlign: 'left' }}>
                               {entry.name}
