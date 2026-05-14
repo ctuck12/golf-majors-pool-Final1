@@ -5949,9 +5949,9 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
-                                  <span>Thru: {golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : golfer.thru}</span>
+                                  {!(golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime) && <span>Thru: {golfer.thru}</span>}
                                 </div>
                               )}
                             </div>
@@ -6001,9 +6001,9 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
-                                  <span>Thru: {golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : golfer.thru}</span>
+                                  {!(golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime) && <span>Thru: {golfer.thru}</span>}
                                 </div>
                               )}
                             </div>
