@@ -1035,7 +1035,7 @@ export default function Page() {
   const entriesPreFieldView =
     entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null;
   const entriesDefaultLocked = isLineupLocked(entriesTournament.lockAt, nowTick);
-  const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? entriesDefaultLocked;
+  const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? (entriesDefaultLocked || entriesTournamentStatus?.label === 'IN PROGRESS');
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
   const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
   const commissionerTournamentLabel = entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name;
@@ -1988,7 +1988,7 @@ export default function Page() {
     commissionerSalaryUsed <= SALARY_CAP &&
     /^\d{3}$/.test(commissionerTieBreakInput);
   const defaultLocked = isLineupLocked(tournament.lockAt, nowTick);
-  const locked = pool?.lineupLocks?.[selectedTournament] ?? defaultLocked;
+  const locked = pool?.lineupLocks?.[selectedTournament] ?? (defaultLocked || selectedTournamentStatus?.label === 'IN PROGRESS');
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
   const showProjectedCut = (() => {
     if (selectedTournamentStatus?.label !== 'IN PROGRESS') return false;
@@ -3826,21 +3826,23 @@ export default function Page() {
                           </div>
                         </div>
                         <button
-                          onClick={openMyEntriesEditor}
+                          onClick={entriesLocked ? undefined : openMyEntriesEditor}
+                          disabled={entriesLocked}
                           style={{
                             border: 'none',
                             borderRadius: 16,
                             padding: isMobile ? '10px 16px' : '11px 18px',
-                            background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                            background: entriesLocked ? '#b0bec5' : 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
                             color: '#fff',
                             fontSize: isMobile ? 14 : 14,
                             fontWeight: 900,
-                            cursor: 'pointer',
-                            boxShadow: '0 14px 28px rgba(63, 115, 173, 0.22)',
+                            cursor: entriesLocked ? 'not-allowed' : 'pointer',
+                            boxShadow: entriesLocked ? 'none' : '0 14px 28px rgba(63, 115, 173, 0.22)',
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: 8,
                             whiteSpace: 'nowrap',
+                            opacity: entriesLocked ? 0.7 : 1,
                           }}
                         >
                           <Pencil size={isMobile ? 13 : 14} />
@@ -3849,20 +3851,22 @@ export default function Page() {
                       </div>
                     ) : (
                       <button
-                        onClick={openMyEntriesEditor}
+                        onClick={entriesLocked ? undefined : openMyEntriesEditor}
+                        disabled={entriesLocked}
                         style={{
                           border: 'none',
                           borderRadius: 12,
                           padding: isMobile ? '6px 10px' : '11px 18px',
-                          background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                          background: entriesLocked ? '#b0bec5' : 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
                           color: '#fff',
                           fontSize: isMobile ? 12 : 14,
                           fontWeight: 900,
-                          cursor: 'pointer',
+                          cursor: entriesLocked ? 'not-allowed' : 'pointer',
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: 6,
                           whiteSpace: 'nowrap',
+                          opacity: entriesLocked ? 0.7 : 1,
                         }}
                       >
                         <Pencil size={12} />
@@ -3921,10 +3925,11 @@ export default function Page() {
                         }}
                       >
                         <button
-                          onClick={() => {
+                          onClick={entriesLocked ? undefined : () => {
                             setMyEntriesMenuOpen(false);
                             openMyEntriesEditor();
                           }}
+                          disabled={entriesLocked}
                           style={{
                             border: 'none',
                             borderRadius: 12,
@@ -3934,9 +3939,10 @@ export default function Page() {
                             display: 'flex',
                             alignItems: 'center',
                             gap: 10,
-                            color: '#0f1720',
+                            color: entriesLocked ? '#9ba8b4' : '#0f1720',
                             fontSize: 15,
-                            cursor: 'pointer',
+                            cursor: entriesLocked ? 'not-allowed' : 'pointer',
+                            opacity: entriesLocked ? 0.6 : 1,
                           }}
                         >
                           <Pencil size={15} />
