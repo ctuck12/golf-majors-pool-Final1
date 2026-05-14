@@ -590,17 +590,17 @@ function addDays(date: Date, days: number) {
   return next;
 }
 
-// Returns "Round 1" … "Round 4" based on how many days past tournament Thursday we are.
+// Returns "Rnd 1" … "Rnd 4" based on how many days past tournament Thursday we are.
 // Transitions happen at midnight CST (UTC-6) each day.
 function getCurrentRoundLabel(startDate: Date, now: Date): string {
   const CST_OFFSET_MS = 6 * 60 * 60 * 1000; // UTC-6
   const thuMidnightUtc = startOfDay(startDate).getTime() + CST_OFFSET_MS;
   const dayMs = 24 * 60 * 60 * 1000;
   const nowMs = now.getTime();
-  if (nowMs >= thuMidnightUtc + 3 * dayMs) return 'Round 4';
-  if (nowMs >= thuMidnightUtc + 2 * dayMs) return 'Round 3';
-  if (nowMs >= thuMidnightUtc + 1 * dayMs) return 'Round 2';
-  return 'Round 1';
+  if (nowMs >= thuMidnightUtc + 3 * dayMs) return 'Rnd 4';
+  if (nowMs >= thuMidnightUtc + 2 * dayMs) return 'Rnd 3';
+  if (nowMs >= thuMidnightUtc + 1 * dayMs) return 'Rnd 2';
+  return 'Rnd 1';
 }
 
 function buildOccurrenceDate(referenceIso: string, year: number, dateOnly: Date) {
@@ -1970,7 +1970,9 @@ export default function Page() {
   const showLivePayoutStrip =
     selectedTournamentStatus?.label === 'IN PROGRESS' || selectedTournamentStatus?.label === 'LOCKED';
   const displayTournamentWindow = getDisplayTournamentWindow(tournament, new Date(nowTick));
-  const currentRoundLabel = getCurrentRoundLabel(displayTournamentWindow.startDate, new Date(nowTick));
+  const currentRoundLabel = selectedTournamentStatus?.label === 'LOCKED'
+    ? 'Rnd 4'
+    : getCurrentRoundLabel(displayTournamentWindow.startDate, new Date(nowTick));
   const picksOpenForTournament = selectedTournamentStatus?.label === 'ACTIVE';
   const tournamentStartLabel = formatTournamentStartDate(displayTournamentWindow.inProgressAt);
 
