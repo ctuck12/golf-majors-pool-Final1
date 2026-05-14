@@ -3192,7 +3192,7 @@ export default function Page() {
                       </div>
                     </div>
                     {!showFinalTournamentView && (isMobile ? (
-                      <div style={{ fontSize: 10, textAlign: 'right' }}>
+                      <div style={{ fontSize: 9, textAlign: 'right' }}>
                         <span style={{ color: '#0f1720', fontWeight: 700 }}>Entry Fee: $30</span>{' '}
                         <a
                           href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
