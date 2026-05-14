@@ -590,6 +590,19 @@ function addDays(date: Date, days: number) {
   return next;
 }
 
+// Returns "Round 1" … "Round 4" based on how many days past tournament Thursday we are.
+// Transitions happen at midnight CST (UTC-6) each day.
+function getCurrentRoundLabel(startDate: Date, now: Date): string {
+  const CST_OFFSET_MS = 6 * 60 * 60 * 1000; // UTC-6
+  const thuMidnightUtc = startOfDay(startDate).getTime() + CST_OFFSET_MS;
+  const dayMs = 24 * 60 * 60 * 1000;
+  const nowMs = now.getTime();
+  if (nowMs >= thuMidnightUtc + 3 * dayMs) return 'Round 4';
+  if (nowMs >= thuMidnightUtc + 2 * dayMs) return 'Round 3';
+  if (nowMs >= thuMidnightUtc + 1 * dayMs) return 'Round 2';
+  return 'Round 1';
+}
+
 function buildOccurrenceDate(referenceIso: string, year: number, dateOnly: Date) {
   const reference = new Date(referenceIso);
   return new Date(
@@ -636,6 +649,7 @@ function getTournamentEventWindow(tournament: (typeof TOURNAMENTS)[number], year
     activeAt,
     inProgressAt,
     concludeAt,
+    startDate,
   };
 }
 
@@ -1956,6 +1970,7 @@ export default function Page() {
   const showLivePayoutStrip =
     selectedTournamentStatus?.label === 'IN PROGRESS' || selectedTournamentStatus?.label === 'LOCKED';
   const displayTournamentWindow = getDisplayTournamentWindow(tournament, new Date(nowTick));
+  const currentRoundLabel = getCurrentRoundLabel(displayTournamentWindow.startDate, new Date(nowTick));
   const picksOpenForTournament = selectedTournamentStatus?.label === 'ACTIVE';
   const tournamentStartLabel = formatTournamentStartDate(displayTournamentWindow.inProgressAt);
 
@@ -5812,8 +5827,8 @@ export default function Page() {
                   </h3>
                   <div style={{ marginTop: 2, color: '#6b7b88', fontSize: isMobile ? 10.5 : 12 }}>
                     {isMobile
-                      ? '*Tap player for details; Tap "Current Rnd" for scorecard'
-                      : '*Click player for scoring details; Click "Current Rnd" for scorecard'}
+                      ? `*Tap player for details; Tap "${currentRoundLabel}" for scorecard`
+                      : `*Click player for scoring details; Click "${currentRoundLabel}" for scorecard`}
                   </div>
                 </div>
                 <button
@@ -5879,7 +5894,7 @@ export default function Page() {
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
                               ) : (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                  <span>Score: {golfer.score}</span>
+                                  <span>Total: {golfer.score}</span>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -5892,7 +5907,7 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'underline' }}
                                   >
-                                    Current Rnd: {formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}
+                                    {currentRoundLabel}: {formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}
                                   </button>
                                 </div>
                               )}
@@ -5923,7 +5938,7 @@ export default function Page() {
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 11, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
                               ) : (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                  <span>Score: {golfer.score}</span>
+                                  <span>Total: {golfer.score}</span>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -5936,7 +5951,7 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'underline' }}
                                   >
-                                    Current Rnd: {formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}
+                                    {currentRoundLabel}: {formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}
                                   </button>
                                 </div>
                               )}
