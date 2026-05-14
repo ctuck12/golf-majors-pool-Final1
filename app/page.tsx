@@ -2039,6 +2039,7 @@ export default function Page() {
         tieBreakValue,
       };
     })
+    .filter((entry) => entry.picks.length === REQUIRED_GOLFERS)
     .sort((left, right) => {
       if (right.rosterPoints !== left.rosterPoints) {
         return right.rosterPoints - left.rosterPoints;
