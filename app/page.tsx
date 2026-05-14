@@ -5907,9 +5907,9 @@ export default function Page() {
                                       fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}`)
                                         .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
                                     }}
-                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'underline' }}
+                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    {currentRoundLabel}: {formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}
+                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: '#50616f' }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
                                 </div>
                               )}
@@ -5951,9 +5951,9 @@ export default function Page() {
                                       fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}`)
                                         .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
                                     }}
-                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'underline' }}
+                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    {currentRoundLabel}: {formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}
+                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: '#50616f' }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
                                 </div>
                               )}
