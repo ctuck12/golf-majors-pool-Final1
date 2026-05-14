@@ -913,6 +913,8 @@ export default function Page() {
   const [activeStandingGolferId, setActiveStandingGolferId] = useState<number | null>(null);
   const [scorecardGolferName, setScorecardGolferName] = useState<string | null>(null);
   const [scorecardGolferPhoto, setScorecardGolferPhoto] = useState<{pgaTourId: number; photoUrl?: string} | null>(null);
+  const [scorecardGolferTeeTime, setScorecardGolferTeeTime] = useState<string | null>(null);
+  const [scorecardGolferThru, setScorecardGolferThru] = useState<string | null>(null);
   const [scorecardData, setScorecardData] = useState<ScorecardData | null>(null);
   const [scorecardLoading, setScorecardLoading] = useState(false);
   const entryBreakdownRef = useRef<HTMLDivElement>(null);
@@ -5919,9 +5921,11 @@ export default function Page() {
                                       e.stopPropagation();
                                       setScorecardGolferName(golfer.name);
                                       setScorecardGolferPhoto({ pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl });
+                                      setScorecardGolferTeeTime(golfer.teeTime);
+                                      setScorecardGolferThru(golfer.thru);
                                       setScorecardData(null);
                                       setScorecardLoading(true);
-                                      fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}`)
+                                      fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=${currentRoundLabel.replace('Round ', '')}`)
                                         .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
@@ -5963,9 +5967,11 @@ export default function Page() {
                                       e.stopPropagation();
                                       setScorecardGolferName(golfer.name);
                                       setScorecardGolferPhoto({ pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl });
+                                      setScorecardGolferTeeTime(golfer.teeTime);
+                                      setScorecardGolferThru(golfer.thru);
                                       setScorecardData(null);
                                       setScorecardLoading(true);
-                                      fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}`)
+                                      fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=${currentRoundLabel.replace('Round ', '')}`)
                                         .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
@@ -6284,7 +6290,7 @@ export default function Page() {
         {/* Scorecard popup */}
         {scorecardGolferName ? (
           <div
-            onClick={() => { setScorecardGolferName(null); setScorecardData(null); }}
+            onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); }}
             style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 80 }}
           >
             <div
@@ -6303,18 +6309,21 @@ export default function Page() {
                     <div style={{ fontSize: !scorecardGolferName ? 19 : scorecardGolferName.length > 22 ? 13 : scorecardGolferName.length > 18 ? 15 : scorecardGolferName.length > 14 ? 17 : 19, fontWeight: 900, color: '#0f1720', lineHeight: 1.1, whiteSpace: 'nowrap' }}>{scorecardGolferName}</div>
                     {scorecardData && scorecardData.rounds.length > 0 && (() => {
                       const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
+                      const playerNotStarted = scorecardGolferThru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS';
                       return rnd ? (
                         <div style={{ fontSize: 12, fontWeight: 800, color: '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 5 }}>
                           Round {rnd.round}
-                          {rnd.score != null && rnd.score !== '' && (
+                          {playerNotStarted && scorecardGolferTeeTime ? (
+                            <span style={{ fontWeight: 400, color: '#50616f', fontSize: 11 }}>{formatTeeTime(scorecardGolferTeeTime)}</span>
+                          ) : !playerNotStarted && rnd.score != null && rnd.score !== '' ? (
                             <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 11 }}>Score: {rnd.score}</span>
-                          )}
+                          ) : null}
                         </div>
                       ) : null;
                     })()}
                   </div>
                   <button
-                    onClick={() => { setScorecardGolferName(null); setScorecardData(null); }}
+                    onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); }}
                     style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
                   >
                     Close
@@ -6337,8 +6346,9 @@ export default function Page() {
                 const back  = rnd.holes.filter(h => h.hole >= 10);
                 const frontPar    = front.reduce((s, h) => s + (h.par || 0), 0);
                 const backPar     = back.reduce((s,  h) => s + (h.par || 0), 0);
-                const frontScore  = front.reduce((s, h) => s + (h.score ?? 0), 0);
-                const backScore   = back.reduce((s,  h) => s + (h.score ?? 0), 0);
+                const allScoresNull = rnd.holes.every(h => h.score == null);
+                const frontScore  = allScoresNull ? 0 : front.reduce((s, h) => s + (h.score ?? 0), 0);
+                const backScore   = allScoresNull ? 0 : back.reduce((s,  h) => s + (h.score ?? 0), 0);
                 const totalScore  = frontScore + backScore;
 
                 const border = '1px solid #d1d9e0';
@@ -6426,11 +6436,11 @@ export default function Page() {
                           </tr>
                           <tr>
                             <td style={{ ...labelCell, background: '#fff' }}>Score</td>
-                            {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}><span style={badge(h.score ?? 0, h.par)}>{h.label}</span></td>)}
-                            <td style={subtotalCell}>{frontScore > 0 ? frontScore : '--'}</td>
-                            {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}><span style={badge(h.score ?? 0, h.par)}>{h.label}</span></td>)}
-                            <td style={subtotalCell}>{backScore > 0 ? backScore : '--'}</td>
-                            <td style={totalCell}>{totalScore > 0 ? totalScore : '--'}</td>
+                            {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
+                            <td style={subtotalCell}>{!allScoresNull && frontScore > 0 ? frontScore : '--'}</td>
+                            {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
+                            <td style={subtotalCell}>{!allScoresNull && backScore > 0 ? backScore : '--'}</td>
+                            <td style={totalCell}>{!allScoresNull && totalScore > 0 ? totalScore : '--'}</td>
                           </tr>
                         </tbody>
                       </table>
