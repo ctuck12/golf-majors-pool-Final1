@@ -6333,19 +6333,27 @@ export default function Page() {
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '20px 20px 16px 20px' }}>
                   <div>
                     <div style={{ fontSize: !scorecardGolferName ? 19 : scorecardGolferName.length > 22 ? 13 : scorecardGolferName.length > 18 ? 15 : scorecardGolferName.length > 14 ? 17 : 19, fontWeight: 900, color: '#0f1720', lineHeight: 1.1, whiteSpace: 'nowrap' }}>{scorecardGolferName}</div>
-                    {scorecardData && scorecardData.rounds.length > 0 && (() => {
-                      const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
+                    {(() => {
                       const playerNotStarted = scorecardGolferThru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS';
-                      return rnd ? (
-                        <div style={{ fontSize: 12, fontWeight: 800, color: '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 5 }}>
-                          Round {rnd.round}
-                          {playerNotStarted && scorecardGolferTeeTime ? (
+                      if (playerNotStarted && scorecardGolferTeeTime) {
+                        const roundNum = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
+                        return (
+                          <div style={{ fontSize: 12, fontWeight: 800, color: '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 5 }}>
+                            Round {roundNum}
                             <span style={{ fontWeight: 400, color: '#50616f', fontSize: 11 }}>{formatTeeTime(scorecardGolferTeeTime)}</span>
-                          ) : !playerNotStarted && rnd.score != null && rnd.score !== '' ? (
+                          </div>
+                        );
+                      }
+                      if (scorecardData && scorecardData.rounds.length > 0) {
+                        const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
+                        return rnd && rnd.score != null && rnd.score !== '' ? (
+                          <div style={{ fontSize: 12, fontWeight: 800, color: '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 5 }}>
+                            Round {rnd.round}
                             <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 11 }}>Score: {rnd.score}</span>
-                          ) : null}
-                        </div>
-                      ) : null;
+                          </div>
+                        ) : null;
+                      }
+                      return null;
                     })()}
                   </div>
                   <button
