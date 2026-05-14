@@ -5909,7 +5909,7 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: '#50616f' }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
                                 </div>
                               )}
@@ -5953,7 +5953,7 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: '#50616f' }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
                                 </div>
                               )}
