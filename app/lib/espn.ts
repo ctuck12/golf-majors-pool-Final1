@@ -27,6 +27,10 @@ type EspnCompetitor = {
   athlete: { displayName?: string; fullName?: string };
   score?: string;          // "-12" | "E" | "+4" | "CUT" | "WD" | "DQ" | "MDF"
   linescores?: EspnRoundLinescore[];
+  status?: {
+    teeTime?: string;      // ISO UTC timestamp e.g. "2026-05-21T12:00:00Z"
+    type?: { name?: string; state?: string; detail?: string };
+  };
 };
 
 type EspnScoreboardResponse = {
@@ -207,6 +211,7 @@ export async function fetchESPNTournament(espnEventId: string): Promise<ESPNTour
       totalStrokesFromCompletedRounds: computeTotalStrokes(c.linescores),
       rounds,
       roundComplete: false,
+      teeTime: c.status?.teeTime ?? null,
     });
 
     const storedRounds = parseStoredRounds(c.linescores);

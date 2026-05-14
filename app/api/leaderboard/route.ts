@@ -345,7 +345,8 @@ export async function GET(request: Request) {
             : buildPlaceholderScoreBreakdown({ position, score, thru });
       }
 
-      return { position: override?.position ?? position, score, thru: override?.thru ?? thru, total, currentRoundScore, canonicalName: poolPlayer.name, scoreBreakdown };
+      const teeTime = (row.teeTime as string | null) ?? null;
+      return { position: override?.position ?? position, score, thru: override?.thru ?? thru, total, currentRoundScore, teeTime, canonicalName: poolPlayer.name, scoreBreakdown };
     })
     .filter(Boolean);
 

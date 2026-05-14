@@ -221,6 +221,7 @@ type FeedRow = {
   thru: string;
   total?: string;
   currentRoundScore?: string | null;
+  teeTime?: string | null;
   canonicalName?: string;
   scoreBreakdown?: GolferScoreBreakdown;
 };
@@ -275,6 +276,7 @@ type StandingGolfer = ReturnType<typeof buildPricedPlayers>[number] & {
   score: string;
   total: string;
   currentRoundScore: string | null;
+  teeTime: string | null;
   points: number;
   holesRemaining: number;
   scoreBreakdown: GolferScoreBreakdown;
@@ -863,6 +865,20 @@ function ordinal(position: string): string {
     : num % 10 === 3 ? 'rd'
     : 'th';
   return `${num}${suffix}`;
+}
+
+function formatTeeTime(isoUtc: string): string {
+  const date = new Date(isoUtc);
+  const CST_OFFSET_MS = 6 * 60 * 60 * 1000;
+  const cstMs = date.getTime() - CST_OFFSET_MS;
+  const cstDate = new Date(cstMs);
+  let hours = cstDate.getUTCHours();
+  const minutes = cstDate.getUTCMinutes();
+  const ampm = hours >= 12 ? 'pm' : 'am';
+  if (hours > 12) hours -= 12;
+  if (hours === 0) hours = 12;
+  const minuteStr = minutes === 0 ? '' : `:${String(minutes).padStart(2, '0')}`;
+  return `${hours}${minuteStr}${ampm}`;
 }
 
 function formatCurrentRoundScore(value: string | undefined, fallback: string) {
@@ -1870,6 +1886,7 @@ export default function Page() {
           score,
           total: live?.total ?? '--',
           currentRoundScore: live?.currentRoundScore ?? null,
+          teeTime: live?.teeTime ?? null,
           points: scoreBreakdown.totalPoints,
           holesRemaining: (score === 'CUT' || score === 'MDF') ? 0 : scoreBreakdown.holesRemaining,
           scoreBreakdown,
@@ -5909,7 +5926,7 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
                                 </div>
                               )}
@@ -5953,7 +5970,7 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
                                 </div>
                               )}
