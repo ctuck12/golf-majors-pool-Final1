@@ -240,6 +240,7 @@ type FeedResponse = {
   oddsSource?: string;
   source: string;
   status: string;
+  currentRound?: number;
   projectedCut?: string | null;
 };
 
@@ -3482,7 +3483,19 @@ export default function Page() {
                               <td style={{ padding: isMobile ? '5px 4px' : '5px 6px', border: '1px solid #e7edf2', textAlign: 'center' }}>{formatLeaderboardPosition(player.position)}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '5px 6px', border: '1px solid #e7edf2', fontWeight: activePlayer ? 800 : 400 }}>{player.name}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '5px 6px', border: '1px solid #e7edf2', textAlign: 'center' }}>{player.score}</td>
-                              <td style={{ padding: isMobile ? '5px 4px' : '5px 6px', border: '1px solid #e7edf2', textAlign: 'center' }}>{player.thru}</td>
+                              <td style={{ padding: isMobile ? '5px 4px' : '5px 6px', border: '1px solid #e7edf2', textAlign: 'center' }}>{(() => {
+                                const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
+                                const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
+                                if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
+                                  return formatTeeTime(player.teeTime);
+                                }
+                                const clientRound = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
+                                const espnRound = feed?.currentRound ?? 1;
+                                if (isLive && !isCutStatus && player.thru === 'F' && clientRound > espnRound) {
+                                  return player.teeTime ? formatTeeTime(player.teeTime) : '--';
+                                }
+                                return player.thru;
+                              })()}</td>
                               <td style={{ padding: isMobile ? '5px 4px' : '5px 6px', border: '1px solid #e7edf2', textAlign: 'center' }}>
                                 {timesPicked}
                               </td>
