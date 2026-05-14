@@ -15,19 +15,26 @@ export async function GET() {
 
   const competitors = (event.competitions?.[0]?.competitors ?? []) as Record<string, unknown>[];
 
-  // Return first 5 and last 5 by order (leaders + unstarted players)
   const sorted = [...competitors].sort((a, b) => (a.order as number) - (b.order as number));
-  const sample = [
-    ...sorted.slice(0, 5),
-    ...sorted.slice(-10),
-  ].map((c) => ({
-    id: c.id,
-    order: c.order,
-    name: (c.athlete as { displayName?: string })?.displayName,
-    score: c.score,
-    status: c.status,
-    linescore_count: (c.linescores as unknown[] | undefined)?.length ?? 0,
-  }));
 
-  return Response.json({ total: competitors.length, sample });
+  // Full raw dump of one early player and one late player so we can see every field
+  const rawEarly = sorted[0] ?? null;
+  const rawLate = sorted[sorted.length - 1] ?? null;
+
+  // Summary of all (order, name, score, thru derived from linescores, all top-level keys)
+  const summary = sorted.slice(-20).map((c) => {
+    const ls = c.linescores as { period: number; linescores?: unknown[] }[] | undefined;
+    const r2 = ls?.find((r) => r.period === 2);
+    const thruHoles = r2?.linescores?.length ?? 0;
+    return {
+      order: c.order,
+      name: (c.athlete as { displayName?: string })?.displayName,
+      score: c.score,
+      thruHoles,
+      keys: Object.keys(c),
+      status: c.status,
+    };
+  });
+
+  return Response.json({ total: competitors.length, rawEarly, rawLate, summary });
 }
