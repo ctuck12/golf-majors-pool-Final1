@@ -3457,7 +3457,7 @@ export default function Page() {
                     <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #d1dae3' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 12 }}>
                       <thead>
-                        <tr style={{ background: '#0f1720', color: '#ffffff', fontSize: isMobile ? 10 : 11, textAlign: 'left' }}>
+                        <tr style={{ background: '#2f5f96', color: '#ffffff', fontSize: isMobile ? 10 : 11, textAlign: 'left' }}>
                           <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Pos.</th>
                           <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', fontWeight: 700, letterSpacing: '0.04em' }}>Player</th>
                           <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em' }}>Total</th>
@@ -3474,7 +3474,7 @@ export default function Page() {
                           const activePlayer = selectedLeaderboardPlayerId === player.id;
                           const scoreNum = parseFloat(player.score);
                           const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
-                          const rowBg = activePlayer ? '#dbeafe' : rowIndex % 2 === 0 ? '#ffffff' : '#f4f7fa';
+                          const rowBg = activePlayer ? '#dbeafe' : '#ffffff';
 
                           return (
                             <tr
