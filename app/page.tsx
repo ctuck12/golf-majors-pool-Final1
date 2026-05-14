@@ -3365,8 +3365,8 @@ export default function Page() {
                             cursor: 'pointer',
                           }}
                         >
-                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontSize: isMobile ? 12 : 13, textAlign: 'center' }}>{entry.place}</td>
-                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px' }}>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 12px 10px 8px', fontSize: isMobile ? 12 : 13, textAlign: 'center' }}>{entry.place}</td>
+                          <td style={{ padding: isMobile ? '10px 8px' : '10px 12px' }}>
                             <div
                               style={{
                                 fontSize: isMobile ? 13 : 14,
@@ -3377,13 +3377,13 @@ export default function Page() {
                               {entry.name}
                             </div>
                           </td>
-                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
+                          <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
                             {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
                           </td>
-                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
+                          <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
                             {entry.holesRemaining}
                           </td>
-                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{entry.tieBreakValue}</td>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{entry.tieBreakValue}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -3421,19 +3421,19 @@ export default function Page() {
                             cursor: 'pointer',
                           }}
                         >
-                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontSize: isMobile ? 12 : 13, textAlign: 'center' }}>{entry.place}</td>
-                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px' }}>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 12px 10px 8px', fontSize: isMobile ? 12 : 13, textAlign: 'center' }}>{entry.place}</td>
+                          <td style={{ padding: isMobile ? '10px 8px' : '10px 12px' }}>
                             <div style={{ fontSize: isMobile ? 13 : 14, color: '#0f1720', textAlign: 'left' }}>
                               {entry.name}
                             </div>
                           </td>
-                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
+                          <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
                             {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
                           </td>
-                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
+                          <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
                             {entry.holesRemaining}
                           </td>
-                          <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{entry.tieBreakValue}</td>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{entry.tieBreakValue}</td>
                         </tr>
                       ))}
                     </tbody>
