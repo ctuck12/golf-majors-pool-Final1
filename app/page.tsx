@@ -3453,7 +3453,7 @@ export default function Page() {
                     {tournament.id === 'pga' ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 6 : 10, width: '100%' }}>
                         <img src="/pga-tab-logo.png" alt="PGA" style={{ height: isMobile ? 38 : 52, objectFit: 'contain', flexShrink: 0 }} />
-                        <span style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: '#0f1720', lineHeight: 1 }}>Leaderboard</span>
+                        <span style={{ fontSize: isMobile ? 20 : 25, fontWeight: 900, color: '#0f1720', lineHeight: 1 }}>Leaderboard</span>
                       </div>
                     ) : (
                       <h3 style={{ margin: 0, fontSize: isMobile ? 17 : 22, color: '#0f1720', textAlign: 'center', fontWeight: 900, width: '100%' }}>{TOURNAMENT_LEADERBOARD_HEADER[tournament.id] ?? `${tournament.name} Leaderboard`}</h3>
