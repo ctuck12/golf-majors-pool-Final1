@@ -211,7 +211,10 @@ export async function fetchESPNTournament(espnEventId: string): Promise<ESPNTour
       totalStrokesFromCompletedRounds: computeTotalStrokes(c.linescores),
       rounds,
       roundComplete: false,
-      teeTime: c.status?.teeTime ?? null,
+      // ESPN returns tee times as a formatted string in status.type.detail ("8:30 AM ET")
+      // for competitors whose round hasn't started (state === 'pre').
+      // The status.teeTime ISO field is not reliably populated.
+      teeTime: c.status?.teeTime ?? (c.status?.type?.state === 'pre' ? (c.status?.type?.detail ?? null) : null),
     });
 
     const storedRounds = parseStoredRounds(c.linescores);

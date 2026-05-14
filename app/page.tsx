@@ -868,18 +868,29 @@ function ordinal(position: string): string {
   return `${num}${suffix}`;
 }
 
-function formatTeeTime(isoUtc: string): string {
-  const date = new Date(isoUtc);
-  const CST_OFFSET_MS = 6 * 60 * 60 * 1000;
-  const cstMs = date.getTime() - CST_OFFSET_MS;
-  const cstDate = new Date(cstMs);
-  let hours = cstDate.getUTCHours();
-  const minutes = cstDate.getUTCMinutes();
-  const ampm = hours >= 12 ? 'pm' : 'am';
-  if (hours > 12) hours -= 12;
-  if (hours === 0) hours = 12;
-  const minuteStr = minutes === 0 ? '' : `:${String(minutes).padStart(2, '0')}`;
-  return `${hours}${minuteStr}${ampm}`;
+function formatTeeTime(teeTimeStr: string): string {
+  // ISO UTC string (e.g. "2026-05-14T12:30:00Z") — use Intl for correct CDT/CST
+  if (/^\d{4}-\d{2}-\d{2}T/.test(teeTimeStr)) {
+    try {
+      const result = new Date(teeTimeStr).toLocaleTimeString('en-US', {
+        hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago',
+      });
+      return result.replace(':00', '').replace(' AM', 'am').replace(' PM', 'pm');
+    } catch { return '--'; }
+  }
+  // ESPN formatted string: "8:30 AM ET" — parse and convert EDT → CDT (−1 hr)
+  const m = teeTimeStr.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+  if (!m) return teeTimeStr;
+  let h = parseInt(m[1], 10);
+  const min = parseInt(m[2] ?? '0', 10);
+  if (m[3].toUpperCase() === 'PM' && h !== 12) h += 12;
+  if (m[3].toUpperCase() === 'AM' && h === 12) h = 0;
+  h -= 1; // EDT → CDT
+  if (h < 0) h += 24;
+  const suf = h >= 12 ? 'pm' : 'am';
+  const disp = h % 12 || 12;
+  const minStr = min === 0 ? '' : `:${String(min).padStart(2, '0')}`;
+  return `${disp}${minStr}${suf}`;
 }
 
 function formatCurrentRoundScore(value: string | undefined, fallback: string) {
