@@ -3451,9 +3451,7 @@ export default function Page() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
                     <h3 style={{ margin: 0, fontSize: isMobile ? 17 : 22, color: '#0f1720', textAlign: 'center', fontWeight: 900, width: '100%' }}>{TOURNAMENT_LEADERBOARD_HEADER[tournament.id] ?? `${tournament.name} Leaderboard`}</h3>
                   </div>
-                  <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 11, color: '#8fa0b0', textAlign: 'center' }}>
-                    {isMobile ? '*Tap player to highlight who picked them' : '*Click player to highlight who picked them'}
-                  </div>
+
                   <div style={{ marginTop: isMobile ? 8 : 16 }}>
                     <input
                       type="text"
@@ -3464,7 +3462,7 @@ export default function Page() {
                         width: '100%',
                         boxSizing: 'border-box',
                         padding: isMobile ? '7px 12px' : '8px 14px',
-                        fontSize: isMobile ? 13 : 13,
+                        fontSize: isMobile ? 16 : 13,
                         border: '1px solid #d1dae3',
                         borderRadius: 8,
                         outline: 'none',
