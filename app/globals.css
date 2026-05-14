@@ -2,18 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Scale down proportionally on phones narrower than Pro Max (~430px) */
-@media (max-width: 400px) {
-  html {
-    zoom: 0.915;
-  }
-}
-@media (max-width: 375px) {
-  html {
-    zoom: 0.872;
-  }
-}
-
 html,
 body {
   margin: 0;
@@ -62,6 +50,34 @@ button {
 .breakdown-golfer-photo,
 .breakdown-scoring-photo {
   mix-blend-mode: multiply;
+}
+
+/* Scale down and center on phones narrower than Pro Max.
+   zoom affects layout dims in WebKit, so body flex-centering works correctly. */
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.app-root {
+  width: 100%;
+  min-height: 100svh;
+  flex-shrink: 0;
+}
+
+/* iPhone 14 Pro / 15 Pro and similar (≤ 400px) → scale to ~Pro Max proportions */
+@media (max-width: 400px) {
+  .app-root {
+    zoom: 0.915;
+  }
+}
+
+/* iPhone SE / Mini (≤ 375px) → scale down a bit more */
+@media (max-width: 375px) {
+  .app-root {
+    zoom: 0.872;
+  }
 }
 
 /* Pick sheet player rows and roster card photo — desktop sizing */
