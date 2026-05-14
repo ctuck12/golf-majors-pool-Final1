@@ -1828,8 +1828,9 @@ export default function Page() {
             rosters: {
               [entriesTournamentId]: commissionerRosterSelection,
             },
-            tieBreak: parseInt(commissionerTieBreakInput, 10),
-            tieBreakTournamentId: entriesTournamentId,
+            tieBreaks: {
+              [entriesTournamentId]: parseInt(commissionerTieBreakInput, 10),
+            },
           }),
         },
       );
