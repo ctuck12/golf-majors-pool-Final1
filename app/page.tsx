@@ -935,6 +935,7 @@ export default function Page() {
   const entryBreakdownRef = useRef<HTMLDivElement>(null);
   const [showPointsSystem, setShowPointsSystem] = useState(false);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
+  const [leaderboardSearch, setLeaderboardSearch] = useState('');
   const [feed, setFeed] = useState<FeedResponse | null>(() => readFeedCache(initialTournament));
   const [isLoading, setIsLoading] = useState(() => readFeedCache(initialTournament) === null);
   const [error, setError] = useState('');
@@ -3453,7 +3454,27 @@ export default function Page() {
                   <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 11, color: '#8fa0b0', textAlign: 'center' }}>
                     {isMobile ? '*Tap player to highlight who picked them' : '*Click player to highlight who picked them'}
                   </div>
-                  <div style={{ marginTop: isMobile ? 8 : 16, overflowX: 'auto' }}>
+                  <div style={{ marginTop: isMobile ? 8 : 16 }}>
+                    <input
+                      type="text"
+                      placeholder="Search player..."
+                      value={leaderboardSearch}
+                      onChange={(e) => setLeaderboardSearch(e.target.value)}
+                      style={{
+                        width: '100%',
+                        boxSizing: 'border-box',
+                        padding: isMobile ? '7px 12px' : '8px 14px',
+                        fontSize: isMobile ? 13 : 13,
+                        border: '1px solid #d1dae3',
+                        borderRadius: 8,
+                        outline: 'none',
+                        marginBottom: 8,
+                        color: '#0f1720',
+                        background: '#fff',
+                      }}
+                    />
+                  </div>
+                  <div style={{ overflowX: 'auto' }}>
                     <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #d1dae3' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 12 }}>
                       <thead>
@@ -3466,7 +3487,7 @@ export default function Page() {
                         </tr>
                       </thead>
                       <tbody>
-                        {eventLeaderboardRows.map((player, rowIndex) => {
+                        {eventLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase())).map((player, rowIndex) => {
                           const timesPicked = standings.reduce(
                             (sum, entry) => sum + entry.golfers.filter((golfer) => golfer.id === player.id).length,
                             0,
