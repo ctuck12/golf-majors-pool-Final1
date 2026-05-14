@@ -3374,7 +3374,7 @@ export default function Page() {
                               {entry.name}
                             </div>
                           </td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14, fontWeight: 600 }}>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14, fontWeight: 700 }}>
                             {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
@@ -3422,7 +3422,7 @@ export default function Page() {
                               {entry.name}
                             </div>
                           </td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14, fontWeight: 600 }}>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14, fontWeight: 700 }}>
                             {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px 10px 0' : '10px 12px 10px 0', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
