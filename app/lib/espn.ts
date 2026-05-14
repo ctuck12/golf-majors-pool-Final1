@@ -14,6 +14,13 @@ type EspnRoundLinescore = {
   displayValue: string;    // round to-par: "-5", "E", "+2"
   period: number;          // round number 1-4
   linescores?: EspnHoleLinescore[];
+  // ESPN buries tee time as the last stat entry (no "value" key, only "displayValue")
+  // e.g. "Thu May 14 14:27:00 PDT 2026"
+  statistics?: {
+    categories?: Array<{
+      stats?: Array<{ value?: number; displayValue?: string }>;
+    }>;
+  };
 };
 
 type EspnStatus = {
@@ -27,10 +34,6 @@ type EspnCompetitor = {
   athlete: { displayName?: string; fullName?: string };
   score?: string;          // "-12" | "E" | "+4" | "CUT" | "WD" | "DQ" | "MDF"
   linescores?: EspnRoundLinescore[];
-  status?: {
-    teeTime?: string;      // ISO UTC timestamp e.g. "2026-05-21T12:00:00Z"
-    type?: { name?: string; state?: string; detail?: string };
-  };
 };
 
 type EspnScoreboardResponse = {
@@ -83,6 +86,17 @@ function deriveCurrentRound(
     }
   }
   return max || 1;
+}
+
+// Tee time lives in the last stats entry of the current round's linescore.
+// That entry has no "value" key and contains a string like "Thu May 14 14:27:00 PDT 2026".
+function extractTeeTime(linescores: EspnRoundLinescore[] | undefined, currentRound: number): string | null {
+  const round = (linescores ?? []).find((r) => r.period === currentRound);
+  const stats = round?.statistics?.categories?.[0]?.stats;
+  if (!stats?.length) return null;
+  const last = stats[stats.length - 1];
+  if (!('value' in last) && last.displayValue?.includes(':')) return last.displayValue;
+  return null;
 }
 
 function deriveThru(
@@ -211,10 +225,7 @@ export async function fetchESPNTournament(espnEventId: string): Promise<ESPNTour
       totalStrokesFromCompletedRounds: computeTotalStrokes(c.linescores),
       rounds,
       roundComplete: false,
-      // ESPN returns tee times as a formatted string in status.type.detail ("8:30 AM ET")
-      // for competitors whose round hasn't started (state === 'pre').
-      // The status.teeTime ISO field is not reliably populated.
-      teeTime: c.status?.teeTime ?? (c.status?.type?.state === 'pre' ? (c.status?.type?.detail ?? null) : null),
+      teeTime: extractTeeTime(c.linescores, currentRound),
     });
 
     const storedRounds = parseStoredRounds(c.linescores);
