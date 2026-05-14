@@ -3452,7 +3452,7 @@ export default function Page() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
                     {tournament.id === 'pga' ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 4 : 6, width: '100%' }}>
-                        <img src="/pga-tab-logo.png" alt="PGA" style={{ height: isMobile ? 30 : 40, objectFit: 'contain', flexShrink: 0 }} />
+                        <img src="/pga-tab-logo.png" alt="PGA" style={{ height: isMobile ? 44 : 58, objectFit: 'contain', flexShrink: 0 }} />
                         <span style={{ fontSize: isMobile ? 20 : 25, fontWeight: 900, color: '#0f1720', lineHeight: 1 }}>Leaderboard</span>
                       </div>
                     ) : (
