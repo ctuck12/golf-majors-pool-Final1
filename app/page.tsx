@@ -6443,7 +6443,6 @@ export default function Page() {
                   background: '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151',
                 };
                 const isMastersTournament = selectedTournament === 'masters';
-                const isMastersTournament = selectedTournament === 'masters';
                 const subtotalCell: React.CSSProperties = {
                   ...baseCell, fontWeight: 800, background: isMastersTournament ? '#fef9c3' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
                 };
