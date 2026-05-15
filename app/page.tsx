@@ -3128,9 +3128,17 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
-                        The Masters Tournament
-                      </h2>
+                      <img
+                        src="/masters-heading-logo.png"
+                        alt="Masters Tournament"
+                        style={{
+                          display: 'block',
+                          height: isMobile ? 52 : (showLivePayoutStrip ? 62 : 72),
+                          width: 'auto',
+                          objectFit: 'contain',
+                          objectPosition: 'left center',
+                        }}
+                      />
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
                       ) : null}
@@ -6003,7 +6011,7 @@ export default function Page() {
                               )}
                             </div>
                             <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : '#2f5f96' }}>{formatPointValue(golfer.points)}</div>
+                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>{formatPointValue(golfer.points)}</div>
                             </div>
                           </div>
                         </>
@@ -6055,7 +6063,7 @@ export default function Page() {
                               )}
                             </div>
                             <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                              <div className="breakdown-golfer-points" style={{ fontSize: 18, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : '#2f5f96' }}>{formatPointValue(golfer.points)}</div>
+                              <div className="breakdown-golfer-points" style={{ fontSize: 18, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>{formatPointValue(golfer.points)}</div>
                             </div>
                           </div>
                         </>
