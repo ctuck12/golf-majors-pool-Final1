@@ -6274,14 +6274,14 @@ export default function Page() {
                     }}
                   >
                     <div style={{ fontWeight: 800, fontSize: 13, color: '#0f1720' }}>{label}</div>
-                    <div style={{ color: '#6b7b88', fontSize: 12 }}>
+                    <div style={{ color: (selectedTournament === 'players' || selectedTournament === 'open') ? '#4a5568' : '#6b7b88', fontSize: 12 }}>
                       {label === 'Leaderboard Place'
                         ? `Position: ${ordinal(String(count))}`
                         : ['Tourn Low Rnd', 'Rnd 1 Leader', 'Rnd 2 Leader', 'Rnd 3 Leader'].includes(String(label))
                         ? ''
                         : `Count: ${String(count)}`}
                     </div>
-                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>
+                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : selectedTournament === 'masters' ? '#2c6449' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#173b63' : '#2f5f96' }}>
                       {formatPointValue(Number(points))}
                     </div>
                   </div>
