@@ -3119,7 +3119,7 @@ export default function Page() {
                 <div>
                   {selectedTournament === 'players' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#173b63' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#173b63' }}>
                         The Players Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
@@ -3128,7 +3128,7 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#2c6449' }}>
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#2c6449' }}>
                         The Masters Tournament
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
