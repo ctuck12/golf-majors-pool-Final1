@@ -332,6 +332,11 @@ export async function GET(request: Request) {
         currentRoundScore = latestRound?.scoreToPar ?? null;
       }
 
+      // Detect back-nine start: first hole played in the current round is hole 10+
+      const backNineStart = storedCurrentRound && storedCurrentRound.holes.length > 0
+        ? storedCurrentRound.holes[0].holeNumber >= 10
+        : false;
+
       const roundLeadersAwarded = getRoundLeadersAwarded(tournamentId, fullName, roundLeaderStore);
 
       const overrideKey = `${tournamentId}:${poolPlayer.name}`;
@@ -358,7 +363,7 @@ export async function GET(request: Request) {
       }
 
       const teeTime = (row.teeTime as string | null) ?? null;
-      return { position: override?.position ?? position, score, thru: override?.thru ?? thru, total, currentRoundScore, teeTime, canonicalName: poolPlayer.name, scoreBreakdown };
+      return { position: override?.position ?? position, score, thru: override?.thru ?? thru, total, currentRoundScore, backNineStart, teeTime, canonicalName: poolPlayer.name, scoreBreakdown };
     })
     .filter(Boolean);
 

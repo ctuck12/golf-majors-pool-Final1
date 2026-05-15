@@ -221,6 +221,7 @@ type FeedRow = {
   thru: string;
   total?: string;
   currentRoundScore?: string | null;
+  backNineStart?: boolean;
   teeTime?: string | null;
   canonicalName?: string;
   scoreBreakdown?: GolferScoreBreakdown;
@@ -277,6 +278,7 @@ type StandingGolfer = ReturnType<typeof buildPricedPlayers>[number] & {
   score: string;
   total: string;
   currentRoundScore: string | null;
+  backNineStart: boolean;
   teeTime: string | null;
   points: number;
   holesRemaining: number;
@@ -1905,6 +1907,7 @@ export default function Page() {
           score,
           total: live?.total ?? '--',
           currentRoundScore: live?.currentRoundScore ?? null,
+          backNineStart: live?.backNineStart ?? false,
           teeTime: live?.teeTime ?? null,
           points: scoreBreakdown.totalPoints,
           holesRemaining: (score === 'CUT' || score === 'MDF') ? 0 : scoreBreakdown.holesRemaining,
@@ -3541,7 +3544,10 @@ export default function Page() {
                                 if (isLive && !isCutStatus && player.thru === 'F' && clientRound > espnRound) {
                                   return player.teeTime ? formatTeeTime(player.teeTime) : '--';
                                 }
-                                return player.thru;
+                                const thruVal = player.thru;
+                                return player.backNineStart && thruVal !== '--' && thruVal !== 'F'
+                                  ? <>{thruVal}<sup style={{ fontSize: '0.6em', verticalAlign: 'super' }}>*</sup></>
+                                  : thruVal;
                               })()}</td>
                               <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>
                                 {timesPicked}
@@ -6003,7 +6009,7 @@ export default function Page() {
                                   >
                                     <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
-                                  {!(golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime) && <span>Thru: {golfer.thru}</span>}
+                                  {!(golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime) && <span>Thru: {golfer.thru}{golfer.backNineStart && golfer.thru !== '--' && golfer.thru !== 'F' ? <sup style={{ fontSize: '0.6em', verticalAlign: 'super' }}>*</sup> : null}</span>}
                                 </div>
                               )}
                             </div>
@@ -6055,7 +6061,7 @@ export default function Page() {
                                   >
                                     <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
-                                  {!(golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime) && <span>Thru: {golfer.thru}</span>}
+                                  {!(golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime) && <span>Thru: {golfer.thru}{golfer.backNineStart && golfer.thru !== '--' && golfer.thru !== 'F' ? <sup style={{ fontSize: '0.6em', verticalAlign: 'super' }}>*</sup> : null}</span>}
                                 </div>
                               )}
                             </div>
