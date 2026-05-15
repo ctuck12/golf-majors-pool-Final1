@@ -3143,7 +3143,7 @@ export default function Page() {
           >
             <section
               style={{
-                background: '#fff',
+                background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#fff',
                 borderRadius: 20,
                 padding: isMobile ? 14 : 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
@@ -3482,7 +3482,7 @@ export default function Page() {
               {showLivePayoutStrip ? (
                 <section
                   style={{
-                    background: '#fff',
+                    background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#fff',
                     borderRadius: 20,
                     padding: isMobile ? 14 : 22,
                     boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
