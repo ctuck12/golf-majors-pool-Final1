@@ -319,7 +319,18 @@ export async function GET(request: Request) {
         (best, r) => best === null || parseMongo(r.roundId) > parseMongo(best.roundId) ? r : best,
         null,
       );
-      const currentRoundScore: string | null = latestRound?.scoreToPar ?? null;
+
+      // Compute per-round score from scorecard hole data (accurate for in-progress rounds).
+      // ESPN's scoreToPar can reflect the cumulative tournament score rather than the round score.
+      const storedRoundsForPlayer = scorecardCache?.players[row.playerId]?.rounds ?? [];
+      const storedCurrentRound = storedRoundsForPlayer.find((r) => r.roundId === currentRound);
+      let currentRoundScore: string | null;
+      if (storedCurrentRound && storedCurrentRound.holes.length > 0) {
+        const toPar = storedCurrentRound.holes.reduce((sum, h) => sum + h.score - h.par, 0);
+        currentRoundScore = toPar === 0 ? 'E' : toPar > 0 ? `+${toPar}` : String(toPar);
+      } else {
+        currentRoundScore = latestRound?.scoreToPar ?? null;
+      }
 
       const roundLeadersAwarded = getRoundLeadersAwarded(tournamentId, fullName, roundLeaderStore);
 
