@@ -3129,7 +3129,7 @@ export default function Page() {
                   ) : selectedTournament === 'masters' ? (
                     <>
                       <img
-                        src="/masters-heading-logo.png"
+                        src="/masters-tournament-logo.png"
                         alt="Masters Tournament"
                         style={{
                           display: 'block',
