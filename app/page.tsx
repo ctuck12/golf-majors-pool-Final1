@@ -3123,7 +3123,7 @@ export default function Page() {
                         The Players Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'masters' ? (
@@ -3132,7 +3132,7 @@ export default function Page() {
                         The Masters Tournament
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'pga' ? (
@@ -3141,7 +3141,7 @@ export default function Page() {
                         The PGA Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'us-open' ? (
@@ -3150,7 +3150,7 @@ export default function Page() {
                         U.S. Open Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'open' ? (
@@ -3159,7 +3159,7 @@ export default function Page() {
                         The Open Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
                       ) : null}
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
