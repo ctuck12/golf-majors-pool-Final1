@@ -3505,7 +3505,7 @@ export default function Page() {
                           const activePlayer = selectedLeaderboardPlayerId === player.id;
                           const scoreNum = parseFloat(player.score);
                           const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
-                          const rowBg = activePlayer ? '#dbeafe' : '#ffffff';
+                          const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : '#dbeafe') : '#ffffff';
 
                           return (
                             <tr
