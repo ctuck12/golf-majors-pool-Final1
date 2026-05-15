@@ -5994,7 +5994,7 @@ export default function Page() {
                                       fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=${currentRoundLabel.replace('Round ', '')}`)
                                         .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
                                     }}
-                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
+                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
                                     <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
@@ -6046,7 +6046,7 @@ export default function Page() {
                                       fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=${currentRoundLabel.replace('Round ', '')}`)
                                         .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
                                     }}
-                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
+                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
                                     <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
