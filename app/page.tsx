@@ -6267,10 +6267,10 @@ export default function Page() {
                       gridTemplateColumns: 'minmax(140px, 1.3fr) minmax(100px, 0.7fr) minmax(80px, 0.7fr)',
                       gap: 8,
                       alignItems: 'center',
-                      border: '1px solid #e6edf1',
+                      border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
                       borderRadius: 10,
                       padding: '8px 12px',
-                      background: '#fff',
+                      background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#fff',
                     }}
                   >
                     <div style={{ fontWeight: 800, fontSize: 13, color: '#0f1720' }}>{label}</div>
