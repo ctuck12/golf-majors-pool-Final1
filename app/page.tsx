@@ -6504,7 +6504,7 @@ export default function Page() {
                       <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 560 }}>
                         <thead>
                           <tr>
-                            <th style={{ ...labelCell, background: selectedTournament === 'pga' ? '#B09963' : isMastersTournament ? '#2c6449' : '#0f1720', color: '#fff' }}>HOLE</th>
+                            <th style={{ ...labelCell, background: selectedTournament === 'pga' ? '#B09963' : isMastersTournament ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#0f1720', color: '#fff' }}>HOLE</th>
                             {front.map(h => <th key={h.hole} style={holeHeaderCell}>{h.hole}</th>)}
                             <th style={subtotalHeaderCell}>Front</th>
                             {back.map(h => <th key={h.hole} style={holeHeaderCell}>{h.hole}</th>)}
