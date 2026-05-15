@@ -6443,7 +6443,7 @@ export default function Page() {
                         return rnd && rnd.score != null && rnd.score !== '' ? (
                           <div style={{ fontSize: 12, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 5 }}>
                             Round {rnd.round}
-                            <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' && scorecardGolferThru !== 'F' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
+                            <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
                           </div>
                         ) : null;
                       }
