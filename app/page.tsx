@@ -6444,7 +6444,7 @@ export default function Page() {
                 };
                 const isMastersTournament = selectedTournament === 'masters';
                 const subtotalCell: React.CSSProperties = {
-                  ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
+                  ...baseCell, fontWeight: 800, background: isMastersTournament ? '#1a3d2b' : '#e8f0f8', color: isMastersTournament ? '#fff' : undefined, borderLeft: thickBorder, borderRight: thickBorder,
                 };
                 const totalCell: React.CSSProperties = {
                   ...baseCell, fontWeight: 900, background: isMastersTournament ? '#1a3d2b' : '#1e3a5f', color: '#fff', borderLeft: thickBorder,
