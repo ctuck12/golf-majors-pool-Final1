@@ -3028,7 +3028,7 @@ export default function Page() {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
+                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setSelectedLeaderboardPlayerId(null); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
                     style={{
                       border: active ? '1px solid #d7e0e8' : '1px solid transparent',
                       borderBottom: active ? '1px solid #fff' : '1px solid transparent',
