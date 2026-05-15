@@ -6455,7 +6455,7 @@ export default function Page() {
                   ...baseCell, fontWeight: 900, background: isMastersTournament ? '#1a3d2b' : '#1e3a5f', color: '#fff', borderLeft: thickBorder,
                 };
                 const holeHeaderCell: React.CSSProperties = {
-                  ...baseCell, fontWeight: 700, background: selectedTournament === 'pga' ? '#B09963' : isMastersTournament ? '#2c6449' : '#0f1720', color: '#fff', fontSize: 12,
+                  ...baseCell, fontWeight: 700, background: selectedTournament === 'pga' ? '#B09963' : isMastersTournament ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#0f1720', color: '#fff', fontSize: 12,
                 };
                 const subtotalHeaderCell: React.CSSProperties = {
                   ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder,
