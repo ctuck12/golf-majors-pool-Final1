@@ -6394,7 +6394,7 @@ export default function Page() {
                       if (scorecardData && scorecardData.rounds.length > 0) {
                         const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
                         return rnd && rnd.score != null && rnd.score !== '' ? (
-                          <div style={{ fontSize: 12, fontWeight: 800, color: '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 5 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 5 }}>
                             Round {rnd.round}
                             <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 11 }}>Score: {rnd.score}</span>
                           </div>
@@ -6442,20 +6442,21 @@ export default function Page() {
                   ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase',
                   background: '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151',
                 };
+                const isMastersTournament = selectedTournament === 'masters';
                 const subtotalCell: React.CSSProperties = {
-                  ...baseCell, fontWeight: 800, background: '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
+                  ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
                 };
                 const totalCell: React.CSSProperties = {
-                  ...baseCell, fontWeight: 900, background: '#1e3a5f', color: '#fff', borderLeft: thickBorder,
+                  ...baseCell, fontWeight: 900, background: isMastersTournament ? '#2c6449' : '#1e3a5f', color: '#fff', borderLeft: thickBorder,
                 };
                 const holeHeaderCell: React.CSSProperties = {
                   ...baseCell, fontWeight: 700, background: selectedTournament === 'pga' ? '#B09963' : '#0f1720', color: '#fff', fontSize: 12,
                 };
                 const subtotalHeaderCell: React.CSSProperties = {
-                  ...holeHeaderCell, background: '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder,
+                  ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder,
                 };
                 const totalHeaderCell: React.CSSProperties = {
-                  ...holeHeaderCell, background: '#1e3a5f', borderLeft: thickBorder,
+                  ...holeHeaderCell, background: isMastersTournament ? '#1a3d2b' : '#1e3a5f', borderLeft: thickBorder,
                 };
 
                 const fmt = (n: number) => n > 0 ? `+${n}` : n === 0 ? 'E' : `${n}`;
