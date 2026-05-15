@@ -6450,7 +6450,7 @@ export default function Page() {
                   ...baseCell, fontWeight: 900, background: isMastersTournament ? '#2c6449' : '#1e3a5f', color: '#fff', borderLeft: thickBorder,
                 };
                 const holeHeaderCell: React.CSSProperties = {
-                  ...baseCell, fontWeight: 700, background: selectedTournament === 'pga' ? '#B09963' : isMastersTournament ? '#f3e44d' : '#0f1720', color: isMastersTournament ? '#0f1720' : '#fff', fontSize: 12,
+                  ...baseCell, fontWeight: 700, background: selectedTournament === 'pga' ? '#B09963' : isMastersTournament ? '#2c6449' : '#0f1720', color: '#fff', fontSize: 12,
                 };
                 const subtotalHeaderCell: React.CSSProperties = {
                   ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder,
@@ -6499,7 +6499,7 @@ export default function Page() {
                       <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 560 }}>
                         <thead>
                           <tr>
-                            <th style={{ ...labelCell, background: selectedTournament === 'pga' ? '#B09963' : '#0f1720', color: '#fff' }}>HOLE</th>
+                            <th style={{ ...labelCell, background: selectedTournament === 'pga' ? '#B09963' : isMastersTournament ? '#2c6449' : '#0f1720', color: '#fff' }}>HOLE</th>
                             {front.map(h => <th key={h.hole} style={holeHeaderCell}>{h.hole}</th>)}
                             <th style={subtotalHeaderCell}>Front</th>
                             {back.map(h => <th key={h.hole} style={holeHeaderCell}>{h.hole}</th>)}
