@@ -3360,7 +3360,7 @@ export default function Page() {
                             borderBottom: '1px solid #e2e8ef',
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
-                                ? selectedTournament === 'masters' ? '#f3e44d' : '#dbeafe'
+                                ? selectedTournament === 'masters' ? '#dcfce7' : '#dbeafe'
                                 : '#ffffff',
                             cursor: 'pointer',
                           }}
@@ -3416,7 +3416,7 @@ export default function Page() {
                             borderBottom: '1px solid #e2e8ef',
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
-                                ? selectedTournament === 'masters' ? '#f3e44d' : '#dbeafe'
+                                ? selectedTournament === 'masters' ? '#dcfce7' : '#dbeafe'
                                 : '#ffffff',
                             cursor: 'pointer',
                           }}
@@ -3510,7 +3510,7 @@ export default function Page() {
                           const activePlayer = selectedLeaderboardPlayerId === player.id;
                           const scoreNum = parseFloat(player.score);
                           const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
-                          const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#f3e44d' : '#dbeafe') : '#ffffff';
+                          const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : '#dbeafe') : '#ffffff';
 
                           return (
                             <tr
