@@ -3128,17 +3128,9 @@ export default function Page() {
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
-                      <img
-                        src="/masters-tournament-logo.png"
-                        alt="Masters Tournament"
-                        style={{
-                          display: 'block',
-                          height: isMobile ? 52 : (showLivePayoutStrip ? 62 : 72),
-                          width: 'auto',
-                          objectFit: 'contain',
-                          objectPosition: 'left center',
-                        }}
-                      />
+                      <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#2c6449' }}>
+                        The Masters Tournament
+                      </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
                       ) : null}
@@ -3470,7 +3462,7 @@ export default function Page() {
                     ) : tournament.id === 'masters' ? (
                       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: isMobile ? 6 : 10, width: '100%' }}>
                         <img src="/masters-tab-logo.png" alt="Masters" style={{ height: isMobile ? 38 : 46, objectFit: 'contain', flexShrink: 0, marginTop: isMobile ? '-6px' : '-8px' }} />
-                        <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#0f1720', lineHeight: 1 }}>Leaderboard</span>
+                        <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#2c6449', lineHeight: 1 }}>Leaderboard</span>
                       </div>
                     ) : (
                       <h3 style={{ margin: 0, fontSize: isMobile ? 17 : 22, color: '#0f1720', textAlign: 'center', fontWeight: 900, width: '100%' }}>{TOURNAMENT_LEADERBOARD_HEADER[tournament.id] ?? `${tournament.name} Leaderboard`}</h3>
