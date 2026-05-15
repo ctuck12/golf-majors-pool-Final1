@@ -5951,7 +5951,7 @@ export default function Page() {
                   <h3 style={{ margin: '4px 0 0', fontSize: 20, color: '#0f1720' }}>
                     {activeStandingEntry.name} - {tournament.name}
                   </h3>
-                  <div style={{ marginTop: 2, color: '#6b7b88', fontSize: isMobile ? 10.5 : 12 }}>
+                  <div style={{ marginTop: 2, color: (selectedTournament === 'players' || selectedTournament === 'open') ? '#374151' : '#6b7b88', fontSize: isMobile ? 10.5 : 12 }}>
                     {isMobile
                       ? `*Tap player for details; Tap "${currentRoundLabel}" for scorecard`
                       : `*Click player for scoring details; Click "${currentRoundLabel}" for scorecard`}
@@ -5964,12 +5964,13 @@ export default function Page() {
                     setActiveStandingEntryId(null);
                   }}
                   style={{
-                    border: '1px solid #d7e0e8',
+                    border: (selectedTournament === 'players' || selectedTournament === 'open') ? '2px solid #374151' : '1px solid #d7e0e8',
                     borderRadius: 999,
                     background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#fff',
                     padding: '8px 14px',
                     fontWeight: 800,
                     cursor: 'pointer',
+                    color: (selectedTournament === 'players' || selectedTournament === 'open') ? '#374151' : '#0f1720',
                   }}
                 >
                   Close
@@ -6112,7 +6113,7 @@ export default function Page() {
                       border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
                       background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#f8fbfd',
                       padding: 18,
-                      color: '#50616f',
+                      color: (selectedTournament === 'players' || selectedTournament === 'open') ? '#374151' : '#50616f',
                     }}
                   >
                     No lineup has been saved for this team yet.
@@ -6131,7 +6132,7 @@ export default function Page() {
                   paddingTop: isMobile ? 16 : 14,
                 }}
               >
-                <div style={{ color: '#50616f', fontSize: isMobile ? 18 : 17 }}>
+                <div style={{ color: (selectedTournament === 'players' || selectedTournament === 'open') ? '#374151' : '#50616f', fontSize: isMobile ? 18 : 17 }}>
                   Total Holes Rem: <strong>{activeStandingEntry.holesRemaining}</strong>
                 </div>
   <div style={{ fontSize: isMobile ? 18 : 17, fontWeight: 800, color: '#0f1720' }}>
