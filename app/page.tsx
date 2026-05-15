@@ -3465,8 +3465,8 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#2c6449', lineHeight: 1 }}>Leaderboard</span>
                       </div>
                     ) : tournament.id === 'players' ? (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 8 : 12, width: '100%' }}>
-                        <img src="/players-tab-logo.png" alt="The Players" style={{ height: isMobile ? 110 : 130, objectFit: 'contain', flexShrink: 0, margin: isMobile ? '-30px 0' : '-36px 0' }} />
+                      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: isMobile ? 4 : 6, width: '100%' }}>
+                        <img src="/players-tab-logo.png" alt="The Players" style={{ height: isMobile ? 110 : 130, objectFit: 'contain', flexShrink: 0, marginTop: isMobile ? '-30px' : '-36px' }} />
                         <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#0f1720', lineHeight: 1 }}>Leaderboard</span>
                       </div>
                     ) : (
