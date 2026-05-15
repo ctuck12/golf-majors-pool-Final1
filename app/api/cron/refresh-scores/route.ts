@@ -54,6 +54,26 @@ function extractProjectedCut(lb: SlashGolfLeaderboardResponse): string | null {
   return lb.cutLines?.[0]?.cutScore ?? null;
 }
 
+// Cut positions: number of players who make the cut (top N + ties)
+const ESPN_CUT_POSITIONS: Partial<Record<string, number>> = {
+  pga: 70,
+  'us-open': 60,
+  open: 70,
+};
+
+function computeProjectedCutFromRows(tournamentId: string, rows: SlashGolfLeaderboardRow[], currentRound: number): string | null {
+  if (currentRound !== 2) return null; // only meaningful during R2
+  const cutPos = ESPN_CUT_POSITIONS[tournamentId];
+  if (!cutPos) return null;
+  const CUT_STATUSES = new Set(['CUT', 'WD', 'DQ', 'MDF']);
+  const parseScore = (s: string) => { if (s === 'E') return 0; const n = parseInt(s); return isNaN(n) ? 999 : n; };
+  const active = rows
+    .filter(r => !CUT_STATUSES.has((r.total ?? '').toUpperCase()) && r.total && r.total !== '--')
+    .sort((a, b) => parseScore(a.total) - parseScore(b.total));
+  if (active.length < cutPos) return null;
+  return active[cutPos - 1]?.total ?? null;
+}
+
 // ── Scorecard refresh helpers ─────────────────────────────────────────────
 
 async function captureLowRound(
@@ -218,7 +238,8 @@ async function refreshTournamentFromESPN(
     await autoLockPoolLineup(tournamentId as TournamentId);
   }
 
-  const { leaderboardRows: rows, currentRound, roundStatus, projectedCut, playerScorecards } = espnResult;
+  const { leaderboardRows: rows, currentRound, roundStatus, playerScorecards } = espnResult;
+  const projectedCut = computeProjectedCutFromRows(tournamentId, rows, currentRound);
 
   await writeLeaderboardCache(tournamentId, {
     cachedAt: new Date().toISOString(),
