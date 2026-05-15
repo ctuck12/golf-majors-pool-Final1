@@ -932,6 +932,7 @@ export default function Page() {
   const [scorecardGolferPhoto, setScorecardGolferPhoto] = useState<{pgaTourId: number; photoUrl?: string} | null>(null);
   const [scorecardGolferTeeTime, setScorecardGolferTeeTime] = useState<string | null>(null);
   const [scorecardGolferThru, setScorecardGolferThru] = useState<string | null>(null);
+  const [scorecardGolferBackNineStart, setScorecardGolferBackNineStart] = useState(false);
   const [scorecardData, setScorecardData] = useState<ScorecardData | null>(null);
   const [scorecardLoading, setScorecardLoading] = useState(false);
   const entryBreakdownRef = useRef<HTMLDivElement>(null);
@@ -6033,6 +6034,7 @@ export default function Page() {
                                       setScorecardGolferPhoto({ pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl });
                                       setScorecardGolferTeeTime(golfer.teeTime);
                                       setScorecardGolferThru(golfer.thru);
+                                      setScorecardGolferBackNineStart(golfer.backNineStart ?? false);
                                       setScorecardData(null);
                                       setScorecardLoading(true);
                                       fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=${currentRoundLabel.replace('Round ', '')}`)
@@ -6085,6 +6087,7 @@ export default function Page() {
                                       setScorecardGolferPhoto({ pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl });
                                       setScorecardGolferTeeTime(golfer.teeTime);
                                       setScorecardGolferThru(golfer.thru);
+                                      setScorecardGolferBackNineStart(golfer.backNineStart ?? false);
                                       setScorecardData(null);
                                       setScorecardLoading(true);
                                       fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=${currentRoundLabel.replace('Round ', '')}`)
@@ -6407,7 +6410,7 @@ export default function Page() {
         {/* Scorecard popup */}
         {scorecardGolferName ? (
           <div
-            onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); }}
+            onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); setScorecardGolferBackNineStart(false); }}
             style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 80 }}
           >
             <div
@@ -6440,7 +6443,7 @@ export default function Page() {
                         return rnd && rnd.score != null && rnd.score !== '' ? (
                           <div style={{ fontSize: 12, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 5 }}>
                             Round {rnd.round}
-                            <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 11 }}>Score: {rnd.score}</span>
+                            <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' && scorecardGolferThru !== 'F' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
                           </div>
                         ) : null;
                       }
@@ -6448,7 +6451,7 @@ export default function Page() {
                     })()}
                   </div>
                   <button
-                    onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); }}
+                    onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); setScorecardGolferBackNineStart(false); }}
                     style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
                   >
                     Close
