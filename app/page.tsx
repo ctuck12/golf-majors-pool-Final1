@@ -168,7 +168,7 @@ const PICK_HISTORY_NAMES: Record<string, string> = {
 const TOURNAMENT_CUT_SHOW_AT: Partial<Record<TournamentId, string>> = {
   players: '2026-03-13T12:00:00-04:00',
   masters: '2026-04-10T12:00:00-04:00',
-  pga: '2026-05-15T15:00:00-04:00',
+  pga: '2026-05-15T13:00:00-04:00',
   'us-open': '2026-06-19T12:00:00-04:00',
   open: '2026-07-17T12:00:00-04:00',
 };
