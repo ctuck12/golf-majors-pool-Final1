@@ -5990,7 +5990,7 @@ export default function Page() {
                         border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
                         borderRadius: 12,
                         padding: 0,
-                        background: isActiveGolfer ? '#eef4ff' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#fff',
+                        background: isActiveGolfer ? '#eef4ff' : '#fff',
                         textAlign: 'left',
                         cursor: 'pointer',
                         display: 'flex',
