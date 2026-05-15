@@ -6150,12 +6150,12 @@ export default function Page() {
                       <div
                         style={{
                           borderRadius: 999,
-                          background: '#eef4ff',
-                          border: '1px solid #c7d8ee',
+                          background: selectedTournament === 'masters' ? '#dcfce7' : '#eef4ff',
+                          border: `1px solid ${selectedTournament === 'masters' ? '#86efac' : '#c7d8ee'}`,
                           padding: '3px 8px',
                           fontSize: 13,
                           fontWeight: 900,
-                          color: '#2f5f96',
+                          color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96',
                           lineHeight: 1.2,
                           flexShrink: 0,
                         }}
@@ -6169,7 +6169,7 @@ export default function Page() {
                           border: 'none',
                           padding: 0,
                           fontSize: 12,
-                          color: '#2f5f96',
+                          color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96',
                           cursor: 'pointer',
                           textDecoration: 'underline',
                           fontWeight: 600,
@@ -6238,7 +6238,7 @@ export default function Page() {
                         ? ''
                         : `Count: ${String(count)}`}
                     </div>
-                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : '#2f5f96' }}>
+                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>
                       {formatPointValue(Number(points))}
                     </div>
                   </div>
