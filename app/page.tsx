@@ -1380,6 +1380,12 @@ export default function Page() {
   }, [mainTab, commissionerConsoleView]);
 
   useEffect(() => {
+    const anyOpen = !!activeStandingEntryId || !!activeStandingGolferId || !!scorecardGolferName;
+    document.body.style.overflow = anyOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [activeStandingEntryId, activeStandingGolferId, scorecardGolferName]);
+
+  useEffect(() => {
     if (!selectedLeaderboardPlayerId) return;
     const topEntry = standings.find((entry) =>
       entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
