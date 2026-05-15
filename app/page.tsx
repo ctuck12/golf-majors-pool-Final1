@@ -6443,20 +6443,21 @@ export default function Page() {
                   background: '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151',
                 };
                 const isMastersTournament = selectedTournament === 'masters';
+                const isMastersTournament = selectedTournament === 'masters';
                 const subtotalCell: React.CSSProperties = {
-                  ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
+                  ...baseCell, fontWeight: 800, background: isMastersTournament ? '#fef9c3' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
                 };
                 const totalCell: React.CSSProperties = {
-                  ...baseCell, fontWeight: 900, background: isMastersTournament ? '#2c6449' : '#1e3a5f', color: '#fff', borderLeft: thickBorder,
+                  ...baseCell, fontWeight: 900, background: isMastersTournament ? '#ca8a04' : '#1e3a5f', color: '#fff', borderLeft: thickBorder,
                 };
                 const holeHeaderCell: React.CSSProperties = {
                   ...baseCell, fontWeight: 700, background: selectedTournament === 'pga' ? '#B09963' : '#0f1720', color: '#fff', fontSize: 12,
                 };
                 const subtotalHeaderCell: React.CSSProperties = {
-                  ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder,
+                  ...holeHeaderCell, background: isMastersTournament ? '#ca8a04' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder,
                 };
                 const totalHeaderCell: React.CSSProperties = {
-                  ...holeHeaderCell, background: isMastersTournament ? '#1a3d2b' : '#1e3a5f', borderLeft: thickBorder,
+                  ...holeHeaderCell, background: isMastersTournament ? '#92400e' : '#1e3a5f', borderLeft: thickBorder,
                 };
 
                 const fmt = (n: number) => n > 0 ? `+${n}` : n === 0 ? 'E' : `${n}`;
