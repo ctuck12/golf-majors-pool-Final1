@@ -6000,7 +6000,7 @@ export default function Page() {
                     >
                       {isMobile ? (
                         <>
-                          <div style={{ width: 86, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#f9e8b0' : '#fff' }}>
+                          <div style={{ width: 86, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
                             <img
                               src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                               alt={golfer.name}
@@ -6052,7 +6052,7 @@ export default function Page() {
                         </>
                       ) : (
                         <>
-                          <div style={{ width: 76, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#f9e8b0' : '#fff' }}>
+                          <div style={{ width: 76, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
                             <img
                               src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                               alt={golfer.name}
