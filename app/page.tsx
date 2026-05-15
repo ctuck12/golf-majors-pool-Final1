@@ -2053,11 +2053,26 @@ export default function Page() {
 
   const standings: StandingEntry[] = liveStandingEntries
     .map((entry) => {
+      const isPlayersTab = selectedTournament === 'players';
+      const isCommissioner = entry.name === COMMISSIONER_DISPLAY_NAME;
+
+      // For The Players tab: zero out everyone except Clayton Tucker
+      if (isPlayersTab && !isCommissioner) {
+        return {
+          ...entry,
+          picks: Array(REQUIRED_GOLFERS).fill(0) as number[],
+          golfers: [],
+          rosterPoints: 0,
+          holesRemaining: 0,
+          tieBreakValue: 0,
+        };
+      }
+
       const savedRoster = entry.rosters[selectedTournament];
       const picks =
         savedRoster && savedRoster.length > 0
           ? savedRoster
-          : entry.name === COMMISSIONER_DISPLAY_NAME
+          : isCommissioner
             ? DEFAULT_ROSTERS[selectedTournament]
             : [];
       const golfers = picks.map((id) => playersById[id]).filter(Boolean);
@@ -2074,7 +2089,7 @@ export default function Page() {
         tieBreakValue,
       };
     })
-    .filter((entry) => entry.picks.length === REQUIRED_GOLFERS)
+    .filter((entry) => selectedTournament === 'players' || entry.picks.length === REQUIRED_GOLFERS)
     .sort((left, right) => {
       if (right.rosterPoints !== left.rosterPoints) {
         return right.rosterPoints - left.rosterPoints;
