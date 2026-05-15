@@ -5940,7 +5940,7 @@ export default function Page() {
                 width: 'min(480px, 100%)',
                 maxHeight: 'calc(100vh - 40px)',
                 overflowY: 'auto',
-                background: '#fff',
+                background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#fff',
                 borderRadius: 20,
                 padding: isMobile ? 16 : 12,
                 boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
@@ -5966,7 +5966,7 @@ export default function Page() {
                   style={{
                     border: '1px solid #d7e0e8',
                     borderRadius: 999,
-                    background: '#fff',
+                    background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#fff',
                     padding: '8px 14px',
                     fontWeight: 800,
                     cursor: 'pointer',
@@ -5987,10 +5987,10 @@ export default function Page() {
                       onClick={() => setActiveStandingGolferId(golfer.id)}
                       style={{
                         width: '100%',
-                        border: '1px solid #e6edf1',
+                        border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
                         borderRadius: 12,
                         padding: 0,
-                        background: isActiveGolfer ? '#eef4ff' : '#fff',
+                        background: isActiveGolfer ? '#eef4ff' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#fff',
                         textAlign: 'left',
                         cursor: 'pointer',
                         display: 'flex',
@@ -6000,7 +6000,7 @@ export default function Page() {
                     >
                       {isMobile ? (
                         <>
-                          <div style={{ width: 86, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
+                          <div style={{ width: 86, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#fff' }}>
                             <img
                               src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                               alt={golfer.name}
@@ -6052,7 +6052,7 @@ export default function Page() {
                         </>
                       ) : (
                         <>
-                          <div style={{ width: 76, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
+                          <div style={{ width: 76, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#fff' }}>
                             <img
                               src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                               alt={golfer.name}
@@ -6109,8 +6109,8 @@ export default function Page() {
                   <div
                     style={{
                       borderRadius: 18,
-                      border: '1px solid #e6edf1',
-                      background: '#f8fbfd',
+                      border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
+                      background: (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#f8fbfd',
                       padding: 18,
                       color: '#50616f',
                     }}
@@ -6127,7 +6127,7 @@ export default function Page() {
                   gridTemplateColumns: '1fr auto auto',
                   gap: 16,
                   alignItems: 'center',
-                  borderTop: '1px solid #e6edf1',
+                  borderTop: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
                   paddingTop: isMobile ? 16 : 14,
                 }}
               >
