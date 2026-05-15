@@ -6478,12 +6478,14 @@ export default function Page() {
                 const border = '1px solid #d1d9e0';
                 const thickBorder = '2px solid #9ab0c4';
 
+                const isGoldTab = selectedTournament === 'players' || selectedTournament === 'open';
                 const baseCell: React.CSSProperties = {
                   border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap',
+                  ...(isGoldTab ? { background: '#F4BC41' } : {}),
                 };
                 const labelCell: React.CSSProperties = {
                   ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase',
-                  background: '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151',
+                  background: isGoldTab ? '#F4BC41' : '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151',
                 };
                 const isMastersTournament = selectedTournament === 'masters';
                 const subtotalCell: React.CSSProperties = {
@@ -6560,7 +6562,7 @@ export default function Page() {
                             <td style={totalCell}>{(frontPar + backPar) || '--'}</td>
                           </tr>
                           <tr>
-                            <td style={{ ...labelCell, background: '#fff' }}>Score</td>
+                            <td style={{ ...labelCell, background: isGoldTab ? '#F4BC41' : '#fff' }}>Score</td>
                             {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
                             <td style={subtotalCell}>{!allScoresNull && frontScore > 0 ? frontScore : '--'}</td>
                             {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
