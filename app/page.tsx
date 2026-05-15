@@ -1381,8 +1381,19 @@ export default function Page() {
 
   useEffect(() => {
     const anyOpen = !!activeStandingEntryId || !!activeStandingGolferId || !!scorecardGolferName;
-    document.body.style.overflow = anyOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (!anyOpen) return;
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, scrollY);
+    };
   }, [activeStandingEntryId, activeStandingGolferId, scorecardGolferName]);
 
   useEffect(() => {
