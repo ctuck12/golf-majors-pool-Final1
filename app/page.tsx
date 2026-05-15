@@ -3466,7 +3466,7 @@ export default function Page() {
                       </div>
                     ) : tournament.id === 'players' ? (
                       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: isMobile ? 4 : 6, width: '100%' }}>
-                        <img src="/players-tab-logo.png" alt="The Players" style={{ height: isMobile ? 110 : 130, objectFit: 'contain', flexShrink: 0, marginTop: isMobile ? '-30px' : '-36px' }} />
+                        <img src="/players-tab-logo.png" alt="The Players" style={{ height: isMobile ? 52 : 62, objectFit: 'contain', flexShrink: 0 }} />
                         <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#0f1720', lineHeight: 1 }}>Leaderboard</span>
                       </div>
                     ) : (
