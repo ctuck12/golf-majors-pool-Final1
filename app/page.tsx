@@ -3395,7 +3395,7 @@ export default function Page() {
                             borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef',
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
-                                ? selectedTournament === 'masters' ? '#dcfce7' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#60a5fa' : '#dbeafe'
+                                ? selectedTournament === 'masters' ? '#dcfce7' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#93c5fd' : '#dbeafe'
                                 : (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#ffffff',
                             cursor: 'pointer',
                           }}
@@ -3451,7 +3451,7 @@ export default function Page() {
                             borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef',
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
-                                ? selectedTournament === 'masters' ? '#dcfce7' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#60a5fa' : '#dbeafe'
+                                ? selectedTournament === 'masters' ? '#dcfce7' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#93c5fd' : '#dbeafe'
                                 : (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#ffffff',
                             cursor: 'pointer',
                           }}
@@ -3550,7 +3550,7 @@ export default function Page() {
                           const activePlayer = selectedLeaderboardPlayerId === player.id;
                           const scoreNum = parseFloat(player.score);
                           const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
-                          const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#60a5fa' : '#dbeafe') : (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#ffffff';
+                          const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#93c5fd' : '#dbeafe') : (selectedTournament === 'players' || selectedTournament === 'open') ? '#F4BC41' : '#ffffff';
 
                           return (
                             <tr
