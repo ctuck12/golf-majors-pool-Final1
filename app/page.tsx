@@ -3183,14 +3183,14 @@ export default function Page() {
                 {showLivePayoutStrip ? (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: isMobile ? '4px 9px' : '6px 10px', fontSize: isMobile ? 11 : 13, fontWeight: 800 }}>
-                        1st: {formatPayoutAmount(selectedTournamentPayouts?.first)}
+                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#dcfce7' : '#eef4ff', padding: isMobile ? '4px 9px' : '6px 10px', fontSize: isMobile ? 11 : 13, fontWeight: 800, color: '#2f5f96' }}>
+                        1st: <span style={{ color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>{formatPayoutAmount(selectedTournamentPayouts?.first)}</span>
                       </div>
-                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: isMobile ? '4px 9px' : '6px 10px', fontSize: isMobile ? 11 : 13, fontWeight: 800 }}>
-                        2nd: {formatPayoutAmount(selectedTournamentPayouts?.second)}
+                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#dcfce7' : '#eef4ff', padding: isMobile ? '4px 9px' : '6px 10px', fontSize: isMobile ? 11 : 13, fontWeight: 800, color: '#2f5f96' }}>
+                        2nd: <span style={{ color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>{formatPayoutAmount(selectedTournamentPayouts?.second)}</span>
                       </div>
-                      <div style={{ borderRadius: 999, background: '#eef4ff', color: '#2f5f96', padding: isMobile ? '4px 9px' : '6px 10px', fontSize: isMobile ? 11 : 13, fontWeight: 800 }}>
-                        3rd: {formatPayoutAmount(selectedTournamentPayouts?.third)}
+                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#dcfce7' : '#eef4ff', padding: isMobile ? '4px 9px' : '6px 10px', fontSize: isMobile ? 11 : 13, fontWeight: 800, color: '#2f5f96' }}>
+                        3rd: <span style={{ color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96' }}>{formatPayoutAmount(selectedTournamentPayouts?.third)}</span>
                       </div>
                     </div>
                     {!showFinalTournamentView && (isMobile ? (
