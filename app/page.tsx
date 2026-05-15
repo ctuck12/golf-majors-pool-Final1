@@ -3371,7 +3371,7 @@ export default function Page() {
                 </div>
               ) : showFinalTournamentView ? (
                 <div style={{ marginTop: isMobile ? 14 : 28, overflowX: 'auto' }}>
-                  <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #d1dae3' }}>
+                  <div style={{ borderRadius: 10, overflow: 'hidden', border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ background: selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : '#173b63', color: '#ffffff', fontSize: isMobile ? 10 : 11, textAlign: 'left' }}>
@@ -3392,7 +3392,7 @@ export default function Page() {
                             setActiveStandingEntryId(entry.id);
                           }}
                           style={{
-                            borderBottom: '1px solid #e2e8ef',
+                            borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef',
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
                                 ? selectedTournament === 'masters' ? '#dcfce7' : '#dbeafe'
@@ -3427,7 +3427,7 @@ export default function Page() {
                 </div>
               ) : (
                 <div style={{ marginTop: isMobile ? 14 : 28, overflowX: 'auto' }}>
-                  <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #d1dae3' }}>
+                  <div style={{ borderRadius: 10, overflow: 'hidden', border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ background: selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : '#173b63', color: '#ffffff', fontSize: isMobile ? 10 : 11, textAlign: 'left' }}>
@@ -3448,7 +3448,7 @@ export default function Page() {
                             setActiveStandingEntryId(entry.id);
                           }}
                           style={{
-                            borderBottom: '1px solid #e2e8ef',
+                            borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef',
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
                                 ? selectedTournament === 'masters' ? '#dcfce7' : '#dbeafe'
@@ -3520,7 +3520,7 @@ export default function Page() {
                         boxSizing: 'border-box',
                         padding: isMobile ? '4px 10px' : '6px 12px',
                         fontSize: isMobile ? 16 : 13,
-                        border: '1px solid #d1dae3',
+                        border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3',
                         borderRadius: 8,
                         outline: 'none',
                         marginBottom: 8,
@@ -3530,7 +3530,7 @@ export default function Page() {
                     />
                   </div>
                   <div style={{ overflowX: 'auto' }}>
-                    <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #d1dae3' }}>
+                    <div style={{ borderRadius: 10, overflow: 'hidden', border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 12 }}>
                       <thead>
                         <tr style={{ background: selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : '#173b63', color: '#ffffff', fontSize: isMobile ? 10 : 11, textAlign: 'left' }}>
@@ -3558,7 +3558,7 @@ export default function Page() {
                               onClick={() => setSelectedLeaderboardPlayerId(activePlayer ? null : player.id)}
                               style={{
                                 background: rowBg,
-                                borderBottom: '1px solid #e2e8ef',
+                                borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef',
                                 cursor: 'pointer',
                               }}
                             >
