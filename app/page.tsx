@@ -6444,19 +6444,19 @@ export default function Page() {
                 };
                 const isMastersTournament = selectedTournament === 'masters';
                 const subtotalCell: React.CSSProperties = {
-                  ...baseCell, fontWeight: 800, background: isMastersTournament ? '#fdf7a0' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
+                  ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
                 };
                 const totalCell: React.CSSProperties = {
-                  ...baseCell, fontWeight: 900, background: isMastersTournament ? '#c8bc18' : '#1e3a5f', color: '#fff', borderLeft: thickBorder,
+                  ...baseCell, fontWeight: 900, background: isMastersTournament ? '#2c6449' : '#1e3a5f', color: '#fff', borderLeft: thickBorder,
                 };
                 const holeHeaderCell: React.CSSProperties = {
                   ...baseCell, fontWeight: 700, background: selectedTournament === 'pga' ? '#B09963' : '#0f1720', color: '#fff', fontSize: 12,
                 };
                 const subtotalHeaderCell: React.CSSProperties = {
-                  ...holeHeaderCell, background: isMastersTournament ? '#f3e44d' : '#2f5f96', color: isMastersTournament ? '#0f1720' : '#fff', borderLeft: thickBorder, borderRight: thickBorder,
+                  ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder,
                 };
                 const totalHeaderCell: React.CSSProperties = {
-                  ...holeHeaderCell, background: isMastersTournament ? '#c8bc18' : '#1e3a5f', borderLeft: thickBorder,
+                  ...holeHeaderCell, background: isMastersTournament ? '#1a3d2b' : '#1e3a5f', borderLeft: thickBorder,
                 };
 
                 const fmt = (n: number) => n > 0 ? `+${n}` : n === 0 ? 'E' : `${n}`;
