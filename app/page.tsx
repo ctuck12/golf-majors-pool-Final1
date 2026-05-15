@@ -6492,7 +6492,7 @@ export default function Page() {
                   background: isGoldTab ? '#F4BC41' : '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151',
                 };
                 const isMastersTournament = selectedTournament === 'masters';
-                const isRedTotalTournament = selectedTournament === 'players' || selectedTournament === 'us-open';
+                const isRedTotalTournament = selectedTournament === 'us-open';
                 const subtotalCell: React.CSSProperties = {
                   ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
                 };
