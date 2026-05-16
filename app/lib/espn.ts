@@ -224,6 +224,22 @@ export async function fetchESPNTournament(espnEventId: string): Promise<ESPNTour
 
   const currentRound = deriveCurrentRound(competitors, eventStatus?.period);
   const roundStatus = mapRoundStatus(eventStatus);
+
+  // Round 3+: if ESPN marks a competitor as CUT but they have hole-by-hole data for round 3,
+  // they physically played round 3 and are not cut — restore their computed to-par score so
+  // they show as active. ESPN sometimes sends stale MC/CUT status alongside live round data.
+  if (currentRound >= 3) {
+    for (const c of competitors) {
+      if (!CUT_STATUSES.has((c.score ?? '').toUpperCase())) continue;
+      const round3 = (c.linescores ?? []).find((r) => r.period === 3);
+      if (!round3 || (round3.linescores?.length ?? 0) === 0) continue;
+      const completedRounds = (c.linescores ?? []).filter((r) => (r.linescores?.length ?? 0) > 0);
+      const total = completedRounds.reduce((sum, r) => sum + parseRelScore(r.displayValue), 0);
+      c.score = total === 0 ? 'E' : total > 0 ? `+${total}` : String(total);
+      originalScoreById.delete(c.id);
+    }
+  }
+
   const posStrings = buildPositionStrings(competitors);
 
   const leaderboardRows: SlashGolfLeaderboardRow[] = [];
