@@ -3529,7 +3529,20 @@ export default function Page() {
                       type="text"
                       placeholder="Search player..."
                       value={leaderboardSearch}
-                      onChange={(e) => setLeaderboardSearch(e.target.value)}
+                      onChange={(e) => {
+                        const el = e.currentTarget as HTMLInputElement;
+                        setLeaderboardSearch(e.target.value);
+                        if (isMobile) {
+                          requestAnimationFrame(() => requestAnimationFrame(() => {
+                            const vv = window.visualViewport;
+                            if (!vv) return;
+                            const rect = el.getBoundingClientRect();
+                            if (rect.bottom > vv.height - 20) {
+                              window.scrollBy({ top: rect.bottom - vv.height + 40, behavior: 'instant' as ScrollBehavior });
+                            }
+                          }));
+                        }
+                      }}
                       onFocus={(e) => {
                         if (isMobile) {
                           const el = e.currentTarget;
