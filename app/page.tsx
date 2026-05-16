@@ -6445,29 +6445,29 @@ export default function Page() {
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
                                 <>
-                                  {showProjectedCut && (golfer.originalScore || golfer.currentRoundScore) && (
+                                  {showProjectedCut && golfer.currentRoundScore && (
                                     <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                                      {golfer.currentRoundScore && (
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setScorecardGolferName(golfer.name);
-                                            setScorecardGolferPhoto({ pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl });
-                                            setScorecardGolferTeeTime(golfer.teeTime);
-                                            setScorecardGolferThru(golfer.thru);
-                                            setScorecardGolferBackNineStart(golfer.backNineStart ?? false);
-                                            setScorecardData(null);
-                                            setScorecardLoading(true);
-                                            fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`)
-                                              .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
-                                          }}
-                                          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
-                                        >
-                                          <span style={{ textDecoration: 'underline' }}>Round 2</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.currentRoundScore}</span>
-                                        </button>
-                                      )}
-                                      {golfer.originalScore && <span style={{ color: '#6b7b88' }}>Total: {golfer.originalScore}</span>}
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setScorecardGolferName(golfer.name);
+                                          setScorecardGolferPhoto({ pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl });
+                                          setScorecardGolferTeeTime(golfer.teeTime);
+                                          setScorecardGolferThru(golfer.thru);
+                                          setScorecardGolferBackNineStart(golfer.backNineStart ?? false);
+                                          setScorecardData(null);
+                                          setScorecardLoading(true);
+                                          fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`)
+                                            .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
+                                        }}
+                                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
+                                      >
+                                        <span style={{ textDecoration: 'underline' }}>Round 2</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.currentRoundScore}</span>
+                                      </button>
                                     </div>
+                                  )}
+                                  {golfer.originalScore && (
+                                    <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12 }}>Total: {golfer.originalScore}</div>
                                   )}
                                   <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
                                 </>
@@ -6524,29 +6524,29 @@ export default function Page() {
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
                                 <>
-                                  {showProjectedCut && (golfer.originalScore || golfer.currentRoundScore) && (
+                                  {showProjectedCut && golfer.currentRoundScore && (
                                     <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                                      {golfer.currentRoundScore && (
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setScorecardGolferName(golfer.name);
-                                            setScorecardGolferPhoto({ pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl });
-                                            setScorecardGolferTeeTime(golfer.teeTime);
-                                            setScorecardGolferThru(golfer.thru);
-                                            setScorecardGolferBackNineStart(golfer.backNineStart ?? false);
-                                            setScorecardData(null);
-                                            setScorecardLoading(true);
-                                            fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`)
-                                              .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
-                                          }}
-                                          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
-                                        >
-                                          <span style={{ textDecoration: 'underline' }}>Round 2</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.currentRoundScore}</span>
-                                        </button>
-                                      )}
-                                      {golfer.originalScore && <span style={{ color: '#6b7b88' }}>Total: {golfer.originalScore}</span>}
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setScorecardGolferName(golfer.name);
+                                          setScorecardGolferPhoto({ pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl });
+                                          setScorecardGolferTeeTime(golfer.teeTime);
+                                          setScorecardGolferThru(golfer.thru);
+                                          setScorecardGolferBackNineStart(golfer.backNineStart ?? false);
+                                          setScorecardData(null);
+                                          setScorecardLoading(true);
+                                          fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`)
+                                            .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
+                                        }}
+                                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
+                                      >
+                                        <span style={{ textDecoration: 'underline' }}>Round 2</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.currentRoundScore}</span>
+                                      </button>
                                     </div>
+                                  )}
+                                  {golfer.originalScore && (
+                                    <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 11 }}>Total: {golfer.originalScore}</div>
                                   )}
                                   <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 11, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
                                 </>
