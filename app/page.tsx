@@ -951,6 +951,7 @@ export default function Page() {
   const [leaderboardSearch, setLeaderboardSearch] = useState('');
   const [leaderboardViewMode, setLeaderboardViewMode] = useState<'picked' | 'full'>('picked');
   const [fullLeaderboardRows, setFullLeaderboardRows] = useState<FullFieldPlayer[] | null>(null);
+  const [showCutInfo, setShowCutInfo] = useState(false);
   const [feed, setFeed] = useState<FeedResponse | null>(() => readFeedCache(initialTournament));
   const [isLoading, setIsLoading] = useState(() => readFeedCache(initialTournament) === null);
   const [error, setError] = useState('');
@@ -2261,6 +2262,7 @@ export default function Page() {
       setLeaderboardSearch('');
       setLeaderboardViewMode('picked');
       setFullLeaderboardRows(null);
+      setShowCutInfo(false);
       setMainTab(tab);
     });
 
@@ -3078,7 +3080,7 @@ export default function Page() {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('picked'); setFullLeaderboardRows(null); setSelectedLeaderboardPlayerId(null); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
+                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('picked'); setFullLeaderboardRows(null); setSelectedLeaderboardPlayerId(null); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
                     style={{
                       border: active ? '1px solid #d7e0e8' : '1px solid transparent',
                       borderBottom: active ? '1px solid #fff' : '1px solid transparent',
@@ -3173,7 +3175,23 @@ export default function Page() {
                         The Players Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                        <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
+                          <button
+                            onClick={() => setShowCutInfo((v) => !v)}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96', touchAction: 'manipulation' }}
+                          >
+                            Projected Cut: {feed.projectedCut}
+                            <span style={{ fontSize: isMobile ? 10 : 12, opacity: 0.65 }}>ⓘ</span>
+                          </button>
+                          {showCutInfo && (
+                            <>
+                              <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
+                              <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
+                                {selectedTournament === 'players' ? 'Top 65 & ties' : selectedTournament === 'masters' ? 'Top 50 & ties' : selectedTournament === 'pga' ? 'Top 70 & ties' : selectedTournament === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
+                              </div>
+                            </>
+                          )}
+                        </div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'masters' ? (
@@ -3182,7 +3200,23 @@ export default function Page() {
                         The Masters Tournament
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                        <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
+                          <button
+                            onClick={() => setShowCutInfo((v) => !v)}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96', touchAction: 'manipulation' }}
+                          >
+                            Projected Cut: {feed.projectedCut}
+                            <span style={{ fontSize: isMobile ? 10 : 12, opacity: 0.65 }}>ⓘ</span>
+                          </button>
+                          {showCutInfo && (
+                            <>
+                              <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
+                              <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
+                                {selectedTournament === 'players' ? 'Top 65 & ties' : selectedTournament === 'masters' ? 'Top 50 & ties' : selectedTournament === 'pga' ? 'Top 70 & ties' : selectedTournament === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
+                              </div>
+                            </>
+                          )}
+                        </div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'pga' ? (
@@ -3191,7 +3225,23 @@ export default function Page() {
                         The PGA Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                        <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
+                          <button
+                            onClick={() => setShowCutInfo((v) => !v)}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96', touchAction: 'manipulation' }}
+                          >
+                            Projected Cut: {feed.projectedCut}
+                            <span style={{ fontSize: isMobile ? 10 : 12, opacity: 0.65 }}>ⓘ</span>
+                          </button>
+                          {showCutInfo && (
+                            <>
+                              <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
+                              <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
+                                {selectedTournament === 'players' ? 'Top 65 & ties' : selectedTournament === 'masters' ? 'Top 50 & ties' : selectedTournament === 'pga' ? 'Top 70 & ties' : selectedTournament === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
+                              </div>
+                            </>
+                          )}
+                        </div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'us-open' ? (
@@ -3200,7 +3250,23 @@ export default function Page() {
                         U.S. Open Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                        <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
+                          <button
+                            onClick={() => setShowCutInfo((v) => !v)}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96', touchAction: 'manipulation' }}
+                          >
+                            Projected Cut: {feed.projectedCut}
+                            <span style={{ fontSize: isMobile ? 10 : 12, opacity: 0.65 }}>ⓘ</span>
+                          </button>
+                          {showCutInfo && (
+                            <>
+                              <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
+                              <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
+                                {selectedTournament === 'players' ? 'Top 65 & ties' : selectedTournament === 'masters' ? 'Top 50 & ties' : selectedTournament === 'pga' ? 'Top 70 & ties' : selectedTournament === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
+                              </div>
+                            </>
+                          )}
+                        </div>
                       ) : null}
                     </>
                   ) : selectedTournament === 'open' ? (
@@ -3209,7 +3275,23 @@ export default function Page() {
                         The Open Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
-                        <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</div>
+                        <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
+                          <button
+                            onClick={() => setShowCutInfo((v) => !v)}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: isMobile ? 12 : 15, fontWeight: 700, color: '#2f5f96', touchAction: 'manipulation' }}
+                          >
+                            Projected Cut: {feed.projectedCut}
+                            <span style={{ fontSize: isMobile ? 10 : 12, opacity: 0.65 }}>ⓘ</span>
+                          </button>
+                          {showCutInfo && (
+                            <>
+                              <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
+                              <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
+                                {selectedTournament === 'players' ? 'Top 65 & ties' : selectedTournament === 'masters' ? 'Top 50 & ties' : selectedTournament === 'pga' ? 'Top 70 & ties' : selectedTournament === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
+                              </div>
+                            </>
+                          )}
+                        </div>
                       ) : null}
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
