@@ -424,6 +424,7 @@ export async function GET(request: Request) {
     ? rows.map((row) => {
         const fullName = `${row.firstName} ${row.lastName}`;
         const poolPlayer = poolByName.get(normName(fullName));
+        const rndEntry = (row.rounds ?? []).find((r) => r.roundId === currentRound);
         return {
           playerId: String(row.playerId ?? ''),
           poolPlayerId: poolPlayer?.id ?? null,
@@ -432,6 +433,7 @@ export async function GET(request: Request) {
           score: normalizeScore(row),
           thru: normalizeThru(row),
           originalScore: computeOriginalScore(row),
+          currentRoundScore: rndEntry?.scoreToPar ?? null,
         };
       })
     : undefined;

@@ -236,6 +236,7 @@ type FullFieldPlayer = {
   score: string;
   thru: string;
   originalScore?: string;
+  currentRoundScore?: string | null;
 };
 
 type ScorecardHole = { hole: number; par: number; score: number | null; label: string };
@@ -954,6 +955,7 @@ export default function Page() {
   const [leaderboardSearch, setLeaderboardSearch] = useState('');
   const [leaderboardViewMode, setLeaderboardViewMode] = useState<'picked' | 'full'>('picked');
   const [fullLeaderboardRows, setFullLeaderboardRows] = useState<FullFieldPlayer[] | null>(null);
+  const [leaderboardSortMode, setLeaderboardSortMode] = useState<'default' | 'round-desc' | 'round-asc'>('default');
   const [showCutInfo, setShowCutInfo] = useState(false);
   const [feed, setFeed] = useState<FeedResponse | null>(() => readFeedCache(initialTournament));
   const [isLoading, setIsLoading] = useState(() => readFeedCache(initialTournament) === null);
@@ -2276,6 +2278,7 @@ export default function Page() {
       setLeaderboardSearch('');
       setLeaderboardViewMode('picked');
       setFullLeaderboardRows(null);
+      setLeaderboardSortMode('default');
       setShowCutInfo(false);
       setMainTab(tab);
     });
@@ -3094,7 +3097,7 @@ export default function Page() {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('picked'); setFullLeaderboardRows(null); setSelectedLeaderboardPlayerId(null); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
+                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('picked'); setFullLeaderboardRows(null); setSelectedLeaderboardPlayerId(null); setLeaderboardSortMode('default'); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
                     style={{
                       border: active ? '1px solid #d7e0e8' : '1px solid transparent',
                       borderBottom: active ? '1px solid #fff' : '1px solid transparent',
@@ -3747,7 +3750,16 @@ export default function Page() {
                             <tr style={{ background: hBg, color: '#ffffff', fontSize: isMobile ? 10 : 11, textAlign: 'left' }}>
                               <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', ...stickyTh }}>Pos.</th>
                               <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', fontWeight: 700, letterSpacing: '0.04em', ...stickyTh }}>Player</th>
-                              <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', ...stickyTh }}>Total</th>
+                              <th
+                                onClick={() => setLeaderboardSortMode((m) => m === 'default' ? 'round-desc' : m === 'round-desc' ? 'round-asc' : 'default')}
+                                style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', cursor: 'pointer', userSelect: 'none', ...stickyTh }}
+                              >
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+                                  {leaderboardSortMode === 'default' ? 'Total' : `Rnd ${feed?.currentRound ?? 1}`}
+                                  {leaderboardSortMode === 'round-desc' && <span style={{ fontSize: isMobile ? 8 : 9 }}>▼</span>}
+                                  {leaderboardSortMode === 'round-asc' && <span style={{ fontSize: isMobile ? 8 : 9 }}>▲</span>}
+                                </span>
+                              </th>
                               <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', ...stickyTh }}>Thru</th>
                               <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', ...stickyTh }}>Picked</th>
                             </tr>
@@ -3760,11 +3772,17 @@ export default function Page() {
                               const filteredFullRaw = (fullLeaderboardRows ?? []).filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
                               const CUT_SCORE_SET_FL = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                               const parseCutScore = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
-                              const filteredFull = [
-                                ...filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase())),
-                                ...filteredFullRaw.filter((p) => CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => parseCutScore(a.originalScore) - parseCutScore(b.originalScore)),
-                              ];
-                              const projCutNum = showProjectedCut && feed?.projectedCut
+                              const parseRndScoreFL = (s: string | null | undefined) => { if (!s || s === '--') return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
+                              const activeFL = filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase()));
+                              const cutFL = filteredFullRaw.filter((p) => CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => parseCutScore(a.originalScore) - parseCutScore(b.originalScore));
+                              const sortedActiveFL = leaderboardSortMode !== 'default'
+                                ? [...activeFL].sort((a, b) => {
+                                    const d = parseRndScoreFL(a.currentRoundScore) - parseRndScoreFL(b.currentRoundScore);
+                                    return leaderboardSortMode === 'round-desc' ? d : -d;
+                                  })
+                                : activeFL;
+                              const filteredFull = [...sortedActiveFL, ...cutFL];
+                              const projCutNum = showProjectedCut && feed?.projectedCut && leaderboardSortMode === 'default'
                                 ? (feed.projectedCut === 'E' ? 0 : parseFloat(feed.projectedCut) || 0)
                                 : null;
                               const cutLineIdx = projCutNum !== null
@@ -3780,13 +3798,15 @@ export default function Page() {
                                   ? standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === player.poolPlayerId).length, 0)
                                   : 0;
                                 const activePlayer = player.poolPlayerId !== null && selectedLeaderboardPlayerId === player.poolPlayerId;
-                                const scoreNum = parseFloat(player.score);
-                                const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
                                 const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
                                 const displayScore = showProjectedCut && isCutStatus && player.originalScore ? player.originalScore : player.score;
                                 const displayScoreNum = parseFloat(displayScore);
                                 const displayIsUnderPar = !isNaN(displayScoreNum) && displayScoreNum < 0;
                                 const displayIsCut = displayScore === 'CUT' || displayScore === 'MDF' || displayScore === 'WD' || displayScore === 'DQ';
+                                const colVal = leaderboardSortMode !== 'default' ? (player.currentRoundScore ?? '--') : displayScore;
+                                const colNum = parseFloat(colVal);
+                                const colUnderPar = !isNaN(colNum) && colNum < 0;
+                                const colIsCut = displayIsCut && leaderboardSortMode === 'default';
                                 const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
                                 return (
                                   <Fragment key={player.playerId}>
@@ -3796,7 +3816,7 @@ export default function Page() {
                                     >
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: displayIsCut ? 600 : 700, color: displayIsUnderPar ? '#dc2626' : (displayIsCut ? '#374151' : '#0f1720') }}>{displayScore}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar ? '#dc2626' : (colIsCut ? '#374151' : '#0f1720') }}>{colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{player.thru}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{timesPicked > 0 ? timesPicked : '–'}</td>
                                     </tr>
@@ -3819,11 +3839,17 @@ export default function Page() {
                               const filteredPickedRaw = eventLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
                               const CUT_SCORE_SET_PO = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                               const parseCutScorePO = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
-                              const filteredPicked = [
-                                ...filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase())),
-                                ...filteredPickedRaw.filter((p) => CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => parseCutScorePO(a.originalScore) - parseCutScorePO(b.originalScore)),
-                              ];
-                              const projCutNum = showProjectedCut && feed?.projectedCut
+                              const parseRndScorePO = (s: string | null | undefined) => { if (!s || s === '--') return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
+                              const activePO = filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase()));
+                              const cutPO = filteredPickedRaw.filter((p) => CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => parseCutScorePO(a.originalScore) - parseCutScorePO(b.originalScore));
+                              const sortedActivePO = leaderboardSortMode !== 'default'
+                                ? [...activePO].sort((a, b) => {
+                                    const d = parseRndScorePO(a.currentRoundScore) - parseRndScorePO(b.currentRoundScore);
+                                    return leaderboardSortMode === 'round-desc' ? d : -d;
+                                  })
+                                : activePO;
+                              const filteredPicked = [...sortedActivePO, ...cutPO];
+                              const projCutNum = showProjectedCut && feed?.projectedCut && leaderboardSortMode === 'default'
                                 ? (feed.projectedCut === 'E' ? 0 : parseFloat(feed.projectedCut) || 0)
                                 : null;
                               const cutLineIdx = projCutNum !== null
@@ -3840,13 +3866,15 @@ export default function Page() {
                                   0,
                                 );
                                 const activePlayer = selectedLeaderboardPlayerId === player.id;
-                                const scoreNum = parseFloat(player.score);
-                                const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
                                 const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
                                 const displayScore = showProjectedCut && isCutStatus && player.originalScore ? player.originalScore : player.score;
                                 const displayScoreNum = parseFloat(displayScore);
                                 const displayIsUnderPar = !isNaN(displayScoreNum) && displayScoreNum < 0;
                                 const displayIsCut = displayScore === 'CUT' || displayScore === 'MDF' || displayScore === 'WD' || displayScore === 'DQ';
+                                const colVal = leaderboardSortMode !== 'default' ? (player.currentRoundScore ?? '--') : displayScore;
+                                const colNum = parseFloat(colVal);
+                                const colUnderPar = !isNaN(colNum) && colNum < 0;
+                                const colIsCut = displayIsCut && leaderboardSortMode === 'default';
                                 const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
                                 return (
                                   <Fragment key={player.id}>
@@ -3860,7 +3888,7 @@ export default function Page() {
                                     >
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: displayIsCut ? 600 : 700, color: displayIsUnderPar ? '#dc2626' : (displayIsCut ? '#374151' : '#0f1720') }}>{displayScore}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar ? '#dc2626' : (colIsCut ? '#374151' : '#0f1720') }}>{colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
                                         const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                         const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
