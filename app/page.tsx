@@ -1353,6 +1353,12 @@ export default function Page() {
     };
   }, [feedRefreshNonce, selectedTournament]);
 
+  useEffect(() => {
+    if ((feed?.currentRound ?? 0) < 3 || fullLeaderboardRows) return;
+    readJson<FeedResponse>(`/api/leaderboard?tournamentId=${selectedTournament}&fullField=true`, { cache: 'no-store' })
+      .then((data) => setFullLeaderboardRows(data.fullLeaderboard ?? []))
+      .catch(() => { /* non-critical */ });
+  }, [feed?.currentRound, selectedTournament, fullLeaderboardRows]);
 
   useEffect(() => {
     const loadCommissionerMembers = async () => {
@@ -3941,7 +3947,8 @@ export default function Page() {
                                   }, -1)
                                 : -1;
                               const derivedCutScorePO = espnRoundPO >= 3 ? (() => {
-                                const scores = (fullLeaderboardRows ?? []).filter(p => p.score === 'CUT' && p.originalScore).map(p => p.originalScore === 'E' ? 0 : parseFloat(p.originalScore!)).filter(n => !isNaN(n));
+                                const cutSource: Array<{ score: string; originalScore?: string }> = fullLeaderboardRows?.length ? fullLeaderboardRows : (feed?.players ?? []);
+                                const scores = cutSource.filter(p => p.score === 'CUT' && p.originalScore).map(p => p.originalScore === 'E' ? 0 : parseFloat(p.originalScore!)).filter(n => !isNaN(n));
                                 if (!scores.length) return null;
                                 const cutLine = Math.min(...scores) - 1;
                                 return cutLine === 0 ? 'E' : cutLine > 0 ? `+${cutLine}` : String(cutLine);
