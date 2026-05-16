@@ -3531,16 +3531,24 @@ export default function Page() {
                       value={leaderboardSearch}
                       onChange={(e) => setLeaderboardSearch(e.target.value)}
                       onFocus={(e) => {
-                        if (isMobile) {
-                          const el = e.currentTarget;
-                          setTimeout(() => {
-                            const vv = window.visualViewport;
-                            if (!vv) return;
-                            const rect = el.getBoundingClientRect();
-                            if (rect.bottom <= vv.height - 20) return;
-                            window.scrollBy({ top: rect.bottom - vv.height + 40, behavior: 'smooth' });
-                          }, 350);
+                        if (!isMobile) return;
+                        const el = e.currentTarget;
+                        const ensureVisible = (behavior: ScrollBehavior = 'smooth') => {
+                          const vv = window.visualViewport;
+                          if (!vv) return;
+                          const rect = el.getBoundingClientRect();
+                          if (rect.bottom > vv.height - 20) {
+                            window.scrollBy({ top: rect.bottom - vv.height + 40, behavior });
+                          }
+                        };
+                        setTimeout(() => ensureVisible('smooth'), 350);
+                        const tableEl = document.querySelector('[data-leaderboard-table]');
+                        let ro: ResizeObserver | null = null;
+                        if (tableEl && typeof ResizeObserver !== 'undefined') {
+                          ro = new ResizeObserver(() => ensureVisible('instant' as ScrollBehavior));
+                          ro.observe(tableEl);
                         }
+                        el.addEventListener('blur', () => ro?.disconnect(), { once: true });
                       }}
                       style={{
                         width: '100%',
@@ -3623,7 +3631,7 @@ export default function Page() {
                     );
                   })()}
                   <div style={{ overflowX: 'auto' }}>
-                    <div style={{ borderRadius: 10, overflow: isMobile ? 'auto' : 'hidden', height: isMobile ? 726 : undefined, WebkitOverflowScrolling: isMobile ? 'touch' : undefined, border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' } as React.CSSProperties}>
+                    <div data-leaderboard-table="true" style={{ borderRadius: 10, overflow: isMobile ? 'auto' : 'hidden', maxHeight: isMobile ? 726 : undefined, WebkitOverflowScrolling: isMobile ? 'touch' : undefined, border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' } as React.CSSProperties}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 12 }}>
                       <thead>
                         {(() => {
