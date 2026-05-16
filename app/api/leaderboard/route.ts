@@ -434,6 +434,8 @@ export async function GET(request: Request) {
           thru: normalizeThru(row),
           originalScore: computeOriginalScore(row),
           currentRoundScore: rndEntry?.scoreToPar ?? null,
+          teeTime: (row.teeTime as string | null) ?? null,
+          backNineStart: false,
         };
       })
     : undefined;

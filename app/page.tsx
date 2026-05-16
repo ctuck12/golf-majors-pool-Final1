@@ -237,6 +237,8 @@ type FullFieldPlayer = {
   thru: string;
   originalScore?: string;
   currentRoundScore?: string | null;
+  teeTime?: string | null;
+  backNineStart?: boolean;
 };
 
 type ScorecardHole = { hole: number; par: number; score: number | null; label: string };
@@ -3839,7 +3841,21 @@ export default function Page() {
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar ? '#dc2626' : (colIsCut ? '#374151' : '#0f1720') }}>{colVal}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{player.thru}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
+                                        const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
+                                        if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
+                                          return formatTeeTime(player.teeTime);
+                                        }
+                                        const clientRound = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
+                                        const espnRound = feed?.currentRound ?? 1;
+                                        if (isLive && !isCutStatus && player.thru === 'F' && clientRound > espnRound) {
+                                          return player.teeTime ? formatTeeTime(player.teeTime) : '--';
+                                        }
+                                        const thruVal = player.thru;
+                                        return player.backNineStart && thruVal !== '--' && thruVal !== 'F'
+                                          ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
+                                          : thruVal;
+                                      })()}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{timesPicked > 0 ? timesPicked : '–'}</td>
                                     </tr>
                                     {rowIndex === cutLineIdx && (
