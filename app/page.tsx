@@ -3566,7 +3566,7 @@ export default function Page() {
                               style={{
                                 flex: 1,
                                 padding: isMobile ? '6px 8px' : '7px 12px',
-                                fontSize: isMobile ? 11 : 12,
+                                fontSize: isMobile ? 16 : 12,
                                 fontWeight: 700,
                                 borderRadius: 8,
                                 border: `1.5px solid ${tColor}`,
@@ -3574,6 +3574,7 @@ export default function Page() {
                                 color: isActive ? '#fff' : tColor,
                                 cursor: 'pointer',
                                 transition: 'background 0.15s, color 0.15s',
+                                touchAction: 'manipulation',
                               }}
                             >
                               {label}
