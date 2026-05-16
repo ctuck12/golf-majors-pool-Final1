@@ -3579,7 +3579,7 @@ export default function Page() {
             )}
             </section>
 
-            <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20, alignSelf: isMobile ? undefined : 'stretch' }}>
+            <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20, alignSelf: isMobile ? undefined : 'stretch', minHeight: isMobile ? undefined : 0 }}>
               {showLivePayoutStrip ? (
                 <section
                   style={{
@@ -3587,7 +3587,7 @@ export default function Page() {
                     borderRadius: 20,
                     padding: isMobile ? 14 : 22,
                     boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
-                    ...(isMobile ? {} : { display: 'flex', flexDirection: 'column', boxSizing: 'border-box' as const }),
+                    ...(isMobile ? {} : { display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const }),
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
