@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, startTransition, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { Fragment, startTransition, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
 import {
   AlertCircle,
@@ -1045,20 +1045,13 @@ export default function Page() {
 
   const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isMobile) return;
-    const sync = () => {
-      const left = standingsColRef.current;
-      const right = leaderboardColRef.current;
-      if (!left || !right) return;
-      right.style.maxHeight = `${left.offsetHeight}px`;
-    };
-    sync();
-    const ro = new ResizeObserver(sync);
-    if (standingsColRef.current) ro.observe(standingsColRef.current);
-    return () => ro.disconnect();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMobile]);
+    const left = standingsColRef.current;
+    const right = leaderboardColRef.current;
+    if (!left || !right) return;
+    right.style.height = `${left.offsetHeight}px`;
+  });
 
   const tournament = TOURNAMENTS.find((item) => item.id === selectedTournament) ?? TOURNAMENTS[0];
   const canManagePool = canAccessCommissionerConsole(sessionUser);
