@@ -1053,7 +1053,14 @@ export default function Page() {
     const left = standingsColRef.current;
     const right = leaderboardColRef.current;
     if (!left || !right) return;
-    right.style.height = `${left.offsetHeight}px`;
+    const cap = `${left.offsetHeight}px`;
+    if (leaderboardSearch) {
+      right.style.height = 'auto';
+      right.style.maxHeight = cap;
+    } else {
+      right.style.height = cap;
+      right.style.maxHeight = '';
+    }
   });
 
   const tournament = TOURNAMENTS.find((item) => item.id === selectedTournament) ?? TOURNAMENTS[0];
