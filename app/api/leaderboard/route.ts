@@ -398,6 +398,23 @@ export async function GET(request: Request) {
   // ── 4. Odds ───────────────────────────────────────────────────────────
   const odds = await getOdds(tournamentId, watchedPlayerNames);
 
+  // ── 5. Full field (all players in the cached leaderboard, not just pool) ──
+  const fullField = searchParams.get('fullField') === 'true';
+  const fullLeaderboard = fullField
+    ? rows.map((row) => {
+        const fullName = `${row.firstName} ${row.lastName}`;
+        const poolPlayer = poolByName.get(normName(fullName));
+        return {
+          playerId: String(row.playerId ?? ''),
+          poolPlayerId: poolPlayer?.id ?? null,
+          name: fullName,
+          position: normalizePosition(row),
+          score: normalizeScore(row),
+          thru: normalizeThru(row),
+        };
+      })
+    : undefined;
+
   return Response.json({
     source: 'cache',
     cachedAt: cached.cachedAt,
@@ -409,5 +426,6 @@ export async function GET(request: Request) {
     fetchedAt: new Date().toISOString(),
     players,
     odds: odds.players,
+    ...(fullLeaderboard ? { fullLeaderboard } : {}),
   });
 }

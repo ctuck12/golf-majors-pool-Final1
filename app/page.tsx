@@ -227,6 +227,15 @@ type FeedRow = {
   scoreBreakdown?: GolferScoreBreakdown;
 };
 
+type FullFieldPlayer = {
+  playerId: string;
+  poolPlayerId: number | null;
+  name: string;
+  position: string;
+  score: string;
+  thru: string;
+};
+
 type ScorecardHole = { hole: number; par: number; score: number | null; label: string };
 type ScorecardRound = { round: number; score?: number | string; holes: ScorecardHole[] };
 type ScorecardData = { courseName: string; par: number; rounds: ScorecardRound[]; source: string; message?: string };
@@ -243,6 +252,7 @@ type FeedResponse = {
   status: string;
   currentRound?: number;
   projectedCut?: string | null;
+  fullLeaderboard?: FullFieldPlayer[];
 };
 
 type AuthUser = {
@@ -939,6 +949,8 @@ export default function Page() {
   const [showPointsSystem, setShowPointsSystem] = useState(false);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
   const [leaderboardSearch, setLeaderboardSearch] = useState('');
+  const [leaderboardViewMode, setLeaderboardViewMode] = useState<'picked' | 'full'>('picked');
+  const [fullLeaderboardRows, setFullLeaderboardRows] = useState<FullFieldPlayer[] | null>(null);
   const [feed, setFeed] = useState<FeedResponse | null>(() => readFeedCache(initialTournament));
   const [isLoading, setIsLoading] = useState(() => readFeedCache(initialTournament) === null);
   const [error, setError] = useState('');
@@ -2247,6 +2259,8 @@ export default function Page() {
       }
 
       setLeaderboardSearch('');
+      setLeaderboardViewMode('picked');
+      setFullLeaderboardRows(null);
       setMainTab(tab);
     });
 
@@ -3064,7 +3078,7 @@ export default function Page() {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setSelectedLeaderboardPlayerId(null); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
+                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('picked'); setFullLeaderboardRows(null); setSelectedLeaderboardPlayerId(null); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
                     style={{
                       border: active ? '1px solid #d7e0e8' : '1px solid transparent',
                       borderBottom: active ? '1px solid #fff' : '1px solid transparent',
@@ -3530,6 +3544,45 @@ export default function Page() {
                       }}
                     />
                   </div>
+                  {(() => {
+                    const tColor = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
+                    return (
+                      <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+                        {(['picked', 'full'] as const).map((mode) => {
+                          const isActive = leaderboardViewMode === mode;
+                          const label = mode === 'picked' ? 'Picked Only' : 'Full Leaderboard';
+                          return (
+                            <button
+                              key={mode}
+                              onClick={async () => {
+                                setLeaderboardViewMode(mode);
+                                if (mode === 'full' && !fullLeaderboardRows) {
+                                  try {
+                                    const data = await readJson<FeedResponse>(`/api/leaderboard?tournamentId=${selectedTournament}&fullField=true`, { cache: 'no-store' });
+                                    setFullLeaderboardRows(data.fullLeaderboard ?? []);
+                                  } catch { /* keep existing view */ }
+                                }
+                              }}
+                              style={{
+                                flex: 1,
+                                padding: isMobile ? '6px 8px' : '7px 12px',
+                                fontSize: isMobile ? 11 : 12,
+                                fontWeight: 700,
+                                borderRadius: 8,
+                                border: `1.5px solid ${tColor}`,
+                                background: isActive ? tColor : '#fff',
+                                color: isActive ? '#fff' : tColor,
+                                cursor: 'pointer',
+                                transition: 'background 0.15s, color 0.15s',
+                              }}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                   <div style={{ overflowX: 'auto' }}>
                     <div style={{ borderRadius: 10, overflow: 'hidden', border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 12 }}>
@@ -3543,7 +3596,31 @@ export default function Page() {
                         </tr>
                       </thead>
                       <tbody>
-                        {eventLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase())).map((player, rowIndex) => {
+                        {leaderboardViewMode === 'full'
+                          ? (fullLeaderboardRows ?? []).filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase())).map((player) => {
+                              const timesPicked = player.poolPlayerId !== null
+                                ? standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === player.poolPlayerId).length, 0)
+                                : 0;
+                              const activePlayer = player.poolPlayerId !== null && selectedLeaderboardPlayerId === player.poolPlayerId;
+                              const scoreNum = parseFloat(player.score);
+                              const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
+                              const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
+                              const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
+                              return (
+                                <tr
+                                  key={player.playerId}
+                                  onClick={() => player.poolPlayerId !== null && setSelectedLeaderboardPlayerId(activePlayer ? null : player.poolPlayerId)}
+                                  style={{ background: rowBg, borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef', cursor: player.poolPlayerId !== null ? 'pointer' : 'default' }}
+                                >
+                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
+                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
+                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: isCutStatus ? 600 : 700, color: isUnderPar ? '#dc2626' : (isCutStatus ? '#374151' : '#0f1720') }}>{player.score}</td>
+                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{player.thru}</td>
+                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{timesPicked}</td>
+                                </tr>
+                              );
+                            })
+                          : eventLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase())).map((player, rowIndex) => {
                           const timesPicked = standings.reduce(
                             (sum, entry) => sum + entry.golfers.filter((golfer) => golfer.id === player.id).length,
                             0,
