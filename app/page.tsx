@@ -956,6 +956,7 @@ export default function Page() {
   const [leaderboardViewMode, setLeaderboardViewMode] = useState<'picked' | 'full'>('picked');
   const [fullLeaderboardRows, setFullLeaderboardRows] = useState<FullFieldPlayer[] | null>(null);
   const [leaderboardSortMode, setLeaderboardSortMode] = useState<'default' | 'round-desc' | 'round-asc'>('default');
+  const [leaderboardPickedSort, setLeaderboardPickedSort] = useState<'default' | 'desc' | 'asc'>('default');
   const [showCutInfo, setShowCutInfo] = useState(false);
   const [feed, setFeed] = useState<FeedResponse | null>(() => readFeedCache(initialTournament));
   const [isLoading, setIsLoading] = useState(() => readFeedCache(initialTournament) === null);
@@ -2279,6 +2280,7 @@ export default function Page() {
       setLeaderboardViewMode('picked');
       setFullLeaderboardRows(null);
       setLeaderboardSortMode('default');
+      setLeaderboardPickedSort('default');
       setShowCutInfo(false);
       setMainTab(tab);
     });
@@ -3097,7 +3099,7 @@ export default function Page() {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('picked'); setFullLeaderboardRows(null); setSelectedLeaderboardPlayerId(null); setLeaderboardSortMode('default'); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
+                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('picked'); setFullLeaderboardRows(null); setSelectedLeaderboardPlayerId(null); setLeaderboardSortMode('default'); setLeaderboardPickedSort('default'); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
                     style={{
                       border: active ? '1px solid #d7e0e8' : '1px solid transparent',
                       borderBottom: active ? '1px solid #fff' : '1px solid transparent',
@@ -3751,7 +3753,7 @@ export default function Page() {
                               <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', ...stickyTh }}>Pos.</th>
                               <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', fontWeight: 700, letterSpacing: '0.04em', ...stickyTh }}>Player</th>
                               <th
-                                onClick={() => setLeaderboardSortMode((m) => m === 'default' ? 'round-desc' : m === 'round-desc' ? 'round-asc' : 'default')}
+                                onClick={() => { setLeaderboardPickedSort('default'); setLeaderboardSortMode((m) => m === 'default' ? 'round-desc' : m === 'round-desc' ? 'round-asc' : 'default'); }}
                                 style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', cursor: 'pointer', userSelect: 'none', ...stickyTh }}
                               >
                                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
@@ -3761,7 +3763,16 @@ export default function Page() {
                                 </span>
                               </th>
                               <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', ...stickyTh }}>Thru</th>
-                              <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', ...stickyTh }}>Picked</th>
+                              <th
+                                onClick={() => leaderboardViewMode === 'picked' && (() => { setLeaderboardSortMode('default'); setLeaderboardPickedSort((m) => m === 'default' ? 'desc' : m === 'desc' ? 'asc' : 'default'); })()}
+                                style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', cursor: leaderboardViewMode === 'picked' ? 'pointer' : 'default', userSelect: leaderboardViewMode === 'picked' ? 'none' : undefined, ...stickyTh }}
+                              >
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+                                  Picked
+                                  {leaderboardViewMode === 'picked' && leaderboardPickedSort === 'desc' && <span style={{ fontSize: isMobile ? 8 : 9 }}>▼</span>}
+                                  {leaderboardViewMode === 'picked' && leaderboardPickedSort === 'asc' && <span style={{ fontSize: isMobile ? 8 : 9 }}>▲</span>}
+                                </span>
+                              </th>
                             </tr>
                           );
                         })()}
@@ -3842,7 +3853,20 @@ export default function Page() {
                               const CUT_SCORE_SET_PO = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                               const parseCutScorePO = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
                               const parseRndScorePO = (s: string | null | undefined) => { if (!s || s === '--') return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
-                              const filteredPicked = leaderboardSortMode !== 'default'
+                              const pickedCountMap = new Map<number, number>();
+                              for (const entry of standings) {
+                                for (const golfer of entry.golfers) {
+                                  pickedCountMap.set(golfer.id, (pickedCountMap.get(golfer.id) ?? 0) + 1);
+                                }
+                              }
+                              const filteredPicked = leaderboardPickedSort !== 'default'
+                                ? [...filteredPickedRaw].sort((a, b) => {
+                                    const aP = pickedCountMap.get(a.id) ?? 0;
+                                    const bP = pickedCountMap.get(b.id) ?? 0;
+                                    if (aP !== bP) return leaderboardPickedSort === 'desc' ? bP - aP : aP - bP;
+                                    return a.name.localeCompare(b.name);
+                                  })
+                                : leaderboardSortMode !== 'default'
                                 ? [...filteredPickedRaw].sort((a, b) => {
                                     const aS = parseRndScorePO(a.currentRoundScore);
                                     const bS = parseRndScorePO(b.currentRoundScore);
@@ -3865,10 +3889,7 @@ export default function Page() {
                                   }, -1)
                                 : -1;
                               return filteredPicked.map((player, rowIndex) => {
-                                const timesPicked = standings.reduce(
-                                  (sum, entry) => sum + entry.golfers.filter((golfer) => golfer.id === player.id).length,
-                                  0,
-                                );
+                                const timesPicked = pickedCountMap.get(player.id) ?? 0;
                                 const activePlayer = selectedLeaderboardPlayerId === player.id;
                                 const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
                                 const displayScore = showProjectedCut && isCutStatus && player.originalScore ? player.originalScore : player.score;
