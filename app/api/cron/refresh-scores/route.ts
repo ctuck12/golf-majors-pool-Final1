@@ -61,17 +61,69 @@ const ESPN_CUT_POSITIONS: Partial<Record<string, number>> = {
   open: 70,
 };
 
+const EXPLICIT_CUT_STATUSES = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
+
+function parseScoreToNum(s: string | undefined): number {
+  if (!s || s === '--') return 999;
+  if (s === 'E') return 0;
+  const n = parseInt(String(s), 10);
+  return isNaN(n) ? 999 : n;
+}
+
 function computeProjectedCutFromRows(tournamentId: string, rows: SlashGolfLeaderboardRow[], currentRound: number): string | null {
   if (currentRound !== 2) return null; // only meaningful during R2
   const cutPos = ESPN_CUT_POSITIONS[tournamentId];
   if (!cutPos) return null;
-  const CUT_STATUSES = new Set(['CUT', 'WD', 'DQ', 'MDF']);
-  const parseScore = (s: string) => { if (s === 'E') return 0; const n = parseInt(s); return isNaN(n) ? 999 : n; };
   const active = rows
-    .filter(r => !CUT_STATUSES.has((r.total ?? '').toUpperCase()) && r.total && r.total !== '--')
-    .sort((a, b) => parseScore(a.total) - parseScore(b.total));
+    .filter(r => !EXPLICIT_CUT_STATUSES.has((r.total ?? '').toUpperCase()) && r.total && r.total !== '--')
+    .sort((a, b) => parseScoreToNum(a.total) - parseScoreToNum(b.total));
   if (active.length < cutPos) return null;
   return active[cutPos - 1]?.total ?? null;
+}
+
+// ESPN does not always set competitor.score = 'CUT' after round 2 — they may leave numeric scores
+// on cut players. When round 2 is official and no cut players are already flagged, derive the cut
+// from score order using the configured cut positions (top N + ties).
+function applyEspnCutStatuses(
+  tournamentId: string,
+  rows: SlashGolfLeaderboardRow[],
+  currentRound: number,
+  roundComplete: boolean,
+): SlashGolfLeaderboardRow[] {
+  // Apply whenever round 2 is definitively complete: either we're on round 2 Official,
+  // or we've advanced past round 2 (missed-round recovery and live round 3+).
+  const round2Complete = (currentRound === 2 && roundComplete) || currentRound > 2;
+  if (!round2Complete) return rows;
+  const cutPos = ESPN_CUT_POSITIONS[tournamentId];
+  if (!cutPos) return rows;
+
+  // If ESPN already explicitly flagged some players as CUT/MDF, trust their data
+  const hasCutPlayers = rows.some(r =>
+    r.status?.toLowerCase() === 'cut' || r.status?.toLowerCase() === 'mdf' ||
+    EXPLICIT_CUT_STATUSES.has((r.total ?? '').toUpperCase()),
+  );
+  if (hasCutPlayers) return rows;
+
+  // Sort eligible players (exclude WD/DQ) by 36-hole score to find the cut line
+  const WITHDRAW_STATUSES = new Set(['WD', 'DQ']);
+  const eligible = rows
+    .filter(r => !WITHDRAW_STATUSES.has((r.status ?? '').toUpperCase()) && !WITHDRAW_STATUSES.has((r.total ?? '').toUpperCase()))
+    .sort((a, b) => parseScoreToNum(a.total) - parseScoreToNum(b.total));
+
+  if (eligible.length <= cutPos) return rows; // Field smaller than cut position — no cut
+
+  // The cut line is the score at position cutPos (0-indexed: cutPos - 1).
+  // "Top N and ties" means all players AT that score make it; only strictly worse scores miss.
+  const cutScore = parseScoreToNum(eligible[cutPos - 1]?.total);
+
+  return rows.map(r => {
+    // Don't override explicit WD/DQ statuses
+    if (WITHDRAW_STATUSES.has((r.status ?? '').toUpperCase()) || WITHDRAW_STATUSES.has((r.total ?? '').toUpperCase())) return r;
+    if (parseScoreToNum(r.total) > cutScore) {
+      return { ...r, status: 'cut', position: 'CUT' };
+    }
+    return r;
+  });
 }
 
 // ── Scorecard refresh helpers ─────────────────────────────────────────────
@@ -244,7 +296,10 @@ async function refreshTournamentFromESPN(
     await autoLockPoolLineup(tournamentId as TournamentId);
   }
 
-  const { leaderboardRows: rows, currentRound, roundStatus, playerScorecards } = espnResult;
+  const { currentRound, roundStatus, playerScorecards } = espnResult;
+  const roundComplete = isRoundComplete(roundStatus);
+  // Apply cut statuses when ESPN hasn't flagged them explicitly (ESPN keeps numeric scores on cut players)
+  const rows = applyEspnCutStatuses(tournamentId, espnResult.leaderboardRows, currentRound, roundComplete);
   const projectedCut = computeProjectedCutFromRows(tournamentId, rows, currentRound);
 
   await writeLeaderboardCache(tournamentId, {
@@ -261,7 +316,6 @@ async function refreshTournamentFromESPN(
   ]);
 
   const lastCompleted = scorecardCache?.lastCompletedRound ?? 0;
-  const roundComplete = isRoundComplete(roundStatus);
   const needsFullRefresh = roundComplete && lastCompleted < currentRound;
 
   if (needsFullRefresh) {
