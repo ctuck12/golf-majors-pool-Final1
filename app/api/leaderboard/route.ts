@@ -392,7 +392,7 @@ export async function GET(request: Request) {
         tournamentLowRoundScore: tournamentLowRound,
         currentRound,
       });
-      players.push({ position: override.position, score: inferredScore, thru: override.thru, total: '--', currentRoundScore: null, backNineStart: false, teeTime: null, canonicalName: poolPlayer.name, scoreBreakdown });
+      players.push({ position: override.position, score: inferredScore, thru: override.thru, total: '--', currentRoundScore: null, backNineStart: false, teeTime: null, canonicalName: poolPlayer.name, scoreBreakdown, originalScore: undefined });
     }
   }
 
