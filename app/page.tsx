@@ -3554,19 +3554,20 @@ export default function Page() {
                           return (
                             <button
                               key={mode}
-                              onClick={async () => {
-                                setLeaderboardViewMode(mode);
+                              onClick={async (e) => {
+                                (e.currentTarget as HTMLButtonElement).blur();
                                 if (mode === 'full' && !fullLeaderboardRows) {
                                   try {
                                     const data = await readJson<FeedResponse>(`/api/leaderboard?tournamentId=${selectedTournament}&fullField=true`, { cache: 'no-store' });
                                     setFullLeaderboardRows(data.fullLeaderboard ?? []);
                                   } catch { /* keep existing view */ }
                                 }
+                                setLeaderboardViewMode(mode);
                               }}
                               style={{
                                 flex: 1,
-                                padding: isMobile ? '6px 8px' : '7px 12px',
-                                fontSize: isMobile ? 16 : 12,
+                                padding: isMobile ? '4px 6px' : '7px 12px',
+                                fontSize: isMobile ? 12 : 12,
                                 fontWeight: 700,
                                 borderRadius: 8,
                                 border: `1.5px solid ${tColor}`,
