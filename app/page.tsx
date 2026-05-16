@@ -1012,6 +1012,7 @@ export default function Page() {
   const [commissionerMemberSort, setCommissionerMemberSort] = useState<{ column: 'displayName' | 'email'; direction: 'asc' | 'desc' }>({ column: 'displayName', direction: 'asc' });
   const [entriesPlayerSearch, setEntriesPlayerSearch] = useState('');
   const [tieBreakInput, setTieBreakInput] = useState('');
+  const [showRosterConfirm, setShowRosterConfirm] = useState(false);
   const [commissionerPlayerSearch, setCommissionerPlayerSearch] = useState('');
   const [commissionerMemberModalOpen, setCommissionerMemberModalOpen] = useState(false);
   const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email' | 'confirmDelete' | 'confirmClearPicks'>('menu');
@@ -5090,7 +5091,7 @@ export default function Page() {
                       ) : null}
 
                       <button
-                        onClick={handleSave}
+                        onClick={() => canSave && setShowRosterConfirm(true)}
                         style={{
                           width: 'fit-content',
                           border: 'none',
@@ -7122,6 +7123,38 @@ export default function Page() {
             </div>
           </div>
         ) : null}
+
+        {showRosterConfirm && (
+          <div
+            onClick={() => setShowRosterConfirm(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(9,34,51,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{ background: '#fff', borderRadius: 20, padding: 28, width: '100%', maxWidth: 380, boxShadow: '0 18px 48px rgba(9,34,51,0.25)' }}
+            >
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720', marginBottom: 6 }}>Confirm Your Roster</div>
+              <div style={{ color: '#5b6b79', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
+                <div>Tournament par: <strong style={{ color: '#0f1720' }}>{TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '—'}</strong></div>
+                <div>Your tiebreak value: <strong style={{ color: '#0f1720' }}>{tieBreakInput}</strong></div>
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  onClick={() => { setShowRosterConfirm(false); void handleSave(); }}
+                  style={{ flex: 1, border: 'none', borderRadius: 12, padding: '12px 0', background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)', color: '#fff', fontSize: 15, fontWeight: 900, cursor: 'pointer' }}
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => setShowRosterConfirm(false)}
+                  style={{ flex: 1, border: '2px solid #dfe5eb', borderRadius: 12, padding: '12px 0', background: '#fff', color: '#374151', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         </>
         ) : null}
