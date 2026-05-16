@@ -204,11 +204,20 @@ export async function fetchESPNTournament(espnEventId: string): Promise<ESPNTour
   for (const c of competitors) {
     const scoreSanitized = (c.score ?? '').toUpperCase();
     if (!CUT_STATUSES.has(scoreSanitized)) {
+      // Numeric score — override to cut label if status says so, saving original first.
       const statusName = (c.status?.type?.name ?? '').toUpperCase();
       const mapped = ESPN_STATUS_NAME_TO_SCORE[statusName];
       if (mapped) {
         originalScoreById.set(c.id, c.score ?? '');
         c.score = mapped;
+      }
+    } else {
+      // ESPN already sent a cut-status score (e.g. "MC") — derive to-par from round data.
+      const completedRounds = (c.linescores ?? []).filter((r) => (r.linescores?.length ?? 0) > 0);
+      if (completedRounds.length > 0) {
+        const total = completedRounds.reduce((sum, r) => sum + parseRelScore(r.displayValue), 0);
+        const toPar = total === 0 ? 'E' : total > 0 ? `+${total}` : String(total);
+        originalScoreById.set(c.id, toPar);
       }
     }
   }
