@@ -1057,7 +1057,8 @@ export default function Page() {
     const ro = new ResizeObserver(sync);
     if (standingsColRef.current) ro.observe(standingsColRef.current);
     return () => ro.disconnect();
-  }, [isMobile, standings]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile]);
 
   const tournament = TOURNAMENTS.find((item) => item.id === selectedTournament) ?? TOURNAMENTS[0];
   const canManagePool = canAccessCommissionerConsole(sessionUser);
