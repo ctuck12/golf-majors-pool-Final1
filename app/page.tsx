@@ -3773,17 +3773,17 @@ export default function Page() {
                               const CUT_SCORE_SET_FL = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                               const parseCutScore = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
                               const parseRndScoreFL = (s: string | null | undefined) => { if (!s || s === '--') return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
-                              const activeFL = filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase()));
-                              const cutFL = filteredFullRaw.filter((p) => CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => parseCutScore(a.originalScore) - parseCutScore(b.originalScore));
-                              const sortedActiveFL = leaderboardSortMode !== 'default'
-                                ? [...activeFL].sort((a, b) => {
+                              const filteredFull = leaderboardSortMode !== 'default'
+                                ? [...filteredFullRaw].sort((a, b) => {
                                     const aS = parseRndScoreFL(a.currentRoundScore);
                                     const bS = parseRndScoreFL(b.currentRoundScore);
                                     if (aS !== bS) return leaderboardSortMode === 'round-desc' ? aS - bS : bS - aS;
                                     return a.name.localeCompare(b.name);
                                   })
-                                : activeFL;
-                              const filteredFull = [...sortedActiveFL, ...cutFL];
+                                : [
+                                    ...filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase())),
+                                    ...filteredFullRaw.filter((p) => CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => parseCutScore(a.originalScore) - parseCutScore(b.originalScore)),
+                                  ];
                               const projCutNum = showProjectedCut && feed?.projectedCut && leaderboardSortMode === 'default'
                                 ? (feed.projectedCut === 'E' ? 0 : parseFloat(feed.projectedCut) || 0)
                                 : null;
@@ -3842,17 +3842,17 @@ export default function Page() {
                               const CUT_SCORE_SET_PO = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                               const parseCutScorePO = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
                               const parseRndScorePO = (s: string | null | undefined) => { if (!s || s === '--') return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
-                              const activePO = filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase()));
-                              const cutPO = filteredPickedRaw.filter((p) => CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => parseCutScorePO(a.originalScore) - parseCutScorePO(b.originalScore));
-                              const sortedActivePO = leaderboardSortMode !== 'default'
-                                ? [...activePO].sort((a, b) => {
+                              const filteredPicked = leaderboardSortMode !== 'default'
+                                ? [...filteredPickedRaw].sort((a, b) => {
                                     const aS = parseRndScorePO(a.currentRoundScore);
                                     const bS = parseRndScorePO(b.currentRoundScore);
                                     if (aS !== bS) return leaderboardSortMode === 'round-desc' ? aS - bS : bS - aS;
                                     return a.name.localeCompare(b.name);
                                   })
-                                : activePO;
-                              const filteredPicked = [...sortedActivePO, ...cutPO];
+                                : [
+                                    ...filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase())),
+                                    ...filteredPickedRaw.filter((p) => CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => parseCutScorePO(a.originalScore) - parseCutScorePO(b.originalScore)),
+                                  ];
                               const projCutNum = showProjectedCut && feed?.projectedCut && leaderboardSortMode === 'default'
                                 ? (feed.projectedCut === 'E' ? 0 : parseFloat(feed.projectedCut) || 0)
                                 : null;
