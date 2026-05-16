@@ -3777,8 +3777,10 @@ export default function Page() {
                               const cutFL = filteredFullRaw.filter((p) => CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => parseCutScore(a.originalScore) - parseCutScore(b.originalScore));
                               const sortedActiveFL = leaderboardSortMode !== 'default'
                                 ? [...activeFL].sort((a, b) => {
-                                    const d = parseRndScoreFL(a.currentRoundScore) - parseRndScoreFL(b.currentRoundScore);
-                                    return leaderboardSortMode === 'round-desc' ? d : -d;
+                                    const aS = parseRndScoreFL(a.currentRoundScore);
+                                    const bS = parseRndScoreFL(b.currentRoundScore);
+                                    if (aS !== bS) return leaderboardSortMode === 'round-desc' ? aS - bS : bS - aS;
+                                    return a.name.localeCompare(b.name);
                                   })
                                 : activeFL;
                               const filteredFull = [...sortedActiveFL, ...cutFL];
@@ -3844,8 +3846,10 @@ export default function Page() {
                               const cutPO = filteredPickedRaw.filter((p) => CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => parseCutScorePO(a.originalScore) - parseCutScorePO(b.originalScore));
                               const sortedActivePO = leaderboardSortMode !== 'default'
                                 ? [...activePO].sort((a, b) => {
-                                    const d = parseRndScorePO(a.currentRoundScore) - parseRndScorePO(b.currentRoundScore);
-                                    return leaderboardSortMode === 'round-desc' ? d : -d;
+                                    const aS = parseRndScorePO(a.currentRoundScore);
+                                    const bS = parseRndScorePO(b.currentRoundScore);
+                                    if (aS !== bS) return leaderboardSortMode === 'round-desc' ? aS - bS : bS - aS;
+                                    return a.name.localeCompare(b.name);
                                   })
                                 : activePO;
                               const filteredPicked = [...sortedActivePO, ...cutPO];
