@@ -3579,7 +3579,7 @@ export default function Page() {
             )}
             </section>
 
-            <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20, alignSelf: isMobile ? undefined : 'start' }}>
+            <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20, alignSelf: isMobile ? undefined : 'stretch' }}>
               {showLivePayoutStrip ? (
                 <section
                   style={{
@@ -3587,6 +3587,7 @@ export default function Page() {
                     borderRadius: 20,
                     padding: isMobile ? 14 : 22,
                     boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                    ...(isMobile ? {} : { display: 'flex', flexDirection: 'column', boxSizing: 'border-box' as const }),
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
@@ -3723,13 +3724,13 @@ export default function Page() {
                       </div>
                     );
                   })()}
-                  <div style={{ overflowX: 'auto' }}>
-                    <div data-leaderboard-table="true" style={{ borderRadius: 10, overflow: isMobile ? 'auto' : 'hidden', maxHeight: isMobile ? 726 : undefined, WebkitOverflowScrolling: isMobile ? 'touch' : undefined, border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' } as React.CSSProperties}>
+                  <div style={{ overflowX: 'auto', ...(isMobile ? {} : { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }) }}>
+                    <div data-leaderboard-table="true" style={{ borderRadius: 10, overflow: 'auto', maxHeight: isMobile ? 726 : undefined, WebkitOverflowScrolling: 'touch', border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3', ...(isMobile ? {} : { flex: 1 }) } as React.CSSProperties}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 12 }}>
                       <thead>
                         {(() => {
                           const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
-                          const stickyTh: React.CSSProperties = isMobile ? { position: 'sticky', top: 0, zIndex: 2, background: hBg } : {};
+                          const stickyTh: React.CSSProperties = { position: 'sticky', top: 0, zIndex: 2, background: hBg };
                           return (
                             <tr style={{ background: hBg, color: '#ffffff', fontSize: isMobile ? 10 : 11, textAlign: 'left' }}>
                               <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', ...stickyTh }}>Pos.</th>
