@@ -3529,26 +3529,33 @@ export default function Page() {
                       type="text"
                       placeholder="Search player..."
                       value={leaderboardSearch}
-                      onChange={(e) => setLeaderboardSearch(e.target.value)}
+                      onChange={(e) => {
+                        const el = e.currentTarget as HTMLInputElement;
+                        const savedY = window.scrollY;
+                        setLeaderboardSearch(e.target.value);
+                        if (isMobile) {
+                          requestAnimationFrame(() => requestAnimationFrame(() => {
+                            window.scroll(0, savedY);
+                            const vv = window.visualViewport;
+                            if (!vv) return;
+                            const rect = el.getBoundingClientRect();
+                            if (rect.bottom > vv.height - 20) {
+                              window.scroll(0, savedY + rect.bottom - vv.height + 40);
+                            }
+                          }));
+                        }
+                      }}
                       onFocus={(e) => {
                         if (!isMobile) return;
                         const el = e.currentTarget;
-                        const ensureVisible = (behavior: ScrollBehavior = 'smooth') => {
+                        setTimeout(() => {
                           const vv = window.visualViewport;
                           if (!vv) return;
                           const rect = el.getBoundingClientRect();
                           if (rect.bottom > vv.height - 20) {
-                            window.scrollBy({ top: rect.bottom - vv.height + 40, behavior });
+                            window.scrollBy({ top: rect.bottom - vv.height + 40, behavior: 'smooth' });
                           }
-                        };
-                        setTimeout(() => ensureVisible('smooth'), 350);
-                        const tableEl = document.querySelector('[data-leaderboard-table]');
-                        let ro: ResizeObserver | null = null;
-                        if (tableEl && typeof ResizeObserver !== 'undefined') {
-                          ro = new ResizeObserver(() => ensureVisible('instant' as ScrollBehavior));
-                          ro.observe(tableEl);
-                        }
-                        el.addEventListener('blur', () => ro?.disconnect(), { once: true });
+                        }, 350);
                       }}
                       style={{
                         width: '100%',
