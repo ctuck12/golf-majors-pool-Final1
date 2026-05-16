@@ -3808,7 +3808,8 @@ export default function Page() {
                                     ...filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase())),
                                     ...filteredFullRaw.filter((p) => CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => parseCutScore(a.originalScore) - parseCutScore(b.originalScore)),
                                   ];
-                              const projCutNum = showProjectedCut && feed?.projectedCut && leaderboardSortMode === 'default'
+                              const espnRoundFL = feed?.currentRound ?? 1;
+                              const projCutNum = showProjectedCut && feed?.projectedCut && leaderboardSortMode === 'default' && espnRoundFL <= 2
                                 ? (feed.projectedCut === 'E' ? 0 : parseFloat(feed.projectedCut) || 0)
                                 : null;
                               const cutLineIdx = projCutNum !== null
@@ -3818,6 +3819,9 @@ export default function Page() {
                                     const n = s === 'E' ? 0 : parseFloat(p.score);
                                     return !isNaN(n) && n <= projCutNum ? i : last;
                                   }, -1)
+                                : -1;
+                              const r34CutLineFL = leaderboardSortMode === 'default' && espnRoundFL >= 3 && feed?.projectedCut
+                                ? filteredFull.reduce((last, p, i) => CUT_SCORE_SET_FL.has(p.score.toUpperCase()) ? last : i, -1)
                                 : -1;
                               return filteredFull.map((player, rowIndex) => {
                                 const timesPicked = player.poolPlayerId !== null
@@ -3871,6 +3875,17 @@ export default function Page() {
                                         </td>
                                       </tr>
                                     )}
+                                    {rowIndex === r34CutLineFL && (
+                                      <tr style={{ background: 'transparent', borderBottom: 'none' }}>
+                                        <td colSpan={5} style={{ padding: '2px 0' }}>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
+                                            <div style={{ flex: 1, height: 2, background: '#111827' }} />
+                                            <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CUT LINE {feed!.projectedCut}</span>
+                                            <div style={{ flex: 1, height: 2, background: '#111827' }} />
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    )}
                                   </Fragment>
                                 );
                               });
@@ -3906,7 +3921,8 @@ export default function Page() {
                                     ...filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase())),
                                     ...filteredPickedRaw.filter((p) => CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => parseCutScorePO(a.originalScore) - parseCutScorePO(b.originalScore)),
                                   ];
-                              const projCutNum = showProjectedCut && feed?.projectedCut && leaderboardSortMode === 'default'
+                              const espnRoundPO = feed?.currentRound ?? 1;
+                              const projCutNum = showProjectedCut && feed?.projectedCut && leaderboardSortMode === 'default' && leaderboardPickedSort === 'default' && espnRoundPO <= 2
                                 ? (feed.projectedCut === 'E' ? 0 : parseFloat(feed.projectedCut) || 0)
                                 : null;
                               const cutLineIdx = projCutNum !== null
@@ -3916,6 +3932,9 @@ export default function Page() {
                                     const n = s === 'E' ? 0 : parseFloat(p.score);
                                     return !isNaN(n) && n <= projCutNum ? i : last;
                                   }, -1)
+                                : -1;
+                              const r34CutLinePO = leaderboardSortMode === 'default' && leaderboardPickedSort === 'default' && espnRoundPO >= 3 && feed?.projectedCut
+                                ? filteredPicked.reduce((last, p, i) => CUT_SCORE_SET_PO.has(p.score.toUpperCase()) ? last : i, -1)
                                 : -1;
                               return filteredPicked.map((player, rowIndex) => {
                                 const timesPicked = pickedCountMap.get(player.id) ?? 0;
@@ -3969,6 +3988,17 @@ export default function Page() {
                                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
                                             <div style={{ flex: 1, height: 2, background: '#111827' }} />
                                             <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>PROJECTED CUT</span>
+                                            <div style={{ flex: 1, height: 2, background: '#111827' }} />
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    )}
+                                    {rowIndex === r34CutLinePO && (
+                                      <tr style={{ background: 'transparent', borderBottom: 'none' }}>
+                                        <td colSpan={5} style={{ padding: '2px 0' }}>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
+                                            <div style={{ flex: 1, height: 2, background: '#111827' }} />
+                                            <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CUT LINE {feed!.projectedCut}</span>
                                             <div style={{ flex: 1, height: 2, background: '#111827' }} />
                                           </div>
                                         </td>

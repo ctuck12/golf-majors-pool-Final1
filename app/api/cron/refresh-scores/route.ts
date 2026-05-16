@@ -322,7 +322,8 @@ async function refreshTournamentFromESPN(
   const roundComplete = isRoundComplete(roundStatus);
   // Apply cut statuses when ESPN hasn't flagged them explicitly (ESPN keeps numeric scores on cut players)
   const rows = applyEspnCutStatuses(tournamentId, espnResult.leaderboardRows, currentRound, roundComplete);
-  const projectedCut = computeProjectedCutFromRows(tournamentId, rows, currentRound);
+  // For rounds 3+, projectedCut is the actual cut score from round 2 — preserve it from the cache
+  const projectedCut = computeProjectedCutFromRows(tournamentId, rows, currentRound) ?? existing?.projectedCut ?? null;
 
   await writeLeaderboardCache(tournamentId, {
     cachedAt: new Date().toISOString(),
