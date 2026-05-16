@@ -1,6 +1,6 @@
 'use client';
 
-import { startTransition, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { Fragment, startTransition, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
 import {
   AlertCircle,
@@ -3739,74 +3739,125 @@ export default function Page() {
                       </thead>
                       <tbody>
                         {leaderboardViewMode === 'full'
-                          ? (fullLeaderboardRows ?? []).filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase())).map((player) => {
-                              const timesPicked = player.poolPlayerId !== null
-                                ? standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === player.poolPlayerId).length, 0)
-                                : 0;
-                              const activePlayer = player.poolPlayerId !== null && selectedLeaderboardPlayerId === player.poolPlayerId;
-                              const scoreNum = parseFloat(player.score);
-                              const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
-                              const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
-                              const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
-                              return (
-                                <tr
-                                  key={player.playerId}
-                                  onClick={() => player.poolPlayerId !== null && setSelectedLeaderboardPlayerId(activePlayer ? null : player.poolPlayerId)}
-                                  style={{ background: rowBg, borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef', cursor: player.poolPlayerId !== null ? 'pointer' : 'default' }}
-                                >
-                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
-                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: isCutStatus ? 600 : 700, color: isUnderPar ? '#dc2626' : (isCutStatus ? '#374151' : '#0f1720') }}>{player.score}</td>
-                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{player.thru}</td>
-                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{timesPicked > 0 ? timesPicked : '–'}</td>
-                                </tr>
-                              );
-                            })
-                          : eventLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase())).map((player, rowIndex) => {
-                          const timesPicked = standings.reduce(
-                            (sum, entry) => sum + entry.golfers.filter((golfer) => golfer.id === player.id).length,
-                            0,
-                          );
-                          const activePlayer = selectedLeaderboardPlayerId === player.id;
-                          const scoreNum = parseFloat(player.score);
-                          const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
-                          const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
-
-                          return (
-                            <tr
-                              key={player.id}
-                              onClick={() => setSelectedLeaderboardPlayerId(activePlayer ? null : player.id)}
-                              style={{
-                                background: rowBg,
-                                borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
-                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ' ? 600 : 700, color: isUnderPar ? '#dc2626' : (player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ' ? '#374151' : '#0f1720') }}>{player.score}</td>
-                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
-                                const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
+                          ? (() => {
+                              const filteredFull = (fullLeaderboardRows ?? []).filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
+                              const projCutNum = showProjectedCut && feed?.projectedCut
+                                ? (feed.projectedCut === 'E' ? 0 : parseFloat(feed.projectedCut) || 0)
+                                : null;
+                              const cutLineIdx = projCutNum !== null
+                                ? filteredFull.reduce((last, p, i) => {
+                                    const s = p.score.toUpperCase();
+                                    if (s === 'CUT' || s === 'WD' || s === 'DQ' || s === 'MDF' || s === 'MC') return last;
+                                    const n = s === 'E' ? 0 : parseFloat(p.score);
+                                    return !isNaN(n) && n <= projCutNum ? i : last;
+                                  }, -1)
+                                : -1;
+                              return filteredFull.map((player, rowIndex) => {
+                                const timesPicked = player.poolPlayerId !== null
+                                  ? standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === player.poolPlayerId).length, 0)
+                                  : 0;
+                                const activePlayer = player.poolPlayerId !== null && selectedLeaderboardPlayerId === player.poolPlayerId;
+                                const scoreNum = parseFloat(player.score);
+                                const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
                                 const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
-                                if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
-                                  return formatTeeTime(player.teeTime);
-                                }
-                                const clientRound = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
-                                const espnRound = feed?.currentRound ?? 1;
-                                if (isLive && !isCutStatus && player.thru === 'F' && clientRound > espnRound) {
-                                  return player.teeTime ? formatTeeTime(player.teeTime) : '--';
-                                }
-                                const thruVal = player.thru;
-                                return player.backNineStart && thruVal !== '--' && thruVal !== 'F'
-                                  ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
-                                  : thruVal;
-                              })()}</td>
-                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>
-                                {timesPicked}
-                              </td>
-                            </tr>
-                          );
-                        })}
+                                const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
+                                return (
+                                  <Fragment key={player.playerId}>
+                                    <tr
+                                      onClick={() => player.poolPlayerId !== null && setSelectedLeaderboardPlayerId(activePlayer ? null : player.poolPlayerId)}
+                                      style={{ background: rowBg, borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef', cursor: player.poolPlayerId !== null ? 'pointer' : 'default' }}
+                                    >
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: isCutStatus ? 600 : 700, color: isUnderPar ? '#dc2626' : (isCutStatus ? '#374151' : '#0f1720') }}>{player.score}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{player.thru}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{timesPicked > 0 ? timesPicked : '–'}</td>
+                                    </tr>
+                                    {rowIndex === cutLineIdx && (
+                                      <tr style={{ background: 'transparent', borderBottom: 'none' }}>
+                                        <td colSpan={5} style={{ padding: '2px 0' }}>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
+                                            <div style={{ flex: 1, height: 2, background: '#111827' }} />
+                                            <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>PROJECTED CUT</span>
+                                            <div style={{ flex: 1, height: 2, background: '#111827' }} />
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    )}
+                                  </Fragment>
+                                );
+                              });
+                            })()
+                          : (() => {
+                              const filteredPicked = eventLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
+                              const projCutNum = showProjectedCut && feed?.projectedCut
+                                ? (feed.projectedCut === 'E' ? 0 : parseFloat(feed.projectedCut) || 0)
+                                : null;
+                              const cutLineIdx = projCutNum !== null
+                                ? filteredPicked.reduce((last, p, i) => {
+                                    const s = p.score.toUpperCase();
+                                    if (s === 'CUT' || s === 'WD' || s === 'DQ' || s === 'MDF' || s === 'MC') return last;
+                                    const n = s === 'E' ? 0 : parseFloat(p.score);
+                                    return !isNaN(n) && n <= projCutNum ? i : last;
+                                  }, -1)
+                                : -1;
+                              return filteredPicked.map((player, rowIndex) => {
+                                const timesPicked = standings.reduce(
+                                  (sum, entry) => sum + entry.golfers.filter((golfer) => golfer.id === player.id).length,
+                                  0,
+                                );
+                                const activePlayer = selectedLeaderboardPlayerId === player.id;
+                                const scoreNum = parseFloat(player.score);
+                                const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
+                                const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
+                                return (
+                                  <Fragment key={player.id}>
+                                    <tr
+                                      onClick={() => setSelectedLeaderboardPlayerId(activePlayer ? null : player.id)}
+                                      style={{
+                                        background: rowBg,
+                                        borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef',
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ' ? 600 : 700, color: isUnderPar ? '#dc2626' : (player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ' ? '#374151' : '#0f1720') }}>{player.score}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
+                                        const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
+                                        const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
+                                        if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
+                                          return formatTeeTime(player.teeTime);
+                                        }
+                                        const clientRound = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
+                                        const espnRound = feed?.currentRound ?? 1;
+                                        if (isLive && !isCutStatus && player.thru === 'F' && clientRound > espnRound) {
+                                          return player.teeTime ? formatTeeTime(player.teeTime) : '--';
+                                        }
+                                        const thruVal = player.thru;
+                                        return player.backNineStart && thruVal !== '--' && thruVal !== 'F'
+                                          ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
+                                          : thruVal;
+                                      })()}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>
+                                        {timesPicked}
+                                      </td>
+                                    </tr>
+                                    {rowIndex === cutLineIdx && (
+                                      <tr style={{ background: 'transparent', borderBottom: 'none' }}>
+                                        <td colSpan={5} style={{ padding: '2px 0' }}>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
+                                            <div style={{ flex: 1, height: 2, background: '#111827' }} />
+                                            <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>PROJECTED CUT</span>
+                                            <div style={{ flex: 1, height: 2, background: '#111827' }} />
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    )}
+                                  </Fragment>
+                                );
+                              });
+                            })()}
                       </tbody>
                     </table>
                     </div>
