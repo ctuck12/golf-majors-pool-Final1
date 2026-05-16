@@ -3524,7 +3524,7 @@ export default function Page() {
                     )}
                   </div>
 
-                  <div style={{ marginTop: isMobile ? 8 : 16 }}>
+                  <div style={{ marginTop: isMobile ? 8 : 16, position: 'relative', marginBottom: 8 }}>
                     <input
                       type="text"
                       placeholder="Search player..."
@@ -3545,16 +3545,41 @@ export default function Page() {
                       style={{
                         width: '100%',
                         boxSizing: 'border-box',
-                        padding: isMobile ? '4px 10px' : '6px 12px',
+                        padding: isMobile ? `4px ${leaderboardSearch ? 32 : 10}px 4px 10px` : `6px ${leaderboardSearch ? 32 : 12}px 6px 12px`,
                         fontSize: isMobile ? 16 : 13,
                         border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3',
                         borderRadius: 8,
                         outline: 'none',
-                        marginBottom: 8,
                         color: '#0f1720',
                         background: '#fff',
                       }}
                     />
+                    {leaderboardSearch && (
+                      <button
+                        onMouseDown={(e) => { e.preventDefault(); setLeaderboardSearch(''); }}
+                        style={{
+                          position: 'absolute',
+                          right: 8,
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: '#9ca3af',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: 18,
+                          height: 18,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          padding: 0,
+                          lineHeight: 1,
+                          touchAction: 'manipulation',
+                        }}
+                        aria-label="Clear search"
+                      >
+                        <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, lineHeight: 1 }}>✕</span>
+                      </button>
+                    )}
                   </div>
                   {(() => {
                     const tColor = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
