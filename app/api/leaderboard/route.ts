@@ -48,6 +48,25 @@ function normalizeTotalStrokes(row: SlashGolfLeaderboardRow): string {
   return String(row.totalStrokesFromCompletedRounds ?? '--');
 }
 
+function computeOriginalScore(row: SlashGolfLeaderboardRow): string | undefined {
+  const status = String(row.status ?? '').toLowerCase();
+  if (status !== 'cut' && status !== 'mc' && status !== 'wd' && status !== 'dq' && status !== 'mdf') return undefined;
+  const rounds = (row.rounds ?? []) as Array<{ scoreToPar?: unknown }>;
+  if (rounds.length === 0) return undefined;
+  let total = 0;
+  let hasData = false;
+  for (const r of rounds) {
+    const s = String(r.scoreToPar ?? '').trim();
+    if (!s || s === '--') continue;
+    hasData = true;
+    if (s === 'E') continue;
+    const n = parseInt(s, 10);
+    if (!isNaN(n)) total += n;
+  }
+  if (!hasData) return undefined;
+  return total === 0 ? 'E' : total > 0 ? `+${total}` : String(total);
+}
+
 // ── Odds ──────────────────────────────────────────────────────────────────
 
 const TOURNAMENT_ODDS_LOCK_AT: Record<string, string> = {
@@ -363,7 +382,7 @@ export async function GET(request: Request) {
       }
 
       const teeTime = (row.teeTime as string | null) ?? null;
-      const originalScore = (row.originalTotal as string | undefined) ?? undefined;
+      const originalScore = computeOriginalScore(row);
       return { position: override?.position ?? position, score, thru: override?.thru ?? thru, total, currentRoundScore, backNineStart, teeTime, canonicalName: poolPlayer.name, scoreBreakdown, originalScore };
     })
     .filter(Boolean);
@@ -412,7 +431,7 @@ export async function GET(request: Request) {
           position: normalizePosition(row),
           score: normalizeScore(row),
           thru: normalizeThru(row),
-          originalScore: (row.originalTotal as string | undefined) ?? undefined,
+          originalScore: computeOriginalScore(row),
         };
       })
     : undefined;
