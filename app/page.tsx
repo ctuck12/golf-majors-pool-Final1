@@ -3530,6 +3530,14 @@ export default function Page() {
                       placeholder="Search player..."
                       value={leaderboardSearch}
                       onChange={(e) => setLeaderboardSearch(e.target.value)}
+                      onFocus={(e) => {
+                        if (isMobile) {
+                          const el = e.currentTarget;
+                          setTimeout(() => {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }, 350);
+                        }
+                      }}
                       style={{
                         width: '100%',
                         boxSizing: 'border-box',
