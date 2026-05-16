@@ -295,6 +295,7 @@ type StandingGolfer = ReturnType<typeof buildPricedPlayers>[number] & {
   points: number;
   holesRemaining: number;
   scoreBreakdown: GolferScoreBreakdown;
+  originalScore?: string;
 };
 
 type StandingEntry = PoolEntry & {
@@ -6348,7 +6349,15 @@ export default function Page() {
                                 <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
-                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
+                                <>
+                                  {showProjectedCut && (golfer.originalScore || golfer.currentRoundScore) && (
+                                    <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                      {golfer.originalScore && <span>Total: {golfer.originalScore}</span>}
+                                      {golfer.currentRoundScore && <span>Round 2: {golfer.currentRoundScore}</span>}
+                                    </div>
+                                  )}
+                                  <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
+                                </>
                               ) : (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                   <span>Total: {golfer.score}</span>
@@ -6401,7 +6410,15 @@ export default function Page() {
                                 <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
-                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 11, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
+                                <>
+                                  {showProjectedCut && (golfer.originalScore || golfer.currentRoundScore) && (
+                                    <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                      {golfer.originalScore && <span>Total: {golfer.originalScore}</span>}
+                                      {golfer.currentRoundScore && <span>Round 2: {golfer.currentRoundScore}</span>}
+                                    </div>
+                                  )}
+                                  <div className="breakdown-golfer-subtext" style={{ marginTop: 2, fontSize: 11, fontWeight: 800, color: '#cc2944' }}>MISSED CUT</div>
+                                </>
                               ) : (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                   <span>Total: {golfer.score}</span>
