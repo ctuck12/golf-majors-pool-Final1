@@ -32,6 +32,16 @@ import {
 const SALARY_CAP = 50000;
 const REQUIRED_GOLFERS = 6;
 
+// Total tournament par (course par × 4 rounds). Players and Masters never change.
+// Update pga/us-open/open each season as courses rotate.
+const TOURNAMENT_TOTAL_PAR: Partial<Record<string, number>> = {
+  players: 288,   // TPC Sawgrass, par 72
+  masters: 288,   // Augusta National, par 72
+  pga: 280,       // Aronimink Golf Club, par 70 (2026)
+  'us-open': 280, // Oakmont Country Club, par 70 (2026)
+  open: 284,      // Royal Portrush, par 71 (2026)
+};
+
 // Exact salaries for the 2026 PGA Championship field (overrides the computed odds-based salary)
 const PGA_SALARY_OVERRIDES: Record<number, number> = {
     1: 11900,   2: 10400,  16:  9200,  15:  9100,  23:  9100,
@@ -4786,7 +4796,7 @@ export default function Page() {
                         const val = e.target.value.replace(/\D/g, '').slice(0, 3);
                         setTieBreakInput(val);
                       }}
-                      placeholder="Enter tiebreak value*"
+                      placeholder={`Enter tiebreak value* (Par is ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
                       inputMode="numeric"
                       maxLength={3}
                       style={{
@@ -5056,7 +5066,7 @@ export default function Page() {
                           const val = e.target.value.replace(/\D/g, '').slice(0, 3);
                           setTieBreakInput(val);
                         }}
-                        placeholder="Enter tiebreak value*"
+                        placeholder={`Enter tiebreak value* (Par is ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
                         inputMode="numeric"
                         maxLength={3}
                         style={{ ...fieldStyle(), marginTop: 4 }}
@@ -6089,7 +6099,7 @@ export default function Page() {
                         const val = e.target.value.replace(/\D/g, '').slice(0, 3);
                         setCommissionerTieBreakInput(val);
                       }}
-                      placeholder="Enter tiebreak value*"
+                      placeholder={`Enter tiebreak value* (Par is ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
                       inputMode="numeric"
                       maxLength={3}
                       style={{ ...fieldStyle(), marginTop: 4 }}
