@@ -899,7 +899,7 @@ function formatTeeTime(teeTimeStr: string): string {
     const suf = h >= 12 ? 'pm' : 'am';
     const disp = h % 12 || 12;
     const minStr = min === 0 ? '' : `:${String(min).padStart(2, '0')}`;
-    return `${disp}${minStr}${suf}`;
+    return `${disp}${minStr} ${suf}`;
   }
   // Fallback for ISO UTC strings
   try {
@@ -908,7 +908,7 @@ function formatTeeTime(teeTimeStr: string): string {
       const result = d.toLocaleTimeString('en-US', {
         hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago',
       });
-      return result.replace(':00', '').replace(' AM', 'am').replace(' PM', 'pm');
+      return result.replace(':00', '').replace(' AM', ' am').replace(' PM', ' pm');
     }
   } catch { /* fall through */ }
   return '--';
