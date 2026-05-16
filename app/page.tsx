@@ -1020,6 +1020,21 @@ export default function Page() {
   const [accountMessage, setAccountMessage] = useState('');
   const [myEntriesEditorOpen, setMyEntriesEditorOpen] = useState(false);
   const pickSheetOpenRef = useRef(false);
+  const standingsColRef = useRef<HTMLElement>(null);
+  const leaderboardColRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (isMobile) return;
+    const sync = () => {
+      const left = standingsColRef.current;
+      const right = leaderboardColRef.current;
+      if (!left || !right) return;
+      right.style.maxHeight = `${left.offsetHeight}px`;
+    };
+    sync();
+    const ro = new ResizeObserver(sync);
+    if (standingsColRef.current) ro.observe(standingsColRef.current);
+    return () => ro.disconnect();
+  }, [isMobile, standings]);
   const [myEntriesMenuOpen, setMyEntriesMenuOpen] = useState(false);
   const [myEntriesDetailView, setMyEntriesDetailView] = useState<'none' | 'history' | 'rename'>('none');
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
@@ -3163,6 +3178,7 @@ export default function Page() {
             }}
           >
             <section
+              ref={standingsColRef}
               style={{
                 background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
                 borderRadius: 20,
@@ -3579,7 +3595,7 @@ export default function Page() {
             )}
             </section>
 
-            <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20, alignSelf: isMobile ? undefined : 'stretch', minHeight: isMobile ? undefined : 0 }}>
+            <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20, alignSelf: isMobile ? undefined : 'start' }}>
               {showLivePayoutStrip ? (
                 <section
                   style={{
@@ -3587,7 +3603,6 @@ export default function Page() {
                     borderRadius: 20,
                     padding: isMobile ? 14 : 22,
                     boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
-                    ...(isMobile ? {} : { display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const }),
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
@@ -3724,8 +3739,8 @@ export default function Page() {
                       </div>
                     );
                   })()}
-                  <div style={{ overflowX: 'auto', ...(isMobile ? {} : { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }) }}>
-                    <div data-leaderboard-table="true" style={{ borderRadius: 10, overflow: 'auto', maxHeight: isMobile ? 726 : undefined, WebkitOverflowScrolling: 'touch', border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3', ...(isMobile ? {} : { flex: 1 }) } as React.CSSProperties}>
+                  <div ref={isMobile ? undefined : leaderboardColRef} style={{ overflowX: 'auto', overflowY: isMobile ? undefined : 'auto' }}>
+                    <div data-leaderboard-table="true" style={{ borderRadius: 10, overflow: isMobile ? 'auto' : 'hidden', maxHeight: isMobile ? 726 : undefined, WebkitOverflowScrolling: isMobile ? 'touch' : undefined, border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' } as React.CSSProperties}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 12 }}>
                       <thead>
                         {(() => {
