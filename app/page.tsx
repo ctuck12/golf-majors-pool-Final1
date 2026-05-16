@@ -1945,6 +1945,7 @@ export default function Page() {
           points: scoreBreakdown.totalPoints,
           holesRemaining: (score === 'CUT' || score === 'MDF') ? 0 : scoreBreakdown.holesRemaining,
           scoreBreakdown,
+          originalScore: live?.originalScore,
         };
       }),
     [feedMap, liveOddsMap],
