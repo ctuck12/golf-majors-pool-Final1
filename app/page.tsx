@@ -1022,19 +1022,6 @@ export default function Page() {
   const pickSheetOpenRef = useRef(false);
   const standingsColRef = useRef<HTMLElement>(null);
   const leaderboardColRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (isMobile) return;
-    const sync = () => {
-      const left = standingsColRef.current;
-      const right = leaderboardColRef.current;
-      if (!left || !right) return;
-      right.style.maxHeight = `${left.offsetHeight}px`;
-    };
-    sync();
-    const ro = new ResizeObserver(sync);
-    if (standingsColRef.current) ro.observe(standingsColRef.current);
-    return () => ro.disconnect();
-  }, [isMobile, standings]);
   const [myEntriesMenuOpen, setMyEntriesMenuOpen] = useState(false);
   const [myEntriesDetailView, setMyEntriesDetailView] = useState<'none' | 'history' | 'rename'>('none');
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
@@ -1057,6 +1044,20 @@ export default function Page() {
   });
 
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (isMobile) return;
+    const sync = () => {
+      const left = standingsColRef.current;
+      const right = leaderboardColRef.current;
+      if (!left || !right) return;
+      right.style.maxHeight = `${left.offsetHeight}px`;
+    };
+    sync();
+    const ro = new ResizeObserver(sync);
+    if (standingsColRef.current) ro.observe(standingsColRef.current);
+    return () => ro.disconnect();
+  }, [isMobile, standings]);
 
   const tournament = TOURNAMENTS.find((item) => item.id === selectedTournament) ?? TOURNAMENTS[0];
   const canManagePool = canAccessCommissionerConsole(sessionUser);
