@@ -3534,7 +3534,11 @@ export default function Page() {
                         if (isMobile) {
                           const el = e.currentTarget;
                           setTimeout(() => {
-                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            const vv = window.visualViewport;
+                            if (!vv) return;
+                            const rect = el.getBoundingClientRect();
+                            if (rect.bottom <= vv.height - 20) return;
+                            window.scrollBy({ top: rect.bottom - vv.height + 40, behavior: 'smooth' });
                           }, 350);
                         }
                       }}
