@@ -56,6 +56,8 @@ function extractProjectedCut(lb: SlashGolfLeaderboardResponse): string | null {
 
 // Cut positions: number of players who make the cut (top N + ties)
 const ESPN_CUT_POSITIONS: Partial<Record<string, number>> = {
+  players: 65,
+  masters: 50,
   pga: 70,
   'us-open': 60,
   open: 70,
