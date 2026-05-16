@@ -3716,7 +3716,7 @@ export default function Page() {
                                 }
                                 const thruVal = player.thru;
                                 return player.backNineStart && thruVal !== '--' && thruVal !== 'F'
-                                  ? <>{thruVal}<sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup></>
+                                  ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
                                   : thruVal;
                               })()}</td>
                               <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>
