@@ -3743,7 +3743,13 @@ export default function Page() {
                       <tbody>
                         {leaderboardViewMode === 'full'
                           ? (() => {
-                              const filteredFull = (fullLeaderboardRows ?? []).filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
+                              const filteredFullRaw = (fullLeaderboardRows ?? []).filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
+                              const CUT_SCORE_SET_FL = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
+                              const parseCutScore = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
+                              const filteredFull = [
+                                ...filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase())),
+                                ...filteredFullRaw.filter((p) => CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => parseCutScore(a.originalScore) - parseCutScore(b.originalScore)),
+                              ];
                               const projCutNum = showProjectedCut && feed?.projectedCut
                                 ? (feed.projectedCut === 'E' ? 0 : parseFloat(feed.projectedCut) || 0)
                                 : null;
@@ -3796,7 +3802,13 @@ export default function Page() {
                               });
                             })()
                           : (() => {
-                              const filteredPicked = eventLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
+                              const filteredPickedRaw = eventLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
+                              const CUT_SCORE_SET_PO = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
+                              const parseCutScorePO = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
+                              const filteredPicked = [
+                                ...filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase())),
+                                ...filteredPickedRaw.filter((p) => CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => parseCutScorePO(a.originalScore) - parseCutScorePO(b.originalScore)),
+                              ];
                               const projCutNum = showProjectedCut && feed?.projectedCut
                                 ? (feed.projectedCut === 'E' ? 0 : parseFloat(feed.projectedCut) || 0)
                                 : null;
