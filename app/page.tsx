@@ -3795,11 +3795,13 @@ export default function Page() {
                               const CUT_SCORE_SET_FL = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                               const parseCutScore = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
                               const parseRndScoreFL = (s: string | null | undefined) => { if (!s || s === '--') return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
+                              const parseTeeTimeMinFL = (t: string | null | undefined) => { if (!t) return Infinity; const m = t.match(/(\d{1,2}):(\d{2}):/); return m ? parseInt(m[1], 10) * 60 + parseInt(m[2], 10) : Infinity; };
                               const filteredFull = leaderboardSortMode !== 'default'
                                 ? [...filteredFullRaw].filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => {
                                     const aS = parseRndScoreFL(a.currentRoundScore);
                                     const bS = parseRndScoreFL(b.currentRoundScore);
                                     if (aS !== bS) return leaderboardSortMode === 'round-desc' ? aS - bS : bS - aS;
+                                    if (aS === Infinity) { const aT = parseTeeTimeMinFL(a.teeTime); const bT = parseTeeTimeMinFL(b.teeTime); if (aT !== bT) return aT - bT; }
                                     return a.name.localeCompare(b.name);
                                   })
                                 : [
@@ -3878,6 +3880,7 @@ export default function Page() {
                               const CUT_SCORE_SET_PO = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                               const parseCutScorePO = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
                               const parseRndScorePO = (s: string | null | undefined) => { if (!s || s === '--') return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
+                              const parseTeeTimeMinPO = (t: string | null | undefined) => { if (!t) return Infinity; const m = t.match(/(\d{1,2}):(\d{2}):/); return m ? parseInt(m[1], 10) * 60 + parseInt(m[2], 10) : Infinity; };
                               const pickedCountMap = new Map<number, number>();
                               for (const entry of standings) {
                                 for (const golfer of entry.golfers) {
@@ -3896,6 +3899,7 @@ export default function Page() {
                                     const aS = parseRndScorePO(a.currentRoundScore);
                                     const bS = parseRndScorePO(b.currentRoundScore);
                                     if (aS !== bS) return leaderboardSortMode === 'round-desc' ? aS - bS : bS - aS;
+                                    if (aS === Infinity) { const aT = parseTeeTimeMinPO(a.teeTime); const bT = parseTeeTimeMinPO(b.teeTime); if (aT !== bT) return aT - bT; }
                                     return a.name.localeCompare(b.name);
                                   })
                                 : [
