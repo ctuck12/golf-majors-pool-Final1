@@ -3529,20 +3529,7 @@ export default function Page() {
                       type="text"
                       placeholder="Search player..."
                       value={leaderboardSearch}
-                      onChange={(e) => {
-                        const el = e.currentTarget as HTMLInputElement;
-                        setLeaderboardSearch(e.target.value);
-                        if (isMobile) {
-                          requestAnimationFrame(() => requestAnimationFrame(() => {
-                            const vv = window.visualViewport;
-                            if (!vv) return;
-                            const rect = el.getBoundingClientRect();
-                            if (rect.bottom > vv.height - 20) {
-                              window.scrollBy({ top: rect.bottom - vv.height + 40, behavior: 'instant' as ScrollBehavior });
-                            }
-                          }));
-                        }
-                      }}
+                      onChange={(e) => setLeaderboardSearch(e.target.value)}
                       onFocus={(e) => {
                         if (isMobile) {
                           const el = e.currentTarget;
@@ -3611,7 +3598,7 @@ export default function Page() {
                     );
                   })()}
                   <div style={{ overflowX: 'auto' }}>
-                    <div style={{ borderRadius: 10, overflow: isMobile ? 'auto' : 'hidden', maxHeight: isMobile ? 726 : undefined, WebkitOverflowScrolling: isMobile ? 'touch' : undefined, border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' } as React.CSSProperties}>
+                    <div style={{ borderRadius: 10, overflow: isMobile ? 'auto' : 'hidden', height: isMobile ? 726 : undefined, WebkitOverflowScrolling: isMobile ? 'touch' : undefined, border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' } as React.CSSProperties}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 12 }}>
                       <thead>
                         {(() => {
