@@ -3187,7 +3187,7 @@ export default function Page() {
                             <>
                               <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
                               <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
-                                {selectedTournament === 'players' ? 'Top 65 & ties' : selectedTournament === 'masters' ? 'Top 50 & ties' : selectedTournament === 'pga' ? 'Top 70 & ties' : selectedTournament === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
+                                {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
                               </div>
                             </>
                           )}
@@ -3212,7 +3212,7 @@ export default function Page() {
                             <>
                               <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
                               <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
-                                {selectedTournament === 'players' ? 'Top 65 & ties' : selectedTournament === 'masters' ? 'Top 50 & ties' : selectedTournament === 'pga' ? 'Top 70 & ties' : selectedTournament === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
+                                {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
                               </div>
                             </>
                           )}
@@ -3237,7 +3237,7 @@ export default function Page() {
                             <>
                               <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
                               <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
-                                {selectedTournament === 'players' ? 'Top 65 & ties' : selectedTournament === 'masters' ? 'Top 50 & ties' : selectedTournament === 'pga' ? 'Top 70 & ties' : selectedTournament === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
+                                {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
                               </div>
                             </>
                           )}
@@ -3262,7 +3262,7 @@ export default function Page() {
                             <>
                               <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
                               <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
-                                {selectedTournament === 'players' ? 'Top 65 & ties' : selectedTournament === 'masters' ? 'Top 50 & ties' : selectedTournament === 'pga' ? 'Top 70 & ties' : selectedTournament === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
+                                {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
                               </div>
                             </>
                           )}
@@ -3287,7 +3287,7 @@ export default function Page() {
                             <>
                               <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
                               <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
-                                {selectedTournament === 'players' ? 'Top 65 & ties' : selectedTournament === 'masters' ? 'Top 50 & ties' : selectedTournament === 'pga' ? 'Top 70 & ties' : selectedTournament === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
+                                {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
                               </div>
                             </>
                           )}
