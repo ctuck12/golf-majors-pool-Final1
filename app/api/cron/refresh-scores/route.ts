@@ -106,22 +106,42 @@ function applyEspnCutStatuses(
   );
   if (hasCutPlayers) return rows;
 
+  // In round 3+, a player's running total includes round 3 strokes — using it would incorrectly
+  // mark active players having a bad round as CUT. Use their 36-hole (rounds 1+2) score instead.
+  function get36HoleScore(r: SlashGolfLeaderboardRow): number {
+    if (currentRound > 2) {
+      const rounds12 = (r.rounds ?? []).filter(rnd => {
+        const id = parseMongo(rnd.roundId);
+        return id === 1 || id === 2;
+      });
+      if (rounds12.length === 2) {
+        return rounds12.reduce((sum, rnd) => {
+          const s = rnd.scoreToPar;
+          if (!s || s === 'E') return sum;
+          const n = parseInt(s, 10);
+          return sum + (isNaN(n) ? 0 : n);
+        }, 0);
+      }
+    }
+    return parseScoreToNum(r.total);
+  }
+
   // Sort eligible players (exclude WD/DQ) by 36-hole score to find the cut line
   const WITHDRAW_STATUSES = new Set(['WD', 'DQ']);
   const eligible = rows
     .filter(r => !WITHDRAW_STATUSES.has((r.status ?? '').toUpperCase()) && !WITHDRAW_STATUSES.has((r.total ?? '').toUpperCase()))
-    .sort((a, b) => parseScoreToNum(a.total) - parseScoreToNum(b.total));
+    .sort((a, b) => get36HoleScore(a) - get36HoleScore(b));
 
   if (eligible.length <= cutPos) return rows; // Field smaller than cut position — no cut
 
   // The cut line is the score at position cutPos (0-indexed: cutPos - 1).
   // "Top N and ties" means all players AT that score make it; only strictly worse scores miss.
-  const cutScore = parseScoreToNum(eligible[cutPos - 1]?.total);
+  const cutScore = get36HoleScore(eligible[cutPos - 1]);
 
   return rows.map(r => {
     // Don't override explicit WD/DQ statuses
     if (WITHDRAW_STATUSES.has((r.status ?? '').toUpperCase()) || WITHDRAW_STATUSES.has((r.total ?? '').toUpperCase())) return r;
-    if (parseScoreToNum(r.total) > cutScore) {
+    if (get36HoleScore(r) > cutScore) {
       return { ...r, status: 'cut', position: 'CUT' };
     }
     return r;
