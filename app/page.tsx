@@ -3794,7 +3794,7 @@ export default function Page() {
                               const parseCutScore = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
                               const parseRndScoreFL = (s: string | null | undefined) => { if (!s || s === '--') return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
                               const filteredFull = leaderboardSortMode !== 'default'
-                                ? [...filteredFullRaw].sort((a, b) => {
+                                ? [...filteredFullRaw].filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => {
                                     const aS = parseRndScoreFL(a.currentRoundScore);
                                     const bS = parseRndScoreFL(b.currentRoundScore);
                                     if (aS !== bS) return leaderboardSortMode === 'round-desc' ? aS - bS : bS - aS;
@@ -3876,7 +3876,7 @@ export default function Page() {
                                     return a.name.localeCompare(b.name);
                                   })
                                 : leaderboardSortMode !== 'default'
-                                ? [...filteredPickedRaw].sort((a, b) => {
+                                ? [...filteredPickedRaw].filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => {
                                     const aS = parseRndScorePO(a.currentRoundScore);
                                     const bS = parseRndScorePO(b.currentRoundScore);
                                     if (aS !== bS) return leaderboardSortMode === 'round-desc' ? aS - bS : bS - aS;
