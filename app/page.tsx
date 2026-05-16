@@ -1021,7 +1021,7 @@ export default function Page() {
   const [myEntriesEditorOpen, setMyEntriesEditorOpen] = useState(false);
   const pickSheetOpenRef = useRef(false);
   const standingsColRef = useRef<HTMLElement>(null);
-  const leaderboardColRef = useRef<HTMLDivElement>(null);
+  const leaderboardColRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (isMobile) return;
     const sync = () => {
@@ -3598,11 +3598,13 @@ export default function Page() {
             <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20, alignSelf: isMobile ? undefined : 'start' }}>
               {showLivePayoutStrip ? (
                 <section
+                  ref={isMobile ? undefined : leaderboardColRef}
                   style={{
                     background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
                     borderRadius: 20,
                     padding: isMobile ? 14 : 22,
                     boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                    ...(isMobile ? {} : { display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' as const }),
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
@@ -3739,7 +3741,7 @@ export default function Page() {
                       </div>
                     );
                   })()}
-                  <div ref={isMobile ? undefined : leaderboardColRef} style={{ overflowX: 'auto', overflowY: isMobile ? undefined : 'auto' }}>
+                  <div style={{ overflowX: 'auto', overflowY: 'auto', ...(isMobile ? {} : { flex: 1, minHeight: 0 }) }}>
                     <div data-leaderboard-table="true" style={{ borderRadius: 10, overflow: isMobile ? 'auto' : 'hidden', maxHeight: isMobile ? 726 : undefined, WebkitOverflowScrolling: isMobile ? 'touch' : undefined, border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' } as React.CSSProperties}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 12 }}>
                       <thead>
