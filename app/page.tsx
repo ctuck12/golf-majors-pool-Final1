@@ -4394,6 +4394,15 @@ export default function Page() {
                               background: 'transparent',
                             }}
                           />
+                          {entriesPlayerSearch && (
+                            <button
+                              onMouseDown={(e) => { e.preventDefault(); setEntriesPlayerSearch(''); }}
+                              style={{ background: '#9ca3af', border: 'none', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, flexShrink: 0, touchAction: 'manipulation' }}
+                              aria-label="Clear search"
+                            >
+                              <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, lineHeight: 1 }}>✕</span>
+                            </button>
+                          )}
                         </label>
                       </div>
 
@@ -4574,6 +4583,15 @@ export default function Page() {
                               color: '#0f1720',
                             }}
                           />
+                          {entriesPlayerSearch && (
+                            <button
+                              onMouseDown={(e) => { e.preventDefault(); setEntriesPlayerSearch(''); }}
+                              style={{ background: '#9ca3af', border: 'none', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, flexShrink: 0, touchAction: 'manipulation' }}
+                              aria-label="Clear search"
+                            >
+                              <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, lineHeight: 1 }}>✕</span>
+                            </button>
+                          )}
                         </label>
                       </div>
 
@@ -5384,6 +5402,15 @@ export default function Page() {
                     placeholder="Search"
                     style={{ ...fieldStyle(), border: 'none', outline: 'none', padding: 0, fontSize: isMobile ? 16 : 15 }}
                   />
+                  {commissionerMemberSearch && (
+                    <button
+                      onMouseDown={(e) => { e.preventDefault(); setCommissionerMemberSearch(''); }}
+                      style={{ background: '#9ca3af', border: 'none', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, flexShrink: 0, touchAction: 'manipulation' }}
+                      aria-label="Clear search"
+                    >
+                      <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, lineHeight: 1 }}>✕</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -5585,6 +5612,15 @@ export default function Page() {
                             color: '#0f1720',
                           }}
                         />
+                        {commissionerPlayerSearch && (
+                          <button
+                            onMouseDown={(e) => { e.preventDefault(); setCommissionerPlayerSearch(''); }}
+                            style={{ background: '#9ca3af', border: 'none', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, flexShrink: 0, touchAction: 'manipulation' }}
+                            aria-label="Clear search"
+                          >
+                            <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, lineHeight: 1 }}>✕</span>
+                          </button>
+                        )}
                       </label>
                     </div>
 
