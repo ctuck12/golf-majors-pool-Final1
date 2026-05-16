@@ -3602,7 +3602,6 @@ export default function Page() {
                           );
                         })()}
                       </thead>
-                      </thead>
                       <tbody>
                         {leaderboardViewMode === 'full'
                           ? (fullLeaderboardRows ?? []).filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase())).map((player) => {
