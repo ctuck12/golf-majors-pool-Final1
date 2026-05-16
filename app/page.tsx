@@ -3718,6 +3718,8 @@ export default function Page() {
                                     setFullLeaderboardRows(data.fullLeaderboard ?? []);
                                   } catch { /* keep existing view */ }
                                 }
+                                setLeaderboardSortMode('default');
+                                setLeaderboardPickedSort('default');
                                 setLeaderboardViewMode(mode);
                               }}
                               style={{
