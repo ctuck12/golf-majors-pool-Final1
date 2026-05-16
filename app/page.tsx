@@ -3661,7 +3661,7 @@ export default function Page() {
                                   <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
                                   <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: isCutStatus ? 600 : 700, color: isUnderPar ? '#dc2626' : (isCutStatus ? '#374151' : '#0f1720') }}>{player.score}</td>
                                   <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{player.thru}</td>
-                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{timesPicked}</td>
+                                  <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{timesPicked > 0 ? timesPicked : '–'}</td>
                                 </tr>
                               );
                             })
