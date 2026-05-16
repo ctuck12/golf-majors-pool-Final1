@@ -32,7 +32,8 @@ type EspnCompetitor = {
   id: string;
   order: number;           // leaderboard rank (1 = leader)
   athlete: { displayName?: string; fullName?: string };
-  score?: string;          // "-12" | "E" | "+4" | "CUT" | "WD" | "DQ" | "MDF"
+  score?: string;          // "-12" | "E" | "+4" | "CUT" | "WD" | "DQ" | "MDF" | "MC"
+  status?: { period?: number; type?: { name?: string; state?: string; completed?: boolean } };
   linescores?: EspnRoundLinescore[];
 };
 
@@ -59,7 +60,16 @@ export type ESPNTournamentResult = {
 
 // ── Private helpers ────────────────────────────────────────────────────────
 
-const CUT_STATUSES = new Set(['CUT', 'WD', 'DQ', 'MDF']);
+const CUT_STATUSES = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
+
+// Map ESPN competitor status.type.name values → our canonical score strings
+const ESPN_STATUS_NAME_TO_SCORE: Record<string, string> = {
+  STATUS_CUT: 'CUT',
+  STATUS_MC: 'CUT',
+  STATUS_WD: 'WD',
+  STATUS_DQ: 'DQ',
+  STATUS_MDF: 'MDF',
+};
 
 function parseRelScore(displayValue: string | undefined): number {
   if (!displayValue || displayValue === 'E') return 0;
@@ -186,6 +196,18 @@ export async function fetchESPNTournament(espnEventId: string): Promise<ESPNTour
     throw new Error('400: tournament not started (STATUS_SCHEDULED)');
   }
 
+  // Normalize: if ESPN's competitor status.type.name indicates a cut/wd/dq but c.score
+  // shows a numeric score, override c.score to the canonical cut string so all downstream
+  // logic (CUT_STATUSES checks, buildPositionStrings, scoring) handles it uniformly.
+  for (const c of competitors) {
+    const scoreSanitized = (c.score ?? '').toUpperCase();
+    if (!CUT_STATUSES.has(scoreSanitized)) {
+      const statusName = (c.status?.type?.name ?? '').toUpperCase();
+      const mapped = ESPN_STATUS_NAME_TO_SCORE[statusName];
+      if (mapped) c.score = mapped;
+    }
+  }
+
   const currentRound = deriveCurrentRound(competitors, eventStatus?.period);
   const roundStatus = mapRoundStatus(eventStatus);
   const posStrings = buildPositionStrings(competitors);
@@ -201,7 +223,9 @@ export async function fetchESPNTournament(espnEventId: string): Promise<ESPNTour
     const firstName = spaceIdx >= 0 ? displayName.slice(0, spaceIdx) : displayName;
     const lastName = spaceIdx >= 0 ? displayName.slice(spaceIdx + 1) : '';
 
-    const score = c.score ?? '--';
+    // Treat MC (missed cut) identically to CUT for all downstream logic
+    const rawScore = c.score ?? '--';
+    const score = rawScore.toUpperCase() === 'MC' ? 'CUT' : rawScore;
     const isCut = CUT_STATUSES.has(score.toUpperCase());
     const position = posStrings.get(c.id) ?? '--';
     const thru = deriveThru(c.linescores, currentRound);

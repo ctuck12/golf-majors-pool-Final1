@@ -3565,7 +3565,7 @@ export default function Page() {
                             >
                               <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
                               <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 700, color: isUnderPar || player.score === 'CUT' || player.score === 'MDF' ? '#dc2626' : '#0f1720' }}>{player.score}</td>
+                              <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 700, color: isUnderPar ? '#dc2626' : '#0f1720' }}>{player.score}</td>
                               <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
                                 const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                 const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';

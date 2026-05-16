@@ -220,15 +220,21 @@ async function refreshTournamentFromESPN(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg.includes('400')) {
-      await writeLeaderboardCache(tournamentId, {
-        cachedAt: new Date().toISOString(),
-        leaderboard: [],
-        currentRound: 0,
-        roundStatus: '',
-        projectedCut: null,
-        notStarted: true,
-      });
-      return 'not-started';
+      // Only write notStarted if we have no existing leaderboard data — a 400 between rounds
+      // (ESPN doesn't include the event on that date) must not wipe already-fetched round data.
+      const hasExistingData = (existing?.leaderboard?.length ?? 0) > 0;
+      if (!hasExistingData) {
+        await writeLeaderboardCache(tournamentId, {
+          cachedAt: new Date().toISOString(),
+          leaderboard: [],
+          currentRound: 0,
+          roundStatus: '',
+          projectedCut: null,
+          notStarted: true,
+        });
+        return 'not-started';
+      }
+      return 'espn-400-preserved-cache';
     }
     throw err;
   }
@@ -254,8 +260,9 @@ async function refreshTournamentFromESPN(
     getLowRoundStore(),
   ]);
 
+  const lastCompleted = scorecardCache?.lastCompletedRound ?? 0;
   const roundComplete = isRoundComplete(roundStatus);
-  const needsFullRefresh = roundComplete && (scorecardCache?.lastCompletedRound ?? 0) < currentRound;
+  const needsFullRefresh = roundComplete && lastCompleted < currentRound;
 
   if (needsFullRefresh) {
     await captureLowRound(tournamentId, currentRound, rows);
@@ -279,9 +286,26 @@ async function refreshTournamentFromESPN(
     return `round-${currentRound}-complete-refreshed`;
   }
 
-  if (roundComplete && currentRound >= 4 && (scorecardCache?.lastCompletedRound ?? 0) >= currentRound) {
+  if (roundComplete && currentRound >= 4 && lastCompleted >= currentRound) {
     await markTournamentComplete(tournamentId, existing, rows, currentRound, roundStatus, projectedCut);
     return 'tournament-complete-marked';
+  }
+
+  // Missed-round recovery: if ESPN moved currentRound forward without us ever seeing
+  // roundStatus='Official' for the previous round (the cron missed the brief post-round
+  // window before the next round's pre-tournament state began), process it now.
+  // ESPN embeds all completed round data in every response, so playerScorecards is complete.
+  if (!roundComplete && currentRound > lastCompleted + 1) {
+    const prevRound = currentRound - 1;
+    await captureLowRound(tournamentId, prevRound, rows);
+    if (prevRound <= 3) await captureRoundLeader(tournamentId, prevRound, rows);
+    for (let rndId = lastCompleted + 1; rndId < prevRound; rndId++) {
+      if (!lowRoundStore[tournamentId]?.[String(rndId)]) {
+        await captureLowRound(tournamentId, rndId, rows);
+      }
+    }
+    await saveScorecardCache(tournamentId, playerScorecards, prevRound);
+    return `round-${prevRound}-complete-recovered`;
   }
 
   // Live round — merge all player scorecards from embedded ESPN data (no per-player calls)
