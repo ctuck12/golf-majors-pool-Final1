@@ -363,7 +363,8 @@ export async function GET(request: Request) {
       }
 
       const teeTime = (row.teeTime as string | null) ?? null;
-      return { position: override?.position ?? position, score, thru: override?.thru ?? thru, total, currentRoundScore, backNineStart, teeTime, canonicalName: poolPlayer.name, scoreBreakdown };
+      const originalScore = (row.originalTotal as string | undefined) ?? undefined;
+      return { position: override?.position ?? position, score, thru: override?.thru ?? thru, total, currentRoundScore, backNineStart, teeTime, canonicalName: poolPlayer.name, scoreBreakdown, originalScore };
     })
     .filter(Boolean);
 
@@ -411,6 +412,7 @@ export async function GET(request: Request) {
           position: normalizePosition(row),
           score: normalizeScore(row),
           thru: normalizeThru(row),
+          originalScore: (row.originalTotal as string | undefined) ?? undefined,
         };
       })
     : undefined;

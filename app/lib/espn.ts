@@ -199,12 +199,17 @@ export async function fetchESPNTournament(espnEventId: string): Promise<ESPNTour
   // Normalize: if ESPN's competitor status.type.name indicates a cut/wd/dq but c.score
   // shows a numeric score, override c.score to the canonical cut string so all downstream
   // logic (CUT_STATUSES checks, buildPositionStrings, scoring) handles it uniformly.
+  // Save the original numeric score before overriding so it can be surfaced during R1/R2.
+  const originalScoreById = new Map<string, string>();
   for (const c of competitors) {
     const scoreSanitized = (c.score ?? '').toUpperCase();
     if (!CUT_STATUSES.has(scoreSanitized)) {
       const statusName = (c.status?.type?.name ?? '').toUpperCase();
       const mapped = ESPN_STATUS_NAME_TO_SCORE[statusName];
-      if (mapped) c.score = mapped;
+      if (mapped) {
+        originalScoreById.set(c.id, c.score ?? '');
+        c.score = mapped;
+      }
     }
   }
 
@@ -250,6 +255,7 @@ export async function fetchESPNTournament(espnEventId: string): Promise<ESPNTour
       rounds,
       roundComplete: false,
       teeTime: extractTeeTime(c.linescores, currentRound),
+      originalTotal: originalScoreById.get(c.id),
     });
 
     const storedRounds = parseStoredRounds(c.linescores);

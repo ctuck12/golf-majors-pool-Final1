@@ -225,6 +225,7 @@ type FeedRow = {
   teeTime?: string | null;
   canonicalName?: string;
   scoreBreakdown?: GolferScoreBreakdown;
+  originalScore?: string;
 };
 
 type FullFieldPlayer = {
@@ -234,6 +235,7 @@ type FullFieldPlayer = {
   position: string;
   score: string;
   thru: string;
+  originalScore?: string;
 };
 
 type ScorecardHole = { hole: number; par: number; score: number | null; label: string };
@@ -3760,6 +3762,10 @@ export default function Page() {
                                 const scoreNum = parseFloat(player.score);
                                 const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
                                 const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
+                                const displayScore = showProjectedCut && isCutStatus && player.originalScore ? player.originalScore : player.score;
+                                const displayScoreNum = parseFloat(displayScore);
+                                const displayIsUnderPar = !isNaN(displayScoreNum) && displayScoreNum < 0;
+                                const displayIsCut = displayScore === 'CUT' || displayScore === 'MDF' || displayScore === 'WD' || displayScore === 'DQ';
                                 const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
                                 return (
                                   <Fragment key={player.playerId}>
@@ -3769,7 +3775,7 @@ export default function Page() {
                                     >
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: isCutStatus ? 600 : 700, color: isUnderPar ? '#dc2626' : (isCutStatus ? '#374151' : '#0f1720') }}>{player.score}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: displayIsCut ? 600 : 700, color: displayIsUnderPar ? '#dc2626' : (displayIsCut ? '#374151' : '#0f1720') }}>{displayScore}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{player.thru}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{timesPicked > 0 ? timesPicked : '–'}</td>
                                     </tr>
@@ -3809,6 +3815,11 @@ export default function Page() {
                                 const activePlayer = selectedLeaderboardPlayerId === player.id;
                                 const scoreNum = parseFloat(player.score);
                                 const isUnderPar = !isNaN(scoreNum) && scoreNum < 0;
+                                const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
+                                const displayScore = showProjectedCut && isCutStatus && player.originalScore ? player.originalScore : player.score;
+                                const displayScoreNum = parseFloat(displayScore);
+                                const displayIsUnderPar = !isNaN(displayScoreNum) && displayScoreNum < 0;
+                                const displayIsCut = displayScore === 'CUT' || displayScore === 'MDF' || displayScore === 'WD' || displayScore === 'DQ';
                                 const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
                                 return (
                                   <Fragment key={player.id}>
@@ -3822,7 +3833,7 @@ export default function Page() {
                                     >
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ' ? 600 : 700, color: isUnderPar ? '#dc2626' : (player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ' ? '#374151' : '#0f1720') }}>{player.score}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: displayIsCut ? 600 : 700, color: displayIsUnderPar ? '#dc2626' : (displayIsCut ? '#374151' : '#0f1720') }}>{displayScore}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
                                         const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                         const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
