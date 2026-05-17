@@ -7388,7 +7388,7 @@ export default function Page() {
                 ) : !cutScorecardData || cutScorecardData.rounds.length === 0 ? (
                   <div style={{ textAlign: 'center', color: '#607282', padding: '32px 0', fontSize: 15 }}>Scorecard data is not yet available.</div>
                 ) : (() => {
-                  const rounds = cutScorecardData.rounds.filter(r => r.holes.length > 0).sort((a, b) => a.round - b.round);
+                  const rounds = cutScorecardData.rounds.filter(r => r.holes.length > 0 && r.round <= 2).sort((a, b) => a.round - b.round);
                   if (rounds.length === 0) return <div style={{ color: '#607282', fontSize: 14, padding: '16px 0' }}>No scorecard data available.</div>;
                   const border = '1px solid #d1d9e0';
                   const thickBorder = '2px solid #9ab0c4';
