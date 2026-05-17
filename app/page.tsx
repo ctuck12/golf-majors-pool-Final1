@@ -2195,6 +2195,16 @@ export default function Page() {
     })
     .map((entry, index) => ({ ...entry, place: index + 1 }));
 
+  const pickedPlayerIds = useMemo(() => {
+    const ids = new Set<number>();
+    for (const entry of liveStandingEntries) {
+      for (const id of entry.rosters[selectedTournament] ?? []) {
+        ids.add(id);
+      }
+    }
+    return ids;
+  }, [liveStandingEntries, selectedTournament]);
+
   const activeStandingEntry = standings.find((entry) => entry.id === activeStandingEntryId) ?? null;
   const activeStandingGolfers = activeStandingEntry
     ? [...activeStandingEntry.golfers].sort((left, right) => {
@@ -7506,6 +7516,7 @@ export default function Page() {
             count: (p: typeof players[number]) => number;
           };
           const closeBonusPoints = () => { setShowBonusPoints(false); setExpandedBonusCategories(new Set()); };
+          const pickedPlayers = players.filter((p) => pickedPlayerIds.has(p.id));
 
           const alwaysOpenCats: BonusCat[] = [
             {
@@ -7577,7 +7588,7 @@ export default function Page() {
           ];
 
           const renderPlayerList = (cat: BonusCat) => {
-            const earners = players.filter(cat.filter);
+            const earners = pickedPlayers.filter(cat.filter);
             if (earners.length === 0) return <div style={{ fontSize: 12, color: '#8fa3b1', fontStyle: 'italic', padding: '2px 0 4px' }}>None</div>;
             return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, paddingBottom: 4 }}>
@@ -7613,7 +7624,7 @@ export default function Page() {
                   <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 10 }}>
                     {alwaysOpenCats.map((cat) => {
                       const isLowRnd = cat.label === 'Tourn Low Rnd';
-                      const earners = players.filter(cat.filter);
+                      const earners = pickedPlayers.filter(cat.filter);
                       return (
                         <div key={cat.label} style={{ background: '#f7f9fb', borderRadius: 12, padding: '12px 14px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
@@ -7646,7 +7657,7 @@ export default function Page() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {collapsibleCats.map((cat) => {
                       const isOpen = expandedBonusCategories.has(cat.label);
-                      const earnerCount = players.filter(cat.filter).length;
+                      const earnerCount = pickedPlayers.filter(cat.filter).length;
                       return (
                         <div key={cat.label} style={{ background: '#f7f9fb', borderRadius: 12, overflow: 'hidden' }}>
                           <button
