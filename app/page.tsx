@@ -3966,7 +3966,7 @@ export default function Page() {
                                         </td>
                                       </tr>
                                     )}
-                                    {rowIndex === r34CutLineFL && (
+                                    {rowIndex === r34CutLineFL && !leaderboardSearch && (
                                       <tr style={{ background: 'transparent', borderBottom: 'none' }}>
                                         <td colSpan={5} style={{ padding: '2px 0' }}>
                                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
@@ -4098,7 +4098,7 @@ export default function Page() {
                                         </td>
                                       </tr>
                                     )}
-                                    {rowIndex === r34CutLinePO && (
+                                    {rowIndex === r34CutLinePO && !leaderboardSearch && (
                                       <tr style={{ background: 'transparent', borderBottom: 'none' }}>
                                         <td colSpan={5} style={{ padding: '2px 0' }}>
                                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
