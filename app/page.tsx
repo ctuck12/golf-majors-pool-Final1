@@ -967,8 +967,8 @@ export default function Page() {
   const [leaderboardSearch, setLeaderboardSearch] = useState('');
   const [leaderboardViewMode, setLeaderboardViewMode] = useState<'picked' | 'full'>('picked');
   const [fullLeaderboardRows, setFullLeaderboardRows] = useState<FullFieldPlayer[] | null>(null);
-  const [expandedCutId, setExpandedCutId] = useState<string | null>(null);
-  const expandedCutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [expandedCutIds, setExpandedCutIds] = useState<Set<string>>(new Set());
+  const expandedCutTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const [leaderboardSortMode, setLeaderboardSortMode] = useState<'default' | 'round-desc' | 'round-asc'>('default');
   const [leaderboardPickedSort, setLeaderboardPickedSort] = useState<'default' | 'desc' | 'asc'>('default');
   const [showCutInfo, setShowCutInfo] = useState(false);
@@ -1367,8 +1367,9 @@ export default function Page() {
   }, [feedRefreshNonce, selectedTournament]);
 
   useEffect(() => {
-    setExpandedCutId(null);
-    if (expandedCutTimerRef.current) { clearTimeout(expandedCutTimerRef.current); expandedCutTimerRef.current = null; }
+    setExpandedCutIds(new Set());
+    expandedCutTimersRef.current.forEach((t) => clearTimeout(t));
+    expandedCutTimersRef.current.clear();
   }, [selectedTournament, mainTab]);
 
   useEffect(() => {
@@ -2262,9 +2263,23 @@ export default function Page() {
 
   const handleCutClick = (playerId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (expandedCutTimerRef.current) clearTimeout(expandedCutTimerRef.current);
-    setExpandedCutId(playerId);
-    expandedCutTimerRef.current = setTimeout(() => setExpandedCutId(null), 10000);
+    setExpandedCutIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(playerId)) {
+        const t = expandedCutTimersRef.current.get(playerId);
+        if (t !== undefined) clearTimeout(t);
+        expandedCutTimersRef.current.delete(playerId);
+        next.delete(playerId);
+      } else {
+        next.add(playerId);
+        const t = setTimeout(() => {
+          setExpandedCutIds((s) => { const n = new Set(s); n.delete(playerId); return n; });
+          expandedCutTimersRef.current.delete(playerId);
+        }, 10000);
+        expandedCutTimersRef.current.set(playerId, t);
+      }
+      return next;
+    });
   };
 
   const handleMainTabChange = (tab: MainTab, options?: { refreshAfterChange?: boolean }) => {
@@ -3886,7 +3901,7 @@ export default function Page() {
                                     >
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar ? '#dc2626' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720')) }}>{player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.playerId), e)} style={{ cursor: 'pointer' }}>{expandedCutId === String(player.playerId) ? player.originalScore : 'CUT'}</span> : colVal}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar ? '#dc2626' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720')) }}>{player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.playerId), e)} style={{ cursor: 'pointer' }}>{expandedCutIds.has(String(player.playerId)) ? player.originalScore : 'CUT'}</span> : colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
                                         const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                         if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
@@ -4009,7 +4024,7 @@ export default function Page() {
                                     >
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>{formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar ? '#dc2626' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720')) }}>{player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.id), e)} style={{ cursor: 'pointer' }}>{expandedCutId === String(player.id) ? player.originalScore : 'CUT'}</span> : colVal}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar ? '#dc2626' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720')) }}>{player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.id), e)} style={{ cursor: 'pointer' }}>{expandedCutIds.has(String(player.id)) ? player.originalScore : 'CUT'}</span> : colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
                                         const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                         const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
