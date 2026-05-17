@@ -2604,8 +2604,8 @@ export default function Page() {
                 style={{
                   position: 'relative',
                   zIndex: 20,
-                  width: 42,
-                  height: 42,
+                  width: (isMobile && !canManagePool) ? 34 : 42,
+                  height: (isMobile && !canManagePool) ? 34 : 42,
                   borderRadius: 999,
                   border: '1px solid rgba(255,255,255,0.2)',
                   background: '#173b63',
@@ -2616,7 +2616,7 @@ export default function Page() {
                   cursor: 'pointer',
                 }}
               >
-                <CircleUserRound size={20} />
+                <CircleUserRound size={(isMobile && !canManagePool) ? 17 : 20} />
               </button>
 
               {accountMenuOpen ? (
