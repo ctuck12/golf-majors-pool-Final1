@@ -4797,7 +4797,8 @@ export default function Page() {
                         const val = e.target.value.replace(/\D/g, '').slice(0, 3);
                         setTieBreakInput(val);
                       }}
-                      placeholder={`Enter tiebreak value* (Par is ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
+                      className="tiebreak-input"
+                      placeholder={`Enter tiebreak value* (Par = ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
                       inputMode="numeric"
                       maxLength={3}
                       style={{
@@ -5067,7 +5068,8 @@ export default function Page() {
                           const val = e.target.value.replace(/\D/g, '').slice(0, 3);
                           setTieBreakInput(val);
                         }}
-                        placeholder={`Enter tiebreak value* (Par is ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
+                        className="tiebreak-input"
+                      placeholder={`Enter tiebreak value* (Par = ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
                         inputMode="numeric"
                         maxLength={3}
                         style={{ ...fieldStyle(), marginTop: 4 }}
@@ -6100,7 +6102,8 @@ export default function Page() {
                         const val = e.target.value.replace(/\D/g, '').slice(0, 3);
                         setCommissionerTieBreakInput(val);
                       }}
-                      placeholder={`Enter tiebreak value* (Par is ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
+                      className="tiebreak-input"
+                      placeholder={`Enter tiebreak value* (Par = ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
                       inputMode="numeric"
                       maxLength={3}
                       style={{ ...fieldStyle(), marginTop: 4 }}
@@ -7135,7 +7138,7 @@ export default function Page() {
             >
               <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720', marginBottom: 6 }}>Confirm Your Roster</div>
               <div style={{ color: '#5b6b79', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
-                <div>Tournament par: <strong style={{ color: '#0f1720' }}>{TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '—'}</strong></div>
+                <div>Par = <strong style={{ color: '#0f1720' }}>{TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '—'}</strong></div>
                 <div>Your tiebreak value: <strong style={{ color: '#0f1720' }}>{tieBreakInput}</strong></div>
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
