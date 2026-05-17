@@ -3466,19 +3466,19 @@ export default function Page() {
                     {!showFinalTournamentView && roundOneComplete && !isTournamentFinal && (
                       <button
                         onClick={() => setShowBonusPoints(true)}
-                        style={{ fontSize: isMobile ? 13 : 14, fontWeight: 700, color: '#0f1720', textDecoration: 'underline', fontStyle: 'italic', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em', textAlign: 'right' }}
+                        style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: '#fff', fontStyle: 'italic', background: 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '5px 11px' : '6px 13px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: '0 2px 8px rgba(176,153,99,0.45)', textTransform: 'uppercase' }}
                       >
                         Bonus Points
                       </button>
                     )}
                     {isTournamentFinal && (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
                         <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: '#B09963', textAlign: 'right', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                           Final Results
                         </div>
                         <button
                           onClick={() => setShowBonusPoints(true)}
-                          style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: '#0f1720', textDecoration: 'underline', fontStyle: 'italic', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em' }}
+                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', fontStyle: 'italic', background: 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 10px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(176,153,99,0.4)', textTransform: 'uppercase' }}
                         >
                           Bonus Points
                         </button>
