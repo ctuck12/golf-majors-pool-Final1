@@ -2531,7 +2531,7 @@ export default function Page() {
                 paddingTop: 8,
                 borderTop: '1px solid rgba(112, 202, 220, 0.18)',
                 display: 'flex',
-                justifyContent: (isMobile && canManagePool) ? 'flex-start' : 'center',
+                justifyContent: isMobile ? 'flex-start' : 'center',
                 gap: isMobile ? 0 : 4,
                 flexWrap: 'nowrap',
                 overflowX: 'auto',
@@ -2539,8 +2539,8 @@ export default function Page() {
                 touchAction: 'pan-x',
                 WebkitOverflowScrolling: 'touch',
                 scrollbarWidth: 'none',
-                paddingLeft: isMobile ? (canManagePool ? 4 : 52) : 32,
-                paddingRight: isMobile ? (canManagePool ? 4 : 52) : 32,
+                paddingLeft: isMobile ? 4 : 32,
+                paddingRight: isMobile ? 4 : 32,
                 paddingBottom: 2,
               }}
             >
@@ -2574,7 +2574,7 @@ export default function Page() {
           ) : null}
 
           {sessionUser ? (
-            <div style={{ position: 'absolute', right: isMobile ? 10 : 22, bottom: isMobile ? (canManagePool ? 62 : 2) : 6, zIndex: 30 }}>
+            <div style={{ position: 'absolute', right: isMobile ? 10 : 22, bottom: isMobile ? 62 : 6, zIndex: 30 }}>
               {accountMenuOpen ? (
                 <button
                   type="button"
