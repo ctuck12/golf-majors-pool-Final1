@@ -964,6 +964,7 @@ export default function Page() {
   const [scorecardLoading, setScorecardLoading] = useState(false);
   const [showPreviousRounds, setShowPreviousRounds] = useState(false);
   const [showBonusPoints, setShowBonusPoints] = useState(false);
+  const [expandedBonusCategories, setExpandedBonusCategories] = useState<Set<string>>(new Set());
   const [cutScorecardGolfer, setCutScorecardGolfer] = useState<{ name: string; pgaTourId: number; photoUrl?: string } | null>(null);
   const [cutScorecardData, setCutScorecardData] = useState<ScorecardData | null>(null);
   const [cutScorecardLoading, setCutScorecardLoading] = useState(false);
@@ -7482,27 +7483,16 @@ export default function Page() {
         )}
 
         {showBonusPoints && (() => {
-          const bonusCategories: Array<{
+          type BonusCat = {
             label: string;
             pts: number;
             showCount: boolean;
             filter: (p: typeof players[number]) => boolean;
             count: (p: typeof players[number]) => number;
-          }> = [
-            {
-              label: '3 Birdie Streaks',
-              pts: SCORING_RULES.threeBirdieStreak,
-              showCount: true,
-              filter: (p) => (p.scoreBreakdown.statLine.threeBirdieStreaks ?? 0) > 0,
-              count: (p) => p.scoreBreakdown.statLine.threeBirdieStreaks ?? 0,
-            },
-            {
-              label: 'No Bogey Rnds',
-              pts: SCORING_RULES.bogeyFreeRound,
-              showCount: true,
-              filter: (p) => (p.scoreBreakdown.statLine.bogeyFreeRounds ?? 0) > 0,
-              count: (p) => p.scoreBreakdown.statLine.bogeyFreeRounds ?? 0,
-            },
+          };
+          const closeBonusPoints = () => { setShowBonusPoints(false); setExpandedBonusCategories(new Set()); };
+
+          const alwaysOpenCats: BonusCat[] = [
             {
               label: 'Tourn Low Rnd',
               pts: SCORING_RULES.tourneyLowRound,
@@ -7532,9 +7522,62 @@ export default function Page() {
               count: () => 0,
             },
           ];
+
+          const collapsibleCats: BonusCat[] = [
+            {
+              label: '3 Birdie Streaks',
+              pts: SCORING_RULES.threeBirdieStreak,
+              showCount: true,
+              filter: (p) => (p.scoreBreakdown.statLine.threeBirdieStreaks ?? 0) > 0,
+              count: (p) => p.scoreBreakdown.statLine.threeBirdieStreaks ?? 0,
+            },
+            {
+              label: 'No Bogey Rnds',
+              pts: SCORING_RULES.bogeyFreeRound,
+              showCount: true,
+              filter: (p) => (p.scoreBreakdown.statLine.bogeyFreeRounds ?? 0) > 0,
+              count: (p) => p.scoreBreakdown.statLine.bogeyFreeRounds ?? 0,
+            },
+            {
+              label: 'Eagles',
+              pts: SCORING_RULES.eagle,
+              showCount: true,
+              filter: (p) => (p.scoreBreakdown.statLine.eagle ?? 0) > 0,
+              count: (p) => p.scoreBreakdown.statLine.eagle ?? 0,
+            },
+            {
+              label: 'Hole in One',
+              pts: SCORING_RULES.holeInOne,
+              showCount: true,
+              filter: (p) => (p.scoreBreakdown.statLine.holeInOne ?? 0) > 0,
+              count: (p) => p.scoreBreakdown.statLine.holeInOne ?? 0,
+            },
+            {
+              label: 'Albatross',
+              pts: SCORING_RULES.albatross,
+              showCount: true,
+              filter: (p) => (p.scoreBreakdown.statLine.albatross ?? 0) > 0,
+              count: (p) => p.scoreBreakdown.statLine.albatross ?? 0,
+            },
+          ];
+
+          const renderPlayerList = (cat: BonusCat) => {
+            const earners = players.filter(cat.filter);
+            if (earners.length === 0) return <div style={{ fontSize: 12, color: '#8fa3b1', fontStyle: 'italic', padding: '2px 0 4px' }}>None</div>;
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, paddingBottom: 4 }}>
+                {earners.map((p) => (
+                  <div key={p.id} style={{ fontSize: 13, color: '#2a3d50', fontWeight: 600 }}>
+                    {p.name}{cat.showCount ? <span style={{ color: '#8fa3b1', fontWeight: 500 }}> ({cat.count(p)})</span> : null}
+                  </div>
+                ))}
+              </div>
+            );
+          };
+
           return (
             <div
-              onClick={() => setShowBonusPoints(false)}
+              onClick={closeBonusPoints}
               style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 90 }}
             >
               <div
@@ -7542,35 +7585,55 @@ export default function Page() {
                 style={{ width: 'min(520px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#fff', borderRadius: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.3)' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#fff', zIndex: 1, borderRadius: '20px 20px 0 0' }}>
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#B09963', letterSpacing: '0.06em' }}>Final Results</div>
-                    <div style={{ fontSize: 17, fontWeight: 900, color: '#0f1720', marginTop: 2 }}>Bonus Points</div>
-                  </div>
-                  <button onClick={() => setShowBonusPoints(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5b6b79', fontSize: 22, lineHeight: 1, padding: 4 }}>✕</button>
+                  <div style={{ fontSize: 17, fontWeight: 900, color: '#0f1720' }}>Bonus Points</div>
+                  <button onClick={closeBonusPoints} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5b6b79', fontSize: 22, lineHeight: 1, padding: 4 }}>✕</button>
                 </div>
-                <div style={{ padding: '16px 20px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 }}>
-                  {bonusCategories.map((cat) => {
-                    const earners = players.filter(cat.filter);
-                    return (
+                <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {/* Always-expanded: 2-column grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 10 }}>
+                    {alwaysOpenCats.map((cat) => (
                       <div key={cat.label} style={{ background: '#f7f9fb', borderRadius: 12, padding: '12px 14px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                           <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
                           <div style={{ fontSize: 11, fontWeight: 700, color: '#B09963' }}>+{cat.pts} pts</div>
                         </div>
-                        {earners.length === 0 ? (
-                          <div style={{ fontSize: 12, color: '#8fa3b1', fontStyle: 'italic' }}>None</div>
-                        ) : (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            {earners.map((p) => (
-                              <div key={p.id} style={{ fontSize: 13, color: '#2a3d50', fontWeight: 600 }}>
-                                {p.name}{cat.showCount ? <span style={{ color: '#8fa3b1', fontWeight: 500 }}> ({cat.count(p)})</span> : null}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        {renderPlayerList(cat)}
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
+                  {/* Collapsible categories */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {collapsibleCats.map((cat) => {
+                      const isOpen = expandedBonusCategories.has(cat.label);
+                      const earnerCount = players.filter(cat.filter).length;
+                      return (
+                        <div key={cat.label} style={{ background: '#f7f9fb', borderRadius: 12, overflow: 'hidden' }}>
+                          <button
+                            onClick={() => setExpandedBonusCategories((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(cat.label)) next.delete(cat.label); else next.add(cat.label);
+                              return next;
+                            })}
+                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: '#B09963' }}>+{cat.pts} pts</div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <div style={{ fontSize: 11, color: '#8fa3b1', fontWeight: 600 }}>{earnerCount}</div>
+                              <div style={{ fontSize: 12, color: '#8fa3b1', lineHeight: 1 }}>{isOpen ? '▲' : '▼'}</div>
+                            </div>
+                          </button>
+                          {isOpen && (
+                            <div style={{ padding: '0 14px 12px' }}>
+                              {renderPlayerList(cat)}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
