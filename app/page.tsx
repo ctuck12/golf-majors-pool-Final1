@@ -2574,7 +2574,7 @@ export default function Page() {
           ) : null}
 
           {sessionUser ? (
-            <div style={{ position: 'absolute', right: isMobile ? 10 : 22, bottom: isMobile ? 62 : 6, zIndex: 30 }}>
+            <div style={{ position: 'absolute', right: isMobile ? 10 : 22, bottom: isMobile ? (canManagePool ? 62 : 4) : 6, zIndex: 30 }}>
               {accountMenuOpen ? (
                 <button
                   type="button"
