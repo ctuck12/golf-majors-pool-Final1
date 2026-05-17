@@ -1386,6 +1386,14 @@ export default function Page() {
   }, [feed?.currentRound, selectedTournament]);
 
   useEffect(() => {
+    if (!isMobile) return;
+    const el = document.querySelector<HTMLElement>('[data-leaderboard-table="true"]');
+    if (el) el.scrollTop = 0;
+    // Force iOS Safari to recalculate layout after content height changes
+    requestAnimationFrame(() => window.scrollTo(window.scrollX, window.scrollY));
+  }, [isMobile, leaderboardViewMode, leaderboardSortMode, leaderboardPickedSort]);
+
+  useEffect(() => {
     const loadCommissionerMembers = async () => {
       if (!sessionUser || !canManagePool || mainTab !== 'Commissioner Hub') {
         return;
