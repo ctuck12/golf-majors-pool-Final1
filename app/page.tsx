@@ -963,6 +963,7 @@ export default function Page() {
   const [scorecardData, setScorecardData] = useState<ScorecardData | null>(null);
   const [scorecardLoading, setScorecardLoading] = useState(false);
   const [showPreviousRounds, setShowPreviousRounds] = useState(false);
+  const [showBonusPoints, setShowBonusPoints] = useState(false);
   const [cutScorecardGolfer, setCutScorecardGolfer] = useState<{ name: string; pgaTourId: number; photoUrl?: string } | null>(null);
   const [cutScorecardData, setCutScorecardData] = useState<ScorecardData | null>(null);
   const [cutScorecardLoading, setCutScorecardLoading] = useState(false);
@@ -3439,8 +3440,16 @@ export default function Page() {
                       </div>
                     ))}
                     {isTournamentFinal && (
-                      <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: '#B09963', textAlign: 'right', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                        Final Results
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                        <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: '#B09963', textAlign: 'right', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                          Final Results
+                        </div>
+                        <button
+                          onClick={() => setShowBonusPoints(true)}
+                          style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: '#B09963', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em' }}
+                        >
+                          Bonus Points
+                        </button>
                       </div>
                     )}
                   </div>
@@ -7471,6 +7480,102 @@ export default function Page() {
             </div>
           </div>
         )}
+
+        {showBonusPoints && (() => {
+          const bonusCategories: Array<{
+            label: string;
+            pts: number;
+            showCount: boolean;
+            filter: (p: typeof players[number]) => boolean;
+            count: (p: typeof players[number]) => number;
+          }> = [
+            {
+              label: '3 Birdie Streaks',
+              pts: SCORING_RULES.threeBirdieStreak,
+              showCount: true,
+              filter: (p) => (p.scoreBreakdown.statLine.threeBirdieStreaks ?? 0) > 0,
+              count: (p) => p.scoreBreakdown.statLine.threeBirdieStreaks ?? 0,
+            },
+            {
+              label: 'No Bogey Rnds',
+              pts: SCORING_RULES.bogeyFreeRound,
+              showCount: true,
+              filter: (p) => (p.scoreBreakdown.statLine.bogeyFreeRounds ?? 0) > 0,
+              count: (p) => p.scoreBreakdown.statLine.bogeyFreeRounds ?? 0,
+            },
+            {
+              label: 'Tourn Low Rnd',
+              pts: SCORING_RULES.tourneyLowRound,
+              showCount: false,
+              filter: (p) => (p.scoreBreakdown.statLine.lowRounds ?? 0) > 0,
+              count: () => 0,
+            },
+            {
+              label: 'Rnd 1 Leader',
+              pts: SCORING_RULES.firstRoundLeader,
+              showCount: false,
+              filter: (p) => !!p.scoreBreakdown.roundLeadersAwarded?.first,
+              count: () => 0,
+            },
+            {
+              label: 'Rnd 2 Leader',
+              pts: SCORING_RULES.secondRoundLeader,
+              showCount: false,
+              filter: (p) => !!p.scoreBreakdown.roundLeadersAwarded?.second,
+              count: () => 0,
+            },
+            {
+              label: 'Rnd 3 Leader',
+              pts: SCORING_RULES.thirdRoundLeader,
+              showCount: false,
+              filter: (p) => !!p.scoreBreakdown.roundLeadersAwarded?.third,
+              count: () => 0,
+            },
+          ];
+          return (
+            <div
+              onClick={() => setShowBonusPoints(false)}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 90 }}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{ width: 'min(520px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#fff', borderRadius: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.3)' }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#fff', zIndex: 1, borderRadius: '20px 20px 0 0' }}>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#B09963', letterSpacing: '0.06em' }}>Final Results</div>
+                    <div style={{ fontSize: 17, fontWeight: 900, color: '#0f1720', marginTop: 2 }}>Bonus Points</div>
+                  </div>
+                  <button onClick={() => setShowBonusPoints(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5b6b79', fontSize: 22, lineHeight: 1, padding: 4 }}>✕</button>
+                </div>
+                <div style={{ padding: '16px 20px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 }}>
+                  {bonusCategories.map((cat) => {
+                    const earners = players.filter(cat.filter);
+                    return (
+                      <div key={cat.label} style={{ background: '#f7f9fb', borderRadius: 12, padding: '12px 14px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: '#B09963' }}>+{cat.pts} pts</div>
+                        </div>
+                        {earners.length === 0 ? (
+                          <div style={{ fontSize: 12, color: '#8fa3b1', fontStyle: 'italic' }}>None</div>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            {earners.map((p) => (
+                              <div key={p.id} style={{ fontSize: 13, color: '#2a3d50', fontWeight: 600 }}>
+                                {p.name}{cat.showCount ? <span style={{ color: '#8fa3b1', fontWeight: 500 }}> ({cat.count(p)})</span> : null}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {showRosterConfirm && (
           <div
