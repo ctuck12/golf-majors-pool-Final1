@@ -2531,7 +2531,7 @@ export default function Page() {
                 paddingTop: 8,
                 borderTop: '1px solid rgba(112, 202, 220, 0.18)',
                 display: 'flex',
-                justifyContent: isMobile ? 'flex-start' : 'center',
+                justifyContent: (isMobile && canManagePool) ? 'flex-start' : 'center',
                 gap: isMobile ? 0 : 4,
                 flexWrap: 'nowrap',
                 overflowX: 'auto',
