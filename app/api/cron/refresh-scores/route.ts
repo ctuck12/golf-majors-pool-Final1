@@ -161,6 +161,22 @@ async function captureLowRound(
   if (scores.length) await saveLowRound(tournamentId, roundId, Math.min(...scores));
 }
 
+// During a live round, update the low round from players who have already finished.
+// This lets "Tourn Low Round" points reflect the current best score in real time
+// rather than waiting for the entire field to complete the round.
+async function captureLiveLowRound(
+  tournamentId: string,
+  roundId: number,
+  rows: SlashGolfLeaderboardRow[],
+) {
+  const finishedRows = rows.filter(r => String(r.thru ?? '').trim() === 'F');
+  if (!finishedRows.length) return;
+  const scores = finishedRows
+    .map(r => getRoundStrokes(r, roundId))
+    .filter((s): s is number => s !== null);
+  if (scores.length) await saveLowRound(tournamentId, roundId, Math.min(...scores));
+}
+
 async function captureRoundLeader(
   tournamentId: string,
   roundId: number,
@@ -388,6 +404,7 @@ async function refreshTournamentFromESPN(
   // Live round — merge all player scorecards from embedded ESPN data (no per-player calls)
   if (!roundComplete && Object.keys(playerScorecards).length > 0) {
     await mergeScorecardCache(tournamentId, playerScorecards);
+    await captureLiveLowRound(tournamentId, currentRound, rows);
     return 'live-scorecards-refreshed';
   }
 
@@ -503,6 +520,7 @@ async function refreshTournament(tournamentId: string): Promise<string> {
         rows,
         selectedPoolIds,
       );
+      await captureLiveLowRound(tournamentId, currentRound, rows);
       return 'live-scorecards-refreshed';
     }
   }
