@@ -5364,8 +5364,27 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                Commissioner Hub
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                  Commissioner Hub
+                </div>
+                <button
+                  onClick={() => void handleLogout()}
+                  disabled={authBusy}
+                  style={{
+                    padding: isMobile ? '5px 12px' : '6px 14px',
+                    fontSize: isMobile ? 12 : 13,
+                    fontWeight: 700,
+                    borderRadius: 8,
+                    border: '1px solid #e2e8ef',
+                    background: '#fff',
+                    color: '#5b6b79',
+                    cursor: authBusy ? 'not-allowed' : 'pointer',
+                    opacity: authBusy ? 0.6 : 1,
+                  }}
+                >
+                  Sign Out
+                </button>
               </div>
               <h2 style={{ margin: isMobile ? '4px 0 10px' : '6px 0 18px', fontSize: isMobile ? 16 : 26, color: '#0f1720' }}>
                 Live feed and pool status for {tournament.name}
