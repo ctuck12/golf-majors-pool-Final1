@@ -3158,8 +3158,8 @@ export default function Page() {
                     key={item.id}
                     onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('picked'); setFullLeaderboardRows(null); setSelectedLeaderboardPlayerId(null); setLeaderboardSortMode('default'); setLeaderboardPickedSort('default'); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
                     style={{
-                      border: active ? '1px solid #d7e0e8' : '1px solid transparent',
-                      borderBottom: active ? '1px solid #fff' : '1px solid transparent',
+                      border: active ? '1px solid #d7e0e8' : '1px solid rgba(0,0,0,0.1)',
+                      borderBottom: active ? '1px solid #fff' : '1px solid rgba(0,0,0,0.1)',
                       background: active ? '#fff' : 'transparent',
                       color: active ? '#1f2f42' : '#46bfd1',
                       borderRadius: '10px 10px 0 0',
