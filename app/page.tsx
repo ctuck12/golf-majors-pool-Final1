@@ -235,6 +235,7 @@ type FeedRow = {
   teeTime?: string | null;
   canonicalName?: string;
   scoreBreakdown?: GolferScoreBreakdown;
+  lowRoundIds?: number[];
   originalScore?: string;
 };
 
@@ -268,6 +269,8 @@ type FeedResponse = {
   currentRound?: number;
   projectedCut?: string | null;
   tournamentComplete?: boolean;
+  tournamentLowRoundScore?: number | null;
+  coursePar?: number;
   fullLeaderboard?: FullFieldPlayer[];
 };
 
@@ -2012,6 +2015,7 @@ export default function Page() {
           points: scoreBreakdown.totalPoints,
           holesRemaining: (score === 'CUT' || score === 'MDF') ? 0 : scoreBreakdown.holesRemaining,
           scoreBreakdown,
+          lowRoundIds: live?.lowRoundIds ?? [],
           originalScore: live?.originalScore,
         };
       }),
@@ -7575,6 +7579,11 @@ export default function Page() {
             );
           };
 
+          const lowRawScore = feed?.tournamentLowRoundScore ?? null;
+          const coursePar = feed?.coursePar ?? 72;
+          const lowToPar = lowRawScore !== null ? lowRawScore - coursePar : null;
+          const lowToParLabel = lowToPar === null ? '' : lowToPar === 0 ? ' (E)' : lowToPar < 0 ? ` (${lowToPar})` : ` (+${lowToPar})`;
+
           return (
             <div
               onClick={closeBonusPoints}
@@ -7591,15 +7600,36 @@ export default function Page() {
                 <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {/* Always-expanded: 2-column grid */}
                   <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 10 }}>
-                    {alwaysOpenCats.map((cat) => (
-                      <div key={cat.label} style={{ background: '#f7f9fb', borderRadius: 12, padding: '12px 14px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                          <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: '#B09963' }}>+{cat.pts} pts</div>
+                    {alwaysOpenCats.map((cat) => {
+                      const isLowRnd = cat.label === 'Tourn Low Rnd';
+                      const earners = players.filter(cat.filter);
+                      return (
+                        <div key={cat.label} style={{ background: '#f7f9fb', borderRadius: 12, padding: '12px 14px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              {cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: '#5b6b79', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}
+                            </div>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: '#B09963' }}>+{cat.pts} pts</div>
+                          </div>
+                          {earners.length === 0 ? (
+                            <div style={{ fontSize: 12, color: '#8fa3b1', fontStyle: 'italic', padding: '2px 0 4px' }}>None</div>
+                          ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 3, paddingBottom: 4 }}>
+                              {earners.map((p) => (
+                                <div key={p.id} style={{ fontSize: 13, color: '#2a3d50', fontWeight: 600 }}>
+                                  {p.name}
+                                  {isLowRnd && p.lowRoundIds?.length ? (
+                                    <span style={{ color: '#8fa3b1', fontWeight: 500 }}>
+                                      {' '}({p.lowRoundIds.map(r => `Rnd ${r}`).join(', ')})
+                                    </span>
+                                  ) : null}
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                        {renderPlayerList(cat)}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   {/* Collapsible categories */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>

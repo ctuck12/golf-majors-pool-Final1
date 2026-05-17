@@ -362,28 +362,36 @@ export async function GET(request: Request) {
       const override = statOverrides[overrideKey];
 
       let scoreBreakdown;
+      let scoringRounds: import('@/app/lib/scoring').ScorecardRound[] = [];
       if (override) {
+        scoringRounds = buildSyntheticRounds(override.statLine);
         scoreBreakdown = computeFullScoreBreakdown({
           position: override.position,
           score,
           thru: override.thru,
-          rounds: buildSyntheticRounds(override.statLine),
+          rounds: scoringRounds,
           roundLeadersAwarded,
           tournamentLowRoundScore: tournamentLowRound,
           currentRound,
         });
       } else {
         const storedScorecard = scorecardCache?.players[row.playerId];
-        const rounds = storedScorecard?.rounds ?? [];
+        scoringRounds = storedScorecard?.rounds ?? [];
         scoreBreakdown =
-          rounds.length > 0
-            ? computeFullScoreBreakdown({ position, score, thru, rounds, roundLeadersAwarded, tournamentLowRoundScore: tournamentLowRound, currentRound })
+          scoringRounds.length > 0
+            ? computeFullScoreBreakdown({ position, score, thru, rounds: scoringRounds, roundLeadersAwarded, tournamentLowRoundScore: tournamentLowRound, currentRound })
             : buildPlaceholderScoreBreakdown({ position, score, thru, currentRound });
       }
 
+      const lowRoundIds = tournamentLowRound !== null
+        ? scoringRounds
+            .filter(r => r.holes.length === 18 && r.holes.reduce((s, h) => s + h.score, 0) === tournamentLowRound)
+            .map(r => r.roundId)
+        : [];
+
       const teeTime = (row.teeTime as string | null) ?? null;
       const originalScore = computeOriginalScore(row);
-      return { position: override?.position ?? position, score, thru: override?.thru ?? thru, total, currentRoundScore, backNineStart, teeTime, canonicalName: poolPlayer.name, scoreBreakdown, originalScore };
+      return { position: override?.position ?? position, score, thru: override?.thru ?? thru, total, currentRoundScore, backNineStart, teeTime, canonicalName: poolPlayer.name, scoreBreakdown, lowRoundIds, originalScore };
     })
     .filter(Boolean);
 
@@ -402,16 +410,22 @@ export async function GET(request: Request) {
         ? override.position.toUpperCase()
         : 'E';
       const roundLeadersAwarded = getRoundLeadersAwarded(tournamentId, playerName, roundLeaderStore);
+      const overrideScoringRounds = buildSyntheticRounds(override.statLine);
       const scoreBreakdown = computeFullScoreBreakdown({
         position: override.position,
         score: inferredScore,
         thru: override.thru,
-        rounds: buildSyntheticRounds(override.statLine),
+        rounds: overrideScoringRounds,
         roundLeadersAwarded,
         tournamentLowRoundScore: tournamentLowRound,
         currentRound,
       });
-      players.push({ position: override.position, score: inferredScore, thru: override.thru, total: '--', currentRoundScore: null, backNineStart: false, teeTime: null, canonicalName: poolPlayer.name, scoreBreakdown, originalScore: undefined });
+      const lowRoundIds = tournamentLowRound !== null
+        ? overrideScoringRounds
+            .filter(r => r.holes.length === 18 && r.holes.reduce((s, h) => s + h.score, 0) === tournamentLowRound)
+            .map(r => r.roundId)
+        : [];
+      players.push({ position: override.position, score: inferredScore, thru: override.thru, total: '--', currentRoundScore: null, backNineStart: false, teeTime: null, canonicalName: poolPlayer.name, scoreBreakdown, lowRoundIds, originalScore: undefined });
     }
   }
 
@@ -449,6 +463,8 @@ export async function GET(request: Request) {
     currentRound,
     projectedCut,
     tournamentComplete: cached.tournamentComplete ?? false,
+    tournamentLowRoundScore: tournamentLowRound,
+    coursePar: meta.par,
     fetchedAt: new Date().toISOString(),
     players,
     odds: odds.players,
