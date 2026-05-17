@@ -46,16 +46,6 @@ button {
   background: #8fa0b0;
 }
 
-/* Smooth fade for CUT score toggle */
-@keyframes cut-score-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-.cut-score-fade {
-  display: inline-block;
-  animation: cut-score-in 0.18s ease;
-}
-
 /* Remove gray background from player photos via multiply blend on white backgrounds */
 .roster-card-photo,
 .breakdown-golfer-photo,
