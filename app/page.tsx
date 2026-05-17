@@ -3137,7 +3137,7 @@ export default function Page() {
             <div
               style={{
                 display: 'flex',
-                gap: 6,
+                gap: 0,
                 flexWrap: 'nowrap',
                 overflowX: 'auto',
                 overflowY: 'hidden',
