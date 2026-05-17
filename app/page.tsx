@@ -1359,7 +1359,7 @@ export default function Page() {
     void loadFeed();
     const timer = window.setInterval(() => {
       void loadFeed();
-    }, 90000);
+    }, 60000);
 
     return () => {
       active = false;
@@ -1380,7 +1380,7 @@ export default function Page() {
         .catch(() => { /* non-critical */ });
     };
     fetchFull();
-    const timer = window.setInterval(fetchFull, 90000);
+    const timer = window.setInterval(fetchFull, 60000);
     return () => window.clearInterval(timer);
   }, [selectedTournament]);
 
