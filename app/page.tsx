@@ -1374,7 +1374,6 @@ export default function Page() {
   }, [selectedTournament, mainTab]);
 
   useEffect(() => {
-    if ((feed?.currentRound ?? 0) < 3) return;
     const fetchFull = () => {
       readJson<FeedResponse>(`/api/leaderboard?tournamentId=${selectedTournament}&fullField=true`, { cache: 'no-store' })
         .then((data) => setFullLeaderboardRows(data.fullLeaderboard ?? []))
@@ -1383,7 +1382,7 @@ export default function Page() {
     fetchFull();
     const timer = window.setInterval(fetchFull, 90000);
     return () => window.clearInterval(timer);
-  }, [feed?.currentRound, selectedTournament]);
+  }, [selectedTournament]);
 
   useEffect(() => {
     if (!isMobile) return;
