@@ -7075,7 +7075,7 @@ export default function Page() {
                             {hasPrev && (
                               <button
                                 onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
-                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 11, textDecoration: 'underline', lineHeight: 1 }}
+                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 11, textDecoration: 'underline', lineHeight: 1, fontStyle: 'italic' }}
                               >
                                 Previous Rounds
                               </button>
