@@ -3151,7 +3151,7 @@ export default function Page() {
                 borderBottom: '1px solid #d7e0e8',
               }}
             >
-              {TOURNAMENTS.map((item) => {
+              {TOURNAMENTS.map((item, idx) => {
                 const active = item.id === selectedTournament;
                 return (
                   <button
@@ -3178,6 +3178,9 @@ export default function Page() {
                       lineHeight: 1.1,
                       boxShadow: 'none',
                       marginBottom: -1,
+                      marginLeft: idx === 0 ? 0 : -1,
+                      position: 'relative',
+                      zIndex: active ? 1 : 0,
                     }}
                   >
                     {TOURNAMENT_TAB_LOGOS[item.id] ? (
