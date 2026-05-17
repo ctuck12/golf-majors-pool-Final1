@@ -3466,9 +3466,9 @@ export default function Page() {
                     {!showFinalTournamentView && roundOneComplete && !isTournamentFinal && (
                       <button
                         onClick={() => setShowBonusPoints(true)}
-                        style={{ fontSize: isMobile ? 13 : 15, fontWeight: 700, color: '#0f1720', textDecoration: 'underline', fontStyle: 'italic', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em', textAlign: 'right' }}
+                        style={{ fontSize: isMobile ? 12 : 13, fontWeight: 700, color: '#0f1720', textDecoration: 'underline', fontStyle: 'italic', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em', textAlign: 'right', display: 'flex', alignItems: 'center', gap: 3 }}
                       >
-                        Bonus Points
+                        <span style={{ fontSize: isMobile ? 11 : 12, fontStyle: 'normal' }}>⭐</span>Bonus Points
                       </button>
                     )}
                     {isTournamentFinal && (
@@ -3478,9 +3478,9 @@ export default function Page() {
                         </div>
                         <button
                           onClick={() => setShowBonusPoints(true)}
-                          style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: '#0f1720', textDecoration: 'underline', fontStyle: 'italic', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em' }}
+                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 700, color: '#0f1720', textDecoration: 'underline', fontStyle: 'italic', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 3 }}
                         >
-                          Bonus Points
+                          <span style={{ fontSize: isMobile ? 9 : 10, fontStyle: 'normal' }}>⭐</span>Bonus Points
                         </button>
                       </div>
                     )}
