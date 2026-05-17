@@ -250,7 +250,7 @@ async function refreshLiveScorecards(
     const status = String(row.status ?? '').toLowerCase();
     if (status === 'cut' || status === 'wd' || status === 'dq') continue;
     const thru = String(row.thru ?? '').trim() || '--';
-    if (thru === 'F' || thru === '--') continue;
+    if (thru === '--') continue;
 
     try {
       const roundsRaw = await fetchScorecard(slashGolfTournId, year, row.playerId);
