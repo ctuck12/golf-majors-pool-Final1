@@ -7235,17 +7235,24 @@ export default function Page() {
               onClick={(e) => e.stopPropagation()}
               style={{ width: 'min(1140px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#fff', borderRadius: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.3)' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 16px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#fff', zIndex: 1, borderRadius: '20px 20px 0 0' }}>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.06em' }}>Previous Rounds</div>
-                  <div style={{ fontSize: 17, fontWeight: 900, color: '#0f1720', marginTop: 3 }}>{scorecardGolferName}</div>
+              <div style={{ display: 'flex', alignItems: 'stretch', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#fff', zIndex: 1, borderRadius: '20px 20px 0 0' }}>
+                <img
+                  src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
+                  alt={scorecardGolferName ?? ''}
+                  style={{ width: 56, objectFit: 'cover', objectPosition: 'top center', background: '#fff', flexShrink: 0, display: 'block', mixBlendMode: 'multiply', marginLeft: 20, borderRadius: '20px 0 0 0' }}
+                />
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '14px 20px 14px 16px' }}>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.06em' }}>Previous Rounds</div>
+                    <div style={{ fontSize: 17, fontWeight: 900, color: '#0f1720', marginTop: 3 }}>{scorecardGolferName}</div>
+                  </div>
+                  <button
+                    onClick={() => setShowPreviousRounds(false)}
+                    style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
+                  >
+                    Close
+                  </button>
                 </div>
-                <button
-                  onClick={() => setShowPreviousRounds(false)}
-                  style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
-                >
-                  Close
-                </button>
               </div>
               <div style={{ padding: '16px 20px 24px' }}>
                 {(() => {
