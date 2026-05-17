@@ -2573,8 +2573,8 @@ export default function Page() {
             </div>
           ) : null}
 
-          {sessionUser ? (
-            <div style={{ position: 'absolute', right: isMobile ? 10 : 22, bottom: isMobile ? (canManagePool ? 62 : 6) : 6, zIndex: 30 }}>
+          {sessionUser && !canManagePool ? (
+            <div style={{ position: 'absolute', right: isMobile ? 10 : 22, bottom: isMobile ? 6 : 6, zIndex: 30 }}>
               {accountMenuOpen ? (
                 <button
                   type="button"
