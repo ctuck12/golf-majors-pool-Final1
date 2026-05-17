@@ -4121,7 +4121,7 @@ export default function Page() {
                 ) : null}
 
                 <button
-                  onClick={handleSave}
+                  onClick={() => canSave && setShowRosterConfirm(true)}
                   style={{
                     marginTop: 16,
                     width: '100%',
