@@ -3789,7 +3789,7 @@ export default function Page() {
                                 fontWeight: 700,
                                 borderRadius: 8,
                                 border: `1.5px solid ${tColor}`,
-                                background: isActive ? tColor : '#fff',
+                                background: isActive ? tColor : (selectedTournament === 'open' ? '#F4BC41' : '#fff'),
                                 color: isActive ? '#fff' : tColor,
                                 cursor: 'pointer',
                                 transition: 'background 0.15s, color 0.15s',
@@ -3908,21 +3908,25 @@ export default function Page() {
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.playerId), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.playerId)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
-                                        const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
-                                        if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
-                                          return formatTeeTime(player.teeTime);
-                                        }
-                                        const clientRound = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
-                                        const espnRound = feed?.currentRound ?? 1;
-                                        if (isLive && !isCutStatus && player.thru === 'F' && clientRound > espnRound) {
-                                          return player.teeTime ? formatTeeTime(player.teeTime) : '--';
-                                        }
-                                        const thruVal = player.thru;
-                                        return player.backNineStart && thruVal !== '--' && thruVal !== 'F'
-                                          ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
-                                          : thruVal;
+                                        const isGoldTheme = selectedTournament === 'players' || selectedTournament === 'open';
+                                        const thruDisplay = (() => {
+                                          const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
+                                          if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
+                                            return formatTeeTime(player.teeTime);
+                                          }
+                                          const clientRound = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
+                                          const espnRound = feed?.currentRound ?? 1;
+                                          if (isLive && !isCutStatus && player.thru === 'F' && clientRound > espnRound) {
+                                            return player.teeTime ? formatTeeTime(player.teeTime) : '--';
+                                          }
+                                          const thruVal = player.thru;
+                                          return player.backNineStart && thruVal !== '--' && thruVal !== 'F'
+                                            ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
+                                            : thruVal;
+                                        })();
+                                        return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#F9CF59', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
                                       })()}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{timesPicked > 0 ? timesPicked : '–'}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#F9CF59', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked > 0 ? timesPicked : '–'}</span> : timesPicked > 0 ? timesPicked : '–'}</td>
                                     </tr>
                                     {rowIndex === cutLineIdx && (
                                       <tr style={{ background: 'transparent', borderBottom: 'none' }}>
@@ -4033,23 +4037,27 @@ export default function Page() {
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.id), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.id)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
-                                        const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
-                                        const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
-                                        if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
-                                          return formatTeeTime(player.teeTime);
-                                        }
-                                        const clientRound = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
-                                        const espnRound = feed?.currentRound ?? 1;
-                                        if (isLive && !isCutStatus && player.thru === 'F' && clientRound > espnRound) {
-                                          return player.teeTime ? formatTeeTime(player.teeTime) : '--';
-                                        }
-                                        const thruVal = player.thru;
-                                        return player.backNineStart && thruVal !== '--' && thruVal !== 'F'
-                                          ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
-                                          : thruVal;
+                                        const isGoldTheme = selectedTournament === 'players' || selectedTournament === 'open';
+                                        const thruDisplay = (() => {
+                                          const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
+                                          const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
+                                          if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
+                                            return formatTeeTime(player.teeTime);
+                                          }
+                                          const clientRound = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
+                                          const espnRound = feed?.currentRound ?? 1;
+                                          if (isLive && !isCutStatus && player.thru === 'F' && clientRound > espnRound) {
+                                            return player.teeTime ? formatTeeTime(player.teeTime) : '--';
+                                          }
+                                          const thruVal = player.thru;
+                                          return player.backNineStart && thruVal !== '--' && thruVal !== 'F'
+                                            ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
+                                            : thruVal;
+                                        })();
+                                        return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#F9CF59', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
                                       })()}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>
-                                        {timesPicked}
+                                        {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#F9CF59', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked}</span> : timesPicked}
                                       </td>
                                     </tr>
                                     {rowIndex === cutLineIdx && (
