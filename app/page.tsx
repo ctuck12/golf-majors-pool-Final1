@@ -2102,6 +2102,12 @@ export default function Page() {
   const roundOneComplete =
     (feed?.currentRound ?? 1) > 1 ||
     ((feed?.currentRound ?? 1) === 1 && /official|complete|final/i.test(feed?.status ?? ''));
+  const roundTwoComplete =
+    (feed?.currentRound ?? 1) > 2 ||
+    ((feed?.currentRound ?? 1) === 2 && /official|complete|final/i.test(feed?.status ?? ''));
+  const roundThreeComplete =
+    (feed?.currentRound ?? 1) > 3 ||
+    ((feed?.currentRound ?? 1) === 3 && /official|complete|final/i.test(feed?.status ?? ''));
   const showProjectedCut = (() => {
     if (selectedTournamentStatus?.label !== 'IN PROGRESS') return false;
     const showAt = TOURNAMENT_CUT_SHOW_AT[selectedTournament];
@@ -7533,20 +7539,20 @@ export default function Page() {
               filter: (p) => !!p.scoreBreakdown.roundLeadersAwarded?.first,
               count: () => 0,
             },
-            {
+            ...(roundTwoComplete ? [{
               label: 'Rnd 2 Leader',
               pts: SCORING_RULES.secondRoundLeader,
               showCount: false,
-              filter: (p) => !!p.scoreBreakdown.roundLeadersAwarded?.second,
+              filter: (p: typeof players[number]) => !!p.scoreBreakdown.roundLeadersAwarded?.second,
               count: () => 0,
-            },
-            {
+            }] : []),
+            ...(roundThreeComplete ? [{
               label: 'Rnd 3 Leader',
               pts: SCORING_RULES.thirdRoundLeader,
               showCount: false,
-              filter: (p) => !!p.scoreBreakdown.roundLeadersAwarded?.third,
+              filter: (p: typeof players[number]) => !!p.scoreBreakdown.roundLeadersAwarded?.third,
               count: () => 0,
-            },
+            }] : []),
           ];
 
           const collapsibleCats: BonusCat[] = [
