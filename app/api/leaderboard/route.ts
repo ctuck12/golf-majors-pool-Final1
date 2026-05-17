@@ -448,6 +448,7 @@ export async function GET(request: Request) {
     status: roundStatus || 'Status unavailable',
     currentRound,
     projectedCut,
+    tournamentComplete: cached.tournamentComplete ?? false,
     fetchedAt: new Date().toISOString(),
     players,
     odds: odds.players,

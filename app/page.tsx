@@ -267,6 +267,7 @@ type FeedResponse = {
   status: string;
   currentRound?: number;
   projectedCut?: string | null;
+  tournamentComplete?: boolean;
   fullLeaderboard?: FullFieldPlayer[];
 };
 
@@ -2080,6 +2081,7 @@ export default function Page() {
   const defaultLocked = isLineupLocked(tournament.lockAt, nowTick);
   const locked = pool?.lineupLocks?.[selectedTournament] ?? (defaultLocked || selectedTournamentStatus?.label === 'IN PROGRESS');
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
+  const isTournamentFinal = feed?.tournamentComplete === true;
   const showProjectedCut = (() => {
     if (selectedTournamentStatus?.label !== 'IN PROGRESS') return false;
     const showAt = TOURNAMENT_CUT_SHOW_AT[selectedTournament];
@@ -3426,6 +3428,11 @@ export default function Page() {
                         <strong style={{ color: '#0f1720' }}>Venmo:</strong> <span style={{ color: '#5b6b79' }}>@claytont743</span>
                       </div>
                     ))}
+                    {isTournamentFinal && (
+                      <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: '#B09963', textAlign: 'right', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                        Final Results
+                      </div>
+                    )}
                   </div>
                 ) : !showFutureTournamentView && !showFinalTournamentView ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
@@ -3589,9 +3596,15 @@ export default function Page() {
                                 fontSize: isMobile ? 13 : 14,
                                 color: '#0f1720',
                                 textAlign: 'left',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 4,
                               }}
                             >
                               {entry.name}
+                              {isTournamentFinal && entry.place === 1 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥇</span>}
+                              {isTournamentFinal && entry.place === 2 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥈</span>}
+                              {isTournamentFinal && entry.place === 3 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥉</span>}
                             </div>
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
@@ -3640,8 +3653,11 @@ export default function Page() {
                         >
                           <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 12px 10px 8px', fontSize: isMobile ? 12 : 13, textAlign: 'center' }}>{entry.place}</td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px' }}>
-                            <div style={{ fontSize: isMobile ? 13 : 14, color: '#0f1720', textAlign: 'left' }}>
+                            <div style={{ fontSize: isMobile ? 13 : 14, color: '#0f1720', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 4 }}>
                               {entry.name}
+                              {isTournamentFinal && entry.place === 1 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥇</span>}
+                              {isTournamentFinal && entry.place === 2 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥈</span>}
+                              {isTournamentFinal && entry.place === 3 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥉</span>}
                             </div>
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
