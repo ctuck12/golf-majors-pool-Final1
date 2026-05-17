@@ -3240,7 +3240,7 @@ export default function Page() {
             <section
               ref={standingsColRef}
               style={{
-                background: (selectedTournament === 'open' || selectedTournament === 'players') && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
                 borderRadius: 20,
                 padding: isMobile ? 14 : 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
@@ -3573,7 +3573,7 @@ export default function Page() {
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
                                 ? selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe'
-                                : (selectedTournament === 'open' || selectedTournament === 'players') ? '#F4BC41' : '#ffffff',
+                                : selectedTournament === 'open' ? '#F4BC41' : '#ffffff',
                             cursor: 'pointer',
                           }}
                         >
@@ -3590,12 +3590,12 @@ export default function Page() {
                             </div>
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
-                            {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}</span> : entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
+                            {selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}</span> : entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
-                            {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.holesRemaining}</span> : entry.holesRemaining}
+                            {selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.holesRemaining}</span> : entry.holesRemaining}
                           </td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.tieBreakValue}</span> : entry.tieBreakValue}</td>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.tieBreakValue}</span> : entry.tieBreakValue}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -3629,7 +3629,7 @@ export default function Page() {
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
                                 ? selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe'
-                                : (selectedTournament === 'open' || selectedTournament === 'players') ? '#F4BC41' : '#ffffff',
+                                : selectedTournament === 'open' ? '#F4BC41' : '#ffffff',
                             cursor: 'pointer',
                           }}
                         >
@@ -3640,12 +3640,12 @@ export default function Page() {
                             </div>
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
-                            {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}</span> : entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
+                            {selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}</span> : entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
-                            {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.holesRemaining}</span> : entry.holesRemaining}
+                            {selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.holesRemaining}</span> : entry.holesRemaining}
                           </td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.tieBreakValue}</span> : entry.tieBreakValue}</td>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.tieBreakValue}</span> : entry.tieBreakValue}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -3660,7 +3660,7 @@ export default function Page() {
                 <section
                   ref={isMobile ? undefined : leaderboardColRef}
                   style={{
-                    background: (selectedTournament === 'open' || selectedTournament === 'players') && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                    background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
                     borderRadius: 20,
                     padding: isMobile ? 14 : 22,
                     boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
@@ -3897,7 +3897,7 @@ export default function Page() {
                                 const colIsCut = displayIsCut && leaderboardSortMode === 'default';
                                 const useRedBadge = (selectedTournament === 'players' || selectedTournament === 'open') && colUnderPar;
                                 const useNavyBadge = (selectedTournament === 'players' || selectedTournament === 'open') && !colUnderPar && !colIsCut && colVal !== '--' && (colVal === 'E' || (!isNaN(colNum) && colNum > 0));
-                                const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : (selectedTournament === 'open' || selectedTournament === 'players') ? '#F4BC41' : '#ffffff';
+                                const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
                                 return (
                                   <Fragment key={player.playerId}>
                                     <tr
@@ -3908,7 +3908,7 @@ export default function Page() {
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.playerId), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.playerId)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
-                                        const isGoldTheme = selectedTournament === 'players' || selectedTournament === 'open';
+                                        const isGoldTheme = selectedTournament === 'open';
                                         const thruDisplay = (() => {
                                           const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                           if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
@@ -3926,7 +3926,7 @@ export default function Page() {
                                         })();
                                         return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
                                       })()}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked > 0 ? timesPicked : '–'}</span> : timesPicked > 0 ? timesPicked : '–'}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked > 0 ? timesPicked : '–'}</span> : timesPicked > 0 ? timesPicked : '–'}</td>
                                     </tr>
                                     {rowIndex === cutLineIdx && (
                                       <tr style={{ background: 'transparent', borderBottom: 'none' }}>
@@ -4022,7 +4022,7 @@ export default function Page() {
                                 const colIsCut = displayIsCut && leaderboardSortMode === 'default';
                                 const useRedBadge = (selectedTournament === 'players' || selectedTournament === 'open') && colUnderPar;
                                 const useNavyBadge = (selectedTournament === 'players' || selectedTournament === 'open') && !colUnderPar && !colIsCut && colVal !== '--' && (colVal === 'E' || (!isNaN(colNum) && colNum > 0));
-                                const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : (selectedTournament === 'open' || selectedTournament === 'players') ? '#F4BC41' : '#ffffff';
+                                const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
                                 return (
                                   <Fragment key={player.id}>
                                     <tr
@@ -4037,7 +4037,7 @@ export default function Page() {
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.id), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.id)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
-                                        const isGoldTheme = selectedTournament === 'players' || selectedTournament === 'open';
+                                        const isGoldTheme = selectedTournament === 'open';
                                         const thruDisplay = (() => {
                                           const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                           const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
@@ -4057,7 +4057,7 @@ export default function Page() {
                                         return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
                                       })()}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>
-                                        {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked}</span> : timesPicked}
+                                        {selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked}</span> : timesPicked}
                                       </td>
                                     </tr>
                                     {rowIndex === cutLineIdx && (
@@ -6475,7 +6475,7 @@ export default function Page() {
                 width: 'min(480px, 100%)',
                 maxHeight: 'calc(100vh - 40px)',
                 overflowY: 'auto',
-                background: (selectedTournament === 'open' || selectedTournament === 'players') && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
                 borderRadius: 20,
                 padding: isMobile ? 16 : 12,
                 boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
@@ -6501,7 +6501,7 @@ export default function Page() {
                   style={{
                     border: (selectedTournament === 'players' || selectedTournament === 'open') ? '2px solid #374151' : '1px solid #d7e0e8',
                     borderRadius: 999,
-                    background: (selectedTournament === 'open' || selectedTournament === 'players') && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                    background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
                     padding: '8px 14px',
                     fontWeight: 800,
                     cursor: 'pointer',
@@ -6854,7 +6854,7 @@ export default function Page() {
                       border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
                       borderRadius: 10,
                       padding: '8px 12px',
-                      background: (selectedTournament === 'open' || selectedTournament === 'players') && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                      background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
                     }}
                   >
                     <div style={{ fontWeight: 800, fontSize: 13, color: '#0f1720' }}>{label}</div>
