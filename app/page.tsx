@@ -3466,7 +3466,7 @@ export default function Page() {
                     {!showFinalTournamentView && roundOneComplete && !isTournamentFinal && (
                       <button
                         onClick={() => setShowBonusPoints(true)}
-                        style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', fontStyle: 'italic', background: selectedTournament === 'pga' ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 9px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: selectedTournament === 'pga' ? '0 1px 5px rgba(14,45,100,0.45)' : '0 1px 5px rgba(176,153,99,0.4)', textTransform: 'uppercase' }}
+                        style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', fontStyle: 'italic', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : selectedTournament === 'open' ? 'linear-gradient(135deg, #c0392b, #7b1010)' : 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 9px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 1px 5px rgba(14,45,100,0.45)' : selectedTournament === 'open' ? '0 1px 5px rgba(150,30,30,0.45)' : '0 1px 5px rgba(176,153,99,0.4)', textTransform: 'uppercase' }}
                       >
                         Bonus Points
                       </button>
@@ -3478,7 +3478,7 @@ export default function Page() {
                         </div>
                         <button
                           onClick={() => setShowBonusPoints(true)}
-                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', fontStyle: 'italic', background: selectedTournament === 'pga' ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 10px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: selectedTournament === 'pga' ? '0 1px 5px rgba(14,45,100,0.45)' : '0 1px 5px rgba(176,153,99,0.4)', textTransform: 'uppercase' }}
+                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', fontStyle: 'italic', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : selectedTournament === 'open' ? 'linear-gradient(135deg, #c0392b, #7b1010)' : 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 10px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 1px 5px rgba(14,45,100,0.45)' : selectedTournament === 'open' ? '0 1px 5px rgba(150,30,30,0.45)' : '0 1px 5px rgba(176,153,99,0.4)', textTransform: 'uppercase' }}
                         >
                           Bonus Points
                         </button>
