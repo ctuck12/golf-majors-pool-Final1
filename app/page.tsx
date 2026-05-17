@@ -3149,7 +3149,6 @@ export default function Page() {
                 overflowX: 'auto',
                 overflowY: 'hidden',
                 width: '100%',
-                paddingBottom: 2,
                 WebkitOverflowScrolling: 'touch',
                 scrollbarWidth: 'thin',
                 overscrollBehaviorX: 'contain',
