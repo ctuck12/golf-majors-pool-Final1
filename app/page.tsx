@@ -2589,6 +2589,8 @@ export default function Page() {
                     padding: 0,
                     margin: 0,
                     zIndex: 10,
+                    WebkitTapHighlightColor: 'transparent',
+                    outline: 'none',
                   }}
                 />
               ) : null}
