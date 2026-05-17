@@ -4791,25 +4791,19 @@ export default function Page() {
                       ))}
                     </div>
 
-                    <div style={{ position: 'relative', width: '100%' }}>
-                      <input
-                        value={tieBreakInput}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '').slice(0, 3);
-                          setTieBreakInput(val);
-                        }}
-                        className="tiebreak-input"
-                        placeholder="Enter tiebreak value*"
-                        inputMode="numeric"
-                        maxLength={3}
-                        style={{ ...fieldStyle() }}
-                      />
-                      {!tieBreakInput && (
-                        <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9ea8b3', fontSize: 16, whiteSpace: 'nowrap' }}>
-                          Enter tiebreak value*{' '}<span style={{ fontWeight: 600 }}>(Par = {TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})</span>
-                        </span>
-                      )}
-                    </div>
+                    <input
+                      value={tieBreakInput}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                        setTieBreakInput(val);
+                      }}
+                      placeholder={`Enter tiebreak value* (Par = ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
+                      inputMode="numeric"
+                      maxLength={3}
+                      style={{
+                        ...fieldStyle(),
+                      }}
+                    />
                     <button
                       disabled
                       style={{
@@ -5067,25 +5061,17 @@ export default function Page() {
                         );
                       })}
 
-                      <div style={{ position: 'relative', width: '100%', marginTop: 4 }}>
-                        <input
-                          value={tieBreakInput}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, '').slice(0, 3);
-                            setTieBreakInput(val);
-                          }}
-                          className="tiebreak-input"
-                          placeholder="Enter tiebreak value*"
-                          inputMode="numeric"
-                          maxLength={3}
-                          style={{ ...fieldStyle() }}
-                        />
-                        {!tieBreakInput && (
-                          <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9ea8b3', fontSize: 16, whiteSpace: 'nowrap' }}>
-                            Enter tiebreak value*{' '}<span style={{ fontWeight: 600 }}>(Par = {TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})</span>
-                          </span>
-                        )}
-                      </div>
+                      <input
+                        value={tieBreakInput}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                          setTieBreakInput(val);
+                        }}
+                        placeholder={`Enter tiebreak value* (Par = ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
+                        inputMode="numeric"
+                        maxLength={3}
+                        style={{ ...fieldStyle(), marginTop: 4 }}
+                      />
 
                       {saveMessage ? (
                         <div
@@ -6108,25 +6094,17 @@ export default function Page() {
                       );
                     })}
 
-                    <div style={{ position: 'relative', width: '100%', marginTop: 4 }}>
-                      <input
-                        value={commissionerTieBreakInput}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '').slice(0, 3);
-                          setCommissionerTieBreakInput(val);
-                        }}
-                        className="tiebreak-input"
-                        placeholder="Enter tiebreak value*"
-                        inputMode="numeric"
-                        maxLength={3}
-                        style={{ ...fieldStyle() }}
-                      />
-                      {!commissionerTieBreakInput && (
-                        <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9ea8b3', fontSize: 16, whiteSpace: 'nowrap' }}>
-                          Enter tiebreak value*{' '}<span style={{ fontWeight: 600 }}>(Par = {TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})</span>
-                        </span>
-                      )}
-                    </div>
+                    <input
+                      value={commissionerTieBreakInput}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                        setCommissionerTieBreakInput(val);
+                      }}
+                      placeholder={`Enter tiebreak value* (Par = ${TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '?'})`}
+                      inputMode="numeric"
+                      maxLength={3}
+                      style={{ ...fieldStyle(), marginTop: 4 }}
+                    />
 
                     <button
                       onClick={handleSaveCommissionerRoster}
