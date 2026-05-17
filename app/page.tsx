@@ -966,7 +966,7 @@ export default function Page() {
   const [showPointsSystem, setShowPointsSystem] = useState(false);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
   const [leaderboardSearch, setLeaderboardSearch] = useState('');
-  const [leaderboardViewMode, setLeaderboardViewMode] = useState<'picked' | 'full'>('picked');
+  const [leaderboardViewMode, setLeaderboardViewMode] = useState<'picked' | 'full'>('full');
   const [fullLeaderboardRows, setFullLeaderboardRows] = useState<FullFieldPlayer[] | null>(null);
   const [expandedCutIds, setExpandedCutIds] = useState<Set<string>>(new Set());
   const expandedCutTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
@@ -2339,7 +2339,7 @@ export default function Page() {
       }
 
       setLeaderboardSearch('');
-      setLeaderboardViewMode('picked');
+      setLeaderboardViewMode('full');
       setFullLeaderboardRows(null);
       setLeaderboardSortMode('default');
       setLeaderboardPickedSort('default');
@@ -3163,7 +3163,7 @@ export default function Page() {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('picked'); setFullLeaderboardRows(null); setSelectedLeaderboardPlayerId(null); setLeaderboardSortMode('default'); setLeaderboardPickedSort('default'); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
+                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('full'); setFullLeaderboardRows(null); setSelectedLeaderboardPlayerId(null); setLeaderboardSortMode('default'); setLeaderboardPickedSort('default'); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
                     style={{
                       border: active ? '1px solid #d7e0e8' : '1px solid rgba(0,0,0,0.1)',
                       borderBottom: active ? '1px solid #fff' : '1px solid rgba(0,0,0,0.1)',
@@ -3785,7 +3785,7 @@ export default function Page() {
                     const tColor = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
                     return (
                       <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-                        {(['picked', 'full'] as const).map((mode) => {
+                        {(['full', 'picked'] as const).map((mode) => {
                           const isActive = leaderboardViewMode === mode;
                           const label = mode === 'picked' ? 'Picked Only' : 'Full Leaderboard';
                           return (
