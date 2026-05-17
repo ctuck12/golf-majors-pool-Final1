@@ -3895,8 +3895,8 @@ export default function Page() {
                                 const colNum = parseFloat(colVal);
                                 const colUnderPar = !isNaN(colNum) && colNum < 0;
                                 const colIsCut = displayIsCut && leaderboardSortMode === 'default';
-                                const useRedBadge = (selectedTournament === 'players' || selectedTournament === 'open') && colUnderPar;
-                                const useNavyBadge = (selectedTournament === 'players' || selectedTournament === 'open') && !colUnderPar && !colIsCut && colVal !== '--' && (colVal === 'E' || (!isNaN(colNum) && colNum > 0));
+                                const useRedBadge = selectedTournament === 'open' && colUnderPar;
+                                const useNavyBadge = selectedTournament === 'open' && !colUnderPar && !colIsCut && colVal !== '--' && (colVal === 'E' || (!isNaN(colNum) && colNum > 0));
                                 const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
                                 return (
                                   <Fragment key={player.playerId}>
@@ -4020,8 +4020,8 @@ export default function Page() {
                                 const colNum = parseFloat(colVal);
                                 const colUnderPar = !isNaN(colNum) && colNum < 0;
                                 const colIsCut = displayIsCut && leaderboardSortMode === 'default';
-                                const useRedBadge = (selectedTournament === 'players' || selectedTournament === 'open') && colUnderPar;
-                                const useNavyBadge = (selectedTournament === 'players' || selectedTournament === 'open') && !colUnderPar && !colIsCut && colVal !== '--' && (colVal === 'E' || (!isNaN(colNum) && colNum > 0));
+                                const useRedBadge = selectedTournament === 'open' && colUnderPar;
+                                const useNavyBadge = selectedTournament === 'open' && !colUnderPar && !colIsCut && colVal !== '--' && (colVal === 'E' || (!isNaN(colNum) && colNum > 0));
                                 const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
                                 return (
                                   <Fragment key={player.id}>
