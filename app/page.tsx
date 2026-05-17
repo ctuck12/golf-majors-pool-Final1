@@ -3240,7 +3240,7 @@ export default function Page() {
             <section
               ref={standingsColRef}
               style={{
-                background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                background: (selectedTournament === 'open' || selectedTournament === 'players') && !showFutureTournamentView ? '#F4BC41' : '#fff',
                 borderRadius: 20,
                 padding: isMobile ? 14 : 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
@@ -3573,7 +3573,7 @@ export default function Page() {
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
                                 ? selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe'
-                                : selectedTournament === 'open' ? '#F4BC41' : '#ffffff',
+                                : (selectedTournament === 'open' || selectedTournament === 'players') ? '#F4BC41' : '#ffffff',
                             cursor: 'pointer',
                           }}
                         >
@@ -3629,7 +3629,7 @@ export default function Page() {
                             background:
                               selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
                                 ? selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe'
-                                : selectedTournament === 'open' ? '#F4BC41' : '#ffffff',
+                                : (selectedTournament === 'open' || selectedTournament === 'players') ? '#F4BC41' : '#ffffff',
                             cursor: 'pointer',
                           }}
                         >
@@ -3660,7 +3660,7 @@ export default function Page() {
                 <section
                   ref={isMobile ? undefined : leaderboardColRef}
                   style={{
-                    background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                    background: (selectedTournament === 'open' || selectedTournament === 'players') && !showFutureTournamentView ? '#F4BC41' : '#fff',
                     borderRadius: 20,
                     padding: isMobile ? 14 : 22,
                     boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
@@ -3897,7 +3897,7 @@ export default function Page() {
                                 const colIsCut = displayIsCut && leaderboardSortMode === 'default';
                                 const useRedBadge = (selectedTournament === 'players' || selectedTournament === 'open') && colUnderPar;
                                 const useNavyBadge = (selectedTournament === 'players' || selectedTournament === 'open') && !colUnderPar && !colIsCut && colVal !== '--' && (colVal === 'E' || (!isNaN(colNum) && colNum > 0));
-                                const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
+                                const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : (selectedTournament === 'open' || selectedTournament === 'players') ? '#F4BC41' : '#ffffff';
                                 return (
                                   <Fragment key={player.playerId}>
                                     <tr
@@ -4018,7 +4018,7 @@ export default function Page() {
                                 const colIsCut = displayIsCut && leaderboardSortMode === 'default';
                                 const useRedBadge = (selectedTournament === 'players' || selectedTournament === 'open') && colUnderPar;
                                 const useNavyBadge = (selectedTournament === 'players' || selectedTournament === 'open') && !colUnderPar && !colIsCut && colVal !== '--' && (colVal === 'E' || (!isNaN(colNum) && colNum > 0));
-                                const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : selectedTournament === 'open' ? '#F4BC41' : '#ffffff';
+                                const rowBg = activePlayer ? (selectedTournament === 'masters' ? '#dcfce7' : selectedTournament === 'open' ? '#93c5fd' : '#dbeafe') : (selectedTournament === 'open' || selectedTournament === 'players') ? '#F4BC41' : '#ffffff';
                                 return (
                                   <Fragment key={player.id}>
                                     <tr
@@ -6467,7 +6467,7 @@ export default function Page() {
                 width: 'min(480px, 100%)',
                 maxHeight: 'calc(100vh - 40px)',
                 overflowY: 'auto',
-                background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                background: (selectedTournament === 'open' || selectedTournament === 'players') && !showFutureTournamentView ? '#F4BC41' : '#fff',
                 borderRadius: 20,
                 padding: isMobile ? 16 : 12,
                 boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
@@ -6493,7 +6493,7 @@ export default function Page() {
                   style={{
                     border: (selectedTournament === 'players' || selectedTournament === 'open') ? '2px solid #374151' : '1px solid #d7e0e8',
                     borderRadius: 999,
-                    background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                    background: (selectedTournament === 'open' || selectedTournament === 'players') && !showFutureTournamentView ? '#F4BC41' : '#fff',
                     padding: '8px 14px',
                     fontWeight: 800,
                     cursor: 'pointer',
@@ -6846,7 +6846,7 @@ export default function Page() {
                       border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
                       borderRadius: 10,
                       padding: '8px 12px',
-                      background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                      background: (selectedTournament === 'open' || selectedTournament === 'players') && !showFutureTournamentView ? '#F4BC41' : '#fff',
                     }}
                   >
                     <div style={{ fontWeight: 800, fontSize: 13, color: '#0f1720' }}>{label}</div>
