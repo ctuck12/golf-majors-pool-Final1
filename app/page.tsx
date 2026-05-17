@@ -3924,9 +3924,9 @@ export default function Page() {
                                             ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
                                             : thruVal;
                                         })();
-                                        return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#F9CF59', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
+                                        return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
                                       })()}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#F9CF59', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked > 0 ? timesPicked : '–'}</span> : timesPicked > 0 ? timesPicked : '–'}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked > 0 ? timesPicked : '–'}</span> : timesPicked > 0 ? timesPicked : '–'}</td>
                                     </tr>
                                     {rowIndex === cutLineIdx && (
                                       <tr style={{ background: 'transparent', borderBottom: 'none' }}>
@@ -4054,10 +4054,10 @@ export default function Page() {
                                             ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
                                             : thruVal;
                                         })();
-                                        return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#F9CF59', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
+                                        return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
                                       })()}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>
-                                        {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#F9CF59', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked}</span> : timesPicked}
+                                        {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked}</span> : timesPicked}
                                       </td>
                                     </tr>
                                     {rowIndex === cutLineIdx && (
