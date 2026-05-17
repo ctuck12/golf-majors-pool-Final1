@@ -31,7 +31,7 @@ button {
 }
 
 .tiebreak-input::placeholder {
-  font-weight: 600;
+  color: #9ea8b3;
 }
 
 ::-webkit-scrollbar {
