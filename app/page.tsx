@@ -1466,7 +1466,7 @@ export default function Page() {
   }, [mainTab, commissionerConsoleView]);
 
   useEffect(() => {
-    const anyOpen = !!activeStandingEntryId || !!activeStandingGolferId || !!scorecardGolferName;
+    const anyOpen = !!activeStandingEntryId || !!activeStandingGolferId || !!scorecardGolferName || showBonusPoints;
     if (!anyOpen) return;
     const scrollY = window.scrollY;
     document.body.style.position = 'fixed';
@@ -1480,7 +1480,7 @@ export default function Page() {
       document.body.style.overflow = '';
       window.scrollTo(0, scrollY);
     };
-  }, [activeStandingEntryId, activeStandingGolferId, scorecardGolferName]);
+  }, [activeStandingEntryId, activeStandingGolferId, scorecardGolferName, showBonusPoints]);
 
   useEffect(() => {
     if (!selectedLeaderboardPlayerId) return;
@@ -3466,7 +3466,7 @@ export default function Page() {
                     {!showFinalTournamentView && roundOneComplete && !isTournamentFinal && (
                       <button
                         onClick={() => setShowBonusPoints(true)}
-                        style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: '#B09963', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em', textAlign: 'right' }}
+                        style={{ fontSize: isMobile ? 13 : 15, fontWeight: 700, color: '#0f1720', textDecoration: 'underline', fontStyle: 'italic', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em', textAlign: 'right' }}
                       >
                         Bonus Points
                       </button>
@@ -3478,7 +3478,7 @@ export default function Page() {
                         </div>
                         <button
                           onClick={() => setShowBonusPoints(true)}
-                          style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: '#B09963', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em' }}
+                          style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: '#0f1720', textDecoration: 'underline', fontStyle: 'italic', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em' }}
                         >
                           Bonus Points
                         </button>
@@ -7692,7 +7692,7 @@ export default function Page() {
                       );
                     })}
                   </div>
-                  <div style={{ padding: '8px 20px 16px', fontSize: 10, color: '#a0b0bc', fontStyle: 'italic' }}>
+                  <div style={{ padding: '8px 20px 16px', fontSize: 12, color: '#a0b0bc', fontStyle: 'italic' }}>
                     <em>*Applicable players not selected in the pool are not shown</em>
                   </div>
                 </div>
