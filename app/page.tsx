@@ -962,6 +962,7 @@ export default function Page() {
   const [scorecardGolferBackNineStart, setScorecardGolferBackNineStart] = useState(false);
   const [scorecardData, setScorecardData] = useState<ScorecardData | null>(null);
   const [scorecardLoading, setScorecardLoading] = useState(false);
+  const [showPreviousRounds, setShowPreviousRounds] = useState(false);
   const entryBreakdownRef = useRef<HTMLDivElement>(null);
   const [showPointsSystem, setShowPointsSystem] = useState(false);
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
@@ -7036,7 +7037,7 @@ export default function Page() {
         {/* Scorecard popup */}
         {scorecardGolferName ? (
           <div
-            onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); setScorecardGolferBackNineStart(false); }}
+            onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); setScorecardGolferBackNineStart(false); setShowPreviousRounds(false); }}
             style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 80 }}
           >
             <div
@@ -7066,10 +7067,19 @@ export default function Page() {
                       }
                       if (scorecardData && scorecardData.rounds.length > 0) {
                         const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
+                        const hasPrev = scorecardData.rounds.some(r => r.round < rnd.round && r.holes.length > 0);
                         return rnd && rnd.score != null && rnd.score !== '' ? (
                           <div style={{ fontSize: 12, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 5 }}>
                             Round {rnd.round}
                             <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
+                            {hasPrev && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
+                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 11, textDecoration: 'underline', lineHeight: 1 }}
+                              >
+                                Previous Rounds
+                              </button>
+                            )}
                           </div>
                         ) : null;
                       }
@@ -7077,7 +7087,7 @@ export default function Page() {
                     })()}
                   </div>
                   <button
-                    onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); setScorecardGolferBackNineStart(false); }}
+                    onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); setScorecardGolferBackNineStart(false); setShowPreviousRounds(false); }}
                     style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
                   >
                     Close
@@ -7215,6 +7225,116 @@ export default function Page() {
             </div>
           </div>
         ) : null}
+
+        {showPreviousRounds && scorecardData && scorecardGolferName && (
+          <div
+            onClick={() => setShowPreviousRounds(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 90 }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: 'min(1140px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#fff', borderRadius: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.3)' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 16px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#fff', zIndex: 1, borderRadius: '20px 20px 0 0' }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.06em' }}>Previous Rounds</div>
+                  <div style={{ fontSize: 17, fontWeight: 900, color: '#0f1720', marginTop: 3 }}>{scorecardGolferName}</div>
+                </div>
+                <button
+                  onClick={() => setShowPreviousRounds(false)}
+                  style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
+                >
+                  Close
+                </button>
+              </div>
+              <div style={{ padding: '16px 20px 24px' }}>
+                {(() => {
+                  const currentRnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
+                  const prevRnds = scorecardData.rounds.filter(r => r.round < currentRnd.round && r.holes.length > 0).sort((a, b) => a.round - b.round);
+                  if (prevRnds.length === 0) return <div style={{ color: '#607282', fontSize: 14, padding: '16px 0' }}>No previous round data available.</div>;
+
+                  const border = '1px solid #d1d9e0';
+                  const thickBorder = '2px solid #9ab0c4';
+                  const isGoldTab = selectedTournament === 'open';
+                  const isMastersTournament = selectedTournament === 'masters';
+                  const isRedTotalTournament = selectedTournament === 'us-open';
+                  const baseCell: React.CSSProperties = { border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap', ...(isGoldTab ? { background: '#F4BC41' } : {}) };
+                  const labelCell: React.CSSProperties = { ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase', background: isGoldTab ? '#F4BC41' : '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151' };
+                  const subtotalCell: React.CSSProperties = { ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder };
+                  const totalCell: React.CSSProperties = { ...baseCell, fontWeight: 900, background: isMastersTournament ? '#1a3d2b' : isRedTotalTournament ? '#BE3436' : '#1e3a5f', color: '#fff', borderLeft: thickBorder };
+                  const holeHeaderCell: React.CSSProperties = { ...baseCell, fontWeight: 700, background: '#0f1720', color: '#fff', fontSize: 12 };
+                  const subtotalHeaderCell: React.CSSProperties = { ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder };
+                  const totalHeaderCell: React.CSSProperties = { ...holeHeaderCell, background: isMastersTournament ? '#1a3d2b' : isRedTotalTournament ? '#BE3436' : '#1e3a5f', borderLeft: thickBorder };
+                  const fmt = (n: number) => n > 0 ? `+${n}` : n === 0 ? 'E' : `${n}`;
+                  const badge = (score: number, par: number): React.CSSProperties => {
+                    const base: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, boxSizing: 'border-box', fontSize: 13 };
+                    if (!score || !par) return base;
+                    const diff = score - par;
+                    const r = '#dc2626'; const k = '#0f1720'; const g = '#fff';
+                    if (score === 1 || diff === -2) return { ...base, borderRadius: '50%', border: `2px solid ${r}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${r}` };
+                    if (diff <= -3) return { ...base, borderRadius: '50%', border: `2px solid ${r}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${r},0 0 0 6px ${g},0 0 0 8px ${r}` };
+                    if (diff === -1) return { ...base, borderRadius: '50%', border: `2px solid ${r}` };
+                    if (diff === 1) return { ...base, border: `2px solid ${k}` };
+                    if (diff === 2) return { ...base, border: `2px solid ${k}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${k}` };
+                    if (diff >= 3) return { ...base, border: `2px solid ${k}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${k},0 0 0 6px ${g},0 0 0 8px ${k}` };
+                    return base;
+                  };
+
+                  return prevRnds.map(rnd => {
+                    const front = rnd.holes.filter(h => h.hole <= 9);
+                    const back = rnd.holes.filter(h => h.hole >= 10);
+                    const frontPar = front.reduce((s, h) => s + (h.par || 0), 0);
+                    const backPar = back.reduce((s, h) => s + (h.par || 0), 0);
+                    const allScoresNull = rnd.holes.every(h => h.score == null);
+                    const frontScore = allScoresNull ? 0 : front.reduce((s, h) => s + (h.score ?? 0), 0);
+                    const backScore = allScoresNull ? 0 : back.reduce((s, h) => s + (h.score ?? 0), 0);
+                    const totalScore = frontScore + backScore;
+                    return (
+                      <div key={rnd.round} style={{ marginBottom: 24 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: isMastersTournament ? '#2c6449' : '#2f5f96', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                          Round {rnd.round}
+                          {rnd.score != null && rnd.score !== '' && <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 12 }}>Score: {typeof rnd.score === 'number' ? fmt(rnd.score) : rnd.score}</span>}
+                        </div>
+                        <div style={{ overflowX: 'auto' }}>
+                          <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 560 }}>
+                            <thead>
+                              <tr>
+                                <th style={{ ...labelCell, background: '#0f1720', color: '#fff' }}>HOLE</th>
+                                {front.map(h => <th key={h.hole} style={holeHeaderCell}>{h.hole}</th>)}
+                                <th style={subtotalHeaderCell}>Front</th>
+                                {back.map(h => <th key={h.hole} style={holeHeaderCell}>{h.hole}</th>)}
+                                <th style={subtotalHeaderCell}>Back</th>
+                                <th style={totalHeaderCell}>TOTAL</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td style={labelCell}>Par</td>
+                                {front.map(h => <td key={h.hole} style={baseCell}>{h.par || '--'}</td>)}
+                                <td style={subtotalCell}>{frontPar || '--'}</td>
+                                {back.map(h => <td key={h.hole} style={baseCell}>{h.par || '--'}</td>)}
+                                <td style={subtotalCell}>{backPar || '--'}</td>
+                                <td style={totalCell}>{(frontPar + backPar) || '--'}</td>
+                              </tr>
+                              <tr>
+                                <td style={{ ...labelCell, background: isGoldTab ? '#F4BC41' : '#fff' }}>Score</td>
+                                {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
+                                <td style={subtotalCell}>{!allScoresNull && frontScore > 0 ? frontScore : '--'}</td>
+                                {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
+                                <td style={subtotalCell}>{!allScoresNull && backScore > 0 ? backScore : '--'}</td>
+                                <td style={totalCell}>{!allScoresNull && totalScore > 0 ? totalScore : '--'}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
 
         {showRosterConfirm && (
           <div
