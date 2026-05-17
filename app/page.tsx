@@ -2099,6 +2099,9 @@ export default function Page() {
   const locked = pool?.lineupLocks?.[selectedTournament] ?? (defaultLocked || selectedTournamentStatus?.label === 'IN PROGRESS');
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
   const isTournamentFinal = feed?.tournamentComplete === true;
+  const roundOneComplete =
+    (feed?.currentRound ?? 1) > 1 ||
+    ((feed?.currentRound ?? 1) === 1 && /official|complete|final/i.test(feed?.status ?? ''));
   const showProjectedCut = (() => {
     if (selectedTournamentStatus?.label !== 'IN PROGRESS') return false;
     const showAt = TOURNAMENT_CUT_SHOW_AT[selectedTournament];
@@ -3428,7 +3431,7 @@ export default function Page() {
                         3rd: <span style={{ color: '#fff' }}>{formatPayoutAmount(selectedTournamentPayouts?.third)}</span>
                       </div>
                     </div>
-                    {!showFinalTournamentView && (isMobile ? (
+                    {!showFinalTournamentView && !roundOneComplete && (isMobile ? (
                       <div style={{ fontSize: 11, textAlign: 'right' }}>
                         <span style={{ color: '#0f1720', fontWeight: 700 }}>Entry Fee: $30</span>{' '}
                         <a
@@ -3444,6 +3447,14 @@ export default function Page() {
                         <strong style={{ color: '#0f1720' }}>Venmo:</strong> <span style={{ color: '#5b6b79' }}>@claytont743</span>
                       </div>
                     ))}
+                    {!showFinalTournamentView && roundOneComplete && !isTournamentFinal && (
+                      <button
+                        onClick={() => setShowBonusPoints(true)}
+                        style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: '#B09963', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.05em', textAlign: 'right' }}
+                      >
+                        Bonus Points
+                      </button>
+                    )}
                     {isTournamentFinal && (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
                         <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: '#B09963', textAlign: 'right', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
