@@ -1373,11 +1373,16 @@ export default function Page() {
   }, [selectedTournament, mainTab]);
 
   useEffect(() => {
-    if ((feed?.currentRound ?? 0) < 3 || fullLeaderboardRows) return;
-    readJson<FeedResponse>(`/api/leaderboard?tournamentId=${selectedTournament}&fullField=true`, { cache: 'no-store' })
-      .then((data) => setFullLeaderboardRows(data.fullLeaderboard ?? []))
-      .catch(() => { /* non-critical */ });
-  }, [feed?.currentRound, selectedTournament, fullLeaderboardRows]);
+    if ((feed?.currentRound ?? 0) < 3) return;
+    const fetchFull = () => {
+      readJson<FeedResponse>(`/api/leaderboard?tournamentId=${selectedTournament}&fullField=true`, { cache: 'no-store' })
+        .then((data) => setFullLeaderboardRows(data.fullLeaderboard ?? []))
+        .catch(() => { /* non-critical */ });
+    };
+    fetchFull();
+    const timer = window.setInterval(fetchFull, 90000);
+    return () => window.clearInterval(timer);
+  }, [feed?.currentRound, selectedTournament]);
 
   useEffect(() => {
     const loadCommissionerMembers = async () => {
