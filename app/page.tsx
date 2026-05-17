@@ -3590,12 +3590,12 @@ export default function Page() {
                             </div>
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
-                            {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
+                            {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}</span> : entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
-                            {entry.holesRemaining}
+                            {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.holesRemaining}</span> : entry.holesRemaining}
                           </td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{entry.tieBreakValue}</td>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.tieBreakValue}</span> : entry.tieBreakValue}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -3640,12 +3640,12 @@ export default function Page() {
                             </div>
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
-                            {entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
+                            {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}</span> : entry.rosterPoints % 1 === 0 ? entry.rosterPoints : entry.rosterPoints.toFixed(1)}
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
-                            {entry.holesRemaining}
+                            {(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.holesRemaining}</span> : entry.holesRemaining}
                           </td>
-                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{entry.tieBreakValue}</td>
+                          <td style={{ padding: isMobile ? '10px 8px 10px 4px' : '10px 8px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>{(selectedTournament === 'players' || selectedTournament === 'open') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 600 }}>{entry.tieBreakValue}</span> : entry.tieBreakValue}</td>
                         </tr>
                       ))}
                     </tbody>
