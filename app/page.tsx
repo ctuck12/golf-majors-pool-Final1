@@ -7686,6 +7686,9 @@ export default function Page() {
                       );
                     })}
                   </div>
+                  <div style={{ padding: '8px 20px 16px', fontSize: 10, color: '#a0b0bc', fontStyle: 'italic' }}>
+                    *Applicable players not selected in the pool are not shown
+                  </div>
                 </div>
               </div>
             </div>
