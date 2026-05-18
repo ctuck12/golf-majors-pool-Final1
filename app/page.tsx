@@ -6867,76 +6867,41 @@ export default function Page() {
               style={{
                 width: 'min(480px, 100%)',
                 maxHeight: 'calc(100vh - 40px)',
-                overflowY: 'auto',
-                background: '#fff',
+                background: '#f4f7fa',
                 borderRadius: 20,
-                padding: 0,
+                boxShadow: '0 24px 60px rgba(9,34,51,0.35)',
                 overflow: 'hidden',
-                boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'stretch' }}>
-                  <img
-                    src={activeStandingGolfer.photoUrl ?? pgaPhoto(activeStandingGolfer.pgaTourId)}
-                    alt={activeStandingGolfer.name}
-                    className="breakdown-scoring-photo"
-                    style={{ width: 72, objectFit: 'cover', objectPosition: 'top center', flexShrink: 0, background: '#fff', display: 'block', marginLeft: 16 }}
-                  />
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, padding: '14px 14px 14px 12px' }}>
-                  <div style={{ marginTop: 4 }}>
-                    <h3 className="breakdown-scoring-name" style={{ margin: '0 0 6px', fontSize: 20, color: '#0f1720' }}>{activeStandingGolfer.name}</h3>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'nowrap' }}>
-                      <div
-                        style={{
-                          borderRadius: 999,
-                          background: selectedTournament === 'masters' ? '#dcfce7' : '#eef4ff',
-                          border: `1px solid ${selectedTournament === 'masters' ? '#86efac' : '#c7d8ee'}`,
-                          padding: '3px 8px',
-                          fontSize: 13,
-                          fontWeight: 900,
-                          color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96',
-                          lineHeight: 1.2,
-                          flexShrink: 0,
-                        }}
-                      >
-                        Points: {formatPointValue(activeStandingGolfer.points)}
-                      </div>
-                      <button
-                        onClick={() => setShowPointsSystem(true)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          padding: 0,
-                          fontSize: 12,
-                          color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96',
-                          cursor: 'pointer',
-                          textDecoration: 'underline',
-                          fontWeight: 600,
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {isMobile ? 'Tap for points system' : 'Click here for points system'}
-                      </button>
+              {/* Colored header */}
+              {(() => {
+                const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
+                return (
+                  <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
+                    <div>
+                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.fullName}</div>
+                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingGolfer.name}</div>
                     </div>
+                    <button
+                      onClick={() => { setShowPointsSystem(false); setActiveStandingGolferId(null); }}
+                      style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}
+                    >✕</button>
                   </div>
-                  <button
-                    onClick={() => { setShowPointsSystem(false); setActiveStandingGolferId(null); }}
-                    style={{
-                      border: '1px solid #d7e0e8',
-                      borderRadius: 999,
-                      background: '#fff',
-                      padding: '8px 14px',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      flexShrink: 0,
-                    }}
-                  >
-                    Back
+                );
+              })()}
+
+              <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {/* Points + link card */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'nowrap', background: '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: '10px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
+                  <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#dcfce7' : '#eef4ff', border: `1px solid ${selectedTournament === 'masters' ? '#86efac' : '#c7d8ee'}`, padding: '3px 8px', fontSize: 13, fontWeight: 900, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', lineHeight: 1.2, flexShrink: 0 }}>
+                    Points: {formatPointValue(activeStandingGolfer.points)}
+                  </div>
+                  <button onClick={() => setShowPointsSystem(true)} style={{ background: 'none', border: 'none', padding: 0, fontSize: 12, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    {isMobile ? 'Tap for points system' : 'Click here for points system'}
                   </button>
                 </div>
-              </div>
-
-              <div style={{ marginTop: 3, display: 'grid', gap: 8, padding: '0 16px 16px' }}>
                 {[
                   ['Pars', activeStandingGolfer.scoreBreakdown.statLine.par, activeStandingGolfer.scoreBreakdown.statLine.par * SCORING_RULES.par],
                   ['Birdies', activeStandingGolfer.scoreBreakdown.statLine.birdie, activeStandingGolfer.scoreBreakdown.statLine.birdie * SCORING_RULES.birdie],
@@ -7300,28 +7265,26 @@ export default function Page() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              style={{ width: 'min(1140px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#fff', borderRadius: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.3)' }}
+              style={{ width: 'min(1140px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', background: '#f4f7fa', borderRadius: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
             >
-              <div style={{ display: 'flex', alignItems: 'stretch', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#fff', zIndex: 1, borderRadius: '20px 20px 0 0' }}>
-                <img
-                  src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
-                  alt={scorecardGolferName ?? ''}
-                  style={{ width: 56, objectFit: 'cover', objectPosition: 'top center', background: '#fff', flexShrink: 0, display: 'block', mixBlendMode: 'multiply', marginLeft: 20, borderRadius: '20px 0 0 0' }}
-                />
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '14px 20px 14px 16px' }}>
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', letterSpacing: '0.06em' }}>Previous Rounds</div>
-                    <div style={{ fontSize: 17, fontWeight: 900, color: '#0f1720', marginTop: 3 }}>{scorecardGolferName}</div>
+              {/* Colored header */}
+              {(() => {
+                const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
+                return (
+                  <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
+                    <div>
+                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>Previous Rounds</div>
+                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{scorecardGolferName}</div>
+                    </div>
+                    <button
+                      onClick={() => setShowPreviousRounds(false)}
+                      style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}
+                    >✕</button>
                   </div>
-                  <button
-                    onClick={() => setShowPreviousRounds(false)}
-                    style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-              <div style={{ padding: '16px 20px 24px' }}>
+                );
+              })()}
+              <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+              <div style={{ padding: isMobile ? '14px 14px 20px' : '16px 20px 24px', overflowX: 'auto' }}>
                 {(() => {
                   const currentRnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
                   const prevRnds = scorecardData.rounds.filter(r => r.round < currentRnd.round && r.holes.length > 0).sort((a, b) => b.round - a.round);
@@ -7523,6 +7486,7 @@ export default function Page() {
                     );
                   });
                 })()}
+              </div>
               </div>
             </div>
           </div>
