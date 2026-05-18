@@ -7101,7 +7101,7 @@ export default function Page() {
                             return rnd && rnd.score != null && rnd.score !== '' ? (
                               <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: roundColor, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                                 Round {rnd.round}
-                                <span style={{ fontWeight: 600, color: '#0f1720', fontSize: isMobile ? 10 : 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
+                                <span style={{ fontWeight: 600, color: '#fff', fontSize: isMobile ? 10 : 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
                                 {hasPrev && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
