@@ -7686,7 +7686,7 @@ export default function Page() {
                         <div key={cat.label} style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: '1px solid #edf1f6' }}>
                             <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
-                              {cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}
+                              {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}
                             </div>
                             <span style={{ fontSize: 11, fontWeight: 700, color: '#B09963', flexShrink: 0, whiteSpace: 'nowrap' }}>+{cat.pts} pts</span>
                           </div>
