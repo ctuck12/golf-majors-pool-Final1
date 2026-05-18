@@ -6881,8 +6881,15 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.fullName}</div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingGolfer.name}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
+                        <div style={{ borderRadius: 999, background: '#1e3a5f', padding: '3px 10px', fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1.2, flexShrink: 0 }}>
+                          Points: {formatPointValue(activeStandingGolfer.points)}
+                        </div>
+                        <button onClick={() => setShowPointsSystem(true)} style={{ background: 'none', border: 'none', padding: 0, fontSize: isMobile ? 12 : 13, color: '#fff', cursor: 'pointer', textDecoration: 'none', fontWeight: 400, letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
+                          {isMobile ? 'Tap for points system' : 'Click here for points system'}
+                        </button>
+                      </div>
                     </div>
                     <button
                       onClick={() => { setShowPointsSystem(false); setActiveStandingGolferId(null); }}
@@ -6893,15 +6900,6 @@ export default function Page() {
               })()}
 
               <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {/* Points + link card */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'nowrap', background: '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: '10px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
-                  <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#dcfce7' : '#eef4ff', border: `1px solid ${selectedTournament === 'masters' ? '#86efac' : '#c7d8ee'}`, padding: '3px 8px', fontSize: 13, fontWeight: 900, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', lineHeight: 1.2, flexShrink: 0 }}>
-                    Points: {formatPointValue(activeStandingGolfer.points)}
-                  </div>
-                  <button onClick={() => setShowPointsSystem(true)} style={{ background: 'none', border: 'none', padding: 0, fontSize: 12, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                    {isMobile ? 'Tap for points system' : 'Click here for points system'}
-                  </button>
-                </div>
                 {[
                   ['Pars', activeStandingGolfer.scoreBreakdown.statLine.par, activeStandingGolfer.scoreBreakdown.statLine.par * SCORING_RULES.par],
                   ['Birdies', activeStandingGolfer.scoreBreakdown.statLine.birdie, activeStandingGolfer.scoreBreakdown.statLine.birdie * SCORING_RULES.birdie],
