@@ -7755,7 +7755,7 @@ export default function Page() {
                     })}
                   </div>
 
-                  <div style={{ padding: '6px 2px 12px', fontSize: 11, color: '#a0b0bc', fontStyle: 'italic' }}>
+                  <div style={{ padding: '6px 2px 12px', fontSize: 13, color: '#a0b0bc', fontStyle: 'italic' }}>
                     *Applicable players not selected in the pool are not shown
                   </div>
                 </div>
