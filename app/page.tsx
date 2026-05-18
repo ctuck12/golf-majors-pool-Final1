@@ -7112,7 +7112,7 @@ export default function Page() {
               {/* Colored tournament header */}
               {(() => {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
-                const roundColor = selectedTournament === 'masters' ? '#2c6449' : '#2f5f96';
+                const roundColor = '#1e3a5f';
                 return (
                   <div style={{ background: hBg, display: 'flex', alignItems: 'stretch', flexShrink: 0 }}>
                     {/* Name + round/score + close */}
