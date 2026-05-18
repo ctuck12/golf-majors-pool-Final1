@@ -127,6 +127,115 @@ const TOURNAMENT_LEADERBOARD_HEADER: Record<string, string> = {
   open: 'The Open Leaderboard',
 };
 
+const PLAYER_FLAGS: Record<string, string> = {
+  // USA
+  'Scottie Scheffler': '🇺🇸', 'Xander Schauffele': '🇺🇸', 'Collin Morikawa': '🇺🇸',
+  'Justin Thomas': '🇺🇸', 'Jordan Spieth': '🇺🇸', 'Bryson DeChambeau': '🇺🇸',
+  'Tony Finau': '🇺🇸', 'Patrick Cantlay': '🇺🇸', 'Wyndham Clark': '🇺🇸',
+  'Max Homa': '🇺🇸', 'Sam Burns': '🇺🇸', 'Brian Harman': '🇺🇸',
+  'Kevin Kisner': '🇺🇸', 'Rickie Fowler': '🇺🇸', 'Keegan Bradley': '🇺🇸',
+  'Matt Kuchar': '🇺🇸', 'Harris English': '🇺🇸', 'Denny McCarthy': '🇺🇸',
+  'Russell Henley': '🇺🇸', 'Talor Gooch': '🇺🇸', 'Eric Cole': '🇺🇸',
+  'Cameron Young': '🇺🇸', 'Alex Smalley': '🇺🇸', 'Matt McCarty': '🇺🇸',
+  'Davis Riley': '🇺🇸', 'Taylor Moore': '🇺🇸', 'J.T. Poston': '🇺🇸',
+  'Sahith Theegala': '🇺🇸', 'Billy Horschel': '🇺🇸', 'Tom Hoge': '🇺🇸',
+  'Keith Mitchell': '🇺🇸', 'Ben Griffin': '🇺🇸', 'Austin Eckroat': '🇺🇸',
+  'Daniel Berger': '🇺🇸', 'Brendan Steele': '🇺🇸', 'Beau Hossler': '🇺🇸',
+  'Chris Kirk': '🇺🇸', 'Luke List': '🇺🇸', 'Adam Schenk': '🇺🇸',
+  'Kurt Kitayama': '🇺🇸', 'Mark Hubbard': '🇺🇸', 'Patton Kizzire': '🇺🇸',
+  'Harold Varner III': '🇺🇸', 'Brendon Todd': '🇺🇸', 'Bill Haas': '🇺🇸',
+  'Ryan Palmer': '🇺🇸', 'Webb Simpson': '🇺🇸', 'Zac Blair': '🇺🇸',
+  'Chesson Hadley': '🇺🇸', 'Ryan Brehm': '🇺🇸', 'Justin Lower': '🇺🇸',
+  'David Skinns': '🇺🇸', 'Patrick Rodgers': '🇺🇸', 'Shane Bertsch': '🇺🇸',
+  'Andrew Novak': '🇺🇸', 'Ben Taylor': '🇺🇸', 'Trace Crowe': '🇺🇸',
+  'Jackson Suber': '🇺🇸', 'Michael Kim': '🇺🇸', 'Scott Stallings': '🇺🇸',
+  'Will Zalatoris': '🇺🇸', 'Maverick McNealy': '🇺🇸', 'Aaron Wise': '🇺🇸',
+  'Doc Redman': '🇺🇸', 'Tyler Duncan': '🇺🇸', 'J.J. Spaun': '🇺🇸',
+  'Sepp Straka': '🇦🇹',
+  // England
+  'Tommy Fleetwood': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Justin Rose': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Matt Fitzpatrick': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Tyrrell Hatton': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Lee Westwood': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Ian Poulter': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Paul Casey': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Danny Willett': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Aaron Rai': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Matt Wallace': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Eddie Pepperell': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Nick Faldo': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Luke Donald': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Laurie Canter': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Marco Penge': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Callum Shinkwin': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Tom Lewis': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Sam Horsfield': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Jordan Smith': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Andrew Johnston': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  // Scotland
+  'Robert MacIntyre': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'Martin Laird': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'Russell Knox': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'Ewen Ferguson': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'Grant Forrest': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'Richie Ramsay': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'David Law': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'Connor Syme': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  // Northern Ireland
+  'Rory McIlroy': '🇬🇧', 'Graeme McDowell': '🇬🇧', 'Darren Clarke': '🇬🇧',
+  // Wales
+  'Rhys Enoch': '🏴󠁧󠁢󠁷󠁬󠁳󠁿',
+  // Ireland
+  'Shane Lowry': '🇮🇪', 'Seamus Power': '🇮🇪', 'Padraig Harrington': '🇮🇪',
+  'Niall Kearney': '🇮🇪', 'John Murphy': '🇮🇪',
+  // Sweden
+  'Ludvig Aberg': '🇸🇪', 'Alex Noren': '🇸🇪', 'Henrik Stenson': '🇸🇪',
+  'Joakim Lagergren': '🇸🇪', 'Jesper Svensson': '🇸🇪',
+  // Norway
+  'Viktor Hovland': '🇳🇴', 'Kristoffer Ventura': '🇳🇴',
+  // Denmark
+  'Thorbjorn Olesen': '🇩🇰', 'Rasmus Hojgaard': '🇩🇰', 'Nicolai Hojgaard': '🇩🇰',
+  'Jeff Winther': '🇩🇰', 'Niklas Norgaard': '🇩🇰',
+  // Spain
+  'Jon Rahm': '🇪🇸', 'Sergio Garcia': '🇪🇸', 'Adrian Otaegui': '🇪🇸',
+  'Alejandro del Rey': '🇪🇸', 'Ivan Cantero': '🇪🇸',
+  // South Africa
+  'Louis Oosthuizen': '🇿🇦', 'Charl Schwartzel': '🇿🇦', 'Branden Grace': '🇿🇦',
+  'Erik van Rooyen': '🇿🇦', 'Garrick Higgo': '🇿🇦', 'Dean Burmester': '🇿🇦',
+  'MJ Daffue': '🇿🇦', 'Thriston Lawrence': '🇿🇦', 'Justin Harding': '🇿🇦',
+  'Dylan Frittelli': '🇿🇦', 'Christiaan Bezuidenhout': '🇿🇦',
+  // Australia
+  'Min Woo Lee': '🇦🇺', 'Jason Day': '🇦🇺', 'Adam Scott': '🇦🇺',
+  'Cameron Smith': '🇦🇺', 'Marc Leishman': '🇦🇺', 'Lucas Herbert': '🇦🇺',
+  'Cameron Davis': '🇦🇺', 'Matt Jones': '🇦🇺', 'Aaron Pike': '🇦🇺',
+  'David Bransdon': '🇦🇺', 'Brett Drewitt': '🇦🇺',
+  // New Zealand
+  'Ryan Fox': '🇳🇿', 'Danny Lee': '🇳🇿', 'Nick Taylor': '🇳🇿',
+  // Canada
+  'Adam Hadwin': '🇨🇦', 'Corey Conners': '🇨🇦', 'Mackenzie Hughes': '🇨🇦',
+  'Taylor Pendrith': '🇨🇦', 'Roger Sloan': '🇨🇦', 'Ben Silverman': '🇨🇦',
+  'Mike Weir': '🇨🇦', 'David Hearn': '🇨🇦',
+  // Japan
+  'Hideki Matsuyama': '🇯🇵', 'Keita Nakajima': '🇯🇵', 'Ryo Hisatsune': '🇯🇵',
+  'Rikuya Hoshino': '🇯🇵', 'Satoshi Kodaira': '🇯🇵', 'Takumi Kanaya': '🇯🇵',
+  'Yuto Katsuragawa': '🇯🇵',
+  // South Korea
+  'Tom Kim': '🇰🇷', 'Sungjae Im': '🇰🇷', 'Si Woo Kim': '🇰🇷',
+  'K.H. Lee': '🇰🇷', 'Byeong Hun An': '🇰🇷', 'S.H. Kim': '🇰🇷',
+  'Sung Kang': '🇰🇷', 'Chan Kim': '🇰🇷', 'Joohyung Kim': '🇰🇷',
+  // Taiwan
+  'C.T. Pan': '🇹🇼', 'Wei-Chih Lu': '🇹🇼',
+  // China
+  'Haotong Li': '🇨🇳', 'Li Haotong': '🇨🇳',
+  // Argentina
+  'Emiliano Grillo': '🇦🇷', 'Fabian Gomez': '🇦🇷', 'Angel Cabrera': '🇦🇷',
+  // Chile
+  'Mito Pereira': '🇨🇱', 'Joaquin Niemann': '🇨🇱',
+  // Colombia
+  'Camilo Villegas': '🇨🇴', 'Sebastian Munoz': '🇨🇴', 'Nicolas Echavarria': '🇨🇴',
+  // Venezuela
+  'Jhonattan Vegas': '🇻🇪',
+  // Germany
+  'Stephan Jaeger': '🇩🇪', 'Alex Cejka': '🇩🇪', 'Marcel Siem': '🇩🇪',
+  // France
+  'Victor Perez': '🇫🇷', 'Matthieu Pavon': '🇫🇷', 'Romain Langasque': '🇫🇷',
+  'Antoine Rozner': '🇫🇷', 'Benjamin Hebert': '🇫🇷',
+  // Belgium
+  'Thomas Pieters': '🇧🇪', 'Nicolas Colsaerts': '🇧🇪',
+  // Italy
+  'Francesco Molinari': '🇮🇹', 'Guido Migliozzi': '🇮🇹',
+  // Fiji
+  'Vijay Singh': '🇫🇯',
+  // Thailand
+  'Kiradech Aphibarnrat': '🇹🇭', 'Jazz Janewattananond': '🇹🇭',
+  // Zimbabwe
+  'Nick Price': '🇿🇼',
+};
+const getPlayerFlag = (name: string): string => PLAYER_FLAGS[name] ?? '';
+
 const TOURNAMENT_PICKS_HEADER: Record<string, string> = {
   players: 'The Players Picks',
   masters: 'The Masters Picks',
@@ -6881,7 +6990,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingGolfer.name}</div>
+                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingGolfer.name}{getPlayerFlag(activeStandingGolfer.name) && <span style={{ marginLeft: 8, fontSize: isMobile ? 16 : 18, fontWeight: 400 }}>{getPlayerFlag(activeStandingGolfer.name)}</span>}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
                         <div style={{ borderRadius: 999, background: '#1e3a5f', padding: '3px 10px', fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1.2, flexShrink: 0 }}>
                           Points: {formatPointValue(activeStandingGolfer.points)}
@@ -7081,7 +7190,7 @@ export default function Page() {
                     {/* Name + round/score + close */}
                     <div style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: isMobile ? '10px 14px' : '12px 18px' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: !scorecardGolferName ? 19 : scorecardGolferName.length > 22 ? (isMobile ? 14 : 16) : scorecardGolferName.length > 18 ? (isMobile ? 16 : 18) : isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.1 }}>{scorecardGolferName}</div>
+                        <div style={{ fontSize: !scorecardGolferName ? 19 : scorecardGolferName.length > 22 ? (isMobile ? 14 : 16) : scorecardGolferName.length > 18 ? (isMobile ? 16 : 18) : isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.1 }}>{scorecardGolferName}{scorecardGolferName && getPlayerFlag(scorecardGolferName) && <span style={{ marginLeft: 8, fontSize: isMobile ? 16 : 18, fontWeight: 400 }}>{getPlayerFlag(scorecardGolferName)}</span>}</div>
                         {(() => {
                           const playerNotStarted = scorecardGolferThru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS';
                           if (playerNotStarted && scorecardGolferTeeTime) {
@@ -7271,7 +7380,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{scorecardGolferName}</div>
+                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{scorecardGolferName}{scorecardGolferName && getPlayerFlag(scorecardGolferName) && <span style={{ marginLeft: 8, fontSize: isMobile ? 16 : 18, fontWeight: 400 }}>{getPlayerFlag(scorecardGolferName)}</span>}</div>
                     </div>
                     <button
                       onClick={() => setShowPreviousRounds(false)}
@@ -7386,7 +7495,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{cutScorecardGolfer.name}</div>
+                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{cutScorecardGolfer.name}{getPlayerFlag(cutScorecardGolfer.name) && <span style={{ marginLeft: 8, fontSize: isMobile ? 16 : 18, fontWeight: 400 }}>{getPlayerFlag(cutScorecardGolfer.name)}</span>}</div>
                     </div>
                     <button
                       onClick={() => { setCutScorecardGolfer(null); setCutScorecardData(null); }}
