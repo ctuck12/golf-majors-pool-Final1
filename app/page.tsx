@@ -6701,7 +6701,7 @@ export default function Page() {
                                 </div>
                               )}
                               {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
-                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -6781,7 +6781,7 @@ export default function Page() {
                                 </div>
                               )}
                               {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
-                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
