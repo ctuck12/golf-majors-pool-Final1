@@ -1,0 +1,9 @@
+<svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" aria-label="South Africa flag" role="img">
+  <rect width="900" height="300" y="0" fill="#DE3831"/>
+  <rect width="900" height="300" y="300" fill="#002395"/>
+  <polygon points="0,0 185,0 430,270 900,270 900,330 430,330 185,600 0,600 250,300" fill="#FFFFFF"/>
+  <polygon points="0,0 155,0 395,280 900,280 900,320 395,320 155,600 0,600 220,300" fill="#FFB612"/>
+  <polygon points="0,60 125,60 365,290 900,290 900,310 365,310 125,540 0,540 190,300" fill="#007A4D"/>
+  <polygon points="0,0 235,300 0,600" fill="#FFB612"/>
+  <polygon points="0,45 190,300 0,555" fill="#000000"/>
+</svg>
