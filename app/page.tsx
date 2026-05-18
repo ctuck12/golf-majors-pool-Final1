@@ -7389,7 +7389,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>Missed Cut</div>
+                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: '#ff6b6b', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>Missed Cut</div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{cutScorecardGolfer.name}</div>
                     </div>
                     <button
