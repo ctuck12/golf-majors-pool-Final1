@@ -6602,16 +6602,18 @@ export default function Page() {
               style={{
                 width: 'min(520px, calc(100vw - 32px))',
                 maxHeight: 'calc(100vh - 32px)',
-                overflowY: 'auto',
                 background: '#f4f7fa',
                 borderRadius: 20,
                 boxShadow: '0 24px 60px rgba(9,34,51,0.35)',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
               {(() => {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
                 return (
-                  <div style={{ background: hBg, borderRadius: '20px 20px 0 0', padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                  <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
                       <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.fullName}</div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
@@ -6626,7 +6628,7 @@ export default function Page() {
                   </div>
                 );
               })()}
-              <div style={{ padding: isMobile ? '14px 14px 16px' : '16px 18px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ padding: isMobile ? '14px 14px 16px' : '16px 18px 16px', display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto', flex: 1, minHeight: 0 }}>
                 {activeStandingEntry.golfers.length > 0 ? (
                   activeStandingGolfers.map((golfer, index) => {
                     const isActiveGolfer = activeStandingGolferId === golfer.id;
