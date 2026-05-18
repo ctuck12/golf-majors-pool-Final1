@@ -2065,12 +2065,12 @@ export default function Page() {
   const otherSubmittedEntriesCount = sessionUser
     ? submittedEntries.filter((entry) => entry.id !== sessionUser.id).length
     : submittedEntries.length;
-  const submittedCommissionerMembers = commissionerMembers.filter(
-    (member) => (member.rosters[entriesTournamentId] ?? []).length === REQUIRED_GOLFERS,
-  );
-  const pendingCommissionerMembers = commissionerMembers.filter(
-    (member) => (member.rosters[entriesTournamentId] ?? []).length !== REQUIRED_GOLFERS,
-  );
+  const submittedCommissionerMembers = commissionerMembers
+    .filter((member) => (member.rosters[entriesTournamentId] ?? []).length === REQUIRED_GOLFERS)
+    .sort((a, b) => a.displayName.localeCompare(b.displayName));
+  const pendingCommissionerMembers = commissionerMembers
+    .filter((member) => (member.rosters[entriesTournamentId] ?? []).length !== REQUIRED_GOLFERS)
+    .sort((a, b) => a.displayName.localeCompare(b.displayName));
   const rosterPlayers = selectedRoster.map((id) => playersById[id]).filter(Boolean);
   const orderedRosterPlayers = [...rosterPlayers].sort((left, right) => right.salary - left.salary);
   const savedRosterPlayers = savedRoster.map((id) => playersById[id]).filter(Boolean);
