@@ -3805,7 +3805,16 @@ export default function Page() {
                         setLeaderboardSearch(e.target.value);
                         if (isMobile) {
                           requestAnimationFrame(() => {
-                            input?.scrollIntoView({ behavior: 'instant', block: 'start' });
+                            if (!input) return;
+                            const vv = window.visualViewport;
+                            if (!vv) return;
+                            const rect = input.getBoundingClientRect();
+                            // Target: input bottom sits ~80px above the keyboard so 1-2
+                            // result rows are visible. Only scroll if we're below that point.
+                            const target = vv.height - 80;
+                            if (rect.bottom > target) {
+                              window.scrollBy({ top: rect.bottom - target, behavior: 'instant' });
+                            }
                           });
                         }
                       }}
@@ -3816,10 +3825,9 @@ export default function Page() {
                           const vv = window.visualViewport;
                           if (!vv) return;
                           const rect = el.getBoundingClientRect();
-                          // Scroll only if the keyboard has pushed the input out of view —
-                          // move just enough to clear the keyboard with a small margin.
-                          if (rect.bottom > vv.height - 20) {
-                            window.scrollBy({ top: rect.bottom - vv.height + 40, behavior: 'smooth' });
+                          const target = vv.height - 80;
+                          if (rect.bottom > target) {
+                            window.scrollBy({ top: rect.bottom - target, behavior: 'smooth' });
                           }
                         }, 350);
                       }}
