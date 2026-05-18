@@ -6600,47 +6600,33 @@ export default function Page() {
               onClick={(event) => event.stopPropagation()}
               className="breakdown-modal entry-breakdown-modal"
               style={{
-                width: 'min(480px, 100%)',
-                maxHeight: 'calc(100vh - 40px)',
+                width: 'min(520px, calc(100vw - 32px))',
+                maxHeight: 'calc(100vh - 32px)',
                 overflowY: 'auto',
-                background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                background: '#f4f7fa',
                 borderRadius: 20,
-                padding: isMobile ? 16 : 12,
-                boxShadow: '0 24px 60px rgba(9, 34, 51, 0.2)',
+                boxShadow: '0 24px 60px rgba(9,34,51,0.35)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
-                <div>
-                  <h3 style={{ margin: '4px 0 0', fontSize: 20, color: '#0f1720' }}>
-                    {activeStandingEntry.name} - {tournament.name}
-                  </h3>
-                  <div style={{ marginTop: 2, color: (selectedTournament === 'players' || selectedTournament === 'open') ? '#374151' : '#6b7b88', fontSize: isMobile ? 10.5 : 12 }}>
-                    {isMobile
-                      ? `*Tap player for details; Tap "${currentRoundLabel}" for scorecard`
-                      : `*Click player for scoring details; Click "${currentRoundLabel}" for scorecard`}
+              {(() => {
+                const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
+                return (
+                  <div style={{ background: hBg, borderRadius: '20px 20px 0 0', padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                    <div>
+                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.fullName}</div>
+                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
+                      <div style={{ marginTop: 4, color: 'rgba(255,255,255,0.65)', fontSize: isMobile ? 10 : 11 }}>
+                        {isMobile ? `*Tap player for details; Tap "${currentRoundLabel}" for scorecard` : `*Click player for scoring details; Click "${currentRoundLabel}" for scorecard`}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => { setShowPointsSystem(false); setActiveStandingGolferId(null); setActiveStandingEntryId(null); }}
+                      style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}
+                    >✕</button>
                   </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setShowPointsSystem(false);
-                    setActiveStandingGolferId(null);
-                    setActiveStandingEntryId(null);
-                  }}
-                  style={{
-                    border: (selectedTournament === 'players' || selectedTournament === 'open') ? '2px solid #374151' : '1px solid #d7e0e8',
-                    borderRadius: 999,
-                    background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
-                    padding: '8px 14px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    color: (selectedTournament === 'players' || selectedTournament === 'open') ? '#374151' : '#0f1720',
-                  }}
-                >
-                  Close
-                </button>
-              </div>
-
-              <div style={{ marginTop: isMobile ? 12 : 10, display: 'grid', gap: isMobile ? 8 : 8 }}>
+                );
+              })()}
+              <div style={{ padding: isMobile ? '14px 14px 16px' : '16px 18px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {activeStandingEntry.golfers.length > 0 ? (
                   activeStandingGolfers.map((golfer, index) => {
                     const isActiveGolfer = activeStandingGolferId === golfer.id;
@@ -6651,7 +6637,7 @@ export default function Page() {
                       onClick={() => setActiveStandingGolferId(golfer.id)}
                       style={{
                         width: '100%',
-                        border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
+                        border: '1px solid #e2e8ef',
                         borderRadius: 12,
                         padding: 0,
                         background: isActiveGolfer ? '#eef4ff' : '#fff',
@@ -6660,6 +6646,7 @@ export default function Page() {
                         display: 'flex',
                         overflow: 'hidden',
                         minHeight: isMobile ? 85 : 100,
+                        boxShadow: '0 2px 6px rgba(9,34,51,0.05)',
                       }}
                     >
                       {isMobile ? (
@@ -6828,38 +6815,28 @@ export default function Page() {
                 ) : (
                   <div
                     style={{
-                      borderRadius: 18,
-                      border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
-                      background: selectedTournament === 'open' ? '#F4BC41' : '#f8fbfd',
+                      borderRadius: 12,
+                      border: '1px solid #e2e8ef',
+                      background: '#fff',
                       padding: 18,
-                      color: (selectedTournament === 'players' || selectedTournament === 'open') ? '#374151' : '#50616f',
+                      color: '#50616f',
+                      boxShadow: '0 2px 6px rgba(9,34,51,0.05)',
                     }}
                   >
                     No lineup has been saved for this team yet.
                   </div>
                 )}
-              </div>
-
-              <div
-                style={{
-                  marginTop: isMobile ? 18 : 14,
-                  display: 'grid',
-                  gridTemplateColumns: '1fr auto auto',
-                  gap: 16,
-                  alignItems: 'center',
-                  borderTop: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
-                  paddingTop: isMobile ? 16 : 14,
-                }}
-              >
-                <div style={{ color: (selectedTournament === 'players' || selectedTournament === 'open') ? '#374151' : '#50616f', fontSize: isMobile ? 18 : 17 }}>
-                  Total Holes Rem: <strong>{activeStandingEntry.holesRemaining}</strong>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: isMobile ? '12px 14px' : '12px 16px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
+                <div style={{ color: '#50616f', fontSize: 14, fontWeight: 600 }}>
+                  Total Holes Rem: <strong style={{ color: '#0f1720' }}>{activeStandingEntry.holesRemaining}</strong>
                 </div>
-  <div style={{ fontSize: isMobile ? 18 : 17, fontWeight: 800, color: '#0f1720' }}>
+                <div style={{ fontSize: 15, fontWeight: 900, color: '#0f1720' }}>
                   Total: {formatPointValue(activeStandingEntry.rosterPoints)}
                 </div>
               </div>
             </div>
           </div>
+        </div>
         ) : null}
 
         {activeStandingGolfer ? (
