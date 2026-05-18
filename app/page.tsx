@@ -3796,20 +3796,7 @@ export default function Page() {
                       placeholder="Search player..."
                       value={leaderboardSearch}
                       onChange={(e) => {
-                        const el = e.currentTarget as HTMLInputElement;
-                        const savedY = window.scrollY;
                         setLeaderboardSearch(e.target.value);
-                        if (isMobile) {
-                          requestAnimationFrame(() => requestAnimationFrame(() => {
-                            window.scroll(0, savedY);
-                            const vv = window.visualViewport;
-                            if (!vv) return;
-                            const rect = el.getBoundingClientRect();
-                            if (rect.bottom > vv.height - 20) {
-                              window.scroll(0, savedY + rect.bottom - vv.height + 40);
-                            }
-                          }));
-                        }
                       }}
                       onFocus={(e) => {
                         if (!isMobile) return;
@@ -3826,7 +3813,7 @@ export default function Page() {
                       style={{
                         width: '100%',
                         boxSizing: 'border-box',
-                        padding: isMobile ? `4px ${leaderboardSearch ? 32 : 10}px 4px 10px` : `6px ${leaderboardSearch ? 32 : 12}px 6px 12px`,
+                        padding: isMobile ? '4px 32px 4px 10px' : `6px ${leaderboardSearch ? 32 : 12}px 6px 12px`,
                         fontSize: isMobile ? 16 : 13,
                         border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3',
                         borderRadius: 8,
