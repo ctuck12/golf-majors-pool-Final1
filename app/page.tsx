@@ -3801,34 +3801,17 @@ export default function Page() {
                       placeholder="Search player..."
                       value={leaderboardSearch}
                       onChange={(e) => {
-                        const input = e.currentTarget;
                         setLeaderboardSearch(e.target.value);
                         if (isMobile) {
                           requestAnimationFrame(() => {
-                            if (!input) return;
-                            const vv = window.visualViewport;
-                            if (!vv) return;
-                            const rect = input.getBoundingClientRect();
-                            // Target: input bottom sits ~80px above the keyboard so 1-2
-                            // result rows are visible. Only scroll if we're below that point.
-                            const target = vv.height - 80;
-                            if (rect.bottom > target) {
-                              window.scrollBy({ top: rect.bottom - target, behavior: 'instant' });
-                            }
+                            leaderboardColRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
                           });
                         }
                       }}
                       onFocus={(e) => {
                         if (!isMobile) return;
-                        const el = e.currentTarget;
                         setTimeout(() => {
-                          const vv = window.visualViewport;
-                          if (!vv) return;
-                          const rect = el.getBoundingClientRect();
-                          const target = vv.height - 80;
-                          if (rect.bottom > target) {
-                            window.scrollBy({ top: rect.bottom - target, behavior: 'smooth' });
-                          }
+                          leaderboardColRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }, 350);
                       }}
                       style={{
