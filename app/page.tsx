@@ -6997,7 +6997,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingGolfer.name}{getPlayerFlag(activeStandingGolfer.name) && <img src={getFlagSrc(activeStandingGolfer.name)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />}</div>
+                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingGolfer.name}{getPlayerFlag(activeStandingGolfer.name) && <><img src={getFlagSrc(activeStandingGolfer.name)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />{getPlayerFlag(activeStandingGolfer.name) === 'us' && <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, verticalAlign: 'middle' }}>USA</span>}</>}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
                         <div style={{ borderRadius: 999, background: '#1e3a5f', padding: '3px 10px', fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1.2, flexShrink: 0 }}>
                           Points: {formatPointValue(activeStandingGolfer.points)}
@@ -7197,7 +7197,7 @@ export default function Page() {
                     {/* Name + round/score + close */}
                     <div style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: isMobile ? '10px 14px' : '12px 18px' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: !scorecardGolferName ? 19 : scorecardGolferName.length > 22 ? (isMobile ? 14 : 16) : scorecardGolferName.length > 18 ? (isMobile ? 16 : 18) : isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.1 }}>{scorecardGolferName}{scorecardGolferName && getPlayerFlag(scorecardGolferName) && <img src={getFlagSrc(scorecardGolferName)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />}</div>
+                        <div style={{ fontSize: !scorecardGolferName ? 19 : scorecardGolferName.length > 22 ? (isMobile ? 14 : 16) : scorecardGolferName.length > 18 ? (isMobile ? 16 : 18) : isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.1 }}>{scorecardGolferName}{scorecardGolferName && getPlayerFlag(scorecardGolferName) && <><img src={getFlagSrc(scorecardGolferName)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />{getPlayerFlag(scorecardGolferName) === 'us' && <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, verticalAlign: 'middle' }}>USA</span>}</>}</div>
                         {(() => {
                           const playerNotStarted = scorecardGolferThru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS';
                           if (playerNotStarted && scorecardGolferTeeTime) {
@@ -7387,7 +7387,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{scorecardGolferName}{scorecardGolferName && getPlayerFlag(scorecardGolferName) && <img src={getFlagSrc(scorecardGolferName)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />}</div>
+                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{scorecardGolferName}{scorecardGolferName && getPlayerFlag(scorecardGolferName) && <><img src={getFlagSrc(scorecardGolferName)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />{getPlayerFlag(scorecardGolferName) === 'us' && <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, verticalAlign: 'middle' }}>USA</span>}</>}</div>
                     </div>
                     <button
                       onClick={() => setShowPreviousRounds(false)}
@@ -7502,7 +7502,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{cutScorecardGolfer.name}{getPlayerFlag(cutScorecardGolfer.name) && <img src={getFlagSrc(cutScorecardGolfer.name)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />}</div>
+                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{cutScorecardGolfer.name}{getPlayerFlag(cutScorecardGolfer.name) && <><img src={getFlagSrc(cutScorecardGolfer.name)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />{getPlayerFlag(cutScorecardGolfer.name) === 'us' && <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, verticalAlign: 'middle' }}>USA</span>}</>}</div>
                     </div>
                     <button
                       onClick={() => { setCutScorecardGolfer(null); setCutScorecardData(null); }}
