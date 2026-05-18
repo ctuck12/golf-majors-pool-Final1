@@ -2406,7 +2406,6 @@ export default function Page() {
 
       setLeaderboardSearch('');
       setLeaderboardViewMode('full');
-      setFullLeaderboardRows(null);
       setLeaderboardSortMode('default');
       setLeaderboardPickedSort('default');
       setShowCutInfo(false);
