@@ -7674,21 +7674,20 @@ export default function Page() {
                       const earners = pickedPlayers.filter(cat.filter);
                       const hasEarners = earners.length > 0;
                       return (
-                        <div key={cat.label} style={{ background: '#fff', borderRadius: 12, borderLeft: `4px solid ${bpColor}`, border: `1px solid #e2e8ef`, borderLeftWidth: 4, borderLeftColor: bpColor, padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.07)' }}>
+                        <div key={cat.label} style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
                             <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
                               {cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}
                             </div>
-                            <span style={{ fontSize: 10, fontWeight: 800, color: '#fff', background: bpColor, borderRadius: 999, padding: '2px 8px', letterSpacing: '0.04em', flexShrink: 0, whiteSpace: 'nowrap' }}>+{cat.pts} pts</span>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: '#B09963', flexShrink: 0, whiteSpace: 'nowrap' }}>+{cat.pts} pts</span>
                           </div>
                           {hasEarners ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                               {earners.map((p) => (
-                                <div key={p.id} style={{ fontSize: 13, color: '#0f1720', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                  <div style={{ width: 5, height: 5, borderRadius: '50%', background: bpColor, flexShrink: 0 }} />
+                                <div key={p.id} style={{ fontSize: 13, color: '#0f1720', fontWeight: 700 }}>
                                   {p.name}
                                   {isLowRnd && p.lowRoundIds?.length ? (
-                                    <span style={{ color: '#8fa3b1', fontWeight: 500, fontSize: 11 }}>({p.lowRoundIds.map(r => `R${r}`).join(', ')})</span>
+                                    <span style={{ color: '#8fa3b1', fontWeight: 500, fontSize: 11 }}>{' '}({p.lowRoundIds.map(r => `R${r}`).join(', ')})</span>
                                   ) : null}
                                 </div>
                               ))}
@@ -7715,7 +7714,7 @@ export default function Page() {
                       const earnerCount = pickedPlayers.filter(cat.filter).length;
                       const hasEarners = earnerCount > 0;
                       return (
-                        <div key={cat.label} style={{ background: '#fff', borderRadius: 12, borderLeft: `4px solid ${hasEarners ? bpColor : '#dce3ea'}`, border: `1px solid ${hasEarners ? '#d0dae4' : '#e2e8ef'}`, borderLeftWidth: 4, borderLeftColor: hasEarners ? bpColor : '#dce3ea', overflow: 'hidden', boxShadow: hasEarners ? '0 2px 6px rgba(9,34,51,0.07)' : 'none' }}>
+                        <div key={cat.label} style={{ background: '#f7f9fb', borderRadius: 12, border: '1px solid #e2e8ef', overflow: 'hidden' }}>
                           <button
                             onClick={() => setExpandedBonusCategories((prev) => {
                               const next = new Set(prev);
@@ -7726,7 +7725,7 @@ export default function Page() {
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
-                              <span style={{ fontSize: 10, fontWeight: 800, color: '#fff', background: bpColor, borderRadius: 999, padding: '1px 7px', letterSpacing: '0.03em' }}>+{cat.pts} pts</span>
+                              <span style={{ fontSize: 11, fontWeight: 700, color: '#B09963' }}>+{cat.pts} pts</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                               {hasEarners ? (
@@ -7738,7 +7737,7 @@ export default function Page() {
                             </div>
                           </button>
                           {isOpen && (
-                            <div style={{ padding: '0 14px 12px', borderTop: '1px solid #f0f4f7' }}>
+                            <div style={{ padding: '0 14px 12px', borderTop: '1px solid #eaf0f5' }}>
                               {renderPlayerList(cat)}
                             </div>
                           )}
