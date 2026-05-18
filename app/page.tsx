@@ -756,8 +756,22 @@ function getTournamentCardStatuses(now = new Date()) {
   return statuses;
 }
 
-function getDefaultTournamentId(statuses: Partial<Record<TournamentId, TournamentCardStatus>>) {
+function getDefaultTournamentId(
+  statuses: Partial<Record<TournamentId, TournamentCardStatus>>,
+  now?: Date
+) {
   const priority: Array<NonNullable<TournamentCardStatus>['label']> = ['IN PROGRESS', 'ACTIVE', 'UP NEXT'];
+
+  // On the Monday a tournament concludes, keep showing that tournament in standings.
+  // Starting Tuesday the normal priority logic takes over (shows upcoming).
+  if (now) {
+    const todayStart = startOfDay(now);
+    const recentlyFinished = TOURNAMENTS.slice().reverse().find((t) => {
+      const window = getTournamentEventWindow(t, now.getFullYear());
+      return startOfDay(window.concludeAt).getTime() === todayStart.getTime();
+    });
+    if (recentlyFinished) return recentlyFinished.id;
+  }
 
   for (const label of priority) {
     const match = TOURNAMENTS.find((tournament) => statuses[tournament.id]?.label === label);
@@ -952,7 +966,7 @@ function formatCurrentRoundScore(value: string | undefined, fallback: string) {
 }
 
 export default function Page() {
-  const initialTournament = getDefaultTournamentId(getTournamentCardStatuses());
+  const initialTournament = getDefaultTournamentId(getTournamentCardStatuses(), new Date());
   const [mainTab, setMainTab] = useState<MainTab>('Standings');
   const [selectedTournament, setSelectedTournament] = useState<TournamentId>(initialTournament);
   const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTERS[initialTournament]);
@@ -2341,7 +2355,7 @@ export default function Page() {
 
     startTransition(() => {
       if (tab === 'Standings') {
-        setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date())));
+        setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date()), new Date()));
         setFeedRefreshNonce((value) => value + 1);
         setSelectedLeaderboardPlayerId(null);
         setCommissionerConsoleView('dashboard');
