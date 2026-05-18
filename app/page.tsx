@@ -6617,9 +6617,6 @@ export default function Page() {
                     <div>
                       <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.fullName}</div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
-                      <div style={{ marginTop: 4, color: 'rgba(255,255,255,0.65)', fontSize: isMobile ? 10 : 11 }}>
-                        {isMobile ? `*Tap player for details; Tap "${currentRoundLabel}" for scorecard` : `*Click player for scoring details; Click "${currentRoundLabel}" for scorecard`}
-                      </div>
                     </div>
                     <button
                       onClick={() => { setShowPointsSystem(false); setActiveStandingGolferId(null); setActiveStandingEntryId(null); }}
