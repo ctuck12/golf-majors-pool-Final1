@@ -7631,7 +7631,7 @@ export default function Page() {
           ];
 
           const renderPlayerList = (cat: BonusCat) => {
-            const earners = pickedPlayers.filter(cat.filter);
+            const earners = pickedPlayers.filter(cat.filter).sort((a, b) => cat.count(b) - cat.count(a));
             if (earners.length === 0) return <div style={{ fontSize: 12, color: '#8fa3b1', fontStyle: 'italic', padding: '2px 0 4px' }}>None</div>;
             return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, paddingBottom: 4 }}>
