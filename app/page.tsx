@@ -3805,15 +3805,7 @@ export default function Page() {
                         setLeaderboardSearch(e.target.value);
                         if (isMobile) {
                           requestAnimationFrame(() => {
-                            if (!input) return;
-                            const vv = window.visualViewport;
-                            if (!vv) return;
-                            const rect = input.getBoundingClientRect();
-                            // Only scroll if the input has been pushed below the keyboard —
-                            // scroll the minimum amount to bring it just into view.
-                            if (rect.bottom > vv.height - 10) {
-                              window.scrollBy({ top: rect.bottom - vv.height + 24, behavior: 'instant' });
-                            }
+                            input?.scrollIntoView({ behavior: 'instant', block: 'start' });
                           });
                         }
                       }}
