@@ -3489,29 +3489,29 @@ export default function Page() {
                       </div>
                     ))}
                     {!showFinalTournamentView && roundOneComplete && !isTournamentFinal && (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: (selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga') ? '#c0392b' : '#0f1720', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                          Final Results
+                        </div>
                         <button
                           onClick={() => setShowBonusPoints(true)}
                           style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', fontStyle: 'italic', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : selectedTournament === 'open' ? 'linear-gradient(135deg, #c0392b, #7b1010)' : selectedTournament === 'masters' ? 'linear-gradient(135deg, #d4bc3a, #b09520)' : 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 9px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 1px 5px rgba(14,45,100,0.45)' : selectedTournament === 'open' ? '0 1px 5px rgba(150,30,30,0.45)' : selectedTournament === 'masters' ? '0 1px 5px rgba(180,160,40,0.4)' : '0 1px 5px rgba(176,153,99,0.4)', textTransform: 'uppercase' }}
                         >
                           Bonus Points
                         </button>
-                        <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: (selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga') ? '#c0392b' : '#0f1720', textAlign: 'right', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                          Final Results
-                        </div>
                       </div>
                     )}
                     {isTournamentFinal && (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: (selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga') ? '#c0392b' : '#0f1720', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                          Final Results
+                        </div>
                         <button
                           onClick={() => setShowBonusPoints(true)}
                           style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', fontStyle: 'italic', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : selectedTournament === 'open' ? 'linear-gradient(135deg, #c0392b, #7b1010)' : selectedTournament === 'masters' ? 'linear-gradient(135deg, #d4bc3a, #b09520)' : 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 10px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 1px 5px rgba(14,45,100,0.45)' : selectedTournament === 'open' ? '0 1px 5px rgba(150,30,30,0.45)' : selectedTournament === 'masters' ? '0 1px 5px rgba(180,160,40,0.4)' : '0 1px 5px rgba(176,153,99,0.4)', textTransform: 'uppercase' }}
                         >
                           Bonus Points
                         </button>
-                        <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: (selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga') ? '#c0392b' : '#0f1720', textAlign: 'right', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                          Final Results
-                        </div>
                       </div>
                     )}
                   </div>
