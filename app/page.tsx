@@ -240,9 +240,10 @@ const getPlayerFlag = (name: string): string => PLAYER_FLAGS[name] ?? '';
 const getFlagSrc = (name: string): string => {
   const code = PLAYER_FLAGS[name];
   if (!code) return '';
-  return `/flags/${code === 'us' ? 'us.svg' : code + '.png'}`;
+  const svgCodes = new Set(['us', 'au']);
+  return `/flags/${svgCodes.has(code) ? code + '.svg' : code + '.png'}`;
 };
-const FLAG_LABELS: Record<string, string> = { 'us': 'USA', 'gb-eng': 'ENG', 'gb-nir': 'NIR' };
+const FLAG_LABELS: Record<string, string> = { 'us': 'USA', 'gb-eng': 'ENG', 'gb-nir': 'NIR', 'au': 'AUS' };
 const getCountryLabel = (name: string): string => FLAG_LABELS[PLAYER_FLAGS[name] ?? ''] ?? '';
 
 const TOURNAMENT_PICKS_HEADER: Record<string, string> = {
