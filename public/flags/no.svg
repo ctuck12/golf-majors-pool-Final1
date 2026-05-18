@@ -1,0 +1,7 @@
+<svg viewBox="0 0 1320 960" xmlns="http://www.w3.org/2000/svg" aria-label="Norway flag" role="img">
+  <rect width="1320" height="960" fill="#BA0C2F"/>
+  <rect x="360" y="0" width="240" height="960" fill="#FFFFFF"/>
+  <rect x="0" y="360" width="1320" height="240" fill="#FFFFFF"/>
+  <rect x="420" y="0" width="120" height="960" fill="#00205B"/>
+  <rect x="0" y="420" width="1320" height="120" fill="#00205B"/>
+</svg>
