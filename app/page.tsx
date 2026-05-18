@@ -7002,7 +7002,7 @@ export default function Page() {
                     <div style={{ color: (selectedTournament === 'players' || selectedTournament === 'open') ? '#4a5568' : '#6b7b88', fontSize: 12 }}>
                       {label === 'Leaderboard Place'
                         ? `Position: ${ordinal(String(count))}`
-                        : ['Tourn Low Rnd', 'Rnd 1 Leader', 'Rnd 2 Leader', 'Rnd 3 Leader'].includes(String(label))
+                        : ['Tourn Low Rnd', 'Round 1 Leader', 'Round 2 Leader', 'Round 3 Leader'].includes(String(label))
                         ? ''
                         : `Count: ${String(count)}`}
                     </div>
@@ -7575,21 +7575,21 @@ export default function Page() {
               count: () => 0,
             },
             {
-              label: 'Rnd 1 Leader',
+              label: 'Round 1 Leader',
               pts: SCORING_RULES.firstRoundLeader,
               showCount: false,
               filter: (p) => !!p.scoreBreakdown.roundLeadersAwarded?.first,
               count: () => 0,
             },
             ...(roundTwoComplete ? [{
-              label: 'Rnd 2 Leader',
+              label: 'Round 2 Leader',
               pts: SCORING_RULES.secondRoundLeader,
               showCount: false,
               filter: (p: typeof players[number]) => !!p.scoreBreakdown.roundLeadersAwarded?.second,
               count: () => 0,
             }] : []),
             ...(roundThreeComplete ? [{
-              label: 'Rnd 3 Leader',
+              label: 'Round 3 Leader',
               pts: SCORING_RULES.thirdRoundLeader,
               showCount: false,
               filter: (p: typeof players[number]) => !!p.scoreBreakdown.roundLeadersAwarded?.third,
@@ -7606,7 +7606,7 @@ export default function Page() {
               count: (p) => p.scoreBreakdown.statLine.threeBirdieStreaks ?? 0,
             },
             {
-              label: 'No Bogey Rnds',
+              label: 'No Bogey Rounds',
               pts: SCORING_RULES.bogeyFreeRound,
               showCount: true,
               filter: (p) => (p.scoreBreakdown.statLine.bogeyFreeRounds ?? 0) > 0,
