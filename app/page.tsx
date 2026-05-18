@@ -7112,12 +7112,13 @@ export default function Page() {
               {/* Colored tournament header */}
               {(() => {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
-                const photoSize = isMobile ? 52 : 62;
+                const roundColor = selectedTournament === 'masters' ? '#2c6449' : '#2f5f96';
+                const photoSize = isMobile ? 50 : 58;
                 return (
-                  <div style={{ background: hBg, padding: isMobile ? '14px 16px' : '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                  <div style={{ background: hBg, padding: isMobile ? '9px 14px' : '10px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14, flex: 1, minWidth: 0 }}>
-                      {/* Photo in white outlined square bubble */}
-                      <div style={{ width: photoSize, height: photoSize, borderRadius: 10, border: '2px solid rgba(255,255,255,0.55)', overflow: 'hidden', flexShrink: 0, background: 'rgba(255,255,255,0.15)' }}>
+                      {/* Photo in white square bubble */}
+                      <div style={{ width: photoSize, height: photoSize, borderRadius: 10, border: '2px solid rgba(255,255,255,0.6)', overflow: 'hidden', flexShrink: 0, background: '#fff' }}>
                         <img
                           src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
                           alt={scorecardGolferName}
@@ -7132,9 +7133,9 @@ export default function Page() {
                           if (playerNotStarted && scorecardGolferTeeTime) {
                             const roundNum = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
                             return (
-                              <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
+                              <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: roundColor, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                                 Round {roundNum}
-                                <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.7)', fontSize: isMobile ? 10 : 11 }}>{formatTeeTime(scorecardGolferTeeTime)}</span>
+                                <span style={{ fontWeight: 400, color: '#0f1720', fontSize: isMobile ? 10 : 11 }}>{formatTeeTime(scorecardGolferTeeTime)}</span>
                               </div>
                             );
                           }
@@ -7142,13 +7143,13 @@ export default function Page() {
                             const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
                             const hasPrev = scorecardData.rounds.some(r => r.round < rnd.round && r.holes.length > 0);
                             return rnd && rnd.score != null && rnd.score !== '' ? (
-                              <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
+                              <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: roundColor, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                                 Round {rnd.round}
-                                <span style={{ fontWeight: 600, color: 'rgba(255,255,255,0.72)', fontSize: isMobile ? 10 : 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
+                                <span style={{ fontWeight: 600, color: '#0f1720', fontSize: isMobile ? 10 : 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
                                 {hasPrev && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
-                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#fff', fontWeight: 700, fontSize: isMobile ? 10 : 11, textDecoration: 'underline', lineHeight: 1, fontStyle: 'italic' }}
+                                    style={{ background: '#1e3a5f', border: 'none', borderRadius: 999, padding: isMobile ? '2px 7px' : '2px 8px', cursor: 'pointer', color: '#fff', fontWeight: 700, fontSize: isMobile ? 10 : 11, textDecoration: 'none', lineHeight: 1.4 }}
                                   >
                                     Previous Rounds
                                   </button>
