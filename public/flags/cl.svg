@@ -1,0 +1,6 @@
+<svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" aria-label="Chile flag" role="img">
+  <rect width="900" height="300" y="0" fill="#FFFFFF"/>
+  <rect width="900" height="300" y="300" fill="#D52B1E"/>
+  <rect width="300" height="300" x="0" y="0" fill="#0039A6"/>
+  <polygon points="150,75 168,128 225,128 179,161 197,214 150,182 103,214 121,161 75,128 132,128" fill="#FFFFFF"/>
+</svg>
