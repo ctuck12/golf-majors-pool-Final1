@@ -1088,10 +1088,15 @@ export default function Page() {
   const [isMobile, setIsMobile] = useState(false);
 
   useLayoutEffect(() => {
-    if (isMobile) return;
-    const left = standingsColRef.current;
     const right = leaderboardColRef.current;
-    if (!left || !right) return;
+    if (!right) return;
+    if (isMobile) {
+      right.style.height = '';
+      right.style.maxHeight = '';
+      return;
+    }
+    const left = standingsColRef.current;
+    if (!left) return;
     const cap = `${left.offsetHeight}px`;
     if (leaderboardSearch) {
       right.style.height = 'auto';
@@ -3755,7 +3760,7 @@ export default function Page() {
             <aside style={{ display: showFutureTournamentView ? 'none' : 'grid', gap: 20, alignSelf: isMobile ? undefined : 'start' }}>
               {showLivePayoutStrip ? (
                 <section
-                  ref={isMobile ? undefined : leaderboardColRef}
+                  ref={leaderboardColRef}
                   style={{
                     background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
                     borderRadius: 20,
@@ -3939,7 +3944,10 @@ export default function Page() {
                       <tbody>
                         {leaderboardViewMode === 'full'
                           ? (() => {
-                              const filteredFullRaw = (fullLeaderboardRows ?? []).filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
+                              if (fullLeaderboardRows === null) {
+                                return <tr><td colSpan={5} style={{ padding: '28px 16px', textAlign: 'center', color: '#6b7b88', fontSize: isMobile ? 12 : 13 }}>Loading leaderboard…</td></tr>;
+                              }
+                              const filteredFullRaw = fullLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
                               const CUT_SCORE_SET_FL = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                               const parseCutScore = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
                               const parseRndScoreFL = (s: string | null | undefined) => { if (!s || s === '--') return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
