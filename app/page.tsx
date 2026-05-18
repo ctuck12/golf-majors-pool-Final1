@@ -85,30 +85,35 @@ const TOURNAMENTS = [
   {
     id: 'players',
     name: 'The Players',
+    fullName: 'The Players Championship',
     venue: 'TPC Sawgrass',
     lockAt: '2026-03-12T07:40:00',
   },
   {
     id: 'masters',
     name: 'The Masters',
+    fullName: 'The Masters',
     venue: 'Augusta National',
     lockAt: '2026-04-09T07:30:00',
   },
   {
     id: 'pga',
     name: 'The PGA',
+    fullName: 'The PGA Championship',
     venue: 'Aronimink',
     lockAt: '2026-05-14T07:20:00',
   },
   {
     id: 'us-open',
     name: 'U.S. Open',
+    fullName: 'U.S. Open Championship',
     venue: 'Shinnecock Hills',
     lockAt: '2026-06-18T07:15:00',
   },
   {
     id: 'open',
     name: 'The Open',
+    fullName: 'The Open Championship',
     venue: 'Royal Birkdale',
     lockAt: '2026-07-16T06:35:00',
   },
@@ -7649,7 +7654,8 @@ export default function Page() {
           const lowToPar = lowRawScore !== null ? lowRawScore - coursePar : null;
           const lowToParLabel = lowToPar === null ? '' : lowToPar === 0 ? ' (E)' : lowToPar < 0 ? ` (${lowToPar})` : ` (+${lowToPar})`;
           const bpColor = selectedTournament === 'pga' ? '#9a7d3a' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#1e4d8c';
-          const bpGradient = selectedTournament === 'pga' ? 'linear-gradient(135deg, #c9a84c, #8a6528)' : selectedTournament === 'masters' ? 'linear-gradient(135deg, #2c6449, #1a3d2b)' : selectedTournament === 'us-open' ? 'linear-gradient(135deg, #BE3436, #7b1010)' : selectedTournament === 'open' ? 'linear-gradient(135deg, #c0392b, #7b1010)' : 'linear-gradient(135deg, #1e4d8c, #0a1f3d)';
+          const catHeaderColor = selectedTournament === 'pga' ? '#1e4d8c' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#173b63';
+          const bpHeaderBg = selectedTournament === 'pga' ? '#1e4d8c' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#1e4d8c';
 
           return (
             <div
@@ -7660,10 +7666,10 @@ export default function Page() {
                 onClick={(e) => e.stopPropagation()}
                 style={{ width: 'min(520px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#f4f7fa', borderRadius: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.35)' }}
               >
-                {/* Gradient header */}
-                <div style={{ background: bpGradient, borderRadius: '20px 20px 0 0', padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {/* Solid color header */}
+                <div style={{ background: bpHeaderBg, borderRadius: '20px 20px 0 0', padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.name}</div>
+                    <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.fullName}</div>
                     <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>Bonus Points</div>
                   </div>
                   <button onClick={closeBonusPoints} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>✕</button>
@@ -7679,8 +7685,8 @@ export default function Page() {
                       return (
                         <div key={cat.label} style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: '1px solid #edf1f6' }}>
-                            <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
-                              {cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}
+                            <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
+                              {cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}
                             </div>
                             <span style={{ fontSize: 11, fontWeight: 700, color: '#B09963', flexShrink: 0, whiteSpace: 'nowrap' }}>+{cat.pts} pts</span>
                           </div>
@@ -7727,7 +7733,7 @@ export default function Page() {
                             style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: '#fff', border: 'none', borderBottom: isOpen ? '1px solid #edf1f6' : '1px solid transparent', cursor: 'pointer', textAlign: 'left' }}
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
+                              <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
                               <span style={{ fontSize: 11, fontWeight: 700, color: '#B09963' }}>+{cat.pts} pts</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
