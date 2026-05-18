@@ -6694,7 +6694,7 @@ export default function Page() {
                                   <button
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
-                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', marginTop: 2, fontSize: 12, fontWeight: 800, color: '#cc2944', textDecoration: 'underline', display: 'block' }}
+                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: '3px 10px', cursor: 'pointer', marginTop: 2, fontSize: 11, fontWeight: 800, color: '#fff', textDecoration: 'none', display: 'inline-block' }}
                                   >MISSED CUT</button>
                                 </>
                               ) : (
@@ -6720,7 +6720,7 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ background: '#dbeafe', borderRadius: 999, padding: '1px 8px', display: 'inline-block', textDecoration: 'none' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
                                   {!(golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime) && <span>Thru: {golfer.thru}{golfer.backNineStart && golfer.thru !== '--' && golfer.thru !== 'F' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>}
                                 </div>
@@ -6774,7 +6774,7 @@ export default function Page() {
                                   <button
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
-                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', marginTop: 2, fontSize: 11, fontWeight: 800, color: '#cc2944', textDecoration: 'underline', display: 'block' }}
+                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: '3px 10px', cursor: 'pointer', marginTop: 2, fontSize: 11, fontWeight: 800, color: '#fff', textDecoration: 'none', display: 'inline-block' }}
                                   >MISSED CUT</button>
                                 </>
                               ) : (
@@ -6800,7 +6800,7 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none' }}
                                   >
-                                    <span style={{ textDecoration: 'underline' }}>{currentRoundLabel}</span>:{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ background: '#dbeafe', borderRadius: 999, padding: '1px 8px', display: 'inline-block', textDecoration: 'none' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
                                   {!(golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime) && <span>Thru: {golfer.thru}{golfer.backNineStart && golfer.thru !== '--' && golfer.thru !== 'F' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>}
                                 </div>
