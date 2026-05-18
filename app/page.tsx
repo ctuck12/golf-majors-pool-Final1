@@ -3658,9 +3658,9 @@ export default function Page() {
                               }}
                             >
                               {entry.name}
-                              {isTournamentFinal && entry.place === 1 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥇</span>}
-                              {isTournamentFinal && entry.place === 2 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥈</span>}
-                              {isTournamentFinal && entry.place === 3 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥉</span>}
+                              {isTournamentFinal && entry.place === 1 && <svg width={isMobile ? 12 : 14} height={isMobile ? 14 : 16} viewBox="0 0 14 16" style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, transform: 'scale(1.2)', transformOrigin: 'center' }}><rect x="4" y="0" width="6" height="6" rx="1.5" fill="#1e4d8c"/><circle cx="7" cy="12" r="4" fill="#F59E0B" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/></svg>}
+                              {isTournamentFinal && entry.place === 2 && <svg width={isMobile ? 12 : 14} height={isMobile ? 14 : 16} viewBox="0 0 14 16" style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, transform: 'scale(1.2)', transformOrigin: 'center' }}><rect x="4" y="0" width="6" height="6" rx="1.5" fill="#1e4d8c"/><circle cx="7" cy="12" r="4" fill="#C0C0C0" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/></svg>}
+                              {isTournamentFinal && entry.place === 3 && <svg width={isMobile ? 12 : 14} height={isMobile ? 14 : 16} viewBox="0 0 14 16" style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, transform: 'scale(1.2)', transformOrigin: 'center' }}><rect x="4" y="0" width="6" height="6" rx="1.5" fill="#1e4d8c"/><circle cx="7" cy="12" r="4" fill="#CD7F32" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/></svg>}
                             </div>
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
@@ -3711,9 +3711,9 @@ export default function Page() {
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px' }}>
                             <div style={{ fontSize: isMobile ? 13 : 14, color: '#0f1720', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 4 }}>
                               {entry.name}
-                              {isTournamentFinal && entry.place === 1 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥇</span>}
-                              {isTournamentFinal && entry.place === 2 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥈</span>}
-                              {isTournamentFinal && entry.place === 3 && <span style={{ fontSize: isMobile ? 14 : 16, lineHeight: 1 }}>🥉</span>}
+                              {isTournamentFinal && entry.place === 1 && <svg width={isMobile ? 12 : 14} height={isMobile ? 14 : 16} viewBox="0 0 14 16" style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, transform: 'scale(1.2)', transformOrigin: 'center' }}><rect x="4" y="0" width="6" height="6" rx="1.5" fill="#1e4d8c"/><circle cx="7" cy="12" r="4" fill="#F59E0B" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/></svg>}
+                              {isTournamentFinal && entry.place === 2 && <svg width={isMobile ? 12 : 14} height={isMobile ? 14 : 16} viewBox="0 0 14 16" style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, transform: 'scale(1.2)', transformOrigin: 'center' }}><rect x="4" y="0" width="6" height="6" rx="1.5" fill="#1e4d8c"/><circle cx="7" cy="12" r="4" fill="#C0C0C0" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/></svg>}
+                              {isTournamentFinal && entry.place === 3 && <svg width={isMobile ? 12 : 14} height={isMobile ? 14 : 16} viewBox="0 0 14 16" style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, transform: 'scale(1.2)', transformOrigin: 'center' }}><rect x="4" y="0" width="6" height="6" rx="1.5" fill="#1e4d8c"/><circle cx="7" cy="12" r="4" fill="#CD7F32" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/></svg>}
                             </div>
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
