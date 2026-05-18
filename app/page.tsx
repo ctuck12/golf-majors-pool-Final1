@@ -240,10 +240,10 @@ const getPlayerFlag = (name: string): string => PLAYER_FLAGS[name] ?? '';
 const getFlagSrc = (name: string): string => {
   const code = PLAYER_FLAGS[name];
   if (!code) return '';
-  const svgCodes = new Set(['us', 'au', 'ie', 'gb-sct', 'no', 'es', 'kr', 'jp', 'za', 'se', 'nz', 'dk', 'de', 'cl', 'co', 'ar', 've', 'be', 'at']);
+  const svgCodes = new Set(['us', 'au', 'ie', 'gb-sct', 'no', 'es', 'kr', 'jp', 'za', 'se', 'nz', 'dk', 'de', 'cl', 'co', 'ar', 've', 'be', 'at', 'fr']);
   return `/flags/${svgCodes.has(code) ? code + '.svg' : code + '.png'}`;
 };
-const FLAG_LABELS: Record<string, string> = { 'us': 'USA', 'gb-eng': 'ENG', 'gb-nir': 'NIR', 'au': 'AUS', 'ie': 'IRL', 'gb-sct': 'SCT', 'no': 'NOR', 'es': 'ESP', 'kr': 'KOR', 'jp': 'JPN', 'za': 'RSA', 'se': 'SWE', 'ca': 'CAN', 'nz': 'NZL', 'dk': 'DNK', 'de': 'GER', 'cl': 'CHI', 'co': 'COL', 'mx': 'MEX', 'ar': 'ARG', 've': 'VEN', 'be': 'BEL', 'at': 'AUT' };
+const FLAG_LABELS: Record<string, string> = { 'us': 'USA', 'gb-eng': 'ENG', 'gb-nir': 'NIR', 'au': 'AUS', 'ie': 'IRL', 'gb-sct': 'SCT', 'no': 'NOR', 'es': 'ESP', 'kr': 'KOR', 'jp': 'JPN', 'za': 'RSA', 'se': 'SWE', 'ca': 'CAN', 'nz': 'NZL', 'dk': 'DNK', 'de': 'GER', 'cl': 'CHI', 'co': 'COL', 'mx': 'MEX', 'ar': 'ARG', 've': 'VEN', 'be': 'BEL', 'at': 'AUT', 'fr': 'FRA' };
 const getCountryLabel = (name: string): string => FLAG_LABELS[PLAYER_FLAGS[name] ?? ''] ?? '';
 
 const TOURNAMENT_PICKS_HEADER: Record<string, string> = {
