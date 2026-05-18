@@ -1116,7 +1116,7 @@ export default function Page() {
   const canManagePool = canAccessCommissionerConsole(sessionUser);
   const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
   const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
-  const entriesTournamentId = getDefaultTournamentId(tournamentCardStatuses);
+  const entriesTournamentId = getDefaultTournamentId(tournamentCardStatuses, new Date());
   const entriesTournament = TOURNAMENTS.find((item) => item.id === entriesTournamentId) ?? TOURNAMENTS[0];
   const entriesTournamentStatus = tournamentCardStatuses[entriesTournamentId];
   const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE';
