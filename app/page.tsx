@@ -7113,19 +7113,16 @@ export default function Page() {
               {(() => {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
                 const roundColor = selectedTournament === 'masters' ? '#2c6449' : '#2f5f96';
-                const photoSize = isMobile ? 50 : 58;
                 return (
-                  <div style={{ background: hBg, padding: isMobile ? '9px 14px' : '10px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14, flex: 1, minWidth: 0 }}>
-                      {/* Photo in white square bubble */}
-                      <div style={{ width: photoSize, height: photoSize, borderRadius: 10, border: '2px solid rgba(255,255,255,0.6)', overflow: 'hidden', flexShrink: 0, background: '#fff' }}>
-                        <img
-                          src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
-                          alt={scorecardGolferName}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block', mixBlendMode: 'multiply' }}
-                        />
-                      </div>
-                      {/* Name + round/score info */}
+                  <div style={{ background: hBg, display: 'flex', alignItems: 'stretch', flexShrink: 0 }}>
+                    {/* Photo flush to left corner */}
+                    <img
+                      src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
+                      alt={scorecardGolferName}
+                      style={{ width: isMobile ? 78 : 96, objectFit: 'cover', objectPosition: 'top center', display: 'block', flexShrink: 0, mixBlendMode: 'multiply' }}
+                    />
+                    {/* Name + round/score + close */}
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: isMobile ? '10px 14px' : '12px 18px' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: !scorecardGolferName ? 19 : scorecardGolferName.length > 22 ? (isMobile ? 14 : 16) : scorecardGolferName.length > 18 ? (isMobile ? 16 : 18) : isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.1 }}>{scorecardGolferName}</div>
                         {(() => {
@@ -7160,11 +7157,11 @@ export default function Page() {
                           return null;
                         })()}
                       </div>
+                      <button
+                        onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); setScorecardGolferBackNineStart(false); setShowPreviousRounds(false); }}
+                        style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}
+                      >✕</button>
                     </div>
-                    <button
-                      onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); setScorecardGolferBackNineStart(false); setShowPreviousRounds(false); }}
-                      style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}
-                    >✕</button>
                   </div>
                 );
               })()}
