@@ -7675,8 +7675,8 @@ export default function Page() {
                       const hasEarners = earners.length > 0;
                       return (
                         <div key={cat.label} style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
-                            <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: '1px solid #edf1f6' }}>
+                            <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
                               {cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}
                             </div>
                             <span style={{ fontSize: 11, fontWeight: 700, color: '#B09963', flexShrink: 0, whiteSpace: 'nowrap' }}>+{cat.pts} pts</span>
@@ -7701,10 +7701,10 @@ export default function Page() {
                   </div>
 
                   {/* Section divider */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '2px 0' }}>
-                    <div style={{ flex: 1, height: 1, background: '#dce3ea' }} />
-                    <span style={{ fontSize: 9, fontWeight: 800, color: '#a0b0bc', letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Individual Achievements</span>
-                    <div style={{ flex: 1, height: 1, background: '#dce3ea' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '4px 0 2px' }}>
+                    <div style={{ flex: 1, height: 1, background: '#c8d3dc' }} />
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#5f7180', letterSpacing: '0.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Individual Achievements</span>
+                    <div style={{ flex: 1, height: 1, background: '#c8d3dc' }} />
                   </div>
 
                   {/* Collapsible achievement rows */}
@@ -7721,10 +7721,10 @@ export default function Page() {
                               if (next.has(cat.label)) next.delete(cat.label); else next.add(cat.label);
                               return next;
                             })}
-                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: '#fff', border: 'none', borderBottom: isOpen ? '1px solid #edf1f6' : '1px solid transparent', cursor: 'pointer', textAlign: 'left' }}
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
+                              <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
                               <span style={{ fontSize: 11, fontWeight: 700, color: '#B09963' }}>+{cat.pts} pts</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
