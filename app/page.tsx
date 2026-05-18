@@ -3804,10 +3804,16 @@ export default function Page() {
                         const input = e.currentTarget;
                         setLeaderboardSearch(e.target.value);
                         if (isMobile) {
-                          // After re-render, pin input to top of screen so results always
-                          // appear between input and keyboard — never hidden behind it.
                           requestAnimationFrame(() => {
-                            input?.scrollIntoView({ behavior: 'instant', block: 'start' });
+                            if (!input) return;
+                            const vv = window.visualViewport;
+                            if (!vv) return;
+                            const rect = input.getBoundingClientRect();
+                            // Only scroll if the input has been pushed below the keyboard —
+                            // scroll the minimum amount to bring it just into view.
+                            if (rect.bottom > vv.height - 10) {
+                              window.scrollBy({ top: rect.bottom - vv.height + 24, behavior: 'instant' });
+                            }
                           });
                         }
                       }}
@@ -3815,7 +3821,14 @@ export default function Page() {
                         if (!isMobile) return;
                         const el = e.currentTarget;
                         setTimeout(() => {
-                          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          const vv = window.visualViewport;
+                          if (!vv) return;
+                          const rect = el.getBoundingClientRect();
+                          // Scroll only if the keyboard has pushed the input out of view —
+                          // move just enough to clear the keyboard with a small margin.
+                          if (rect.bottom > vv.height - 20) {
+                            window.scrollBy({ top: rect.bottom - vv.height + 40, behavior: 'smooth' });
+                          }
                         }, 350);
                       }}
                       style={{
