@@ -7112,11 +7112,53 @@ export default function Page() {
               {/* Colored tournament header */}
               {(() => {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
+                const photoSize = isMobile ? 52 : 62;
                 return (
-                  <div style={{ background: hBg, padding: isMobile ? '14px 18px 12px' : '16px 22px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
-                    <div>
-                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.fullName}</div>
-                      <div style={{ fontSize: !scorecardGolferName ? 19 : scorecardGolferName.length > 22 ? (isMobile ? 14 : 16) : scorecardGolferName.length > 18 ? (isMobile ? 16 : 18) : isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.1 }}>{scorecardGolferName}</div>
+                  <div style={{ background: hBg, padding: isMobile ? '14px 16px' : '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14, flex: 1, minWidth: 0 }}>
+                      {/* Photo in white outlined square bubble */}
+                      <div style={{ width: photoSize, height: photoSize, borderRadius: 10, border: '2px solid rgba(255,255,255,0.55)', overflow: 'hidden', flexShrink: 0, background: 'rgba(255,255,255,0.15)' }}>
+                        <img
+                          src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
+                          alt={scorecardGolferName}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block', mixBlendMode: 'multiply' }}
+                        />
+                      </div>
+                      {/* Name + round/score info */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: !scorecardGolferName ? 19 : scorecardGolferName.length > 22 ? (isMobile ? 14 : 16) : scorecardGolferName.length > 18 ? (isMobile ? 16 : 18) : isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.1 }}>{scorecardGolferName}</div>
+                        {(() => {
+                          const playerNotStarted = scorecardGolferThru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS';
+                          if (playerNotStarted && scorecardGolferTeeTime) {
+                            const roundNum = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
+                            return (
+                              <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
+                                Round {roundNum}
+                                <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.7)', fontSize: isMobile ? 10 : 11 }}>{formatTeeTime(scorecardGolferTeeTime)}</span>
+                              </div>
+                            );
+                          }
+                          if (scorecardData && scorecardData.rounds.length > 0) {
+                            const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
+                            const hasPrev = scorecardData.rounds.some(r => r.round < rnd.round && r.holes.length > 0);
+                            return rnd && rnd.score != null && rnd.score !== '' ? (
+                              <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
+                                Round {rnd.round}
+                                <span style={{ fontWeight: 600, color: 'rgba(255,255,255,0.72)', fontSize: isMobile ? 10 : 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
+                                {hasPrev && (
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
+                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#fff', fontWeight: 700, fontSize: isMobile ? 10 : 11, textDecoration: 'underline', lineHeight: 1, fontStyle: 'italic' }}
+                                  >
+                                    Previous Rounds
+                                  </button>
+                                )}
+                              </div>
+                            ) : null;
+                          }
+                          return null;
+                        })()}
+                      </div>
                     </div>
                     <button
                       onClick={() => { setScorecardGolferName(null); setScorecardData(null); setScorecardGolferTeeTime(null); setScorecardGolferThru(null); setScorecardGolferBackNineStart(false); setShowPreviousRounds(false); }}
@@ -7125,48 +7167,6 @@ export default function Page() {
                   </div>
                 );
               })()}
-
-              {/* White player info section */}
-              <div style={{ display: 'flex', alignItems: 'stretch', background: '#fff', flexShrink: 0 }}>
-                <img
-                  src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
-                  alt={scorecardGolferName}
-                  style={{ width: 60, objectFit: 'cover', objectPosition: 'top center', background: '#fff', flexShrink: 0, display: 'block', mixBlendMode: 'multiply', marginLeft: 20 }}
-                />
-                <div style={{ flex: 1, padding: isMobile ? '14px 16px' : '16px 20px', display: 'flex', alignItems: 'center' }}>
-                  {(() => {
-                    const playerNotStarted = scorecardGolferThru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS';
-                    if (playerNotStarted && scorecardGolferTeeTime) {
-                      const roundNum = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
-                      return (
-                        <div style={{ fontSize: 12, fontWeight: 800, color: '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                          Round {roundNum}
-                          <span style={{ fontWeight: 400, color: '#50616f', fontSize: 11 }}>{formatTeeTime(scorecardGolferTeeTime)}</span>
-                        </div>
-                      );
-                    }
-                    if (scorecardData && scorecardData.rounds.length > 0) {
-                      const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
-                      const hasPrev = scorecardData.rounds.some(r => r.round < rnd.round && r.holes.length > 0);
-                      return rnd && rnd.score != null && rnd.score !== '' ? (
-                        <div style={{ fontSize: 12, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                          Round {rnd.round}
-                          <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
-                          {hasPrev && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
-                              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#2f5f96', fontWeight: 700, fontSize: 11, textDecoration: 'underline', lineHeight: 1, fontStyle: 'italic' }}
-                            >
-                              Previous Rounds
-                            </button>
-                          )}
-                        </div>
-                      ) : null;
-                    }
-                    return null;
-                  })()}
-                </div>
-              </div>
 
               {/* Scorecard body */}
               <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
