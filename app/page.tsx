@@ -7730,7 +7730,7 @@ export default function Page() {
                               if (next.has(cat.label)) next.delete(cat.label); else next.add(cat.label);
                               return next;
                             })}
-                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: '#fff', border: 'none', borderBottom: isOpen ? '1px solid #edf1f6' : '1px solid transparent', cursor: 'pointer', textAlign: 'left' }}
+                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: '#fff', border: 'none', borderBottom: isOpen ? '1px solid #edf1f6' : '1px solid transparent', cursor: 'pointer', textAlign: 'left', WebkitTapHighlightColor: 'transparent', transition: 'border-color 0.2s ease' }}
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
@@ -7742,14 +7742,14 @@ export default function Page() {
                               ) : (
                                 <span style={{ fontSize: 12, fontWeight: 600, color: '#b0bec8' }}>0</span>
                               )}
-                              <span style={{ fontSize: 10, color: '#8fa3b1', lineHeight: 1 }}>{isOpen ? '▲' : '▼'}</span>
+                              <span style={{ fontSize: 10, color: '#8fa3b1', lineHeight: 1, transition: 'transform 0.2s ease', display: 'inline-block', transform: isOpen ? 'rotate(0deg)' : 'rotate(180deg)' }}>▲</span>
                             </div>
                           </button>
-                          {isOpen && (
+                          <div style={{ maxHeight: isOpen ? '600px' : '0', overflow: 'hidden', transition: 'max-height 0.25s ease' }}>
                             <div style={{ padding: '0 14px 12px', borderTop: '1px solid #eaf0f5' }}>
                               {renderPlayerList(cat)}
                             </div>
-                          )}
+                          </div>
                         </div>
                       );
                     })}
