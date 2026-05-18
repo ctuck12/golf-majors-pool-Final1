@@ -3895,7 +3895,7 @@ export default function Page() {
                       </div>
                     );
                   })()}
-                  <div style={{ overflowX: 'auto', overflowY: 'auto', ...(isMobile ? {} : { flex: 1, minHeight: 0 }) }}>
+                  <div style={{ overflowX: 'auto', overflowY: 'auto', ...(isMobile ? {} : { flex: 1, minHeight: 0, overscrollBehavior: 'contain' }) }}>
                     <div data-leaderboard-table="true" style={{ borderRadius: 10, overflow: isMobile ? 'auto' : 'clip', maxHeight: isMobile ? 726 : undefined, WebkitOverflowScrolling: isMobile ? 'touch' : undefined, border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' } as React.CSSProperties}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isMobile ? 12 : 12 }}>
                       <thead>
