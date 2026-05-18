@@ -1021,7 +1021,7 @@ export default function Page() {
   const [commissionerSuccess, setCommissionerSuccess] = useState('');
   const [commissionerConsoleView, setCommissionerConsoleView] = useState<'dashboard' | 'members' | 'member-picks'>('dashboard');
   const [commissionerMemberSearch, setCommissionerMemberSearch] = useState('');
-  const [commissionerMemberSort, setCommissionerMemberSort] = useState<{ column: 'displayName' | 'email'; direction: 'asc' | 'desc' }>({ column: 'displayName', direction: 'asc' });
+  const [commissionerMemberSort, setCommissionerMemberSort] = useState<{ column: 'displayName' | 'email' | 'tournamentCount'; direction: 'asc' | 'desc' }>({ column: 'displayName', direction: 'asc' });
   const [entriesPlayerSearch, setEntriesPlayerSearch] = useState('');
   const [tieBreakInput, setTieBreakInput] = useState('');
   const [showRosterConfirm, setShowRosterConfirm] = useState(false);
@@ -2035,6 +2035,12 @@ export default function Page() {
       return member.displayName.toLowerCase().includes(query) || member.email.toLowerCase().includes(query);
     })
     .sort((a, b) => {
+      if (commissionerMemberSort.column === 'tournamentCount') {
+        const countA = TOURNAMENTS.filter((event) => (a.rosters[event.id] ?? []).length > 0).length;
+        const countB = TOURNAMENTS.filter((event) => (b.rosters[event.id] ?? []).length > 0).length;
+        const cmp = countA - countB;
+        return commissionerMemberSort.direction === 'asc' ? cmp : -cmp;
+      }
       const valA = a[commissionerMemberSort.column].toLowerCase();
       const valB = b[commissionerMemberSort.column].toLowerCase();
       const cmp = valA.localeCompare(valB);
@@ -5924,7 +5930,21 @@ export default function Page() {
                       </button>
                     </div>
                   ))}
-                  <div style={{ textAlign: 'center', fontSize: isMobile ? 9 : 13 }}># of Tourn. Submitted Picks</div>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <button
+                      onClick={() => setCommissionerMemberSort((prev) => ({
+                        column: 'tournamentCount',
+                        direction: prev.column === 'tournamentCount' && prev.direction === 'asc' ? 'desc' : 'asc',
+                      }))}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4, color: '#5b6b79', fontSize: isMobile ? 9 : 13, fontWeight: 800, textTransform: 'uppercase', textAlign: 'center' }}
+                    >
+                      # of Tourn. Submitted Picks
+                      <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1, gap: 1 }}>
+                        <span style={{ fontSize: isMobile ? 8 : 10, opacity: commissionerMemberSort.column === 'tournamentCount' && commissionerMemberSort.direction === 'asc' ? 1 : 0.3 }}>▲</span>
+                        <span style={{ fontSize: isMobile ? 8 : 10, opacity: commissionerMemberSort.column === 'tournamentCount' && commissionerMemberSort.direction === 'desc' ? 1 : 0.3 }}>▼</span>
+                      </span>
+                    </button>
+                  </div>
                   <div style={{ textAlign: 'center', ...(isMobile ? { position: 'sticky', right: 0, background: '#f8fbfd', zIndex: 2 } : {}) }}>Edit</div>
                 </div>
 
