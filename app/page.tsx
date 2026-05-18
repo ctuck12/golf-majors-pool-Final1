@@ -7115,12 +7115,6 @@ export default function Page() {
                 const roundColor = selectedTournament === 'masters' ? '#2c6449' : '#2f5f96';
                 return (
                   <div style={{ background: hBg, display: 'flex', alignItems: 'stretch', flexShrink: 0 }}>
-                    {/* Photo flush to left corner */}
-                    <img
-                      src={scorecardGolferPhoto ? (scorecardGolferPhoto.photoUrl ?? pgaPhoto(scorecardGolferPhoto.pgaTourId)) : ''}
-                      alt={scorecardGolferName}
-                      style={{ width: isMobile ? 78 : 96, objectFit: 'cover', objectPosition: 'top center', display: 'block', flexShrink: 0, mixBlendMode: 'multiply' }}
-                    />
                     {/* Name + round/score + close */}
                     <div style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: isMobile ? '10px 14px' : '12px 18px' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
