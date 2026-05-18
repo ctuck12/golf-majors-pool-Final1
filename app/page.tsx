@@ -6886,7 +6886,7 @@ export default function Page() {
                         <div style={{ borderRadius: 999, background: '#1e3a5f', padding: '3px 10px', fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1.2, flexShrink: 0 }}>
                           Points: {formatPointValue(activeStandingGolfer.points)}
                         </div>
-                        <button onClick={() => setShowPointsSystem(true)} style={{ background: 'none', border: 'none', padding: 0, fontSize: isMobile ? 12 : 13, color: '#fff', cursor: 'pointer', textDecoration: 'none', fontWeight: 400, letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
+                        <button onClick={() => setShowPointsSystem(true)} style={{ background: 'none', border: 'none', padding: 0, fontSize: isMobile ? 12 : 13, color: '#fff', cursor: 'pointer', textDecoration: 'underline', fontWeight: 400, fontStyle: 'italic', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
                           {isMobile ? 'Tap for points system' : 'Click here for points system'}
                         </button>
                       </div>
