@@ -3796,18 +3796,21 @@ export default function Page() {
                       placeholder="Search player..."
                       value={leaderboardSearch}
                       onChange={(e) => {
+                        const input = e.currentTarget;
                         setLeaderboardSearch(e.target.value);
+                        if (isMobile) {
+                          // After re-render, pin input to top of screen so results always
+                          // appear between input and keyboard — never hidden behind it.
+                          requestAnimationFrame(() => {
+                            input?.scrollIntoView({ behavior: 'instant', block: 'start' });
+                          });
+                        }
                       }}
                       onFocus={(e) => {
                         if (!isMobile) return;
                         const el = e.currentTarget;
                         setTimeout(() => {
-                          const vv = window.visualViewport;
-                          if (!vv) return;
-                          const rect = el.getBoundingClientRect();
-                          if (rect.bottom > vv.height - 20) {
-                            window.scrollBy({ top: rect.bottom - vv.height + 40, behavior: 'smooth' });
-                          }
+                          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }, 350);
                       }}
                       style={{
