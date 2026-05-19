@@ -6862,7 +6862,7 @@ export default function Page() {
                                   <span>Position: {formatPosition(golfer.position)}</span>
                                 </div>
                               )}
-                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
+                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && selectedTournament === 'players' && (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
                                   <button
                                     onClick={(e) => {
@@ -6942,7 +6942,7 @@ export default function Page() {
                                   <span>Position: {formatPosition(golfer.position)}</span>
                                 </div>
                               )}
-                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
+                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && selectedTournament === 'players' && (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
                                   <button
                                     onClick={(e) => {
