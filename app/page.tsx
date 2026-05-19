@@ -170,6 +170,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Luke Donald': 'gb-eng', 'Laurie Canter': 'gb-eng', 'Marco Penge': 'gb-eng',
   'Callum Shinkwin': 'gb-eng', 'Tom Lewis': 'gb-eng', 'Sam Horsfield': 'gb-eng',
   'Jordan Smith': 'gb-eng', 'Andrew Johnston': 'gb-eng',
+  'Alex Fitzpatrick': 'gb-eng', 'Harry Hall': 'gb-eng', 'Daniel Brown': 'gb-eng',
   // Scotland
   'Robert MacIntyre': 'gb-sct', 'Martin Laird': 'gb-sct', 'Russell Knox': 'gb-sct',
   'Ewen Ferguson': 'gb-sct', 'Grant Forrest': 'gb-sct', 'Richie Ramsay': 'gb-sct',
