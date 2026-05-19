@@ -7312,11 +7312,11 @@ export default function Page() {
                 const isGoldTab = selectedTournament === 'open';
                 const baseCell: React.CSSProperties = {
                   border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap',
-                  ...(isGoldTab ? { background: '#F4BC41' } : {}),
+                  ...(isGoldTab ? { background: '#F4BC41' } : { background: '#fff' }),
                 };
                 const labelCell: React.CSSProperties = {
                   ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase',
-                  background: isGoldTab ? '#F4BC41' : '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151',
+                  background: isGoldTab ? '#F4BC41' : '#fff', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151',
                 };
                 const isMastersTournament = selectedTournament === 'masters';
                 const isRedTotalTournament = selectedTournament === 'us-open';
@@ -7454,8 +7454,8 @@ export default function Page() {
                   const isGoldTab = selectedTournament === 'open';
                   const isMastersTournament = selectedTournament === 'masters';
                   const isRedTotalTournament = selectedTournament === 'us-open';
-                  const baseCell: React.CSSProperties = { border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap', ...(isGoldTab ? { background: '#F4BC41' } : {}) };
-                  const labelCell: React.CSSProperties = { ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase', background: isGoldTab ? '#F4BC41' : '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151' };
+                  const baseCell: React.CSSProperties = { border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap', ...(isGoldTab ? { background: '#F4BC41' } : { background: '#fff' }) };
+                  const labelCell: React.CSSProperties = { ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase', background: isGoldTab ? '#F4BC41' : '#fff', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151' };
                   const subtotalCell: React.CSSProperties = { ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder };
                   const totalCell: React.CSSProperties = { ...baseCell, fontWeight: 900, background: isMastersTournament ? '#1a3d2b' : isRedTotalTournament ? '#BE3436' : '#1e3a5f', color: '#fff', borderLeft: thickBorder };
                   const holeHeaderCell: React.CSSProperties = { ...baseCell, fontWeight: 700, background: '#0f1720', color: '#fff', fontSize: 12 };
@@ -7571,8 +7571,8 @@ export default function Page() {
                   const isGoldTab = selectedTournament === 'open';
                   const isMastersTournament = selectedTournament === 'masters';
                   const isRedTotalTournament = selectedTournament === 'us-open';
-                  const baseCell: React.CSSProperties = { border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap', ...(isGoldTab ? { background: '#F4BC41' } : {}) };
-                  const labelCell: React.CSSProperties = { ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase', background: isGoldTab ? '#F4BC41' : '#f1f5f9', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151' };
+                  const baseCell: React.CSSProperties = { border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap', ...(isGoldTab ? { background: '#F4BC41' } : { background: '#fff' }) };
+                  const labelCell: React.CSSProperties = { ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase', background: isGoldTab ? '#F4BC41' : '#fff', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151' };
                   const subtotalCell: React.CSSProperties = { ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder };
                   const totalCell: React.CSSProperties = { ...baseCell, fontWeight: 900, background: isMastersTournament ? '#1a3d2b' : isRedTotalTournament ? '#BE3436' : '#1e3a5f', color: '#fff', borderLeft: thickBorder };
                   const holeHeaderCell: React.CSSProperties = { ...baseCell, fontWeight: 700, background: '#0f1720', color: '#fff', fontSize: 12 };
