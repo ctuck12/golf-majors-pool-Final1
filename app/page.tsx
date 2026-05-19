@@ -160,7 +160,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Ryan Gerard': 'us', 'Michael Thorbjornsen': 'us', 'Fred Couples': 'us',
   'David Lipsky': 'us', 'Pierceson Coody': 'us', 'Lucas Glover': 'us',
   'Brandt Snedeker': 'us', 'Shaun Micheel': 'us', 'Michael Brennan': 'us',
-  'Bud Cauley': 'us', 'William Mouw': 'us', 'Jordan Gumberg': 'us', 'Steven Fisk': 'us', 'Austin Smotherman': 'us', 'John Keefer': 'us', 'Max McGreevy': 'us', 'Chandler Blanchet': 'us', 'Jesse Droemer': 'us', 'Tyler Collet': 'us', 'Mark Geddes': 'us', 'Austin Hurt': 'us', 'Jared Jones': 'us', 'Michael Kartrude': 'us', 'Ryan Lenahan': 'us', 'Ben Polland': 'us', 'Braden Shattuck': 'us', 'Ryan Vermeer': 'us', 'Timothy Wiseman': 'us', 'Jimmy Walker': 'us', 'Jason Dufner': 'us', 'Stewart Cink': 'us',
+  'Bud Cauley': 'us', 'William Mouw': 'us', 'Jordan Gumberg': 'us', 'Steven Fisk': 'us', 'Austin Smotherman': 'us', 'John Keefer': 'us', 'Max McGreevy': 'us', 'Chandler Blanchet': 'us', 'Jesse Droemer': 'us', 'Tyler Collet': 'us', 'Mark Geddes': 'us', 'Austin Hurt': 'us', 'Jared Jones': 'us', 'Michael Kartrude': 'us', 'Ryan Lenahan': 'us', 'Ben Polland': 'us', 'Braden Shattuck': 'us', 'Ryan Vermeer': 'us', 'Timothy Wiseman': 'us', 'Jimmy Walker': 'us', 'Jason Dufner': 'us', 'Stewart Cink': 'us', 'Andrew Putnam': 'us', 'Joe Highsmith': 'us',
   'Sepp Straka': 'at', 'Bernd Wiesberger': 'at',
   // England
   'Tommy Fleetwood': 'gb-eng', 'Justin Rose': 'gb-eng', 'Matt Fitzpatrick': 'gb-eng',
@@ -214,7 +214,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Rikuya Hoshino': 'jp', 'Satoshi Kodaira': 'jp', 'Takumi Kanaya': 'jp',
   'Yuto Katsuragawa': 'jp', 'Kazuki Higa': 'jp', 'Kota Kaneko': 'jp',
   // South Korea
-  'Tom Kim': 'kr', 'Sungjae Im': 'kr', 'Si Woo Kim': 'kr',
+  'Tom Kim': 'kr', 'Sungjae Im': 'kr', 'Si Woo Kim': 'kr', 'Y.E. Yang': 'kr',
   'K.H. Lee': 'kr', 'Byeong Hun An': 'kr', 'S.H. Kim': 'kr',
   'Sung Kang': 'kr', 'Chan Kim': 'kr', 'Joohyung Kim': 'kr',
   // Philippines
