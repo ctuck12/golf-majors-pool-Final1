@@ -6987,7 +6987,7 @@ export default function Page() {
                     No lineup has been saved for this team yet.
                   </div>
                 )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: isMobile ? '12px 14px' : '12px 16px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: selectedTournament === 'players' ? '#F4BC41' : '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: isMobile ? '12px 14px' : '12px 16px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
                 <div style={{ color: '#50616f', fontSize: 14, fontWeight: 600 }}>
                   Total Holes Rem: <strong style={{ color: '#0f1720' }}>{activeStandingEntry.holesRemaining}</strong>
                 </div>
