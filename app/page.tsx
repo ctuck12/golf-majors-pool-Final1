@@ -92,7 +92,7 @@ const TOURNAMENTS = [
   {
     id: 'masters',
     name: 'The Masters',
-    fullName: 'The Masters',
+    fullName: 'The Masters Tournament',
     venue: 'Augusta National',
     lockAt: '2026-04-09T07:30:00',
   },
