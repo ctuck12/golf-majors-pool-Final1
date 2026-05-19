@@ -161,7 +161,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'David Lipsky': 'us', 'Pierceson Coody': 'us', 'Lucas Glover': 'us',
   'Brandt Snedeker': 'us', 'Shaun Micheel': 'us', 'Michael Brennan': 'us',
   'Bud Cauley': 'us', 'William Mouw': 'us',
-  'Sepp Straka': 'at',
+  'Sepp Straka': 'at', 'Bernd Wiesberger': 'at',
   // England
   'Tommy Fleetwood': 'gb-eng', 'Justin Rose': 'gb-eng', 'Matt Fitzpatrick': 'gb-eng',
   'Tyrrell Hatton': 'gb-eng', 'Lee Westwood': 'gb-eng', 'Ian Poulter': 'gb-eng',
