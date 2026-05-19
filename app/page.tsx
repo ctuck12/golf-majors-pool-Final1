@@ -7085,7 +7085,7 @@ export default function Page() {
                     <div style={{ color: (selectedTournament === 'players' || selectedTournament === 'open') ? '#4a5568' : '#6b7b88', fontSize: 12 }}>
                       {label === 'Leaderboard Place'
                         ? `Position: ${ordinal(String(count))}`
-                        : ['Tourn Low Rnd', 'Round 1 Leader', 'Round 2 Leader', 'Round 3 Leader'].includes(String(label))
+                        : ['Tourn Low Rnd', 'Rnd 1 Leader', 'Rnd 2 Leader', 'Rnd 3 Leader'].includes(String(label))
                         ? ''
                         : `Count: ${String(count)}`}
                     </div>
