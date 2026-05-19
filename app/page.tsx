@@ -7789,7 +7789,7 @@ export default function Page() {
                                 <div key={p.id} style={{ fontSize: 13, color: '#0f1720', fontWeight: 700 }}>
                                   {p.name}
                                   {isLowRnd && p.lowRoundIds?.length ? (
-                                    <span style={{ color: '#8fa3b1', fontWeight: 500, fontSize: 11 }}>{' '}({p.lowRoundIds.map(r => `R${r}`).join(', ')})</span>
+                                    <span style={{ color: (selectedTournament === 'pga' || selectedTournament === 'open') ? '#173b63' : '#8fa3b1', fontWeight: 500, fontSize: 11 }}>{' '}({p.lowRoundIds.map(r => `R${r}`).join(', ')})</span>
                                   ) : null}
                                 </div>
                               ))}
@@ -7834,7 +7834,7 @@ export default function Page() {
                               ) : (
                                 <span style={{ fontSize: 12, fontWeight: 600, color: '#b0bec8' }}>0</span>
                               )}
-                              <span style={{ fontSize: 10, color: '#8fa3b1', lineHeight: 1, transition: 'transform 0.2s ease', display: 'inline-block', transform: isOpen ? 'rotate(0deg)' : 'rotate(180deg)' }}>▲</span>
+                              <span style={{ fontSize: 10, color: (selectedTournament === 'pga' || selectedTournament === 'open') ? '#173b63' : '#8fa3b1', lineHeight: 1, transition: 'transform 0.2s ease', display: 'inline-block', transform: isOpen ? 'rotate(0deg)' : 'rotate(180deg)' }}>▲</span>
                             </div>
                           </button>
                           <div style={{ maxHeight: isOpen ? '600px' : '0', overflow: 'hidden', transition: 'max-height 0.25s ease' }}>
