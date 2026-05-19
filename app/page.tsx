@@ -204,7 +204,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Cameron Davis': 'au', 'Matt Jones': 'au', 'Aaron Pike': 'au',
   'David Bransdon': 'au', 'Brett Drewitt': 'au', 'Elvis Smylie': 'au',
   // New Zealand
-  'Ryan Fox': 'nz', 'Danny Lee': 'nz', 'Nick Taylor': 'nz',
+  'Ryan Fox': 'nz', 'Danny Lee': 'nz', 'Nick Taylor': 'nz', 'Daniel Hillier': 'nz',
   // Canada
   'Adam Hadwin': 'ca', 'Corey Conners': 'ca', 'Mackenzie Hughes': 'ca',
   'Taylor Pendrith': 'ca', 'Roger Sloan': 'ca', 'Ben Silverman': 'ca',
