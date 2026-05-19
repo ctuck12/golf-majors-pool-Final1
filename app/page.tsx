@@ -237,7 +237,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Stephan Jaeger': 'de', 'Alex Cejka': 'de', 'Marcel Siem': 'de',
   // France
   'Victor Perez': 'fr', 'Matthieu Pavon': 'fr', 'Romain Langasque': 'fr',
-  'Antoine Rozner': 'fr', 'Benjamin Hebert': 'fr',
+  'Antoine Rozner': 'fr', 'Benjamin Hebert': 'fr', 'Adrien Saddier': 'fr',
   // Belgium
   'Thomas Pieters': 'be', 'Nicolas Colsaerts': 'be',
   // Italy
