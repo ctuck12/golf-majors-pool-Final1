@@ -1549,6 +1549,19 @@ export default function Page() {
     };
   }, [feedRefreshNonce, selectedTournament]);
 
+  // Silently prefetch all other tournament feeds on mount so tab switches are instant
+  useEffect(() => {
+    for (const t of TOURNAMENTS) {
+      if (readFeedCache(t.id)) continue;
+      readJson<FeedResponse>(`/api/leaderboard?tournamentId=${t.id}`, { cache: 'no-store' })
+        .then((payload) => {
+          setFeeds(prev => ({ ...prev, [t.id]: payload }));
+          writeFeedCache(t.id, payload);
+        })
+        .catch(() => { /* non-critical */ });
+    }
+  }, []);
+
   useEffect(() => {
     setExpandedCutIds(new Set());
     expandedCutTimersRef.current.forEach((t) => clearTimeout(t));
