@@ -6853,7 +6853,7 @@ export default function Page() {
                                   <button
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
-                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: isMobile ? '3px 8px' : '4px 9px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
+                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: isMobile ? '3px 8px' : '2px 7px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 9, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
                                   >MISSED CUT</button>
                                 </>
                               ) : (
@@ -6933,7 +6933,7 @@ export default function Page() {
                                   <button
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
-                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: isMobile ? '3px 8px' : '4px 9px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
+                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: isMobile ? '3px 8px' : '2px 7px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 9, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
                                   >MISSED CUT</button>
                                 </>
                               ) : (
@@ -7265,7 +7265,7 @@ export default function Page() {
                                 {hasPrev && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
-                                    style={{ background: '#1e3a5f', border: 'none', borderRadius: 999, padding: isMobile ? '2px 7px' : '3px 8px', cursor: 'pointer', color: '#fff', fontWeight: 800, fontSize: isMobile ? 8 : 9, letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(14,45,100,0.45)', textTransform: 'uppercase' }}
+                                    style={{ background: '#1e3a5f', border: 'none', borderRadius: 999, padding: isMobile ? '2.5px 7.5px' : '3px 8px', cursor: 'pointer', color: '#fff', fontWeight: 800, fontSize: isMobile ? 8 : 9, letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(14,45,100,0.45)', textTransform: 'uppercase' }}
                                   >
                                     Previous Rounds
                                   </button>
