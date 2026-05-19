@@ -7045,7 +7045,7 @@ export default function Page() {
                     <div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingGolfer.name}{getPlayerFlag(activeStandingGolfer.name) && <><img src={getFlagSrc(activeStandingGolfer.name)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />{getCountryLabel(activeStandingGolfer.name) && <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, verticalAlign: 'middle' }}>{getCountryLabel(activeStandingGolfer.name)}</span>}</>}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
-                        <div style={{ borderRadius: 999, background: '#1e3a5f', padding: '3px 10px', fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1.2, flexShrink: 0 }}>
+                        <div style={{ borderRadius: 999, background: selectedTournament === 'players' ? '#E0AB43' : '#1e3a5f', padding: '3px 10px', fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1.2, flexShrink: 0 }}>
                           Points: {formatPointValue(activeStandingGolfer.points)}
                         </div>
                         <button onClick={() => setShowPointsSystem(true)} style={{ background: 'none', border: 'none', padding: 0, fontSize: isMobile ? 12 : 13, color: '#fff', cursor: 'pointer', textDecoration: 'underline', fontWeight: 400, fontStyle: 'italic', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
@@ -7102,7 +7102,7 @@ export default function Page() {
                         ? ''
                         : `Count: ${String(count)}`}
                     </div>
-                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : selectedTournament === 'masters' ? '#2c6449' : '#173b63' }}>
+                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#173b63' }}>
                       {formatPointValue(Number(points))}
                     </div>
                   </div>
