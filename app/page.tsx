@@ -248,6 +248,8 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Kiradech Aphibarnrat': 'th', 'Jazz Janewattananond': 'th',
   // Zimbabwe
   'Nick Price': 'zw',
+  // India
+  'Sudarshan Yellamaraju': 'in',
 };
 const getPlayerFlag = (name: string): string => PLAYER_FLAGS[name] ?? '';
 const getFlagSrc = (name: string): string => {
