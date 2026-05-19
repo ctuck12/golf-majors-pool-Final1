@@ -6886,7 +6886,7 @@ export default function Page() {
                               )}
                             </div>
                             <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
+                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
                             </div>
                           </div>
                         </>
@@ -6966,7 +6966,7 @@ export default function Page() {
                               )}
                             </div>
                             <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                              <div className="breakdown-golfer-points" style={{ fontSize: 18, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
+                              <div className="breakdown-golfer-points" style={{ fontSize: 18, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
                             </div>
                           </div>
                         </>
@@ -7237,7 +7237,7 @@ export default function Page() {
               {/* Colored tournament header */}
               {(() => {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
-                const roundColor = selectedTournament === 'masters' ? '#2c6449' : '#173b63';
+                const roundColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#173b63';
                 return (
                   <div style={{ background: hBg, display: 'flex', alignItems: 'stretch', flexShrink: 0 }}>
                     {/* Name + round/score + close */}
@@ -7265,7 +7265,7 @@ export default function Page() {
                                 {hasPrev && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
-                                    style={{ background: '#1e3a5f', border: 'none', borderRadius: 999, padding: isMobile ? '2.5px 7.5px' : '3px 8px', cursor: 'pointer', color: '#fff', fontWeight: 800, fontSize: isMobile ? 8 : 9, letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(14,45,100,0.45)', textTransform: 'uppercase' }}
+                                    style={{ background: selectedTournament === 'players' ? '#E0AB43' : '#1e3a5f', border: 'none', borderRadius: 999, padding: isMobile ? '2.5px 7.5px' : '3px 8px', cursor: 'pointer', color: '#fff', fontWeight: 800, fontSize: isMobile ? 8 : 9, letterSpacing: '0.06em', boxShadow: selectedTournament === 'players' ? '0 1px 5px rgba(176,153,99,0.4)' : '0 1px 5px rgba(14,45,100,0.45)', textTransform: 'uppercase' }}
                                   >
                                     Previous Rounds
                                   </button>
@@ -7487,7 +7487,7 @@ export default function Page() {
                     const totalScore = frontScore + backScore;
                     return (
                       <div key={rnd.round} style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: isMastersTournament ? '#2c6449' : '#173b63', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: isMastersTournament ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#173b63', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }}>
                           Round {rnd.round}
                           {rnd.score != null && rnd.score !== '' && <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 12 }}>Score: {typeof rnd.score === 'number' ? fmt(rnd.score) : rnd.score}</span>}
                         </div>
@@ -7603,7 +7603,7 @@ export default function Page() {
                     const totalScore = frontScore + backScore;
                     return (
                       <div key={rnd.round} style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: isMastersTournament ? '#2c6449' : '#173b63', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: isMastersTournament ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#173b63', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }}>
                           Round {rnd.round}
                           {rnd.score != null && rnd.score !== '' && <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 12 }}>Score: {typeof rnd.score === 'number' ? fmt(rnd.score) : rnd.score}</span>}
                         </div>
