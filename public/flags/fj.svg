@@ -1,0 +1,25 @@
+<svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg" aria-label="Fiji flag" role="img">
+  <rect width="1200" height="600" fill="#68BFE5"/>
+  <g>
+    <rect x="0" y="0" width="600" height="300" fill="#012169"/>
+    <polygon points="0,0 70,0 600,230 600,300 530,300 0,70" fill="#FFFFFF"/>
+    <polygon points="600,0 530,0 0,230 0,300 70,300 600,70" fill="#FFFFFF"/>
+    <polygon points="0,0 35,0 600,265 600,300 565,300 0,35" fill="#C8102E"/>
+    <polygon points="600,0 565,0 0,265 0,300 35,300 600,35" fill="#C8102E"/>
+    <rect x="240" y="0" width="120" height="300" fill="#FFFFFF"/>
+    <rect x="0" y="90" width="600" height="120" fill="#FFFFFF"/>
+    <rect x="270" y="0" width="60" height="300" fill="#C8102E"/>
+    <rect x="0" y="120" width="600" height="60" fill="#C8102E"/>
+  </g>
+  <g transform="translate(910 300)">
+    <path d="M-78 -112 H78 V48 C78 92 42 126 0 150 C-42 126 -78 92 -78 48 Z" fill="#FFFFFF" stroke="#C8102E" stroke-width="8"/>
+    <rect x="-78" y="-112" width="156" height="48" fill="#C8102E"/>
+    <path d="M-48 -84 H34 L48 -74 L34 -64 H-48 Z" fill="#FCD116"/>
+    <line x1="0" y1="-64" x2="0" y2="120" stroke="#C8102E" stroke-width="6"/>
+    <line x1="-72" y1="8" x2="72" y2="8" stroke="#C8102E" stroke-width="6"/>
+    <circle cx="-36" cy="-28" r="16" fill="#2E7D32"/>
+    <path d="M31 -44 L47 -12 H15 Z" fill="#8B5A2B"/>
+    <path d="M-48 54 Q-22 34 -6 70" stroke="#2E7D32" stroke-width="7" fill="none"/>
+    <path d="M24 60 Q42 36 56 68" stroke="#2E7D32" stroke-width="7" fill="none"/>
+  </g>
+</svg>
