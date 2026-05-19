@@ -6777,7 +6777,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{selectedTournament === 'masters' ? 'The Masters Tournament' : tournament.fullName}</div>
+                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'masters' ? '#F3E44D' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#E0AB43' : 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{selectedTournament === 'masters' ? 'The Masters Tournament' : tournament.fullName}</div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
                     </div>
                     <button
@@ -6801,7 +6801,7 @@ export default function Page() {
                         border: '1px solid #e2e8ef',
                         borderRadius: 12,
                         padding: 0,
-                        background: isActiveGolfer ? '#eef4ff' : '#fff',
+                        background: selectedTournament === 'players' ? (isActiveGolfer ? '#e8a830' : '#F4BC41') : isActiveGolfer ? '#eef4ff' : '#fff',
                         textAlign: 'left',
                         cursor: 'pointer',
                         display: 'flex',
@@ -6812,7 +6812,7 @@ export default function Page() {
                     >
                       {isMobile ? (
                         <>
-                          <div style={{ width: 86, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
+                          <div style={{ width: 86, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: selectedTournament === 'players' ? '#F4BC41' : '#fff' }}>
                             <img
                               src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                               alt={golfer.name}
@@ -6892,7 +6892,7 @@ export default function Page() {
                         </>
                       ) : (
                         <>
-                          <div style={{ width: 76, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: '#fff' }}>
+                          <div style={{ width: 76, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: selectedTournament === 'players' ? '#F4BC41' : '#fff' }}>
                             <img
                               src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                               alt={golfer.name}
