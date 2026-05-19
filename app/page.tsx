@@ -7830,7 +7830,7 @@ export default function Page() {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                               {hasEarners ? (
-                                <span style={{ fontSize: 11, fontWeight: 800, color: '#fff', background: bpColor, borderRadius: 999, padding: '1px 8px', minWidth: 22, textAlign: 'center' }}>{earnerCount}</span>
+                                <span style={{ fontSize: 11, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : selectedTournament === 'open' ? 'linear-gradient(135deg, #c0392b, #7b1010)' : selectedTournament === 'masters' ? 'linear-gradient(135deg, #E9D838, #E0C820)' : '#E0AB43', borderRadius: 999, padding: '1px 8px', minWidth: 22, textAlign: 'center', boxShadow: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 1px 5px rgba(14,45,100,0.45)' : selectedTournament === 'open' ? '0 1px 5px rgba(150,30,30,0.45)' : selectedTournament === 'masters' ? '0 1px 1px rgba(180,150,0,0.015)' : '0 1px 5px rgba(176,153,99,0.4)' }}>{earnerCount}</span>
                               ) : (
                                 <span style={{ fontSize: 12, fontWeight: 600, color: '#b0bec8' }}>0</span>
                               )}
