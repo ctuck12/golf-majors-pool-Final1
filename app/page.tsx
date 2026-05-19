@@ -6862,7 +6862,7 @@ export default function Page() {
                                   <span>Position: {formatPosition(golfer.position)}</span>
                                 </div>
                               )}
-                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && selectedTournament === 'players' && (
+                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
                                   <button
                                     onClick={(e) => {
@@ -6877,7 +6877,7 @@ export default function Page() {
                                       fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=${currentRoundLabel.replace('Round ', '')}`)
                                         .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
                                     }}
-                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#173b63', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none', verticalAlign: 'middle' }}
+                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#173b63', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none', verticalAlign: 'middle' }}
                                   >
                                     <span style={{ fontWeight: 800, textDecoration: 'none' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
@@ -6942,7 +6942,7 @@ export default function Page() {
                                   <span>Position: {formatPosition(golfer.position)}</span>
                                 </div>
                               )}
-                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && selectedTournament === 'players' && (
+                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
                                   <button
                                     onClick={(e) => {
@@ -6957,7 +6957,7 @@ export default function Page() {
                                       fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=${currentRoundLabel.replace('Round ', '')}`)
                                         .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
                                     }}
-                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#173b63', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none', verticalAlign: 'middle' }}
+                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#173b63', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none', verticalAlign: 'middle' }}
                                   >
                                     <span style={{ fontWeight: 800, textDecoration: 'none' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
