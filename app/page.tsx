@@ -1133,16 +1133,25 @@ export default function Page() {
   const [selectedLeaderboardPlayerId, setSelectedLeaderboardPlayerId] = useState<number | null>(null);
   const [leaderboardSearch, setLeaderboardSearch] = useState('');
   const [leaderboardViewMode, setLeaderboardViewMode] = useState<'picked' | 'full'>('full');
-  const [fullLeaderboardRows, setFullLeaderboardRows] = useState<FullFieldPlayer[] | null>(null);
+  const [fullLeaderboardRows, setFullLeaderboardRows] = useState<Partial<Record<TournamentId, FullFieldPlayer[]>>>({});
   const [expandedCutIds, setExpandedCutIds] = useState<Set<string>>(new Set());
   const expandedCutTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const [leaderboardSortMode, setLeaderboardSortMode] = useState<'default' | 'round-desc' | 'round-asc'>('default');
   const [leaderboardPickedSort, setLeaderboardPickedSort] = useState<'default' | 'desc' | 'asc'>('default');
   const [showCutInfo, setShowCutInfo] = useState(false);
-  const [feed, setFeed] = useState<FeedResponse | null>(() => readFeedCache(initialTournament));
+  const [feeds, setFeeds] = useState<Partial<Record<TournamentId, FeedResponse>>>(() => {
+    const initial: Partial<Record<TournamentId, FeedResponse>> = {};
+    for (const t of TOURNAMENTS) {
+      const cached = readFeedCache(t.id);
+      if (cached) initial[t.id] = cached;
+    }
+    return initial;
+  });
   const [isLoading, setIsLoading] = useState(() => readFeedCache(initialTournament) === null);
   const [error, setError] = useState('');
   const [feedRefreshNonce, setFeedRefreshNonce] = useState(0);
+  const feed = feeds[selectedTournament] ?? null;
+  const currentFullLeaderboardRows = fullLeaderboardRows[selectedTournament] ?? null;
   const [commissionerMembersRefreshNonce, setCommissionerMembersRefreshNonce] = useState(0);
   const [saveMessage, setSaveMessage] = useState('');
   useEffect(() => {
@@ -1501,14 +1510,7 @@ export default function Page() {
   useEffect(() => {
     let active = true;
 
-    const cached = readFeedCache(selectedTournament);
-    if (cached) {
-      setFeed(cached);
-      setIsLoading(false);
-    } else {
-      setFeed(null);
-      setIsLoading(true);
-    }
+    setIsLoading(readFeedCache(selectedTournament) === null);
 
     const loadFeed = async () => {
       if (!readFeedCache(selectedTournament)) {
@@ -1522,7 +1524,7 @@ export default function Page() {
         });
 
         if (active) {
-          setFeed(payload);
+          setFeeds(prev => ({ ...prev, [selectedTournament]: payload }));
           writeFeedCache(selectedTournament, payload);
         }
       } catch (err) {
@@ -1556,7 +1558,7 @@ export default function Page() {
   useEffect(() => {
     const fetchFull = () => {
       readJson<FeedResponse>(`/api/leaderboard?tournamentId=${selectedTournament}&fullField=true`, { cache: 'no-store' })
-        .then((data) => setFullLeaderboardRows(data.fullLeaderboard ?? []))
+        .then((data) => setFullLeaderboardRows(prev => ({ ...prev, [selectedTournament]: data.fullLeaderboard ?? [] })))
         .catch(() => { /* non-critical */ });
     };
     fetchFull();
@@ -3374,7 +3376,7 @@ export default function Page() {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('full'); setFullLeaderboardRows(null); setSelectedLeaderboardPlayerId(null); setLeaderboardSortMode('default'); setLeaderboardPickedSort('default'); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
+                    onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('full'); setSelectedLeaderboardPlayerId(null); setLeaderboardSortMode('default'); setLeaderboardPickedSort('default'); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
                     style={{
                       border: active ? '1px solid #d7e0e8' : '1px solid rgba(0,0,0,0.1)',
                       borderBottom: active ? '1px solid #fff' : '1px solid rgba(0,0,0,0.1)',
@@ -4011,10 +4013,10 @@ export default function Page() {
                               key={mode}
                               onClick={async (e) => {
                                 (e.currentTarget as HTMLButtonElement).blur();
-                                if (mode === 'full' && !fullLeaderboardRows) {
+                                if (mode === 'full' && !currentFullLeaderboardRows) {
                                   try {
                                     const data = await readJson<FeedResponse>(`/api/leaderboard?tournamentId=${selectedTournament}&fullField=true`, { cache: 'no-store' });
-                                    setFullLeaderboardRows(data.fullLeaderboard ?? []);
+                                    setFullLeaderboardRows(prev => ({ ...prev, [selectedTournament]: data.fullLeaderboard ?? [] }));
                                   } catch { /* keep existing view */ }
                                 }
                                 setLeaderboardSortMode('default');
@@ -4081,10 +4083,10 @@ export default function Page() {
                       <tbody>
                         {leaderboardViewMode === 'full'
                           ? (() => {
-                              if (fullLeaderboardRows === null) {
+                              if (currentFullLeaderboardRows === null) {
                                 return <tr><td colSpan={5} style={{ padding: '28px 16px', textAlign: 'center', color: '#6b7b88', fontSize: isMobile ? 12 : 13 }}>Loading leaderboard…</td></tr>;
                               }
-                              const filteredFullRaw = fullLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
+                              const filteredFullRaw = currentFullLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
                               const CUT_SCORE_SET_FL = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                               const parseCutScore = (s?: string) => { if (!s) return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
                               const parseRndScoreFL = (s: string | null | undefined) => { if (!s || s === '--') return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
@@ -4114,7 +4116,7 @@ export default function Page() {
                                   }, -1)
                                 : -1;
                               const derivedCutScoreFL = espnRoundFL >= 3 ? (() => {
-                                const scores = (fullLeaderboardRows ?? []).filter(p => p.score === 'CUT' && p.originalScore).map(p => p.originalScore === 'E' ? 0 : parseFloat(p.originalScore!)).filter(n => !isNaN(n));
+                                const scores = (currentFullLeaderboardRows ?? []).filter(p => p.score === 'CUT' && p.originalScore).map(p => p.originalScore === 'E' ? 0 : parseFloat(p.originalScore!)).filter(n => !isNaN(n));
                                 if (!scores.length) return null;
                                 const cutLine = Math.min(...scores) - 1;
                                 return cutLine === 0 ? 'E' : cutLine > 0 ? `+${cutLine}` : String(cutLine);
@@ -4240,7 +4242,7 @@ export default function Page() {
                                   }, -1)
                                 : -1;
                               const derivedCutScorePO = espnRoundPO >= 3 ? (() => {
-                                const cutSource: Array<{ score: string; originalScore?: string }> = fullLeaderboardRows?.length ? fullLeaderboardRows : (feed?.players ?? []);
+                                const cutSource: Array<{ score: string; originalScore?: string }> = currentFullLeaderboardRows?.length ? currentFullLeaderboardRows : (feed?.players ?? []);
                                 const scores = cutSource.filter(p => p.score === 'CUT' && p.originalScore).map(p => p.originalScore === 'E' ? 0 : parseFloat(p.originalScore!)).filter(n => !isNaN(n));
                                 if (!scores.length) return null;
                                 const cutLine = Math.min(...scores) - 1;
