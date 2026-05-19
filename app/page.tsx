@@ -192,7 +192,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Jeff Winther': 'dk', 'Niklas Norgaard': 'dk', 'Rasmus Neergaard-Petersen': 'dk',
   // Spain
   'Jon Rahm': 'es', 'Sergio Garcia': 'es', 'Adrian Otaegui': 'es',
-  'Alejandro del Rey': 'es', 'Ivan Cantero': 'es', 'David Puig': 'es',
+  'Alejandro del Rey': 'es', 'Ivan Cantero': 'es', 'David Puig': 'es', 'Jose Maria Olazabal': 'es',
   // South Africa
   'Louis Oosthuizen': 'za', 'Charl Schwartzel': 'za', 'Branden Grace': 'za',
   'Erik van Rooyen': 'za', 'Garrick Higgo': 'za', 'Dean Burmester': 'za',
