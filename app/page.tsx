@@ -241,7 +241,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   // Finland
   'Sami Valimaki': 'fi',
   // Belgium
-  'Thomas Pieters': 'be', 'Nicolas Colsaerts': 'be',
+  'Thomas Pieters': 'be', 'Nicolas Colsaerts': 'be', 'Thomas Detry': 'be',
   // Italy
   'Francesco Molinari': 'it', 'Guido Migliozzi': 'it',
   // Fiji
