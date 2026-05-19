@@ -6777,7 +6777,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'masters' ? '#F3E44D' : 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{selectedTournament === 'masters' ? 'The Masters Tournament' : tournament.fullName}</div>
+                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{selectedTournament === 'masters' ? 'The Masters Tournament' : tournament.fullName}</div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
                     </div>
                     <button
@@ -6886,7 +6886,7 @@ export default function Page() {
                               )}
                             </div>
                             <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
+                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
                             </div>
                           </div>
                         </>
@@ -6966,7 +6966,7 @@ export default function Page() {
                               )}
                             </div>
                             <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                              <div className="breakdown-golfer-points" style={{ fontSize: 18, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
+                              <div className="breakdown-golfer-points" style={{ fontSize: 18, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
                             </div>
                           </div>
                         </>
