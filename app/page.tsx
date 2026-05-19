@@ -234,7 +234,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   // Venezuela
   'Jhonattan Vegas': 've',
   // Germany
-  'Stephan Jaeger': 'de', 'Alex Cejka': 'de', 'Marcel Siem': 'de',
+  'Stephan Jaeger': 'de', 'Alex Cejka': 'de', 'Marcel Siem': 'de', 'Matti Schmid': 'de',
   // France
   'Victor Perez': 'fr', 'Matthieu Pavon': 'fr', 'Romain Langasque': 'fr',
   'Antoine Rozner': 'fr', 'Benjamin Hebert': 'fr', 'Adrien Saddier': 'fr',
