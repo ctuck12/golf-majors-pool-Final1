@@ -202,7 +202,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Min Woo Lee': 'au', 'Jason Day': 'au', 'Adam Scott': 'au',
   'Cameron Smith': 'au', 'Marc Leishman': 'au', 'Lucas Herbert': 'au',
   'Cameron Davis': 'au', 'Matt Jones': 'au', 'Aaron Pike': 'au',
-  'David Bransdon': 'au', 'Brett Drewitt': 'au',
+  'David Bransdon': 'au', 'Brett Drewitt': 'au', 'Elvis Smylie': 'au',
   // New Zealand
   'Ryan Fox': 'nz', 'Danny Lee': 'nz', 'Nick Taylor': 'nz',
   // Canada
