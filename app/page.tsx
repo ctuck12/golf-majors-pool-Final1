@@ -7778,7 +7778,7 @@ export default function Page() {
                       const hasEarners = earners.length > 0;
                       return (
                         <div key={cat.label} style={{ background: (selectedTournament === 'pga' || selectedTournament === 'open') ? '#F4BC41' : '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: (selectedTournament === 'pga' || selectedTournament === 'open') ? '0.5px solid #c5d4dc' : '1px solid #edf1f6' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: (isMobile && selectedTournament === 'pga') ? '0.5px solid #dae8ef' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : (selectedTournament === 'pga' || selectedTournament === 'open') ? '0.5px solid #c5d4dc' : '1px solid #edf1f6' }}>
                             <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
                               {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}
                             </div>
@@ -7823,7 +7823,7 @@ export default function Page() {
                               if (next.has(cat.label)) next.delete(cat.label); else next.add(cat.label);
                               return next;
                             })}
-                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: (selectedTournament === 'pga' || selectedTournament === 'open') ? '#F4BC41' : '#fff', border: 'none', borderBottom: isOpen ? ((selectedTournament === 'pga' || selectedTournament === 'open') ? '0.5px solid #c5d4dc' : '1px solid #edf1f6') : '1px solid transparent', cursor: 'pointer', textAlign: 'left', WebkitTapHighlightColor: 'transparent', transition: 'border-color 0.2s ease' }}
+                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: (selectedTournament === 'pga' || selectedTournament === 'open') ? '#F4BC41' : '#fff', border: 'none', borderBottom: isOpen ? ((isMobile && selectedTournament === 'pga') ? '0.5px solid #dae8ef' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : (selectedTournament === 'pga' || selectedTournament === 'open') ? '0.5px solid #c5d4dc' : '1px solid #edf1f6') : '1px solid transparent', cursor: 'pointer', textAlign: 'left', WebkitTapHighlightColor: 'transparent', transition: 'border-color 0.2s ease' }}
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
