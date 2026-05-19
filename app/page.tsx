@@ -7777,7 +7777,7 @@ export default function Page() {
                       const earners = pickedPlayers.filter(cat.filter);
                       const hasEarners = earners.length > 0;
                       return (
-                        <div key={cat.label} style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
+                        <div key={cat.label} style={{ background: (selectedTournament === 'pga' || selectedTournament === 'open') ? '#F4BC41' : '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: '1px solid #edf1f6' }}>
                             <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
                               {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}
@@ -7816,21 +7816,21 @@ export default function Page() {
                       const earnerCount = pickedPlayers.filter(cat.filter).length;
                       const hasEarners = earnerCount > 0;
                       return (
-                        <div key={cat.label} style={{ background: '#f7f9fb', borderRadius: 12, border: '1px solid #e2e8ef', overflow: 'hidden' }}>
+                        <div key={cat.label} style={{ background: (selectedTournament === 'pga' || selectedTournament === 'open') ? '#F4BC41' : '#f7f9fb', borderRadius: 12, border: '1px solid #e2e8ef', overflow: 'hidden' }}>
                           <button
                             onClick={() => setExpandedBonusCategories((prev) => {
                               const next = new Set(prev);
                               if (next.has(cat.label)) next.delete(cat.label); else next.add(cat.label);
                               return next;
                             })}
-                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: '#fff', border: 'none', borderBottom: isOpen ? '1px solid #edf1f6' : '1px solid transparent', cursor: 'pointer', textAlign: 'left', WebkitTapHighlightColor: 'transparent', transition: 'border-color 0.2s ease' }}
+                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: (selectedTournament === 'pga' || selectedTournament === 'open') ? '#F4BC41' : '#fff', border: 'none', borderBottom: isOpen ? '1px solid #edf1f6' : '1px solid transparent', cursor: 'pointer', textAlign: 'left', WebkitTapHighlightColor: 'transparent', transition: 'border-color 0.2s ease' }}
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                               {hasEarners ? (
-                                <span style={{ fontSize: 11, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: selectedTournament === 'us-open' ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : (selectedTournament === 'pga' || selectedTournament === 'open') ? 'linear-gradient(135deg, #c0392b, #7b1010)' : selectedTournament === 'masters' ? 'linear-gradient(135deg, #E9D838, #E0C820)' : '#E0AB43', borderRadius: 999, padding: '1px 8px', minWidth: 22, textAlign: 'center', boxShadow: selectedTournament === 'us-open' ? '0 1px 5px rgba(14,45,100,0.45)' : (selectedTournament === 'pga' || selectedTournament === 'open') ? '0 1px 5px rgba(150,30,30,0.45)' : selectedTournament === 'masters' ? '0 1px 1px rgba(180,150,0,0.015)' : '0 1px 5px rgba(176,153,99,0.4)' }}>{earnerCount}</span>
+                                <span style={{ fontSize: 11, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: selectedTournament === 'us-open' ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : (selectedTournament === 'pga' || selectedTournament === 'open') ? '#c0392b' : selectedTournament === 'masters' ? 'linear-gradient(135deg, #E9D838, #E0C820)' : '#E0AB43', borderRadius: 999, padding: '1px 8px', minWidth: 22, textAlign: 'center', boxShadow: selectedTournament === 'us-open' ? '0 1px 5px rgba(14,45,100,0.45)' : selectedTournament === 'masters' ? '0 1px 1px rgba(180,150,0,0.015)' : selectedTournament === 'players' ? '0 1px 5px rgba(176,153,99,0.4)' : 'none' }}>{earnerCount}</span>
                               ) : (
                                 <span style={{ fontSize: 12, fontWeight: 600, color: '#b0bec8' }}>0</span>
                               )}
