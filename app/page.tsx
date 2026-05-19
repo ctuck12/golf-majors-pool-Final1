@@ -212,7 +212,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   // Japan
   'Hideki Matsuyama': 'jp', 'Keita Nakajima': 'jp', 'Ryo Hisatsune': 'jp',
   'Rikuya Hoshino': 'jp', 'Satoshi Kodaira': 'jp', 'Takumi Kanaya': 'jp',
-  'Yuto Katsuragawa': 'jp',
+  'Yuto Katsuragawa': 'jp', 'Kazuki Higa': 'jp',
   // South Korea
   'Tom Kim': 'kr', 'Sungjae Im': 'kr', 'Si Woo Kim': 'kr',
   'K.H. Lee': 'kr', 'Byeong Hun An': 'kr', 'S.H. Kim': 'kr',
