@@ -1330,6 +1330,15 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    const svgCodes = new Set(['us','au','ie','gb-sct','no','kr','jp','za','se','nz','dk','de','cl','co','ar','ve','be','at','fr','fi','cn','it','in','ph','fj','pr']);
+    const usedCodes = [...new Set(Object.values(PLAYER_FLAGS))];
+    usedCodes.forEach(code => {
+      const img = new window.Image();
+      img.src = `/flags/${svgCodes.has(code) ? code + '.svg' : code + '.png'}`;
+    });
+  }, []);
+
+  useEffect(() => {
     const loadSession = async () => {
       setSessionLoading(true);
       const storedSnapshot = readStoredSession();
