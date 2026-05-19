@@ -6988,11 +6988,11 @@ export default function Page() {
                   </div>
                 )}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: isMobile ? '12px 14px' : '12px 16px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
-                <div style={{ color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament !== 'masters' ? '#173b63' : '#50616f', fontSize: 14, fontWeight: 600 }}>
+                <div style={{ color: '#173b63', fontSize: 14, fontWeight: 600 }}>
                   Total Holes Rem: <strong style={{ color: '#000' }}>{activeStandingEntry.holesRemaining}</strong>
                 </div>
                 <div style={{ fontSize: 15, fontWeight: 900, color: '#0f1720' }}>
-                  <span style={{ color: selectedTournament !== 'masters' ? '#173b63' : '#2c6449' }}>Total:</span> <span style={{ color: '#000' }}>{formatPointValue(activeStandingEntry.rosterPoints)}</span>
+                  <span style={{ color: '#173b63' }}>Total:</span> <span style={{ color: '#000' }}>{formatPointValue(activeStandingEntry.rosterPoints)}</span>
                 </div>
               </div>
             </div>
