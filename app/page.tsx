@@ -5745,7 +5745,7 @@ export default function Page() {
                       border: 'none',
                       borderRadius: 14,
                       padding: '12px 16px',
-                      background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                      background: 'linear-gradient(135deg, #1e4d7a 0%, #173b63 100%)',
                       color: '#fff',
                       fontWeight: 900,
                       cursor: !canManagePool || commissionerBusy ? 'not-allowed' : 'pointer',
@@ -5787,7 +5787,7 @@ export default function Page() {
                     width: isMobile ? 52 : 82,
                     height: isMobile ? 52 : 82,
                     borderRadius: isMobile ? 12 : 18,
-                    background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                    background: 'linear-gradient(135deg, #1e4d7a 0%, #173b63 100%)',
                     color: '#fff',
                     display: 'flex',
                     alignItems: 'center',
@@ -7748,7 +7748,7 @@ export default function Page() {
           const lowToPar = lowRawScore !== null ? lowRawScore - coursePar : null;
           const lowToParLabel = lowToPar === null ? '' : lowToPar === 0 ? ' (E)' : lowToPar < 0 ? ` (${lowToPar})` : ` (+${lowToPar})`;
           const bpColor = selectedTournament === 'pga' ? '#9a7d3a' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#1e4d8c';
-          const catHeaderColor = selectedTournament === 'pga' ? '#1e4d8c' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#173b63';
+          const catHeaderColor = selectedTournament === 'masters' ? '#2c6449' : '#173b63';
           const bpHeaderBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
 
           return (
