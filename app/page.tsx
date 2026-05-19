@@ -6992,7 +6992,7 @@ export default function Page() {
                   Total Holes Rem: <strong style={{ color: '#000' }}>{activeStandingEntry.holesRemaining}</strong>
                 </div>
                 <div style={{ fontSize: 15, fontWeight: 900, color: '#0f1720' }}>
-                  <span style={{ color: selectedTournament !== 'masters' ? '#173b63' : '#0f1720' }}>Total:</span> <span style={{ color: '#000' }}>{formatPointValue(activeStandingEntry.rosterPoints)}</span>
+                  <span style={{ color: selectedTournament !== 'masters' ? '#173b63' : '#2c6449' }}>Total:</span> <span style={{ color: '#000' }}>{formatPointValue(activeStandingEntry.rosterPoints)}</span>
                 </div>
               </div>
             </div>
