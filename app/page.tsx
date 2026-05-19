@@ -6853,7 +6853,7 @@ export default function Page() {
                                   <button
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
-                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: isMobile ? '3px 8px' : '2px 7px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 9, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
+                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: isMobile ? '3.5px 8.5px' : '2px 7px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 9, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
                                   >MISSED CUT</button>
                                 </>
                               ) : (
@@ -6933,7 +6933,7 @@ export default function Page() {
                                   <button
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
-                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: isMobile ? '3px 8px' : '2px 7px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 9, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
+                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: isMobile ? '3.5px 8.5px' : '2px 7px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 9, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
                                   >MISSED CUT</button>
                                 </>
                               ) : (
