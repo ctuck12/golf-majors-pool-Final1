@@ -6822,8 +6822,8 @@ export default function Page() {
                           </div>
                           <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center', background: selectedTournament === 'players' ? '#F4BC41' : 'transparent' }}>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
-                              <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                              <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: selectedTournament === 'players' ? '#1a1a1a' : '#0f1720' }}>{golfer.name}</div>
+                              <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'players' ? '#1a1a1a' : '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                 {golfer.score === 'CUT' || golfer.score === 'MDF' ? <span>Total: {golfer.originalScore ?? '--'}</span> : <span>Holes Rem: {golfer.holesRemaining}</span>}
                                 <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
                               </div>
@@ -6857,13 +6857,13 @@ export default function Page() {
                                   >MISSED CUT</button>
                                 </>
                               ) : (
-                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'players' ? '#1a1a1a' : '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                   <span>Total: {golfer.score}</span>
                                   <span>Position: {formatPosition(golfer.position)}</span>
                                 </div>
                               )}
                               {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
-                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
+                                <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'players' ? '#1a1a1a' : '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -6877,16 +6877,16 @@ export default function Page() {
                                       fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=${currentRoundLabel.replace('Round ', '')}`)
                                         .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
                                     }}
-                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#173b63', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none', verticalAlign: 'middle' }}
+                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#1a1a1a' : '#173b63', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none', verticalAlign: 'middle' }}
                                   >
-                                    <span style={{ fontWeight: 900, fontSize: '1.1em', textDecoration: 'none' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ fontWeight: 900, fontSize: '1.1em', textDecoration: 'none' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: selectedTournament === 'players' ? '#1a1a1a' : '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
                                   {!(golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime) && <span>Thru: {golfer.thru}{golfer.backNineStart && golfer.thru !== '--' && golfer.thru !== 'F' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>}
                                 </div>
                               )}
                             </div>
                             <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
+                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#1a1a1a' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
                             </div>
                           </div>
                         </>
