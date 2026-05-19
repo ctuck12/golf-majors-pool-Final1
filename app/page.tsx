@@ -7265,7 +7265,7 @@ export default function Page() {
                                 {hasPrev && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
-                                    style={{ background: '#1e3a5f', border: 'none', borderRadius: 999, padding: isMobile ? '3px 8px' : '4px 9px', cursor: 'pointer', color: '#fff', fontWeight: 800, fontSize: isMobile ? 9 : 10, letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(14,45,100,0.45)', textTransform: 'uppercase' }}
+                                    style={{ background: '#1e3a5f', border: 'none', borderRadius: 999, padding: isMobile ? '2px 7px' : '3px 8px', cursor: 'pointer', color: '#fff', fontWeight: 800, fontSize: isMobile ? 8 : 9, letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(14,45,100,0.45)', textTransform: 'uppercase' }}
                                   >
                                     Previous Rounds
                                   </button>
