@@ -6777,7 +6777,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.fullName}</div>
+                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'masters' ? '#F3E44D' : 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{selectedTournament === 'masters' ? 'The Masters Tournament' : tournament.fullName}</div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
                     </div>
                     <button
@@ -7045,7 +7045,7 @@ export default function Page() {
                     <div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingGolfer.name}{getPlayerFlag(activeStandingGolfer.name) && <><img src={getFlagSrc(activeStandingGolfer.name)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />{getCountryLabel(activeStandingGolfer.name) && <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, verticalAlign: 'middle' }}>{getCountryLabel(activeStandingGolfer.name)}</span>}</>}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
-                        <div style={{ borderRadius: 999, background: selectedTournament === 'players' ? '#E0AB43' : '#1e3a5f', padding: '3px 10px', fontSize: 13, fontWeight: 700, color: '#fff', lineHeight: 1.2, flexShrink: 0 }}>
+                        <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : '#1e3a5f', padding: '3px 10px', fontSize: 13, fontWeight: 700, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', lineHeight: 1.2, flexShrink: 0 }}>
                           Points: {formatPointValue(activeStandingGolfer.points)}
                         </div>
                         <button onClick={() => setShowPointsSystem(true)} style={{ background: 'none', border: 'none', padding: 0, fontSize: isMobile ? 12 : 13, color: '#fff', cursor: 'pointer', textDecoration: 'underline', fontWeight: 400, fontStyle: 'italic', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
@@ -7237,7 +7237,7 @@ export default function Page() {
               {/* Colored tournament header */}
               {(() => {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
-                const roundColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#173b63';
+                const roundColor = selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : '#173b63';
                 return (
                   <div style={{ background: hBg, display: 'flex', alignItems: 'stretch', flexShrink: 0 }}>
                     {/* Name + round/score + close */}
@@ -7265,7 +7265,7 @@ export default function Page() {
                                 {hasPrev && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
-                                    style={{ background: selectedTournament === 'players' ? '#E0AB43' : '#1e3a5f', border: 'none', borderRadius: 999, padding: isMobile ? '2.5px 7.5px' : '3px 8px', cursor: 'pointer', color: '#fff', fontWeight: 800, fontSize: isMobile ? 8 : 9, letterSpacing: '0.06em', boxShadow: selectedTournament === 'players' ? '0 1px 5px rgba(176,153,99,0.4)' : '0 1px 5px rgba(14,45,100,0.45)', textTransform: 'uppercase' }}
+                                    style={{ background: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : '#1e3a5f', border: 'none', borderRadius: 999, padding: isMobile ? '2.5px 7.5px' : '3px 8px', cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#fff', fontWeight: 800, fontSize: isMobile ? 8 : 9, letterSpacing: '0.06em', boxShadow: selectedTournament === 'masters' ? '0 1px 5px rgba(180,150,0,0.3)' : selectedTournament === 'players' ? '0 1px 5px rgba(176,153,99,0.4)' : '0 1px 5px rgba(14,45,100,0.45)', textTransform: 'uppercase' }}
                                   >
                                     Previous Rounds
                                   </button>
@@ -7487,7 +7487,7 @@ export default function Page() {
                     const totalScore = frontScore + backScore;
                     return (
                       <div key={rnd.round} style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: isMastersTournament ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#173b63', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: isMastersTournament ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : '#173b63', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }}>
                           Round {rnd.round}
                           {rnd.score != null && rnd.score !== '' && <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 12 }}>Score: {typeof rnd.score === 'number' ? fmt(rnd.score) : rnd.score}</span>}
                         </div>
@@ -7603,7 +7603,7 @@ export default function Page() {
                     const totalScore = frontScore + backScore;
                     return (
                       <div key={rnd.round} style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: isMastersTournament ? '#2c6449' : selectedTournament === 'players' ? '#E0AB43' : '#173b63', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: isMastersTournament ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : '#173b63', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }}>
                           Round {rnd.round}
                           {rnd.score != null && rnd.score !== '' && <span style={{ fontWeight: 600, color: '#0f1720', fontSize: 12 }}>Score: {typeof rnd.score === 'number' ? fmt(rnd.score) : rnd.score}</span>}
                         </div>
