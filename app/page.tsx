@@ -7838,7 +7838,7 @@ export default function Page() {
                             </div>
                           </button>
                           <div style={{ maxHeight: isOpen ? '600px' : '0', overflow: 'hidden', transition: 'max-height 0.25s ease' }}>
-                            <div style={{ padding: '0 14px 12px', borderTop: (selectedTournament === 'pga' || selectedTournament === 'open') ? '0.5px solid #c5d4dc' : '1px solid #eaf0f5' }}>
+                            <div style={{ padding: '0 14px 12px', borderTop: (selectedTournament === 'pga' || selectedTournament === 'open') ? 'none' : '1px solid #eaf0f5' }}>
                               {renderPlayerList(cat)}
                             </div>
                           </div>
