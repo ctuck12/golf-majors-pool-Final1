@@ -186,7 +186,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Ludvig Aberg': 'se', 'Alex Noren': 'se', 'Henrik Stenson': 'se',
   'Joakim Lagergren': 'se', 'Jesper Svensson': 'se',
   // Norway
-  'Viktor Hovland': 'no', 'Kristoffer Ventura': 'no',
+  'Viktor Hovland': 'no', 'Kristoffer Ventura': 'no', 'Kristoffer Reitan': 'no',
   // Denmark
   'Thorbjorn Olesen': 'dk', 'Rasmus Hojgaard': 'dk', 'Nicolai Hojgaard': 'dk',
   'Jeff Winther': 'dk', 'Niklas Norgaard': 'dk', 'Rasmus Neergaard-Petersen': 'dk',
