@@ -238,6 +238,8 @@ const PLAYER_FLAGS: Record<string, string> = {
   // France
   'Victor Perez': 'fr', 'Matthieu Pavon': 'fr', 'Romain Langasque': 'fr',
   'Antoine Rozner': 'fr', 'Benjamin Hebert': 'fr', 'Adrien Saddier': 'fr',
+  // Finland
+  'Sami Valimaki': 'fi',
   // Belgium
   'Thomas Pieters': 'be', 'Nicolas Colsaerts': 'be',
   // Italy
