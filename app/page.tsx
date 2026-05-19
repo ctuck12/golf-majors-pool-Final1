@@ -7763,7 +7763,7 @@ export default function Page() {
                 {/* Solid color header */}
                 <div style={{ background: bpHeaderBg, borderRadius: '20px 20px 0 0', padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'open' ? '#F4BC41' : '#173b63', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.fullName}</div>
+                    <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'open' ? '#F4BC41' : 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.fullName}</div>
                     <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>Bonus Points</div>
                   </div>
                   <button onClick={closeBonusPoints} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>✕</button>
