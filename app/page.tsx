@@ -6817,7 +6817,7 @@ export default function Page() {
                               src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                               alt={golfer.name}
                               className="breakdown-golfer-photo"
-                              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', ...(selectedTournament === 'players' ? { mixBlendMode: 'normal' as const } : {}) }}
                             />
                           </div>
                           <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
@@ -6897,7 +6897,7 @@ export default function Page() {
                               src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
                               alt={golfer.name}
                               className="breakdown-golfer-photo"
-                              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', ...(selectedTournament === 'players' ? { mixBlendMode: 'normal' as const } : {}) }}
                             />
                           </div>
                           <div style={{ flex: 1, minWidth: 0, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
