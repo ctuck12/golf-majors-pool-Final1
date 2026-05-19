@@ -6820,7 +6820,7 @@ export default function Page() {
                               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', ...(selectedTournament === 'players' ? { mixBlendMode: 'normal' as const } : {}) }}
                             />
                           </div>
-                          <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
+                          <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center', background: selectedTournament === 'players' ? '#F4BC41' : 'transparent' }}>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -6900,7 +6900,7 @@ export default function Page() {
                               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', ...(selectedTournament === 'players' ? { mixBlendMode: 'normal' as const } : {}) }}
                             />
                           </div>
-                          <div style={{ flex: 1, minWidth: 0, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
+                          <div style={{ flex: 1, minWidth: 0, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center', background: selectedTournament === 'players' ? '#F4BC41' : 'transparent' }}>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div className="breakdown-golfer-name" style={{ fontSize: 14, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
