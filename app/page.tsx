@@ -6989,9 +6989,9 @@ export default function Page() {
                 )}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: selectedTournament === 'players' ? '#F4BC41' : '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: isMobile ? '12px 14px' : '12px 16px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
                 <div style={{ color: selectedTournament === 'players' ? '#173b63' : '#50616f', fontSize: 14, fontWeight: 600 }}>
-                  Total Holes Rem: <strong style={{ color: selectedTournament === 'players' ? '#173b63' : '#0f1720' }}>{activeStandingEntry.holesRemaining}</strong>
+                  Total Holes Rem: <strong style={{ color: '#0f1720' }}>{activeStandingEntry.holesRemaining}</strong>
                 </div>
-                <div style={{ fontSize: 15, fontWeight: 900, color: selectedTournament === 'players' ? '#173b63' : '#0f1720' }}>
+                <div style={{ fontSize: 15, fontWeight: 900, color: '#0f1720' }}>
                   Total: {formatPointValue(activeStandingEntry.rosterPoints)}
                 </div>
               </div>
