@@ -229,6 +229,8 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Mito Pereira': 'cl', 'Joaquin Niemann': 'cl',
   // Colombia
   'Camilo Villegas': 'co', 'Sebastian Munoz': 'co', 'Nicolas Echavarria': 'co', 'Nico Echavarria': 'co',
+  // Mexico
+  'Carlos Ortiz': 'mx',
   // Puerto Rico
   'Ricky Castillo': 'pr',
   // Venezuela
