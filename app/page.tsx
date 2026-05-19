@@ -189,7 +189,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Viktor Hovland': 'no', 'Kristoffer Ventura': 'no',
   // Denmark
   'Thorbjorn Olesen': 'dk', 'Rasmus Hojgaard': 'dk', 'Nicolai Hojgaard': 'dk',
-  'Jeff Winther': 'dk', 'Niklas Norgaard': 'dk',
+  'Jeff Winther': 'dk', 'Niklas Norgaard': 'dk', 'Rasmus Neergaard-Petersen': 'dk',
   // Spain
   'Jon Rahm': 'es', 'Sergio Garcia': 'es', 'Adrian Otaegui': 'es',
   'Alejandro del Rey': 'es', 'Ivan Cantero': 'es', 'David Puig': 'es',
