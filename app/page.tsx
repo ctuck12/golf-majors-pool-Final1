@@ -176,7 +176,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Ewen Ferguson': 'gb-sct', 'Grant Forrest': 'gb-sct', 'Richie Ramsay': 'gb-sct',
   'David Law': 'gb-sct', 'Connor Syme': 'gb-sct',
   // Northern Ireland
-  'Rory McIlroy': 'gb-nir', 'Graeme McDowell': 'gb-nir', 'Darren Clarke': 'gb-nir',
+  'Rory McIlroy': 'gb-nir', 'Graeme McDowell': 'gb-nir', 'Darren Clarke': 'gb-nir', 'Tom McKibbin': 'gb-nir',
   // Wales
   'Rhys Enoch': 'gb-wls',
   // Ireland
