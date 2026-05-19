@@ -7782,7 +7782,6 @@ export default function Page() {
                             <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
                               {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}
                             </div>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: '#B09963', flexShrink: 0, whiteSpace: 'nowrap' }}>+{cat.pts} pts</span>
                           </div>
                           {hasEarners ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -7828,7 +7827,6 @@ export default function Page() {
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
-                              <span style={{ fontSize: 11, fontWeight: 700, color: '#B09963' }}>+{cat.pts} pts</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                               {hasEarners ? (
