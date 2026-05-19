@@ -3661,7 +3661,7 @@ export default function Page() {
                         </div>
                         <button
                           onClick={() => setShowBonusPoints(true)}
-                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : selectedTournament === 'open' ? 'linear-gradient(135deg, #c0392b, #7b1010)' : selectedTournament === 'masters' ? 'linear-gradient(135deg, #d4bc3a, #b09520)' : 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 9px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 1px 5px rgba(14,45,100,0.45)' : selectedTournament === 'open' ? '0 1px 5px rgba(150,30,30,0.45)' : selectedTournament === 'masters' ? '0 1px 5px rgba(180,160,40,0.4)' : '0 1px 5px rgba(176,153,99,0.4)', textTransform: 'uppercase' }}
+                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: selectedTournament === 'masters' ? '#3b1f72' : '#fff', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : selectedTournament === 'open' ? 'linear-gradient(135deg, #c0392b, #7b1010)' : selectedTournament === 'masters' ? '#F3EFFD' : 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 9px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 1px 5px rgba(14,45,100,0.45)' : selectedTournament === 'open' ? '0 1px 5px rgba(150,30,30,0.45)' : selectedTournament === 'masters' ? '0 1px 5px rgba(100,80,160,0.2)' : '0 1px 5px rgba(176,153,99,0.4)', textTransform: 'uppercase' }}
                         >
                           Bonus Points
                         </button>
@@ -3674,7 +3674,7 @@ export default function Page() {
                         </div>
                         <button
                           onClick={() => setShowBonusPoints(true)}
-                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : selectedTournament === 'open' ? 'linear-gradient(135deg, #c0392b, #7b1010)' : selectedTournament === 'masters' ? 'linear-gradient(135deg, #d4bc3a, #b09520)' : 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 10px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 1px 5px rgba(14,45,100,0.45)' : selectedTournament === 'open' ? '0 1px 5px rgba(150,30,30,0.45)' : selectedTournament === 'masters' ? '0 1px 5px rgba(180,160,40,0.4)' : '0 1px 5px rgba(176,153,99,0.4)', textTransform: 'uppercase' }}
+                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: selectedTournament === 'masters' ? '#3b1f72' : '#fff', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? 'linear-gradient(135deg, #1e4d8c, #0a1f3d)' : selectedTournament === 'open' ? 'linear-gradient(135deg, #c0392b, #7b1010)' : selectedTournament === 'masters' ? '#F3EFFD' : 'linear-gradient(135deg, #c9a84c, #8a6528)', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 10px', borderRadius: 999, letterSpacing: '0.06em', boxShadow: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 1px 5px rgba(14,45,100,0.45)' : selectedTournament === 'open' ? '0 1px 5px rgba(150,30,30,0.45)' : selectedTournament === 'masters' ? '0 1px 5px rgba(100,80,160,0.2)' : '0 1px 5px rgba(176,153,99,0.4)', textTransform: 'uppercase' }}
                         >
                           Bonus Points
                         </button>
@@ -6853,7 +6853,7 @@ export default function Page() {
                                   <button
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
-                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: '3px 10px', cursor: 'pointer', marginTop: 2, fontSize: 11, fontWeight: 800, color: '#fff', textDecoration: 'none', display: 'inline-block' }}
+                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: isMobile ? '3px 8px' : '4px 9px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
                                   >MISSED CUT</button>
                                 </>
                               ) : (
@@ -6933,7 +6933,7 @@ export default function Page() {
                                   <button
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
-                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: '3px 10px', cursor: 'pointer', marginTop: 2, fontSize: 11, fontWeight: 800, color: '#fff', textDecoration: 'none', display: 'inline-block' }}
+                                    style={{ background: '#cc2944', border: 'none', borderRadius: 999, padding: isMobile ? '3px 8px' : '4px 9px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 10, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
                                   >MISSED CUT</button>
                                 </>
                               ) : (
@@ -7265,7 +7265,7 @@ export default function Page() {
                                 {hasPrev && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
-                                    style={{ background: '#1e3a5f', border: 'none', borderRadius: 999, padding: isMobile ? '2px 7px' : '2px 8px', cursor: 'pointer', color: '#fff', fontWeight: 700, fontSize: isMobile ? 10 : 11, textDecoration: 'none', lineHeight: 1.4 }}
+                                    style={{ background: '#1e3a5f', border: 'none', borderRadius: 999, padding: isMobile ? '3px 8px' : '4px 9px', cursor: 'pointer', color: '#fff', fontWeight: 800, fontSize: isMobile ? 9 : 10, letterSpacing: '0.06em', boxShadow: '0 1px 5px rgba(14,45,100,0.45)', textTransform: 'uppercase' }}
                                   >
                                     Previous Rounds
                                   </button>
