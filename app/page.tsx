@@ -7323,7 +7323,7 @@ export default function Page() {
                   const diff = score - par;
                   const r = '#dc2626'; // red — under par
                   const k = '#0f1720'; // dark — over par
-                  const g = '#fff';    // gap between rings
+                  const g = isGoldTab ? '#F4BC41' : '#fff';    // gap between rings
                   // hole-in-one or eagle → 2 circles (checked before albatross so HIO on par-4 = 2 circles)
                   if (score === 1 || diff === -2)
                     return { ...base, borderRadius: '50%', border: `2px solid ${r}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${r}` };
@@ -7441,7 +7441,7 @@ export default function Page() {
                     const base: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, boxSizing: 'border-box', fontSize: 13 };
                     if (!score || !par) return base;
                     const diff = score - par;
-                    const r = '#dc2626'; const k = '#0f1720'; const g = '#fff';
+                    const r = '#dc2626'; const k = '#0f1720'; const g = isGoldTab ? '#F4BC41' : '#fff';
                     if (score === 1 || diff === -2) return { ...base, borderRadius: '50%', border: `2px solid ${r}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${r}` };
                     if (diff <= -3) return { ...base, borderRadius: '50%', border: `2px solid ${r}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${r},0 0 0 6px ${g},0 0 0 8px ${r}` };
                     if (diff === -1) return { ...base, borderRadius: '50%', border: `2px solid ${r}` };
@@ -7558,7 +7558,7 @@ export default function Page() {
                     const base: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, boxSizing: 'border-box', fontSize: 13 };
                     if (!score || !par) return base;
                     const diff = score - par;
-                    const r = '#dc2626'; const k = '#0f1720'; const g = '#fff';
+                    const r = '#dc2626'; const k = '#0f1720'; const g = isGoldTab ? '#F4BC41' : '#fff';
                     if (score === 1 || diff === -2) return { ...base, borderRadius: '50%', border: `2px solid ${r}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${r}` };
                     if (diff <= -3) return { ...base, borderRadius: '50%', border: `2px solid ${r}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${r},0 0 0 6px ${g},0 0 0 8px ${r}` };
                     if (diff === -1) return { ...base, borderRadius: '50%', border: `2px solid ${r}` };
