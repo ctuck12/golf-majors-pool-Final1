@@ -7133,11 +7133,15 @@ export default function Page() {
               {(() => {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
                 const posColor = selectedTournament === 'masters' ? '#2c6449' : '#173b63';
-                const sec = (label: string) => <div style={{ fontSize: 9, fontWeight: 800, color: '#8fa0b0', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '10px 0 3px', borderBottom: '1.5px solid #d1dce6', marginBottom: 1 }}>{label}</div>;
-                const row = (label: string, pts: string, neg = false) => (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 2px', borderBottom: '1px solid #eef1f5' }}>
-                    <span style={{ fontWeight: 600, fontSize: isMobile ? 11 : 12, color: '#374151' }}>{label}</span>
-                    <span style={{ fontWeight: 800, fontSize: isMobile ? 11 : 12, color: neg ? '#cc2944' : posColor }}>{pts}</span>
+                const group = (title: string, items: Array<[string, string, boolean?]>) => (
+                  <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e2eaf2', overflow: 'hidden', marginBottom: 7 }}>
+                    <div style={{ fontSize: 9, fontWeight: 800, color: '#607282', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 10px 4px', background: '#f0f4f8', borderBottom: '1px solid #e2eaf2' }}>{title}</div>
+                    {items.map(([label, pts, neg], i) => (
+                      <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 10px', borderBottom: i < items.length - 1 ? '1px solid #f0f3f6' : 'none' }}>
+                        <span style={{ fontWeight: 600, fontSize: isMobile ? 11 : 12, color: '#374151' }}>{label}</span>
+                        <span style={{ fontWeight: 800, fontSize: isMobile ? 12 : 13, color: neg ? '#cc2944' : posColor }}>{pts}</span>
+                      </div>
+                    ))}
                   </div>
                 );
                 return (
@@ -7147,46 +7151,15 @@ export default function Page() {
                       <button onClick={() => setShowPointsSystem(false)} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>✕</button>
                     </div>
                     <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: isMobile ? '10px 12px 16px' : '12px 16px 20px' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: isMobile ? 6 : 12, alignItems: 'start' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: isMobile ? 6 : 10, alignItems: 'start' }}>
                         <div>
-                          {sec('Penalties')}
-                          {row('Triple+', '−5 pts', true)}
-                          {row('Double', '−3 pts', true)}
-                          {row('Bogey', '−1 pts', true)}
-                          {sec('Scores')}
-                          {row('Par', '+.5 pts')}
-                          {row('Birdie', '+3 pts')}
-                          {row('Eagle', '+8 pts')}
-                          {row('Albatross', '+13 pts')}
-                          {row('Ace', '+10 pts')}
-                          {sec('Bonuses')}
-                          {row('3 Birdie Streak', '+4 pts')}
-                          {row('No Bogey Rnd', '+5 pts')}
-                          {row('Tourn Low Rnd', '+6 pts')}
-                          {sec('Round Leaders')}
-                          {row('Rnd 1 Leader', '+5 pts')}
-                          {row('Rnd 2 Leader', '+5 pts')}
-                          {row('Rnd 3 Leader', '+5 pts')}
+                          {group('Strokes', [['Triple+', '−5 pts', true], ['Double', '−3 pts', true], ['Bogey', '−1 pts', true], ['Par', '+.5 pts'], ['Birdie', '+3 pts'], ['Eagle', '+8 pts'], ['Albatross', '+13 pts'], ['Ace', '+10 pts']])}
+                          {group('Bonuses', [['3 Birdie Streak', '+4 pts'], ['No Bogey Rnd', '+5 pts'], ['Tourn Low Rnd', '+6 pts']])}
+                          {group('Round Leaders', [['Rnd 1 Leader', '+5 pts'], ['Rnd 2 Leader', '+5 pts'], ['Rnd 3 Leader', '+5 pts']])}
+                          {group('Cut', [['Cut Players', '−10 pts', true]])}
                         </div>
                         <div>
-                          {sec('Finishing Position')}
-                          {row('🥇 1st Place', '+40 pts')}
-                          {row('🥈 2nd Place', '+25 pts')}
-                          {row('🥉 3rd Place', '+20 pts')}
-                          {row('4th Place', '+18 pts')}
-                          {row('5th Place', '+16 pts')}
-                          {row('6th Place', '+14 pts')}
-                          {row('7th Place', '+12 pts')}
-                          {row('8th Place', '+10 pts')}
-                          {row('9th Place', '+9 pts')}
-                          {row('10th Place', '+8 pts')}
-                          {row('11–15th Place', '+7 pts')}
-                          {row('16–20th Place', '+6 pts')}
-                          {row('21–25th Place', '+5 pts')}
-                          {row('26–30th Place', '+3 pts')}
-                          {row('31–40th Place', '+1 pt')}
-                          {sec('Cut')}
-                          {row('Cut Players', '−10 pts', true)}
+                          {group('Finishing Position', [['🥇 1st Place', '+40 pts'], ['🥈 2nd Place', '+25 pts'], ['🥉 3rd Place', '+20 pts'], ['4th Place', '+18 pts'], ['5th Place', '+16 pts'], ['6th Place', '+14 pts'], ['7th Place', '+12 pts'], ['8th Place', '+10 pts'], ['9th Place', '+9 pts'], ['10th Place', '+8 pts'], ['11–15th', '+7 pts'], ['16–20th', '+6 pts'], ['21–25th', '+5 pts'], ['26–30th', '+3 pts'], ['31–40th', '+1 pt']])}
                         </div>
                       </div>
                     </div>
