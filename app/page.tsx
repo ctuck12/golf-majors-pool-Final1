@@ -4890,29 +4890,40 @@ export default function Page() {
                             <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
                             {historyPlayers.length > 0 ? (
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                {historyPlayers.map((player) => (
-                                  <span
-                                    key={`history-player-${event.id}-${player.id}`}
-                                    style={{
-                                      borderRadius: 999,
-                                      background: '#e8f3ff',
-                                      color: '#2f5f96',
-                                      padding: '5px 12px 5px 5px',
-                                      fontSize: 13,
-                                      fontWeight: 800,
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: 6,
-                                    }}
-                                  >
-                                    <img
-                                      src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
-                                      alt={player.name}
-                                      style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#fff', mixBlendMode: 'multiply' }}
-                                    />
-                                    {player.name}
-                                  </span>
-                                ))}
+                                {historyPlayers.map((player) => {
+                                  const bubblePalette: Record<string, { bg: string; text: string }> = {
+                                    players:  { bg: '#dce6f5', text: '#173b63' },
+                                    masters:  { bg: '#d5eade', text: '#2c6449' },
+                                    'us-open':{ bg: '#fde8e8', text: '#BE3436' },
+                                    pga:      { bg: '#f5edd8', text: '#7a6a3e' },
+                                    open:     { bg: '#dce6f5', text: '#173b63' },
+                                  };
+                                  const { bg, text } = bubblePalette[event.id] ?? { bg: '#e8f3ff', text: '#2f5f96' };
+                                  const displayName = isMobile ? (player.name.split(' ').pop() ?? player.name) : player.name;
+                                  return (
+                                    <span
+                                      key={`history-player-${event.id}-${player.id}`}
+                                      style={{
+                                        borderRadius: 999,
+                                        background: bg,
+                                        color: text,
+                                        padding: '5px 12px 5px 5px',
+                                        fontSize: 13,
+                                        fontWeight: 800,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 6,
+                                      }}
+                                    >
+                                      <img
+                                        src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
+                                        alt={player.name}
+                                        style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#fff', mixBlendMode: 'multiply' }}
+                                      />
+                                      {displayName}
+                                    </span>
+                                  );
+                                })}
                               </div>
                             ) : (
                               <div style={{ color: '#6b7b88', fontSize: 14 }}>No submitted roster saved for this event yet.</div>
