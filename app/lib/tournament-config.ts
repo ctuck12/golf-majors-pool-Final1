@@ -41,7 +41,7 @@ export const TOURNAMENT_META: Record<string, TournamentMeta> = {
   'us-open': {
     slashGolfTournId: '026',
     year: '2026',
-    courseName: 'Oakmont Country Club',
+    courseName: 'Shinnecock Hills Golf Club',
     par: 70,
     espnEventId: '401811952',
     dataSource: 'espn',
