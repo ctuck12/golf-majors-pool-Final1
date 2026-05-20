@@ -3969,7 +3969,7 @@ export default function Page() {
                       </div>
                     ) : tournament.id === 'pga' ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 7 : 10, width: '100%' }}>
-                        <img src="/pga-tab-logo.png" alt="PGA" style={{ height: isMobile ? 32 : 38, objectFit: 'contain', flexShrink: 0 }} />
+                        <img src="/open-tab-logo.png" alt="The Open" style={{ height: isMobile ? 32 : 38, objectFit: 'contain', flexShrink: 0 }} />
                         <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1 }}>Leaderboard</span>
                       </div>
                     ) : tournament.id === 'masters' ? (
