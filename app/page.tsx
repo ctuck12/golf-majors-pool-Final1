@@ -2817,11 +2817,11 @@ export default function Page() {
                       onClick={() => handleMainTabChange(tab, { refreshAfterChange: true })}
                       style={{
                         border: 'none',
-                        borderTop: active ? '3px solid #173b63' : '3px solid transparent',
-                        borderRadius: '10px 10px 0 0',
-                        background: active ? 'rgba(255,255,255,0.92)' : 'transparent',
-                        boxShadow: active ? '0 -4px 14px rgba(0,0,0,0.18)' : 'none',
-                        color: active ? '#173b63' : '#ffffff',
+                        borderRadius: 999,
+                        background: active ? '#fff' : 'transparent',
+                        boxShadow: active ? '0 4px 14px rgba(0,0,0,0.28)' : 'none',
+                        transform: active ? 'translateY(-1px)' : 'translateY(0)',
+                        color: active ? '#173b63' : 'rgba(255,255,255,0.85)',
                         padding: isMobile ? '6px 10px 8px' : '7px 12px 9px',
                         fontSize: isMobile ? 13 : 15,
                         fontWeight: 800,
