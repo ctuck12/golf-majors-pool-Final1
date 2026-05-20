@@ -5460,78 +5460,67 @@ export default function Page() {
         )}
 
         {mainTab === 'Details' && (
-          <main style={{ marginTop: isMobile ? 12 : 24, display: 'grid', gap: isMobile ? 12 : 20 }}>
-            <section
-              style={{
-                background: '#fff',
-                borderRadius: 20,
-                padding: isMobile ? 14 : 22,
-                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
-              }}
-            >
-              {/* ── Roster & Entry Details ── */}
-              <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#5b6b79', marginBottom: isMobile ? 4 : 6 }}>How It Works</div>
-              <h2 style={{ margin: isMobile ? '0 0 12px' : '0 0 16px', fontSize: isMobile ? 15 : 22, fontWeight: 900, color: '#0f1720' }}>Roster &amp; Entry Details</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: isMobile ? 7 : 10, marginBottom: isMobile ? 14 : 20 }}>
-                {([
-                  { label: 'Salary Cap', value: '$50K' },
-                  { label: 'Roster Size', value: '6 Golfers' },
-                  { label: 'Tournaments', value: '5 Events' },
-                  { label: 'Pays Out', value: 'Top 3' },
-                ] as const).map(({ label, value }) => (
-                  <div key={label} style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 10 : 14, padding: isMobile ? '8px 10px' : '11px 14px', background: '#f8fbfd' }}>
-                    <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>{label}</div>
-                    <div style={{ marginTop: 3, fontSize: isMobile ? 13 : 17, fontWeight: 900, color: '#0f1720' }}>{value}</div>
-                  </div>
-                ))}
+          <main style={{ marginTop: isMobile ? 12 : 24, display: 'grid', gap: isMobile ? 10 : 16 }}>
+
+            {/* ── Card 1: How It Works ── */}
+            <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
+              <div style={{ background: '#173b63', padding: isMobile ? '11px 14px 9px' : '13px 22px 11px', display: 'flex', alignItems: 'baseline', gap: 10 }}>
+                <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Roster &amp; Entry Details</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>How It Works</div>
               </div>
-              <div style={{ display: 'grid', gap: isMobile ? 8 : 11 }}>
-                <div style={{ display: 'flex', gap: isMobile ? 10 : 12, alignItems: 'flex-start', fontSize: isMobile ? 12 : 14, color: '#374151', lineHeight: 1.5 }}>
-                  <div style={{ flexShrink: 0, width: isMobile ? 20 : 22, height: isMobile ? 20 : 22, borderRadius: '50%', background: '#eef4ff', color: '#2f5f96', fontSize: isMobile ? 10 : 11, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>1</div>
-                  <div>For each major tournament and The Players Championship, members select <strong>6 golfers</strong>. Each golfer has a salary assigned based on their odds to win.</div>
+              <div style={{ padding: isMobile ? 14 : 22 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: isMobile ? 7 : 10, marginBottom: isMobile ? 14 : 18 }}>
+                  {([
+                    { label: 'Salary Cap', value: '$50K' },
+                    { label: 'Roster Size', value: '6 Golfers' },
+                    { label: 'Tournaments', value: '5 Events' },
+                    { label: 'Pays Out', value: 'Top 3' },
+                  ] as const).map(({ label, value }) => (
+                    <div key={label} style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff' }}>
+                      <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>{label}</div>
+                      <div style={{ marginTop: 3, fontSize: isMobile ? 13 : 17, fontWeight: 900, color: '#173b63' }}>{value}</div>
+                    </div>
+                  ))}
                 </div>
-                <div style={{ display: 'flex', gap: isMobile ? 10 : 12, alignItems: 'flex-start', fontSize: isMobile ? 12 : 14, color: '#374151', lineHeight: 1.5 }}>
-                  <div style={{ flexShrink: 0, width: isMobile ? 20 : 22, height: isMobile ? 20 : 22, borderRadius: '50%', background: '#eef4ff', color: '#2f5f96', fontSize: isMobile ? 10 : 11, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>2</div>
-                  <div>Participants have a fixed salary cap of <strong>$50,000</strong> to build their 6-player roster. These golfers make up their entry for that specific tournament.</div>
-                </div>
-                <div style={{ display: 'flex', gap: isMobile ? 10 : 12, alignItems: 'flex-start', fontSize: isMobile ? 12 : 14, color: '#374151', lineHeight: 1.5 }}>
-                  <div style={{ flexShrink: 0, width: isMobile ? 20 : 22, height: isMobile ? 20 : 22, borderRadius: '50%', background: '#eef4ff', color: '#2f5f96', fontSize: isMobile ? 10 : 11, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>3</div>
-                  <div>Golfers <strong>can be picked more than once per season.</strong> Points are awarded hole-by-hole plus tournament standings. Cut players receive <strong>−10 pts.</strong></div>
-                </div>
-                <div style={{ display: 'flex', gap: isMobile ? 10 : 12, alignItems: 'flex-start', fontSize: isMobile ? 12 : 14, color: '#374151', lineHeight: 1.5 }}>
-                  <div style={{ flexShrink: 0, width: isMobile ? 20 : 22, height: isMobile ? 20 : 22, borderRadius: '50%', background: '#eef4ff', color: '#2f5f96', fontSize: isMobile ? 10 : 11, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>4</div>
-                  <div>All <strong>6 golfers</strong> on your roster contribute to your total score.</div>
-                </div>
-                <div style={{ display: 'flex', gap: isMobile ? 10 : 12, alignItems: 'flex-start', fontSize: isMobile ? 12 : 14, color: '#374151', lineHeight: 1.5 }}>
-                  <div style={{ flexShrink: 0, width: isMobile ? 20 : 22, height: isMobile ? 20 : 22, borderRadius: '50%', background: '#eef4ff', color: '#2f5f96', fontSize: isMobile ? 10 : 11, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>5</div>
-                  <div>Enter your predicted winning score (e.g. 276) when submitting picks — this acts as a <strong>tiebreaker.</strong></div>
-                </div>
-                <div style={{ display: 'flex', gap: isMobile ? 10 : 12, alignItems: 'flex-start', fontSize: isMobile ? 12 : 14, color: '#374151', lineHeight: 1.5 }}>
-                  <div style={{ flexShrink: 0, width: isMobile ? 20 : 22, height: isMobile ? 20 : 22, borderRadius: '50%', background: '#eef4ff', color: '#2f5f96', fontSize: isMobile ? 10 : 11, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>6</div>
-                  <div><strong>1st, 2nd, and 3rd place pay out.</strong> Amounts vary based on the size of the pool field.</div>
+                <div style={{ display: 'grid', gap: 0 }}>
+                  {([
+                    <>For each major tournament and The Players Championship, members select <strong>6 golfers</strong>. Each golfer has a salary assigned based on their odds to win.</>,
+                    <>Participants have a fixed salary cap of <strong>$50,000</strong> to build their 6-player roster. These golfers make up their entry for that specific tournament.</>,
+                    <>Golfers <strong>can be picked more than once per season.</strong> Points are awarded hole-by-hole plus tournament standings. Cut players receive <strong>−10 pts.</strong></>,
+                    <>All <strong>6 golfers</strong> on your roster contribute to your total score.</>,
+                    <>Enter your predicted winning score (e.g. 276) when submitting picks — this acts as a <strong>tiebreaker.</strong></>,
+                    <><strong>1st, 2nd, and 3rd place pay out.</strong> Amounts vary based on the size of the pool field.</>,
+                  ] as const).map((text, i, arr) => (
+                    <div key={i} style={{ borderLeft: '3px solid #63d9ea', paddingLeft: isMobile ? 10 : 14, paddingTop: isMobile ? 7 : 9, paddingBottom: isMobile ? 7 : 9, marginLeft: 2, borderBottom: i < arr.length - 1 ? '1px solid #f0f3f6' : 'none', fontSize: isMobile ? 12 : 14, color: '#374151', lineHeight: 1.55 }}>
+                      {text}
+                    </div>
+                  ))}
                 </div>
               </div>
+            </section>
 
-              <div style={{ margin: isMobile ? '14px 0 12px' : '22px 0 18px', borderTop: '1px solid #d7dee6' }} />
-
-              {/* ── Entry & Contact ── */}
-              <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#5b6b79', marginBottom: isMobile ? 8 : 12 }}>Entry &amp; Contact</div>
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? 7 : 10 }}>
-                <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 10 : 14, padding: isMobile ? '8px 10px' : '11px 14px', background: '#f8fbfd' }}>
+            {/* ── Card 2: Entry & Contact ── */}
+            <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
+              <div style={{ background: '#173b63', padding: isMobile ? '11px 14px 9px' : '13px 22px 11px', display: 'flex', alignItems: 'baseline', gap: 10 }}>
+                <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Entry &amp; Contact</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>Join the Pool</div>
+              </div>
+              <div style={{ padding: isMobile ? 14 : 22, display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? 7 : 10 }}>
+                <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff' }}>
                   <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>Entry Fee</div>
-                  <div style={{ marginTop: 4, fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>$30</div>
+                  <div style={{ marginTop: 4, fontSize: isMobile ? 22 : 30, fontWeight: 900, color: '#173b63' }}>$30</div>
                 </div>
-                <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 10 : 14, padding: isMobile ? '8px 10px' : '11px 14px', background: '#f8fbfd' }}>
+                <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff' }}>
                   <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>Venmo</div>
-                  <div style={{ marginTop: 4, fontSize: isMobile ? 13 : 16, fontWeight: 800, color: '#0f1720' }}>
+                  <div style={{ marginTop: 4, fontSize: isMobile ? 13 : 16, fontWeight: 800, color: '#173b63' }}>
                     {isMobile ? (
                       <a href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool" style={{ color: '#3d95ce', textDecoration: 'none' }}>@claytont743</a>
                     ) : '@claytont743'}
                   </div>
                 </div>
-                <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 10 : 14, padding: isMobile ? '8px 10px' : '11px 14px', background: '#f8fbfd', gridColumn: isMobile ? '1 / -1' : undefined }}>
+                <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff', gridColumn: isMobile ? '1 / -1' : undefined }}>
                   <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>Questions</div>
-                  <div style={{ marginTop: 4, fontSize: isMobile ? 13 : 15, fontWeight: 800, color: '#0f1720' }}>Clayton Tucker</div>
+                  <div style={{ marginTop: 4, fontSize: isMobile ? 13 : 15, fontWeight: 800, color: '#173b63' }}>Clayton Tucker</div>
                   <div style={{ fontSize: isMobile ? 11 : 13, color: '#5b6b79', marginTop: 2 }}>
                     {isMobile ? (
                       <a href="tel:+13256658299" style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}>(325) 665-8299</a>
@@ -5539,66 +5528,71 @@ export default function Page() {
                   </div>
                 </div>
               </div>
+            </section>
 
-              <div style={{ margin: isMobile ? '14px 0 12px' : '22px 0 18px', borderTop: '1px solid #d7dee6' }} />
-
-              {/* ── Points breakdown ── */}
-              <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#5b6b79', marginBottom: isMobile ? 4 : 6 }}>Scoring</div>
-              <h2 style={{ margin: isMobile ? '0 0 12px' : '0 0 16px', fontSize: isMobile ? 15 : 22, fontWeight: 900, color: '#0f1720' }}>Points are awarded as follows</h2>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                  gap: isMobile ? 16 : 36,
-                  color: '#0f1720',
-                  fontSize: isMobile ? 11 : 15,
-                  lineHeight: 1.35,
-                }}
-              >
-                <div style={{ display: 'grid', gap: isMobile ? 5 : 8 }}>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Triple+:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-5 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Double:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-3 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Bogey:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-1 pts</span></div>
-                  <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Par:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>.5 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Birdie:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>3 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Eagle:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>8 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Albatross:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>13 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Ace:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
-                  <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>3 Birdie Streak:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>4 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>No Bogey Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Tourn Low Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
-                  <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Rnd 1 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Rnd 2 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Rnd 3 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                </div>
-                <div style={{ display: 'grid', gap: isMobile ? 5 : 8 }}>
+            {/* ── Card 3: Scoring ── */}
+            <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
+              <div style={{ background: '#173b63', padding: isMobile ? '11px 14px 9px' : '13px 22px 11px', display: 'flex', alignItems: 'baseline', gap: 10 }}>
+                <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Points are awarded as follows</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>Scoring</div>
+              </div>
+              <div style={{ padding: isMobile ? 14 : 22 }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                    gap: isMobile ? 16 : 36,
+                    color: '#0f1720',
+                    fontSize: isMobile ? 11 : 15,
+                    lineHeight: 1.35,
+                  }}
+                >
                   <div style={{ display: 'grid', gap: isMobile ? 5 : 8 }}>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><span style={{ marginRight: 6 }}>{'🥇'}</span><strong>1st Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>40 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><span style={{ marginRight: 6 }}>{'🥈'}</span><strong>2nd Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>25 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><span style={{ marginRight: 6 }}>{'🥉'}</span><strong>3rd Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>20 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Triple+:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-5 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Double:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-3 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Bogey:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-1 pts</span></div>
+                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Par:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>.5 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Birdie:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>3 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Eagle:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>8 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Albatross:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>13 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Ace:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
+                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>3 Birdie Streak:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>4 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>No Bogey Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Tourn Low Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
+                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Rnd 1 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Rnd 2 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Rnd 3 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
                   </div>
-                  <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>4th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>18 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>5th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>16 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>6th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>14 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>7th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>12 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>8th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>9th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>9 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>10th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>8 pts</span></div>
-                  <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>11-15th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>7 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>16-20th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>21-25th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>26-30th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>3 pts</span></div>
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>31-40th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>1 pts</span></div>
-                  <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                  <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Cut Players:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-10 pts</span></div>
+                  <div style={{ display: 'grid', gap: isMobile ? 5 : 8 }}>
+                    <div style={{ display: 'grid', gap: isMobile ? 5 : 8 }}>
+                      <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><span style={{ marginRight: 6 }}>{'🥇'}</span><strong>1st Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>40 pts</span></div>
+                      <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><span style={{ marginRight: 6 }}>{'🥈'}</span><strong>2nd Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>25 pts</span></div>
+                      <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><span style={{ marginRight: 6 }}>{'🥉'}</span><strong>3rd Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>20 pts</span></div>
+                    </div>
+                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>4th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>18 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>5th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>16 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>6th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>14 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>7th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>12 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>8th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>9th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>9 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>10th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>8 pts</span></div>
+                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>11-15th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>7 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>16-20th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>21-25th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>26-30th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>3 pts</span></div>
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>31-40th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>1 pts</span></div>
+                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
+                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Cut Players:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-10 pts</span></div>
+                  </div>
                 </div>
               </div>
             </section>
+
           </main>
         )}
 
