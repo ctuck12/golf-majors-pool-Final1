@@ -2817,18 +2817,18 @@ export default function Page() {
                       onClick={() => handleMainTabChange(tab, { refreshAfterChange: true })}
                       style={{
                         border: 'none',
-                        borderRadius: 999,
-                        background: active ? '#fff' : 'transparent',
-                        boxShadow: active ? '0 4px 14px rgba(0,0,0,0.28)' : 'none',
-                        transform: active ? 'translateY(-1px)' : 'translateY(0)',
-                        color: active ? '#173b63' : 'rgba(255,255,255,0.85)',
+                        borderRadius: 8,
+                        background: active ? '#173b63' : 'transparent',
+                        boxShadow: active ? 'inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 8px rgba(0,0,0,0.35)' : 'none',
+                        color: active ? '#fff' : 'rgba(255,255,255,0.65)',
                         padding: isMobile ? '6px 10px 8px' : '7px 12px 9px',
                         fontSize: isMobile ? 13 : 15,
-                        fontWeight: 800,
+                        fontWeight: active ? 800 : 600,
                         cursor: 'pointer',
                         lineHeight: 1.1,
                         whiteSpace: 'nowrap',
                         flex: '0 0 auto',
+                        letterSpacing: active ? '0.01em' : 0,
                       }}
                     >
                       {tab}
