@@ -2708,9 +2708,7 @@ export default function Page() {
     'linear-gradient(135deg, #173b63 0%, #0e2440 100%)';
 
   const headerTabActiveColor =
-    selectedTournament === 'us-open' ? '#63d9ea' :
     selectedTournament === 'masters' ? '#F3E44D' :
-    selectedTournament === 'pga' ? '#173b63' :
     '#63d9ea';
 
   if (sessionLoading && !sessionUser) {
