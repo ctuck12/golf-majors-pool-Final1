@@ -7431,10 +7431,10 @@ export default function Page() {
                   const isRedTotalTournament = selectedTournament === 'us-open' || selectedTournament === 'pga';
                   const baseCell: React.CSSProperties = { border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap', ...(isGoldTab ? { background: '#F4BC41' } : { background: '#fff' }) };
                   const labelCell: React.CSSProperties = { ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase', background: isGoldTab ? '#F4BC41' : '#fff', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151' };
-                  const subtotalCell: React.CSSProperties = { ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder };
+                  const subtotalCell: React.CSSProperties = { ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : isGoldTab ? '#b8cfea' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder };
                   const totalCell: React.CSSProperties = { ...baseCell, fontWeight: 900, background: isMastersTournament ? '#1a3d2b' : isRedTotalTournament ? '#1e3a5f' : '#1e3a5f', color: '#fff', borderLeft: thickBorder };
                   const holeHeaderCell: React.CSSProperties = { ...baseCell, fontWeight: 700, background: '#0f1720', color: '#fff', fontSize: 12 };
-                  const subtotalHeaderCell: React.CSSProperties = { ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder };
+                  const subtotalHeaderCell: React.CSSProperties = { ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : isGoldTab ? '#1a3f6e' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder };
                   const totalHeaderCell: React.CSSProperties = { ...holeHeaderCell, background: isMastersTournament ? '#1a3d2b' : isRedTotalTournament ? '#1e3a5f' : '#1e3a5f', borderLeft: thickBorder };
                   const fmt = (n: number) => n > 0 ? `+${n}` : n === 0 ? 'E' : `${n}`;
                   const badge = (score: number, par: number): React.CSSProperties => {
@@ -7548,10 +7548,10 @@ export default function Page() {
                   const isRedTotalTournament = selectedTournament === 'us-open' || selectedTournament === 'pga';
                   const baseCell: React.CSSProperties = { border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap', ...(isGoldTab ? { background: '#F4BC41' } : { background: '#fff' }) };
                   const labelCell: React.CSSProperties = { ...baseCell, textAlign: 'left', fontWeight: 800, fontSize: 12, textTransform: 'uppercase', background: isGoldTab ? '#F4BC41' : '#fff', paddingLeft: 10, letterSpacing: '0.03em', minWidth: 66, color: '#374151' };
-                  const subtotalCell: React.CSSProperties = { ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder };
+                  const subtotalCell: React.CSSProperties = { ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : isGoldTab ? '#b8cfea' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder };
                   const totalCell: React.CSSProperties = { ...baseCell, fontWeight: 900, background: isMastersTournament ? '#1a3d2b' : isRedTotalTournament ? '#1e3a5f' : '#1e3a5f', color: '#fff', borderLeft: thickBorder };
                   const holeHeaderCell: React.CSSProperties = { ...baseCell, fontWeight: 700, background: '#0f1720', color: '#fff', fontSize: 12 };
-                  const subtotalHeaderCell: React.CSSProperties = { ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder };
+                  const subtotalHeaderCell: React.CSSProperties = { ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : isGoldTab ? '#1a3f6e' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder };
                   const totalHeaderCell: React.CSSProperties = { ...holeHeaderCell, background: isMastersTournament ? '#1a3d2b' : isRedTotalTournament ? '#1e3a5f' : '#1e3a5f', borderLeft: thickBorder };
                   const fmt = (n: number) => n > 0 ? `+${n}` : n === 0 ? 'E' : `${n}`;
                   const badge = (score: number, par: number): React.CSSProperties => {
