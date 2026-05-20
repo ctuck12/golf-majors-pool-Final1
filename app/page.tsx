@@ -2728,7 +2728,6 @@ export default function Page() {
     selectedTournament === 'masters' ? '#F3E44D' :
     selectedTournament === 'players' ? '#E0AB43' :
     selectedTournament === 'open' ? '#F4BC41' :
-    selectedTournament === 'pga' ? '#173b63' :
     '#63d9ea';
 
   if (sessionLoading && !sessionUser) {
