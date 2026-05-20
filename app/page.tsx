@@ -6777,7 +6777,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'pga' ? 'rgba(255,255,255,0.7)' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#E0AB43' : 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{selectedTournament === 'masters' ? 'The Masters Tournament' : tournament.fullName}</div>
+                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'masters' ? '#F3E44D' : (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '#1e4d8c' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#E0AB43' : 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{selectedTournament === 'masters' ? 'The Masters Tournament' : tournament.fullName}</div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
                     </div>
                     <button
@@ -6879,14 +6879,14 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'open' ? '#1a1a1a' : '#173b63', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none', verticalAlign: 'middle' }}
                                   >
-                                    <span style={{ fontWeight: 900, fontSize: isMobile ? 11 : 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#BE3436' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#c8860a' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ fontWeight: 900, fontSize: isMobile ? 11 : 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#1e4d8c' : selectedTournament === 'us-open' ? '#1e4d8c' : selectedTournament === 'open' ? '#c0392b' : '#c8860a' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
                                   {!(golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime) && <span>Thru: {golfer.thru}{golfer.backNineStart && golfer.thru !== '--' && golfer.thru !== 'F' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>}
                                 </div>
                               )}
                             </div>
                             <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#c8860a' : selectedTournament === 'pga' ? '#BE3436' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
+                              <div className="breakdown-golfer-points" style={{ fontSize: 22, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#c8860a' : selectedTournament === 'pga' ? '#1e4d8c' : selectedTournament === 'us-open' ? '#1e4d8c' : selectedTournament === 'open' ? '#c0392b' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
                             </div>
                           </div>
                         </>
@@ -6959,14 +6959,14 @@ export default function Page() {
                                     }}
                                     style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'open' ? '#1a1a1a' : '#173b63', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none', verticalAlign: 'middle' }}
                                   >
-                                    <span style={{ fontWeight: 900, fontSize: isMobile ? 11 : 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#BE3436' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#c8860a' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
+                                    <span style={{ fontWeight: 900, fontSize: isMobile ? 11 : 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#1e4d8c' : selectedTournament === 'us-open' ? '#1e4d8c' : selectedTournament === 'open' ? '#c0392b' : '#c8860a' }}>{currentRoundLabel}:</span>{' '}<span style={{ color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontWeight: 400 }}>{golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime ? formatTeeTime(golfer.teeTime) : formatCurrentRoundScore(golfer.currentRoundScore ?? undefined, golfer.score)}</span>
                                   </button>
                                   {!(golfer.thru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS' && golfer.teeTime) && <span>Thru: {golfer.thru}{golfer.backNineStart && golfer.thru !== '--' && golfer.thru !== 'F' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>}
                                 </div>
                               )}
                             </div>
                             <div style={{ textAlign: 'right', minWidth: 40, flexShrink: 0 }}>
-                              <div className="breakdown-golfer-points" style={{ fontSize: 18, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#c8860a' : selectedTournament === 'pga' ? '#BE3436' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
+                              <div className="breakdown-golfer-points" style={{ fontSize: 18, fontWeight: 900, color: golfer.points < 0 ? '#dc2626' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#c8860a' : selectedTournament === 'pga' ? '#1e4d8c' : selectedTournament === 'us-open' ? '#1e4d8c' : selectedTournament === 'open' ? '#c0392b' : '#173b63' }}>{formatPointValue(golfer.points)}</div>
                             </div>
                           </div>
                         </>
@@ -7102,7 +7102,7 @@ export default function Page() {
                         ? ''
                         : `Count: ${String(count)}`}
                     </div>
-                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#c8860a' : selectedTournament === 'pga' ? '#BE3436' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#173b63' }}>
+                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#c8860a' : selectedTournament === 'pga' ? '#1e4d8c' : selectedTournament === 'us-open' ? '#1e4d8c' : selectedTournament === 'open' ? '#c0392b' : '#173b63' }}>
                       {formatPointValue(Number(points))}
                     </div>
                   </div>
