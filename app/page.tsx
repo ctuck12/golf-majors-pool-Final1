@@ -5531,67 +5531,44 @@ export default function Page() {
             </section>
 
             {/* ── Card 3: Scoring ── */}
-            <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
-              <div style={{ background: '#173b63', padding: isMobile ? '11px 14px 9px' : '13px 22px 11px', display: 'flex', alignItems: 'baseline', gap: 10 }}>
-                <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Points are awarded as follows</div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>Scoring</div>
-              </div>
-              <div style={{ padding: isMobile ? 14 : 22 }}>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                    gap: isMobile ? 16 : 36,
-                    color: '#0f1720',
-                    fontSize: isMobile ? 11 : 15,
-                    lineHeight: 1.35,
-                  }}
-                >
-                  <div style={{ display: 'grid', gap: isMobile ? 5 : 8 }}>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Triple+:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-5 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Double:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-3 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Bogey:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-1 pts</span></div>
-                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Par:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>.5 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Birdie:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>3 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Eagle:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>8 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Albatross:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>13 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Ace:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
-                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>3 Birdie Streak:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>4 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>No Bogey Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Tourn Low Rnd:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
-                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Rnd 1 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Rnd 2 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Rnd 3 Leader:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                  </div>
-                  <div style={{ display: 'grid', gap: isMobile ? 5 : 8 }}>
-                    <div style={{ display: 'grid', gap: isMobile ? 5 : 8 }}>
-                      <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><span style={{ marginRight: 6 }}>{'🥇'}</span><strong>1st Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>40 pts</span></div>
-                      <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><span style={{ marginRight: 6 }}>{'🥈'}</span><strong>2nd Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>25 pts</span></div>
-                      <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><span style={{ marginRight: 6 }}>{'🥉'}</span><strong>3rd Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>20 pts</span></div>
+            {(() => {
+              const scoringHBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
+              const posColor = selectedTournament === 'masters' ? '#2c6449' : '#173b63';
+              const isGoldTheme = selectedTournament === 'open';
+              const sectionHeaderBg = selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'masters' ? '#2c6449' : (selectedTournament === 'pga' || selectedTournament === 'us-open' || selectedTournament === 'open') ? '#173b63' : '#f0f4f8';
+              const sectionHeaderColor = sectionHeaderBg === '#f0f4f8' ? '#607282' : '#fff';
+              const group = (title: string, items: Array<[string, string, boolean?]>) => (
+                <div style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 10, border: '1px solid #b8c8d8', overflow: 'hidden', marginBottom: 7 }}>
+                  <div style={{ fontSize: 9, fontWeight: 800, color: sectionHeaderColor, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 10px 4px', background: sectionHeaderBg, borderBottom: '1px solid #e2eaf2' }}>{title}</div>
+                  {items.map(([label, pts, neg], i) => (
+                    <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 10px', borderBottom: i < items.length - 1 ? (isGoldTheme ? '1px solid rgba(0,0,0,0.08)' : '1px solid #f0f3f6') : 'none' }}>
+                      <span style={{ fontWeight: 600, fontSize: isMobile ? 11 : 12, color: '#000000' }}>{label}</span>
+                      <span style={{ fontWeight: 800, fontSize: isMobile ? 12 : 13, color: neg ? '#cc2944' : posColor }}>{pts}</span>
                     </div>
-                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>4th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>18 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>5th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>16 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>6th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>14 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>7th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>12 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>8th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>10 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>9th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>9 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>10th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>8 pts</span></div>
-                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>11-15th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>7 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>16-20th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>6 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>21-25th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>5 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>26-30th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>3 pts</span></div>
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>31-40th Place:</strong> <span style={{ color: '#16a34a', fontWeight: 500 }}>1 pts</span></div>
-                    <div style={{ margin: '4px 0 2px', borderTop: '2px solid #d7dee6', width: '78%' }} />
-                    <div style={{ fontSize: isMobile ? 11 : 15, fontWeight: 800 }}><strong>Cut Players:</strong> <span style={{ color: '#dc2626', fontWeight: 500 }}>-10 pts</span></div>
-                  </div>
+                  ))}
                 </div>
-              </div>
-            </section>
+              );
+              return (
+                <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
+                  <div style={{ background: scoringHBg, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px', display: 'flex', alignItems: 'baseline', gap: 10 }}>
+                    <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Points are awarded as follows</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>Scoring</div>
+                  </div>
+                  <div style={{ padding: isMobile ? 14 : 22 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: isMobile ? 6 : 10, alignItems: 'start' }}>
+                      <div>
+                        {group('Strokes', [['Triple+', '−5 pts', true], ['Double', '−3 pts', true], ['Bogey', '−1 pts', true], ['Par', '+.5 pts'], ['Birdie', '+3 pts'], ['Eagle', '+8 pts'], ['Hole in One', '+10 pts'], ['Albatross', '+13 pts']])}
+                        {group('Bonuses', [['3 Birdie Streak', '+4 pts'], ['No Bogey Rnd', '+5 pts'], ['Tourn Low Rnd', '+6 pts']])}
+                        {group('Round Leaders', [['Rnd 1 Leader', '+5 pts'], ['Rnd 2 Leader', '+5 pts'], ['Rnd 3 Leader', '+5 pts']])}
+                      </div>
+                      <div>
+                        {group('Finishing Position', [['🥇 1st Place', '+40 pts'], ['🥈 2nd Place', '+25 pts'], ['🥉 3rd Place', '+20 pts'], ['4th Place', '+18 pts'], ['5th Place', '+16 pts'], ['6th Place', '+14 pts'], ['7th Place', '+12 pts'], ['8th Place', '+10 pts'], ['9th Place', '+9 pts'], ['10th Place', '+8 pts'], ['11–15th', '+7 pts'], ['16–20th', '+6 pts'], ['21–25th', '+5 pts'], ['26–30th', '+3 pts'], ['31–40th', '+1 pt'], ['Missed Cut', '−10 pts', true]])}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              );
+            })()}
 
           </main>
         )}
