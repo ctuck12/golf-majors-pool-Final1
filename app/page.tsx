@@ -5464,9 +5464,8 @@ export default function Page() {
 
             {/* ── Card 1: How It Works ── */}
             <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
-              <div style={{ background: '#173b63', padding: isMobile ? '11px 14px 9px' : '13px 22px 11px', display: 'flex', alignItems: 'baseline', gap: 10 }}>
+              <div style={{ background: headerBg, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px' }}>
                 <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Roster &amp; Entry Details</div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>How It Works</div>
               </div>
               <div style={{ padding: isMobile ? 14 : 22 }}>
                 <div style={{ display: 'grid', gap: 0 }}>
@@ -5488,9 +5487,8 @@ export default function Page() {
 
             {/* ── Card 2: Entry & Contact ── */}
             <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
-              <div style={{ background: '#173b63', padding: isMobile ? '11px 14px 9px' : '13px 22px 11px', display: 'flex', alignItems: 'baseline', gap: 10 }}>
+              <div style={{ background: headerBg, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px' }}>
                 <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Entry &amp; Contact</div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>Join the Pool</div>
               </div>
               <div style={{ padding: isMobile ? 14 : 22, display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? 7 : 10 }}>
                 <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff' }}>
@@ -5537,9 +5535,8 @@ export default function Page() {
               );
               return (
                 <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
-                  <div style={{ background: scoringHBg, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px', display: 'flex', alignItems: 'baseline', gap: 10 }}>
+                  <div style={{ background: headerBg, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px' }}>
                     <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Points are awarded as follows</div>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>Scoring</div>
                   </div>
                   <div style={{ padding: isMobile ? 14 : 22 }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: isMobile ? 6 : 10, alignItems: 'start' }}>
