@@ -3968,13 +3968,19 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 24 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1, marginTop: isMobile ? -2 : 0 }}>Leaderboard</span>
                       </div>
                     ) : tournament.id === 'pga' ? (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 6 : 10, width: '100%' }}>
-                        <img src="/pga-tab-logo.png" alt="PGA" style={{ height: isMobile ? 50 : 58, objectFit: 'contain', flexShrink: 0, margin: isMobile ? '-11px 0' : '-14px 0' }} />
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 7 : 10, width: '100%' }}>
+                        <img src="/pga-tab-logo.png" alt="PGA" style={{ height: isMobile ? 32 : 38, objectFit: 'contain', flexShrink: 0 }} />
+                        <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1 }}>Leaderboard</span>
                       </div>
                     ) : tournament.id === 'masters' ? (
                       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: isMobile ? 6 : 10, width: '100%' }}>
                         <img src="/masters-tab-logo.png" alt="Masters" style={{ height: isMobile ? 38 : 46, objectFit: 'contain', flexShrink: 0, marginTop: isMobile ? '-6px' : '-8px' }} />
                         <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#2c6449', lineHeight: 1 }}>Leaderboard</span>
+                      </div>
+                    ) : tournament.id === 'open' ? (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 7 : 10, width: '100%' }}>
+                        <img src="/open-tab-logo.png" alt="The Open" style={{ height: isMobile ? 32 : 38, objectFit: 'contain', flexShrink: 0 }} />
+                        <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1 }}>Leaderboard</span>
                       </div>
                     ) : tournament.id === 'players' ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 6 : 10, width: '100%', marginTop: isMobile ? -36 : 0, marginBottom: isMobile ? -36 : 0 }}>
