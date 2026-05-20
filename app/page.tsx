@@ -5816,7 +5816,7 @@ export default function Page() {
                     width: isMobile ? 52 : 82,
                     height: isMobile ? 52 : 82,
                     borderRadius: isMobile ? 12 : 18,
-                    background: entriesTournamentSolid,
+                    background: entriesTournamentBg,
                     color: '#fff',
                     display: 'flex',
                     alignItems: 'center',
