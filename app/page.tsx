@@ -5469,19 +5469,6 @@ export default function Page() {
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>How It Works</div>
               </div>
               <div style={{ padding: isMobile ? 14 : 22 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: isMobile ? 7 : 10, marginBottom: isMobile ? 14 : 18 }}>
-                  {([
-                    { label: 'Salary Cap', value: '$50K' },
-                    { label: 'Roster Size', value: '6 Golfers' },
-                    { label: 'Tournaments', value: '5 Events' },
-                    { label: 'Pays Out', value: 'Top 3' },
-                  ] as const).map(({ label, value }) => (
-                    <div key={label} style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff' }}>
-                      <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>{label}</div>
-                      <div style={{ marginTop: 3, fontSize: isMobile ? 13 : 17, fontWeight: 900, color: '#173b63' }}>{value}</div>
-                    </div>
-                  ))}
-                </div>
                 <div style={{ display: 'grid', gap: 0 }}>
                   {([
                     <>For each major tournament and The Players Championship, members select <strong>6 golfers</strong>. Each golfer has a salary assigned based on their odds to win.</>,
