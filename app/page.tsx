@@ -2701,6 +2701,18 @@ export default function Page() {
   const formatPayoutAmount = (value: number | undefined) =>
     typeof value === 'number' && Number.isFinite(value) ? `$${value.toLocaleString()}` : '--';
 
+  const headerBg =
+    selectedTournament === 'us-open' ? 'linear-gradient(135deg, #BE3436 0%, #8c1c2e 100%)' :
+    selectedTournament === 'masters' ? 'linear-gradient(135deg, #2c6449 0%, #1a3d2b 100%)' :
+    selectedTournament === 'pga' ? 'linear-gradient(135deg, #B09963 0%, #7a6a3e 100%)' :
+    'linear-gradient(135deg, #173b63 0%, #0e2440 100%)';
+
+  const headerTabActiveColor =
+    selectedTournament === 'us-open' ? '#63d9ea' :
+    selectedTournament === 'masters' ? '#F3E44D' :
+    selectedTournament === 'pga' ? '#173b63' :
+    '#63d9ea';
+
   if (sessionLoading && !sessionUser) {
     return (
       <div
@@ -2713,7 +2725,7 @@ export default function Page() {
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '12px 10px 32px' : '32px 20px 40px' }}>
           <header
             style={{
-              background: 'linear-gradient(135deg, #BE3436 0%, #8c1c2e 100%)',
+              background: headerBg,
               color: '#fff',
               borderRadius: 28,
               padding: isMobile ? '10px 12px' : '10px 28px',
@@ -2765,7 +2777,7 @@ export default function Page() {
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '12px 10px 32px' : '32px 20px 40px' }}>
         <header
           style={{
-            background: 'linear-gradient(135deg, #BE3436 0%, #8c1c2e 100%)',
+            background: headerBg,
             color: '#fff',
             borderRadius: 28,
             padding: isMobile ? (sessionUser ? '0px 12px 2px' : '2px 12px') : (sessionUser ? '10px 28px 6px' : '10px 28px'),
@@ -2817,9 +2829,9 @@ export default function Page() {
                       onClick={() => handleMainTabChange(tab, { refreshAfterChange: true })}
                       style={{
                         border: 'none',
-                        borderBottom: active ? '3px solid #63d9ea' : '3px solid transparent',
+                        borderBottom: active ? `3px solid ${headerTabActiveColor}` : '3px solid transparent',
                         background: 'transparent',
-                        color: active ? '#63d9ea' : '#ffffff',
+                        color: active ? headerTabActiveColor : '#ffffff',
                         padding: isMobile ? '6px 10px 8px' : '7px 12px 9px',
                         fontSize: isMobile ? 13 : 15,
                         fontWeight: 800,
