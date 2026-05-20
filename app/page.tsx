@@ -5478,7 +5478,7 @@ export default function Page() {
 
         {mainTab === 'Details' && (
           <main style={{ marginTop: isMobile ? 12 : 24 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 2fr', gap: isMobile ? 10 : 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 2fr', gap: isMobile ? 10 : 16, alignItems: 'start' }}>
 
               {/* ── Left column: Cards 1 + 2 ── */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 10 : 16 }}>
@@ -5506,12 +5506,12 @@ export default function Page() {
                 </section>
 
                 {/* ── Card 2: Entry & Contact ── */}
-                <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, flex: 1 }}>
+                <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}` }}>
                   <div style={{ padding: isMobile ? '12px 14px 0' : '16px 22px 0' }}>
                     <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 3 : 4 }}>Join the Pool</div>
                     <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: '#0f1720', marginBottom: isMobile ? 10 : 14 }}>Entry Fee &amp; Contact</div>
                   </div>
-                  <div style={{ padding: isMobile ? '0 14px 14px' : '0 22px 22px', display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr', gap: isMobile ? 7 : 10 }}>
+                  <div style={{ padding: isMobile ? '0 14px 14px' : '0 22px 22px', display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? 7 : 10 }}>
                     <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff' }}>
                       <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>Entry Fee</div>
                       <div style={{ marginTop: 4, fontSize: isMobile ? 22 : 30, fontWeight: 900, color: '#173b63' }}>$30</div>
@@ -5524,7 +5524,7 @@ export default function Page() {
                         ) : '@claytont743'}
                       </div>
                     </div>
-                    <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff', gridColumn: '1 / -1' }}>
+                    <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff', gridColumn: isMobile ? '1 / -1' : undefined }}>
                       <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>Questions</div>
                       <div style={{ marginTop: 4, fontSize: isMobile ? 13 : 15, fontWeight: 800, color: '#173b63' }}>Clayton Tucker</div>
                       <div style={{ fontSize: isMobile ? 11 : 13, color: '#5b6b79', marginTop: 2 }}>
