@@ -2537,6 +2537,7 @@ export default function Page() {
         setMyEntriesEditorOpen(false);
         setMyEntriesDetailView('none');
       } else if (tab === 'My Entries') {
+        setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date()), new Date()));
         setMyEntriesEditorOpen(false);
         setMyEntriesDetailView('none');
         setSaveMessage('');
@@ -2546,6 +2547,7 @@ export default function Page() {
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
       } else if (tab === 'Details') {
+        setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date()), new Date()));
         setMyEntriesEditorOpen(false);
         setMyEntriesDetailView('none');
         setSaveMessage('');
@@ -2555,6 +2557,7 @@ export default function Page() {
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
       } else if (tab === 'Commissioner Hub') {
+        setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date()), new Date()));
         setMyEntriesEditorOpen(false);
         setMyEntriesDetailView('none');
         setSaveMessage('');
