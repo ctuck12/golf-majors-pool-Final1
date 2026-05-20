@@ -7693,7 +7693,7 @@ export default function Page() {
           const lowToPar = lowRawScore !== null ? lowRawScore - coursePar : null;
           const lowToParLabel = lowToPar === null ? '' : lowToPar === 0 ? ' (E)' : lowToPar < 0 ? ` (${lowToPar})` : ` (+${lowToPar})`;
           const bpColor = selectedTournament === 'pga' ? '#BE3436' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#1e4d8c';
-          const catHeaderColor = selectedTournament === 'masters' ? '#2c6449' : '#173b63';
+          const catHeaderColor = selectedTournament === 'masters' ? '#2c6449' : (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '#1e4d8c' : '#173b63';
           const bpHeaderBg = selectedTournament === 'pga' ? '#BE3436' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
 
           return (
