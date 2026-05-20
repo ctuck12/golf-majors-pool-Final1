@@ -7133,11 +7133,11 @@ export default function Page() {
               {(() => {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
                 const posColor = selectedTournament === 'masters' ? '#2c6449' : '#173b63';
-                const sec = (label: string) => <div style={{ fontSize: 10, fontWeight: 800, color: '#8fa0b0', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 6, marginBottom: 2 }}>{label}</div>;
+                const sec = (label: string) => <div style={{ fontSize: 9, fontWeight: 800, color: '#8fa0b0', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '10px 0 3px', borderBottom: '1.5px solid #d1dce6', marginBottom: 1 }}>{label}</div>;
                 const row = (label: string, pts: string, neg = false) => (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', border: '1px solid #e6edf1', borderRadius: 10, padding: isMobile ? '6px 10px' : '7px 12px', marginBottom: 4 }}>
-                    <div style={{ fontWeight: 700, fontSize: isMobile ? 11 : 12, color: '#0f1720' }}>{label}</div>
-                    <div style={{ fontWeight: 800, fontSize: isMobile ? 12 : 13, color: neg ? '#cc2944' : posColor }}>{pts}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 2px', borderBottom: '1px solid #eef1f5' }}>
+                    <span style={{ fontWeight: 600, fontSize: isMobile ? 11 : 12, color: '#374151' }}>{label}</span>
+                    <span style={{ fontWeight: 800, fontSize: isMobile ? 11 : 12, color: neg ? '#cc2944' : posColor }}>{pts}</span>
                   </div>
                 );
                 return (
