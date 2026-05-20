@@ -7260,9 +7260,7 @@ export default function Page() {
                             const hasPrev = scorecardData.rounds.some(r => r.round < rnd.round && r.holes.length > 0);
                             return rnd && rnd.score != null && rnd.score !== '' ? (
                               <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: roundColor, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                                {selectedTournament === 'masters' ? (
-                                  <span style={{ background: '#F3E44D', borderRadius: 999, padding: isMobile ? '2.5px 7.5px' : '3px 8px', color: '#fff', fontWeight: 800, fontSize: isMobile ? 8 : 9, letterSpacing: '0.06em', textTransform: 'uppercase', WebkitTextStroke: '0.5px #000', boxShadow: '0 1px 5px rgba(180,150,0,0.3)' }}>Round {rnd.round}</span>
-                                ) : <>Round {rnd.round}</>}
+                                Round {rnd.round}
                                 <span style={{ fontWeight: 600, color: '#fff', fontSize: isMobile ? 10 : 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
                                 {hasPrev && (
                                   <button
