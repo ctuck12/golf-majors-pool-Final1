@@ -3421,8 +3421,8 @@ export default function Page() {
                     onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('full'); setSelectedLeaderboardPlayerId(null); setLeaderboardSortMode('default'); setLeaderboardPickedSort('default'); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
                     style={{
                       border: active ? '1px solid #d7e0e8' : '1px solid rgba(0,0,0,0.1)',
-                      borderBottom: active ? '1px solid #fff' : '1px solid rgba(0,0,0,0.1)',
-                      background: active ? '#fff' : 'transparent',
+                      borderBottom: active ? (item.id === 'pga' ? '1px solid #173b63' : '1px solid #fff') : '1px solid rgba(0,0,0,0.1)',
+                      background: active ? (item.id === 'pga' ? '#173b63' : '#fff') : 'transparent',
                       color: active ? '#1f2f42' : '#46bfd1',
                       borderRadius: '10px 10px 0 0',
                       padding: isMobile ? '6px 8px 5px' : '10px 12px 9px',
