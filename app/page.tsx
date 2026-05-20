@@ -2817,8 +2817,6 @@ export default function Page() {
                       onClick={() => handleMainTabChange(tab, { refreshAfterChange: true })}
                       style={{
                         border: 'none',
-                        border: 'none',
-                        borderBottom: 'none',
                         background: active ? 'rgba(23,59,99,0.85)' : 'transparent',
                         borderRadius: 20,
                         color: '#ffffff',
