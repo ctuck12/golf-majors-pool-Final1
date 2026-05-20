@@ -2724,11 +2724,7 @@ export default function Page() {
 
   const salaryColor = entriesTournamentId === 'masters' ? '#2c6449' : '#3f73ad';
 
-  const headerTabActiveColor =
-    selectedTournament === 'masters' ? '#F3E44D' :
-    selectedTournament === 'players' ? '#E0AB43' :
-    selectedTournament === 'open' ? '#F4BC41' :
-    '#63d9ea';
+  const headerTabActiveColor = '#63d9ea';
 
   if (sessionLoading && !sessionUser) {
     return (
