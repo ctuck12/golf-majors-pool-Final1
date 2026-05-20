@@ -2723,7 +2723,7 @@ export default function Page() {
           >
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <img
-                src="/golf-majors-pool-logo-v12.png"
+                src="/golf-majors-pool-logo-v11.png"
                 alt="Golf Majors Pool"
                 style={{
                   display: 'block',
@@ -2775,7 +2775,7 @@ export default function Page() {
         >
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <img
-              src="/golf-majors-pool-logo-v12.png"
+              src="/golf-majors-pool-logo-v11.png"
               alt="Golf Majors Pool"
               style={{
                 display: 'block',
