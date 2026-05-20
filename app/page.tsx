@@ -1015,7 +1015,7 @@ function fieldStyle() {
   return {
     width: '100%',
     borderRadius: 14,
-    border: '1px solid #b0c4d8',
+    border: '1px solid #d7e0e8',
     padding: '12px 14px',
     fontSize: 16,
     background: '#fff',
@@ -3006,7 +3006,7 @@ export default function Page() {
                           style={{
                             flex: 1,
                             minWidth: 0,
-                            border: '1px solid #b0c4d8',
+                            border: '1px solid #d7e0e8',
                             borderRadius: 12,
                             padding: '12px 14px',
                             background: '#fff',
@@ -3071,7 +3071,7 @@ export default function Page() {
                       style={{
                         flex: 1,
                         minWidth: 0,
-                        border: '1px solid #b0c4d8',
+                        border: '1px solid #d7e0e8',
                         borderRadius: 12,
                         padding: '12px 14px',
                         background: '#fff',
@@ -3139,7 +3139,7 @@ export default function Page() {
                   placeholder="Email"
                   style={fieldStyle()}
                 />
-                <div style={{ display: 'flex', alignItems: 'center', borderRadius: 14, border: '1px solid #b0c4d8', background: '#fff' }}>
+                <div style={{ display: 'flex', alignItems: 'center', borderRadius: 14, border: '1px solid #d7e0e8', background: '#fff' }}>
                   <input
                     type={showAuthPassword ? 'text' : 'password'}
                     value={authMode === 'login' ? loginForm.password : registerForm.password}
@@ -3273,7 +3273,7 @@ export default function Page() {
                         <div style={{ fontSize: 14, color: '#5b6b79', marginBottom: 12 }}>
                           Account found for <strong>{forgotEmail}</strong>. Enter your new password below.
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', borderRadius: 14, border: '1px solid #b0c4d8', background: '#fff' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', borderRadius: 14, border: '1px solid #d7e0e8', background: '#fff' }}>
                           <input
                             type={showForgotNewPassword ? 'text' : 'password'}
                             value={forgotNewPassword}
@@ -3326,7 +3326,7 @@ export default function Page() {
                     <button
                       type="button"
                       onClick={() => setForgotOpen(false)}
-                      style={{ marginTop: 12, width: '100%', border: '1px solid #b0c4d8', borderRadius: 14, padding: '11px 16px', background: '#fff', color: '#5b6b79', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                      style={{ marginTop: 12, width: '100%', border: '1px solid #d7e0e8', borderRadius: 14, padding: '11px 16px', background: '#fff', color: '#5b6b79', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                     >
                       Cancel
                     </button>
@@ -3381,7 +3381,7 @@ export default function Page() {
                 overscrollBehaviorX: 'contain',
                 overscrollBehaviorY: 'none',
                 touchAction: 'pan-x',
-                borderBottom: '1px solid #b0c4d8',
+                borderBottom: '1px solid #d7e0e8',
               }}
             >
               {TOURNAMENTS.map((item, idx) => {
@@ -3391,10 +3391,10 @@ export default function Page() {
                     key={item.id}
                     onClick={() => { setSelectedTournament(item.id); setLeaderboardSearch(''); setLeaderboardViewMode('full'); setSelectedLeaderboardPlayerId(null); setLeaderboardSortMode('default'); setLeaderboardPickedSort('default'); setShowCutInfo(false); setFeedRefreshNonce((v) => v + 1); void refreshCurrentSession(); }}
                     style={{
-                      border: active ? '1px solid #b0c4d8' : '1px solid rgba(0,0,0,0.1)',
+                      border: active ? '1px solid #d7e0e8' : '1px solid rgba(0,0,0,0.1)',
                       borderBottom: active ? '1px solid #fff' : '1px solid rgba(0,0,0,0.1)',
                       background: active ? '#fff' : 'transparent',
-                      color: active ? '#1f2f42' : '#4d80b8',
+                      color: active ? '#1f2f42' : '#46bfd1',
                       borderRadius: '10px 10px 0 0',
                       padding: isMobile ? '6px 8px 5px' : '10px 12px 9px',
                       width: isMobile ? 92 : TOURNAMENT_CARD_WIDTH,
@@ -4699,7 +4699,7 @@ export default function Page() {
                     <button
                       onClick={() => setMyEntriesMenuOpen((current) => !current)}
                       style={{
-                        border: '1px solid #b0c4d8',
+                        border: '1px solid #d7e0e8',
                         borderRadius: 10,
                         width: isMobile ? 34 : 48,
                         height: isMobile ? 34 : 48,
@@ -4719,7 +4719,7 @@ export default function Page() {
                           right: 0,
                           width: 240,
                           borderRadius: 16,
-                          border: '1px solid #b0c4d8',
+                          border: '1px solid #d7e0e8',
                           background: '#fff',
                           boxShadow: '0 18px 40px rgba(9, 34, 51, 0.14)',
                           padding: 8,
@@ -4807,7 +4807,7 @@ export default function Page() {
                     style={{
                       marginTop: 20,
                       borderRadius: 18,
-                      border: '1px solid #b0c4d8',
+                      border: '1px solid #d7e0e8',
                       background: '#f8fbfd',
                       padding: 18,
                       display: 'grid',
@@ -4819,7 +4819,7 @@ export default function Page() {
                       <button
                         onClick={() => setMyEntriesDetailView('none')}
                         style={{
-                          border: '1px solid #b0c4d8',
+                          border: '1px solid #d7e0e8',
                           borderRadius: 12,
                           padding: '10px 14px',
                           background: '#fff',
@@ -4888,7 +4888,7 @@ export default function Page() {
                     style={{
                       marginTop: 20,
                       borderRadius: 18,
-                      border: '1px solid #b0c4d8',
+                      border: '1px solid #d7e0e8',
                       background: '#f8fbfd',
                       padding: 18,
                       display: 'grid',
@@ -4900,7 +4900,7 @@ export default function Page() {
                       <button
                         onClick={() => setMyEntriesDetailView('none')}
                         style={{
-                          border: '1px solid #b0c4d8',
+                          border: '1px solid #d7e0e8',
                           borderRadius: 12,
                           padding: '10px 14px',
                           background: '#fff',
@@ -5004,7 +5004,7 @@ export default function Page() {
                             width: 340,
                             maxWidth: '100%',
                             borderRadius: 12,
-                            border: '1px solid #b0c4d8',
+                            border: '1px solid #d7e0e8',
                             background: '#fff',
                             padding: '0 18px',
                             display: 'flex',
@@ -5084,7 +5084,7 @@ export default function Page() {
                           key={`placeholder-slot-${index + 1}`}
                           style={{
                             borderRadius: 14,
-                            border: '1px solid #b0c4d8',
+                            border: '1px solid #d7e0e8',
                             background: '#fff',
                             padding: isMobile ? '16px 16px' : '16px 18px',
                           }}
@@ -5155,7 +5155,7 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'grid', gap: 18 }}>
-                    <div style={{ border: '1px solid #b0c4d8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
+                    <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
                       <div
                         style={{
                           padding: isMobile ? 12 : 22,
@@ -5165,7 +5165,7 @@ export default function Page() {
                           gap: 12,
                           alignItems: isMobile ? 'flex-start' : 'center',
                           flexWrap: 'wrap',
-                          borderBottom: '1px solid #b0c4d8',
+                          borderBottom: '1px solid #d7e0e8',
                         }}
                       >
                         <div>
@@ -5195,7 +5195,7 @@ export default function Page() {
                             display: 'flex',
                             alignItems: 'center',
                             gap: 10,
-                            border: '1px solid #b0c4d8',
+                            border: '1px solid #d7e0e8',
                             borderRadius: 14,
                             background: '#fff',
                             padding: '0 14px',
@@ -5283,7 +5283,7 @@ export default function Page() {
                   </div>
 
                   <div style={{ display: 'grid', gap: 18 }}>
-                    <div style={{ border: '1px solid #b0c4d8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: '#fff' }}>
+                    <div style={{ border: '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: '#fff' }}>
                       <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
                       <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 34, fontWeight: 900, color: '#1f8d4e' }}>${salaryRemaining.toLocaleString()}</div>
                       <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: '#31424f' }}>
@@ -5300,7 +5300,7 @@ export default function Page() {
                           <div
                             key={`entries-roster-slot-${index}`}
                             style={{
-                              border: '1px solid #b0c4d8',
+                              border: '1px solid #d7e0e8',
                               borderRadius: isMobile ? 14 : 14,
                               background: '#fff',
                               minHeight: isMobile ? 100 : undefined,
@@ -5770,7 +5770,7 @@ export default function Page() {
                 onClick={() => setCommissionerConsoleView('members')}
                 style={{
                   width: '100%',
-                  border: '1px solid #b0c4d8',
+                  border: '1px solid #d7e0e8',
                   borderRadius: isMobile ? 14 : 22,
                   background: '#fff',
                   padding: isMobile ? 12 : 22,
@@ -5829,7 +5829,7 @@ export default function Page() {
                 <div
                   style={{
                     flex: '1 1 0',
-                    border: '1px solid #b0c4d8',
+                    border: '1px solid #d7e0e8',
                     borderRadius: isMobile ? 12 : 20,
                     padding: isMobile ? 10 : 18,
                     background: '#f8fbfd',
@@ -5855,7 +5855,7 @@ export default function Page() {
                 <div
                   style={{
                     flex: '1 1 0',
-                    border: '1px solid #b0c4d8',
+                    border: '1px solid #d7e0e8',
                     borderRadius: isMobile ? 12 : 20,
                     padding: isMobile ? 10 : 18,
                     background: '#f8fbfd',
@@ -5896,7 +5896,7 @@ export default function Page() {
                   <button
                     onClick={() => { setCommissionerConsoleView('dashboard'); setShowAddMemberForm(false); }}
                     style={{
-                      border: '1px solid #b0c4d8',
+                      border: '1px solid #d7e0e8',
                       borderRadius: 999,
                       background: '#fff',
                       width: isMobile ? 32 : 44,
@@ -5934,7 +5934,7 @@ export default function Page() {
               {showAddMemberForm ? (
                 <div
                   style={{
-                    border: '1px solid #b0c4d8',
+                    border: '1px solid #d7e0e8',
                     borderRadius: 20,
                     padding: 18,
                     background: '#f8fbfd',
@@ -6041,7 +6041,7 @@ export default function Page() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
-                    border: '1px solid #b0c4d8',
+                    border: '1px solid #d7e0e8',
                     borderRadius: 12,
                     background: '#fff',
                     padding: isMobile ? '8px 10px' : '12px 14px',
@@ -6153,7 +6153,7 @@ export default function Page() {
                         <button
                           onClick={() => openCommissionerMemberModal(member.id)}
                           style={{
-                            border: '1px solid #b0c4d8',
+                            border: '1px solid #d7e0e8',
                             borderRadius: isMobile ? 10 : 14,
                             background: '#fff',
                             width: isMobile ? 34 : 48,
@@ -6190,7 +6190,7 @@ export default function Page() {
                     setCommissionerRosterMemberId(null);
                   }}
                   style={{
-                    border: '1px solid #b0c4d8',
+                    border: '1px solid #d7e0e8',
                     borderRadius: 999,
                     background: '#fff',
                     width: 44,
@@ -6217,7 +6217,7 @@ export default function Page() {
                 }}
               >
                 <div style={{ display: 'grid', gap: 18 }}>
-                  <div style={{ border: '1px solid #b0c4d8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
+                  <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
                     <div
                       style={{
                         padding: isMobile ? 12 : 22,
@@ -6227,7 +6227,7 @@ export default function Page() {
                         gap: 12,
                         alignItems: isMobile ? 'flex-start' : 'center',
                         flexWrap: 'wrap',
-                        borderBottom: '1px solid #b0c4d8',
+                        borderBottom: '1px solid #d7e0e8',
                       }}
                     >
                       <div>
@@ -6257,7 +6257,7 @@ export default function Page() {
                           display: 'flex',
                           alignItems: 'center',
                           gap: 10,
-                          border: '1px solid #b0c4d8',
+                          border: '1px solid #d7e0e8',
                           borderRadius: 14,
                           background: '#fff',
                           padding: '0 14px',
@@ -6345,7 +6345,7 @@ export default function Page() {
                 </div>
 
                 <div style={{ display: 'grid', gap: 18 }}>
-                  <div style={{ border: '1px solid #b0c4d8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: '#fff' }}>
+                  <div style={{ border: '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: '#fff' }}>
                     <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
                     <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 34, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
                     <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: '#31424f' }}>
@@ -6366,7 +6366,7 @@ export default function Page() {
                         <div
                           key={`commissioner-roster-slot-${index}`}
                           style={{
-                            border: '1px solid #b0c4d8',
+                            border: '1px solid #d7e0e8',
                             borderRadius: isMobile ? 14 : 14,
                             background: '#fff',
                             minHeight: isMobile ? 100 : undefined,
@@ -6509,7 +6509,7 @@ export default function Page() {
                 <button
                   onClick={() => setCommissionerMemberModalOpen(false)}
                   style={{
-                    border: '1px solid #b0c4d8',
+                    border: '1px solid #d7e0e8',
                     borderRadius: 999,
                     background: '#fff',
                     width: 40,
@@ -6527,7 +6527,7 @@ export default function Page() {
                   <button
                     onClick={() => setCommissionerMemberModalView('displayName')}
                     style={{
-                      border: '1px solid #b0c4d8',
+                      border: '1px solid #d7e0e8',
                       borderRadius: 16,
                       background: '#fff',
                       padding: '16px 18px',
@@ -6541,7 +6541,7 @@ export default function Page() {
                   <button
                     onClick={() => setCommissionerMemberModalView('email')}
                     style={{
-                      border: '1px solid #b0c4d8',
+                      border: '1px solid #d7e0e8',
                       borderRadius: 16,
                       background: '#fff',
                       padding: '16px 18px',
@@ -6555,7 +6555,7 @@ export default function Page() {
                   <button
                     onClick={() => openCommissionerMemberPicks(selectedCommissionerMember.id)}
                     style={{
-                      border: '1px solid #b0c4d8',
+                      border: '1px solid #d7e0e8',
                       borderRadius: 16,
                       background: '#eef8fb',
                       padding: '16px 18px',
@@ -6610,7 +6610,7 @@ export default function Page() {
                   <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                     <button
                       onClick={() => setCommissionerMemberModalView('menu')}
-                      style={{ border: '1px solid #b0c4d8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
                     >
                       Cancel
                     </button>
@@ -6639,7 +6639,7 @@ export default function Page() {
                   <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                     <button
                       onClick={() => setCommissionerMemberModalView('menu')}
-                      style={{ border: '1px solid #b0c4d8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
                     >
                       Cancel
                     </button>
@@ -6668,7 +6668,7 @@ export default function Page() {
                   <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                     <button
                       onClick={() => setCommissionerMemberModalView('menu')}
-                      style={{ border: '1px solid #b0c4d8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
                     >
                       Cancel
                     </button>
@@ -6696,7 +6696,7 @@ export default function Page() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 10,
-                      border: '1px solid #b0c4d8',
+                      border: '1px solid #d7e0e8',
                       borderRadius: 16,
                       background: '#fff',
                       padding: '0 14px',
@@ -6713,7 +6713,7 @@ export default function Page() {
                   <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                     <button
                       onClick={() => setCommissionerMemberModalView('menu')}
-                      style={{ border: '1px solid #b0c4d8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 14, background: '#fff', padding: '12px 16px', fontWeight: 800, cursor: 'pointer' }}
                     >
                       Cancel
                     </button>
