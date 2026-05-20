@@ -2817,9 +2817,11 @@ export default function Page() {
                       onClick={() => handleMainTabChange(tab, { refreshAfterChange: true })}
                       style={{
                         border: 'none',
-                        borderBottom: active ? '4px solid #8ec4f0' : '4px solid transparent',
-                        background: 'transparent',
-                        color: active ? '#8ec4f0' : '#ffffff',
+                        border: 'none',
+                        borderBottom: 'none',
+                        background: active ? 'rgba(23,59,99,0.85)' : 'transparent',
+                        borderRadius: 20,
+                        color: '#ffffff',
                         padding: isMobile ? '6px 10px 8px' : '7px 12px 9px',
                         fontSize: isMobile ? 13 : 15,
                         fontWeight: 800,
