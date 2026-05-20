@@ -5478,7 +5478,7 @@ export default function Page() {
 
         {mainTab === 'Details' && (
           <main style={{ marginTop: isMobile ? 12 : 24 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 2fr', gap: isMobile ? 10 : 16, alignItems: 'start' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1.4fr', gap: isMobile ? 10 : 16, alignItems: isMobile ? 'start' : 'stretch' }}>
 
               {/* ── Left column: Cards 1 + 2 ── */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 10 : 16 }}>
@@ -5494,7 +5494,6 @@ export default function Page() {
                         <>Participants have a fixed salary cap of <strong>$50,000</strong> to build their 6-player roster. These golfers make up their entry for that specific tournament.</>,
                         <>Golfers <strong>can be picked more than once per season.</strong> Points are awarded hole-by-hole plus tournament standings. Cut players receive <strong>−10 pts.</strong></>,
                         <>All <strong>6 golfers</strong> on your roster contribute to your total score.</>,
-                        <>Enter your predicted winning score (e.g. 276) when submitting picks — this acts as a <strong>tiebreaker.</strong></>,
                         <><strong>1st, 2nd, and 3rd place pay out.</strong> Amounts vary based on the size of the pool field.</>,
                       ] as const).map((text, i, arr) => (
                         <div key={i} style={{ borderLeft: `3px solid ${headerSolid}`, paddingLeft: isMobile ? 10 : 14, paddingTop: isMobile ? 7 : 9, paddingBottom: isMobile ? 7 : 9, marginLeft: 2, borderBottom: i < arr.length - 1 ? '1px solid #f0f3f6' : 'none', fontSize: isMobile ? 12 : 14, color: '#374151', lineHeight: 1.55 }}>
@@ -5506,7 +5505,7 @@ export default function Page() {
                 </section>
 
                 {/* ── Card 2: Entry & Contact ── */}
-                <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}` }}>
+                <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, flex: isMobile ? undefined : 1 }}>
                   <div style={{ padding: isMobile ? '12px 14px 0' : '16px 22px 0' }}>
                     <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 3 : 4 }}>Join the Pool</div>
                     <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: '#0f1720', marginBottom: isMobile ? 10 : 14 }}>Entry Fee &amp; Contact</div>
