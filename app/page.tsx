@@ -2710,6 +2710,12 @@ export default function Page() {
     selectedTournament === 'pga' ? 'linear-gradient(135deg, #B09963 0%, #7a6a3e 100%)' :
     'linear-gradient(135deg, #173b63 0%, #0e2440 100%)';
 
+  const headerSolid =
+    selectedTournament === 'us-open' ? '#BE3436' :
+    selectedTournament === 'masters' ? '#2c6449' :
+    selectedTournament === 'pga' ? '#B09963' :
+    '#173b63';
+
   const entriesTournamentBg =
     entriesTournamentId === 'us-open' ? 'linear-gradient(135deg, #BE3436 0%, #8c1c2e 100%)' :
     entriesTournamentId === 'masters' ? 'linear-gradient(135deg, #2c6449 0%, #1a3d2b 100%)' :
@@ -5464,7 +5470,7 @@ export default function Page() {
 
             {/* ── Card 1: How It Works ── */}
             <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
-              <div style={{ background: headerBg, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px' }}>
+              <div style={{ background: headerSolid, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px' }}>
                 <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Roster &amp; Entry Details</div>
               </div>
               <div style={{ padding: isMobile ? 14 : 22 }}>
@@ -5487,7 +5493,7 @@ export default function Page() {
 
             {/* ── Card 2: Entry & Contact ── */}
             <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
-              <div style={{ background: headerBg, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px' }}>
+              <div style={{ background: headerSolid, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px' }}>
                 <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Entry &amp; Contact</div>
               </div>
               <div style={{ padding: isMobile ? 14 : 22, display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? 7 : 10 }}>
@@ -5535,7 +5541,7 @@ export default function Page() {
               );
               return (
                 <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
-                  <div style={{ background: headerBg, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px' }}>
+                  <div style={{ background: headerSolid, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px' }}>
                     <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Points are awarded as follows</div>
                   </div>
                   <div style={{ padding: isMobile ? 14 : 22 }}>
