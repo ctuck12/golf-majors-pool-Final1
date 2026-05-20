@@ -7102,7 +7102,7 @@ export default function Page() {
                         ? ''
                         : `Count: ${String(count)}`}
                     </div>
-                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#173b63' : '#173b63' }}>
+                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#c8860a' : selectedTournament === 'pga' ? '#1e4d8c' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#173b63' }}>
                       {formatPointValue(Number(points))}
                     </div>
                   </div>
