@@ -2,7 +2,7 @@ export const SCORING_RULES = {
   tripleOrWorse: -5,
   doubleBogey: -3,
   bogey: -1,
-  par: 1,
+  par: 0.5,
   birdie: 3,
   eagle: 8,
   albatross: 13,
