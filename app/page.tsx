@@ -6988,11 +6988,11 @@ export default function Page() {
                   </div>
                 )}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: isMobile ? '12px 14px' : '12px 16px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
-                <div style={{ color: '#173b63', fontSize: 14, fontWeight: 600 }}>
+                <div style={{ color: selectedTournament === 'masters' ? '#2e7d32' : '#173b63', fontSize: 14, fontWeight: 600 }}>
                   Total Holes Rem: <strong style={{ color: '#000' }}>{activeStandingEntry.holesRemaining}</strong>
                 </div>
                 <div style={{ fontSize: 15, fontWeight: 900, color: '#0f1720' }}>
-                  <span style={{ color: '#173b63' }}>Total:</span> <span style={{ color: '#000' }}>{formatPointValue(activeStandingEntry.rosterPoints)}</span>
+                  <span style={{ color: selectedTournament === 'masters' ? '#2e7d32' : '#173b63' }}>Total:</span> <span style={{ color: '#000' }}>{formatPointValue(activeStandingEntry.rosterPoints)}</span>
                 </div>
               </div>
             </div>
@@ -7260,7 +7260,9 @@ export default function Page() {
                             const hasPrev = scorecardData.rounds.some(r => r.round < rnd.round && r.holes.length > 0);
                             return rnd && rnd.score != null && rnd.score !== '' ? (
                               <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: roundColor, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                                Round {rnd.round}
+                                {selectedTournament === 'masters' ? (
+                                  <span style={{ background: '#F3E44D', borderRadius: 999, padding: isMobile ? '2.5px 7.5px' : '3px 8px', color: '#fff', fontWeight: 800, fontSize: isMobile ? 8 : 9, letterSpacing: '0.06em', textTransform: 'uppercase', WebkitTextStroke: '0.5px #000', boxShadow: '0 1px 5px rgba(180,150,0,0.3)' }}>Round {rnd.round}</span>
+                                ) : <>Round {rnd.round}</>}
                                 <span style={{ fontWeight: 600, color: '#fff', fontSize: isMobile ? 10 : 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
                                 {hasPrev && (
                                   <button
