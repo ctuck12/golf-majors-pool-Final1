@@ -7293,7 +7293,7 @@ export default function Page() {
                 const border = '1px solid #d1d9e0';
                 const thickBorder = '2px solid #9ab0c4';
 
-                const isGoldTab = selectedTournament === 'open' || selectedTournament === 'pga';
+                const isGoldTab = selectedTournament === 'open';
                 const baseCell: React.CSSProperties = {
                   border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap',
                   ...(isGoldTab ? { background: '#F4BC41' } : { background: '#fff' }),
@@ -7435,7 +7435,7 @@ export default function Page() {
 
                   const border = '1px solid #d1d9e0';
                   const thickBorder = '2px solid #9ab0c4';
-                  const isGoldTab = selectedTournament === 'open' || selectedTournament === 'pga';
+                  const isGoldTab = selectedTournament === 'open';
                   const isMastersTournament = selectedTournament === 'masters';
                   const isRedTotalTournament = selectedTournament === 'us-open' || selectedTournament === 'pga';
                   const baseCell: React.CSSProperties = { border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap', ...(isGoldTab ? { background: '#F4BC41' } : { background: '#fff' }) };
@@ -7552,7 +7552,7 @@ export default function Page() {
                   if (rounds.length === 0) return <div style={{ color: '#607282', fontSize: 14, padding: '16px 0' }}>No scorecard data available.</div>;
                   const border = '1px solid #d1d9e0';
                   const thickBorder = '2px solid #9ab0c4';
-                  const isGoldTab = selectedTournament === 'open' || selectedTournament === 'pga';
+                  const isGoldTab = selectedTournament === 'open';
                   const isMastersTournament = selectedTournament === 'masters';
                   const isRedTotalTournament = selectedTournament === 'us-open' || selectedTournament === 'pga';
                   const baseCell: React.CSSProperties = { border, padding: '6px 4px', textAlign: 'center', fontSize: 13, whiteSpace: 'nowrap', ...(isGoldTab ? { background: '#F4BC41' } : { background: '#fff' }) };
