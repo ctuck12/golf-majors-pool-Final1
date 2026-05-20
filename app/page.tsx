@@ -5494,7 +5494,7 @@ export default function Page() {
             <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}` }}>
               <div style={{ padding: isMobile ? '12px 14px 0' : '16px 22px 0' }}>
                 <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 3 : 4 }}>Join the Pool</div>
-                <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: '#0f1720', marginBottom: isMobile ? 10 : 14 }}>Entry &amp; Contact</div>
+                <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: '#0f1720', marginBottom: isMobile ? 10 : 14 }}>Entry Fee &amp; Contact</div>
               </div>
               <div style={{ padding: isMobile ? '0 14px 14px' : '0 22px 22px', display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? 7 : 10 }}>
                 <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff' }}>
@@ -5541,7 +5541,7 @@ export default function Page() {
               return (
                 <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}` }}>
                   <div style={{ padding: isMobile ? '12px 14px 0' : '16px 22px 0' }}>
-                    <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 3 : 4 }}>Scoring</div>
+                    <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 3 : 4 }}>Scoring System</div>
                     <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: '#0f1720', marginBottom: isMobile ? 10 : 14 }}>Points are awarded as follows</div>
                   </div>
                   <div style={{ padding: isMobile ? '0 14px 14px' : '0 22px 22px' }}>
