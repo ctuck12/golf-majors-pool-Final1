@@ -5482,7 +5482,7 @@ export default function Page() {
                     <>Enter your predicted winning score (e.g. 276) when submitting picks — this acts as a <strong>tiebreaker.</strong></>,
                     <><strong>1st, 2nd, and 3rd place pay out.</strong> Amounts vary based on the size of the pool field.</>,
                   ] as const).map((text, i, arr) => (
-                    <div key={i} style={{ borderLeft: '3px solid #63d9ea', paddingLeft: isMobile ? 10 : 14, paddingTop: isMobile ? 7 : 9, paddingBottom: isMobile ? 7 : 9, marginLeft: 2, borderBottom: i < arr.length - 1 ? '1px solid #f0f3f6' : 'none', fontSize: isMobile ? 12 : 14, color: '#374151', lineHeight: 1.55 }}>
+                    <div key={i} style={{ borderLeft: `3px solid ${headerSolid}`, paddingLeft: isMobile ? 10 : 14, paddingTop: isMobile ? 7 : 9, paddingBottom: isMobile ? 7 : 9, marginLeft: 2, borderBottom: i < arr.length - 1 ? '1px solid #f0f3f6' : 'none', fontSize: isMobile ? 12 : 14, color: '#374151', lineHeight: 1.55 }}>
                       {text}
                     </div>
                   ))}
@@ -5523,7 +5523,6 @@ export default function Page() {
 
             {/* ── Card 3: Scoring ── */}
             {(() => {
-              const scoringHBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
               const posColor = selectedTournament === 'masters' ? '#2c6449' : '#173b63';
               const isGoldTheme = selectedTournament === 'open';
               const sectionHeaderBg = selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'masters' ? '#2c6449' : (selectedTournament === 'pga' || selectedTournament === 'us-open' || selectedTournament === 'open') ? '#173b63' : '#f0f4f8';
@@ -5540,11 +5539,12 @@ export default function Page() {
                 </div>
               );
               return (
-                <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)' }}>
-                  <div style={{ background: headerSolid, padding: isMobile ? '11px 14px 9px' : '13px 22px 11px' }}>
-                    <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 900, color: '#fff' }}>Points are awarded as follows</div>
+                <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}` }}>
+                  <div style={{ padding: isMobile ? '12px 14px 0' : '16px 22px 0' }}>
+                    <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 3 : 4 }}>Scoring</div>
+                    <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: '#0f1720', marginBottom: isMobile ? 10 : 14 }}>Points are awarded as follows</div>
                   </div>
-                  <div style={{ padding: isMobile ? 14 : 22 }}>
+                  <div style={{ padding: isMobile ? '0 14px 14px' : '0 22px 22px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: isMobile ? 6 : 10, alignItems: 'start' }}>
                       <div>
                         {group('Strokes', [['Triple+', '−5 pts', true], ['Double', '−3 pts', true], ['Bogey', '−1 pts', true], ['Par', '+.5 pts'], ['Birdie', '+3 pts'], ['Eagle', '+8 pts'], ['Hole in One', '+10 pts'], ['Albatross', '+13 pts']])}
