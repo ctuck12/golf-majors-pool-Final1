@@ -4918,7 +4918,7 @@ export default function Page() {
                                       <img
                                         src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
                                         alt={player.name}
-                                        style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#fff', mixBlendMode: 'multiply' }}
+                                        style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#fff' }}
                                       />
                                       {displayName}
                                     </span>
