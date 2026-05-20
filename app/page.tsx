@@ -7296,7 +7296,7 @@ export default function Page() {
                 const isMastersTournament = selectedTournament === 'masters';
                 const isRedTotalTournament = selectedTournament === 'us-open' || selectedTournament === 'pga';
                 const subtotalCell: React.CSSProperties = {
-                  ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
+                  ...baseCell, fontWeight: 800, background: isMastersTournament ? '#dcfce7' : isGoldTab ? '#b8cfea' : '#e8f0f8', borderLeft: thickBorder, borderRight: thickBorder,
                 };
                 const totalCell: React.CSSProperties = {
                   ...baseCell, fontWeight: 900, background: isMastersTournament ? '#1a3d2b' : isRedTotalTournament ? '#1e3a5f' : '#1e3a5f', color: '#fff', borderLeft: thickBorder,
@@ -7305,7 +7305,7 @@ export default function Page() {
                   ...baseCell, fontWeight: 700, background: '#0f1720', color: '#fff', fontSize: 12,
                 };
                 const subtotalHeaderCell: React.CSSProperties = {
-                  ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder,
+                  ...holeHeaderCell, background: isMastersTournament ? '#2c6449' : isGoldTab ? '#1a3f6e' : '#2f5f96', borderLeft: thickBorder, borderRight: thickBorder,
                 };
                 const totalHeaderCell: React.CSSProperties = {
                   ...holeHeaderCell, background: isMastersTournament ? '#1a3d2b' : isRedTotalTournament ? '#1e3a5f' : '#1e3a5f', borderLeft: thickBorder,
