@@ -4213,7 +4213,7 @@ export default function Page() {
                                         })();
                                         return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
                                       })()}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked > 0 ? timesPicked : '–'}</span> : timesPicked > 0 ? timesPicked : '–'}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{(selectedTournament === 'open' || selectedTournament === 'pga') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked > 0 ? timesPicked : '–'}</span> : timesPicked > 0 ? timesPicked : '–'}</td>
                                     </tr>
                                     {rowIndex === cutLineIdx && (
                                       <tr style={{ background: 'transparent', borderBottom: 'none' }}>
@@ -4344,7 +4344,7 @@ export default function Page() {
                                         return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
                                       })()}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>
-                                        {selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked}</span> : timesPicked}
+                                        {(selectedTournament === 'open' || selectedTournament === 'pga') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked}</span> : timesPicked}
                                       </td>
                                     </tr>
                                     {rowIndex === cutLineIdx && (
