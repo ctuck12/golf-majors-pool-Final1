@@ -2716,6 +2716,12 @@ export default function Page() {
     entriesTournamentId === 'pga' ? 'linear-gradient(135deg, #B09963 0%, #7a6a3e 100%)' :
     'linear-gradient(135deg, #173b63 0%, #0e2440 100%)';
 
+  const entriesTournamentSolid =
+    entriesTournamentId === 'us-open' ? '#BE3436' :
+    entriesTournamentId === 'masters' ? '#2c6449' :
+    entriesTournamentId === 'pga' ? '#B09963' :
+    '#173b63';
+
   const headerTabActiveColor =
     selectedTournament === 'masters' ? '#F3E44D' :
     '#63d9ea';
@@ -3801,7 +3807,7 @@ export default function Page() {
                             border: 'none',
                             borderRadius: 16,
                             padding: isMobile ? '10px 16px' : '11px 18px',
-                            background: entriesTournamentBg,
+                            background: entriesTournamentSolid,
                             color: '#fff',
                             fontSize: isMobile ? 14 : 14,
                             fontWeight: 900,
@@ -4659,7 +4665,7 @@ export default function Page() {
                             border: 'none',
                             borderRadius: 16,
                             padding: isMobile ? '10px 16px' : '11px 18px',
-                            background: entriesLocked ? '#b0bec5' : entriesTournamentBg,
+                            background: entriesLocked ? '#b0bec5' : entriesTournamentSolid,
                             color: '#fff',
                             fontSize: isMobile ? 14 : 14,
                             fontWeight: 900,
@@ -4684,7 +4690,7 @@ export default function Page() {
                           border: 'none',
                           borderRadius: 12,
                           padding: isMobile ? '6px 10px' : '11px 18px',
-                          background: entriesLocked ? '#b0bec5' : entriesTournamentBg,
+                          background: entriesLocked ? '#b0bec5' : entriesTournamentSolid,
                           color: '#fff',
                           fontSize: isMobile ? 12 : 14,
                           fontWeight: 900,
