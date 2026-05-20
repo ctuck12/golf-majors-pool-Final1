@@ -2816,11 +2816,11 @@ export default function Page() {
                       key={tab}
                       onClick={() => handleMainTabChange(tab, { refreshAfterChange: true })}
                       style={{
-                        border: 'none',
+                        border: active ? '1.5px solid rgba(255,255,255,0.25)' : '1.5px solid transparent',
                         background: active ? 'rgba(23,59,99,0.85)' : 'transparent',
-                        borderRadius: 20,
+                        borderRadius: 8,
                         color: '#ffffff',
-                        padding: isMobile ? '6px 10px 8px' : '7px 12px 9px',
+                        padding: isMobile ? '5px 10px 6px' : '6px 12px 7px',
                         fontSize: isMobile ? 13 : 15,
                         fontWeight: 800,
                         cursor: 'pointer',
