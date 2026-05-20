@@ -2713,7 +2713,7 @@ export default function Page() {
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '12px 10px 32px' : '32px 20px 40px' }}>
           <header
             style={{
-              background: 'linear-gradient(135deg, #173b63 0%, #102842 100%)',
+              background: 'linear-gradient(135deg, #BE3436 0%, #8c1c2e 100%)',
               color: '#fff',
               borderRadius: 28,
               padding: isMobile ? '10px 12px' : '10px 28px',
@@ -2765,7 +2765,7 @@ export default function Page() {
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '12px 10px 32px' : '32px 20px 40px' }}>
         <header
           style={{
-            background: 'linear-gradient(135deg, #173b63 0%, #102842 100%)',
+            background: 'linear-gradient(135deg, #BE3436 0%, #8c1c2e 100%)',
             color: '#fff',
             borderRadius: 28,
             padding: isMobile ? (sessionUser ? '0px 12px 2px' : '2px 12px') : (sessionUser ? '10px 28px 6px' : '10px 28px'),
