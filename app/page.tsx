@@ -3936,9 +3936,9 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-                    {tournament.id === 'pga' ? (
+                    {(tournament.id === 'pga' || tournament.id === 'us-open') ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 4 : 6, width: '100%' }}>
-                        <img src="/pga-tab-logo.png" alt="PGA" style={{ height: isMobile ? 50 : 58, objectFit: 'contain', flexShrink: 0, margin: isMobile ? '-11px 0' : '-14px 0' }} />
+                        <img src="/us-open-tab-logo.png" alt="U.S. Open" style={{ height: isMobile ? 22 : 26, objectFit: 'contain', flexShrink: 0 }} />
                         <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1 }}>Leaderboard</span>
                       </div>
                     ) : tournament.id === 'masters' ? (
