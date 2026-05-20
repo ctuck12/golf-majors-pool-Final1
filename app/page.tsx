@@ -4859,18 +4859,8 @@ export default function Page() {
                       <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>Pick History</div>
                       <button
                         onClick={() => setMyEntriesDetailView('none')}
-                        style={{
-                          border: '1px solid #d7e0e8',
-                          borderRadius: 12,
-                          padding: '10px 14px',
-                          background: '#fff',
-                          color: '#0f1720',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Close
-                      </button>
+                        style={{ background: 'rgba(0,0,0,0.06)', border: '1px solid #d7e0e8', borderRadius: 10, cursor: 'pointer', color: '#0f1720', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}
+                      >✕</button>
                     </div>
                     <div style={{ display: 'grid', gap: 12 }}>
                       {TOURNAMENTS.map((event) => {
@@ -4951,18 +4941,8 @@ export default function Page() {
                       <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>Rename Entry</div>
                       <button
                         onClick={() => setMyEntriesDetailView('none')}
-                        style={{
-                          border: '1px solid #d7e0e8',
-                          borderRadius: 12,
-                          padding: '10px 14px',
-                          background: '#fff',
-                          color: '#0f1720',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Close
-                      </button>
+                        style={{ background: 'rgba(0,0,0,0.06)', border: '1px solid #d7e0e8', borderRadius: 10, cursor: 'pointer', color: '#0f1720', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}
+                      >✕</button>
                     </div>
                     <input
                       value={accountDisplayName}
@@ -4978,7 +4958,7 @@ export default function Page() {
                           border: 'none',
                           borderRadius: 14,
                           padding: '12px 18px',
-                          background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)',
+                          background: headerSolid,
                           color: '#fff',
                           fontSize: 15,
                           fontWeight: 900,
