@@ -3939,7 +3939,7 @@ export default function Page() {
                     {(tournament.id === 'pga' || tournament.id === 'us-open') ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 7 : 6, width: '100%' }}>
                         <img src="/us-open-tab-logo.png" alt="U.S. Open" style={{ height: isMobile ? 38 : 40, objectFit: 'contain', flexShrink: 0, marginTop: isMobile ? -4 : 0 }} />
-                        <span style={{ fontSize: isMobile ? 24 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1 }}>Leaderboard</span>
+                        <span style={{ fontSize: isMobile ? 24 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1, marginTop: isMobile ? -2 : 0 }}>Leaderboard</span>
                       </div>
                     ) : tournament.id === 'masters' ? (
                       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: isMobile ? 6 : 10, width: '100%' }}>
