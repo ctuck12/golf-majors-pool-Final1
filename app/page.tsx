@@ -3394,7 +3394,7 @@ export default function Page() {
                       border: active ? '1px solid #d7e0e8' : '1px solid rgba(0,0,0,0.1)',
                       borderBottom: active ? '1px solid #fff' : '1px solid rgba(0,0,0,0.1)',
                       background: active ? '#fff' : 'transparent',
-                      color: active ? '#1f2f42' : '#4a7ab8',
+                      color: active ? '#1f2f42' : '#46bfd1',
                       borderRadius: '10px 10px 0 0',
                       padding: isMobile ? '6px 8px 5px' : '10px 12px 9px',
                       width: isMobile ? 92 : TOURNAMENT_CARD_WIDTH,
