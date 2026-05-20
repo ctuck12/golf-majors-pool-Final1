@@ -3661,7 +3661,7 @@ export default function Page() {
                         </div>
                         <button
                           onClick={() => setShowBonusPoints(true)}
-                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '#1e4d8c' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#E9D838' : '#E0AB43', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 9px', borderRadius: 999, letterSpacing: '0.06em', textTransform: 'uppercase' }}
+                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '#1e4d8c' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', border: selectedTournament === 'masters' ? '1.5px solid #c8b800' : 'none', cursor: 'pointer', padding: isMobile ? '4px 10px' : '5px 12px', borderRadius: 999, letterSpacing: '0.07em', textTransform: 'uppercase', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : '0 1px 4px rgba(0,0,0,0.25)' }}
                         >
                           Bonus Points
                         </button>
@@ -3674,7 +3674,7 @@ export default function Page() {
                         </div>
                         <button
                           onClick={() => setShowBonusPoints(true)}
-                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '#1e4d8c' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#E9D838' : '#E0AB43', border: 'none', cursor: 'pointer', padding: isMobile ? '3px 8px' : '4px 10px', borderRadius: 999, letterSpacing: '0.06em', textTransform: 'uppercase' }}
+                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '#1e4d8c' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', border: selectedTournament === 'masters' ? '1.5px solid #c8b800' : 'none', cursor: 'pointer', padding: isMobile ? '4px 10px' : '5px 12px', borderRadius: 999, letterSpacing: '0.07em', textTransform: 'uppercase', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : '0 1px 4px rgba(0,0,0,0.25)' }}
                         >
                           Bonus Points
                         </button>
