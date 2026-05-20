@@ -2722,8 +2722,12 @@ export default function Page() {
     entriesTournamentId === 'pga' ? '#B09963' :
     '#173b63';
 
+  const salaryColor = entriesTournamentId === 'masters' ? '#2c6449' : '#3f73ad';
+
   const headerTabActiveColor =
     selectedTournament === 'masters' ? '#F3E44D' :
+    selectedTournament === 'players' ? '#E0AB43' :
+    selectedTournament === 'open' ? '#F4BC41' :
     '#63d9ea';
 
   if (sessionLoading && !sessionUser) {
@@ -5352,7 +5356,7 @@ export default function Page() {
                                     <div>
                                       <div style={{ fontSize: isMobile ? 18 : 19, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
                                       <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 15, color: '#607282' }}>
-                                        Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
+                                        Salary: <span style={{ fontWeight: 800, color: salaryColor }}>${golfer.salary.toLocaleString()}</span>
                                       </div>
                                       <div style={{ marginTop: isMobile ? 2 : 1, fontSize: isMobile ? 14 : 13, color: '#607282' }}>
                                         World Rank: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
