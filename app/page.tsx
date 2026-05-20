@@ -7711,7 +7711,7 @@ export default function Page() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, paddingBottom: 4 }}>
                 {earners.map((p) => (
                   <div key={p.id} style={{ fontSize: 13, color: selectedTournament === 'open' ? '#0f1720' : '#2a3d50', fontWeight: 600 }}>
-                    {p.name}{cat.showCount ? <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#8fa3b1', fontWeight: 500 }}> ({cat.count(p)})</span> : null}
+                    {p.name}{cat.showCount ? <span style={{ color: (selectedTournament === 'open' || selectedTournament === 'pga') ? '#173b63' : '#8fa3b1', fontWeight: 500 }}> ({cat.count(p)})</span> : null}
                   </div>
                 ))}
               </div>
@@ -7764,7 +7764,7 @@ export default function Page() {
                                 <div key={p.id} style={{ fontSize: 13, color: '#0f1720', fontWeight: 700 }}>
                                   {p.name}
                                   {isLowRnd && p.lowRoundIds?.length ? (
-                                    <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#8fa3b1', fontWeight: 500, fontSize: 11 }}>{' '}({p.lowRoundIds.map(r => `R${r}`).join(', ')})</span>
+                                    <span style={{ color: (selectedTournament === 'open' || selectedTournament === 'pga') ? '#173b63' : '#8fa3b1', fontWeight: 500, fontSize: 11 }}>{' '}({p.lowRoundIds.map(r => `R${r}`).join(', ')})</span>
                                   ) : null}
                                 </div>
                               ))}
@@ -7798,22 +7798,22 @@ export default function Page() {
                               if (next.has(cat.label)) next.delete(cat.label); else next.add(cat.label);
                               return next;
                             })}
-                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: (selectedTournament === 'open' || selectedTournament === 'pga') ? '#F4BC41' : '#fff', border: 'none', borderBottom: isOpen ? ((isMobile && selectedTournament === 'open') ? '0.75px solid #c5d4dc' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : selectedTournament === 'open' ? '0.5px solid #c5d4dc' : '1px solid #edf1f6') : '1px solid transparent', cursor: 'pointer', textAlign: 'left', WebkitTapHighlightColor: 'transparent', transition: 'border-color 0.2s ease' }}
+                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: (selectedTournament === 'open' || selectedTournament === 'pga') ? '#F4BC41' : '#fff', border: 'none', borderBottom: isOpen ? ((isMobile && (selectedTournament === 'open' || selectedTournament === 'pga')) ? '0.75px solid #c5d4dc' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : (selectedTournament === 'open' || selectedTournament === 'pga') ? '0.5px solid #c5d4dc' : '1px solid #edf1f6') : '1px solid transparent', cursor: 'pointer', textAlign: 'left', WebkitTapHighlightColor: 'transparent', transition: 'border-color 0.2s ease' }}
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                               {hasEarners ? (
-                                <span style={{ fontSize: 11, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: selectedTournament === 'us-open' ? '#173b63' : (selectedTournament === 'open' || selectedTournament === 'pga') ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', borderRadius: 999, padding: '1px 8px', minWidth: 22, textAlign: 'center', border: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '1.5px solid #0f2d6b' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : selectedTournament === 'masters' ? '1.5px solid #c8b800' : '1.5px solid #a07010', boxShadow: (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 2px 8px rgba(14,45,100,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : '0 2px 8px rgba(180,140,0,0.4)' }}>{earnerCount}</span>
+                                <span style={{ fontSize: 11, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: selectedTournament === 'us-open' ? '#173b63' : (selectedTournament === 'open' || selectedTournament === 'pga') ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', borderRadius: 999, padding: '1px 8px', minWidth: 22, textAlign: 'center', border: selectedTournament === 'us-open' ? '1.5px solid #0f2d6b' : (selectedTournament === 'open' || selectedTournament === 'pga') ? '1.5px solid #7b1a13' : selectedTournament === 'masters' ? '1.5px solid #c8b800' : '1.5px solid #a07010', boxShadow: selectedTournament === 'us-open' ? '0 2px 8px rgba(14,45,100,0.4)' : (selectedTournament === 'open' || selectedTournament === 'pga') ? '0 2px 8px rgba(160,40,30,0.4)' : selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : '0 2px 8px rgba(180,140,0,0.4)' }}>{earnerCount}</span>
                               ) : (
                                 <span style={{ fontSize: 12, fontWeight: 600, color: '#b0bec8' }}>0</span>
                               )}
-                              <span style={{ fontSize: 10, color: selectedTournament === 'open' ? '#173b63' : '#8fa3b1', lineHeight: 1, transition: 'transform 0.2s ease', display: 'inline-block', transform: isOpen ? 'rotate(0deg)' : 'rotate(180deg)' }}>▲</span>
+                              <span style={{ fontSize: 10, color: (selectedTournament === 'open' || selectedTournament === 'pga') ? '#173b63' : '#8fa3b1', lineHeight: 1, transition: 'transform 0.2s ease', display: 'inline-block', transform: isOpen ? 'rotate(0deg)' : 'rotate(180deg)' }}>▲</span>
                             </div>
                           </button>
                           <div style={{ maxHeight: isOpen ? '600px' : '0', overflow: 'hidden', transition: 'max-height 0.25s ease' }}>
-                            <div style={{ padding: '0 14px 12px', borderTop: selectedTournament === 'open' ? 'none' : '1px solid #eaf0f5' }}>
+                            <div style={{ padding: '0 14px 12px', borderTop: (selectedTournament === 'open' || selectedTournament === 'pga') ? 'none' : '1px solid #eaf0f5' }}>
                               {renderPlayerList(cat)}
                             </div>
                           </div>
