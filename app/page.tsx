@@ -3880,9 +3880,9 @@ export default function Page() {
                               }}
                             >
                               {entry.name}
-                              {isTournamentFinal && entry.place === 1 && <span style={{ fontSize: isMobile ? 16 : 18, lineHeight: 1 }}>🥇</span>}
-                              {isTournamentFinal && entry.place === 2 && <span style={{ fontSize: isMobile ? 16 : 18, lineHeight: 1 }}>🥈</span>}
-                              {isTournamentFinal && entry.place === 3 && <span style={{ fontSize: isMobile ? 16 : 18, lineHeight: 1 }}>🥉</span>}
+                              {isTournamentFinal && entry.place === 1 && <span style={{ fontSize: 16, lineHeight: 1 }}>🥇</span>}
+                              {isTournamentFinal && entry.place === 2 && <span style={{ fontSize: 16, lineHeight: 1 }}>🥈</span>}
+                              {isTournamentFinal && entry.place === 3 && <span style={{ fontSize: 16, lineHeight: 1 }}>🥉</span>}
                             </div>
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
@@ -3933,9 +3933,9 @@ export default function Page() {
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px' }}>
                             <div style={{ fontSize: isMobile ? 13 : 14, color: '#0f1720', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 4 }}>
                               {entry.name}
-                              {isTournamentFinal && entry.place === 1 && <span style={{ fontSize: isMobile ? 16 : 18, lineHeight: 1 }}>🥇</span>}
-                              {isTournamentFinal && entry.place === 2 && <span style={{ fontSize: isMobile ? 16 : 18, lineHeight: 1 }}>🥈</span>}
-                              {isTournamentFinal && entry.place === 3 && <span style={{ fontSize: isMobile ? 16 : 18, lineHeight: 1 }}>🥉</span>}
+                              {isTournamentFinal && entry.place === 1 && <span style={{ fontSize: 16, lineHeight: 1 }}>🥇</span>}
+                              {isTournamentFinal && entry.place === 2 && <span style={{ fontSize: 16, lineHeight: 1 }}>🥈</span>}
+                              {isTournamentFinal && entry.place === 3 && <span style={{ fontSize: 16, lineHeight: 1 }}>🥉</span>}
                             </div>
                           </td>
                           <td style={{ padding: isMobile ? '10px 8px' : '10px 12px', textAlign: 'center', fontSize: isMobile ? 12 : 14 }}>
