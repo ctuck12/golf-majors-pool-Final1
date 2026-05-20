@@ -6815,7 +6815,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div>
-                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'us-open' ? 'rgba(255,255,255,0.7)' : (selectedTournament === 'players' || selectedTournament === 'open' || selectedTournament === 'pga') ? '#E0AB43' : 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{selectedTournament === 'masters' ? 'The Masters Tournament' : tournament.fullName}</div>
+                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'us-open' ? 'rgba(255,255,255,0.7)' : selectedTournament === 'pga' ? '#173b63' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#E0AB43' : 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{selectedTournament === 'masters' ? 'The Masters Tournament' : tournament.fullName}</div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
                     </div>
                     <button
@@ -7733,7 +7733,7 @@ export default function Page() {
           const lowToParLabel = lowToPar === null ? '' : lowToPar === 0 ? ' (E)' : lowToPar < 0 ? ` (${lowToPar})` : ` (+${lowToPar})`;
           const bpColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#1e4d8c';
           const catHeaderColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#1e4d8c' : '#173b63';
-          const bpHeaderBg = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
+          const bpHeaderBg = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'pga' ? '#B09963' : '#173b63';
 
           return (
             <div
@@ -7814,7 +7814,7 @@ export default function Page() {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                               {hasEarners ? (
-                                <span style={{ fontSize: 11, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: selectedTournament === 'us-open' ? '#173b63' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', borderRadius: 999, padding: '1px 8px', minWidth: 22, textAlign: 'center', border: selectedTournament === 'us-open' ? '1.5px solid #0f2d6b' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : selectedTournament === 'masters' ? '1.5px solid #c8b800' : '1.5px solid #a07010', boxShadow: selectedTournament === 'us-open' ? '0 2px 8px rgba(14,45,100,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : '0 2px 8px rgba(180,140,0,0.4)' }}>{earnerCount}</span>
+                                <span style={{ fontSize: 11, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '#173b63' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', borderRadius: 999, padding: '1px 8px', minWidth: 22, textAlign: 'center', border: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '1.5px solid #0f2d6b' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : selectedTournament === 'masters' ? '1.5px solid #c8b800' : '1.5px solid #a07010', boxShadow: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '0 2px 8px rgba(14,45,100,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : '0 2px 8px rgba(180,140,0,0.4)' }}>{earnerCount}</span>
                               ) : (
                                 <span style={{ fontSize: 12, fontWeight: 600, color: '#b0bec8' }}>0</span>
                               )}
