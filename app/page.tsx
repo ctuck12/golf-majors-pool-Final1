@@ -5569,7 +5569,7 @@ export default function Page() {
               {(() => {
                 const posColor = selectedTournament === 'masters' ? '#2c6449' : '#173b63';
                 const isGoldTheme = selectedTournament === 'open';
-                const sectionHeaderBg = selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'masters' ? '#2c6449' : (selectedTournament === 'pga' || selectedTournament === 'us-open' || selectedTournament === 'open') ? '#173b63' : '#f0f4f8';
+                const sectionHeaderBg = selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : (selectedTournament === 'pga' || selectedTournament === 'open') ? '#173b63' : '#f0f4f8';
                 const sectionHeaderColor = sectionHeaderBg === '#f0f4f8' ? '#607282' : '#fff';
                 const group = (title: string, items: Array<[string, string, boolean?]>) => (
                   <div style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 10, border: '1px solid #b8c8d8', overflow: 'hidden', marginBottom: 7 }}>
@@ -7165,7 +7165,7 @@ export default function Page() {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
                 const posColor = selectedTournament === 'masters' ? '#2c6449' : '#173b63';
                 const isGoldTheme = selectedTournament === 'open';
-                const sectionHeaderBg = selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'masters' ? '#2c6449' : (selectedTournament === 'pga' || selectedTournament === 'us-open' || selectedTournament === 'open') ? '#173b63' : '#f0f4f8';
+                const sectionHeaderBg = selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : (selectedTournament === 'pga' || selectedTournament === 'open') ? '#173b63' : '#f0f4f8';
                 const sectionHeaderColor = sectionHeaderBg === '#f0f4f8' ? '#607282' : '#fff';
                 const group = (title: string, items: Array<[string, string, boolean?]>) => (
                   <div style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 10, border: '1px solid #b8c8d8', overflow: 'hidden', marginBottom: 7 }}>
