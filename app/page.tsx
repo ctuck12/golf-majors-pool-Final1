@@ -7835,33 +7835,48 @@ export default function Page() {
                   <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Loading results…</div>
                 ) : (
                   <div style={{ display: 'grid', gap: 8 }}>
-                    {TOURNAMENTS.map((event) => {
-                      const result = pickHistoryPlayerPopup.results[event.id];
-                      const accentColor = event.id === 'masters' ? '#2c6449' : event.id === 'us-open' ? '#BE3436' : event.id === 'pga' ? '#B09963' : '#173b63';
-                      const isCutWd = result && (result.position === 'CUT' || result.position === 'WD' || result.position === 'MDF');
-                      const scoreColor = !result ? '#a0b0bc' : isCutWd ? '#cc2944' : result.score.startsWith('-') ? '#1d6a3c' : '#374151';
-                      return (
-                        <div key={event.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 14px', borderRadius: 12, border: '1px solid #e2e8ef', background: '#fff', gap: 12 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                            <div style={{ width: 3, height: 36, borderRadius: 99, background: accentColor, flexShrink: 0 }} />
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
-                              <div style={{ fontSize: 11, color: '#7a8c99', fontWeight: 500, marginTop: 1 }}>{event.venue}</div>
+                    {(() => {
+                      const ordinal = (n: number) => {
+                        const s = ['th', 'st', 'nd', 'rd'];
+                        const v = n % 100;
+                        return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
+                      };
+                      const fmtPosition = (pos: string) => {
+                        if (pos.startsWith('T')) return pos;
+                        const n = parseInt(pos, 10);
+                        return isNaN(n) ? pos : ordinal(n);
+                      };
+                      const scoreColor = (score: string) =>
+                        score === 'E' || score === '0' ? '#1d6a3c' :
+                        score.startsWith('-') ? '#cc2944' :
+                        '#0f1720';
+                      return TOURNAMENTS.map((event) => {
+                        const result = pickHistoryPlayerPopup.results[event.id];
+                        const accentColor = event.id === 'masters' ? '#2c6449' : event.id === 'us-open' ? '#BE3436' : event.id === 'pga' ? '#B09963' : '#173b63';
+                        const isCutWd = result && (result.position === 'CUT' || result.position === 'WD' || result.position === 'MDF');
+                        return (
+                          <div key={event.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 14px', borderRadius: 12, border: '1px solid #e2e8ef', background: '#fff', gap: 12 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                              <div style={{ width: 3, height: 36, borderRadius: 99, background: accentColor, flexShrink: 0 }} />
+                              <div style={{ minWidth: 0 }}>
+                                <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
+                                <div style={{ fontSize: 11, color: '#7a8c99', fontWeight: 500, marginTop: 1 }}>{event.venue}</div>
+                              </div>
                             </div>
+                            {result === undefined ? (
+                              <div style={{ fontSize: 13, color: '#b0bec5', fontWeight: 600, flexShrink: 0 }}>—</div>
+                            ) : result === null ? (
+                              <div style={{ fontSize: 12, color: '#a0b0bc', fontStyle: 'italic', flexShrink: 0 }}>Not in field</div>
+                            ) : (
+                              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                                <div style={{ fontSize: isMobile ? 20 : 22, fontWeight: 900, color: isCutWd ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{isCutWd ? result.position : fmtPosition(result.position)}</div>
+                                {!isCutWd && <div style={{ fontSize: 12, fontWeight: 700, color: scoreColor(result.score), marginTop: 2 }}>{result.score}</div>}
+                              </div>
+                            )}
                           </div>
-                          {result === undefined ? (
-                            <div style={{ fontSize: 13, color: '#b0bec5', fontWeight: 600, flexShrink: 0 }}>—</div>
-                          ) : result === null ? (
-                            <div style={{ fontSize: 12, color: '#a0b0bc', fontStyle: 'italic', flexShrink: 0 }}>Not in field</div>
-                          ) : (
-                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                              <div style={{ fontSize: isMobile ? 20 : 22, fontWeight: 900, color: isCutWd ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{result.position}</div>
-                              {!isCutWd && <div style={{ fontSize: 12, fontWeight: 700, color: scoreColor, marginTop: 2 }}>{result.score}</div>}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                        );
+                      });
+                    })()}
                   </div>
                 )}
               </div>
