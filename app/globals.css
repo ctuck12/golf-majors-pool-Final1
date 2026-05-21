@@ -31,6 +31,24 @@ button {
 }
 
 
+@keyframes phFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ph-fade-in {
+  animation: phFadeIn 0.22s ease both;
+}
+
+@keyframes phPulse {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 0.9; }
+}
+.ph-skeleton {
+  background: #e2e8ef;
+  border-radius: 8px;
+  animation: phPulse 1.4s ease-in-out infinite;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

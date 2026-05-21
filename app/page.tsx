@@ -7912,13 +7912,23 @@ export default function Page() {
               {/* Body */}
               <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '14px 18px 20px', background: '#f4f7fa', borderRadius: '0 0 20px 20px' }}>
                 {pickHistoryView === 'career' ? (
-                  /* Career results view */
                   pickHistoryPlayerPopup.careerResultsLoading ? (
-                    <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Loading career results…</div>
+                    <div key="career-loading" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
+                      <div className="ph-skeleton" style={{ height: 13, width: 140, marginBottom: 4 }} />
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
+                          <div style={{ flex: 1, display: 'grid', gap: 5 }}>
+                            <div className="ph-skeleton" style={{ height: 12, width: 36 }} />
+                            <div className="ph-skeleton" style={{ height: 10, width: 120 }} />
+                          </div>
+                          <div className="ph-skeleton" style={{ height: 18, width: 32, borderRadius: 4 }} />
+                        </div>
+                      ))}
+                    </div>
                   ) : pickHistoryPlayerPopup.careerResults === null ? (
-                    <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Career results unavailable.</div>
+                    <div key="career-empty" className="ph-fade-in" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Career results unavailable.</div>
                   ) : (
-                    <div style={{ display: 'grid', gap: 6 }}>
+                    <div key="career-loaded" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2 }}>{TOURNAMENTS.find((t) => t.id === careerTournamentId)?.fullName ?? ''} Career Results</div>
                       {pickHistoryPlayerPopup.careerResults.map((r, i) => {
                         const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
@@ -7937,13 +7947,23 @@ export default function Page() {
                     </div>
                   )
                 ) : (
-                  /* Full 2026 Results view */
                   pickHistoryPlayerPopup.fullResultsLoading ? (
-                    <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Loading season results…</div>
+                    <div key="full-loading" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
+                      <div className="ph-skeleton" style={{ height: 13, width: 160, marginBottom: 4 }} />
+                      {Array.from({ length: 7 }).map((_, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
+                          <div style={{ flex: 1, display: 'grid', gap: 5 }}>
+                            <div className="ph-skeleton" style={{ height: 12, width: `${90 + (i % 3) * 30}px` }} />
+                            <div className="ph-skeleton" style={{ height: 10, width: `${60 + (i % 4) * 20}px` }} />
+                          </div>
+                          <div className="ph-skeleton" style={{ height: 18, width: 32, borderRadius: 4 }} />
+                        </div>
+                      ))}
+                    </div>
                   ) : pickHistoryPlayerPopup.fullResults === null ? (
-                    <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Season results unavailable.</div>
+                    <div key="full-empty" className="ph-fade-in" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Season results unavailable.</div>
                   ) : (
-                    <div style={{ display: 'grid', gap: 6 }}>
+                    <div key="full-loaded" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2 }}>2026 Tournament Results</div>
                       {pickHistoryPlayerPopup.fullResults.map((r, i) => {
                         const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
