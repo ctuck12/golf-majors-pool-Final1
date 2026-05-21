@@ -7079,8 +7079,8 @@ export default function Page() {
                         <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'open' ? '#F4BC41' : '#1e3a5f', padding: '3px 10px', fontSize: 13, fontWeight: 700, color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'open' ? '#0f1720' : '#fff', lineHeight: 1.2, flexShrink: 0, border: selectedTournament === 'masters' ? '1.5px solid #c8b800' : selectedTournament === 'players' ? '1.5px solid #a07010' : selectedTournament === 'open' ? '1.5px solid #c8a030' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : selectedTournament === 'open' ? '0 2px 8px rgba(180,140,0,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
                           Points: {formatPointValue(activeStandingGolfer.points)}
                         </div>
-                        <button onClick={() => setShowPointsSystem(true)} style={{ background: 'none', border: 'none', padding: 0, fontSize: isMobile ? 12 : 13, color: '#fff', cursor: 'pointer', textDecoration: 'underline', fontWeight: 400, fontStyle: 'italic', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
-                          {isMobile ? 'Tap for points system' : 'Click here for points system'}
+                        <button onClick={() => setShowPointsSystem(true)} style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
+                          {isMobile ? 'Tap for points system' : 'Click here for points system'} <span style={{ fontSize: 10, opacity: 0.8 }}>›</span>
                         </button>
                       </div>
                     </div>
