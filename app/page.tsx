@@ -1134,6 +1134,11 @@ export default function Page() {
   const [leaderboardSearch, setLeaderboardSearch] = useState('');
   const [leaderboardViewMode, setLeaderboardViewMode] = useState<'picked' | 'full'>('full');
   const [fullLeaderboardRows, setFullLeaderboardRows] = useState<Partial<Record<TournamentId, FullFieldPlayer[]>>>({});
+  const [pickHistoryPlayerPopup, setPickHistoryPlayerPopup] = useState<{
+    player: { id: number; name: string; pgaTourId: number; photoUrl?: string };
+    results: Partial<Record<TournamentId, { position: string; score: string } | null>>;
+    loading: boolean;
+  } | null>(null);
   const [expandedCutIds, setExpandedCutIds] = useState<Set<string>>(new Set());
   const expandedCutTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const [leaderboardSortMode, setLeaderboardSortMode] = useState<'default' | 'round-desc' | 'round-asc'>('default');
@@ -4893,6 +4898,22 @@ export default function Page() {
                                   return (
                                     <span
                                       key={`history-player-${event.id}-${player.id}`}
+                                      onClick={async () => {
+                                        setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: true });
+                                        const results: Partial<Record<TournamentId, { position: string; score: string } | null>> = {};
+                                        await Promise.all(TOURNAMENTS.map(async (ev) => {
+                                          try {
+                                            const cached = fullLeaderboardRows[ev.id];
+                                            const rows = cached ?? ((await readJson<FeedResponse>(`/api/leaderboard?tournamentId=${ev.id}&fullField=true`, { cache: 'no-store' })).fullLeaderboard ?? []);
+                                            if (!cached && rows.length > 0) setFullLeaderboardRows(prev => ({ ...prev, [ev.id]: rows }));
+                                            if (rows.length > 0) {
+                                              const found = rows.find((p) => p.poolPlayerId === player.id || p.name === player.name);
+                                              results[ev.id] = found ? { position: found.position, score: found.score } : null;
+                                            }
+                                          } catch { /* leave undefined → shows — */ }
+                                        }));
+                                        setPickHistoryPlayerPopup((prev) => prev ? { ...prev, results, loading: false } : null);
+                                      }}
                                       style={{
                                         borderRadius: 999,
                                         background: bg,
@@ -4903,6 +4924,7 @@ export default function Page() {
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: 6,
+                                        cursor: 'pointer',
                                       }}
                                     >
                                       <img
@@ -7781,6 +7803,71 @@ export default function Page() {
             </div>
           );
         })()}
+
+        {pickHistoryPlayerPopup !== null && (
+          <div
+            onClick={() => setPickHistoryPlayerPopup(null)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 200 }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: 'min(400px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#fff', borderRadius: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.35)' }}
+            >
+              <div style={{ background: '#0f1720', borderRadius: '20px 20px 0 0', padding: '18px 20px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+                  <img
+                    src={pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId)}
+                    alt={pickHistoryPlayerPopup.player.name}
+                    style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', background: '#fff', border: '2px solid rgba(255,255,255,0.25)', flexShrink: 0 }}
+                  />
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>2026 Season Results</div>
+                    <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 900, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pickHistoryPlayerPopup.player.name}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setPickHistoryPlayerPopup(null)}
+                  style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}
+                >✕</button>
+              </div>
+              <div style={{ padding: '14px 18px 20px', background: '#f4f7fa', borderRadius: '0 0 20px 20px' }}>
+                {pickHistoryPlayerPopup.loading ? (
+                  <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Loading results…</div>
+                ) : (
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    {TOURNAMENTS.map((event) => {
+                      const result = pickHistoryPlayerPopup.results[event.id];
+                      const accentColor = event.id === 'masters' ? '#2c6449' : event.id === 'us-open' ? '#BE3436' : event.id === 'pga' ? '#B09963' : '#173b63';
+                      const isCutWd = result && (result.position === 'CUT' || result.position === 'WD' || result.position === 'MDF');
+                      const scoreColor = !result ? '#a0b0bc' : isCutWd ? '#cc2944' : result.score.startsWith('-') ? '#1d6a3c' : '#374151';
+                      return (
+                        <div key={event.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 14px', borderRadius: 12, border: '1px solid #e2e8ef', background: '#fff', gap: 12 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                            <div style={{ width: 3, height: 36, borderRadius: 99, background: accentColor, flexShrink: 0 }} />
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
+                              <div style={{ fontSize: 11, color: '#7a8c99', fontWeight: 500, marginTop: 1 }}>{event.venue}</div>
+                            </div>
+                          </div>
+                          {result === undefined ? (
+                            <div style={{ fontSize: 13, color: '#b0bec5', fontWeight: 600, flexShrink: 0 }}>—</div>
+                          ) : result === null ? (
+                            <div style={{ fontSize: 12, color: '#a0b0bc', fontStyle: 'italic', flexShrink: 0 }}>Not in field</div>
+                          ) : (
+                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                              <div style={{ fontSize: isMobile ? 20 : 22, fontWeight: 900, color: '#0f1720', lineHeight: 1 }}>{result.position}</div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: scoreColor, marginTop: 2 }}>{result.score}</div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {showRosterConfirm && (
           <div
