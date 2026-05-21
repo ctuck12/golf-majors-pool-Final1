@@ -4761,7 +4761,7 @@ export default function Page() {
                         onClick={(event) => event.stopPropagation()}
                         style={{
                           position: 'absolute',
-                          top: 56,
+                          top: isMobile ? 34 : 48,
                           right: 0,
                           width: 240,
                           borderRadius: 16,
