@@ -7883,6 +7883,7 @@ export default function Page() {
                     <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Career results unavailable.</div>
                   ) : (
                     <div style={{ display: 'grid', gap: 6 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2 }}>{TOURNAMENTS.find((t) => t.id === careerTournamentId)?.fullName ?? ''} Career Results</div>
                       {pickHistoryPlayerPopup.careerResults.map((r, i) => {
                         const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
                         return (
