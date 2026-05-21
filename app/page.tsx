@@ -7886,7 +7886,7 @@ export default function Page() {
                               }
                             }
                           }}
-                          style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 20, cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 700, padding: '5px 11px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 5 }}
+                          style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 8, cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 700, padding: '5px 11px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 5 }}
                         >
                           {TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? ''} Career Results <span style={{ fontSize: 10, opacity: 0.8 }}>›</span>
                         </button>
