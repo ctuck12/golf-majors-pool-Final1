@@ -1279,6 +1279,7 @@ export default function Page() {
   const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
   const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
   const entriesTournamentId = getDefaultTournamentId(tournamentCardStatuses, new Date());
+  const careerTournamentId = getDefaultTournamentId(tournamentCardStatuses, new Date());
   const entriesTournament = TOURNAMENTS.find((item) => item.id === entriesTournamentId) ?? TOURNAMENTS[0];
   const entriesTournamentStatus = tournamentCardStatuses[entriesTournamentId];
   const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE';
@@ -7880,7 +7881,7 @@ export default function Page() {
                               if (pickHistoryPlayerPopup.careerResults === null && !pickHistoryPlayerPopup.careerResultsLoading) {
                                 setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: true } : null);
                                 try {
-                                  const data = await readJson<{ results: { year: number; course: string; position: string }[] | null }>(`/api/player-career?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}&tournamentId=${selectedTournament}`, { cache: 'no-store' });
+                                  const data = await readJson<{ results: { year: number; course: string; position: string }[] | null }>(`/api/player-career?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}&tournamentId=${careerTournamentId}`, { cache: 'no-store' });
                                   setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResults: data.results, careerResultsLoading: false } : null);
                                 } catch {
                                   setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: false } : null);
@@ -7889,7 +7890,7 @@ export default function Page() {
                             }}
                             style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
                           >
-                            {TOURNAMENTS.find((t) => t.id === selectedTournament)?.name ?? ''} Career Results
+                            {TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? ''} Career Results
                           </button>
                         )}
                       </div>
