@@ -5310,8 +5310,8 @@ export default function Page() {
                               }}
                             >
                               <div style={{ fontSize: isMobile ? 13 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
-                              <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span>{player.name}</span>
+                              <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>
+                                {player.name}
                                 <button
                                   onClick={async (e) => {
                                     e.stopPropagation();
@@ -5323,7 +5323,7 @@ export default function Page() {
                                     ]);
                                     setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null);
                                   }}
-                                  style={{ width: 16, height: 16, borderRadius: '50%', border: '1.5px solid #9ca3af', background: 'transparent', color: '#9ca3af', fontSize: 10, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0, lineHeight: 1, touchAction: 'manipulation' }}
+                                  style={{ width: isMobile ? 11 : 15, height: isMobile ? 11 : 15, borderRadius: '50%', border: `${isMobile ? 1 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 7 : 9, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 3 : 5, flexShrink: 0 }}
                                   aria-label={`View ${player.name} stats`}
                                 >
                                   i
@@ -6336,8 +6336,8 @@ export default function Page() {
                             }}
                           >
                             <div style={{ fontSize: isMobile ? 13 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
-                            <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span>{player.name}</span>
+                            <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>
+                              {player.name}
                               <button
                                 onClick={async (e) => {
                                   e.stopPropagation();
@@ -6349,7 +6349,7 @@ export default function Page() {
                                   ]);
                                   setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null);
                                 }}
-                                style={{ width: 16, height: 16, borderRadius: '50%', border: '1.5px solid #9ca3af', background: 'transparent', color: '#9ca3af', fontSize: 10, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0, lineHeight: 1, touchAction: 'manipulation' }}
+                                style={{ width: isMobile ? 11 : 15, height: isMobile ? 11 : 15, borderRadius: '50%', border: `${isMobile ? 1 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 7 : 9, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 3 : 5, flexShrink: 0 }}
                                 aria-label={`View ${player.name} stats`}
                               >
                                 i
