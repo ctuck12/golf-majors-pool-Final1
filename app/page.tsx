@@ -7876,20 +7876,30 @@ export default function Page() {
                     <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Season results unavailable.</div>
                   ) : (
                     <div style={{ display: 'grid', gap: 6 }}>
-                      {pickHistoryPlayerPopup.fullResults.map((r, i) => {
-                        const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
-                        return (
-                          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
-                            <div style={{ minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.tournament}</div>
-                              <div style={{ fontSize: 11, color: '#7a8c99', marginTop: 1 }}>{r.date}{r.course ? ` · ${r.course}` : ''}</div>
+                      {(() => {
+                        const fmtPos = (pos: string) => {
+                          if (pos.startsWith('T')) return pos;
+                          const n = parseInt(pos, 10);
+                          if (isNaN(n)) return pos;
+                          const s = ['th', 'st', 'nd', 'rd'];
+                          const v = n % 100;
+                          return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
+                        };
+                        return pickHistoryPlayerPopup.fullResults.map((r, i) => {
+                          const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
+                          return (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
+                              <div style={{ minWidth: 0, flex: 1 }}>
+                                <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.tournament}</div>
+                                <div style={{ fontSize: 11, color: '#7a8c99', marginTop: 1 }}>{r.date}{r.course ? ` · ${r.course}` : ''}</div>
+                              </div>
+                              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                                <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{isCut ? r.position : fmtPos(r.position)}</div>
+                              </div>
                             </div>
-                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                              <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{r.position}</div>
-                            </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        });
+                      })()}
                     </div>
                   )
                 ) : (
