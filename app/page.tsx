@@ -7907,6 +7907,7 @@ export default function Page() {
                     <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Season results unavailable.</div>
                   ) : (
                     <div style={{ display: 'grid', gap: 6 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2 }}>2026 Tournament Results</div>
                       {pickHistoryPlayerPopup.fullResults.map((r, i) => {
                         const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
                         const tl = r.tournament.toLowerCase();
