@@ -5322,23 +5322,7 @@ export default function Page() {
                             >
                               <div style={{ fontSize: isMobile ? 13 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
                               <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>
-                                {player.name}
-                                <button
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    setPickHistoryView('full');
-                                    setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false });
-                                    const [fullData, fedexData] = await Promise.all([
-                                      readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
-                                      readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
-                                    ]);
-                                    setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null);
-                                  }}
-                                  style={{ width: isMobile ? 11 : 15, height: isMobile ? 11 : 15, borderRadius: '50%', border: `${isMobile ? 1 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 7 : 9, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 3 : 5, flexShrink: 0 }}
-                                  aria-label={`View ${player.name} stats`}
-                                >
-                                  i
-                                </button>
+                                {(() => { const parts = player.name.split(' '); const first = parts.slice(0, -1).join(' '); const last = parts[parts.length - 1]; return (<>{first}{first ? ' ' : ''}<span style={{ whiteSpace: 'nowrap' }}>{last}<button onClick={async (e) => { e.stopPropagation(); setPickHistoryView('full'); setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false }); const [fullData, fedexData] = await Promise.all([readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })), readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null }))]); setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null); }} style={{ width: isMobile ? 11 : 15, height: isMobile ? 11 : 15, borderRadius: '50%', border: `${isMobile ? 1 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 7 : 9, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 3 : 5, flexShrink: 0 }} aria-label={`View ${player.name} stats`}>i</button></span></>); })()}
                               </div>
                               <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
                               <button
@@ -5408,7 +5392,25 @@ export default function Page() {
                                   </div>
                                   <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                     <div>
-                                      <div style={{ fontSize: isMobile ? 18 : 19, fontWeight: 800, color: '#0f1720' }}>{golfer.name}</div>
+                                      <div style={{ fontSize: isMobile ? 18 : 19, fontWeight: 800, color: '#0f1720' }}>
+                                        {golfer.name}
+                                        <button
+                                          onClick={async (e) => {
+                                            e.stopPropagation();
+                                            setPickHistoryView('full');
+                                            setPickHistoryPlayerPopup({ player: { id: golfer.id, name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false });
+                                            const [fullData, fedexData] = await Promise.all([
+                                              readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(golfer.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
+                                              readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${golfer.pgaTourId}&name=${encodeURIComponent(golfer.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
+                                            ]);
+                                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null);
+                                          }}
+                                          style={{ width: isMobile ? 11 : 15, height: isMobile ? 11 : 15, borderRadius: '50%', border: `${isMobile ? 1 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 7 : 9, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 3 : 5, flexShrink: 0 }}
+                                          aria-label={`View ${golfer.name} stats`}
+                                        >
+                                          i
+                                        </button>
+                                      </div>
                                       <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 15, color: '#607282' }}>
                                         Salary: <span style={{ fontWeight: 800, color: salaryColor }}>${golfer.salary.toLocaleString()}</span>
                                       </div>
@@ -6348,23 +6350,7 @@ export default function Page() {
                           >
                             <div style={{ fontSize: isMobile ? 13 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
                             <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>
-                              {player.name}
-                              <button
-                                onClick={async (e) => {
-                                  e.stopPropagation();
-                                  setPickHistoryView('full');
-                                  setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false });
-                                  const [fullData, fedexData] = await Promise.all([
-                                    readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
-                                    readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
-                                  ]);
-                                  setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null);
-                                }}
-                                style={{ width: isMobile ? 11 : 15, height: isMobile ? 11 : 15, borderRadius: '50%', border: `${isMobile ? 1 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 7 : 9, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 3 : 5, flexShrink: 0 }}
-                                aria-label={`View ${player.name} stats`}
-                              >
-                                i
-                              </button>
+                              {(() => { const parts = player.name.split(' '); const first = parts.slice(0, -1).join(' '); const last = parts[parts.length - 1]; return (<>{first}{first ? ' ' : ''}<span style={{ whiteSpace: 'nowrap' }}>{last}<button onClick={async (e) => { e.stopPropagation(); setPickHistoryView('full'); setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false }); const [fullData, fedexData] = await Promise.all([readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })), readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null }))]); setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null); }} style={{ width: isMobile ? 11 : 15, height: isMobile ? 11 : 15, borderRadius: '50%', border: `${isMobile ? 1 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 7 : 9, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 3 : 5, flexShrink: 0 }} aria-label={`View ${player.name} stats`}>i</button></span></>); })()}
                             </div>
                             <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
                             <button
