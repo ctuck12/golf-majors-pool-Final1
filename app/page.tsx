@@ -7856,7 +7856,7 @@ export default function Page() {
                       }}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
                     >
-                      Full 2026 Results
+                      {pickHistoryShowFull ? '← Back' : 'Full 2026 Results'}
                     </button>
                   </div>
                 </div>
