@@ -7821,7 +7821,7 @@ export default function Page() {
                     style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', background: '#fff', border: '2px solid rgba(255,255,255,0.25)', flexShrink: 0 }}
                   />
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>2026 Season Results</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>2026 Majors Results</div>
                     <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 900, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pickHistoryPlayerPopup.player.name}</div>
                   </div>
                 </div>
@@ -7855,8 +7855,8 @@ export default function Page() {
                             <div style={{ fontSize: 12, color: '#a0b0bc', fontStyle: 'italic', flexShrink: 0 }}>Not in field</div>
                           ) : (
                             <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                              <div style={{ fontSize: isMobile ? 20 : 22, fontWeight: 900, color: '#0f1720', lineHeight: 1 }}>{result.position}</div>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: scoreColor, marginTop: 2 }}>{result.score}</div>
+                              <div style={{ fontSize: isMobile ? 20 : 22, fontWeight: 900, color: isCutWd ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{result.position}</div>
+                              {!isCutWd && <div style={{ fontSize: 12, fontWeight: 700, color: scoreColor, marginTop: 2 }}>{result.score}</div>}
                             </div>
                           )}
                         </div>
