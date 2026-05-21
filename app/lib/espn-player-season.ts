@@ -73,6 +73,7 @@ export type SeasonResult = {
   date: string;
   course: string;
   position: string;
+  tour: 'pga' | 'liv' | 'eur';
 };
 
 export async function fetchPlayerSeasonResults(name: string): Promise<SeasonResult[]> {
@@ -118,6 +119,7 @@ export async function fetchPlayerSeasonResults(name: string): Promise<SeasonResu
         date: (eventData.date as string) ?? '',
         course: courses?.[0]?.name ?? '',
         position,
+        tour: league,
       };
     }),
   );
@@ -130,5 +132,6 @@ export async function fetchPlayerSeasonResults(name: string): Promise<SeasonResu
       date: fmtDate(r!.date),
       course: r!.course,
       position: r!.position,
+      tour: r!.tour,
     }));
 }
