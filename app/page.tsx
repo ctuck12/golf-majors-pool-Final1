@@ -5492,7 +5492,7 @@ export default function Page() {
                     <div style={{ display: 'grid', gap: 0 }}>
                       {([
                         <>For each major tournament and The Players Championship, members select <strong>6 golfers</strong>. Each golfer has a salary assigned based on their odds to win.</>,
-                        <>Participants have a fixed salary cap of <strong>$50,000</strong> to build their 6-player roster. These golfers make up their entry for that specific tournament.</>,
+                        <>Participants have a fixed salary cap of <strong>$50,000</strong> to build their 6-player roster.</>,
                         <>Golfers <strong>can be picked more than once per season.</strong> Points are awarded hole-by-hole plus tournament standings. Cut players receive <strong>−10 pts.</strong></>,
                         <>All <strong>6 golfers</strong> on your roster contribute to your total score.</>,
                         <><strong>1st, 2nd, and 3rd place pay out.</strong> Amounts vary based on the size of the pool field.</>,
