@@ -7860,7 +7860,7 @@ export default function Page() {
                           <div key={event.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 14px', borderRadius: 12, border: '1px solid #e2e8ef', background: '#fff', gap: 12 }}>
                             <div style={{ minWidth: 0, flex: 1 }}>
                               <div style={{ marginBottom: 4 }}>
-                                <span style={{ background: accentColor, color: '#fff', borderRadius: 999, padding: '3px 10px', fontSize: 11, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', border: `1.5px solid ${pillBorder}`, boxShadow: `0 2px 8px ${pillShadow}`, whiteSpace: 'nowrap', display: 'inline-block' }}>{event.name}</span>
+                                <span style={{ background: accentColor, color: '#fff', borderRadius: 999, padding: '3px 10px', fontSize: 11, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', border: `1.5px solid ${pillBorder}`, boxShadow: `0 2px 8px ${pillShadow}`, whiteSpace: 'nowrap', display: 'inline-block' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</span>
                               </div>
                               <div style={{ fontSize: 11, color: '#7a8c99', fontWeight: 500 }}>{event.venue}</div>
                             </div>
