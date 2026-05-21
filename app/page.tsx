@@ -7956,7 +7956,7 @@ export default function Page() {
                   ) : (
                     <div key="full-loaded" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
                       {(() => {
-                        const pgaResults = pickHistoryPlayerPopup.fullResults!.filter((r) => r.tour === 'pga');
+                        const pgaResults = pickHistoryPlayerPopup.fullResults!.filter((r) => r.tour === 'pga' || !r.tour);
                         const livResults = pickHistoryPlayerPopup.fullResults!.filter((r) => r.tour === 'liv');
                         const eurResults = pickHistoryPlayerPopup.fullResults!.filter((r) => r.tour === 'eur');
                         const EXACT_MAJORS: Record<string, { bg: string; text: string }> = {
