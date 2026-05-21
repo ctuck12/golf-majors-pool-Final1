@@ -7909,10 +7909,6 @@ export default function Page() {
                           const n = parseInt(pos, 10);
                           return isNaN(n) ? pos : ordinal(n);
                         };
-                        const scoreColor = (score: string) =>
-                          score === 'E' || score === '0' ? '#1d6a3c' :
-                          score.startsWith('-') ? '#cc2944' :
-                          '#0f1720';
                         return TOURNAMENTS.map((event) => {
                           const result = pickHistoryPlayerPopup.results[event.id];
                           const isCutWd = result && (result.position === 'CUT' || result.position === 'WD' || result.position === 'MDF');
@@ -7929,7 +7925,6 @@ export default function Page() {
                               ) : (
                                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                                   <div style={{ fontSize: isMobile ? 20 : 22, fontWeight: 900, color: isCutWd ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{isCutWd ? result.position : fmtPosition(result.position)}</div>
-                                  {!isCutWd && <div style={{ fontSize: 12, fontWeight: 700, color: scoreColor(result.score), marginTop: 2 }}>{result.score}</div>}
                                 </div>
                               )}
                             </div>
