@@ -7853,15 +7853,16 @@ export default function Page() {
                       return TOURNAMENTS.map((event) => {
                         const result = pickHistoryPlayerPopup.results[event.id];
                         const accentColor = event.id === 'masters' ? '#2c6449' : event.id === 'us-open' ? '#BE3436' : event.id === 'pga' ? '#B09963' : '#173b63';
+                        const pillBorder = event.id === 'masters' ? '#1a3d2b' : event.id === 'us-open' ? '#8c1c2e' : event.id === 'pga' ? '#8a7548' : '#0e2448';
+                        const pillShadow = event.id === 'masters' ? 'rgba(26,61,43,0.35)' : event.id === 'us-open' ? 'rgba(140,28,46,0.35)' : event.id === 'pga' ? 'rgba(138,116,72,0.35)' : 'rgba(14,45,100,0.35)';
                         const isCutWd = result && (result.position === 'CUT' || result.position === 'WD' || result.position === 'MDF');
                         return (
                           <div key={event.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 14px', borderRadius: 12, border: '1px solid #e2e8ef', background: '#fff', gap: 12 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                              <div style={{ width: 3, height: 36, borderRadius: 99, background: accentColor, flexShrink: 0 }} />
-                              <div style={{ minWidth: 0 }}>
-                                <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
-                                <div style={{ fontSize: 11, color: '#7a8c99', fontWeight: 500, marginTop: 1 }}>{event.venue}</div>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ marginBottom: 4 }}>
+                                <span style={{ background: accentColor, color: '#fff', borderRadius: 999, padding: '3px 10px', fontSize: 11, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', border: `1.5px solid ${pillBorder}`, boxShadow: `0 2px 8px ${pillShadow}`, whiteSpace: 'nowrap', display: 'inline-block' }}>{event.name}</span>
                               </div>
+                              <div style={{ fontSize: 11, color: '#7a8c99', fontWeight: 500 }}>{event.venue}</div>
                             </div>
                             {result === undefined ? (
                               <div style={{ fontSize: 13, color: '#b0bec5', fontWeight: 600, flexShrink: 0 }}>—</div>
