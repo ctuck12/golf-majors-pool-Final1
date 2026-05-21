@@ -7886,7 +7886,7 @@ export default function Page() {
                               }
                             }
                           }}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
+                          style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.35)', borderRadius: 8, cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 700, padding: '5px 10px', lineHeight: 1, letterSpacing: '0.01em' }}
                         >
                           {TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? ''} Career Results
                         </button>
