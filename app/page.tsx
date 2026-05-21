@@ -7837,7 +7837,7 @@ export default function Page() {
                     <div style={{ background: '#7c3aed', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
                       <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>Fed</span>
                       <span style={{ color: '#fb923c', fontWeight: 800, fontSize: 11 }}>Ex</span>
-                      <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>: {pickHistoryPlayerPopup.fedexRank != null ? `#${pickHistoryPlayerPopup.fedexRank}` : '--'}</span>
+                      <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>: {pickHistoryPlayerPopup.fedexRank != null ? `${pickHistoryPlayerPopup.fedexRank}` : '--'}</span>
                     </div>
                     <button
                       onClick={async (e) => {
@@ -7919,7 +7919,7 @@ export default function Page() {
                           const n = parseInt(pos, 10);
                           return isNaN(n) ? pos : ordinal(n);
                         };
-                        return TOURNAMENTS.map((event) => {
+                        return TOURNAMENTS.filter((event) => pickHistoryPlayerPopup.results[event.id] !== undefined).map((event) => {
                           const result = pickHistoryPlayerPopup.results[event.id];
                           const isCutWd = result && (result.position === 'CUT' || result.position === 'WD' || result.position === 'MDF');
                           return (
