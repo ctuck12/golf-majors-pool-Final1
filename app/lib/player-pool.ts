@@ -24,7 +24,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id:  18, name: 'Justin Thomas',              pgaTourId: 33448, defaultOdds: '+3000',   worldRank:  16 },
   { id:  19, name: 'Joaquin Niemann',            pgaTourId: 45486, defaultOdds: '+3000',   worldRank: 167 },
   { id:  20, name: 'Matt Fitzpatrick',           pgaTourId: 40098, defaultOdds: '+3500',   worldRank:   4 },
-  { id:  21, name: 'Tyrrell Hatton',             pgaTourId: 34363, defaultOdds: '+3500',   worldRank:  26 },
+  { id:  21, name: 'Tyrrell Hatton',             pgaTourId: 34363, defaultOdds: '+3500',   worldRank:  26, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,d_headshots_default.png,f_auto,g_north,h_280,q_auto,w_280/headshots_34363.png' },
   { id:  22, name: 'Robert MacIntyre',           pgaTourId: 52215, defaultOdds: '+4000',   worldRank:  12 },
   { id:  23, name: 'Cameron Young',              pgaTourId: 57366, defaultOdds: '+4000',   worldRank:   3 },
   { id:  24, name: 'Wyndham Clark',              pgaTourId: 51766, defaultOdds: '+4000',   worldRank:  71 },
