@@ -7866,9 +7866,9 @@ export default function Page() {
                       {pickHistoryView === 'career' && (
                         <button
                           onClick={(e) => { e.stopPropagation(); setPickHistoryView('full'); }}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
+                          style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4 }}
                         >
-                          ← Back
+                          <span style={{ fontSize: 10, opacity: 0.8 }}>‹</span> Back
                         </button>
                       )}
                       {pickHistoryView === 'full' && (
