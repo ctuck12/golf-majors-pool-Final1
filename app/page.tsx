@@ -1139,7 +1139,7 @@ export default function Page() {
     results: Partial<Record<TournamentId, { position: string; score: string } | null>>;
     loading: boolean;
     fedexRank: number | null;
-    fullResults: { tournament: string; date: string; position: string; score: string; earnings: string }[] | null;
+    fullResults: { tournament: string; date: string; course: string; position: string }[] | null;
     fullResultsLoading: boolean;
   } | null>(null);
   const [pickHistoryShowFull, setPickHistoryShowFull] = useState(false);
@@ -7847,7 +7847,7 @@ export default function Page() {
                         if (next && pickHistoryPlayerPopup.fullResults === null && !pickHistoryPlayerPopup.fullResultsLoading) {
                           setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResultsLoading: true } : null);
                           try {
-                            const data = await readJson<{ results: { tournament: string; date: string; position: string; score: string; earnings: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}`, { cache: 'no-store' });
+                            const data = await readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}`, { cache: 'no-store' });
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: data.results, fullResultsLoading: false } : null);
                           } catch {
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResultsLoading: false } : null);
@@ -7878,17 +7878,14 @@ export default function Page() {
                     <div style={{ display: 'grid', gap: 6 }}>
                       {pickHistoryPlayerPopup.fullResults.map((r, i) => {
                         const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
-                        const scoreColor = r.score === 'E' ? '#1d6a3c' : r.score.startsWith('-') ? '#cc2944' : r.score.startsWith('+') ? '#374151' : '#374151';
                         return (
                           <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
                             <div style={{ minWidth: 0, flex: 1 }}>
                               <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.tournament}</div>
-                              <div style={{ fontSize: 11, color: '#7a8c99', marginTop: 1 }}>{r.date}</div>
+                              <div style={{ fontSize: 11, color: '#7a8c99', marginTop: 1 }}>{r.date}{r.course ? ` · ${r.course}` : ''}</div>
                             </div>
                             <div style={{ textAlign: 'right', flexShrink: 0 }}>
                               <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{r.position}</div>
-                              {!isCut && <div style={{ fontSize: 11, fontWeight: 700, color: scoreColor, marginTop: 2 }}>{r.score}</div>}
-                              <div style={{ fontSize: 10, color: '#7a8c99', marginTop: 2 }}>{r.earnings}</div>
                             </div>
                           </div>
                         );

@@ -39,12 +39,6 @@ async function getEventIdsForLeague(
     .filter((e) => e.eventId);
 }
 
-function fmtScore(val: number | undefined): string {
-  if (val === undefined || val === null) return '--';
-  if (val === 0) return 'E';
-  return val > 0 ? `+${val}` : String(val);
-}
-
 function fmtDate(iso: string): string {
   try {
     return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -72,9 +66,8 @@ function getPosition(status: {
 export type SeasonResult = {
   tournament: string;
   date: string;
+  course: string;
   position: string;
-  score: string;
-  earnings: string;
 };
 
 export async function GET(request: Request) {
@@ -107,46 +100,37 @@ export async function GET(request: Request) {
         const base = `${ESPN_CORE}/${league}`;
         const competitorBase = `${base}/events/${eventId}/competitions/${eventId}/competitors/${espnId}`;
 
-        const [eventRes, statsRes, statusRes] = await Promise.all([
+        const [eventRes, statusRes] = await Promise.all([
           fetch(`${base}/events/${eventId}`, opts),
-          fetch(`${competitorBase}/statistics/0`, opts),
           fetch(`${competitorBase}/status`, opts),
         ]);
 
         if (!eventRes.ok) return null;
 
-        const [eventData, statsData, statusData] = await Promise.all([
+        const [eventData, statusData] = await Promise.all([
           eventRes.json(),
-          statsRes.ok ? statsRes.json() : Promise.resolve(null),
           statusRes.ok ? statusRes.json() : Promise.resolve(null),
         ]);
 
-        const stats: Array<{ name: string; value: number; displayValue: string }> =
-          statsData?.splits?.categories?.[0]?.stats ?? [];
-
-        const scoreToParStat = stats.find((s) => s.name === 'scoreToPar');
-        const amountStat = stats.find((s) => s.name === 'amount');
-        const earningsRaw = amountStat?.value ?? 0;
-
+        const position = getPosition(statusData);
+        const courses = eventData.courses as Array<{ name?: string }> | undefined;
         return {
           tournament: (eventData.name as string) ?? '',
           date: (eventData.date as string) ?? '',
-          position: getPosition(statusData),
-          score: fmtScore(scoreToParStat?.value),
-          earnings: earningsRaw > 0 ? (amountStat?.displayValue ?? '--') : '--',
+          course: courses?.[0]?.name ?? '',
+          position,
         };
       }),
     );
 
     const results: SeasonResult[] = eventResults
-      .filter((r) => r && !(r.position === '--' && r.score === '--'))
+      .filter((r) => r && r.position !== '--')
       .sort((a, b) => new Date(b!.date).getTime() - new Date(a!.date).getTime())
       .map((r) => ({
         tournament: r!.tournament,
         date: fmtDate(r!.date),
+        course: r!.course,
         position: r!.position,
-        score: r!.score,
-        earnings: r!.earnings,
       }));
 
     return Response.json({ results: results.length > 0 ? results : null });
