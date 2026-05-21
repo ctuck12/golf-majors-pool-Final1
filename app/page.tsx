@@ -5511,22 +5511,22 @@ export default function Page() {
                     <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 3 : 4 }}>Join the Pool</div>
                     <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: '#0f1720', marginBottom: isMobile ? 10 : 14 }}>Entry Fee &amp; Contact</div>
                   </div>
-                  <div style={{ padding: isMobile ? '0 14px 14px' : '0 22px 22px', display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? 7 : 10 }}>
-                    <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff' }}>
+                  <div style={{ padding: isMobile ? '0 14px 14px' : '0 22px 22px', display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: isMobile ? 6 : 10 }}>
+                    <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 8px' : '10px 14px', background: '#f0f6ff' }}>
                       <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>Entry Fee</div>
-                      <div style={{ marginTop: 4, fontSize: isMobile ? 22 : 30, fontWeight: 900, color: '#173b63' }}>$30</div>
+                      <div style={{ marginTop: 4, fontSize: isMobile ? 20 : 30, fontWeight: 900, color: '#173b63' }}>$30</div>
                     </div>
-                    <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff' }}>
+                    <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 8px' : '10px 14px', background: '#f0f6ff' }}>
                       <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>Venmo</div>
-                      <div style={{ marginTop: 4, fontSize: 16, fontWeight: 800, color: '#173b63' }}>
+                      <div style={{ marginTop: 4, fontSize: isMobile ? 13 : 16, fontWeight: 800, color: '#173b63' }}>
                         {isMobile ? (
                           <a href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool" style={{ color: '#3d95ce', textDecoration: 'none' }}>@claytont743</a>
                         ) : '@claytont743'}
                       </div>
                     </div>
-                    <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 10px' : '10px 14px', background: '#f0f6ff', gridColumn: isMobile ? '1 / -1' : undefined }}>
+                    <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 8px' : '10px 14px', background: '#f0f6ff' }}>
                       <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>Questions</div>
-                      <div style={{ marginTop: 4, fontSize: isMobile ? 13 : 15, fontWeight: 800, color: '#173b63' }}>Clayton Tucker</div>
+                      <div style={{ marginTop: 4, fontSize: isMobile ? 12 : 15, fontWeight: 800, color: '#173b63' }}>Clayton Tucker</div>
                       <div style={{ fontSize: isMobile ? 11 : 13, color: '#5b6b79', marginTop: 2 }}>
                         {isMobile ? (
                           <a href="tel:+13256658299" style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}>(325) 665-8299</a>
