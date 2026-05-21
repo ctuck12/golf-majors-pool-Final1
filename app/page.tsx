@@ -7847,7 +7847,7 @@ export default function Page() {
                         if (next && pickHistoryPlayerPopup.fullResults === null && !pickHistoryPlayerPopup.fullResultsLoading) {
                           setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResultsLoading: true } : null);
                           try {
-                            const data = await readJson<{ results: { tournament: string; date: string; position: string; score: string; earnings: string }[] | null }>(`/api/player-season?pgaTourId=${pickHistoryPlayerPopup.player.pgaTourId}`, { cache: 'no-store' });
+                            const data = await readJson<{ results: { tournament: string; date: string; position: string; score: string; earnings: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}`, { cache: 'no-store' });
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: data.results, fullResultsLoading: false } : null);
                           } catch {
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResultsLoading: false } : null);

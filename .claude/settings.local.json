@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(npx tsc *)",
-      "WebFetch(domain:site.api.espn.com)"
+      "WebFetch(domain:site.api.espn.com)",
+      "Bash(curl -s --compressed \"https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/seasons/2026/types/2/athletes/9478/statistics/0/byevent?limit=15\")",
+      "Bash(node -e \"process.stdin.resume\\(\\); let d=''; process.stdin.on\\('data',c=>d+=c\\); process.stdin.on\\('end',\\(\\)=>{ const j=JSON.parse\\(d\\); if\\(j.error\\) { console.log\\('error:', JSON.stringify\\(j.error\\)\\); return; } console.log\\('keys:', Object.keys\\(j\\)\\); if\\(j.items\\) console.log\\('count:', j.count, 'sample:', JSON.stringify\\(j.items[0]\\).slice\\(0,300\\)\\); }\\);\")",
+      "Bash(curl -s --compressed \"https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/events/401811929/competitions/401811929/competitors/9478?lang=en&region=us&enable=statistics,status,score\")",
+      "Bash(node -e 'process.stdin.resume\\(\\); let d='\\\\'''\\\\''; process.stdin.on\\('\\\\''data'\\\\'',c=>d+=c\\); process.stdin.on\\('\\\\''end'\\\\'',\\(\\)=>{ const j=JSON.parse\\(d\\); const status=j.status; const score=j.score; const stats=j.statistics; console.log\\('\\\\''status keys:'\\\\'', Object.keys\\(status||{}\\)\\); console.log\\('\\\\''score keys:'\\\\'', Object.keys\\(score||{}\\)\\); console.log\\('\\\\''stats keys:'\\\\'', Object.keys\\(stats||{}\\)\\); if\\(status&&!status['\\\\''$ref'\\\\'']\\){ console.log\\('\\\\''position:'\\\\'', JSON.stringify\\(status.position\\)\\); } if\\(score&&!score['\\\\''$ref'\\\\'']\\){ console.log\\('\\\\''score:'\\\\'', score.displayValue\\); } }\\);')",
+      "Bash(curl -s --compressed \"https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/events/401811941/competitions/401811941/competitors/9478/statistics/0\")",
+      "Bash(node -e \"process.stdin.resume\\(\\); let d=''; process.stdin.on\\('data',c=>d+=c\\); process.stdin.on\\('end',\\(\\)=>{ const j=JSON.parse\\(d\\); const stats=j.splits?.categories?.[0]?.stats; if\\(stats\\) stats.forEach\\(s=>{ if\\(['scoreToPar','regScore','amount','cupPoints','position'].includes\\(s.name\\)\\) console.log\\(s.name, s.value, s.displayValue\\); }\\); }\\);\")"
     ]
   }
 }

@@ -1,53 +1,47 @@
 export const dynamic = 'force-dynamic';
 
-const PGA_GRAPHQL = 'https://orchestrator.pgatour.com/graphql';
-const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37wqyl4';
-
-const QUERY = `
-  query FedExCupStandings($year: Int, $tourCode: String) {
-    fedExCupStandings(year: $year, tourCode: $tourCode) {
-      standings {
-        rank
-        player {
-          id
-          displayName
-        }
-      }
-    }
-  }
-`;
-
-function norm(s: string) {
-  return s.toLowerCase().replace(/[^a-z ]/g, '').trim();
+async function getEspnId(name: string): Promise<string | null> {
+  const res = await fetch(
+    `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(name)}&limit=1&type=player&sport=golf`,
+    { next: { revalidate: 86400 } },
+  );
+  if (!res.ok) return null;
+  const data = await res.json();
+  const player = data.results?.[0]?.contents?.[0];
+  if (!player) return null;
+  const uid: string = player.uid ?? '';
+  return uid.split('~a:')?.[1] ?? null;
 }
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const name = searchParams.get('name') ?? '';
-  const pgaTourId = searchParams.get('pgaTourId') ?? '';
+  if (!name) return Response.json({ rank: null });
 
   try {
-    const res = await fetch(PGA_GRAPHQL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': PGA_API_KEY,
-      },
-      body: JSON.stringify({ query: QUERY, variables: { year: 2026, tourCode: 'R' } }),
-      next: { revalidate: 3600 },
+    const [espnId, standingsRes] = await Promise.all([
+      getEspnId(name),
+      fetch(
+        'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/seasons/2026/types/2/leaders?limit=336',
+        { next: { revalidate: 3600 } },
+      ),
+    ]);
+
+    if (!espnId || !standingsRes.ok) return Response.json({ rank: null });
+
+    const data = await standingsRes.json();
+    const cupCat = (data.categories as Array<{ name: string; leaders: unknown[] }> | undefined)?.find(
+      (c) => c.name === 'cupPoints',
+    );
+    if (!cupCat) return Response.json({ rank: null });
+
+    const leaders = cupCat.leaders as Array<{ athlete: Record<string, string> }>;
+    const rank = leaders.findIndex((l) => {
+      const ref = Object.values(l.athlete)[0] ?? '';
+      return ref.match(/athletes\/(\d+)/)?.[1] === espnId;
     });
 
-    if (!res.ok) return Response.json({ rank: null });
-
-    const data = await res.json();
-    const standings: Array<{ rank: number; player: { id: string; displayName: string } }> =
-      data?.data?.fedExCupStandings?.standings ?? [];
-
-    const entry = standings.find(
-      (s) => s.player.id === pgaTourId || norm(s.player.displayName) === norm(name),
-    );
-
-    return Response.json({ rank: entry?.rank ?? null });
+    return Response.json({ rank: rank === -1 ? null : rank + 1 });
   } catch {
     return Response.json({ rank: null });
   }
