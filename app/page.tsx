@@ -7909,14 +7909,21 @@ export default function Page() {
                     <div style={{ display: 'grid', gap: 6 }}>
                       {pickHistoryPlayerPopup.fullResults.map((r, i) => {
                         const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
+                        const tl = r.tournament.toLowerCase();
+                        const majorBadge =
+                          tl.includes('players championship') ? { bg: '#dce6f5', text: '#173b63' } :
+                          tl.includes('masters') ? { bg: '#d5eade', text: '#2c6449' } :
+                          tl.includes('u.s. open') ? { bg: '#fde8e8', text: '#BE3436' } :
+                          tl.includes('pga championship') ? { bg: '#f5edd8', text: '#7a6a3e' } :
+                          null;
                         return (
-                          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: majorBadge ? `1px solid ${majorBadge.bg}` : '1px solid #e2e8ef', background: majorBadge ? majorBadge.bg : '#fff', gap: 10 }}>
                             <div style={{ minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.tournament}</div>
-                              <div style={{ fontSize: 11, color: '#7a8c99', marginTop: 1 }}>{r.date}{r.course ? ` · ${r.course}` : ''}</div>
+                              <div style={{ fontSize: 12, fontWeight: 800, color: majorBadge ? majorBadge.text : '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.tournament}</div>
+                              <div style={{ fontSize: 11, color: majorBadge ? majorBadge.text : '#7a8c99', marginTop: 1, opacity: majorBadge ? 0.75 : 1 }}>{r.date}{r.course ? ` · ${r.course}` : ''}</div>
                             </div>
                             <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                              <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{r.position}</div>
+                              <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : (majorBadge ? majorBadge.text : '#0f1720'), lineHeight: 1 }}>{r.position}</div>
                             </div>
                           </div>
                         );
