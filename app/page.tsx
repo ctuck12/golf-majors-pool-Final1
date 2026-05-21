@@ -1141,8 +1141,10 @@ export default function Page() {
     fedexRank: number | null;
     fullResults: { tournament: string; date: string; course: string; position: string }[] | null;
     fullResultsLoading: boolean;
+    careerResults: { year: number; course: string; position: string }[] | null;
+    careerResultsLoading: boolean;
   } | null>(null);
-  const [pickHistoryShowFull, setPickHistoryShowFull] = useState(false);
+  const [pickHistoryView, setPickHistoryView] = useState<'majors' | 'full' | 'career'>('majors');
   const [expandedCutIds, setExpandedCutIds] = useState<Set<string>>(new Set());
   const expandedCutTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const [leaderboardSortMode, setLeaderboardSortMode] = useState<'default' | 'round-desc' | 'round-asc'>('default');
@@ -4903,8 +4905,8 @@ export default function Page() {
                                     <span
                                       key={`history-player-${event.id}-${player.id}`}
                                       onClick={async () => {
-                                        setPickHistoryShowFull(false);
-                                        setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: true, fedexRank: null, fullResults: null, fullResultsLoading: false });
+                                        setPickHistoryView('majors');
+                                        setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: true, fedexRank: null, fullResults: null, fullResultsLoading: false, careerResults: null, careerResultsLoading: false });
                                         const results: Partial<Record<TournamentId, { position: string; score: string } | null>> = {};
                                         const [, fedexData] = await Promise.all([
                                           Promise.all(TOURNAMENTS.map(async (ev) => {
@@ -7839,25 +7841,55 @@ export default function Page() {
                       <span style={{ color: '#fb923c', fontWeight: 800, fontSize: 11 }}>Ex</span>
                       <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>: {pickHistoryPlayerPopup.fedexRank != null ? `${pickHistoryPlayerPopup.fedexRank}` : '--'}</span>
                     </div>
-                    <button
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        const next = !pickHistoryShowFull;
-                        setPickHistoryShowFull(next);
-                        if (next && pickHistoryPlayerPopup.fullResults === null && !pickHistoryPlayerPopup.fullResultsLoading) {
-                          setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResultsLoading: true } : null);
-                          try {
-                            const data = await readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}`, { cache: 'no-store' });
-                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: data.results, fullResultsLoading: false } : null);
-                          } catch {
-                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResultsLoading: false } : null);
+                    {pickHistoryView === 'majors' ? (
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          setPickHistoryView('full');
+                          if (pickHistoryPlayerPopup.fullResults === null && !pickHistoryPlayerPopup.fullResultsLoading) {
+                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResultsLoading: true } : null);
+                            try {
+                              const data = await readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}`, { cache: 'no-store' });
+                              setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: data.results, fullResultsLoading: false } : null);
+                            } catch {
+                              setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResultsLoading: false } : null);
+                            }
                           }
-                        }
-                      }}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
-                    >
-                      {pickHistoryShowFull ? '← Back' : 'Full 2026 Results'}
-                    </button>
+                        }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
+                      >
+                        Full 2026 Results
+                      </button>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setPickHistoryView('majors'); }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
+                        >
+                          ← Back
+                        </button>
+                        {pickHistoryView === 'full' && (
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              setPickHistoryView('career');
+                              if (pickHistoryPlayerPopup.careerResults === null && !pickHistoryPlayerPopup.careerResultsLoading) {
+                                setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: true } : null);
+                                try {
+                                  const data = await readJson<{ results: { year: number; course: string; position: string }[] | null }>(`/api/player-career?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}&tournamentId=${selectedTournament}`, { cache: 'no-store' });
+                                  setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResults: data.results, careerResultsLoading: false } : null);
+                                } catch {
+                                  setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: false } : null);
+                                }
+                              }
+                            }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
+                          >
+                            {TOURNAMENTS.find((t) => t.id === selectedTournament)?.name ?? ''} Career Results
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <button
@@ -7868,7 +7900,31 @@ export default function Page() {
 
               {/* Body */}
               <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '14px 18px 20px', background: '#f4f7fa', borderRadius: '0 0 20px 20px' }}>
-                {pickHistoryShowFull ? (
+                {pickHistoryView === 'career' ? (
+                  /* Career results view */
+                  pickHistoryPlayerPopup.careerResultsLoading ? (
+                    <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Loading career results…</div>
+                  ) : pickHistoryPlayerPopup.careerResults === null ? (
+                    <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Career results unavailable.</div>
+                  ) : (
+                    <div style={{ display: 'grid', gap: 6 }}>
+                      {pickHistoryPlayerPopup.careerResults.map((r, i) => {
+                        const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
+                        return (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720' }}>{r.year}</div>
+                              <div style={{ fontSize: 11, color: '#7a8c99', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.course}</div>
+                            </div>
+                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                              <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{r.position}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )
+                ) : pickHistoryView === 'full' ? (
                   /* Full 2026 Results view */
                   pickHistoryPlayerPopup.fullResultsLoading ? (
                     <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Loading season results…</div>
