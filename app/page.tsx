@@ -1145,6 +1145,10 @@ export default function Page() {
     careerResultsLoading: boolean;
   } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'majors' | 'full' | 'career'>('majors');
+  useEffect(() => {
+    document.body.style.overflow = pickHistoryPlayerPopup ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [pickHistoryPlayerPopup]);
   const [expandedCutIds, setExpandedCutIds] = useState<Set<string>>(new Set());
   const expandedCutTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const [leaderboardSortMode, setLeaderboardSortMode] = useState<'default' | 'round-desc' | 'round-asc'>('default');
