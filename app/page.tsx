@@ -7877,14 +7877,6 @@ export default function Page() {
                   ) : (
                     <div style={{ display: 'grid', gap: 6 }}>
                       {(() => {
-                        const fmtPos = (pos: string) => {
-                          if (pos.startsWith('T')) return pos;
-                          const n = parseInt(pos, 10);
-                          if (isNaN(n)) return pos;
-                          const s = ['th', 'st', 'nd', 'rd'];
-                          const v = n % 100;
-                          return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
-                        };
                         return pickHistoryPlayerPopup.fullResults.map((r, i) => {
                           const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
                           return (
@@ -7894,7 +7886,7 @@ export default function Page() {
                                 <div style={{ fontSize: 11, color: '#7a8c99', marginTop: 1 }}>{r.date}{r.course ? ` · ${r.course}` : ''}</div>
                               </div>
                               <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                                <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{isCut ? r.position : fmtPos(r.position)}</div>
+                                <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{r.position}</div>
                               </div>
                             </div>
                           );
@@ -7909,16 +7901,6 @@ export default function Page() {
                   ) : (
                     <div style={{ display: 'grid', gap: 8 }}>
                       {(() => {
-                        const ordinal = (n: number) => {
-                          const s = ['th', 'st', 'nd', 'rd'];
-                          const v = n % 100;
-                          return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
-                        };
-                        const fmtPosition = (pos: string) => {
-                          if (pos.startsWith('T')) return pos;
-                          const n = parseInt(pos, 10);
-                          return isNaN(n) ? pos : ordinal(n);
-                        };
                         return TOURNAMENTS.filter((event) => pickHistoryPlayerPopup.results[event.id] !== undefined).map((event) => {
                           const result = pickHistoryPlayerPopup.results[event.id];
                           const isCutWd = result && (result.position === 'CUT' || result.position === 'WD' || result.position === 'MDF');
@@ -7934,7 +7916,7 @@ export default function Page() {
                                 <div style={{ fontSize: 12, color: '#a0b0bc', fontStyle: 'italic', flexShrink: 0 }}>Not in field</div>
                               ) : (
                                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                                  <div style={{ fontSize: isMobile ? 20 : 22, fontWeight: 900, color: isCutWd ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{isCutWd ? result.position : fmtPosition(result.position)}</div>
+                                  <div style={{ fontSize: isMobile ? 20 : 22, fontWeight: 900, color: isCutWd ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{result.position}</div>
                                 </div>
                               )}
                             </div>

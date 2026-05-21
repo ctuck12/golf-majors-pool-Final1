@@ -4,14 +4,21 @@ const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues';
 const LEAGUES = ['pga', 'liv', 'eur'] as const;
 type League = (typeof LEAGUES)[number];
 
+const ESPN_ID_OVERRIDES: Record<string, string> = {
+  'Justin Thomas': '4848',
+  'John Keefer': '5217048',
+};
+
 async function getEspnId(name: string): Promise<string | null> {
+  if (ESPN_ID_OVERRIDES[name]) return ESPN_ID_OVERRIDES[name];
   const res = await fetch(
-    `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(name)}&limit=1&type=player&sport=golf`,
+    `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(name)}&limit=20&type=player`,
     { next: { revalidate: 86400 } },
   );
   if (!res.ok) return null;
   const data = await res.json();
-  const player = data.results?.[0]?.contents?.[0];
+  const contents: Array<{ uid?: string }> = data.results?.[0]?.contents ?? [];
+  const player = contents.find((c) => c.uid?.includes('s:1100~'));
   const uid: string = player?.uid ?? '';
   return uid.split('~a:')?.[1] ?? null;
 }
