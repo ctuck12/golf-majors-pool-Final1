@@ -7956,7 +7956,8 @@ export default function Page() {
                   ) : (
                     <div key="full-loaded" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
                       {(() => {
-                        const pgaResults = pickHistoryPlayerPopup.fullResults!.filter((r) => r.tour === 'pga' || r.tour === 'liv');
+                        const pgaResults = pickHistoryPlayerPopup.fullResults!.filter((r) => r.tour === 'pga');
+                        const livResults = pickHistoryPlayerPopup.fullResults!.filter((r) => r.tour === 'liv');
                         const eurResults = pickHistoryPlayerPopup.fullResults!.filter((r) => r.tour === 'eur');
                         const EXACT_MAJORS: Record<string, { bg: string; text: string }> = {
                           'THE PLAYERS Championship': { bg: '#dce6f5', text: '#173b63' },
@@ -7988,9 +7989,15 @@ export default function Page() {
                                 {pgaResults.map(renderCard)}
                               </>
                             )}
+                            {livResults.length > 0 && (
+                              <>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2, marginTop: pgaResults.length > 0 ? 10 : 0 }}>2026 LIV Golf Results</div>
+                                {livResults.map(renderCard)}
+                              </>
+                            )}
                             {eurResults.length > 0 && (
                               <>
-                                <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2, marginTop: pgaResults.length > 0 ? 10 : 0 }}>2025-26 DP World Tour Results</div>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2, marginTop: (pgaResults.length > 0 || livResults.length > 0) ? 10 : 0 }}>2025-26 DP World Tour Results</div>
                                 {eurResults.map(renderCard)}
                               </>
                             )}
