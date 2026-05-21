@@ -4910,24 +4910,13 @@ export default function Page() {
                                     <span
                                       key={`history-player-${event.id}-${player.id}`}
                                       onClick={async () => {
-                                        setPickHistoryView('majors');
-                                        setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: true, fedexRank: null, fullResults: null, fullResultsLoading: false, careerResults: null, careerResultsLoading: false });
-                                        const results: Partial<Record<TournamentId, { position: string; score: string } | null>> = {};
-                                        const [, fedexData] = await Promise.all([
-                                          Promise.all(TOURNAMENTS.map(async (ev) => {
-                                            try {
-                                              const cached = fullLeaderboardRows[ev.id];
-                                              const rows = cached ?? ((await readJson<FeedResponse>(`/api/leaderboard?tournamentId=${ev.id}&fullField=true`, { cache: 'no-store' })).fullLeaderboard ?? []);
-                                              if (!cached && rows.length > 0) setFullLeaderboardRows(prev => ({ ...prev, [ev.id]: rows }));
-                                              if (rows.length > 0) {
-                                                const found = rows.find((p) => p.poolPlayerId === player.id || p.name === player.name);
-                                                results[ev.id] = found ? { position: found.position, score: found.score } : null;
-                                              }
-                                            } catch { /* leave undefined → shows — */ }
-                                          })),
+                                        setPickHistoryView('full');
+                                        setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false });
+                                        const [fullData, fedexData] = await Promise.all([
+                                          readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
                                           readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
                                         ]);
-                                        setPickHistoryPlayerPopup((prev) => prev ? { ...prev, results, loading: false, fedexRank: fedexData.rank } : null);
+                                        setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null);
                                       }}
                                       style={{
                                         borderRadius: 999,
@@ -7846,55 +7835,36 @@ export default function Page() {
                       <span style={{ color: '#fb923c', fontWeight: 800, fontSize: 11 }}>Ex</span>
                       <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>: {pickHistoryPlayerPopup.fedexRank != null ? `${pickHistoryPlayerPopup.fedexRank}` : '--'}</span>
                     </div>
-                    {pickHistoryView === 'majors' ? (
-                      <button
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          setPickHistoryView('full');
-                          if (pickHistoryPlayerPopup.fullResults === null && !pickHistoryPlayerPopup.fullResultsLoading) {
-                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResultsLoading: true } : null);
-                            try {
-                              const data = await readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}`, { cache: 'no-store' });
-                              setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: data.results, fullResultsLoading: false } : null);
-                            } catch {
-                              setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResultsLoading: false } : null);
-                            }
-                          }
-                        }}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
-                      >
-                        Full 2026 Results
-                      </button>
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      {pickHistoryView === 'career' && (
                         <button
-                          onClick={(e) => { e.stopPropagation(); setPickHistoryView('majors'); }}
+                          onClick={(e) => { e.stopPropagation(); setPickHistoryView('full'); }}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
                         >
                           ← Back
                         </button>
-                        {pickHistoryView === 'full' && (
-                          <button
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              setPickHistoryView('career');
-                              if (pickHistoryPlayerPopup.careerResults === null && !pickHistoryPlayerPopup.careerResultsLoading) {
-                                setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: true } : null);
-                                try {
-                                  const data = await readJson<{ results: { year: number; course: string; position: string }[] | null }>(`/api/player-career?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}&tournamentId=${careerTournamentId}`, { cache: 'no-store' });
-                                  setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResults: data.results, careerResultsLoading: false } : null);
-                                } catch {
-                                  setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: false } : null);
-                                }
+                      )}
+                      {pickHistoryView === 'full' && (
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            setPickHistoryView('career');
+                            if (pickHistoryPlayerPopup.careerResults === null && !pickHistoryPlayerPopup.careerResultsLoading) {
+                              setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: true } : null);
+                              try {
+                                const data = await readJson<{ results: { year: number; course: string; position: string }[] | null }>(`/api/player-career?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}&tournamentId=${careerTournamentId}`, { cache: 'no-store' });
+                                setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResults: data.results, careerResultsLoading: false } : null);
+                              } catch {
+                                setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: false } : null);
                               }
-                            }}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
-                          >
-                            {TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? ''} Career Results
-                          </button>
-                        )}
-                      </div>
-                    )}
+                            }
+                          }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'underline', fontStyle: 'italic', padding: 0, lineHeight: 1 }}
+                        >
+                          {TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? ''} Career Results
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <button
@@ -7929,7 +7899,7 @@ export default function Page() {
                       })}
                     </div>
                   )
-                ) : pickHistoryView === 'full' ? (
+                ) : (
                   /* Full 2026 Results view */
                   pickHistoryPlayerPopup.fullResultsLoading ? (
                     <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Loading season results…</div>
@@ -7937,53 +7907,20 @@ export default function Page() {
                     <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Season results unavailable.</div>
                   ) : (
                     <div style={{ display: 'grid', gap: 6 }}>
-                      {(() => {
-                        return pickHistoryPlayerPopup.fullResults.map((r, i) => {
-                          const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
-                          return (
-                            <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
-                              <div style={{ minWidth: 0, flex: 1 }}>
-                                <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.tournament}</div>
-                                <div style={{ fontSize: 11, color: '#7a8c99', marginTop: 1 }}>{r.date}{r.course ? ` · ${r.course}` : ''}</div>
-                              </div>
-                              <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                                <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{r.position}</div>
-                              </div>
+                      {pickHistoryPlayerPopup.fullResults.map((r, i) => {
+                        const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
+                        return (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.tournament}</div>
+                              <div style={{ fontSize: 11, color: '#7a8c99', marginTop: 1 }}>{r.date}{r.course ? ` · ${r.course}` : ''}</div>
                             </div>
-                          );
-                        });
-                      })()}
-                    </div>
-                  )
-                ) : (
-                  /* Majors results view */
-                  pickHistoryPlayerPopup.loading ? (
-                    <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Loading results…</div>
-                  ) : (
-                    <div style={{ display: 'grid', gap: 8 }}>
-                      {(() => {
-                        return TOURNAMENTS.filter((event) => pickHistoryPlayerPopup.results[event.id] !== undefined).map((event) => {
-                          const result = pickHistoryPlayerPopup.results[event.id];
-                          const isCutWd = result && (result.position === 'CUT' || result.position === 'WD' || result.position === 'MDF');
-                          return (
-                            <div key={event.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 14px', borderRadius: 12, border: '1px solid #e2e8ef', background: '#fff', gap: 12 }}>
-                              <div style={{ minWidth: 0 }}>
-                                <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
-                                <div style={{ fontSize: 11, color: '#7a8c99', fontWeight: 500, marginTop: 1 }}>{event.venue}</div>
-                              </div>
-                              {result === undefined ? (
-                                <div style={{ fontSize: 13, color: '#b0bec5', fontWeight: 600, flexShrink: 0 }}>—</div>
-                              ) : result === null ? (
-                                <div style={{ fontSize: 12, color: '#a0b0bc', fontStyle: 'italic', flexShrink: 0 }}>Not in field</div>
-                              ) : (
-                                <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                                  <div style={{ fontSize: isMobile ? 20 : 22, fontWeight: 900, color: isCutWd ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{result.position}</div>
-                                </div>
-                              )}
+                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                              <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{r.position}</div>
                             </div>
-                          );
-                        });
-                      })()}
+                          </div>
+                        );
+                      })}
                     </div>
                   )
                 )}
