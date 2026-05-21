@@ -5310,7 +5310,25 @@ export default function Page() {
                               }}
                             >
                               <div style={{ fontSize: isMobile ? 13 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
-                              <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>{player.name}</div>
+                              <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span>{player.name}</span>
+                                <button
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    setPickHistoryView('full');
+                                    setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false });
+                                    const [fullData, fedexData] = await Promise.all([
+                                      readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
+                                      readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
+                                    ]);
+                                    setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null);
+                                  }}
+                                  style={{ width: 16, height: 16, borderRadius: '50%', border: '1.5px solid #9ca3af', background: 'transparent', color: '#9ca3af', fontSize: 10, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0, lineHeight: 1, touchAction: 'manipulation' }}
+                                  aria-label={`View ${player.name} stats`}
+                                >
+                                  i
+                                </button>
+                              </div>
                               <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
                               <button
                                 onClick={() => togglePlayer(player.id)}
@@ -6318,7 +6336,25 @@ export default function Page() {
                             }}
                           >
                             <div style={{ fontSize: isMobile ? 13 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
-                            <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>{player.name}</div>
+                            <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span>{player.name}</span>
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  setPickHistoryView('full');
+                                  setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false });
+                                  const [fullData, fedexData] = await Promise.all([
+                                    readJson<{ results: { tournament: string; date: string; course: string; position: string }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
+                                    readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
+                                  ]);
+                                  setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null);
+                                }}
+                                style={{ width: 16, height: 16, borderRadius: '50%', border: '1.5px solid #9ca3af', background: 'transparent', color: '#9ca3af', fontSize: 10, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0, lineHeight: 1, touchAction: 'manipulation' }}
+                                aria-label={`View ${player.name} stats`}
+                              >
+                                i
+                              </button>
+                            </div>
                             <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
                             <button
                               onClick={() => toggleCommissionerRosterPlayer(player.id)}

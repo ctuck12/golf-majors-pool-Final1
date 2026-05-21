@@ -1,6 +1,9 @@
 export const dynamic = 'force-dynamic';
 
+import redis from '@/app/lib/redis';
+
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues';
+const CACHE_TTL = 432000; // 120 hours
 
 const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Justin Thomas': '4848',
@@ -60,7 +63,12 @@ export async function GET(request: Request) {
   const pattern = TOURNAMENT_PATTERNS[tournamentId];
   if (!pattern) return Response.json({ results: null });
 
+  const cacheKey = `player-career:${tournamentId}:${name}`;
+
   try {
+    const cached = await redis.get(cacheKey);
+    if (cached) return Response.json({ results: JSON.parse(cached) });
+
     const espnId = await getEspnId(name);
     if (!espnId) return Response.json({ results: null });
 
@@ -126,6 +134,9 @@ export async function GET(request: Request) {
       .filter((r): r is CareerResult => r !== null)
       .sort((a, b) => b.year - a.year);
 
+    if (results.length > 0) {
+      await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(results));
+    }
     return Response.json({ results: results.length > 0 ? results : null });
   } catch {
     return Response.json({ results: null });
