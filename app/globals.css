@@ -85,8 +85,8 @@ body {
   flex-shrink: 0;
 }
 
-/* iPhone 14 Pro / 15 Pro and similar (≤ 400px) → scale to ~Pro Max proportions */
-@media (max-width: 400px) {
+/* iPhone 14 Pro / 15 Pro / 16 Pro / 17 Pro and similar (≤ 430px) → scale to ~Pro Max proportions */
+@media (max-width: 430px) {
   .app-root {
     zoom: 0.915;
   }
