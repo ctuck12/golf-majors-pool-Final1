@@ -8,7 +8,12 @@
       "Bash(curl -s --compressed \"https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/events/401811929/competitions/401811929/competitors/9478?lang=en&region=us&enable=statistics,status,score\")",
       "Bash(node -e 'process.stdin.resume\\(\\); let d='\\\\'''\\\\''; process.stdin.on\\('\\\\''data'\\\\'',c=>d+=c\\); process.stdin.on\\('\\\\''end'\\\\'',\\(\\)=>{ const j=JSON.parse\\(d\\); const status=j.status; const score=j.score; const stats=j.statistics; console.log\\('\\\\''status keys:'\\\\'', Object.keys\\(status||{}\\)\\); console.log\\('\\\\''score keys:'\\\\'', Object.keys\\(score||{}\\)\\); console.log\\('\\\\''stats keys:'\\\\'', Object.keys\\(stats||{}\\)\\); if\\(status&&!status['\\\\''$ref'\\\\'']\\){ console.log\\('\\\\''position:'\\\\'', JSON.stringify\\(status.position\\)\\); } if\\(score&&!score['\\\\''$ref'\\\\'']\\){ console.log\\('\\\\''score:'\\\\'', score.displayValue\\); } }\\);')",
       "Bash(curl -s --compressed \"https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/events/401811941/competitions/401811941/competitors/9478/statistics/0\")",
-      "Bash(node -e \"process.stdin.resume\\(\\); let d=''; process.stdin.on\\('data',c=>d+=c\\); process.stdin.on\\('end',\\(\\)=>{ const j=JSON.parse\\(d\\); const stats=j.splits?.categories?.[0]?.stats; if\\(stats\\) stats.forEach\\(s=>{ if\\(['scoreToPar','regScore','amount','cupPoints','position'].includes\\(s.name\\)\\) console.log\\(s.name, s.value, s.displayValue\\); }\\); }\\);\")"
+      "Bash(node -e \"process.stdin.resume\\(\\); let d=''; process.stdin.on\\('data',c=>d+=c\\); process.stdin.on\\('end',\\(\\)=>{ const j=JSON.parse\\(d\\); const stats=j.splits?.categories?.[0]?.stats; if\\(stats\\) stats.forEach\\(s=>{ if\\(['scoreToPar','regScore','amount','cupPoints','position'].includes\\(s.name\\)\\) console.log\\(s.name, s.value, s.displayValue\\); }\\); }\\);\")",
+      "mcp__c92e816d-b085-4a47-934a-0292696fe640__list_teams",
+      "mcp__c92e816d-b085-4a47-934a-0292696fe640__list_projects",
+      "mcp__c92e816d-b085-4a47-934a-0292696fe640__deploy_to_vercel",
+      "mcp__c92e816d-b085-4a47-934a-0292696fe640__get_project",
+      "mcp__c92e816d-b085-4a47-934a-0292696fe640__list_deployments"
     ]
   }
 }
