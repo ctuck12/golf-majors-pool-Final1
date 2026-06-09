@@ -3231,10 +3231,7 @@ export default function Page() {
                     border: 'none',
                     borderRadius: 16,
                     padding: '14px 16px',
-                    background:
-                      authMode === 'login'
-                        ? 'linear-gradient(135deg, #487dc2 0%, #3c6ea9 100%)'
-                        : 'linear-gradient(135deg, #315f95 0%, #284f7d 100%)',
+                    background: headerSolid,
                     color: '#fff',
                     fontSize: 15,
                     fontWeight: 900,
