@@ -121,6 +121,8 @@ body {
   }
   .entry-breakdown-modal {
     width: min(500px, 100%) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
   }
   .scoring-breakdown-modal {
     width: min(500px, 100%) !important;
