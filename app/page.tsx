@@ -8151,11 +8151,11 @@ export default function Page() {
               style={{ position: 'fixed', inset: 0, zIndex: 200, backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', background: 'rgba(10,20,35,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
             >
               {installDone ? (
-                <div style={{ background: '#fff', borderRadius: 24, padding: '36px 28px 28px', width: 'min(360px, 100%)', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.4)' }}>
-                  <img src="/gmp-logo.jpeg" alt="Golf Majors Pool" style={{ width: 120, height: 120, objectFit: 'contain', display: 'block', margin: '0 auto 18px' }} />
-                  <div style={{ fontSize: 36, marginBottom: 10 }}>🎉</div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#0f1720', marginBottom: 10 }}>You're All Set!</div>
-                  <div style={{ fontSize: 15, color: '#5b6b79', lineHeight: 1.6, marginBottom: 28 }}>
+                <div style={{ background: '#fff', borderRadius: 24, padding: '20px 28px 24px', width: 'min(360px, 100%)', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.4)', border: `2px solid ${headerSolid}` }}>
+                  <img src="/gmp-logo.jpeg" alt="Golf Majors Pool" style={{ width: 190, height: 190, objectFit: 'contain', display: 'block', margin: '0 auto 6px' }} />
+                  <div style={{ fontSize: 36, marginBottom: 6 }}>🎉</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#0f1720', marginBottom: 8 }}>You're All Set!</div>
+                  <div style={{ fontSize: 15, color: '#5b6b79', lineHeight: 1.6, marginBottom: 20 }}>
                     Close your browser and open the <strong style={{ color: navy }}>Golf Majors Pool</strong> app from your Home Screen for the full experience.
                   </div>
                   <button onClick={dismiss} style={{ background: 'none', border: 'none', color: '#9aa8b4', fontSize: 15, fontWeight: 600, cursor: 'pointer', padding: '8px 0' }}>
@@ -8163,13 +8163,13 @@ export default function Page() {
                   </button>
                 </div>
               ) : (
-                <div style={{ background: '#fff', borderRadius: 24, padding: '20px 24px 24px', width: 'min(360px, 100%)', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.4)', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto' }}>
-                  <img src="/gmp-logo.jpeg" alt="Golf Majors Pool" style={{ width: 160, height: 160, objectFit: 'contain', display: 'block', margin: '0 auto 10px' }} />
-                  <div style={{ fontSize: 21, fontWeight: 900, color: '#0f1720', marginBottom: 6 }}>{title}</div>
-                  <div style={{ fontSize: 14, color: '#5b6b79', lineHeight: 1.6, marginBottom: 16 }}>{subtitle}</div>
+                <div style={{ background: '#fff', borderRadius: 24, padding: '12px 24px 20px', width: 'min(360px, 100%)', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.4)', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto', border: `2px solid ${headerSolid}` }}>
+                  <img src="/gmp-logo.jpeg" alt="Golf Majors Pool" style={{ width: 190, height: 190, objectFit: 'contain', display: 'block', margin: '0 auto 6px' }} />
+                  <div style={{ fontSize: 21, fontWeight: 900, color: '#0f1720', marginBottom: 4 }}>{title}</div>
+                  <div style={{ fontSize: 14, color: '#5b6b79', lineHeight: 1.6, marginBottom: 12 }}>{subtitle}</div>
 
                   {steps.length > 0 && (
-                    <div style={{ background: '#f4f7fa', borderRadius: 16, padding: '14px 18px', textAlign: 'left', marginBottom: 16 }}>
+                    <div style={{ background: '#f4f7fa', borderRadius: 16, padding: '12px 18px', textAlign: 'left', marginBottom: 12 }}>
                       {steps.map(({ num, text }) => (
                         <div key={num} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: num < steps.length ? 14 : 0 }}>
                           <span style={{ minWidth: 22, height: 22, borderRadius: '50%', background: stepBubbleColor, color: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>{num}</span>
@@ -8180,11 +8180,11 @@ export default function Page() {
                   )}
 
                   {showDirectBtn ? (
-                    <button onClick={handleAndroidInstall} style={{ width: '100%', border: 'none', borderRadius: 14, padding: '15px 20px', background: headerSolid, color: '#fff', fontSize: 16, fontWeight: 900, cursor: 'pointer', marginBottom: 12 }}>
+                    <button onClick={handleAndroidInstall} style={{ width: '100%', border: 'none', borderRadius: 14, padding: '13px 20px', background: headerSolid, color: '#fff', fontSize: 16, fontWeight: 900, cursor: 'pointer', marginBottom: 10 }}>
                       Add to Home Screen
                     </button>
                   ) : (
-                    <button onClick={() => setInstallDone(true)} style={{ width: '100%', border: 'none', borderRadius: 14, padding: '15px 20px', background: headerSolid, color: '#fff', fontSize: 16, fontWeight: 900, cursor: 'pointer', marginBottom: 12 }}>
+                    <button onClick={() => setInstallDone(true)} style={{ width: '100%', border: 'none', borderRadius: 14, padding: '13px 20px', background: headerSolid, color: '#fff', fontSize: 16, fontWeight: 900, cursor: 'pointer', marginBottom: 10 }}>
                       I Added It
                     </button>
                   )}
