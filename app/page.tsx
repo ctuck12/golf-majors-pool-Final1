@@ -8091,6 +8091,7 @@ export default function Page() {
           const isAndroid = /Android/.test(ua);
           const isIOS = /iPhone|iPad|iPod/.test(ua);
           const isChromeIOS = /CriOS/.test(ua);
+          const isOtherBrowserIOS = isIOS && !isChromeIOS && /FxiOS|EdgiOS|OPiOS|GSA/.test(ua);
           const iosVerMatch = ua.match(/OS (\d+)[_\.]/);
           const iosVer = iosVerMatch ? parseInt(iosVerMatch[1]) : 0;
 
@@ -8122,18 +8123,25 @@ export default function Page() {
               { num: 2, text: <>Tap <strong>"Add to Home Screen"</strong> or <strong>"Install App"</strong></> },
               { num: 3, text: <>Tap <strong>"Add"</strong> to confirm</> },
             ];
+          } else if (isOtherBrowserIOS) {
+            title = 'Open in Safari to Install';
+            subtitle = 'Copy the URL, open Safari, and paste it there — then follow the steps below to add Golf Majors Pool to your Home Screen.';
+            steps = [
+              { num: 1, text: <>In Safari, tap the <strong>Share ⬆</strong> button</> },
+              { num: 2, text: <>Tap <strong>"Add to Home Screen"</strong></> },
+              { num: 3, text: <>Tap <strong>"Add"</strong> to confirm</> },
+            ];
           } else if (isIOS && isChromeIOS) {
             steps = [
               { num: 1, text: <>Tap the <strong>Share ⬆</strong> button in the top URL bar</> },
               { num: 2, text: <>Tap <strong>"More" ↓</strong> to expand all options</> },
               { num: 3, text: <>Scroll down and tap <strong>"Add to Home Screen"</strong> then <strong>"Add"</strong></> },
             ];
-          } else if (isIOS && iosVer >= 16) {
+          } else if (isIOS && iosVer >= 17) {
             steps = [
               { num: 1, text: <>Tap the <strong>···</strong> button in the bottom-right corner of Safari</> },
               { num: 2, text: <>Tap the <strong>Share ⬆</strong> button</> },
-              { num: 3, text: <>Tap <strong>"View More" ↓</strong> to expand all options</> },
-              { num: 4, text: <>Tap <strong>"Add to Home Screen"</strong> then <strong>"Add"</strong></> },
+              { num: 3, text: <>Tap <strong>"Add to Home Screen"</strong> then <strong>"Add"</strong></> },
             ];
           } else if (isIOS) {
             steps = [
