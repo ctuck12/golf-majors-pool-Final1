@@ -8152,7 +8152,7 @@ export default function Page() {
             >
               {installDone ? (
                 <div style={{ background: '#fff', borderRadius: 24, padding: '8px 28px 12px', width: 'min(360px, 100%)', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.4)', border: `2px solid ${headerSolid}`, maxHeight: 'calc(100svh - 48px)', overflowY: 'auto' }}>
-                  <img src="/gmp-logo.jpeg" alt="Golf Majors Pool" style={{ width: 'min(240px, calc(100vw - 96px))', height: 'auto', objectFit: 'contain', display: 'block', margin: '0 auto 4px' }} />
+                  <img src="/gmp-logo.jpeg" alt="Golf Majors Pool" style={{ width: 'min(240px, calc(100vw - 96px))', height: 'min(196px, calc(100vw - 140px))', objectFit: 'cover', objectPosition: 'top', display: 'block', margin: '0 auto 4px' }} />
                   <div style={{ fontSize: 28, marginBottom: 4 }}>🎉</div>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#0f1720', marginBottom: 4 }}>You're All Set!</div>
                   <div style={{ fontSize: 15, color: '#5b6b79', lineHeight: 1.6, marginBottom: 10 }}>
@@ -8164,7 +8164,7 @@ export default function Page() {
                 </div>
               ) : (
                 <div style={{ background: '#fff', borderRadius: 24, padding: '6px 24px 13px', width: 'min(360px, 100%)', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.4)', maxHeight: 'calc(100svh - 48px)', overflowY: 'auto', border: `2px solid ${headerSolid}` }}>
-                  <img src="/gmp-logo.jpeg" alt="Golf Majors Pool" style={{ width: 'min(240px, calc(100vw - 88px))', height: 'auto', objectFit: 'contain', display: 'block', margin: '0 auto 4px' }} />
+                  <img src="/gmp-logo.jpeg" alt="Golf Majors Pool" style={{ width: 'min(240px, calc(100vw - 88px))', height: 'min(196px, calc(100vw - 132px))', objectFit: 'cover', objectPosition: 'top', display: 'block', margin: '0 auto 4px' }} />
                   <div style={{ fontSize: 21, fontWeight: 900, color: '#0f1720', marginBottom: 2 }}>{title}</div>
                   <div style={{ fontSize: 14, color: '#5b6b79', lineHeight: 1.6, marginBottom: 8 }}>{subtitle}</div>
 
