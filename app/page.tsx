@@ -8123,12 +8123,10 @@ export default function Page() {
               { num: 3, text: <>Tap <strong>"Add"</strong> to confirm</> },
             ];
           } else if (isIOS && isChromeIOS) {
-            title = 'Open in Safari to Install';
-            subtitle = 'Chrome on iPhone doesn\'t support adding to your Home Screen directly. Open this page in Safari to install it.';
             steps = [
-              { num: 1, text: <>Tap the <strong>Share</strong> button ⬆ at the bottom of Chrome</> },
-              { num: 2, text: <>Tap <strong>"Open in Safari"</strong></> },
-              { num: 3, text: <>Follow the steps in Safari to add to your Home Screen</> },
+              { num: 1, text: <>Tap the <strong>Share ⬆</strong> button in the top URL bar</> },
+              { num: 2, text: <>Tap <strong>"More" ↓</strong> to expand all options</> },
+              { num: 3, text: <>Scroll down and tap <strong>"Add to Home Screen"</strong> then <strong>"Add"</strong></> },
             ];
           } else if (isIOS && iosVer >= 16) {
             steps = [
