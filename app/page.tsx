@@ -1484,10 +1484,14 @@ export default function Page() {
   }, [myEntriesEditorOpen, commissionerRosterMemberId]);
 
   useEffect(() => {
+    // Keep the search box reset when the pick sheet closes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!myEntriesEditorOpen) setEntriesPlayerSearch('');
   }, [myEntriesEditorOpen]);
 
   useEffect(() => {
+    // Keep the commissioner roster search reset when its editor closes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!commissionerRosterMemberId) setCommissionerPlayerSearch('');
   }, [commissionerRosterMemberId]);
 
@@ -1510,10 +1514,13 @@ export default function Page() {
 
   useEffect(() => {
     if (sessionUser) {
+      // Sync the editor with the active user/tournament.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedRoster(sessionUser.rosters[entriesTournamentId] ?? DEFAULT_ROSTERS[entriesTournamentId]);
       return;
     }
 
+    // Sync the guest editor with the active tournament.
     setSelectedRoster(readRoster(entriesTournamentId));
   }, [entriesTournamentId, sessionUser]);
 
@@ -1530,11 +1537,15 @@ export default function Page() {
 
   useEffect(() => {
     if (mainTab === 'Commissioner Hub' && !canManagePool) {
+      // Push unauthorized users back to the public standings tab.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMainTab('Standings');
     }
   }, [canManagePool, mainTab]);
 
   useEffect(() => {
+    // Mirror the selected tournament payout into the editable form.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPayoutForm({
       first: commissionerTournamentPayouts?.first ? String(commissionerTournamentPayouts.first) : '',
       second: commissionerTournamentPayouts?.second ? String(commissionerTournamentPayouts.second) : '',
@@ -1545,6 +1556,8 @@ export default function Page() {
   useEffect(() => {
     let active = true;
 
+    // Show cached tournaments immediately and only display loading when no cache exists.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(readFeedCache(selectedTournament) === null);
 
     const loadFeed = async () => {
@@ -1598,6 +1611,8 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    // Collapse temporary projected-cut affordances when switching context.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setExpandedCutIds(new Set());
     expandedCutTimersRef.current.forEach((t) => clearTimeout(t));
     expandedCutTimersRef.current.clear();
@@ -1654,10 +1669,13 @@ export default function Page() {
     const member = commissionerMembers.find((item) => item.id === selectedCommissionerMemberId);
 
     if (!member) {
+      // The selected member was removed or refreshed away.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedCommissionerMemberId(null);
       return;
     }
 
+    // Populate the edit form from the selected commissioner member.
     setMemberEditForm({
       displayName: member.displayName,
       email: member.email,
@@ -1673,6 +1691,8 @@ export default function Page() {
   }, [selectedCommissionerMemberId, commissionerMembers]);
 
   useEffect(() => {
+    // Keep the account form aligned with the current session.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAccountDisplayName(sessionUser?.displayName ?? '');
   }, [sessionUser]);
 
@@ -1683,6 +1703,8 @@ export default function Page() {
   }, [commissionerSuccess]);
 
   useEffect(() => {
+    // Clear success banners when changing commissioner context.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCommissionerSuccess('');
   }, [mainTab, commissionerConsoleView]);
 
@@ -1702,20 +1724,6 @@ export default function Page() {
       window.scrollTo(0, scrollY);
     };
   }, [activeStandingEntryId, activeStandingGolferId, scorecardGolferName, showBonusPoints]);
-
-  useEffect(() => {
-    if (!selectedLeaderboardPlayerId) return;
-    const topEntry = standings.find((entry) =>
-      entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
-    );
-    if (!topEntry) return;
-    const el = document.querySelector<HTMLElement>(`[data-entry-id="${topEntry.id}"]`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  // standings is a derived value; we only want to scroll on player selection changes
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedLeaderboardPlayerId]);
 
   const applySession = (payload: SessionPayload) => {
     setSessionUser(payload.user);
@@ -2243,10 +2251,7 @@ export default function Page() {
     [feedMap, liveOddsMap],
   );
 
-  const playersById = useMemo(
-    () => Object.fromEntries(players.map((player) => [player.id, player])),
-    [players],
-  );
+  const playersById = Object.fromEntries(players.map((player) => [player.id, player]));
   const selectedCommissionerMember =
     commissionerMembers.find((member) => member.id === selectedCommissionerMemberId) ?? null;
   const filteredCommissionerMembers = commissionerMembers
@@ -2339,7 +2344,7 @@ export default function Page() {
     if (selectedTournamentStatus?.label !== 'IN PROGRESS') return false;
     const showAt = TOURNAMENT_CUT_SHOW_AT[selectedTournament];
     if (!showAt) return false;
-    const now = Date.now();
+    const now = nowTick;
     if (now < new Date(showAt).getTime()) return false;
     const hideAt = TOURNAMENT_CUT_HIDE_AT[selectedTournament];
     return hideAt ? now < new Date(hideAt).getTime() : true;
@@ -2428,7 +2433,7 @@ export default function Page() {
     })
     .map((entry, index) => ({ ...entry, place: index + 1 }));
 
-  const pickedPlayerIds = useMemo(() => {
+  const pickedPlayerIds = (() => {
     const ids = new Set<number>();
     for (const entry of liveStandingEntries) {
       for (const id of entry.rosters[selectedTournament] ?? []) {
@@ -2436,7 +2441,21 @@ export default function Page() {
       }
     }
     return ids;
-  }, [liveStandingEntries, selectedTournament]);
+  })();
+
+  useEffect(() => {
+    if (!selectedLeaderboardPlayerId) return;
+    const topEntry = standings.find((entry) =>
+      entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)
+    );
+    if (!topEntry) return;
+    const el = document.querySelector<HTMLElement>(`[data-entry-id="${topEntry.id}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  // standings is a derived value; we only want to scroll on player selection changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLeaderboardPlayerId]);
 
   const activeStandingEntry = standings.find((entry) => entry.id === activeStandingEntryId) ?? null;
   const activeStandingGolfers = activeStandingEntry
@@ -2558,7 +2577,7 @@ export default function Page() {
     setActiveStandingEntryId(null);
     setActiveStandingGolferId(null);
     setCommissionerMemberModalOpen(false);
-    setNowTick(Date.now());
+    setNowTick(window.performance.timeOrigin + window.performance.now());
 
     startTransition(() => {
       if (tab === 'Standings') {
