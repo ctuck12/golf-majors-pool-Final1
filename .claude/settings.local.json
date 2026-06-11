@@ -14,7 +14,8 @@
       "mcp__c92e816d-b085-4a47-934a-0292696fe640__deploy_to_vercel",
       "mcp__c92e816d-b085-4a47-934a-0292696fe640__get_project",
       "mcp__c92e816d-b085-4a47-934a-0292696fe640__list_deployments",
-      "Bash(cp \"/root/.claude/uploads/b66ec636-69d0-578f-8d0f-d7a3e24eb42d/fd8229f9-IMG_294BC94ED227448187B4CEE2D670A0E9.jpeg\" /home/user/golf-majors-pool-Final1/public/gmp-logo.jpeg && ls -lh /home/user/golf-majors-pool-Final1/public/gmp-logo.jpeg)"
+      "Bash(cp \"/root/.claude/uploads/b66ec636-69d0-578f-8d0f-d7a3e24eb42d/fd8229f9-IMG_294BC94ED227448187B4CEE2D670A0E9.jpeg\" /home/user/golf-majors-pool-Final1/public/gmp-logo.jpeg && ls -lh /home/user/golf-majors-pool-Final1/public/gmp-logo.jpeg)",
+      "mcp__c92e816d-b085-4a47-934a-0292696fe640__get_deployment_build_logs"
     ]
   }
 }
