@@ -1273,6 +1273,10 @@ export default function Page() {
 
   const [isMobile, setIsMobile] = useState(false);
 
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [installDone, setInstallDone] = useState(false);
+  const [deferredInstallEvent, setDeferredInstallEvent] = useState<Event | null>(null);
+
   useLayoutEffect(() => {
     const right = leaderboardColRef.current;
     if (!right) return;
@@ -1709,7 +1713,7 @@ export default function Page() {
   }, [mainTab, commissionerConsoleView]);
 
   useEffect(() => {
-    const anyOpen = !!activeStandingEntryId || !!activeStandingGolferId || !!scorecardGolferName || showBonusPoints;
+    const anyOpen = !!activeStandingEntryId || !!activeStandingGolferId || !!scorecardGolferName || showBonusPoints || showInstallPrompt;
     if (!anyOpen) return;
     const scrollY = window.scrollY;
     document.body.style.position = 'fixed';
@@ -1723,7 +1727,26 @@ export default function Page() {
       document.body.style.overflow = '';
       window.scrollTo(0, scrollY);
     };
-  }, [activeStandingEntryId, activeStandingGolferId, scorecardGolferName, showBonusPoints]);
+  }, [activeStandingEntryId, activeStandingGolferId, scorecardGolferName, showBonusPoints, showInstallPrompt]);
+
+  // Capture Android "Add to Home Screen" deferred prompt
+  useEffect(() => {
+    const handler = (e: Event) => { e.preventDefault(); setDeferredInstallEvent(e); };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  // Show install guide on mobile browsers when not already installed
+  useEffect(() => {
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as { standalone?: boolean }).standalone === true;
+    const dismissed = localStorage.getItem('gmp_install_dismissed');
+    const isMobileUA = /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
+    if (!isStandalone && !dismissed && isMobileUA) {
+      setShowInstallPrompt(true);
+    }
+  }, []);
 
   const applySession = (payload: SessionPayload) => {
     setSessionUser(payload.user);
@@ -8062,6 +8085,121 @@ export default function Page() {
 
         </>
         ) : null}
+
+        {showInstallPrompt && (() => {
+          const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+          const isAndroid = /Android/.test(ua);
+          const isIOS = /iPhone|iPad|iPod/.test(ua);
+          const isChromeIOS = /CriOS/.test(ua);
+          const iosVerMatch = ua.match(/OS (\d+)[_\.]/);
+          const iosVer = iosVerMatch ? parseInt(iosVerMatch[1]) : 0;
+
+          const dismiss = () => {
+            localStorage.setItem('gmp_install_dismissed', '1');
+            setShowInstallPrompt(false);
+            setInstallDone(false);
+          };
+
+          const handleAndroidInstall = async () => {
+            if (deferredInstallEvent) {
+              (deferredInstallEvent as { prompt: () => void; userChoice: Promise<{ outcome: string }> }).prompt();
+              const { outcome } = await (deferredInstallEvent as { prompt: () => void; userChoice: Promise<{ outcome: string }> }).userChoice;
+              if (outcome === 'accepted') { setInstallDone(true); dismiss(); }
+            }
+          };
+
+          type Step = { num: number; text: React.ReactNode };
+          let steps: Step[] = [];
+          let title = 'Get the Best Experience';
+          let subtitle = 'Add this app to your Home Screen for a full-screen experience with no browser bar.';
+          let showDirectBtn = false;
+
+          if (isAndroid && deferredInstallEvent) {
+            showDirectBtn = true;
+          } else if (isAndroid) {
+            steps = [
+              { num: 1, text: <>Tap the <strong>⋮</strong> menu in the top-right corner of your browser</> },
+              { num: 2, text: <>Tap <strong>"Add to Home Screen"</strong> or <strong>"Install App"</strong></> },
+              { num: 3, text: <>Tap <strong>"Add"</strong> to confirm</> },
+            ];
+          } else if (isIOS && isChromeIOS) {
+            title = 'Open in Safari to Install';
+            subtitle = 'Chrome on iPhone doesn\'t support adding to your Home Screen directly. Open this page in Safari to install it.';
+            steps = [
+              { num: 1, text: <>Tap the <strong>Share</strong> button ⬆ at the bottom of Chrome</> },
+              { num: 2, text: <>Tap <strong>"Open in Safari"</strong></> },
+              { num: 3, text: <>Follow the steps in Safari to add to your Home Screen</> },
+            ];
+          } else if (isIOS && iosVer >= 16) {
+            steps = [
+              { num: 1, text: <>Tap the <strong>···</strong> button in the bottom-right corner of Safari</> },
+              { num: 2, text: <>Tap the <strong>Share ⬆</strong> button</> },
+              { num: 3, text: <>Tap <strong>"View More" ↓</strong> to expand all options</> },
+              { num: 4, text: <>Tap <strong>"Add to Home Screen"</strong> then <strong>"Add"</strong></> },
+            ];
+          } else if (isIOS) {
+            steps = [
+              { num: 1, text: <>Tap the <strong>Share ⬆</strong> button at the bottom of Safari</> },
+              { num: 2, text: <>Scroll down and tap <strong>"Add to Home Screen"</strong></> },
+              { num: 3, text: <>Tap <strong>"Add"</strong> in the top-right corner</> },
+            ];
+          }
+
+          const gold = '#B09963';
+          const navy = '#173b63';
+
+          return (
+            <div
+              style={{ position: 'fixed', inset: 0, zIndex: 200, backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', background: 'rgba(10,20,35,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+            >
+              {installDone ? (
+                <div style={{ background: '#fff', borderRadius: 24, padding: '36px 28px 28px', width: 'min(360px, 100%)', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.4)' }}>
+                  <img src="/gmp-logo.jpeg" alt="Golf Majors Pool" style={{ width: 120, height: 120, objectFit: 'contain', display: 'block', margin: '0 auto 18px' }} />
+                  <div style={{ fontSize: 36, marginBottom: 10 }}>🎉</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#0f1720', marginBottom: 10 }}>You're All Set!</div>
+                  <div style={{ fontSize: 15, color: '#5b6b79', lineHeight: 1.6, marginBottom: 28 }}>
+                    Close your browser and open the <strong style={{ color: navy }}>Golf Majors Pool</strong> app from your Home Screen for the full experience.
+                  </div>
+                  <button onClick={dismiss} style={{ background: 'none', border: 'none', color: '#9aa8b4', fontSize: 15, fontWeight: 600, cursor: 'pointer', padding: '8px 0' }}>
+                    Continue in Browser Anyway
+                  </button>
+                </div>
+              ) : (
+                <div style={{ background: '#fff', borderRadius: 24, padding: '32px 24px 24px', width: 'min(360px, 100%)', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.4)', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto' }}>
+                  <img src="/gmp-logo.jpeg" alt="Golf Majors Pool" style={{ width: 110, height: 110, objectFit: 'contain', display: 'block', margin: '0 auto 16px' }} />
+                  <div style={{ fontSize: 21, fontWeight: 900, color: '#0f1720', marginBottom: 8 }}>{title}</div>
+                  <div style={{ fontSize: 14, color: '#5b6b79', lineHeight: 1.6, marginBottom: 20 }}>{subtitle}</div>
+
+                  {steps.length > 0 && (
+                    <div style={{ background: '#f4f7fa', borderRadius: 16, padding: '16px 18px', textAlign: 'left', marginBottom: 20 }}>
+                      {steps.map(({ num, text }) => (
+                        <div key={num} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: num < steps.length ? 14 : 0 }}>
+                          <span style={{ minWidth: 22, height: 22, borderRadius: '50%', background: gold, color: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>{num}</span>
+                          <span style={{ fontSize: 14, color: '#2d3748', lineHeight: 1.5 }}>{text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {showDirectBtn ? (
+                    <button onClick={handleAndroidInstall} style={{ width: '100%', border: 'none', borderRadius: 14, padding: '15px 20px', background: navy, color: '#fff', fontSize: 16, fontWeight: 900, cursor: 'pointer', marginBottom: 12 }}>
+                      Add to Home Screen
+                    </button>
+                  ) : (
+                    <button onClick={() => setInstallDone(true)} style={{ width: '100%', border: 'none', borderRadius: 14, padding: '15px 20px', background: navy, color: '#fff', fontSize: 16, fontWeight: 900, cursor: 'pointer', marginBottom: 12 }}>
+                      I Added It
+                    </button>
+                  )}
+
+                  <button onClick={dismiss} style={{ background: 'none', border: 'none', color: '#9aa8b4', fontSize: 14, fontWeight: 600, cursor: 'pointer', padding: '8px 0', width: '100%' }}>
+                    Continue in Browser Instead
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
       </div>
     </div>
   );
