@@ -8102,8 +8102,8 @@ export default function Page() {
 
           const handleAndroidInstall = async () => {
             if (deferredInstallEvent) {
-              (deferredInstallEvent as { prompt: () => void; userChoice: Promise<{ outcome: string }> }).prompt();
-              const { outcome } = await (deferredInstallEvent as { prompt: () => void; userChoice: Promise<{ outcome: string }> }).userChoice;
+              (deferredInstallEvent as unknown as { prompt: () => void; userChoice: Promise<{ outcome: string }> }).prompt();
+              const { outcome } = await (deferredInstallEvent as unknown as { prompt: () => void; userChoice: Promise<{ outcome: string }> }).userChoice;
               if (outcome === 'accepted') { setInstallDone(true); dismiss(); }
             }
           };
