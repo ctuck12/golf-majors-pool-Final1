@@ -135,7 +135,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 239, name: 'Ryuichi Oiwa',                     pgaTourId: 48933, defaultOdds: '+30000',  worldRank: 389 },
   { id: 240, name: 'Filippo Celli',                    pgaTourId: 52444, defaultOdds: '+30000',  worldRank: 438 },
   { id: 241, name: 'Kaito Onishi',                     pgaTourId: 55623, defaultOdds: '+100000', worldRank: 804 },
-  { id: 242, name: 'Robbie Higgins',                   pgaTourId: 99999, defaultOdds: '+100000', worldRank: 999 },
+  { id: 242, name: 'Robbie Higgins',                   pgaTourId: 99999, defaultOdds: '+100000', worldRank: 999, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_65460' },
   { id: 243, name: 'Jackson Van Paris',                pgaTourId: 57864, defaultOdds: '+50000',  worldRank: 704 },
   { id: 244, name: 'Rocco Paolo Repetto Taylor',       pgaTourId: 65229, defaultOdds: '+30000',  worldRank: 358 },
   { id: 245, name: 'Manav Shah',                       pgaTourId: 47687, defaultOdds: '+100000', worldRank: 997 },
