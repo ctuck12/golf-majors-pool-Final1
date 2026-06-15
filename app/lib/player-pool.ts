@@ -96,7 +96,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 200, name: 'Jackson Suber',                    pgaTourId: 60019, defaultOdds: '+20000',  worldRank: 128 },
   { id: 201, name: 'Carlos Ortiz',                     pgaTourId: 35617, defaultOdds: '+20000',  worldRank: 188 },
   { id: 202, name: 'Jayden Trey Schaper',              pgaTourId: 99999, defaultOdds: '+20000',  worldRank:  70 },
-  { id: 203, name: 'Benjamin James',                   pgaTourId: 99999, defaultOdds: '+100000', worldRank: 999 },
+  { id: 203, name: 'Benjamin James',                   pgaTourId: 99999, defaultOdds: '+100000', worldRank: 999, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_57869' },
   { id: 204, name: 'Nathan Kimsey',                    pgaTourId: 45426, defaultOdds: '+30000',  worldRank: 214 },
   { id: 205, name: 'Adrien Dumont De Chassart',        pgaTourId: 57666, defaultOdds: '+20000',  worldRank: 168 },
   { id: 206, name: 'Ben Kohles',                       pgaTourId: 99999, defaultOdds: '+20000',  worldRank: 184, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_36884' },
