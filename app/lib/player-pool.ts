@@ -129,7 +129,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 233, name: 'Greyson Leach',                    pgaTourId: 99999, defaultOdds: '+100000', worldRank: 999 },
   { id: 234, name: 'Marcelo Rozo',                     pgaTourId: 99999, defaultOdds: '+50000',  worldRank: 534 },
   { id: 235, name: 'J.B. Holmes',                      pgaTourId: 23673, defaultOdds: '+100000', worldRank: 970 },
-  { id: 236, name: 'Jake Peacock',                     pgaTourId: 99999, defaultOdds: '+100000', worldRank: 999 },
+  { id: 236, name: 'Jake Peacock',                     pgaTourId: 99999, defaultOdds: '+100000', worldRank: 999, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_66035' },
   { id: 237, name: 'Brandon Wu',                       pgaTourId: 48770, defaultOdds: '+50000',  worldRank: 703 },
   { id: 238, name: 'Jake Sollon',                      pgaTourId: 99999, defaultOdds: '+100000', worldRank: 999 },
   { id: 239, name: 'Ryuichi Oiwa',                     pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 389 },
