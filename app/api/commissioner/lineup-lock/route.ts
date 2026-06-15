@@ -6,6 +6,7 @@ import {
   TOURNAMENT_IDS,
   type TournamentId,
   updatePoolLineupLock,
+  updatePoolPicksOpen,
 } from '../../../lib/pool-store';
 
 const COMMISSIONER_EMAIL = 'ctuck12@gmail.com';
@@ -32,17 +33,23 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    const body = (await request.json()) as { tournamentId?: string; locked?: boolean };
+    const body = (await request.json()) as { tournamentId?: string; locked?: boolean; picksOpen?: boolean };
 
     if (!body.tournamentId || !isTournamentId(body.tournamentId)) {
       return NextResponse.json({ error: 'Unknown tournament.' }, { status: 400 });
     }
 
-    if (typeof body.locked !== 'boolean') {
-      return NextResponse.json({ error: 'Locked state is required.' }, { status: 400 });
+    if (typeof body.locked !== 'boolean' && typeof body.picksOpen !== 'boolean') {
+      return NextResponse.json({ error: 'locked or picksOpen is required.' }, { status: 400 });
     }
 
-    const pool = await updatePoolLineupLock(session.user.id, body.tournamentId, body.locked);
+    let pool;
+    if (typeof body.locked === 'boolean') {
+      pool = await updatePoolLineupLock(session.user.id, body.tournamentId, body.locked);
+    }
+    if (typeof body.picksOpen === 'boolean') {
+      pool = await updatePoolPicksOpen(session.user.id, body.tournamentId, body.picksOpen);
+    }
     return NextResponse.json({ pool });
   } catch (error) {
     return NextResponse.json(

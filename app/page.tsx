@@ -42,37 +42,35 @@ const TOURNAMENT_TOTAL_PAR: Partial<Record<string, number>> = {
   open: 284,      // Royal Portrush, par 71 (2026)
 };
 
-// Exact salaries for the 2026 PGA Championship field (overrides the computed odds-based salary)
+// Exact salaries for the 2026 US Open field (overrides the computed odds-based salary)
 const PGA_SALARY_OVERRIDES: Record<number, number> = {
-    1: 11900,   2: 10400,  16:  9200,  15:  9100,  23:  9100,
-    3:  8800,   5:  8600,   6:  8500,  20:  8100,   4:  8000,
-   18:  7900,  61:  7900,   7:  7700,  17:  7700,   9:  7700,
-   21:  7600,  29:  7600,   8:  7500,  10:  7500,  50:  7500,
-   22:  7400,  37:  7400,  90:  7400,  30:  7300,  19:  7300,
-   25:  7300,  31:  7300,  14:  7300,  12:  7300,  53:  7200,
-   54:  7200,  40:  7200,  35:  7200,  27:  7100,  45:  7100,
-   49:  7100,  33:  7100,  94:  7000,  55:  7000,  60:  7000,
-   38:  7000,  32:  7000, 116:  7000,  36:  7000, 114:  7000,
-   98:  7000,  66:  6900,  24:  6800, 146:  6800, 112:  6800,
-   80:  6800, 145:  6800,  57:  6700,  13:  6700, 121:  6700,
-   48:  6700, 126:  6700, 158:  6700,  91:  6600, 102:  6600,
-   28:  6600, 186:  6600,  72:  6600,  39:  6600,  75:  6600,
-   78:  6600,  74:  6600,  42:  6600, 193:  6600,  52:  6500,
-   34:  6500,  43:  6500,  93:  6500,  47:  6500, 119:  6500,
-   44:  6500,  68:  6400, 153:  6400, 157:  6400,  59:  6400,
-   58:  6400,  67:  6400, 148:  6400,  96:  6400, 139:  6400,
-   76:  6400,  81:  6400, 131:  6300,  51:  6300, 166:  6300,
-   63:  6300, 194:  6300, 151:  6300, 152:  6300, 136:  6300,
-  170:  6300, 149:  6300,  56:  6300, 159:  6200, 117:  6200,
-   64:  6200,  69:  6200,  70:  6200, 154:  6200,  79:  6200,
-   62:  6200, 150:  6200, 161:  6200, 171:  6200,  41:  6200,
-  168:  6200, 155:  6200,  65:  6100, 104:  6100, 169:  6100,
-   77:  6100, 163:  6100, 167:  6100, 164:  6100, 143:  6100,
-   71:  6100,  73:  6000,  46:  6000,  92:  6000, 165:  5900,
-   87:  5900,  85:  5900, 172:  5900, 185:  5900, 103:  5900,
-  173:  5900, 144:  5900,  89:  5900,  84:  5900, 174:  5900,
-  178:  5900, 181:  5900, 175:  5900,  82:  5900, 184:  5900,
-  190:  5900, 192:  5900, 188:  5900, 191:  5900, 183:  5800,
+    1: 11900,   2: 10200,  16:  9900,   3:  9100,  23:  9100,
+   20:  9100,   6:  9000,   5:  8900,  15:  8600,   9:  8300,
+   29:  8200,  25:  8100,  24:  8100,  21:  8100,   4:  8100,
+   37:  8000,  18:  7900,  61:  7900,  90:  7900,  50:  7900,
+   17:  7900,   7:  7900,  53:  7700,   8:  7600,  19:  7600,
+   22:  7500,  10:  7500,  12:  7500,  40:  7500,  30:  7500,
+   45:  7500,  49:  7400,  94:  7400,  55:  7300, 126:  7300,
+   58:  7300, 116:  7200, 114:  7200,  78:  7200,  54:  7200,
+   31:  7200,  38:  7200,  72:  7200, 146:  7200,  66:  7100,
+   14:  7100,  28:  7100,  47:  7100,  35:  7100,  48:  7100,
+   36:  7000,  60:  7000,  27:  7000,  43:  7000, 158:  6900,
+  102:  6900,  57:  6900, 121:  6800,  33:  6800,  13:  6800,
+   98:  6800, 193:  6800,  42:  6800, 198:  6700,  32:  6700,
+  197:  6700, 119:  6600, 199:  6600,  44:  6600, 200:  6600,
+   51:  6600,  74:  6500,  75:  6500,  59:  6500,  68:  6500,
+  201:  6500, 202:  6500,  93:  6500,  62:  6500, 203:  6500,
+  150:  6400,  64:  6400,  69:  6400, 136:  6400, 151:  6400,
+   41:  6400,  63:  6400,  79:  6400,  56:  6400, 159:  6400,
+  204:  6400, 205:  6400, 206:  6300, 207:  6300, 208:  6200,
+  209:  6200, 210:  6200, 211:  6200, 212:  6200, 213:  6200,
+  214:  6200, 215:  6200, 216:  6200, 169:  6200, 217:  6100,
+   87:  6100, 218:  6100, 219:  6100, 220:  6100, 221:  6100,
+  222:  6100, 223:  6100, 224:  6100, 225:  6100, 226:  6100,
+  227:  6100, 228:  6000, 229:  6000, 230:  6000, 231:  6000,
+  232:  6000, 233:  6000, 234:  6000, 235:  6000, 236:  6000,
+  237:  6000, 238:  6000, 239:  6000, 240:  6000, 241:  6000,
+  242:  6000, 243:  5900, 244:  5900, 245:  5900, 246:  5900,
 };
 const STORAGE_PREFIX = 'golf-pool-live';
 const SALARY_MIN = 5000;
@@ -439,6 +437,7 @@ type PoolInfo = {
   name: string;
   joinCode: string;
   lineupLocks: Partial<Record<TournamentId, boolean>>;
+  picksOpen: Partial<Record<TournamentId, boolean>>;
   payouts: Partial<Record<TournamentId, { first: number; second: number; third: number }>>;
 };
 
@@ -1305,9 +1304,9 @@ export default function Page() {
   const careerTournamentId = getDefaultTournamentId(tournamentCardStatuses, new Date());
   const entriesTournament = TOURNAMENTS.find((item) => item.id === entriesTournamentId) ?? TOURNAMENTS[0];
   const entriesTournamentStatus = tournamentCardStatuses[entriesTournamentId];
-  const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE';
+  const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE' && pool?.picksOpen?.[entriesTournamentId] === true;
   const entriesPreFieldView =
-    entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null;
+    entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null || !entriesPicksOpenForTournament;
   const entriesDefaultLocked = isLineupLocked(entriesTournament.lockAt, nowTick);
   const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? (entriesDefaultLocked || entriesTournamentStatus?.label === 'IN PROGRESS');
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
@@ -1979,6 +1978,35 @@ export default function Page() {
     }
   };
 
+  const handleTogglePicksOpen = async () => {
+    if (!sessionUser || !canManagePool || !pool) {
+      return;
+    }
+
+    setCommissionerBusy(true);
+    setCommissionerError('');
+    setCommissionerSuccess('');
+
+    try {
+      const currentlyOpen = pool.picksOpen?.[selectedTournament] === true;
+      const payload = await readJson<{ pool: PoolInfo }>('/api/commissioner/lineup-lock', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tournamentId: selectedTournament,
+          picksOpen: !currentlyOpen,
+        }),
+      });
+
+      setPool(payload.pool);
+      setCommissionerSuccess(`Picks ${payload.pool.picksOpen?.[selectedTournament] ? 'opened' : 'closed'}.`);
+    } catch (err) {
+      setCommissionerError(err instanceof Error ? err.message : 'Unable to update picks open state.');
+    } finally {
+      setCommissionerBusy(false);
+    }
+  };
+
   const handleSavePayouts = async () => {
     if (!sessionUser || !canManagePool || !pool) {
       return;
@@ -2382,7 +2410,7 @@ export default function Page() {
   const currentRoundLabel = selectedTournamentStatus?.label === 'LOCKED'
     ? 'Round 4'
     : getCurrentRoundLabel(displayTournamentWindow.startDate, new Date(nowTick));
-  const picksOpenForTournament = selectedTournamentStatus?.label === 'ACTIVE';
+  const picksOpenForTournament = selectedTournamentStatus?.label === 'ACTIVE' && pool?.picksOpen?.[selectedTournament] === true;
   const tournamentStartLabel = formatTournamentStartDate(displayTournamentWindow.inProgressAt);
 
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
@@ -5721,6 +5749,28 @@ export default function Page() {
                   <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800 }}>{locked ? 'Locked' : 'Unlocked'}</div>
                   <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
                     {locked ? 'Click to unlock roster editing' : 'Click to lock roster editing'}
+                  </div>
+                </button>
+                <button
+                  onClick={handleTogglePicksOpen}
+                  disabled={!canManagePool || commissionerBusy}
+                  style={{
+                    border: `1px solid ${pool?.picksOpen?.[selectedTournament] ? '#2d7a4f' : '#e6edf1'}`,
+                    borderRadius: isMobile ? 12 : 18,
+                    padding: isMobile ? 10 : 16,
+                    background: pool?.picksOpen?.[selectedTournament] ? '#edf7f1' : '#f8fbfd',
+                    textAlign: 'left',
+                    cursor: !canManagePool || commissionerBusy ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                    Picks
+                  </div>
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800 }}>
+                    {pool?.picksOpen?.[selectedTournament] ? 'Open' : 'Closed'}
+                  </div>
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
+                    {pool?.picksOpen?.[selectedTournament] ? 'Click to hide pick sheet' : 'Click to show pick sheet'}
                   </div>
                 </button>
                 <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 12 : 18, padding: isMobile ? 10 : 16, background: '#f8fbfd' }}>
