@@ -152,6 +152,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 194, name: 'Brandt Snedeker',            pgaTourId: 25818, defaultOdds: '+25000',  worldRank: 131 },
   { id: 195, name: 'Bubba Watson',               pgaTourId: 25804, defaultOdds: '+100000', worldRank: 999 },
   { id: 196, name: 'Zach Johnson',               pgaTourId: 24024, defaultOdds: '+100000', worldRank: 999 },
+  { id: 197, name: 'Lucas Herbert',              pgaTourId: 39058, defaultOdds: '+20000',  worldRank:  88, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_39058' },
 ] as const;
 
 export type PlayerPoolEntry = (typeof PLAYER_POOL_WITH_PGA_IDS)[number];

@@ -73,6 +73,7 @@ const PGA_SALARY_OVERRIDES: Record<number, number> = {
   173:  5900, 144:  5900,  89:  5900,  84:  5900, 174:  5900,
   178:  5900, 181:  5900, 175:  5900,  82:  5900, 184:  5900,
   190:  5900, 192:  5900, 188:  5900, 191:  5900, 183:  5800,
+  197:  6700,
 };
 const STORAGE_PREFIX = 'golf-pool-live';
 const SALARY_MIN = 5000;
