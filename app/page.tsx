@@ -1304,7 +1304,7 @@ export default function Page() {
   const entriesTournamentStatus = tournamentCardStatuses[entriesTournamentId];
   const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE';
   const entriesPreFieldView =
-    entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null;
+    entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null || !picksOpenForTournament;
   const entriesDefaultLocked = isLineupLocked(entriesTournament.lockAt, nowTick);
   const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? (entriesDefaultLocked || entriesTournamentStatus?.label === 'IN PROGRESS');
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
@@ -4735,33 +4735,31 @@ export default function Page() {
                             ))}
                           </div>
                         </div>
-                        {picksOpenForTournament && (
-                          <button
-                            onClick={entriesLocked ? undefined : openMyEntriesEditor}
-                            disabled={entriesLocked}
-                            style={{
-                              border: 'none',
-                              borderRadius: 16,
-                              padding: isMobile ? '10px 16px' : '11px 18px',
-                              background: entriesLocked ? '#b0bec5' : entriesTournamentSolid,
-                              color: '#fff',
-                              fontSize: isMobile ? 14 : 14,
-                              fontWeight: 900,
-                              cursor: entriesLocked ? 'not-allowed' : 'pointer',
-                              boxShadow: entriesLocked ? 'none' : '0 14px 28px rgba(9, 34, 51, 0.22)',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: 8,
-                              whiteSpace: 'nowrap',
-                              opacity: entriesLocked ? 0.7 : 1,
-                            }}
-                          >
-                            <Pencil size={isMobile ? 13 : 14} />
-                            Edit Picks
-                          </button>
-                        )}
+                        <button
+                          onClick={entriesLocked ? undefined : openMyEntriesEditor}
+                          disabled={entriesLocked}
+                          style={{
+                            border: 'none',
+                            borderRadius: 16,
+                            padding: isMobile ? '10px 16px' : '11px 18px',
+                            background: entriesLocked ? '#b0bec5' : entriesTournamentSolid,
+                            color: '#fff',
+                            fontSize: isMobile ? 14 : 14,
+                            fontWeight: 900,
+                            cursor: entriesLocked ? 'not-allowed' : 'pointer',
+                            boxShadow: entriesLocked ? 'none' : '0 14px 28px rgba(9, 34, 51, 0.22)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            whiteSpace: 'nowrap',
+                            opacity: entriesLocked ? 0.7 : 1,
+                          }}
+                        >
+                          <Pencil size={isMobile ? 13 : 14} />
+                          Edit Picks
+                        </button>
                       </div>
-                    ) : picksOpenForTournament ? (
+                    ) : (
                       <button
                         onClick={entriesLocked ? undefined : openMyEntriesEditor}
                         disabled={entriesLocked}
@@ -4784,7 +4782,7 @@ export default function Page() {
                         <Pencil size={12} />
                         Make Picks
                       </button>
-                    ) : null}
+                    )}
                   </div>
                   <div style={{ textAlign: 'right', position: 'relative' }}>
                     {myEntriesMenuOpen ? (
@@ -4836,32 +4834,30 @@ export default function Page() {
                           zIndex: 10,
                         }}
                       >
-                        {picksOpenForTournament && (
-                          <button
-                            onClick={entriesLocked ? undefined : () => {
-                              setMyEntriesMenuOpen(false);
-                              openMyEntriesEditor();
-                            }}
-                            disabled={entriesLocked}
-                            style={{
-                              border: 'none',
-                              borderRadius: 12,
-                              background: '#fff',
-                              padding: '12px 14px',
-                              textAlign: 'left',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 10,
-                              color: entriesLocked ? '#9ba8b4' : '#0f1720',
-                              fontSize: 15,
-                              cursor: entriesLocked ? 'not-allowed' : 'pointer',
-                              opacity: entriesLocked ? 0.6 : 1,
-                            }}
-                          >
-                            <Pencil size={15} />
-                            <span>{hasSubmittedRoster ? 'Edit Picks' : 'Make Picks'}</span>
-                          </button>
-                        )}
+                        <button
+                          onClick={entriesLocked ? undefined : () => {
+                            setMyEntriesMenuOpen(false);
+                            openMyEntriesEditor();
+                          }}
+                          disabled={entriesLocked}
+                          style={{
+                            border: 'none',
+                            borderRadius: 12,
+                            background: '#fff',
+                            padding: '12px 14px',
+                            textAlign: 'left',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            color: entriesLocked ? '#9ba8b4' : '#0f1720',
+                            fontSize: 15,
+                            cursor: entriesLocked ? 'not-allowed' : 'pointer',
+                            opacity: entriesLocked ? 0.6 : 1,
+                          }}
+                        >
+                          <Pencil size={15} />
+                          <span>{hasSubmittedRoster ? 'Edit Picks' : 'Make Picks'}</span>
+                        </button>
                         <button
                           onClick={() => {
                             setMyEntriesMenuOpen(false);
