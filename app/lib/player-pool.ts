@@ -103,7 +103,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 207, name: 'Caleb Surratt',                    pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 287 },
   { id: 208, name: 'Laurie Canter',                    pgaTourId: 99999, defaultOdds: '+20000',  worldRank: 151 },
   { id: 209, name: 'Kevin Roy',                        pgaTourId: 99999, defaultOdds: '+20000',  worldRank: 133 },
-  { id: 210, name: 'Matthew Jordan',                   pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 281 },
+  { id: 210, name: 'Matthew Jordan',                   pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 281, photoUrl: 'https://www.theopen.com/-/media/images/player-profile-cut-outs/2024-champ-new/jordan_matthew_99450.png' },
   { id: 211, name: 'Neal Shipley',                     pgaTourId: 99999, defaultOdds: '+100000', worldRank: 999, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_63807' },
   { id: 212, name: 'Jimmy Stanger',                    pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 338 },
   { id: 213, name: 'Cooper Dossey',                    pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 230 },
