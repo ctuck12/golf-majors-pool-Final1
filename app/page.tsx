@@ -160,6 +160,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Brandt Snedeker': 'us', 'Shaun Micheel': 'us', 'Michael Brennan': 'us',
   'Bud Cauley': 'us', 'William Mouw': 'us', 'Jordan Gumberg': 'us', 'Steven Fisk': 'us', 'Austin Smotherman': 'us', 'John Keefer': 'us', 'Max McGreevy': 'us', 'Chandler Blanchet': 'us', 'Jesse Droemer': 'us', 'Tyler Collet': 'us', 'Mark Geddes': 'us', 'Austin Hurt': 'us', 'Jared Jones': 'us', 'Michael Kartrude': 'us', 'Ryan Lenahan': 'us', 'Ben Polland': 'us', 'Braden Shattuck': 'us', 'Ryan Vermeer': 'us', 'Timothy Wiseman': 'us', 'Jimmy Walker': 'us', 'Jason Dufner': 'us', 'Stewart Cink': 'us', 'Andrew Putnam': 'us', 'Joe Highsmith': 'us',
   'Davis Thompson': 'us', 'Taylor Montgomery': 'us', 'Nick Hardy': 'us', 'Harry Higgs': 'us', 'J.B. Holmes': 'us', 'Brandon Wu': 'us', 'Peter Uihlein': 'us', 'Neal Shipley': 'us', 'Cole Hammer': 'us', 'James Nicholas': 'us', 'Ben Kohles': 'us', 'Dylan Wu': 'us', 'Chandler Phillips': 'us', 'Jake Peacock': 'us',
+  'Caleb Surratt': 'us', 'Kevin Roy': 'us', 'Jimmy Stanger': 'us', 'Cooper Dossey': 'us', 'Greyson Leach': 'us', 'Jake Sollon': 'us', 'Jackson Van Paris': 'us', 'Spencer Tibbits': 'us',
   'Sepp Straka': 'at', 'Bernd Wiesberger': 'at',
   // England
   'Tommy Fleetwood': 'gb-eng', 'Justin Rose': 'gb-eng', 'Matt Fitzpatrick': 'gb-eng',
@@ -169,7 +170,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Luke Donald': 'gb-eng', 'Laurie Canter': 'gb-eng', 'Marco Penge': 'gb-eng',
   'Callum Shinkwin': 'gb-eng', 'Tom Lewis': 'gb-eng', 'Sam Horsfield': 'gb-eng',
   'Jordan Smith': 'gb-eng', 'Andrew Johnston': 'gb-eng',
-  'Alex Fitzpatrick': 'gb-eng', 'Harry Hall': 'gb-eng', 'Daniel Brown': 'gb-eng', 'Andy Sullivan': 'gb-eng', 'John Parry': 'gb-eng', 'Matthew Jordan': 'gb-eng',
+  'Alex Fitzpatrick': 'gb-eng', 'Harry Hall': 'gb-eng', 'Daniel Brown': 'gb-eng', 'Andy Sullivan': 'gb-eng', 'John Parry': 'gb-eng', 'Matthew Jordan': 'gb-eng', 'Nathan Kimsey': 'gb-eng',
   // Scotland
   'Robert MacIntyre': 'gb-sct', 'Martin Laird': 'gb-sct', 'Russell Knox': 'gb-sct',
   'Ewen Ferguson': 'gb-sct', 'Grant Forrest': 'gb-sct', 'Richie Ramsay': 'gb-sct',
@@ -188,15 +189,15 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Viktor Hovland': 'no', 'Kristoffer Ventura': 'no', 'Kristoffer Reitan': 'no',
   // Denmark
   'Thorbjorn Olesen': 'dk', 'Rasmus Hojgaard': 'dk', 'Nicolai Hojgaard': 'dk',
-  'Jeff Winther': 'dk', 'Niklas Norgaard': 'dk', 'Rasmus Neergaard-Petersen': 'dk',
+  'Jeff Winther': 'dk', 'Niklas Norgaard': 'dk', 'Rasmus Neergaard-Petersen': 'dk', 'Niklas Norgaard Moller': 'dk',
   // Spain
   'Jon Rahm': 'es', 'Sergio Garcia': 'es', 'Adrian Otaegui': 'es',
-  'Alejandro del Rey': 'es', 'Ivan Cantero': 'es', 'David Puig': 'es', 'Jose Maria Olazabal': 'es',
+  'Alejandro del Rey': 'es', 'Ivan Cantero': 'es', 'David Puig': 'es', 'Jose Maria Olazabal': 'es', 'Angel Hidalgo Portillo': 'es', 'Rocco Paolo Repetto Taylor': 'es',
   // South Africa
   'Louis Oosthuizen': 'za', 'Charl Schwartzel': 'za', 'Branden Grace': 'za',
   'Erik van Rooyen': 'za', 'Garrick Higgo': 'za', 'Dean Burmester': 'za',
   'MJ Daffue': 'za', 'Thriston Lawrence': 'za', 'Justin Harding': 'za',
-  'Dylan Frittelli': 'za', 'Christiaan Bezuidenhout': 'za', 'Aldrich Potgieter': 'za', 'Casey Jarvis': 'za',
+  'Dylan Frittelli': 'za', 'Christiaan Bezuidenhout': 'za', 'Aldrich Potgieter': 'za', 'Casey Jarvis': 'za', 'Hennie Du Plessis': 'za',
   // Australia
   'Min Woo Lee': 'au', 'Jason Day': 'au', 'Adam Scott': 'au',
   'Cameron Smith': 'au', 'Marc Leishman': 'au', 'Lucas Herbert': 'au',
@@ -211,11 +212,11 @@ const PLAYER_FLAGS: Record<string, string> = {
   // Japan
   'Hideki Matsuyama': 'jp', 'Keita Nakajima': 'jp', 'Ryo Hisatsune': 'jp',
   'Rikuya Hoshino': 'jp', 'Satoshi Kodaira': 'jp', 'Takumi Kanaya': 'jp',
-  'Yuto Katsuragawa': 'jp', 'Kazuki Higa': 'jp', 'Kota Kaneko': 'jp',
+  'Yuto Katsuragawa': 'jp', 'Kazuki Higa': 'jp', 'Kota Kaneko': 'jp', 'Taihei Sato': 'jp', 'Ryuichi Oiwa': 'jp', 'Kaito Onishi': 'jp',
   // South Korea
   'Tom Kim': 'kr', 'Sungjae Im': 'kr', 'Si Woo Kim': 'kr', 'Y.E. Yang': 'kr',
   'K.H. Lee': 'kr', 'Byeong Hun An': 'kr', 'S.H. Kim': 'kr',
-  'Sung Kang': 'kr', 'Chan Kim': 'kr', 'Joohyung Kim': 'kr',
+  'Sung Kang': 'kr', 'Chan Kim': 'kr', 'Joohyung Kim': 'kr', 'T.K. Kim': 'kr',
   // Philippines
   'Rico Hoey': 'ph',
   // Taiwan
@@ -227,7 +228,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   // Chile
   'Mito Pereira': 'cl', 'Joaquin Niemann': 'cl',
   // Colombia
-  'Camilo Villegas': 'co', 'Sebastian Munoz': 'co', 'Nicolas Echavarria': 'co', 'Nico Echavarria': 'co',
+  'Camilo Villegas': 'co', 'Sebastian Munoz': 'co', 'Nicolas Echavarria': 'co', 'Nico Echavarria': 'co', 'Marcelo Rozo': 'co',
   // Mexico
   'Carlos Ortiz': 'mx',
   // Puerto Rico
@@ -238,13 +239,13 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Stephan Jaeger': 'de', 'Alex Cejka': 'de', 'Marcel Siem': 'de', 'Matti Schmid': 'de', 'Martin Kaymer': 'de',
   // France
   'Victor Perez': 'fr', 'Matthieu Pavon': 'fr', 'Romain Langasque': 'fr',
-  'Antoine Rozner': 'fr', 'Benjamin Hebert': 'fr', 'Adrien Saddier': 'fr',
+  'Antoine Rozner': 'fr', 'Benjamin Hebert': 'fr', 'Adrien Saddier': 'fr', 'Ugo Coussaud': 'fr',
   // Finland
   'Sami Valimaki': 'fi',
   // Belgium
   'Thomas Pieters': 'be', 'Nicolas Colsaerts': 'be', 'Thomas Detry': 'be',
   // Italy
-  'Francesco Molinari': 'it', 'Guido Migliozzi': 'it',
+  'Francesco Molinari': 'it', 'Guido Migliozzi': 'it', 'Filippo Celli': 'it',
   // Fiji
   'Vijay Singh': 'fj',
   // Thailand
@@ -252,7 +253,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   // Zimbabwe
   'Nick Price': 'zw',
   // India
-  'Sudarshan Yellamaraju': 'in',
+  'Sudarshan Yellamaraju': 'in', 'Manav Shah': 'in',
 };
 const getPlayerFlag = (name: string): string => PLAYER_FLAGS[name] ?? '';
 const getFlagSrc = (name: string): string => {
