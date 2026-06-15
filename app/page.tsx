@@ -221,7 +221,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   // Taiwan
   'C.T. Pan': 'tw', 'Wei-Chih Lu': 'tw',
   // China
-  'Haotong Li': 'cn', 'Li Haotong': 'cn',
+  'Haotong Li': 'cn', 'Li Haotong': 'cn', 'Carl Yuan': 'cn',
   // Argentina
   'Emiliano Grillo': 'ar', 'Fabian Gomez': 'ar', 'Angel Cabrera': 'ar', 'Alejandro Tosti': 'ar',
   // Chile
