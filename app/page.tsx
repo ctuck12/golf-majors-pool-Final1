@@ -1300,9 +1300,9 @@ export default function Page() {
   const careerTournamentId = getDefaultTournamentId(tournamentCardStatuses, new Date());
   const entriesTournament = TOURNAMENTS.find((item) => item.id === entriesTournamentId) ?? TOURNAMENTS[0];
   const entriesTournamentStatus = tournamentCardStatuses[entriesTournamentId];
-  const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE';
+  const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE' && pool?.picksOpen?.[entriesTournamentId] === true;
   const entriesPreFieldView =
-    entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null || !picksOpenForTournament;
+    entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null || !entriesPicksOpenForTournament;
   const entriesDefaultLocked = isLineupLocked(entriesTournament.lockAt, nowTick);
   const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? (entriesDefaultLocked || entriesTournamentStatus?.label === 'IN PROGRESS');
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
