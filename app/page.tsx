@@ -78,6 +78,8 @@ const SALARY_MAX = 10800;
 const DEFAULT_JOIN_CODE = 'MAJORS2026';
 const COMMISSIONER_EMAIL = 'ctuck12@gmail.com';
 const COMMISSIONER_DISPLAY_NAME = 'Clayton Tucker';
+// Set to true to re-enable the self-serve registration option on the login screen
+const REGISTRATION_OPEN = false;
 
 const TOURNAMENTS = [
   {
@@ -3340,14 +3342,23 @@ export default function Page() {
                   >
                     Forgot Password?
                   </button>
-                  <span style={{ color: '#5b6b79' }}>or sign up</span>
-                  <button
-                    type="button"
-                    onClick={() => { setAuthMode('register'); setAuthError(''); }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#2f5f96', fontSize: 13, fontWeight: 700, textDecoration: 'underline' }}
-                  >
-                    here
-                  </button>
+                  {REGISTRATION_OPEN && (
+                    <>
+                      <span style={{ color: '#5b6b79' }}>or sign up</span>
+                      <button
+                        type="button"
+                        onClick={() => { setAuthMode('register'); setAuthError(''); }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#2f5f96', fontSize: 13, fontWeight: 700, textDecoration: 'underline' }}
+                      >
+                        here
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+              {authMode === 'login' && !REGISTRATION_OPEN && (
+                <div style={{ marginTop: 8, fontSize: 12, color: '#8a9baa', textAlign: 'center' }}>
+                  New to the pool? Contact the commissioner to get access.
                 </div>
               )}
 
