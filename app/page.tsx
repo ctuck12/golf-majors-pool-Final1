@@ -3356,11 +3356,6 @@ export default function Page() {
                   )}
                 </div>
               )}
-              {authMode === 'login' && !REGISTRATION_OPEN && (
-                <div style={{ marginTop: 8, fontSize: 12, color: '#8a9baa', textAlign: 'center' }}>
-                  New to the pool? Contact the commissioner to get access.
-                </div>
-              )}
 
               {forgotOpen && (
                 <div
