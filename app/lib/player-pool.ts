@@ -109,7 +109,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 213, name: 'Cooper Dossey',                    pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 230 },
   { id: 214, name: 'Zac Blair',                        pgaTourId: 37189, defaultOdds: '+30000',  worldRank: 204 },
   { id: 215, name: 'Ugo Coussaud',                     pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 217 },
-  { id: 216, name: 'Chandler Phillips',                pgaTourId: 99999, defaultOdds: '+20000',  worldRank: 172 },
+  { id: 216, name: 'Chandler Phillips',                pgaTourId: 99999, defaultOdds: '+20000',  worldRank: 172, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_57900' },
   { id: 217, name: 'Cole Hammer',                      pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 363, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_47987' },
   { id: 218, name: 'Niklas Norgaard Moller',           pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 275 },
   { id: 219, name: 'Peter Uihlein',                    pgaTourId: 35461, defaultOdds: '+20000',  worldRank: 181 },
