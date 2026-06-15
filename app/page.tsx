@@ -159,7 +159,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'David Lipsky': 'us', 'Pierceson Coody': 'us', 'Lucas Glover': 'us',
   'Brandt Snedeker': 'us', 'Shaun Micheel': 'us', 'Michael Brennan': 'us',
   'Bud Cauley': 'us', 'William Mouw': 'us', 'Jordan Gumberg': 'us', 'Steven Fisk': 'us', 'Austin Smotherman': 'us', 'John Keefer': 'us', 'Max McGreevy': 'us', 'Chandler Blanchet': 'us', 'Jesse Droemer': 'us', 'Tyler Collet': 'us', 'Mark Geddes': 'us', 'Austin Hurt': 'us', 'Jared Jones': 'us', 'Michael Kartrude': 'us', 'Ryan Lenahan': 'us', 'Ben Polland': 'us', 'Braden Shattuck': 'us', 'Ryan Vermeer': 'us', 'Timothy Wiseman': 'us', 'Jimmy Walker': 'us', 'Jason Dufner': 'us', 'Stewart Cink': 'us', 'Andrew Putnam': 'us', 'Joe Highsmith': 'us',
-  'Davis Thompson': 'us', 'Taylor Montgomery': 'us', 'Nick Hardy': 'us', 'Harry Higgs': 'us', 'J.B. Holmes': 'us', 'Brandon Wu': 'us', 'Peter Uihlein': 'us', 'Neal Shipley': 'us', 'Cole Hammer': 'us', 'James Nicholas': 'us', 'Ben Kohles': 'us',
+  'Davis Thompson': 'us', 'Taylor Montgomery': 'us', 'Nick Hardy': 'us', 'Harry Higgs': 'us', 'J.B. Holmes': 'us', 'Brandon Wu': 'us', 'Peter Uihlein': 'us', 'Neal Shipley': 'us', 'Cole Hammer': 'us', 'James Nicholas': 'us', 'Ben Kohles': 'us', 'Dylan Wu': 'us',
   'Sepp Straka': 'at', 'Bernd Wiesberger': 'at',
   // England
   'Tommy Fleetwood': 'gb-eng', 'Justin Rose': 'gb-eng', 'Matt Fitzpatrick': 'gb-eng',

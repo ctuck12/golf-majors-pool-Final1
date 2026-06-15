@@ -117,7 +117,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 221, name: 'T.K. Kim',                         pgaTourId: 99999, defaultOdds: '+100000', worldRank: 999 },
   { id: 222, name: 'Ben Silverman',                    pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 262, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_39327' },
   { id: 223, name: 'Alejandro Tosti',                  pgaTourId: 47351, defaultOdds: '+30000',  worldRank: 364 },
-  { id: 224, name: 'Dylan Wu',                         pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 386 },
+  { id: 224, name: 'Dylan Wu',                         pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 386, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_54783' },
   { id: 225, name: 'Taylor Montgomery',                pgaTourId: 51071, defaultOdds: '+30000',  worldRank: 227 },
   { id: 226, name: 'Nick Hardy',                       pgaTourId: 47221, defaultOdds: '+50000',  worldRank: 575 },
   { id: 227, name: 'Carl Yuan',                        pgaTourId: 99999, defaultOdds: '+100000', worldRank: 999 },
