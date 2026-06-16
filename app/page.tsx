@@ -3891,6 +3891,7 @@ export default function Page() {
                         style={{
                           maxWidth: '100%',
                           maxHeight: isMobile ? 170 : 180,
+                          height: selectedTournament === 'open' ? (isMobile ? 155 : 170) : undefined,
                           objectFit: 'contain',
                           display: 'block',
                         }}
