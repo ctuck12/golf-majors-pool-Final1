@@ -3911,7 +3911,7 @@ export default function Page() {
                     </div>
                     <div style={{ marginTop: 14 }}>
                       {picksOpenForTournament
-                        ? 'The field has been finalized and picks are now open in the pool. Build your lineup before the first tee time on Thursday.'
+                        ? 'The field has been finalized and picks are now open in the pool. Build your lineup before 6:15 am CST on Thursday.'
                         : 'Picks can not be entered until the tournament field has been finalized and entered in our system (usually Monday morning the week of the tournament).'}
                     </div>
 
