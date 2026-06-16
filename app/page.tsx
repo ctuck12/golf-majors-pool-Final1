@@ -2518,8 +2518,11 @@ export default function Page() {
         return left.holesRemaining - right.holesRemaining;
       }
 
-      // Tiebreak: closest to the actual tournament winner's total score wins.
-      const winnerScore = pool?.winnerScores?.[selectedTournament];
+      // Tiebreak: closest to the actual tournament winner's total stroke count wins.
+      // Auto-derive from live feed when tournament is complete; fall back to manually saved score.
+      const feedWinner = (feed?.players ?? []).find((p) => p.position === '1' && p.thru === 'F');
+      const feedWinnerTotal = feedWinner?.total && feedWinner.total !== '--' ? parseInt(feedWinner.total, 10) : NaN;
+      const winnerScore = (!isNaN(feedWinnerTotal) ? feedWinnerTotal : null) ?? pool?.winnerScores?.[selectedTournament] ?? null;
       if (winnerScore != null) {
         return Math.abs(left.tieBreakValue - winnerScore) - Math.abs(right.tieBreakValue - winnerScore);
       }
@@ -5934,13 +5937,13 @@ export default function Page() {
             >
               <div>
                 <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                  Tiebreak winner&apos;s score
+                  Tiebreak winner&apos;s score (override)
                 </div>
                 <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800, color: '#0f1720' }}>
                   {commissionerTournamentLabel}
                 </div>
                 <div style={{ marginTop: isMobile ? 4 : 6, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
-                  Enter the actual tournament winner&apos;s total stroke count after the tournament ends. This determines the tiebreak order — whoever guessed closest wins.
+                  The winner&apos;s total stroke count is auto-detected from the live scoring feed once the tournament ends. Only enter a score here if the feed is wrong or unavailable — it will override the auto-detected value.
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
