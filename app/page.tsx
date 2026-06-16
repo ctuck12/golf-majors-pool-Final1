@@ -8049,8 +8049,8 @@ export default function Page() {
                         </div>
                       ))}
                     </div>
-                  ) : pickHistoryPlayerPopup.fullResults === null ? (
-                    <div key="full-empty" className="ph-fade-in" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Has not competed in any PGA Tour, DP World Tour or LIV tournaments this season.</div>
+                  ) : !pickHistoryPlayerPopup.fullResults || pickHistoryPlayerPopup.fullResults.length === 0 ? (
+                    <div key="full-empty" className="ph-fade-in" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>No PGA, DP World or LIV starts this season.</div>
                   ) : (
                     <div key="full-loaded" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
                       {(() => {
