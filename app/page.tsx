@@ -3912,7 +3912,7 @@ export default function Page() {
                     <div style={{ marginTop: 14 }}>
                       {picksOpenForTournament
                         ? 'The field has been finalized and picks are now open in the pool. Build your lineup before 6:15 am CST on Thursday.'
-                        : 'Picks can not be entered until the tournament field has been finalized and entered in our system (usually Monday morning the week of the tournament).'}
+                        : 'Picks can not be entered until the tournament field has been finalized and entered in our system on Monday July 13th.'}
                     </div>
 
                     {picksOpenForTournament && selectedTournament === entriesTournamentId && sessionUser ? (
