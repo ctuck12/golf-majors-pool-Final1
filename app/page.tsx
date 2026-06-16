@@ -8079,6 +8079,10 @@ export default function Page() {
                             </div>
                           );
                         };
+                        const hasAny = pgaResults.length > 0 || livResults.length > 0 || eurResults.length > 0;
+                        if (!hasAny) {
+                          return <div style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>No PGA, DP World or LIV starts this season.</div>;
+                        }
                         return (
                           <>
                             {pgaResults.length > 0 && (
