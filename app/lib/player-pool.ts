@@ -113,7 +113,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 217, name: 'Cole Hammer',                      pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 363, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_47987' },
   { id: 218, name: 'Niklas Norgaard Moller',           pgaTourId: 35706, defaultOdds: '+30000',  worldRank: 275 },
   { id: 219, name: 'Peter Uihlein',                    pgaTourId: 35461, defaultOdds: '+20000',  worldRank: 181 },
-  { id: 220, name: 'Hennie Du Plessis',                pgaTourId: 99999, defaultOdds: '+20000',  worldRank: 186 },
+  { id: 220, name: 'Hennie Du Plessis',                pgaTourId: 47497, defaultOdds: '+20000',  worldRank: 186 },
   { id: 221, name: 'T.K. Kim',                         pgaTourId: 46155, defaultOdds: '+100000', worldRank: 999 },
   { id: 222, name: 'Ben Silverman',                    pgaTourId: 99999, defaultOdds: '+30000',  worldRank: 262, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_39327' },
   { id: 223, name: 'Alejandro Tosti',                  pgaTourId: 47351, defaultOdds: '+30000',  worldRank: 364 },
