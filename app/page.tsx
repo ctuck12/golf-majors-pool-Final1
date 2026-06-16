@@ -443,6 +443,7 @@ type PoolInfo = {
   lineupLocks: Partial<Record<TournamentId, boolean>>;
   picksOpen: Partial<Record<TournamentId, boolean>>;
   payouts: Partial<Record<TournamentId, { first: number; second: number; third: number }>>;
+  winnerScores: Partial<Record<TournamentId, number>>;
 };
 
 type PoolEntry = {
@@ -1239,6 +1240,7 @@ export default function Page() {
     second: '',
     third: '',
   });
+  const [winnerScoreInput, setWinnerScoreInput] = useState('');
   const [selectedCommissionerMemberId, setSelectedCommissionerMemberId] = useState<string | null>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [accountPreferencesView, setAccountPreferencesView] = useState<'root' | 'preferences' | 'password' | 'displayName'>('root');
@@ -1315,6 +1317,7 @@ export default function Page() {
   const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? (entriesDefaultLocked || entriesTournamentStatus?.label === 'IN PROGRESS');
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
   const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
+  const commissionerTournamentWinnerScore = pool?.winnerScores?.[entriesTournamentId] ?? null;
   const commissionerTournamentLabel = entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name;
   const entriesTournamentCourseName =
     entriesTournamentId === 'players'
@@ -1559,6 +1562,11 @@ export default function Page() {
       third: commissionerTournamentPayouts?.third ? String(commissionerTournamentPayouts.third) : '',
     });
   }, [commissionerTournamentPayouts?.first, commissionerTournamentPayouts?.second, commissionerTournamentPayouts?.third]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setWinnerScoreInput(commissionerTournamentWinnerScore != null ? String(commissionerTournamentWinnerScore) : '');
+  }, [commissionerTournamentWinnerScore]);
 
   useEffect(() => {
     let active = true;
@@ -2043,6 +2051,32 @@ export default function Page() {
     }
   };
 
+  const handleSaveWinnerScore = async () => {
+    const score = Number(winnerScoreInput);
+    if (!Number.isFinite(score) || score < 200 || score > 400) {
+      setCommissionerError('Enter a valid total stroke count (200–400).');
+      return;
+    }
+
+    setCommissionerBusy(true);
+    setCommissionerError('');
+    setCommissionerSuccess('');
+
+    try {
+      const payload = await readJson<{ pool: PoolInfo }>('/api/commissioner/winner-score', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tournamentId: entriesTournamentId, score }),
+      });
+      setPool(payload.pool);
+      setCommissionerSuccess(`${commissionerTournamentLabel} winner's score saved.`);
+    } catch (err) {
+      setCommissionerError(err instanceof Error ? err.message : 'Unable to save winner score.');
+    } finally {
+      setCommissionerBusy(false);
+    }
+  };
+
   const handleSelectCommissionerMember = (memberId: string) => {
     setSelectedCommissionerMemberId(memberId);
     setCommissionerError('');
@@ -2484,6 +2518,11 @@ export default function Page() {
         return left.holesRemaining - right.holesRemaining;
       }
 
+      // Tiebreak: closest to the actual tournament winner's total score wins.
+      const winnerScore = pool?.winnerScores?.[selectedTournament];
+      if (winnerScore != null) {
+        return Math.abs(left.tieBreakValue - winnerScore) - Math.abs(right.tieBreakValue - winnerScore);
+      }
       return left.tieBreakValue - right.tieBreakValue;
     })
     .map((entry, index) => ({ ...entry, place: index + 1 }));
@@ -5880,6 +5919,62 @@ export default function Page() {
                     Save payouts
                   </button>
                 </div>
+              </div>
+            </section>
+
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: isMobile ? 14 : 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                display: 'grid',
+                gap: isMobile ? 8 : 14,
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                  Tiebreak winner&apos;s score
+                </div>
+                <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800, color: '#0f1720' }}>
+                  {commissionerTournamentLabel}
+                </div>
+                <div style={{ marginTop: isMobile ? 4 : 6, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
+                  Enter the actual tournament winner&apos;s total stroke count after the tournament ends. This determines the tiebreak order — whoever guessed closest wins.
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
+                <label style={{ display: 'grid', gap: 6, flex: 1, maxWidth: 180 }}>
+                  <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                    Total strokes (e.g. 274)
+                  </span>
+                  <input
+                    type="number"
+                    min="200"
+                    max="400"
+                    step="1"
+                    value={winnerScoreInput}
+                    onChange={(e) => setWinnerScoreInput(e.target.value)}
+                    placeholder="e.g. 274"
+                    style={fieldStyle()}
+                  />
+                </label>
+                <button
+                  onClick={handleSaveWinnerScore}
+                  disabled={!canManagePool || commissionerBusy}
+                  style={{
+                    border: 'none',
+                    borderRadius: 14,
+                    padding: '12px 16px',
+                    background: entriesTournamentSolid,
+                    color: '#fff',
+                    fontWeight: 900,
+                    cursor: !canManagePool || commissionerBusy ? 'not-allowed' : 'pointer',
+                    minHeight: 52,
+                  }}
+                >
+                  Save score
+                </button>
               </div>
             </section>
 

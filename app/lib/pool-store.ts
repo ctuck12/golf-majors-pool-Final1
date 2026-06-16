@@ -41,6 +41,7 @@ type StoredPool = {
   lineupLocks: Partial<Record<TournamentId, boolean>>;
   picksOpen: Partial<Record<TournamentId, boolean>>;
   payouts: Partial<Record<TournamentId, TournamentPayouts>>;
+  winnerScores: Partial<Record<TournamentId, number>>;
   createdAt: string;
 };
 
@@ -73,6 +74,7 @@ export type PublicPool = {
   lineupLocks: Partial<Record<TournamentId, boolean>>;
   picksOpen: Partial<Record<TournamentId, boolean>>;
   payouts: Partial<Record<TournamentId, TournamentPayouts>>;
+  winnerScores: Partial<Record<TournamentId, number>>;
 };
 
 const DB_KEY = 'pool-database';
@@ -141,6 +143,7 @@ function createDefaultPool(): StoredPool {
     lineupLocks: {},
     picksOpen: {},
     payouts: {},
+    winnerScores: {},
     createdAt: nowIso(),
   };
 }
@@ -375,6 +378,7 @@ export async function joinPoolForUser(userId: string, joinCode: string) {
     lineupLocks: pool.lineupLocks,
     picksOpen: pool.picksOpen,
     payouts: pool.payouts,
+    winnerScores: pool.winnerScores ?? {},
   } satisfies PublicPool;
 }
 
@@ -640,6 +644,7 @@ export async function updatePoolLineupLock(
     lineupLocks: activePool.lineupLocks,
     picksOpen: activePool.picksOpen,
     payouts: activePool.payouts,
+    winnerScores: activePool.winnerScores ?? {},
   } satisfies PublicPool;
 }
 
@@ -674,6 +679,7 @@ export async function updatePoolPicksOpen(
     lineupLocks: activePool.lineupLocks,
     picksOpen: activePool.picksOpen,
     payouts: activePool.payouts,
+    winnerScores: activePool.winnerScores ?? {},
   } satisfies PublicPool;
 }
 
@@ -770,5 +776,41 @@ export async function updatePoolPayouts(
     lineupLocks: activePool.lineupLocks,
     picksOpen: activePool.picksOpen,
     payouts: activePool.payouts,
+    winnerScores: activePool.winnerScores ?? {},
+  } satisfies PublicPool;
+}
+
+export async function updatePoolWinnerScore(
+  requestingUserId: string,
+  tournamentId: TournamentId,
+  score: number,
+) {
+  const database = await readDatabase();
+  const requestingUser = database.users.find((item) => item.id === requestingUserId);
+
+  if (!requestingUser) {
+    throw new Error('User account was not found.');
+  }
+
+  const activePool =
+    database.pools.find((pool) => requestingUser.poolIds.includes(pool.id)) ??
+    database.pools.find((pool) => pool.id === DEFAULT_POOL_ID);
+
+  if (!activePool) {
+    throw new Error('Pool was not found.');
+  }
+
+  activePool.winnerScores = activePool.winnerScores ?? {};
+  activePool.winnerScores[tournamentId] = score;
+  await writeDatabase(database);
+
+  return {
+    id: activePool.id,
+    name: activePool.name,
+    joinCode: activePool.joinCode,
+    lineupLocks: activePool.lineupLocks,
+    picksOpen: activePool.picksOpen,
+    payouts: activePool.payouts,
+    winnerScores: activePool.winnerScores,
   } satisfies PublicPool;
 }
