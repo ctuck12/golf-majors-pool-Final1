@@ -199,7 +199,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Louis Oosthuizen': 'za', 'Charl Schwartzel': 'za', 'Branden Grace': 'za',
   'Erik van Rooyen': 'za', 'Garrick Higgo': 'za', 'Dean Burmester': 'za',
   'MJ Daffue': 'za', 'Thriston Lawrence': 'za', 'Justin Harding': 'za',
-  'Dylan Frittelli': 'za', 'Christiaan Bezuidenhout': 'za', 'Aldrich Potgieter': 'za', 'Casey Jarvis': 'za', 'Hennie Du Plessis': 'za',
+  'Dylan Frittelli': 'za', 'Christiaan Bezuidenhout': 'za', 'Aldrich Potgieter': 'za', 'Casey Jarvis': 'za', 'Hennie Du Plessis': 'za', 'Jayden Trey Schaper': 'za',
   // Australia
   'Min Woo Lee': 'au', 'Jason Day': 'au', 'Adam Scott': 'au',
   'Cameron Smith': 'au', 'Marc Leishman': 'au', 'Lucas Herbert': 'au',
