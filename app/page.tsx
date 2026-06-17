@@ -4802,6 +4802,15 @@ export default function Page() {
                               return (
                               <span
                                 key={player.id}
+                                onClick={async () => {
+                                  setPickHistoryView('full');
+                                  setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false });
+                                  const [fullData, fedexData] = await Promise.all([
+                                    readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
+                                    readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
+                                  ]);
+                                  setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null);
+                                }}
                                 style={{
                                   borderRadius: 999,
                                   background: entryBg,
@@ -4812,6 +4821,7 @@ export default function Page() {
                                   display: 'flex',
                                   alignItems: 'center',
                                   gap: isMobile ? 8 : 10,
+                                  cursor: 'pointer',
                                 }}
                               >
                                 <img
