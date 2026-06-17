@@ -4823,7 +4823,6 @@ export default function Page() {
                                     borderRadius: '50%',
                                     objectFit: 'cover',
                                     background: '#fff',
-                                    mixBlendMode: 'multiply',
                                     flexShrink: 0,
                                   }}
                                 />
