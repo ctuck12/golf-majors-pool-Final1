@@ -4790,13 +4790,22 @@ export default function Page() {
                           }}
                         >
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: isMobile ? 6 : 10 }}>
-                            {savedRosterPlayers.map((player) => (
+                            {savedRosterPlayers.map((player) => {
+                              const entryBubblePalette: Record<string, { bg: string; text: string }> = {
+                                players:  { bg: '#dce6f5', text: '#173b63' },
+                                masters:  { bg: '#d5eade', text: '#2c6449' },
+                                'us-open':{ bg: '#fde8e8', text: '#BE3436' },
+                                pga:      { bg: '#f5edd8', text: '#7a6a3e' },
+                                open:     { bg: '#dce6f5', text: '#173b63' },
+                              };
+                              const { bg: entryBg, text: entryText } = entryBubblePalette[entriesTournamentId] ?? { bg: '#e8f3ff', text: '#2f5f96' };
+                              return (
                               <span
                                 key={player.id}
                                 style={{
                                   borderRadius: 999,
-                                  background: '#e8f3ff',
-                                  color: '#2f5f96',
+                                  background: entryBg,
+                                  color: entryText,
                                   padding: isMobile ? '4px 14px 4px 4px' : '6px 18px 6px 6px',
                                   fontSize: isMobile ? 15 : 17,
                                   fontWeight: 800,
@@ -4820,7 +4829,8 @@ export default function Page() {
                                 />
                                 {player.name.split(' ').slice(-1)[0]}
                               </span>
-                            ))}
+                              );
+                            })}
                           </div>
                         </div>
                         <button
