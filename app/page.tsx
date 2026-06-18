@@ -1229,6 +1229,7 @@ export default function Page() {
   const [entriesPlayerSearch, setEntriesPlayerSearch] = useState('');
   const [tieBreakInput, setTieBreakInput] = useState('');
   const [showRosterConfirm, setShowRosterConfirm] = useState(false);
+  const [showSubmittedPicksPopup, setShowSubmittedPicksPopup] = useState(false);
   const [commissionerPlayerSearch, setCommissionerPlayerSearch] = useState('');
   const [commissionerMemberModalOpen, setCommissionerMemberModalOpen] = useState(false);
   const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email' | 'confirmDelete' | 'confirmClearPicks'>('menu');
@@ -3983,7 +3984,10 @@ export default function Page() {
                         </button>
                         <div style={{ color: '#5b6b79', fontSize: isMobile ? 14 : 19, fontWeight: 600 }}>
                           Members with submitted picks:{' '}
-                          <span style={{ color: '#0f1720', fontWeight: 900 }}>{submittedEntries.length}</span>
+                          <span
+                            onClick={() => setShowSubmittedPicksPopup(true)}
+                            style={{ color: '#0f1720', fontWeight: 900, cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: 3 }}
+                          >{submittedEntries.length}</span>
                         </div>
                       </div>
                     ) : null}
@@ -8258,6 +8262,33 @@ export default function Page() {
                 >
                   Cancel
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showSubmittedPicksPopup && (
+          <div
+            onClick={() => setShowSubmittedPicksPopup(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(9,34,51,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{ background: '#fff', borderRadius: 20, padding: 24, width: '100%', maxWidth: 360, boxShadow: '0 18px 48px rgba(9,34,51,0.25)', maxHeight: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div style={{ fontSize: 17, fontWeight: 900, color: '#0f1720' }}>Submitted Picks ({submittedEntries.length})</div>
+                <button
+                  onClick={() => setShowSubmittedPicksPopup(false)}
+                  style={{ background: '#f0f4f8', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 15, color: '#5b6b79' }}
+                >✕</button>
+              </div>
+              <div style={{ overflowY: 'auto', display: 'grid', gap: 8 }}>
+                {submittedEntries.map((entry) => (
+                  <div key={entry.id} style={{ padding: '10px 14px', borderRadius: 12, background: '#f4f7fa', fontSize: 15, fontWeight: 700, color: '#0f1720' }}>
+                    {entry.name}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
