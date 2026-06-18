@@ -4346,7 +4346,8 @@ export default function Page() {
                                     return a.name.localeCompare(b.name);
                                   })
                                 : [
-                                    ...filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase())),
+                                    ...filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase()) && !((feed?.currentRound ?? 1) === 1 && p.thru === '--')),
+                                    ...filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase()) && (feed?.currentRound ?? 1) === 1 && p.thru === '--').sort((a, b) => parseTeeTimeMinFL(a.teeTime) - parseTeeTimeMinFL(b.teeTime)),
                                     ...filteredFullRaw.filter((p) => CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => parseCutScore(a.originalScore) - parseCutScore(b.originalScore)),
                                   ];
                               const espnRoundFL = feed?.currentRound ?? 1;
@@ -4473,7 +4474,8 @@ export default function Page() {
                                     return a.name.localeCompare(b.name);
                                   })
                                 : [
-                                    ...filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase())),
+                                    ...filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase()) && !((feed?.currentRound ?? 1) === 1 && p.thru === '--')),
+                                    ...filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase()) && (feed?.currentRound ?? 1) === 1 && p.thru === '--').sort((a, b) => parseTeeTimeMinPO(a.teeTime) - parseTeeTimeMinPO(b.teeTime)),
                                     ...filteredPickedRaw.filter((p) => CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => parseCutScorePO(a.originalScore) - parseCutScorePO(b.originalScore)),
                                   ];
                               const espnRoundPO = feed?.currentRound ?? 1;
