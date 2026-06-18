@@ -126,7 +126,8 @@ export function computeFullScoreBreakdown(params: {
   tournamentLowRoundScore: number | null;
   currentRound?: number;
 }): GolferScoreBreakdown {
-  const placement = placementPoints(params.position);
+  const hasStarted = params.thru && params.thru !== '--';
+  const placement = ((params.currentRound ?? 1) === 1 && !hasStarted) ? 0 : placementPoints(params.position);
   const holesRemaining = estimateHolesRemaining(params.thru, params.score, params.currentRound ?? 1);
 
   const madeCut =
@@ -262,7 +263,8 @@ export function buildPlaceholderScoreBreakdown(params: {
   thru: string;
   currentRound?: number;
 }) {
-  const placement = placementPoints(params.position);
+  const hasStarted = params.thru && params.thru !== '--';
+  const placement = ((params.currentRound ?? 1) === 1 && !hasStarted) ? 0 : placementPoints(params.position);
   const holesRemaining = estimateHolesRemaining(params.thru, params.score, params.currentRound ?? 1);
   const madeCut =
     params.score === 'CUT' || params.score === 'MDF'
