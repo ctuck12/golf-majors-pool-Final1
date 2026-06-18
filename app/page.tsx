@@ -5974,7 +5974,7 @@ export default function Page() {
                   if (!isTournamentFinal) {
                     return (
                       <div style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 7, background: '#f0f4f8', borderRadius: 8, padding: '7px 12px' }}>
-                        <span style={{ fontSize: 13, color: '#5b6b79', fontWeight: 700 }}>Tournament in progress — tiebreak resolves when complete</span>
+                        <span style={{ fontSize: 13, color: '#5b6b79', fontWeight: 700 }}>Tiebreak resolves automatically once the tournament ends. Use the override below if the winner isn&apos;t in the player pool.</span>
                       </div>
                     );
                   }
