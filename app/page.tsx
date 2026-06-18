@@ -1320,6 +1320,10 @@ export default function Page() {
   const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
   const commissionerTournamentWinnerScore = pool?.winnerScores?.[entriesTournamentId] ?? null;
   const commissionerTournamentLabel = entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name;
+  const commissionerAutoWinner = isTournamentFinal ? (feed?.players ?? []).find((p) => p.position === '1' && p.thru === 'F') : null;
+  const commissionerAutoWinnerTotal = commissionerAutoWinner?.total && commissionerAutoWinner.total !== '--' ? parseInt(commissionerAutoWinner.total, 10) : NaN;
+  const commissionerAutoDetected = !isNaN(commissionerAutoWinnerTotal) ? commissionerAutoWinnerTotal : null;
+  const tiebreakResolved = commissionerAutoDetected ?? commissionerTournamentWinnerScore;
   const entriesTournamentCourseName =
     entriesTournamentId === 'players'
       ? 'TPC Sawgrass'
@@ -2520,8 +2524,8 @@ export default function Page() {
       }
 
       // Tiebreak: closest to the actual tournament winner's total stroke count wins.
-      // Auto-derive from live feed when tournament is complete; fall back to manually saved score.
-      const feedWinner = (feed?.players ?? []).find((p) => p.position === '1' && p.thru === 'F');
+      // Only auto-detect once the tournament is officially complete; fall back to manually saved score.
+      const feedWinner = isTournamentFinal ? (feed?.players ?? []).find((p) => p.position === '1' && p.thru === 'F') : undefined;
       const feedWinnerTotal = feedWinner?.total && feedWinner.total !== '--' ? parseInt(feedWinner.total, 10) : NaN;
       const winnerScore = (!isNaN(feedWinnerTotal) ? feedWinnerTotal : null) ?? pool?.winnerScores?.[selectedTournament] ?? null;
       if (winnerScore != null) {
@@ -5960,19 +5964,55 @@ export default function Page() {
             >
               <div>
                 <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                  Tiebreak winner&apos;s score (override)
+                  Tiebreak winner&apos;s score
                 </div>
                 <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800, color: '#0f1720' }}>
                   {commissionerTournamentLabel}
                 </div>
-                <div style={{ marginTop: isMobile ? 4 : 6, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
-                  The winner&apos;s total stroke count is auto-detected from the live scoring feed once the tournament ends. Only enter a score here if the feed is wrong or unavailable — it will override the auto-detected value.
-                </div>
+                {/* Status badge */}
+                {(() => {
+                  if (!isTournamentFinal) {
+                    return (
+                      <div style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 7, background: '#f0f4f8', borderRadius: 8, padding: '7px 12px' }}>
+                        <span style={{ fontSize: 13, color: '#5b6b79', fontWeight: 700 }}>Tournament in progress — tiebreak resolves when complete</span>
+                      </div>
+                    );
+                  }
+                  if (commissionerAutoDetected != null) {
+                    return (
+                      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#dcfce7', borderRadius: 8, padding: '7px 12px' }}>
+                          <span style={{ fontSize: 15 }}>✓</span>
+                          <span style={{ fontSize: 13, color: '#166534', fontWeight: 700 }}>Auto-detected: <strong>{commissionerAutoDetected} strokes</strong>{commissionerAutoWinner?.canonicalName ? ` (${commissionerAutoWinner.canonicalName})` : ''}</span>
+                        </div>
+                        {commissionerTournamentWinnerScore != null && (
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#dbeafe', borderRadius: 8, padding: '7px 12px' }}>
+                            <span style={{ fontSize: 13, color: '#1e40af', fontWeight: 700 }}>Manual override also saved: {commissionerTournamentWinnerScore} — auto-detected value takes priority</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  if (commissionerTournamentWinnerScore != null) {
+                    return (
+                      <div style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 7, background: '#dbeafe', borderRadius: 8, padding: '7px 12px' }}>
+                        <span style={{ fontSize: 15 }}>✓</span>
+                        <span style={{ fontSize: 13, color: '#1e40af', fontWeight: 700 }}>Manual override active: <strong>{commissionerTournamentWinnerScore} strokes</strong></span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fef3c7', borderRadius: 8, padding: '7px 12px', border: '1px solid #f59e0b' }}>
+                      <span style={{ fontSize: 15 }}>⚠</span>
+                      <span style={{ fontSize: 13, color: '#92400e', fontWeight: 700 }}>Winner&apos;s score not found — enter manually below</span>
+                    </div>
+                  );
+                })()}
               </div>
               <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
                 <label style={{ display: 'grid', gap: 6, flex: 1, maxWidth: 180 }}>
                   <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                    Total strokes (e.g. 274)
+                    {tiebreakResolved != null ? 'Override score' : 'Total strokes (e.g. 274)'}
                   </span>
                   <input
                     type="number"
