@@ -50,7 +50,7 @@ export const TOURNAMENT_META: Record<string, TournamentMeta> = {
   open: {
     slashGolfTournId: '100',
     year: '2026',
-    courseName: 'Royal Portrush Golf Club',
+    courseName: 'Royal Birkdale Golf Club',
     par: 71,
     espnEventId: '401811957',
     dataSource: 'espn',
