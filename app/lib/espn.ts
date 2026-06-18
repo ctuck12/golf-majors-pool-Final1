@@ -81,6 +81,7 @@ function mapRoundStatus(status: EspnStatus | undefined): string {
   const name = status?.type?.name ?? '';
   if (state === 'post') return 'Official';
   if (state === 'in' || name === 'STATUS_IN_PROGRESS') return 'In Progress';
+  if (name === 'STATUS_PLAY_SUSPENSION' || name === 'STATUS_SUSPENDED') return 'Suspended';
   return '';
 }
 

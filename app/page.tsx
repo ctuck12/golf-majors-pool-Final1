@@ -3694,6 +3694,11 @@ export default function Page() {
                           )}
                         </div>
                       ) : null}
+                      {feed?.status === 'Suspended' && (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4, fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#92400e', background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 6, padding: '3px 10px' }}>
+                          ⚠ Play Suspended
+                        </div>
+                      )}
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
@@ -3719,6 +3724,11 @@ export default function Page() {
                           )}
                         </div>
                       ) : null}
+                      {feed?.status === 'Suspended' && (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4, fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#92400e', background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 6, padding: '3px 10px' }}>
+                          ⚠ Play Suspended
+                        </div>
+                      )}
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
@@ -3744,6 +3754,11 @@ export default function Page() {
                           )}
                         </div>
                       ) : null}
+                      {feed?.status === 'Suspended' && (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4, fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#92400e', background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 6, padding: '3px 10px' }}>
+                          ⚠ Play Suspended
+                        </div>
+                      )}
                     </>
                   ) : selectedTournament === 'us-open' ? (
                     <>
@@ -3769,6 +3784,11 @@ export default function Page() {
                           )}
                         </div>
                       ) : null}
+                      {feed?.status === 'Suspended' && (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4, fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#92400e', background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 6, padding: '3px 10px' }}>
+                          ⚠ Play Suspended
+                        </div>
+                      )}
                     </>
                   ) : selectedTournament === 'open' ? (
                     <>
@@ -3794,6 +3814,11 @@ export default function Page() {
                           )}
                         </div>
                       ) : null}
+                      {feed?.status === 'Suspended' && (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4, fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#92400e', background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 6, padding: '3px 10px' }}>
+                          ⚠ Play Suspended
+                        </div>
+                      )}
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
                       <img
