@@ -1177,6 +1177,7 @@ export default function Page() {
   const [leaderboardSortMode, setLeaderboardSortMode] = useState<'default' | 'round-desc' | 'round-asc'>('default');
   const [leaderboardPickedSort, setLeaderboardPickedSort] = useState<'default' | 'desc' | 'asc'>('default');
   const [showCutInfo, setShowCutInfo] = useState(false);
+  const [showHeaderCutInfo, setShowHeaderCutInfo] = useState(false);
   const [feeds, setFeeds] = useState<Partial<Record<TournamentId, FeedResponse>>>(() => {
     const initial: Partial<Record<TournamentId, FeedResponse>> = {};
     for (const t of TOURNAMENTS) {
@@ -4158,7 +4159,7 @@ export default function Page() {
                     ...(isMobile ? {} : { display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' as const, maxHeight: 'calc(100vh - 120px)' }),
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, position: 'relative' }}>
                     {tournament.id === 'us-open' ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 7 : 6, width: '100%' }}>
                         <img src="/us-open-tab-logo.png" alt="U.S. Open" style={{ height: isMobile ? 38 : 40, objectFit: 'contain', flexShrink: 0, marginTop: isMobile ? -4 : 0 }} />
@@ -4187,6 +4188,27 @@ export default function Page() {
                     ) : (
                       <h3 style={{ margin: 0, fontSize: isMobile ? 17 : 22, color: '#0f1720', textAlign: 'center', fontWeight: 900, width: '100%' }}>{TOURNAMENT_LEADERBOARD_HEADER[(tournament as { id: string }).id] ?? `${(tournament as { name: string }).name} Leaderboard`}</h3>
                     )}
+                    <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 10 }}>
+                      <button
+                        onClick={() => setShowHeaderCutInfo((v) => !v)}
+                        style={{ background: 'none', border: 'none', padding: '2px 4px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}
+                        aria-label="Cut line info"
+                      >
+                        ⓘ
+                      </button>
+                      {showHeaderCutInfo && (
+                        <>
+                          <div onClick={() => setShowHeaderCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
+                          <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 4, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 11 }}>
+                            {(selectedTournament as string) === 'players' ? 'The Players Cut Line: Top 65 & ties'
+                              : (selectedTournament as string) === 'masters' ? 'The Masters Cut Line: Top 50 & ties'
+                              : (selectedTournament as string) === 'pga' ? 'PGA Championship Cut Line: Top 70 & ties'
+                              : (selectedTournament as string) === 'us-open' ? 'U.S. Open Cut Line: Top 60 & ties'
+                              : 'The Open Cut Line: Top 70 & ties'}
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   <div style={{ marginTop: isMobile ? 8 : 16, position: 'relative', marginBottom: 8 }}>
