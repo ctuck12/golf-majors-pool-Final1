@@ -8061,8 +8061,10 @@ export default function Page() {
           };
 
           const lowRawScore = feed?.tournamentLowRoundScore ?? null;
+          // Discard implausible values (e.g. partial-round data stored during a suspension bug)
+          const validLowRawScore = lowRawScore !== null && lowRawScore >= 58 ? lowRawScore : null;
           const coursePar = feed?.coursePar ?? 72;
-          const lowToPar = lowRawScore !== null ? lowRawScore - coursePar : null;
+          const lowToPar = validLowRawScore !== null ? validLowRawScore - coursePar : null;
           const lowToParLabel = lowToPar === null ? '' : lowToPar === 0 ? ' (E)' : lowToPar < 0 ? ` (${lowToPar})` : ` (+${lowToPar})`;
           const bpColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#1e4d8c';
           const catHeaderColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#1e4d8c' : '#173b63';

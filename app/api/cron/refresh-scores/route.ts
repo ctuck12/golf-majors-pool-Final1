@@ -155,9 +155,10 @@ async function captureLowRound(
   roundId: number,
   rows: SlashGolfLeaderboardRow[],
 ) {
+  // Require >= 58 strokes — no valid 18-hole round can be lower; partial-round data often isn't.
   const scores = rows
     .map((r) => getRoundStrokes(r, roundId))
-    .filter((s): s is number => s !== null);
+    .filter((s): s is number => s !== null && s >= 58);
   if (scores.length) await saveLowRound(tournamentId, roundId, Math.min(...scores));
 }
 
@@ -173,7 +174,7 @@ async function captureLiveLowRound(
   if (!finishedRows.length) return;
   const scores = finishedRows
     .map(r => getRoundStrokes(r, roundId))
-    .filter((s): s is number => s !== null);
+    .filter((s): s is number => s !== null && s >= 58);
   if (scores.length) await saveLowRound(tournamentId, roundId, Math.min(...scores));
 }
 
@@ -405,6 +406,7 @@ async function refreshTournamentFromESPN(
   if (!roundComplete && Object.keys(playerScorecards).length > 0) {
     await mergeScorecardCache(tournamentId, playerScorecards);
     await captureLiveLowRound(tournamentId, currentRound, rows);
+    if (currentRound <= 3) await captureRoundLeader(tournamentId, currentRound, rows);
     return 'live-scorecards-refreshed';
   }
 
@@ -521,6 +523,7 @@ async function refreshTournament(tournamentId: string): Promise<string> {
         selectedPoolIds,
       );
       await captureLiveLowRound(tournamentId, currentRound, rows);
+      if (currentRound <= 3) await captureRoundLeader(tournamentId, currentRound, rows);
       return 'live-scorecards-refreshed';
     }
   }
