@@ -7148,8 +7148,8 @@ export default function Page() {
                                 </>
                               ) : (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                  <span>Total: {golfer.score}</span>
-                                  <span>Position: {formatPosition(golfer.position)}</span>
+                                  <span>Total: {golfer.holesRemaining === 72 ? '—' : golfer.score}</span>
+                                  <span>Position: {golfer.holesRemaining === 72 ? '—' : formatPosition(golfer.position)}</span>
                                 </div>
                               )}
                               {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
@@ -7228,8 +7228,8 @@ export default function Page() {
                                 </>
                               ) : (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                  <span>Total: {golfer.score}</span>
-                                  <span>Position: {formatPosition(golfer.position)}</span>
+                                  <span>Total: {golfer.holesRemaining === 72 ? '—' : golfer.score}</span>
+                                  <span>Position: {golfer.holesRemaining === 72 ? '—' : formatPosition(golfer.position)}</span>
                                 </div>
                               )}
                               {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
