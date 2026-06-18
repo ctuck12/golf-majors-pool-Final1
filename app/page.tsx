@@ -1320,7 +1320,7 @@ export default function Page() {
   const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
   const commissionerTournamentWinnerScore = pool?.winnerScores?.[entriesTournamentId] ?? null;
   const commissionerTournamentLabel = entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name;
-  const commissionerAutoWinner = isTournamentFinal ? (feed?.players ?? []).find((p) => p.position === '1' && p.thru === 'F') : null;
+  const commissionerAutoWinner = feed?.tournamentComplete === true ? (feed?.players ?? []).find((p) => p.position === '1' && p.thru === 'F') : null;
   const commissionerAutoWinnerTotal = commissionerAutoWinner?.total && commissionerAutoWinner.total !== '--' ? parseInt(commissionerAutoWinner.total, 10) : NaN;
   const commissionerAutoDetected = !isNaN(commissionerAutoWinnerTotal) ? commissionerAutoWinnerTotal : null;
   const tiebreakResolved = commissionerAutoDetected ?? commissionerTournamentWinnerScore;
