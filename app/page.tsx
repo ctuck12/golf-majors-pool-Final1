@@ -3872,46 +3872,31 @@ export default function Page() {
                         3rd: <span style={{ color: '#fff' }}>{formatPayoutAmount(selectedTournamentPayouts?.third)}</span>
                       </div>
                     </div>
-                    {!showFinalTournamentView && !roundOneComplete && (isMobile ? (
-                      <div style={{ fontSize: 11, textAlign: 'right' }}>
-                        <span style={{ color: '#0f1720', fontWeight: 700 }}>Entry Fee: $30</span>{' '}
-                        <a
-                          href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
-                          style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 700 }}
-                        >
-                          (pay here)
-                        </a>
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: 13, color: '#8fa0b0', textAlign: 'right', marginTop: 2 }}>
-                        <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> <span style={{ color: '#5b6b79' }}>$30</span>{'   '}
-                        <strong style={{ color: '#0f1720' }}>Venmo:</strong> <span style={{ color: '#5b6b79' }}>@claytont743</span>
-                      </div>
-                    ))}
-                    {!showFinalTournamentView && roundOneComplete && !isTournamentFinal && (
-                      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: (selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga') ? '#c0392b' : '#0f1720', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                          Final Results
-                        </div>
+                    {!showFinalTournamentView && (
+                      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                        {(roundOneComplete && !isTournamentFinal) || isTournamentFinal ? (
+                          <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: (selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga') ? '#c0392b' : '#0f1720', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                            Final Results
+                          </div>
+                        ) : null}
                         <button
                           onClick={() => setShowBonusPoints(true)}
                           style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: selectedTournament === 'pga' ? '#173b63' : selectedTournament === 'us-open' ? '#173b63' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', border: selectedTournament === 'masters' ? '1.5px solid #c8b800' : (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '1.5px solid #0f2d6b' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : '1.5px solid #a07010', cursor: 'pointer', padding: isMobile ? '4px 10px' : '5px 12px', borderRadius: 999, letterSpacing: '0.07em', textTransform: 'uppercase', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 2px 8px rgba(14,45,140,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(180,140,0,0.4)' }}
                         >
                           Bonus Points
                         </button>
-                      </div>
-                    )}
-                    {isTournamentFinal && (
-                      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: (selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga') ? '#c0392b' : '#0f1720', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                          Final Results
-                        </div>
-                        <button
-                          onClick={() => setShowBonusPoints(true)}
-                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: selectedTournament === 'pga' ? '#173b63' : selectedTournament === 'us-open' ? '#173b63' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', border: selectedTournament === 'masters' ? '1.5px solid #c8b800' : (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '1.5px solid #0f2d6b' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : '1.5px solid #a07010', cursor: 'pointer', padding: isMobile ? '4px 10px' : '5px 12px', borderRadius: 999, letterSpacing: '0.07em', textTransform: 'uppercase', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 2px 8px rgba(14,45,140,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(180,140,0,0.4)' }}
-                        >
-                          Bonus Points
-                        </button>
+                        {!roundOneComplete && (isMobile ? (
+                          <a
+                            href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
+                            style={{ fontSize: 11, color: '#3d95ce', textDecoration: 'underline', fontWeight: 700, whiteSpace: 'nowrap' }}
+                          >
+                            $30 (pay here)
+                          </a>
+                        ) : (
+                          <span style={{ fontSize: 12, color: '#5b6b79', whiteSpace: 'nowrap' }}>
+                            <strong style={{ color: '#0f1720' }}>$30</strong> · <strong style={{ color: '#0f1720' }}>Venmo:</strong> @claytont743
+                          </span>
+                        ))}
                       </div>
                     )}
                   </div>
