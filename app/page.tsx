@@ -1242,6 +1242,8 @@ export default function Page() {
     third: '',
   });
   const [winnerScoreInput, setWinnerScoreInput] = useState('');
+  const [clearLeaderBusy, setClearLeaderBusy] = useState(false);
+  const [clearLeaderMsg, setClearLeaderMsg] = useState<string | null>(null);
   const [selectedCommissionerMemberId, setSelectedCommissionerMemberId] = useState<string | null>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [accountPreferencesView, setAccountPreferencesView] = useState<'root' | 'preferences' | 'password' | 'displayName'>('root');
@@ -2053,6 +2055,24 @@ export default function Page() {
       setCommissionerError(err instanceof Error ? err.message : 'Unable to update payouts.');
     } finally {
       setCommissionerBusy(false);
+    }
+  };
+
+  const handleClearRoundLeader = async (round: number) => {
+    setClearLeaderBusy(true);
+    setClearLeaderMsg(null);
+    try {
+      const res = await fetch(`/api/commissioner/round-leader?tournamentId=${entriesTournamentId}&round=${round}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setClearLeaderMsg((body as { error?: string }).error ?? 'Failed to clear.');
+      } else {
+        setClearLeaderMsg(`Round ${round} leader cleared.`);
+      }
+    } catch {
+      setClearLeaderMsg('Network error.');
+    } finally {
+      setClearLeaderBusy(false);
     }
   };
 
@@ -6069,6 +6089,33 @@ export default function Page() {
                   Save score
                 </button>
               </div>
+            </section>
+
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: isMobile ? 14 : 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+              }}
+            >
+              <h3 style={{ margin: '0 0 10px', fontSize: 15, fontWeight: 800, color: '#0f1720' }}>Round Leader Tools</h3>
+              <p style={{ margin: '0 0 12px', fontSize: 12, color: '#5b6b79' }}>If a round leader was incorrectly captured (e.g. during a suspension), clear it here. It will be re-captured automatically when the round officially ends.</p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {[1, 2, 3].map((rnd) => (
+                  <button
+                    key={rnd}
+                    onClick={() => handleClearRoundLeader(rnd)}
+                    disabled={!canManagePool || clearLeaderBusy}
+                    style={{ border: '1.5px solid #dc2626', borderRadius: 10, padding: '8px 14px', background: '#fff', color: '#dc2626', fontWeight: 800, fontSize: 13, cursor: !canManagePool || clearLeaderBusy ? 'not-allowed' : 'pointer', opacity: !canManagePool || clearLeaderBusy ? 0.5 : 1 }}
+                  >
+                    Clear Rnd {rnd} Leader
+                  </button>
+                ))}
+              </div>
+              {clearLeaderMsg && (
+                <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: clearLeaderMsg.includes('cleared') ? '#16a34a' : '#dc2626' }}>{clearLeaderMsg}</div>
+              )}
             </section>
 
             <section

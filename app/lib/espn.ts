@@ -79,9 +79,10 @@ function parseRelScore(displayValue: string | undefined): number {
 function mapRoundStatus(status: EspnStatus | undefined): string {
   const state = status?.type?.state ?? '';
   const name = status?.type?.name ?? '';
+  // Check suspension by name first — ESPN sets state='post' during suspension too
+  if (name === 'STATUS_PLAY_SUSPENSION' || name === 'STATUS_SUSPENDED') return 'Suspended';
   if (state === 'post') return 'Official';
   if (state === 'in' || name === 'STATUS_IN_PROGRESS') return 'In Progress';
-  if (name === 'STATUS_PLAY_SUSPENSION' || name === 'STATUS_SUSPENDED') return 'Suspended';
   return '';
 }
 
