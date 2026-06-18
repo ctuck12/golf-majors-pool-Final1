@@ -1244,6 +1244,7 @@ export default function Page() {
   const [winnerScoreInput, setWinnerScoreInput] = useState('');
   const [clearLeaderBusy, setClearLeaderBusy] = useState(false);
   const [clearLeaderMsg, setClearLeaderMsg] = useState<string | null>(null);
+  const [confirmClearRound, setConfirmClearRound] = useState<number | null>(null);
   const [selectedCommissionerMemberId, setSelectedCommissionerMemberId] = useState<string | null>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [accountPreferencesView, setAccountPreferencesView] = useState<'root' | 'preferences' | 'password' | 'displayName'>('root');
@@ -6105,7 +6106,7 @@ export default function Page() {
                 {[1, 2, 3].map((rnd) => (
                   <button
                     key={rnd}
-                    onClick={() => handleClearRoundLeader(rnd)}
+                    onClick={() => { setClearLeaderMsg(null); setConfirmClearRound(rnd); }}
                     disabled={!canManagePool || clearLeaderBusy}
                     style={{ border: '1.5px solid #dc2626', borderRadius: 10, padding: '8px 14px', background: '#fff', color: '#dc2626', fontWeight: 800, fontSize: 13, cursor: !canManagePool || clearLeaderBusy ? 'not-allowed' : 'pointer', opacity: !canManagePool || clearLeaderBusy ? 0.5 : 1 }}
                   >
@@ -6115,6 +6116,25 @@ export default function Page() {
               </div>
               {clearLeaderMsg && (
                 <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: clearLeaderMsg.includes('cleared') ? '#16a34a' : '#dc2626' }}>{clearLeaderMsg}</div>
+              )}
+              {confirmClearRound !== null && (
+                <>
+                  <div onClick={() => setConfirmClearRound(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1000 }} />
+                  <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: '#fff', borderRadius: 18, padding: '28px 24px', zIndex: 1001, width: 'min(320px, 90vw)', boxShadow: '0 24px 60px rgba(0,0,0,0.22)', textAlign: 'center' }}>
+                    <div style={{ fontSize: 17, fontWeight: 800, color: '#0f1720', marginBottom: 10 }}>Clear Round {confirmClearRound} Leader?</div>
+                    <div style={{ fontSize: 13, color: '#5b6b79', marginBottom: 22 }}>This will remove the Round {confirmClearRound} leader bonus for whoever currently holds it. It will be re-captured automatically when the round officially ends.</div>
+                    <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+                      <button onClick={() => setConfirmClearRound(null)} style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: '1.5px solid #d1dae3', background: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', color: '#374151' }}>Cancel</button>
+                      <button
+                        onClick={async () => { const rnd = confirmClearRound; setConfirmClearRound(null); await handleClearRoundLeader(rnd); }}
+                        disabled={clearLeaderBusy}
+                        style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: 'none', background: '#dc2626', color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}
+                      >
+                        Yes, Clear
+                      </button>
+                    </div>
+                  </div>
+                </>
               )}
             </section>
 
