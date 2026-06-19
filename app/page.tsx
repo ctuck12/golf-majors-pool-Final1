@@ -4509,8 +4509,22 @@ export default function Page() {
                                 return (
                                   <Fragment key={player.playerId}>
                                     <tr
-                                      onClick={() => player.poolPlayerId !== null && setSelectedLeaderboardPlayerId(activePlayer ? null : player.poolPlayerId)}
-                                      style={{ background: rowBg, borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef', cursor: player.poolPlayerId !== null ? 'pointer' : 'default' }}
+                                      onClick={() => {
+                                        if (player.poolPlayerId !== null) {
+                                          setSelectedLeaderboardPlayerId(activePlayer ? null : player.poolPlayerId);
+                                        } else {
+                                          setScorecardGolferName(player.name);
+                                          setScorecardGolferPhoto(null);
+                                          setScorecardGolferTeeTime(player.teeTime ?? null);
+                                          setScorecardGolferThru(player.thru);
+                                          setScorecardGolferBackNineStart(player.backNineStart ?? false);
+                                          setScorecardData(null);
+                                          setScorecardLoading(true);
+                                          fetch(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}&round=${feed?.currentRound ?? 1}`)
+                                            .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
+                                        }
+                                      }}
+                                      style={{ background: rowBg, borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef', cursor: 'pointer' }}
                                     >
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: selectedTournament === 'open' ? '#0f1720' : '#374151' }}>{notStartedR1 ? '—' : formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
