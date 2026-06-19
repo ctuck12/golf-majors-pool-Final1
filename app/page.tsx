@@ -3798,7 +3798,7 @@ export default function Page() {
                     </div>
                   ) : (
                     <div style={{ fontSize: isMobile ? 12 : 13, color: '#0f1720', whiteSpace: 'nowrap' }}>
-                      <span style={{ fontWeight: 700 }}>Entry Fee: $30</span>{' '}
+                      <span style={{ fontWeight: 700 }}>Entry Fee:</span> $30{' '}
                       <a href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool" style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 600 }}>(pay here)</a>
                     </div>
                   )}
