@@ -3896,18 +3896,6 @@ export default function Page() {
                         >
                           Bonus Points
                         </button>
-                        {!roundOneComplete && (isMobile ? (
-                          <a
-                            href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
-                            style={{ fontSize: 11, color: '#3d95ce', textDecoration: 'underline', fontWeight: 700, whiteSpace: 'nowrap' }}
-                          >
-                            $30 (pay here)
-                          </a>
-                        ) : (
-                          <span style={{ fontSize: 12, color: '#5b6b79', whiteSpace: 'nowrap' }}>
-                            <strong style={{ color: '#0f1720' }}>$30</strong> · <strong style={{ color: '#0f1720' }}>Venmo:</strong> @claytont743
-                          </span>
-                        ))}
                       </div>
                     )}
                   </div>
