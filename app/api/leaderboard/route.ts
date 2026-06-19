@@ -439,6 +439,10 @@ export async function GET(request: Request) {
         const fullName = `${row.firstName} ${row.lastName}`;
         const poolPlayer = poolByName.get(normName(fullName));
         const rndEntry = (row.rounds ?? []).find((r) => r.roundId === currentRound);
+        const storedRound = (scorecardCache?.players[String(row.playerId ?? '')]?.rounds ?? []).find((r) => r.roundId === currentRound);
+        const backNineStart = storedRound && storedRound.holes.length > 0
+          ? storedRound.holes[0].holeNumber >= 10
+          : false;
         return {
           playerId: String(row.playerId ?? ''),
           poolPlayerId: poolPlayer?.id ?? null,
@@ -449,7 +453,7 @@ export async function GET(request: Request) {
           originalScore: computeOriginalScore(row),
           currentRoundScore: rndEntry?.scoreToPar ?? null,
           teeTime: (row.teeTime as string | null) ?? null,
-          backNineStart: false,
+          backNineStart,
         };
       })
     : undefined;
