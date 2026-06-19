@@ -3706,10 +3706,10 @@ export default function Page() {
                       </h2>
                       {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
                             {currentRoundSuspended ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
                             ) : currentRoundComplete ? (
                               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>
                                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#991b1b', flexShrink: 0 }} />Complete
@@ -3756,10 +3756,10 @@ export default function Page() {
                       </h2>
                       {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
                             {currentRoundSuspended ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
                             ) : currentRoundComplete ? (
                               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>
                                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#991b1b', flexShrink: 0 }} />Complete
@@ -3806,10 +3806,10 @@ export default function Page() {
                       </h2>
                       {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
                             {currentRoundSuspended ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
                             ) : currentRoundComplete ? (
                               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>
                                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#991b1b', flexShrink: 0 }} />Complete
@@ -3856,10 +3856,10 @@ export default function Page() {
                       </h2>
                       {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
                             {currentRoundSuspended ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
                             ) : currentRoundComplete ? (
                               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>
                                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#991b1b', flexShrink: 0 }} />Complete
@@ -3906,10 +3906,10 @@ export default function Page() {
                       </h2>
                       {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
                             {currentRoundSuspended ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
                             ) : currentRoundComplete ? (
                               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>
                                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#991b1b', flexShrink: 0 }} />Complete
