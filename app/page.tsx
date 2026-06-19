@@ -4411,10 +4411,11 @@ export default function Page() {
                                     >
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: selectedTournament === 'open' ? '#0f1720' : '#374151' }}>{notStartedR1 ? '—' : formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{notStartedR1 ? '—' : player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.playerId), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.playerId)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{notStartedR1 ? '—' : player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.playerId), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.playerId)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : (colIsCut && colVal !== 'CUT') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
                                         const isGoldTheme = selectedTournament === 'open';
                                         const thruDisplay = (() => {
+                                          if (player.score === 'WD' || player.score === 'DQ') return player.score;
                                           const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                           if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
                                             return teeTimeIsPast(player.teeTime) ? '--' : formatTeeTime(player.teeTime);
@@ -4542,10 +4543,11 @@ export default function Page() {
                                     >
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: selectedTournament === 'open' ? '#0f1720' : '#374151' }}>{notStartedR1 ? '—' : formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{notStartedR1 ? '—' : player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.id), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.id)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{notStartedR1 ? '—' : player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.id), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.id)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : (colIsCut && colVal !== 'CUT') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
                                         const isGoldTheme = selectedTournament === 'open';
                                         const thruDisplay = (() => {
+                                          if (player.score === 'WD' || player.score === 'DQ') return player.score;
                                           const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                           const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
                                           if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
@@ -7257,12 +7259,12 @@ export default function Page() {
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: selectedTournament === 'open' ? '#1a1a1a' : '#0f1720' }}>{golfer.name}</div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                {golfer.score === 'CUT' || golfer.score === 'MDF' ? <span>Total: {golfer.originalScore ?? '--'}</span> : <span>Holes Rem: {golfer.holesRemaining}</span>}
+                                {golfer.score === 'CUT' || golfer.score === 'MDF' || golfer.score === 'WD' || golfer.score === 'DQ' ? <span>Total: {golfer.originalScore ?? '--'}</span> : <span>Holes Rem: {golfer.holesRemaining}</span>}
                                 <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
                               </div>
-                              {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
+                              {golfer.score === 'CUT' || golfer.score === 'MDF' || golfer.score === 'WD' || golfer.score === 'DQ' ? (
                                 <>
-                                  {showProjectedCut && golfer.currentRoundScore && (
+                                  {(golfer.score === 'CUT' || golfer.score === 'MDF') && showProjectedCut && golfer.currentRoundScore && (
                                     <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                                       <button
                                         onClick={(e) => {
@@ -7287,7 +7289,7 @@ export default function Page() {
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
                                     style={{ background: '#cc2944', border: '1.5px solid #7b1a13', borderRadius: 999, padding: isMobile ? '3.5px 8.5px' : '1px 6px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 8, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 2px 8px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
-                                  >MISSED CUT</button>
+                                  >{golfer.score === 'WD' || golfer.score === 'DQ' ? 'WITHDREW' : 'MISSED CUT'}</button>
                                 </>
                               ) : (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -7295,7 +7297,7 @@ export default function Page() {
                                   <span>Position: {golfer.holesRemaining === 72 ? '—' : formatPosition(golfer.position)}</span>
                                 </div>
                               )}
-                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
+                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && golfer.score !== 'WD' && golfer.score !== 'DQ' && (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
                                   <button
                                     onClick={(e) => {
@@ -7337,12 +7339,12 @@ export default function Page() {
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div className="breakdown-golfer-name" style={{ fontSize: 14, fontWeight: 800, color: selectedTournament === 'open' ? '#1a1a1a' : '#0f1720' }}>{golfer.name}</div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                {golfer.score === 'CUT' || golfer.score === 'MDF' ? <span>Total: {golfer.originalScore ?? '--'}</span> : <span>Holes Rem: {golfer.holesRemaining}</span>}
+                                {golfer.score === 'CUT' || golfer.score === 'MDF' || golfer.score === 'WD' || golfer.score === 'DQ' ? <span>Total: {golfer.originalScore ?? '--'}</span> : <span>Holes Rem: {golfer.holesRemaining}</span>}
                                 <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
                               </div>
-                              {golfer.score === 'CUT' || golfer.score === 'MDF' ? (
+                              {golfer.score === 'CUT' || golfer.score === 'MDF' || golfer.score === 'WD' || golfer.score === 'DQ' ? (
                                 <>
-                                  {showProjectedCut && golfer.currentRoundScore && (
+                                  {(golfer.score === 'CUT' || golfer.score === 'MDF') && showProjectedCut && golfer.currentRoundScore && (
                                     <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                                       <button
                                         onClick={(e) => {
@@ -7367,7 +7369,7 @@ export default function Page() {
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
                                     style={{ background: '#cc2944', border: '1.5px solid #7b1a13', borderRadius: 999, padding: isMobile ? '3.5px 8.5px' : '1px 6px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 8, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 2px 8px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
-                                  >MISSED CUT</button>
+                                  >{golfer.score === 'WD' || golfer.score === 'DQ' ? 'WITHDREW' : 'MISSED CUT'}</button>
                                 </>
                               ) : (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -7375,7 +7377,7 @@ export default function Page() {
                                   <span>Position: {golfer.holesRemaining === 72 ? '—' : formatPosition(golfer.position)}</span>
                                 </div>
                               )}
-                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && (
+                              {golfer.score !== 'CUT' && golfer.score !== 'MDF' && golfer.score !== 'WD' && golfer.score !== 'DQ' && (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
                                   <button
                                     onClick={(e) => {
