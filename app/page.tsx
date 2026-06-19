@@ -1406,6 +1406,35 @@ export default function Page() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Reload PWA when a new deployment is detected after backgrounding for 2+ minutes.
+  useEffect(() => {
+    let currentVersion: string | null = null;
+    let hiddenAt: number | null = null;
+    const MIN_HIDDEN_MS = 2 * 60 * 1000;
+
+    fetch('/api/version').then(r => r.json()).then((d: { v?: string }) => {
+      currentVersion = d.v ?? null;
+    }).catch(() => {});
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        hiddenAt = Date.now();
+      } else if (hiddenAt !== null && Date.now() - hiddenAt > MIN_HIDDEN_MS) {
+        hiddenAt = null;
+        fetch('/api/version').then(r => r.json()).then((d: { v?: string }) => {
+          if (currentVersion && d.v && d.v !== currentVersion) {
+            window.location.reload();
+          }
+        }).catch(() => {});
+      } else {
+        hiddenAt = null;
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   useEffect(() => {
     const svgCodes = new Set(['us','au','ie','gb-sct','no','kr','jp','za','se','nz','dk','de','cl','co','ar','ve','be','at','fr','fi','cn','it','in','ph','fj','pr']);
     const usedCodes = [...new Set(Object.values(PLAYER_FLAGS))];
