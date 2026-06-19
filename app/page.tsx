@@ -3690,7 +3690,7 @@ export default function Page() {
                   {selectedTournament === 'players' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
-                        The Players Championship{!(showProjectedCut && feed?.projectedCut) && (
+                        The Players{!(showProjectedCut && feed?.projectedCut) && (
                           <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: 3 }}>
                             <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
                             {showCutInfo && (
@@ -3700,8 +3700,7 @@ export default function Page() {
                               </>
                             )}
                           </span>
-                        )}
-                      </h2>
+                        )} Championship
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
                           <button
@@ -3730,7 +3729,7 @@ export default function Page() {
                   ) : selectedTournament === 'masters' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
-                        The Masters Tournament{!(showProjectedCut && feed?.projectedCut) && (
+                        The Masters{!(showProjectedCut && feed?.projectedCut) && (
                           <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: 3 }}>
                             <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
                             {showCutInfo && (
@@ -3740,8 +3739,7 @@ export default function Page() {
                               </>
                             )}
                           </span>
-                        )}
-                      </h2>
+                        )} Tournament
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
                           <button
@@ -3770,7 +3768,7 @@ export default function Page() {
                   ) : selectedTournament === 'pga' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
-                        The PGA Championship{!(showProjectedCut && feed?.projectedCut) && (
+                        The PGA{!(showProjectedCut && feed?.projectedCut) && (
                           <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: 3 }}>
                             <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
                             {showCutInfo && (
@@ -3780,8 +3778,7 @@ export default function Page() {
                               </>
                             )}
                           </span>
-                        )}
-                      </h2>
+                        )} Championship
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
                           <button
@@ -3850,7 +3847,7 @@ export default function Page() {
                   ) : selectedTournament === 'open' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
-                        The Open Championship{!(showProjectedCut && feed?.projectedCut) && (
+                        The Open{!(showProjectedCut && feed?.projectedCut) && (
                           <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: 3 }}>
                             <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
                             {showCutInfo && (
@@ -3860,8 +3857,7 @@ export default function Page() {
                               </>
                             )}
                           </span>
-                        )}
-                      </h2>
+                        )} Championship
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
                           <button
