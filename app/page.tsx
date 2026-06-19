@@ -1258,6 +1258,9 @@ export default function Page() {
   const [clearLeaderBusy, setClearLeaderBusy] = useState(false);
   const [clearLeaderMsg, setClearLeaderMsg] = useState<string | null>(null);
   const [confirmClearRound, setConfirmClearRound] = useState<number | null>(null);
+  const [playerStatusInput, setPlayerStatusInput] = useState('');
+  const [playerStatusBusy, setPlayerStatusBusy] = useState(false);
+  const [playerStatusMsg, setPlayerStatusMsg] = useState<string | null>(null);
   const [selectedCommissionerMemberId, setSelectedCommissionerMemberId] = useState<string | null>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [accountPreferencesView, setAccountPreferencesView] = useState<'root' | 'preferences' | 'password' | 'displayName'>('root');
@@ -2086,6 +2089,31 @@ export default function Page() {
       setClearLeaderMsg('Network error.');
     } finally {
       setClearLeaderBusy(false);
+    }
+  };
+
+  const handleMarkPlayerWD = async () => {
+    const playerName = playerStatusInput.trim();
+    if (!playerName) return;
+    setPlayerStatusBusy(true);
+    setPlayerStatusMsg(null);
+    try {
+      const res = await fetch('/api/commissioner/player-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tournamentId: entriesTournamentId, playerName, status: 'WD' }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setPlayerStatusMsg((body as { error?: string }).error ?? 'Failed to save.');
+      } else {
+        setPlayerStatusMsg(`${playerName} marked as WD.`);
+        setPlayerStatusInput('');
+      }
+    } catch {
+      setPlayerStatusMsg('Network error.');
+    } finally {
+      setPlayerStatusBusy(false);
     }
   };
 
@@ -6078,6 +6106,55 @@ export default function Page() {
                     </div>
                   </div>
                 </>
+              )}
+            </section>
+
+            <section
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: isMobile ? 14 : 22,
+                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
+                display: 'grid',
+                gap: isMobile ? 8 : 14,
+              }}
+            >
+              <div>
+                <h3 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 800, color: '#0f1720' }}>Mark Player as WD / DQ / MDF</h3>
+                <p style={{ margin: 0, fontSize: 12, color: '#5b6b79' }}>Override the API when ESPN hasn&apos;t updated a player&apos;s status. Enter the exact player name as it appears in the pool (e.g. &quot;Jason Day&quot;).</p>
+              </div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                <label style={{ display: 'grid', gap: 6, flex: 1, minWidth: 160 }}>
+                  <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>Player name</span>
+                  <input
+                    type="text"
+                    value={playerStatusInput}
+                    onChange={(e) => setPlayerStatusInput(e.target.value)}
+                    placeholder="e.g. Jason Day"
+                    style={fieldStyle()}
+                  />
+                </label>
+                <button
+                  onClick={handleMarkPlayerWD}
+                  disabled={!canManagePool || playerStatusBusy || !playerStatusInput.trim()}
+                  style={{
+                    padding: '10px 18px',
+                    borderRadius: 10,
+                    border: 'none',
+                    background: '#dc2626',
+                    color: '#fff',
+                    fontWeight: 800,
+                    fontSize: 13,
+                    cursor: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 'not-allowed' : 'pointer',
+                    opacity: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 0.5 : 1,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Mark WD
+                </button>
+              </div>
+              {playerStatusMsg && (
+                <div style={{ fontSize: 13, fontWeight: 600, color: playerStatusMsg.includes('marked') ? '#16a34a' : '#dc2626' }}>{playerStatusMsg}</div>
               )}
             </section>
 

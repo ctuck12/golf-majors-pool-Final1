@@ -391,7 +391,9 @@ export async function GET(request: Request) {
 
       const teeTime = (row.teeTime as string | null) ?? null;
       const originalScore = computeOriginalScore(row);
-      return { position: override?.position ?? position, score, thru: override?.thru ?? thru, total, currentRoundScore, backNineStart, teeTime, canonicalName: poolPlayer.name, scoreBreakdown, lowRoundIds, originalScore };
+      const CUT_STATUSES_SET = new Set(['CUT', 'WD', 'DQ', 'MDF']);
+      const effectiveScore = override?.position && CUT_STATUSES_SET.has(override.position.toUpperCase()) ? override.position.toUpperCase() : score;
+      return { position: override?.position ?? position, score: effectiveScore, thru: override?.thru ?? thru, total, currentRoundScore, backNineStart, teeTime, canonicalName: poolPlayer.name, scoreBreakdown, lowRoundIds, originalScore };
     })
     .filter(Boolean);
 
