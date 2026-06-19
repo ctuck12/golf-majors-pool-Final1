@@ -2968,7 +2968,7 @@ export default function Page() {
       }}
     >
       {showHeaderCutInfo && <div onClick={() => setShowHeaderCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />}
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '12px 10px 32px' : '32px 20px 40px' }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '4px 10px 32px' : '32px 20px 40px' }}>
         <header
           style={{
             background: headerBg,
@@ -2977,6 +2977,7 @@ export default function Page() {
             padding: isMobile ? (sessionUser ? '0px 12px 2px' : '2px 12px') : (sessionUser ? '10px 28px 6px' : '10px 28px'),
             boxShadow: '0 24px 64px rgba(9, 34, 51, 0.18)',
             position: 'relative',
+            overflow: 'hidden',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -2989,6 +2990,8 @@ export default function Page() {
                 height: 'auto',
                 objectFit: 'contain',
                 background: 'transparent',
+                marginTop: isMobile ? -10 : 0,
+                marginBottom: isMobile ? -6 : 0,
               }}
             />
           </div>
@@ -2997,7 +3000,7 @@ export default function Page() {
             <div
               style={{
                 marginTop: 0,
-                paddingTop: 8,
+                paddingTop: 4,
                 borderTop: '1px solid rgba(112, 202, 220, 0.18)',
                 display: 'flex',
                 justifyContent: (isMobile && canManagePool) ? 'flex-start' : 'center',
