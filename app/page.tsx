@@ -1093,6 +1093,22 @@ function formatTeeTime(teeTimeStr: string): string {
   return '--';
 }
 
+// Returns true if the ESPN tee time string represents a time more than `thresholdMs` in the past.
+// ESPN stores times in EDT (UTC-4) regardless of the timezone label in the string.
+function teeTimeIsPast(teeTimeStr: string, thresholdMs = 3 * 60 * 60 * 1000): boolean {
+  const MONTHS: Record<string, string> = {
+    Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+    Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12',
+  };
+  const m = teeTimeStr.match(/\w+ (\w{3}) (\d+) (\d{1,2}):(\d{2}):\d{2} \w+ (\d{4})/);
+  if (!m) return false;
+  const [, monthName, day, hour, min, year] = m;
+  const month = MONTHS[monthName];
+  if (!month) return false;
+  const d = new Date(`${year}-${month}-${day.padStart(2, '0')}T${hour.padStart(2, '0')}:${min}:00-04:00`);
+  return !isNaN(d.getTime()) && Date.now() - d.getTime() > thresholdMs;
+}
+
 function formatCurrentRoundScore(value: string | undefined, fallback: string) {
   const candidate = value && value !== '--' ? value : fallback;
 
@@ -4344,7 +4360,7 @@ export default function Page() {
                                         const thruDisplay = (() => {
                                           const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                           if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
-                                            return formatTeeTime(player.teeTime);
+                                            return teeTimeIsPast(player.teeTime) ? '--' : formatTeeTime(player.teeTime);
                                           }
                                           const clientRound = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
                                           const espnRound = feed?.currentRound ?? 1;
@@ -4476,7 +4492,7 @@ export default function Page() {
                                           const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                           const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
                                           if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
-                                            return formatTeeTime(player.teeTime);
+                                            return teeTimeIsPast(player.teeTime) ? '--' : formatTeeTime(player.teeTime);
                                           }
                                           const clientRound = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
                                           const espnRound = feed?.currentRound ?? 1;
