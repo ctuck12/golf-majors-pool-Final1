@@ -3704,40 +3704,6 @@ export default function Page() {
                           </span>
                         )} Championship
                       </h2>
-                      {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
-                            <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
-                            {currentRoundSuspended ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
-                            ) : currentRoundComplete ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>
-                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#991b1b', flexShrink: 0 }} />Complete
-                              </span>
-                            ) : (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #15803d', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#15803d' }}>
-                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', flexShrink: 0 }} />In Progress
-                              </span>
-                            )}
-                          </div>
-                          {showProjectedCut && feed?.projectedCut && (
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                              <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle' }}>
-                                <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
-                                {showCutInfo && (
-                                  <>
-                                    <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
-                                    <div style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
-                                      {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
-                                    </div>
-                                  </>
-                                )}
-                              </span>
-                              <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
@@ -3754,40 +3720,6 @@ export default function Page() {
                           </span>
                         )} Tournament
                       </h2>
-                      {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
-                            <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
-                            {currentRoundSuspended ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
-                            ) : currentRoundComplete ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>
-                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#991b1b', flexShrink: 0 }} />Complete
-                              </span>
-                            ) : (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #15803d', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#15803d' }}>
-                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', flexShrink: 0 }} />In Progress
-                              </span>
-                            )}
-                          </div>
-                          {showProjectedCut && feed?.projectedCut && (
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                              <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle' }}>
-                                <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
-                                {showCutInfo && (
-                                  <>
-                                    <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
-                                    <div style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
-                                      {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
-                                    </div>
-                                  </>
-                                )}
-                              </span>
-                              <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
@@ -3804,40 +3736,6 @@ export default function Page() {
                           </span>
                         )} Championship
                       </h2>
-                      {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
-                            <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
-                            {currentRoundSuspended ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
-                            ) : currentRoundComplete ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>
-                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#991b1b', flexShrink: 0 }} />Complete
-                              </span>
-                            ) : (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #15803d', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#15803d' }}>
-                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', flexShrink: 0 }} />In Progress
-                              </span>
-                            )}
-                          </div>
-                          {showProjectedCut && feed?.projectedCut && (
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                              <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle' }}>
-                                <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
-                                {showCutInfo && (
-                                  <>
-                                    <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
-                                    <div style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
-                                      {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
-                                    </div>
-                                  </>
-                                )}
-                              </span>
-                              <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </>
                   ) : selectedTournament === 'us-open' ? (
                     <>
@@ -3854,40 +3752,6 @@ export default function Page() {
                           </span>
                         )} Championship
                       </h2>
-                      {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
-                            <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
-                            {currentRoundSuspended ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
-                            ) : currentRoundComplete ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>
-                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#991b1b', flexShrink: 0 }} />Complete
-                              </span>
-                            ) : (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #15803d', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#15803d' }}>
-                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', flexShrink: 0 }} />In Progress
-                              </span>
-                            )}
-                          </div>
-                          {showProjectedCut && feed?.projectedCut && (
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                              <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle' }}>
-                                <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
-                                {showCutInfo && (
-                                  <>
-                                    <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
-                                    <div style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
-                                      {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
-                                    </div>
-                                  </>
-                                )}
-                              </span>
-                              <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </>
                   ) : selectedTournament === 'open' ? (
                     <>
@@ -3904,40 +3768,6 @@ export default function Page() {
                           </span>
                         )} Championship
                       </h2>
-                      {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
-                            <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
-                            {currentRoundSuspended ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
-                            ) : currentRoundComplete ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>
-                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#991b1b', flexShrink: 0 }} />Complete
-                              </span>
-                            ) : (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #15803d', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#15803d' }}>
-                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', flexShrink: 0 }} />In Progress
-                              </span>
-                            )}
-                          </div>
-                          {showProjectedCut && feed?.projectedCut && (
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                              <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle' }}>
-                                <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
-                                {showCutInfo && (
-                                  <>
-                                    <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
-                                    <div style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
-                                      {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
-                                    </div>
-                                  </>
-                                )}
-                              </span>
-                              <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
                       <img
@@ -3997,6 +3827,40 @@ export default function Page() {
                   </div>
                 ) : null}
               </div>
+              {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
+                    {currentRoundSuspended ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>⚠ Suspended</span>
+                    ) : currentRoundComplete ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #991b1b', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#991b1b' }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#991b1b', flexShrink: 0 }} />Complete
+                      </span>
+                    ) : (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#fff', border: '1.5px solid #15803d', borderRadius: 6, padding: '2px 10px 2px 8px', fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#15803d' }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#15803d', flexShrink: 0 }} />In Progress
+                      </span>
+                    )}
+                  </div>
+                  {showProjectedCut && feed?.projectedCut && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle' }}>
+                        <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
+                        {showCutInfo && (
+                          <>
+                            <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
+                            <div style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
+                              {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
+                            </div>
+                          </>
+                        )}
+                      </span>
+                      <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {!showLivePayoutStrip && !showFinalTournamentView && picksOpenForTournament ? (
                 <div
