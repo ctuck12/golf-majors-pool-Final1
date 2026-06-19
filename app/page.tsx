@@ -3694,7 +3694,7 @@ export default function Page() {
                       <h2 style={{ margin: 0, fontSize: isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
                         The Players{!(showProjectedCut && feed?.projectedCut) && (
                           <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: 3 }}>
-                            <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
+                            <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
                             {showCutInfo && (
                               <>
                                 <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
@@ -3710,7 +3710,7 @@ export default function Page() {
                       <h2 style={{ margin: 0, fontSize: isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
                         The Masters{!(showProjectedCut && feed?.projectedCut) && (
                           <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: 3 }}>
-                            <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
+                            <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
                             {showCutInfo && (
                               <>
                                 <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
@@ -3726,7 +3726,7 @@ export default function Page() {
                       <h2 style={{ margin: 0, fontSize: isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
                         The PGA{!(showProjectedCut && feed?.projectedCut) && (
                           <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: 3 }}>
-                            <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
+                            <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
                             {showCutInfo && (
                               <>
                                 <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
@@ -3742,7 +3742,7 @@ export default function Page() {
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
                         U.S. Open{!(showProjectedCut && feed?.projectedCut) && (
                           <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: 3 }}>
-                            <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
+                            <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
                             {showCutInfo && (
                               <>
                                 <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
@@ -3758,7 +3758,7 @@ export default function Page() {
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
                         The Open{!(showProjectedCut && feed?.projectedCut) && (
                           <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: 3 }}>
-                            <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
+                            <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
                             {showCutInfo && (
                               <>
                                 <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
@@ -3846,7 +3846,7 @@ export default function Page() {
                   {showProjectedCut && feed?.projectedCut && (
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                       <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle' }}>
-                        <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
+                        <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
                         {showCutInfo && (
                           <>
                             <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
@@ -4115,7 +4115,7 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 24 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1, marginTop: isMobile ? -2 : 0, position: 'relative' }}>
                           Leaderboard
                           <span style={{ position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)', display: 'inline-flex', alignItems: 'center', paddingLeft: 3 }}>
-                            <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
+                            <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
                             {showHeaderCutInfo && (<><div style={{ position: 'absolute', bottom: '100%', right: 0, marginBottom: 6, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>Cut Line: Top 60 & ties</div></>)}
                           </span>
                         </span>
@@ -4126,7 +4126,7 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1, position: 'relative' }}>
                           Leaderboard
                           <span style={{ position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)', display: 'inline-flex', alignItems: 'center', paddingLeft: 3 }}>
-                            <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
+                            <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
                             {showHeaderCutInfo && (<><div style={{ position: 'absolute', bottom: '100%', right: 0, marginBottom: 6, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>Cut Line: Top 70 & ties</div></>)}
                           </span>
                         </span>
@@ -4137,7 +4137,7 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#2c6449', lineHeight: 1, position: 'relative' }}>
                           Leaderboard
                           <span style={{ position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)', display: 'inline-flex', alignItems: 'center', paddingLeft: 3 }}>
-                            <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
+                            <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
                             {showHeaderCutInfo && (<><div style={{ position: 'absolute', bottom: '100%', right: 0, marginBottom: 6, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>Cut Line: Top 50 & ties</div></>)}
                           </span>
                         </span>
@@ -4148,7 +4148,7 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#0c1f3a', lineHeight: 1, position: 'relative' }}>
                           Leaderboard
                           <span style={{ position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)', display: 'inline-flex', alignItems: 'center', paddingLeft: 3 }}>
-                            <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
+                            <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
                             {showHeaderCutInfo && (<><div style={{ position: 'absolute', bottom: '100%', right: 0, marginBottom: 6, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>Cut Line: Top 70 & ties</div></>)}
                           </span>
                         </span>
@@ -4159,7 +4159,7 @@ export default function Page() {
                         <span style={{ fontSize: isMobile ? 21 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1, marginTop: isMobile ? '6px' : '0', position: 'relative' }}>
                           Leaderboard
                           <span style={{ position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)', display: 'inline-flex', alignItems: 'center', paddingLeft: 3 }}>
-                            <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
+                            <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
                             {showHeaderCutInfo && (<><div style={{ position: 'absolute', bottom: '100%', right: 0, marginBottom: 6, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>Cut Line: Top 65 & ties</div></>)}
                           </span>
                         </span>
@@ -8044,12 +8044,12 @@ export default function Page() {
 
           const renderPlayerList = (cat: BonusCat) => {
             const earners = pickedPlayers.filter(cat.filter).sort((a, b) => cat.count(b) - cat.count(a));
-            if (earners.length === 0) return <div style={{ fontSize: 12, color: '#8fa3b1', fontStyle: 'italic', padding: '2px 0 4px' }}>None</div>;
+            if (earners.length === 0) return <div style={{ fontSize: 12, color: '#607282', fontStyle: 'italic', padding: '2px 0 4px' }}>None</div>;
             return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, paddingBottom: 4 }}>
                 {earners.map((p) => (
                   <div key={p.id} style={{ fontSize: 13, color: selectedTournament === 'open' ? '#0f1720' : '#2a3d50', fontWeight: 600 }}>
-                    {p.name}{cat.showCount ? <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#8fa3b1', fontWeight: 500 }}> ({cat.count(p)})</span> : null}
+                    {p.name}{cat.showCount ? <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 500 }}> ({cat.count(p)})</span> : null}
                   </div>
                 ))}
               </div>
@@ -8104,7 +8104,7 @@ export default function Page() {
                                 <div key={p.id} style={{ fontSize: 13, color: '#0f1720', fontWeight: 700 }}>
                                   {p.name}
                                   {isLowRnd && p.lowRoundIds?.length ? (
-                                    <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#8fa3b1', fontWeight: 500, fontSize: 11 }}>{' '}({p.lowRoundIds.map(r => `R${r}`).join(', ')})</span>
+                                    <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 500, fontSize: 11 }}>{' '}({p.lowRoundIds.map(r => `R${r}`).join(', ')})</span>
                                   ) : null}
                                 </div>
                               ))}
@@ -8149,7 +8149,7 @@ export default function Page() {
                               ) : (
                                 <span style={{ fontSize: 12, fontWeight: 600, color: '#b0bec8' }}>0</span>
                               )}
-                              <span style={{ fontSize: 10, color: selectedTournament === 'open' ? '#173b63' : '#8fa3b1', lineHeight: 1, transition: 'transform 0.2s ease', display: 'inline-block', transform: isOpen ? 'rotate(0deg)' : 'rotate(180deg)' }}>▲</span>
+                              <span style={{ fontSize: 10, color: selectedTournament === 'open' ? '#173b63' : '#607282', lineHeight: 1, transition: 'transform 0.2s ease', display: 'inline-block', transform: isOpen ? 'rotate(0deg)' : 'rotate(180deg)' }}>▲</span>
                             </div>
                           </button>
                           <div style={{ maxHeight: isOpen ? '600px' : '0', overflow: 'hidden', transition: 'max-height 0.25s ease' }}>
