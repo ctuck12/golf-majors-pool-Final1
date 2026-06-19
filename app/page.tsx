@@ -4163,11 +4163,11 @@ export default function Page() {
                     {tournament.id === 'us-open' ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 7 : 6, width: '100%' }}>
                         <img src="/us-open-tab-logo.png" alt="U.S. Open" style={{ height: isMobile ? 38 : 40, objectFit: 'contain', flexShrink: 0, marginTop: isMobile ? -4 : 0 }} />
+                        <span style={{ fontSize: isMobile ? 24 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1, marginTop: isMobile ? -2 : 0 }}>Leaderboard</span>
                         <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}>
-                          <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 3px 0 0', cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
+                          <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 0 0 3px', cursor: 'pointer', fontSize: isMobile ? 12 : 14, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
                           {showHeaderCutInfo && (<><div onClick={() => setShowHeaderCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} /><div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>Cut Line: Top 60 & ties</div></>)}
                         </div>
-                        <span style={{ fontSize: isMobile ? 24 : 25, fontWeight: 900, color: '#173b63', lineHeight: 1, marginTop: isMobile ? -2 : 0 }}>Leaderboard</span>
                       </div>
                     ) : tournament.id === 'pga' ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5, width: '100%' }}>
