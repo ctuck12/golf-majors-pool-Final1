@@ -2990,8 +2990,8 @@ export default function Page() {
                 height: 'auto',
                 objectFit: 'contain',
                 background: 'transparent',
-                marginTop: isMobile ? -18 : 0,
-                marginBottom: isMobile ? -12 : 0,
+                marginTop: isMobile ? -12 : 0,
+                marginBottom: isMobile ? -18 : 0,
               }}
             />
           </div>
