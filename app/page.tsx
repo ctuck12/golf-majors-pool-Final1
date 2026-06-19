@@ -3785,7 +3785,17 @@ export default function Page() {
                   ) : selectedTournament === 'us-open' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isMobile ? 20 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>
-                        U.S. Open Championship
+                        U.S. Open{!(showProjectedCut && feed?.projectedCut) && (
+                          <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle', marginLeft: 3 }}>
+                            <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#8fa3b1', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
+                            {showCutInfo && (
+                              <>
+                                <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
+                                <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 5, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>Top 60 & ties</div>
+                              </>
+                            )}
+                          </span>
+                        )} Championship
                       </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
