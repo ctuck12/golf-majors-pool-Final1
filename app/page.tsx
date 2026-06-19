@@ -3701,6 +3701,7 @@ export default function Page() {
                             )}
                           </span>
                         )} Championship
+                      </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
                           <button
@@ -3740,6 +3741,7 @@ export default function Page() {
                             )}
                           </span>
                         )} Tournament
+                      </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
                           <button
@@ -3779,6 +3781,7 @@ export default function Page() {
                             )}
                           </span>
                         )} Championship
+                      </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
                           <button
@@ -3858,6 +3861,7 @@ export default function Page() {
                             )}
                           </span>
                         )} Championship
+                      </h2>
                       {showProjectedCut && feed?.projectedCut ? (
                         <div style={{ position: 'relative', display: 'inline-block', marginTop: 4 }}>
                           <button
