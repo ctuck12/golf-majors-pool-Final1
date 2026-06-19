@@ -8,8 +8,6 @@ import {
   TOURNAMENT_IDS,
   type TournamentId,
 } from '../../lib/pool-store';
-import { TOURNAMENT_META } from '../../lib/tournament-config';
-
 function isTournamentId(value: string): value is TournamentId {
   return TOURNAMENT_IDS.includes(value as TournamentId);
 }
@@ -49,17 +47,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unknown tournament.' }, { status: 400 });
     }
 
-    // Server-side lock: explicit commissioner lock takes precedence; fall back to lockAtUtc.
+    // Server-side lock: picks are blocked only when commissioner has explicitly locked the lineup.
     const tournamentId = body.tournamentId;
-    const manualLock = session.pool?.lineupLocks?.[tournamentId];
-    if (manualLock === true) {
+    if (session.pool?.lineupLocks?.[tournamentId] === true) {
       return NextResponse.json({ error: 'Picks are locked for this tournament.' }, { status: 403 });
-    }
-    if (manualLock !== false) {
-      const meta = TOURNAMENT_META[tournamentId];
-      if (meta?.lockAtUtc && Date.now() >= new Date(meta.lockAtUtc).getTime()) {
-        return NextResponse.json({ error: 'Picks are locked for this tournament.' }, { status: 403 });
-      }
     }
 
     const roster = await saveRosterForUser(session.user.id, tournamentId, body.roster);

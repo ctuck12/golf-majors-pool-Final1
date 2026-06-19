@@ -299,11 +299,24 @@ async function markTournamentComplete(
   });
 }
 
+// Lock picks as soon as any player has a score on the board (thru !== '--').
+// autoLockPoolLineup is idempotent — safe to call on every cron tick.
+async function autoLockOnFirstScore(
+  tournamentId: string,
+  rows: SlashGolfLeaderboardRow[],
+): Promise<void> {
+  if (!TOURNAMENT_IDS.includes(tournamentId as TournamentId)) return;
+  const anyStarted = rows.some(r => {
+    const thru = String(r.thru ?? '').trim();
+    return thru !== '--' && thru !== '';
+  });
+  if (anyStarted) await autoLockPoolLineup(tournamentId as TournamentId);
+}
+
 async function refreshTournamentFromESPN(
   tournamentId: string,
   espnEventId: string,
   existing: Awaited<ReturnType<typeof readLeaderboardCache>>,
-  wasNotStarted = false,
 ): Promise<string> {
   let espnResult: Awaited<ReturnType<typeof fetchESPNTournament>>;
   try {
@@ -330,15 +343,13 @@ async function refreshTournamentFromESPN(
     throw err;
   }
 
-  // First successful fetch after notStarted — auto-lock picks so nobody sneaks in a late change
-  if (wasNotStarted && TOURNAMENT_IDS.includes(tournamentId as TournamentId)) {
-    await autoLockPoolLineup(tournamentId as TournamentId);
-  }
-
   const { currentRound, roundStatus, playerScorecards } = espnResult;
   const roundComplete = isRoundComplete(roundStatus);
   // Apply cut statuses when ESPN hasn't flagged them explicitly (ESPN keeps numeric scores on cut players)
   const rows = applyEspnCutStatuses(tournamentId, espnResult.leaderboardRows, currentRound, roundComplete);
+
+  // Lock picks the moment any player has a score — fires once, idempotent thereafter
+  await autoLockOnFirstScore(tournamentId, rows);
   // For rounds 3+, projectedCut is the actual cut score from round 2 — preserve it from the cache
   const projectedCut = computeProjectedCutFromRows(tournamentId, rows, currentRound) ?? existing?.projectedCut ?? null;
 
@@ -434,7 +445,7 @@ async function refreshTournament(tournamentId: string): Promise<string> {
 
   // ESPN path — one fetch returns both leaderboard and all scorecard data
   if (meta.dataSource === 'espn' && meta.espnEventId) {
-    return refreshTournamentFromESPN(tournamentId, meta.espnEventId, existing, wasNotStarted);
+    return refreshTournamentFromESPN(tournamentId, meta.espnEventId, existing);
   }
 
   let lb: SlashGolfLeaderboardResponse;

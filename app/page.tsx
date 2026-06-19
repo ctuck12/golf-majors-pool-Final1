@@ -87,35 +87,35 @@ const TOURNAMENTS = [
     name: 'The Players',
     fullName: 'The Players Championship',
     venue: 'TPC Sawgrass',
-    lockAt: '2026-03-12T11:40:00Z',
+    firstTeeUtc: '2026-03-12T11:40:00Z',
   },
   {
     id: 'masters',
     name: 'The Masters',
     fullName: 'The Masters Tournament',
     venue: 'Augusta National',
-    lockAt: '2026-04-09T11:30:00Z',
+    firstTeeUtc: '2026-04-09T11:30:00Z',
   },
   {
     id: 'pga',
     name: 'The PGA',
     fullName: 'The PGA Championship',
     venue: 'Aronimink',
-    lockAt: '2026-05-14T11:20:00Z',
+    firstTeeUtc: '2026-05-14T11:20:00Z',
   },
   {
     id: 'us-open',
     name: 'U.S. Open',
     fullName: 'U.S. Open Championship',
     venue: 'Shinnecock Hills',
-    lockAt: '2026-06-18T11:15:00Z',
+    firstTeeUtc: '2026-06-18T11:15:00Z',
   },
   {
     id: 'open',
     name: 'The Open',
     fullName: 'The Open Championship',
     venue: 'Royal Birkdale',
-    lockAt: '2026-07-16T05:35:00Z',
+    firstTeeUtc: '2026-07-16T05:35:00Z',
   },
 ] as const;
 
@@ -830,7 +830,7 @@ type TournamentCardStatus = {
 function getTournamentEventWindow(tournament: (typeof TOURNAMENTS)[number], year: number) {
   const startDate = getTournamentStartDate(tournament.id, year);
   const activeAt = addDays(startOfDay(startDate), -3);
-  const inProgressAt = buildOccurrenceDate(tournament.lockAt, year, startDate);
+  const inProgressAt = buildOccurrenceDate(tournament.firstTeeUtc, year, startDate);
   const concludeAt = addDays(startOfDay(startDate), 4);
 
   return {
@@ -936,10 +936,6 @@ function getDefaultTournamentId(
   }
 
   return TOURNAMENTS[0].id;
-}
-
-function isLineupLocked(lockAt: string, now = Date.now()) {
-  return new Date(lockAt).getTime() <= now;
 }
 
 function formatRefresh(value: string | null) {
@@ -1318,8 +1314,7 @@ export default function Page() {
   const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE' && pool?.picksOpen?.[entriesTournamentId] === true;
   const entriesPreFieldView =
     entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null || !entriesPicksOpenForTournament;
-  const entriesDefaultLocked = isLineupLocked(entriesTournament.lockAt, nowTick);
-  const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? (entriesDefaultLocked || entriesTournamentStatus?.label === 'IN PROGRESS');
+  const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? entriesTournamentStatus?.label === 'IN PROGRESS';
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
   const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
   const commissionerTournamentWinnerScore = pool?.winnerScores?.[entriesTournamentId] ?? null;
@@ -2443,8 +2438,7 @@ export default function Page() {
     commissionerRosterSelection.length === REQUIRED_GOLFERS &&
     commissionerSalaryUsed <= SALARY_CAP &&
     /^\d{3}$/.test(commissionerTieBreakInput);
-  const defaultLocked = isLineupLocked(tournament.lockAt, nowTick);
-  const locked = pool?.lineupLocks?.[selectedTournament] ?? (defaultLocked || selectedTournamentStatus?.label === 'IN PROGRESS');
+  const locked = pool?.lineupLocks?.[selectedTournament] ?? selectedTournamentStatus?.label === 'IN PROGRESS';
   const showFinalTournamentView = selectedTournamentStatus?.label === 'LOCKED';
   const isTournamentFinal = feed?.tournamentComplete === true;
   const roundOneComplete =
