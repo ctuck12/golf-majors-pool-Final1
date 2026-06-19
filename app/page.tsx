@@ -7559,32 +7559,47 @@ export default function Page() {
                         <div style={{ fontSize: !scorecardGolferName ? 19 : scorecardGolferName.length > 22 ? (isMobile ? 14 : 16) : scorecardGolferName.length > 18 ? (isMobile ? 16 : 18) : isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.1 }}>{scorecardGolferName}{scorecardGolferName && getPlayerFlag(scorecardGolferName) && <><img src={getFlagSrc(scorecardGolferName)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />{getCountryLabel(scorecardGolferName) && <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, verticalAlign: 'middle' }}>{getCountryLabel(scorecardGolferName)}</span>}</>}</div>
                         {(() => {
                           const playerNotStarted = scorecardGolferThru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS';
+                          const prevRoundsBtn = (hasPrev: boolean) => hasPrev ? (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
+                              style={{ background: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'open' ? '#c0392b' : '#1e3a5f', border: selectedTournament === 'masters' ? '1.5px solid #c8b800' : selectedTournament === 'players' ? '1.5px solid #a07010' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', borderRadius: 999, padding: isMobile ? '2.5px 7.5px' : '3px 8px', cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#fff', fontWeight: 800, fontSize: isMobile ? 8 : 9, letterSpacing: '0.06em', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : selectedTournament === 'players' ? '0 2px 8px rgba(180,140,0,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)', textTransform: 'uppercase' }}
+                            >
+                              Previous Rounds
+                            </button>
+                          ) : null;
                           if (playerNotStarted && scorecardGolferTeeTime) {
                             const roundNum = parseInt(currentRoundLabel.replace('Round ', '')) || 1;
+                            const hasPrev = scorecardData?.rounds.some(r => r.round < roundNum && r.holes.length > 0) ?? false;
                             return (
                               <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: roundColor, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                                 Round {roundNum}
                                 <span style={{ fontWeight: 400, color: '#0f1720', fontSize: isMobile ? 10 : 11 }}>{formatTeeTime(scorecardGolferTeeTime)}</span>
+                                {prevRoundsBtn(hasPrev)}
                               </div>
                             );
                           }
                           if (scorecardData && scorecardData.rounds.length > 0) {
                             const rnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
                             const hasPrev = scorecardData.rounds.some(r => r.round < rnd.round && r.holes.length > 0);
-                            return rnd && rnd.score != null && rnd.score !== '' ? (
-                              <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: roundColor, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                                Round {rnd.round}
-                                <span style={{ fontWeight: 600, color: '#fff', fontSize: isMobile ? 10 : 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
-                                {hasPrev && (
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); setShowPreviousRounds(true); }}
-                                    style={{ background: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'open' ? '#c0392b' : '#1e3a5f', border: selectedTournament === 'masters' ? '1.5px solid #c8b800' : selectedTournament === 'players' ? '1.5px solid #a07010' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', borderRadius: 999, padding: isMobile ? '2.5px 7.5px' : '3px 8px', cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : '#fff', fontWeight: 800, fontSize: isMobile ? 8 : 9, letterSpacing: '0.06em', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : selectedTournament === 'players' ? '0 2px 8px rgba(180,140,0,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)', textTransform: 'uppercase' }}
-                                  >
-                                    Previous Rounds
-                                  </button>
-                                )}
-                              </div>
-                            ) : null;
+                            if (!rnd) return null;
+                            if (rnd.score != null && rnd.score !== '') {
+                              return (
+                                <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: roundColor, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                  Round {rnd.round}
+                                  <span style={{ fontWeight: 600, color: '#fff', fontSize: isMobile ? 10 : 11 }}>Score: {rnd.score}{scorecardGolferBackNineStart && scorecardGolferThru !== '--' ? <sup style={{ fontSize: '0.9em', verticalAlign: '0.1em' }}>*</sup> : null}</span>
+                                  {prevRoundsBtn(hasPrev)}
+                                </div>
+                              );
+                            }
+                            if (hasPrev) {
+                              return (
+                                <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: roundColor, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                  Round {rnd.round}
+                                  {prevRoundsBtn(true)}
+                                </div>
+                              );
+                            }
+                            return null;
                           }
                           return null;
                         })()}
