@@ -34,6 +34,45 @@ import redis from '@/app/lib/redis';
 
 // ── Field parsing (same helpers as before) ────────────────────────────────
 
+// Golf holes are always par 3, 4, or 5. ESPN occasionally returns the player's
+// score in the par field (e.g. an 8 on a par-4 becomes par=8). This function
+// uses cross-player consensus to detect and correct those bad values.
+function fixParValues(players: Record<string, StoredPlayerScorecards>): void {
+  // Count valid par occurrences per (roundId:holeNumber)
+  const consensus = new Map<string, Map<number, number>>();
+  for (const player of Object.values(players)) {
+    for (const round of player.rounds) {
+      for (const hole of round.holes) {
+        if (hole.par >= 3 && hole.par <= 5) {
+          const key = `${round.roundId}:${hole.holeNumber}`;
+          const counts = consensus.get(key) ?? new Map<number, number>();
+          counts.set(hole.par, (counts.get(hole.par) ?? 0) + 1);
+          consensus.set(key, counts);
+        }
+      }
+    }
+  }
+  // Replace any out-of-range par with the most-voted valid par
+  for (const player of Object.values(players)) {
+    for (const round of player.rounds) {
+      for (const hole of round.holes) {
+        if (hole.par < 3 || hole.par > 5) {
+          const key = `${round.roundId}:${hole.holeNumber}`;
+          const counts = consensus.get(key);
+          let corrected = 4;
+          if (counts) {
+            let best = 0;
+            for (const [par, cnt] of counts) {
+              if (cnt > best) { best = cnt; corrected = par; }
+            }
+          }
+          hole.par = corrected;
+        }
+      }
+    }
+  }
+}
+
 function normalizePosition(row: SlashGolfLeaderboardRow): string {
   return String(row.position ?? '--');
 }
@@ -230,6 +269,7 @@ async function refreshScorecards(
       };
     } catch { /* not in field */ }
   }
+  fixParValues(players);
   await saveScorecardCache(tournamentId, players, currentRound);
 }
 
@@ -275,6 +315,7 @@ async function refreshLiveScorecards(
     } catch { /* not in field */ }
   }
   if (Object.keys(updatedPlayers).length > 0) {
+    fixParValues(updatedPlayers);
     await mergeScorecardCache(tournamentId, updatedPlayers);
   }
 }
