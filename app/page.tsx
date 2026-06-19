@@ -3709,7 +3709,7 @@ export default function Page() {
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: currentRoundComplete || currentRoundSuspended ? '#991b1b' : '#15803d' }}>
-                              {currentRoundComplete ? 'Complete' : currentRoundSuspended ? 'Suspended' : 'In Progress'}
+                              {currentRoundComplete ? 'COMPLETE' : currentRoundSuspended ? 'SUSPENDED' : 'IN PROGRESS'}
                             </span>
                           </div>
                           {showProjectedCut && feed?.projectedCut && (
@@ -3751,7 +3751,7 @@ export default function Page() {
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: currentRoundComplete || currentRoundSuspended ? '#991b1b' : '#15803d' }}>
-                              {currentRoundComplete ? 'Complete' : currentRoundSuspended ? 'Suspended' : 'In Progress'}
+                              {currentRoundComplete ? 'COMPLETE' : currentRoundSuspended ? 'SUSPENDED' : 'IN PROGRESS'}
                             </span>
                           </div>
                           {showProjectedCut && feed?.projectedCut && (
@@ -3793,7 +3793,7 @@ export default function Page() {
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: currentRoundComplete || currentRoundSuspended ? '#991b1b' : '#15803d' }}>
-                              {currentRoundComplete ? 'Complete' : currentRoundSuspended ? 'Suspended' : 'In Progress'}
+                              {currentRoundComplete ? 'COMPLETE' : currentRoundSuspended ? 'SUSPENDED' : 'IN PROGRESS'}
                             </span>
                           </div>
                           {showProjectedCut && feed?.projectedCut && (
@@ -3835,7 +3835,7 @@ export default function Page() {
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: currentRoundComplete || currentRoundSuspended ? '#991b1b' : '#15803d' }}>
-                              {currentRoundComplete ? 'Complete' : currentRoundSuspended ? 'Suspended' : 'In Progress'}
+                              {currentRoundComplete ? 'COMPLETE' : currentRoundSuspended ? 'SUSPENDED' : 'IN PROGRESS'}
                             </span>
                           </div>
                           {showProjectedCut && feed?.projectedCut && (
@@ -3877,7 +3877,7 @@ export default function Page() {
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Round {feed?.currentRound}:</span>
                             <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: currentRoundComplete || currentRoundSuspended ? '#991b1b' : '#15803d' }}>
-                              {currentRoundComplete ? 'Complete' : currentRoundSuspended ? 'Suspended' : 'In Progress'}
+                              {currentRoundComplete ? 'COMPLETE' : currentRoundSuspended ? 'SUSPENDED' : 'IN PROGRESS'}
                             </span>
                           </div>
                           {showProjectedCut && feed?.projectedCut && (
