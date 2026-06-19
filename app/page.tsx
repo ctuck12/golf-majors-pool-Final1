@@ -3753,12 +3753,6 @@ export default function Page() {
                           Bonus Points
                         </button>
                       </div>
-                    {!isTournamentFinal && (
-                      <div style={{ fontSize: isMobile ? 10 : 11, color: '#0f1720', textAlign: 'right' }}>
-                        Entry Fee: $30{' '}
-                        <a href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool" style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}>(pay here)</a>
-                      </div>
-                    )}
                   </div>
                 ) : !showFutureTournamentView && !showFinalTournamentView ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
@@ -3787,7 +3781,7 @@ export default function Page() {
                       </span>
                     )}
                   </div>
-                  {showProjectedCut && feed?.projectedCut && (
+                  {showProjectedCut && feed?.projectedCut ? (
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                       <span style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle' }}>
                         <button onClick={() => setShowCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: isMobile ? 14 : 16, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button>
@@ -3801,6 +3795,11 @@ export default function Page() {
                         )}
                       </span>
                       <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</span>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: isMobile ? 10 : 11, color: '#0f1720', whiteSpace: 'nowrap' }}>
+                      Entry Fee: $30{' '}
+                      <a href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool" style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}>(pay here)</a>
                     </div>
                   )}
                 </div>
