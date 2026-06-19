@@ -3802,7 +3802,7 @@ export default function Page() {
                     </div>
                     {!showFinalTournamentView && (
                       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                        {(roundOneComplete && !isTournamentFinal) || isTournamentFinal ? (
+                        {isTournamentFinal ? (
                           <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: (selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga') ? '#c0392b' : '#0f1720', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                             Final Results
                           </div>
