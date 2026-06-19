@@ -4407,7 +4407,7 @@ export default function Page() {
                                           }
                                           const thruVal = player.thru;
                                           return player.backNineStart && thruVal !== '--' && thruVal !== 'F'
-                                            ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
+                                            ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '0.15em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
                                             : thruVal;
                                         })();
                                         return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
@@ -4539,7 +4539,7 @@ export default function Page() {
                                           }
                                           const thruVal = player.thru;
                                           return player.backNineStart && thruVal !== '--' && thruVal !== 'F'
-                                            ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '-0.3em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
+                                            ? <span style={{ position: 'relative' }}>{thruVal}<sup style={{ position: 'absolute', left: '100%', top: '0.15em', fontSize: '0.65em', lineHeight: 1 }}>*</sup></span>
                                             : thruVal;
                                         })();
                                         return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
