@@ -4374,7 +4374,7 @@ export default function Page() {
                                   <Fragment key={player.playerId}>
                                     <tr
                                       onClick={() => {
-                                        if (player.poolPlayerId !== null) {
+                                        if (player.poolPlayerId !== null && timesPicked > 0) {
                                           setSelectedLeaderboardPlayerId(activePlayer ? null : player.poolPlayerId);
                                         } else {
                                           setScorecardGolferName(player.name);
