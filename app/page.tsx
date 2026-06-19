@@ -3797,7 +3797,7 @@ export default function Page() {
                       <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</span>
                     </div>
                   ) : (
-                    <div style={{ fontSize: isMobile ? 10 : 11, color: '#0f1720', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: isMobile ? 12 : 13, color: '#0f1720', whiteSpace: 'nowrap' }}>
                       Entry Fee: $30{' '}
                       <a href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool" style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}>(pay here)</a>
                     </div>
