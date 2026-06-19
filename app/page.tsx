@@ -3753,6 +3753,12 @@ export default function Page() {
                           Bonus Points
                         </button>
                       </div>
+                    {!isTournamentFinal && (
+                      <div style={{ fontSize: isMobile ? 10 : 11, color: '#0f1720', textAlign: 'right' }}>
+                        Entry Fee: $30{' '}
+                        <a href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool" style={{ color: '#3d95ce', textDecoration: 'none', fontWeight: 600 }}>(pay here)</a>
+                      </div>
+                    )}
                   </div>
                 ) : !showFutureTournamentView && !showFinalTournamentView ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
