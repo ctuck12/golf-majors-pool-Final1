@@ -422,6 +422,7 @@ async function refreshTournamentFromESPN(
     }
 
     // All scorecard data comes embedded in the ESPN fetch — no per-player API calls needed
+    fixParValues(playerScorecards);
     await saveScorecardCache(tournamentId, playerScorecards, currentRound);
 
     if (currentRound >= 4) {
@@ -450,12 +451,14 @@ async function refreshTournamentFromESPN(
         await captureLowRound(tournamentId, rndId, rows);
       }
     }
+    fixParValues(playerScorecards);
     await saveScorecardCache(tournamentId, playerScorecards, prevRound);
     return `round-${prevRound}-complete-recovered`;
   }
 
   // Live round — merge all player scorecards from embedded ESPN data (no per-player calls)
   if (!roundComplete && Object.keys(playerScorecards).length > 0) {
+    fixParValues(playerScorecards);
     await mergeScorecardCache(tournamentId, playerScorecards);
     await captureLiveLowRound(tournamentId, currentRound, rows);
     if (currentRound <= 3) await captureRoundLeader(tournamentId, currentRound, rows);
