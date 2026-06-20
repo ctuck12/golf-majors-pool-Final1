@@ -2125,22 +2125,24 @@ export default function Page() {
     }
   };
 
-  const handleMarkPlayerWD = async () => {
+  const handleMarkPlayerStatus = async (status: 'WD' | 'DQ' | 'MDF') => {
     const playerName = playerStatusInput.trim();
     if (!playerName) return;
+    const label = status === 'MDF' ? 'MDF (Made Cut, Did Not Finish)' : status;
+    if (!window.confirm(`Mark "${playerName}" as ${label} for the ${entriesTournamentId.toUpperCase()} tournament?\n\nThis will override the ESPN data immediately.`)) return;
     setPlayerStatusBusy(true);
     setPlayerStatusMsg(null);
     try {
       const res = await fetch('/api/commissioner/player-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tournamentId: entriesTournamentId, playerName, status: 'WD' }),
+        body: JSON.stringify({ tournamentId: entriesTournamentId, playerName, status }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
         setPlayerStatusMsg((body as { error?: string }).error ?? 'Failed to save.');
       } else {
-        setPlayerStatusMsg(`${playerName} marked as WD.`);
+        setPlayerStatusMsg(`${playerName} marked as ${status}.`);
         setPlayerStatusInput('');
       }
     } catch {
@@ -6169,24 +6171,29 @@ export default function Page() {
                     style={fieldStyle()}
                   />
                 </label>
-                <button
-                  onClick={handleMarkPlayerWD}
-                  disabled={!canManagePool || playerStatusBusy || !playerStatusInput.trim()}
-                  style={{
-                    padding: '10px 18px',
-                    borderRadius: 10,
-                    border: 'none',
-                    background: '#dc2626',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontSize: 13,
-                    cursor: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 'not-allowed' : 'pointer',
-                    opacity: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 0.5 : 1,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Mark WD
-                </button>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {(['WD', 'DQ', 'MDF'] as const).map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => handleMarkPlayerStatus(status)}
+                      disabled={!canManagePool || playerStatusBusy || !playerStatusInput.trim()}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: 10,
+                        border: 'none',
+                        background: '#dc2626',
+                        color: '#fff',
+                        fontWeight: 800,
+                        fontSize: 13,
+                        cursor: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 'not-allowed' : 'pointer',
+                        opacity: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 0.5 : 1,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
               </div>
               {playerStatusMsg && (
                 <div style={{ fontSize: 13, fontWeight: 600, color: playerStatusMsg.includes('marked') ? '#16a34a' : '#dc2626' }}>{playerStatusMsg}</div>
