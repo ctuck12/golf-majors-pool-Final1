@@ -4351,7 +4351,15 @@ export default function Page() {
                                     return a.name.localeCompare(b.name);
                                   })
                                 : [
-                                    ...filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase()) && !((feed?.currentRound ?? 1) === 1 && p.thru === '--')),
+                                    ...filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase()) && !((feed?.currentRound ?? 1) === 1 && p.thru === '--')).sort((a, b) => {
+                                      const parseScoreFL = (s: string) => s === 'E' ? 0 : (parseFloat(s) || 0);
+                                      const aScore = parseScoreFL(a.score); const bScore = parseScoreFL(b.score);
+                                      if (aScore !== bScore) return aScore - bScore;
+                                      const toHolesFL = (thru: string) => thru === 'F' ? 18 : thru === '--' ? -1 : (parseInt(thru) || -1);
+                                      const aH = toHolesFL(a.thru); const bH = toHolesFL(b.thru);
+                                      if (aH === -1 && bH === -1) { const aT = parseTeeTimeMinFL(a.teeTime); const bT = parseTeeTimeMinFL(b.teeTime); return bT - aT; }
+                                      return bH - aH;
+                                    }),
                                     ...filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase()) && (feed?.currentRound ?? 1) === 1 && p.thru === '--').sort((a, b) => parseTeeTimeMinFL(a.teeTime) - parseTeeTimeMinFL(b.teeTime)),
                                     ...filteredFullRaw.filter((p) => CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => parseCutScore(a.originalScore) - parseCutScore(b.originalScore)),
                                   ];
@@ -4494,7 +4502,15 @@ export default function Page() {
                                     return a.name.localeCompare(b.name);
                                   })
                                 : [
-                                    ...filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase()) && !((feed?.currentRound ?? 1) === 1 && p.thru === '--')),
+                                    ...filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase()) && !((feed?.currentRound ?? 1) === 1 && p.thru === '--')).sort((a, b) => {
+                                      const parseScorePO = (s: string) => s === 'E' ? 0 : (parseFloat(s) || 0);
+                                      const aScore = parseScorePO(a.score); const bScore = parseScorePO(b.score);
+                                      if (aScore !== bScore) return aScore - bScore;
+                                      const toHolesPO = (thru: string) => thru === 'F' ? 18 : thru === '--' ? -1 : (parseInt(thru) || -1);
+                                      const aH = toHolesPO(a.thru); const bH = toHolesPO(b.thru);
+                                      if (aH === -1 && bH === -1) { const aT = parseTeeTimeMinPO(a.teeTime); const bT = parseTeeTimeMinPO(b.teeTime); return bT - aT; }
+                                      return bH - aH;
+                                    }),
                                     ...filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase()) && (feed?.currentRound ?? 1) === 1 && p.thru === '--').sort((a, b) => parseTeeTimeMinPO(a.teeTime) - parseTeeTimeMinPO(b.teeTime)),
                                     ...filteredPickedRaw.filter((p) => CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => parseCutScorePO(a.originalScore) - parseCutScorePO(b.originalScore)),
                                   ];
