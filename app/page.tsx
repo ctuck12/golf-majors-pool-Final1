@@ -2125,22 +2125,24 @@ export default function Page() {
     }
   };
 
-  const handleMarkPlayerWD = async () => {
+  const handleMarkPlayerStatus = async (status: 'WD' | 'DQ' | 'MDF') => {
     const playerName = playerStatusInput.trim();
     if (!playerName) return;
+    const label = status === 'MDF' ? 'MDF (Made Cut, Did Not Finish)' : status;
+    if (!window.confirm(`Mark "${playerName}" as ${label} for the ${entriesTournamentId.toUpperCase()} tournament?\n\nThis will override the ESPN data immediately.`)) return;
     setPlayerStatusBusy(true);
     setPlayerStatusMsg(null);
     try {
       const res = await fetch('/api/commissioner/player-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tournamentId: entriesTournamentId, playerName, status: 'WD' }),
+        body: JSON.stringify({ tournamentId: entriesTournamentId, playerName, status }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
         setPlayerStatusMsg((body as { error?: string }).error ?? 'Failed to save.');
       } else {
-        setPlayerStatusMsg(`${playerName} marked as WD.`);
+        setPlayerStatusMsg(`${playerName} marked as ${status}.`);
         setPlayerStatusInput('');
       }
     } catch {
@@ -3762,7 +3764,7 @@ export default function Page() {
               style={{
                 background: selectedTournament === 'open' ? '#F4BC41' : '#fff',
                 borderRadius: 20,
-                padding: isSmallMobile ? 12 : 22,
+                padding: isSmallMobile ? 12 : isMobile ? 14 : 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                 alignSelf: 'start',
               }}
@@ -3771,23 +3773,23 @@ export default function Page() {
                 <div>
                   {selectedTournament === 'players' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>The Players Championship</h2>
+                      <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>The Players Championship</h2>
                     </>
                   ) : selectedTournament === 'masters' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>The Masters Tournament</h2>
+                      <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>The Masters Tournament</h2>
                     </>
                   ) : selectedTournament === 'pga' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>The PGA Championship</h2>
+                      <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>The PGA Championship</h2>
                     </>
                   ) : selectedTournament === 'us-open' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>U.S. Open Championship</h2>
+                      <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>U.S. Open Championship</h2>
                     </>
                   ) : selectedTournament === 'open' ? (
                     <>
-                      <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>The Open Championship</h2>
+                      <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>The Open Championship</h2>
                     </>
                   ) : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
                       <img
@@ -3810,13 +3812,13 @@ export default function Page() {
                 {showLivePayoutStrip ? (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: isMobile ? 4 : 6, flexShrink: 0 }}>
                     <div style={{ display: 'flex', gap: isSmallMobile ? 5 : 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : '6px 10px', fontSize: isSmallMobile ? 10 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
+                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : isMobile ? '4px 9px' : '6px 10px', fontSize: isSmallMobile ? 10 : isMobile ? 11 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
                         1st: <span style={{ color: '#fff' }}>{formatPayoutAmount(selectedTournamentPayouts?.first)}</span>
                       </div>
-                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : '6px 10px', fontSize: isSmallMobile ? 10 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
+                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : isMobile ? '4px 9px' : '6px 10px', fontSize: isSmallMobile ? 10 : isMobile ? 11 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
                         2nd: <span style={{ color: '#fff' }}>{formatPayoutAmount(selectedTournamentPayouts?.second)}</span>
                       </div>
-                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : '6px 10px', fontSize: isSmallMobile ? 10 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
+                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : isMobile ? '4px 9px' : '6px 10px', fontSize: isSmallMobile ? 10 : isMobile ? 11 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
                         3rd: <span style={{ color: '#fff' }}>{formatPayoutAmount(selectedTournamentPayouts?.third)}</span>
                       </div>
                     </div>
@@ -6169,24 +6171,29 @@ export default function Page() {
                     style={fieldStyle()}
                   />
                 </label>
-                <button
-                  onClick={handleMarkPlayerWD}
-                  disabled={!canManagePool || playerStatusBusy || !playerStatusInput.trim()}
-                  style={{
-                    padding: '10px 18px',
-                    borderRadius: 10,
-                    border: 'none',
-                    background: '#dc2626',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontSize: 13,
-                    cursor: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 'not-allowed' : 'pointer',
-                    opacity: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 0.5 : 1,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Mark WD
-                </button>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {(['WD', 'DQ', 'MDF'] as const).map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => handleMarkPlayerStatus(status)}
+                      disabled={!canManagePool || playerStatusBusy || !playerStatusInput.trim()}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: 10,
+                        border: 'none',
+                        background: '#dc2626',
+                        color: '#fff',
+                        fontWeight: 800,
+                        fontSize: 13,
+                        cursor: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 'not-allowed' : 'pointer',
+                        opacity: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 0.5 : 1,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
               </div>
               {playerStatusMsg && (
                 <div style={{ fontSize: 13, fontWeight: 600, color: playerStatusMsg.includes('marked') ? '#16a34a' : '#dc2626' }}>{playerStatusMsg}</div>
