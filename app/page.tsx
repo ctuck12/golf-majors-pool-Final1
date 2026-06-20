@@ -8066,7 +8066,7 @@ export default function Page() {
               filter: (p: typeof players[number]) => !!p.scoreBreakdown.roundLeadersAwarded?.second,
               count: () => 0,
             }] : []),
-            ...(roundThreeComplete ? [{
+            ...((feed?.currentRound ?? 1) >= 3 ? [{
               label: 'Round 3 Leader',
               pts: SCORING_RULES.thirdRoundLeader,
               showCount: false,
