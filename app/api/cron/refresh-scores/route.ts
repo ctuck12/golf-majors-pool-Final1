@@ -421,8 +421,12 @@ async function refreshTournamentFromESPN(
       }
     }
 
-    // All scorecard data comes embedded in the ESPN fetch — no per-player API calls needed
-    await saveScorecardCache(tournamentId, playerScorecards, currentRound);
+    // All scorecard data comes embedded in the ESPN fetch — no per-player API calls needed.
+    // Merge with existing cache so WD/historical player entries (e.g. who no longer appear
+    // in ESPN's live feed) are preserved and also get par corrections applied.
+    const mergedComplete = { ...(scorecardCache?.players ?? {}), ...playerScorecards };
+    fixParValues(mergedComplete);
+    await saveScorecardCache(tournamentId, mergedComplete, currentRound);
 
     if (currentRound >= 4) {
       await markTournamentComplete(tournamentId, existing, rows, currentRound, roundStatus, projectedCut);
@@ -450,18 +454,29 @@ async function refreshTournamentFromESPN(
         await captureLowRound(tournamentId, rndId, rows);
       }
     }
-    await saveScorecardCache(tournamentId, playerScorecards, prevRound);
+    const mergedRecovered = { ...(scorecardCache?.players ?? {}), ...playerScorecards };
+    fixParValues(mergedRecovered);
+    await saveScorecardCache(tournamentId, mergedRecovered, prevRound);
     return `round-${prevRound}-complete-recovered`;
   }
 
   // Live round — merge all player scorecards from embedded ESPN data (no per-player calls)
   if (!roundComplete && Object.keys(playerScorecards).length > 0) {
-    await mergeScorecardCache(tournamentId, playerScorecards);
+    const mergedLive = { ...(scorecardCache?.players ?? {}), ...playerScorecards };
+    fixParValues(mergedLive);
+    await mergeScorecardCache(tournamentId, mergedLive);
     await captureLiveLowRound(tournamentId, currentRound, rows);
     if (currentRound <= 3) await captureRoundLeader(tournamentId, currentRound, rows);
     return 'live-scorecards-refreshed';
   }
 
+  // Between rounds (roundComplete, no new data to process): still re-apply par corrections
+  // to the full cached dataset so historical entries like WD players get fixed immediately.
+  const mergedBetweenRounds = { ...(scorecardCache?.players ?? {}), ...playerScorecards };
+  if (Object.keys(mergedBetweenRounds).length > 0) {
+    fixParValues(mergedBetweenRounds);
+    await saveScorecardCache(tournamentId, mergedBetweenRounds, lastCompleted);
+  }
   return 'leaderboard-refreshed';
 }
 
