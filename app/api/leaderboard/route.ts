@@ -364,16 +364,28 @@ export async function GET(request: Request) {
       let scoreBreakdown;
       let scoringRounds: import('@/app/lib/scoring').ScorecardRound[] = [];
       if (override) {
-        scoringRounds = buildSyntheticRounds(override.statLine);
-        scoreBreakdown = computeFullScoreBreakdown({
-          position: override.position,
-          score,
-          thru: override.thru,
-          rounds: scoringRounds,
-          roundLeadersAwarded,
-          tournamentLowRoundScore: tournamentLowRound,
-          currentRound,
-        });
+        const isCutOverride = ['CUT', 'WD', 'DQ', 'MDF'].includes(override.position.toUpperCase());
+        if (isCutOverride) {
+          // For WD/DQ/CUT/MDF overrides, use real scorecard data for stats so hole-level
+          // accuracy is preserved; only the position/thru come from the override.
+          const storedScorecard = scorecardCache?.players[row.playerId];
+          scoringRounds = storedScorecard?.rounds ?? [];
+          const cutScore = override.position.toUpperCase();
+          scoreBreakdown = scoringRounds.length > 0
+            ? computeFullScoreBreakdown({ position: override.position, score: cutScore, thru: override.thru, rounds: scoringRounds, roundLeadersAwarded, tournamentLowRoundScore: tournamentLowRound, currentRound })
+            : buildPlaceholderScoreBreakdown({ position: override.position, score: cutScore, thru: override.thru, currentRound });
+        } else {
+          scoringRounds = buildSyntheticRounds(override.statLine);
+          scoreBreakdown = computeFullScoreBreakdown({
+            position: override.position,
+            score,
+            thru: override.thru,
+            rounds: scoringRounds,
+            roundLeadersAwarded,
+            tournamentLowRoundScore: tournamentLowRound,
+            currentRound,
+          });
+        }
       } else {
         const storedScorecard = scorecardCache?.players[row.playerId];
         scoringRounds = storedScorecard?.rounds ?? [];
