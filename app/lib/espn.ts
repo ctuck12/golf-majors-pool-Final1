@@ -100,10 +100,15 @@ function deriveCurrentRound(
   return max || 1;
 }
 
-// Tee time lives in the last stats entry of the current round's linescore.
+// Tee time lives in the last stats entry of a round's linescore.
 // That entry has no "value" key and contains a string like "Thu May 14 14:27:00 PDT 2026".
+// When the current round is complete (≥18 holes played), look at the next round for the
+// upcoming tee time so we show R3 times after R2 finishes rather than the stale R2 time.
 function extractTeeTime(linescores: EspnRoundLinescore[] | undefined, currentRound: number): string | null {
-  const round = (linescores ?? []).find((r) => r.period === currentRound);
+  const currentRoundData = (linescores ?? []).find((r) => r.period === currentRound);
+  const isComplete = (currentRoundData?.linescores?.length ?? 0) >= 18;
+  const targetPeriod = isComplete ? currentRound + 1 : currentRound;
+  const round = (linescores ?? []).find((r) => r.period === targetPeriod);
   const stats = round?.statistics?.categories?.[0]?.stats;
   if (!stats?.length) return null;
   const last = stats[stats.length - 1];
