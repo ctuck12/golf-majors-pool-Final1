@@ -7748,9 +7748,9 @@ export default function Page() {
                   // double bogey → 2 squares
                   if (diff === 2)
                     return { ...base, border: `2px solid ${k}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${k}` };
-                  // triple bogey or worse → 3 squares
+                  // triple bogey or worse → 3 squares (slightly tighter rings so they fit within the cell)
                   if (diff >= 3)
-                    return { ...base, border: `2px solid ${k}`, boxShadow: `0 0 0 2px ${g},0 0 0 4px ${k},0 0 0 6px ${g},0 0 0 8px ${k}` };
+                    return { ...base, border: `1.5px solid ${k}`, boxShadow: `0 0 0 1.5px ${g},0 0 0 3px ${k},0 0 0 4.5px ${g},0 0 0 6px ${k}` };
                   return base; // par — no decoration
                 };
 
@@ -7779,9 +7779,9 @@ export default function Page() {
                           </tr>
                           <tr>
                             <td style={{ ...labelCell, background: isGoldTab ? '#F4BC41' : '#fff' }}>Score</td>
-                            {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
+                            {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '7px 7px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
                             <td style={subtotalCell}>{!allScoresNull && frontScore > 0 ? frontScore : '--'}</td>
-                            {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
+                            {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '7px 7px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
                             <td style={subtotalCell}>{!allScoresNull && backScore > 0 ? backScore : '--'}</td>
                             <td style={totalCell}>{!allScoresNull && totalScore > 0 ? totalScore : '--'}</td>
                           </tr>
@@ -7898,9 +7898,9 @@ export default function Page() {
                               </tr>
                               <tr>
                                 <td style={{ ...labelCell, background: isGoldTab ? '#F4BC41' : '#fff' }}>Score</td>
-                                {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
+                                {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '7px 7px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
                                 <td style={subtotalCell}>{!allScoresNull && frontScore > 0 ? frontScore : '--'}</td>
-                                {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
+                                {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '7px 7px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
                                 <td style={subtotalCell}>{!allScoresNull && backScore > 0 ? backScore : '--'}</td>
                                 <td style={totalCell}>{!allScoresNull && totalScore > 0 ? totalScore : '--'}</td>
                               </tr>
@@ -8014,9 +8014,9 @@ export default function Page() {
                               </tr>
                               <tr>
                                 <td style={{ ...labelCell, background: isGoldTab ? '#F4BC41' : '#fff' }}>Score</td>
-                                {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
+                                {front.map(h => <td key={h.hole} style={{ ...baseCell, padding: '7px 7px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
                                 <td style={subtotalCell}>{!allScoresNull && frontScore > 0 ? frontScore : '--'}</td>
-                                {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '5px 5px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
+                                {back.map(h => <td key={h.hole} style={{ ...baseCell, padding: '7px 7px' }}>{h.score != null ? <span style={badge(h.score, h.par)}>{h.label}</span> : null}</td>)}
                                 <td style={subtotalCell}>{!allScoresNull && backScore > 0 ? backScore : '--'}</td>
                                 <td style={totalCell}>{!allScoresNull && totalScore > 0 ? totalScore : '--'}</td>
                               </tr>
