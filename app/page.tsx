@@ -7275,32 +7275,11 @@ export default function Page() {
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' || golfer.score === 'WD' || golfer.score === 'DQ' ? (
                                 <>
-                                  {(golfer.score === 'CUT' || golfer.score === 'MDF') && showProjectedCut && golfer.currentRoundScore && (
-                                    <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setScorecardGolferName(golfer.name);
-                                          setScorecardGolferPhoto({ pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl });
-                                          setScorecardGolferTeeTime(golfer.teeTime);
-                                          setScorecardGolferThru(golfer.thru);
-                                          setScorecardGolferBackNineStart(golfer.backNineStart ?? false);
-                                          setScorecardData(null);
-                                          setScorecardLoading(true);
-                                          fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`)
-                                            .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
-                                        }}
-                                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'open' ? '#1a1a1a' : '#173b63', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none', verticalAlign: 'middle' }}
-                                      >
-                                        <span style={{ textDecoration: 'underline' }}>Round 2</span>:{' '}<span style={{ color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontWeight: 400 }}>{golfer.currentRoundScore}</span>
-                                      </button>
-                                    </div>
-                                  )}
                                   <button
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
                                     style={{ background: '#cc2944', border: '1.5px solid #7b1a13', borderRadius: 999, padding: isMobile ? '3.5px 8.5px' : '1px 6px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 8, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 2px 8px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
-                                  >{golfer.score === 'WD' || golfer.score === 'DQ' ? 'WITHDREW' : 'MISSED CUT'}</button>
+                                  >{golfer.score === 'WD' || golfer.score === 'DQ' || golfer.score === 'MDF' ? golfer.score : 'MISSED CUT'}</button>
                                 </>
                               ) : (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -7355,32 +7334,11 @@ export default function Page() {
                               </div>
                               {golfer.score === 'CUT' || golfer.score === 'MDF' || golfer.score === 'WD' || golfer.score === 'DQ' ? (
                                 <>
-                                  {(golfer.score === 'CUT' || golfer.score === 'MDF') && showProjectedCut && golfer.currentRoundScore && (
-                                    <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setScorecardGolferName(golfer.name);
-                                          setScorecardGolferPhoto({ pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl });
-                                          setScorecardGolferTeeTime(golfer.teeTime);
-                                          setScorecardGolferThru(golfer.thru);
-                                          setScorecardGolferBackNineStart(golfer.backNineStart ?? false);
-                                          setScorecardData(null);
-                                          setScorecardLoading(true);
-                                          fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`)
-                                            .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
-                                        }}
-                                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'open' ? '#1a1a1a' : '#173b63', fontWeight: 700, fontSize: 'inherit', textDecoration: 'none', verticalAlign: 'middle' }}
-                                      >
-                                        <span style={{ textDecoration: 'underline' }}>Round 2</span>:{' '}<span style={{ color: selectedTournament === 'open' ? '#1a1a1a' : '#50616f', fontWeight: 400 }}>{golfer.currentRoundScore}</span>
-                                      </button>
-                                    </div>
-                                  )}
                                   <button
                                     className="breakdown-golfer-subtext"
                                     onClick={(e) => { e.stopPropagation(); setCutScorecardGolfer({ name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }); setCutScorecardData(null); setCutScorecardLoading(true); fetch(`/api/scorecard?tournamentId=${tournament.id}&playerName=${encodeURIComponent(golfer.name)}&round=2`).then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false)); }}
                                     style={{ background: '#cc2944', border: '1.5px solid #7b1a13', borderRadius: 999, padding: isMobile ? '3.5px 8.5px' : '1px 6px', cursor: 'pointer', marginTop: 2, fontSize: isMobile ? 9 : 8, fontWeight: 800, color: '#fff', letterSpacing: '0.06em', boxShadow: '0 2px 8px rgba(150,30,30,0.45)', textTransform: 'uppercase' }}
-                                  >{golfer.score === 'WD' || golfer.score === 'DQ' ? 'WITHDREW' : 'MISSED CUT'}</button>
+                                  >{golfer.score === 'WD' || golfer.score === 'DQ' || golfer.score === 'MDF' ? golfer.score : 'MISSED CUT'}</button>
                                 </>
                               ) : (
                                 <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
