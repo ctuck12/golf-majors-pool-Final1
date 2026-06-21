@@ -4327,6 +4327,7 @@ export default function Page() {
                                   {leaderboardViewMode === 'picked' && leaderboardPickedSort === 'asc' && <span style={{ fontSize: isMobile ? 8 : 9 }}>▲</span>}
                                 </span>
                               </th>
+                              <th style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', ...stickyTh }}>Info</th>
                             </tr>
                           );
                         })()}
@@ -4335,7 +4336,7 @@ export default function Page() {
                         {leaderboardViewMode === 'full'
                           ? (() => {
                               if (currentFullLeaderboardRows === null) {
-                                return <tr><td colSpan={5} style={{ padding: '28px 16px', textAlign: 'center', color: '#6b7b88', fontSize: isMobile ? 12 : 13 }}>Loading leaderboard…</td></tr>;
+                                return <tr><td colSpan={6} style={{ padding: '28px 16px', textAlign: 'center', color: '#6b7b88', fontSize: isMobile ? 12 : 13 }}>Loading leaderboard…</td></tr>;
                               }
                               const filteredFullRaw = currentFullLeaderboardRows.filter((player) => player.name.toLowerCase().includes(leaderboardSearch.toLowerCase()));
                               const CUT_SCORE_SET_FL = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
@@ -4447,10 +4448,11 @@ export default function Page() {
                                         return isGoldTheme ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{thruDisplay}</span> : thruDisplay;
                                       })()}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: timesPicked > 0 ? '#374151' : '#b0bec5' }}>{selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked > 0 ? timesPicked : '–'}</span> : timesPicked > 0 ? timesPicked : '–'}</td>
+                                      <td style={{ padding: isMobile ? '6px 2px' : '7px 6px', textAlign: 'center' }}><button onClick={(e) => { e.stopPropagation(); const poolPlayer = player.poolPlayerId !== null ? playersById[player.poolPlayerId] : undefined; setPickHistoryView('full'); setPickHistoryPlayerPopup({ player: { id: player.poolPlayerId ?? 0, name: player.name, pgaTourId: poolPlayer?.pgaTourId ?? 0, photoUrl: poolPlayer?.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false }); Promise.all([readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })), readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${poolPlayer?.pgaTourId ?? 0}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null }))]).then(([fullData, fedexData]) => { setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null); }); }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 14 : 15, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button></td>
                                     </tr>
                                     {rowIndex === cutLineIdx && (
                                       <tr style={{ background: 'transparent', borderBottom: 'none' }}>
-                                        <td colSpan={5} style={{ padding: '2px 0' }}>
+                                        <td colSpan={6} style={{ padding: '2px 0' }}>
                                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
                                             <div style={{ flex: 1, height: 2, background: '#111827' }} />
                                             <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>PROJECTED CUT</span>
@@ -4461,7 +4463,7 @@ export default function Page() {
                                     )}
                                     {rowIndex === r34CutLineFL && !leaderboardSearch && (
                                       <tr style={{ background: 'transparent', borderBottom: 'none' }}>
-                                        <td colSpan={5} style={{ padding: '2px 0' }}>
+                                        <td colSpan={6} style={{ padding: '2px 0' }}>
                                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
                                             <div style={{ flex: 1, height: 2, background: '#111827' }} />
                                             <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CUT LINE {effectiveCutScoreFL}</span>
@@ -4590,10 +4592,11 @@ export default function Page() {
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>
                                         {selectedTournament === 'open' ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#FBD96F', color: '#0f1720', borderRadius: 4, padding: '2px 5px', minWidth: 24, fontWeight: 600 }}>{timesPicked}</span> : timesPicked}
                                       </td>
+                                      <td style={{ padding: isMobile ? '6px 2px' : '7px 6px', textAlign: 'center' }}><button onClick={(e) => { e.stopPropagation(); setPickHistoryView('full'); setPickHistoryPlayerPopup({ player: { id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false }); Promise.all([readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })), readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null }))]).then(([fullData, fedexData]) => { setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null); }); }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 14 : 15, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }}>ⓘ</button></td>
                                     </tr>
                                     {rowIndex === cutLineIdx && (
                                       <tr style={{ background: 'transparent', borderBottom: 'none' }}>
-                                        <td colSpan={5} style={{ padding: '2px 0' }}>
+                                        <td colSpan={6} style={{ padding: '2px 0' }}>
                                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
                                             <div style={{ flex: 1, height: 2, background: '#111827' }} />
                                             <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>PROJECTED CUT</span>
@@ -4604,7 +4607,7 @@ export default function Page() {
                                     )}
                                     {rowIndex === r34CutLinePO && !leaderboardSearch && (
                                       <tr style={{ background: 'transparent', borderBottom: 'none' }}>
-                                        <td colSpan={5} style={{ padding: '2px 0' }}>
+                                        <td colSpan={6} style={{ padding: '2px 0' }}>
                                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
                                             <div style={{ flex: 1, height: 2, background: '#111827' }} />
                                             <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CUT LINE {effectiveCutScorePO}</span>
