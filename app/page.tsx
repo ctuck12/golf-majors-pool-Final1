@@ -4362,7 +4362,8 @@ export default function Page() {
                                       return bH - aH;
                                     }),
                                     ...filteredFullRaw.filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase()) && (feed?.currentRound ?? 1) === 1 && p.thru === '--').sort((a, b) => parseTeeTimeMinFL(a.teeTime) - parseTeeTimeMinFL(b.teeTime)),
-                                    ...filteredFullRaw.filter((p) => CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => parseCutScore(a.originalScore) - parseCutScore(b.originalScore)),
+                                    ...filteredFullRaw.filter((p) => CUT_SCORE_SET_FL.has(p.score.toUpperCase()) && p.score.toUpperCase() !== 'WD' && p.score.toUpperCase() !== 'DQ').sort((a, b) => parseCutScore(a.originalScore) - parseCutScore(b.originalScore)),
+                                    ...filteredFullRaw.filter((p) => p.score.toUpperCase() === 'WD' || p.score.toUpperCase() === 'DQ'),
                                   ];
                               const espnRoundFL = feed?.currentRound ?? 1;
                               const projCutNum = showProjectedCut && feed?.projectedCut && leaderboardSortMode === 'default' && espnRoundFL <= 2
@@ -4424,13 +4425,13 @@ export default function Page() {
                                       }}
                                       style={{ background: rowBg, borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef', cursor: 'pointer' }}
                                     >
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: selectedTournament === 'open' ? '#0f1720' : '#374151' }}>{notStartedR1 ? '—' : formatLeaderboardPosition(player.position)}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: selectedTournament === 'open' ? '#0f1720' : '#374151' }}>{notStartedR1 ? '—' : (player.score === 'WD' || player.score === 'DQ') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 999, padding: '2px 7px', fontWeight: 700, fontSize: isMobile ? 10 : 11 }}>{player.score}</span> : formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{notStartedR1 ? '—' : player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.playerId), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.playerId)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : (colIsCut && colVal !== 'CUT') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
                                         const isGoldTheme = selectedTournament === 'open';
                                         const thruDisplay = (() => {
-                                          if (player.score === 'WD' || player.score === 'DQ') return player.score;
+                                          if (player.score === 'WD' || player.score === 'DQ') return '--';
                                           const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                           if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
                                             return teeTimeIsPast(player.teeTime) ? '--' : formatTeeTime(player.teeTime);
@@ -4514,7 +4515,8 @@ export default function Page() {
                                       return bH - aH;
                                     }),
                                     ...filteredPickedRaw.filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase()) && (feed?.currentRound ?? 1) === 1 && p.thru === '--').sort((a, b) => parseTeeTimeMinPO(a.teeTime) - parseTeeTimeMinPO(b.teeTime)),
-                                    ...filteredPickedRaw.filter((p) => CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => parseCutScorePO(a.originalScore) - parseCutScorePO(b.originalScore)),
+                                    ...filteredPickedRaw.filter((p) => CUT_SCORE_SET_PO.has(p.score.toUpperCase()) && p.score.toUpperCase() !== 'WD' && p.score.toUpperCase() !== 'DQ').sort((a, b) => parseCutScorePO(a.originalScore) - parseCutScorePO(b.originalScore)),
+                                    ...filteredPickedRaw.filter((p) => p.score.toUpperCase() === 'WD' || p.score.toUpperCase() === 'DQ'),
                                   ];
                               const espnRoundPO = feed?.currentRound ?? 1;
                               const projCutNum = showProjectedCut && feed?.projectedCut && leaderboardSortMode === 'default' && leaderboardPickedSort === 'default' && espnRoundPO <= 2
@@ -4565,13 +4567,13 @@ export default function Page() {
                                         cursor: 'pointer',
                                       }}
                                     >
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: selectedTournament === 'open' ? '#0f1720' : '#374151' }}>{notStartedR1 ? '—' : formatLeaderboardPosition(player.position)}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: selectedTournament === 'open' ? '#0f1720' : '#374151' }}>{notStartedR1 ? '—' : (player.score === 'WD' || player.score === 'DQ') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 999, padding: '2px 7px', fontWeight: 700, fontSize: isMobile ? 10 : 11 }}>{player.score}</span> : formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{notStartedR1 ? '—' : player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.id), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.id)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : (colIsCut && colVal !== 'CUT') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: '#374151' }}>{(() => {
                                         const isGoldTheme = selectedTournament === 'open';
                                         const thruDisplay = (() => {
-                                          if (player.score === 'WD' || player.score === 'DQ') return player.score;
+                                          if (player.score === 'WD' || player.score === 'DQ') return '--';
                                           const isLive = selectedTournamentStatus?.label === 'IN PROGRESS';
                                           const isCutStatus = player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ';
                                           if (isLive && !isCutStatus && player.thru === '--' && player.teeTime) {
