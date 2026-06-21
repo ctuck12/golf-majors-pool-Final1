@@ -1410,7 +1410,7 @@ export default function Page() {
       // Scale down the desktop layout on landscape phones so everything fits proportionally.
       // Target effective content width: 1050px. Clamp zoom to [0.72, 1].
       const isLandscapePhone = h < 500 && w < 1100 && navigator.maxTouchPoints > 0;
-      setLandscapeZoom(isLandscapePhone ? Math.max(0.72, Math.min(1, w / 1050)) : 1);
+      setLandscapeZoom(isLandscapePhone ? Math.max(0.72, Math.min(1, w / 1100)) : 1);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
