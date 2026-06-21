@@ -1402,12 +1402,20 @@ export default function Page() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-      setIsSmallMobile(window.innerWidth < 415);
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      // Treat landscape phones as mobile: short height (<500px), touch device, not a laptop/desktop
+      const isLandscapePhone = h < 500 && w < 1100 && navigator.maxTouchPoints > 0;
+      setIsMobile(w < 640 || isLandscapePhone);
+      setIsSmallMobile(w < 415);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener('orientationchange', checkMobile);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('orientationchange', checkMobile);
+    };
   }, []);
 
   // Reload PWA when a new deployment is detected after backgrounding for 2+ minutes.
