@@ -5764,7 +5764,7 @@ export default function Page() {
                       <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.07em' }}>Venmo</div>
                       <div style={{ marginTop: 4, fontSize: isMobile ? 13 : 16, fontWeight: 800, color: '#173b63' }}>@claytont743</div>
                       <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 13 }}>
-                        <a href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool" style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 600 }}>(pay here)</a>
+                        <a href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool" style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 700 }}>(pay here)</a>
                       </div>
                     </div>
                     <div style={{ border: '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 8px' : '10px 14px', background: '#f0f6ff' }}>
