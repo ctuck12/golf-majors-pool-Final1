@@ -448,6 +448,7 @@ export async function GET(request: Request) {
 
   // ── 5. Full field (all players in the cached leaderboard, not just pool) ──
   const fullField = searchParams.get('fullField') === 'true';
+  const CUT_STATUSES_FULL = new Set(['CUT', 'WD', 'DQ', 'MDF']);
   const fullLeaderboard = fullField
     ? rows.map((row) => {
         const fullName = `${row.firstName} ${row.lastName}`;
@@ -457,12 +458,21 @@ export async function GET(request: Request) {
         const backNineStart = storedRound && storedRound.holes.length > 0
           ? storedRound.holes[0].holeNumber >= 10
           : false;
+        const baseScore = normalizeScore(row);
+        const overrideKey = poolPlayer ? `${tournamentId}:${poolPlayer.name}` : null;
+        const override = overrideKey ? statOverrides[overrideKey] : undefined;
+        const effectiveScore = override?.position && CUT_STATUSES_FULL.has(override.position.toUpperCase())
+          ? override.position.toUpperCase()
+          : baseScore;
+        const effectivePosition = override?.position && CUT_STATUSES_FULL.has(override.position.toUpperCase())
+          ? override.position.toUpperCase()
+          : normalizePosition(row);
         return {
           playerId: String(row.playerId ?? ''),
           poolPlayerId: poolPlayer?.id ?? null,
           name: fullName,
-          position: normalizePosition(row),
-          score: normalizeScore(row),
+          position: effectivePosition,
+          score: effectiveScore,
           thru: normalizeThru(row),
           originalScore: computeOriginalScore(row),
           currentRoundScore: rndEntry?.scoreToPar ?? null,
