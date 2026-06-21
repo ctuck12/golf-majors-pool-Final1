@@ -1298,6 +1298,7 @@ export default function Page() {
 
   const [isMobile, setIsMobile] = useState(false);
   const [isSmallMobile, setIsSmallMobile] = useState(false);
+  const [landscapeZoom, setLandscapeZoom] = useState(1);
 
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [installDone, setInstallDone] = useState(false);
@@ -1404,10 +1405,12 @@ export default function Page() {
     const checkMobile = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      // Treat landscape phones as mobile: short height (<500px), touch device, not a laptop/desktop
-      const isLandscapePhone = h < 500 && w < 1100 && navigator.maxTouchPoints > 0;
-      setIsMobile(w < 640 || isLandscapePhone);
+      setIsMobile(w < 640);
       setIsSmallMobile(w < 415);
+      // Scale down the desktop layout on landscape phones so everything fits proportionally.
+      // Target effective content width: 1050px. Clamp zoom to [0.72, 1].
+      const isLandscapePhone = h < 500 && w < 1100 && navigator.maxTouchPoints > 0;
+      setLandscapeZoom(isLandscapePhone ? Math.max(0.72, Math.min(1, w / 1050)) : 1);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
@@ -3052,6 +3055,7 @@ export default function Page() {
         minHeight: '100svh',
         background:
           'radial-gradient(circle at top left, rgba(72, 126, 196, 0.18), transparent 28%), linear-gradient(180deg, #f7fbff 0%, #edf3fb 100%)',
+        zoom: landscapeZoom,
       }}
     >
       {showHeaderCutInfo && <div onClick={() => setShowHeaderCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />}
