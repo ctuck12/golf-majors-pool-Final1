@@ -5729,7 +5729,7 @@ export default function Page() {
               <div style={{ display: 'contents' }}>
 
                 {/* ── Card 1: How It Works ── */}
-                <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '1', order: 1 }}>
+                <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '2', order: 2 }}>
                   <div style={{ padding: isMobile ? 14 : 22 }}>
                     <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 3 : 4 }}>How It Works</div>
                     <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: '#0f1720', marginBottom: isMobile ? 12 : 16 }}>Roster &amp; Entry Details</div>
@@ -5750,7 +5750,7 @@ export default function Page() {
                 </section>
 
                 {/* ── Card 2: Entry & Contact ── */}
-                <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '2', order: 3 }}>
+                <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '1', order: 1 }}>
                   <div style={{ padding: isMobile ? '12px 14px 0' : '16px 22px 0' }}>
                     <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 3 : 4 }}>Join the Pool</div>
                     <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: '#0f1720', marginBottom: isMobile ? 10 : 14 }}>Entry Fee &amp; Contact</div>
@@ -5800,7 +5800,7 @@ export default function Page() {
                   </div>
                 );
                 return (
-                  <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '2', gridRow: isMobile ? undefined : '1 / 3', order: 2 }}>
+                  <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '2', gridRow: isMobile ? undefined : '1 / 3', order: 3 }}>
                     <div style={{ padding: isMobile ? '12px 14px 0' : '16px 22px 0' }}>
                       <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 3 : 4 }}>Scoring System</div>
                       <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: '#0f1720', marginBottom: isMobile ? 10 : 14 }}>Points are awarded as follows</div>
@@ -7284,7 +7284,10 @@ export default function Page() {
                           </div>
                           <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center', background: selectedTournament === 'open' ? '#F4BC41' : 'transparent' }}>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: selectedTournament === 'open' ? '#1a1a1a' : '#0f1720' }}>{golfer.name}</div>
+                              <div className="breakdown-golfer-name" style={{ fontSize: 16, fontWeight: 800, color: selectedTournament === 'open' ? '#1a1a1a' : '#0f1720', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <span>{golfer.name}</span>
+                                <button onClick={(e) => { e.stopPropagation(); setPickHistoryView('full'); setPickHistoryPlayerPopup({ player: { id: golfer.id, name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false }); Promise.all([readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(golfer.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })), readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${golfer.pgaTourId}&name=${encodeURIComponent(golfer.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null }))]).then(([fullData, fedexData]) => { setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null); }); }} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: 14, color: '#607282', lineHeight: 1, flexShrink: 0, touchAction: 'manipulation' }}>ⓘ</button>
+                              </div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: 12, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                 {golfer.score === 'CUT' || golfer.score === 'MDF' || golfer.score === 'WD' || golfer.score === 'DQ' ? <span>Total: {golfer.originalScore ?? '--'}</span> : <span>Holes Rem: {golfer.holesRemaining}</span>}
                                 <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
@@ -7343,7 +7346,10 @@ export default function Page() {
                           </div>
                           <div style={{ flex: 1, minWidth: 0, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center', background: selectedTournament === 'open' ? '#F4BC41' : 'transparent' }}>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div className="breakdown-golfer-name" style={{ fontSize: 14, fontWeight: 800, color: selectedTournament === 'open' ? '#1a1a1a' : '#0f1720' }}>{golfer.name}</div>
+                              <div className="breakdown-golfer-name" style={{ fontSize: 14, fontWeight: 800, color: selectedTournament === 'open' ? '#1a1a1a' : '#0f1720', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <span>{golfer.name}</span>
+                                <button onClick={(e) => { e.stopPropagation(); setPickHistoryView('full'); setPickHistoryPlayerPopup({ player: { id: golfer.id, name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl }, results: {}, loading: false, fedexRank: null, fullResults: null, fullResultsLoading: true, careerResults: null, careerResultsLoading: false }); Promise.all([readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(golfer.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })), readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${golfer.pgaTourId}&name=${encodeURIComponent(golfer.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null }))]).then(([fullData, fedexData]) => { setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank } : null); }); }} style={{ background: 'none', border: 'none', padding: '0 2px', cursor: 'pointer', fontSize: 13, color: '#607282', lineHeight: 1, flexShrink: 0, touchAction: 'manipulation' }}>ⓘ</button>
+                              </div>
                               <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                 {golfer.score === 'CUT' || golfer.score === 'MDF' || golfer.score === 'WD' || golfer.score === 'DQ' ? <span>Total: {golfer.originalScore ?? '--'}</span> : <span>Holes Rem: {golfer.holesRemaining}</span>}
                                 <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
