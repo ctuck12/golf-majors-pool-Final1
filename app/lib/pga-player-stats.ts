@@ -49,13 +49,16 @@ function mapStat(
   }
 }
 
+// Confirmed valid fields on PlayerProfileStatItem: statId, rank, displayValue
+// playerProfileStats returns [PlayerProfileStat]; each has stats: [PlayerProfileStatItem]
 type GqlStat = {
   statId?: string;
-  statName?: string;
-  statTitle?: string;
-  statValue?: string | null;
-  statRank?: string | number | null;
+  displayValue?: string | null;
   rank?: string | number | null;
+};
+
+type GqlStatGroup = {
+  stats?: GqlStat[];
 };
 
 async function gqlPost(query: string, variables: Record<string, unknown>): Promise<unknown> {
@@ -71,16 +74,14 @@ async function gqlPost(query: string, variables: Record<string, unknown>): Promi
 
 export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<Partial<PlayerStats> | null> {
   try {
-    // playerProfileStats returns { stats: PlayerProfileStatItem[] }
-    // Confirmed: "stats" is a valid sub-field; field names on PlayerProfileStatItem TBD
+    // playerProfileStats returns [PlayerProfileStat], each with stats: [PlayerProfileStatItem]
+    // Valid fields on PlayerProfileStatItem: statId, rank, displayValue
     const query = `
       query PlayerProfileStats($playerId: ID!) {
         playerProfileStats(playerId: $playerId) {
           stats {
             statId
-            statTitle
-            statName
-            statValue
+            displayValue
             rank
           }
         }
@@ -91,11 +92,12 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<Partia
 
     try {
       const data = await gqlPost(query, { playerId: pgaTourId }) as {
-        data?: { playerProfileStats?: { stats?: GqlStat[] } };
+        data?: { playerProfileStats?: GqlStatGroup[] };
       };
-      const arr = data?.data?.playerProfileStats?.stats;
-      if (Array.isArray(arr) && arr.length > 0) {
-        stats = arr;
+      const groups = data?.data?.playerProfileStats;
+      if (Array.isArray(groups) && groups.length > 0) {
+        const flat = groups.flatMap((g) => g.stats ?? []);
+        if (flat.length > 0) stats = flat;
       }
     } catch {
       // query failed
@@ -106,7 +108,7 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<Partia
     const acc: Partial<PlayerStats> = {};
     for (const stat of stats) {
       if (stat.statId) {
-        mapStat(stat.statId, stat.statValue, acc);
+        mapStat(stat.statId, stat.displayValue, acc);
       }
     }
 

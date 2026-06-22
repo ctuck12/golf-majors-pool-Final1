@@ -27,8 +27,10 @@ export type PlayerStats = {
 };
 
 type Stat = { name?: string; value?: number; displayValue?: string };
+type SummaryStat = { name?: string; displayValue?: string };
 
 type Overview = {
+  summaryStatistics?: SummaryStat[];
   seasonRankings?: { categories?: Stat[] };
   statistics?: {
     names?: string[];
@@ -61,18 +63,31 @@ function statVal(stats: Stat[], name: string, suffix = ''): string | null {
   return suffix ? `${dv}${suffix}` : dv;
 }
 
+function summaryStatVal(stats: SummaryStat[], name: string, suffix = ''): string | null {
+  const s = stats.find((st) => st.name === name);
+  if (!s) return null;
+  const dv = s.displayValue ?? '';
+  if (!dv || dv === '-' || dv === '--') return null;
+  if (!isNaN(parseFloat(dv)) && parseFloat(dv) === 0) return null;
+  return suffix ? `${dv}${suffix}` : dv;
+}
+
 function extractSeason(data: Overview): PlayerStats {
   const cats = data.seasonRankings?.categories ?? [];
+  const sumStats = data.summaryStatistics ?? [];
   const names = data.statistics?.names ?? [];
   const splits = data.statistics?.splits ?? [];
   const pgaSplit = splits.find((s) => s.displayName?.includes('PGA')) ?? splits[0];
   const avgIdx = names.findIndex((n) => /scoring average/i.test(n));
   const scoringAvg = pgaSplit && avgIdx >= 0 ? (pgaSplit.stats[avgIdx] ?? null) : null;
 
+  // GIR: seasonRankings.categories has count only (greensHit); percentage is in summaryStatistics as greensInRegPct
+  const gir = summaryStatVal(sumStats, 'greensInRegPct', '%') ?? statVal(cats, 'gir', '%');
+
   return {
     drivingDistance: statVal(cats, 'yardsPerDrive'),
     drivingAccuracy: statVal(cats, 'driveAccuracyPct', '%'),
-    gir: statVal(cats, 'gir', '%'),
+    gir,
     scrambling: statVal(cats, 'sandSaves', '%'),
     puttAverage: statVal(cats, 'puttsGirAvg'),
     avgPuttsPerRound: statVal(cats, 'puttsPerRound') ?? statVal(cats, 'avgPutts') ?? statVal(cats, 'avgPutt'),
