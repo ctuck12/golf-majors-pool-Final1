@@ -56,27 +56,8 @@ export async function GET() {
 
     // ── PGA Tour GraphQL queries ──────────────────────────────────────────────
 
-    // 1. Season player stats (most common query structure)
-    tryGql('pga_gql_playerStats', `
-      query PlayerStats($playerId: ID!, $year: Int) {
-        playerStats(playerId: $playerId, year: $year) {
-          playerId
-          year
-          stats {
-            statId
-            statType
-            statTitle
-            statDescription
-            statName
-            statValue
-            rank
-          }
-        }
-      }
-    `, { playerId: TEST_PGA_TOUR_ID, year: 2026 }),
-
-    // 2. Player profile stats (correct field name from introspection)
-    tryGql('pga_gql_playerProfileStats', `
+    // 1. playerProfileStats — attempt A: stats[] nested
+    tryGql('pga_gql_playerProfileStats_A', `
       query PlayerProfileStats($playerId: ID!) {
         playerProfileStats(playerId: $playerId) {
           stats {
@@ -90,43 +71,26 @@ export async function GET() {
       }
     `, { playerId: TEST_PGA_TOUR_ID }),
 
-    // 3. Stat leaders (driving distance 101) — returns ranked list
-    tryGql('pga_gql_statLeaderboard_drivingDist', `
-      query StatLeaderboard($statId: ID!, $year: Int) {
-        statLeaderboard(statId: $statId, year: $year) {
-          statId
-          statTitle
-          statDescription
-          rows {
-            playerId
-            playerName
-            value
-            rank
-          }
-        }
-      }
-    `, { statId: '101', year: 2026 }),
-
-    // 4. Tournament-specific player stats
-    tryGql('pga_gql_tournamentPlayerStats', `
-      query TournamentPlayerStats($tournamentId: ID!, $playerId: ID!, $year: Int) {
-        tournamentStats(tournamentId: $tournamentId, year: $year) {
-          playerId
-          stats {
+    // 2. playerProfileStats — attempt B: with year, categories[] nested
+    tryGql('pga_gql_playerProfileStats_B', `
+      query PlayerProfileStatsB($playerId: ID!, $year: Int) {
+        playerProfileStats(playerId: $playerId, year: $year) {
+          categories {
             statId
             statTitle
             statName
             statValue
+            rank
           }
         }
       }
-    `, { tournamentId: '026', playerId: TEST_PGA_TOUR_ID, year: 2026 }),
+    `, { playerId: TEST_PGA_TOUR_ID, year: 2026 }),
 
-    // 5. Player tournament stats (alternative)
-    tryGql('pga_gql_playerTournamentStats', `
-      query PlayerTournamentStats($playerId: ID!, $tournamentId: ID!, $year: Int) {
-        playerTournamentStatistics(playerId: $playerId, tournamentId: $tournamentId, year: $year) {
-          stats {
+    // 3. playerProfileStats — attempt C: tourCode param, different nesting
+    tryGql('pga_gql_playerProfileStats_C', `
+      query PlayerProfileStatsC($playerId: ID!) {
+        playerProfileStats(playerId: $playerId, tourCode: "R") {
+          statDetails {
             statId
             statTitle
             statValue
@@ -134,31 +98,67 @@ export async function GET() {
           }
         }
       }
-    `, { playerId: TEST_PGA_TOUR_ID, tournamentId: '026', year: 2026 }),
+    `, { playerId: TEST_PGA_TOUR_ID }),
 
-    // 6. Player details (see what top-level player query returns)
-    tryGql('pga_gql_player', `
+    // 4. statLeaders — correct name per introspection, SG Total stat
+    tryGql('pga_gql_statLeaders_sgTotal', `
+      query StatLeaders($statId: ID!, $year: Int) {
+        statLeaders(statId: $statId, year: $year) {
+          statId
+          statTitle
+          leaders {
+            playerId
+            playerName
+            statValue
+            rank
+          }
+        }
+      }
+    `, { statId: '02674', year: 2026 }),
+
+    // 5. statDetails — what does this return?
+    tryGql('pga_gql_statDetails', `
+      query StatDetails($statId: ID!, $playerId: ID!, $year: Int) {
+        statDetails(statId: $statId, playerId: $playerId, year: $year) {
+          statId
+          statTitle
+          statValue
+          rank
+        }
+      }
+    `, { statId: '02674', playerId: TEST_PGA_TOUR_ID, year: 2026 }),
+
+    // 6. player — what fields does it actually have?
+    tryGql('pga_gql_player_fields', `
       query Player($playerId: ID!) {
         player(id: $playerId) {
           id
           firstName
           lastName
           country
-          careerEarnings
-          fedexPoints
           owgr
+          points
+          ranking
         }
       }
     `, { playerId: TEST_PGA_TOUR_ID }),
 
-    // 7. Introspection — list available query types
-    tryGql('pga_gql_introspection_queryType', `
-      query {
+    // 7. Introspection — find return type of playerProfileStats
+    tryGql('pga_gql_introspect_playerProfileStats_type', `
+      {
         __schema {
           queryType {
             fields {
               name
-              description
+              type {
+                name
+                kind
+                ofType { name kind ofType { name kind } }
+              }
+              args {
+                name
+                type { name kind ofType { name kind } }
+              }
             }
           }
         }
@@ -172,19 +172,9 @@ export async function GET() {
       `${ESPN_CORE}/pga/seasons/2026/athletes/${TEST_ESPN_ID}/statistics`
     ),
 
-    // 9. ESPN tournament competitor statistics (US Open)
-    tryEspn('espn_tournament_competitor_stats',
-      `${ESPN_CORE}/pga/events/${TEST_ESPN_EVENT_ID}/competitions/${TEST_ESPN_EVENT_ID}/competitors/${TEST_ESPN_ID}/statistics`
-    ),
-
-    // 10. ESPN athlete overview (broader data)
+    // 9. ESPN athlete overview (broader data)
     tryEspn('espn_athlete_overview',
       `https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes/${TEST_ESPN_ID}/overview`
-    ),
-
-    // 11. ESPN athlete stats page
-    tryEspn('espn_athlete_stats',
-      `https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes/${TEST_ESPN_ID}/stats`
     ),
 
   ]);
