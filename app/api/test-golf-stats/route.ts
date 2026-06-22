@@ -195,6 +195,68 @@ export async function GET() {
       `${ESPN_CORE}/pga/seasons/2026/athletes/${TEST_ESPN_ID}/statistics`
     ),
 
+    // ── US Open stats alternatives ────────────────────────────────────────────
+
+    // 16. PGA Tour GQL introspect Query type — find tournament-related fields
+    tryGql('pga_gql_introspect_all_queries', `
+      {
+        __type(name: "Query") {
+          fields {
+            name
+            args { name type { name kind ofType { name kind } } }
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 17. PGA Tour GQL: playerEventStats — try common tournament stats query patterns
+    tryGql('pga_gql_playerEventStats', `
+      query PlayerEventStats($playerId: ID!, $eventId: ID!) {
+        playerEventStats(playerId: $playerId, eventId: $eventId) {
+          __typename
+        }
+      }
+    `, { playerId: TEST_PGA_TOUR_ID, eventId: '2026034' }),
+
+    // 18. PGA Tour GQL: tournamentStats
+    tryGql('pga_gql_tournamentStats', `
+      query TournamentStats($tournamentId: ID!) {
+        tournamentStats(tournamentId: $tournamentId) {
+          __typename
+        }
+      }
+    `, { tournamentId: '2026034' }),
+
+    // 19. ESPN Core: athlete event stats via season log
+    tryEspn('espn_core_usopen_athlete_log',
+      `${ESPN_CORE}/pga/seasons/2026/athletes/${TEST_ESPN_ID}/eventlog`
+    ),
+
+    // 20. ESPN athlete overview — check summaryStatistics and nextTournament sections
+    tryEspn('espn_overview_scheffler',
+      `https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes/${TEST_ESPN_ID}/overview`
+    ),
+
+    // 21. USGA scoring API probe
+    tryEspn('usga_player_stats',
+      `https://www.usopen.com/api/v1/2026/player-stats/${TEST_ESPN_ID}.json`
+    ),
+
+    // 22. PGA Tour player scorecards for US Open (tournament ID R2026034)
+    tryGql('pga_gql_playerScorecard', `
+      query PlayerScorecard($playerId: ID!, $tournamentId: ID!) {
+        playerScorecard(playerId: $playerId, tournamentId: $tournamentId) {
+          __typename
+        }
+      }
+    `, { playerId: TEST_PGA_TOUR_ID, tournamentId: 'R2026034' }),
+
+    // 23. ESPN Core: US Open event stats categories
+    tryEspn('espn_core_usopen_event_stats',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_USOPEN}/statistics`
+    ),
+
   ]);
 
   const output = results.map((r) =>
