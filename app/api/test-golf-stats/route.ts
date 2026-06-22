@@ -617,6 +617,39 @@ export async function GET() {
       }
     `, {}),
 
+    // 54. Introspect ScorecardStatsItem
+    tryGql('pga_gql_introspect_ScorecardStatsItem', `
+      {
+        __type(name: "ScorecardStatsItem") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 55. scorecardStatsV3 scoring items with actual fields
+    tryGql('pga_gql_scorecardStatsV3_scoring_fields', `
+      query ScorecardStatsScoringFields($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            round
+            displayName
+            scoring {
+              label
+              value
+              displayValue
+              statId
+              id
+            }
+          }
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
   ]);
 
   const output = results.map((r) =>
