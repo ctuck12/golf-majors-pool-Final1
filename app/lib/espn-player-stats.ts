@@ -1,6 +1,7 @@
 import { getEspnId } from './espn-player-season';
 
 const ESPN_OVERVIEW = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
+const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues';
 
 export type PlayerStats = {
   drivingDistance: string | null;
@@ -133,6 +134,42 @@ function extractTournament(stats: Stat[]): PlayerStats {
   };
 }
 
+// Fetch stats directly from ESPN Core — works for any tournament, no recency window
+async function fetchCoreCompetitorStats(espnId: string, eventId: string): Promise<Stat[] | null> {
+  try {
+    const url = `${ESPN_CORE}/pga/events/${eventId}/competitions/${eventId}/competitors/${espnId}/statistics/0`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const data = await res.json() as { splits?: { categories?: Array<{ stats?: Stat[] }> } };
+    const stats = data?.splits?.categories?.[0]?.stats;
+    return Array.isArray(stats) && stats.length > 0 ? stats : null;
+  } catch {
+    return null;
+  }
+}
+
+// Fetch round-by-round linescores from ESPN Core
+async function fetchCoreLinescores(espnId: string, eventId: string, statsArr: Stat[]): Promise<string[] | null> {
+  try {
+    const url = `${ESPN_CORE}/pga/events/${eventId}/competitions/${eventId}/competitors/${espnId}/linescores`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const data = await res.json() as { items?: Array<{ value?: number }> };
+    const items = data?.items;
+    if (!Array.isArray(items) || items.length === 0) return null;
+    const regScore = getStat(statsArr, 'regScore')?.value ?? 0;
+    const scoreToPar = getStat(statsArr, 'scoreToPar')?.value ?? 0;
+    if (regScore <= 0) return null;
+    const coursePar = Math.round((regScore - scoreToPar) / items.length);
+    return items.map((ls) => {
+      const toPar = (ls.value ?? 0) - coursePar;
+      return toPar === 0 ? 'E' : toPar > 0 ? `+${toPar}` : String(toPar);
+    });
+  } catch {
+    return null;
+  }
+}
+
 async function fetchOverview(espnId: string): Promise<Overview | null> {
   try {
     const res = await fetch(`${ESPN_OVERVIEW}/${espnId}/overview`, { cache: 'no-store' });
@@ -155,6 +192,17 @@ export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats 
 export async function fetchPlayerTournamentStats(name: string, eventId: string): Promise<PlayerStats | null> {
   const espnId = await getEspnId(name);
   if (!espnId) return null;
+
+  // Primary: ESPN Core direct endpoint — no recency window, works for any historical tournament
+  const coreStats = await fetchCoreCompetitorStats(espnId, eventId);
+  if (coreStats && coreStats.length > 0) {
+    const stats = extractTournament(coreStats);
+    const rounds = await fetchCoreLinescores(espnId, eventId, coreStats);
+    const hasStats = Object.values(stats).some((v) => v !== null);
+    if (hasStats || rounds) return { ...stats, rounds };
+  }
+
+  // Fallback: recentTournaments in overview (last ~5-7 events only)
   const data = await fetchOverview(espnId);
   if (!data) return null;
 
@@ -165,7 +213,6 @@ export async function fetchPlayerTournamentStats(name: string, eventId: string):
         const statsArr = competitor?.stats ?? [];
         const stats = extractTournament(statsArr);
 
-        // Extract per-round scores to par from ESPN linescores (works even when ShotLink data is absent)
         let rounds: string[] | null = null;
         const linescore = competitor?.linescores?.items ?? [];
         if (linescore.length > 0) {
