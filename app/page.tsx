@@ -8393,24 +8393,26 @@ export default function Page() {
                   const rounds = isTournCtx
                     ? (pickHistoryPlayerPopup.playerRounds?.length ? pickHistoryPlayerPopup.playerRounds : espnRounds)
                     : [];
-                  const statCells: { label: string; value: string }[] = [];
-                  if (s?.drivingDistance) statCells.push({ label: 'Drive Dist', value: s.drivingDistance });
-                  if (s?.drivingAccuracy) statCells.push({ label: 'Drive Acc', value: s.drivingAccuracy });
-                  if (s?.gir) statCells.push({ label: 'GIR%', value: s.gir });
-                  if (s?.scrambling) statCells.push({ label: 'Scrambling', value: s.scrambling });
-                  if (s?.avgPuttsPerRound) statCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound });
-                  else if (s?.puttAverage) statCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1) });
+                  const courseStatCells: { label: string; value: string }[] = [];
+                  if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Dist', value: s.drivingDistance });
+                  if (s?.drivingAccuracy) courseStatCells.push({ label: 'Drive Acc', value: s.drivingAccuracy });
+                  if (s?.gir) courseStatCells.push({ label: 'GIR%', value: s.gir });
+                  if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling });
+                  if (s?.avgPuttsPerRound) courseStatCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound });
+                  else if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1) });
                   if (isTournCtx) {
-                    if (s?.proximity) statCells.push({ label: 'Proximity', value: s.proximity });
+                    if (s?.proximity) courseStatCells.push({ label: 'Proximity', value: s.proximity });
                   } else {
-                    if (s?.birdiesPerRound) statCells.push({ label: 'Birdies/Rd', value: s.birdiesPerRound });
-                    if (s?.scoringAverage) statCells.push({ label: 'Scoring Avg', value: s.scoringAverage });
+                    if (s?.birdiesPerRound) courseStatCells.push({ label: 'Birdies/Rd', value: s.birdiesPerRound });
+                    if (s?.scoringAverage) courseStatCells.push({ label: 'Scoring Avg', value: s.scoringAverage });
                   }
-                  if (s?.sgTotal) statCells.push({ label: 'SG: Total', value: s.sgTotal });
-                  if (s?.sgOffTee) statCells.push({ label: 'SG: Off Tee', value: s.sgOffTee });
-                  if (s?.sgApproach) statCells.push({ label: 'SG: Approach', value: s.sgApproach });
-                  if (s?.sgAroundGreen) statCells.push({ label: 'SG: Around', value: s.sgAroundGreen });
-                  if (s?.sgPutting) statCells.push({ label: 'SG: Putting', value: s.sgPutting });
+                  const sgStatCells: { label: string; value: string }[] = [];
+                  if (s?.sgTotal) sgStatCells.push({ label: 'SG: Total', value: s.sgTotal });
+                  if (s?.sgOffTee) sgStatCells.push({ label: 'SG: Off Tee', value: s.sgOffTee });
+                  if (s?.sgApproach) sgStatCells.push({ label: 'SG: Approach', value: s.sgApproach });
+                  if (s?.sgAroundGreen) sgStatCells.push({ label: 'SG: Around', value: s.sgAroundGreen });
+                  if (s?.sgPutting) sgStatCells.push({ label: 'SG: Putting', value: s.sgPutting });
+                  const statCells = [...courseStatCells, ...sgStatCells];
                   if (pickHistoryPlayerPopup.playerStatsLoading) {
                     return (
                       <div key="stats-loading" style={{ display: 'grid', gap: 10 }}>
@@ -8455,11 +8457,24 @@ export default function Page() {
                           </div>
                         </div>
                       )}
-                      {statCells.length > 0 && (
+                      {courseStatCells.length > 0 && (
                         <div>
                           {rounds.length > 0 && <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Course Stats</div>}
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-                            {statCells.map(({ label, value }) => (
+                            {courseStatCells.map(({ label, value }) => (
+                              <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
+                                <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
+                                <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{value}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {sgStatCells.length > 0 && (
+                        <div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Strokes Gained</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+                            {sgStatCells.map(({ label, value }) => (
                               <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
                                 <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
                                 <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{value}</div>
