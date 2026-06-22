@@ -298,6 +298,93 @@ export async function GET() {
       } catch (e) { return { label, error: String(e) }; }
     })(),
 
+    // 30. PGA Tour GQL scorecardStatsV3 — US Open, try R2026026
+    tryGql('pga_gql_scorecardStatsV3_R2026026', `
+      query ScorecardStatsV3($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          __typename
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 31. PGA Tour GQL scorecardStatsV3 introspect return type
+    tryGql('pga_gql_introspect_scorecardStatsV3_type', `
+      {
+        __type(name: "ScorecardStatsV3") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 32. PGA Tour GQL leaderboardStats — US Open R2026026
+    tryGql('pga_gql_leaderboardStats_R2026026', `
+      query LeaderboardStats($id: ID!) {
+        leaderboardStats(id: $id) {
+          __typename
+        }
+      }
+    `, { id: 'R2026026' }),
+
+    // 33. PGA Tour GQL fieldStats — US Open R2026026
+    tryGql('pga_gql_fieldStats_R2026026', `
+      query FieldStats($tournamentId: ID!) {
+        fieldStats(tournamentId: $tournamentId) {
+          __typename
+        }
+      }
+    `, { tournamentId: 'R2026026' }),
+
+    // 34. PGA Tour GQL scorecardStats (non-v3) — US Open R2026026
+    tryGql('pga_gql_scorecardStats_R2026026', `
+      query ScorecardStats($id: ID!, $playerId: ID!) {
+        scorecardStats(id: $id, playerId: $playerId) {
+          __typename
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 35. PGA Tour GQL scorecardStatsV3 — try without R prefix
+    tryGql('pga_gql_scorecardStatsV3_2026026', `
+      query ScorecardStatsV3b($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          __typename
+        }
+      }
+    `, { id: '2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 36. PGA Tour GQL: introspect LeaderboardStatsType enum values
+    tryGql('pga_gql_introspect_LeaderboardStatsType', `
+      {
+        __type(name: "LeaderboardStatsType") {
+          name
+          enumValues { name }
+        }
+      }
+    `, {}),
+
+    // 37. PGA Tour GQL: introspect FieldStatType enum values
+    tryGql('pga_gql_introspect_FieldStatType', `
+      {
+        __type(name: "FieldStatType") {
+          name
+          enumValues { name }
+        }
+      }
+    `, {}),
+
+    // 38. PGA Tour GQL scorecardStatsV3 — try PGA Championship (known working tourn) for schema check
+    tryGql('pga_gql_scorecardStatsV3_R2026033', `
+      query ScorecardStatsV3pga($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          __typename
+        }
+      }
+    `, { id: 'R2026033', playerId: TEST_PGA_TOUR_ID }),
+
   ]);
 
   const output = results.map((r) =>
