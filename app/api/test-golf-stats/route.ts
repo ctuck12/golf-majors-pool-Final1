@@ -655,20 +655,20 @@ export async function GET() {
       `${ESPN_CORE}/pga/events/${ESPN_EVENT_MASTERS}/competitions/${ESPN_EVENT_MASTERS}/competitors/${TEST_ESPN_ID}/statistics/0`
     ),
 
-    // 59. EUR leaders types/1 — try different season type
-    tryEspn('espn_eur_leaders_type1', `${ESPN_CORE}/eur/seasons/2026/types/1/leaders?limit=5`),
+    // 59. EUR combined all-league rankings (found via EUR season $ref)
+    tryEspn('espn_all_rankings_2026', `${ESPN_CORE}/all/seasons/2026/rankings?limit=10`),
 
-    // 60. EUR season info — what types/seasons exist for EUR league
-    tryEspn('espn_eur_season_2026', `${ESPN_CORE}/eur/seasons/2026`),
+    // 60. EUR standings (not leaders)
+    tryEspn('espn_eur_standings', `${ESPN_CORE}/eur/seasons/2026/types/2/standings?limit=10`),
 
-    // 61. EUR leaders types/2 with larger limit and Aaron Rai ID 10906
-    tryEspn('espn_eur_leaders_type2_full', `${ESPN_CORE}/eur/seasons/2026/types/2/leaders?limit=400`),
+    // 61. Aaron Rai EUR stats
+    tryEspn('espn_eur_aaronrai_stats', `${ESPN_CORE}/eur/seasons/2026/athletes/10906/statistics/0`),
 
-    // 62. Aaron Rai EUR athlete page — check if he exists in EUR league
-    tryEspn('espn_eur_aaron_rai', `${ESPN_CORE}/eur/seasons/2026/athletes/10906`),
+    // 62. EUR athletes list — check if rankings are embedded
+    tryEspn('espn_eur_athlete_overview', `https://site.web.api.espn.com/apis/common/v3/sports/golf/eur/athletes/10906/overview`),
 
-    // 63. DP World Tour official API
-    tryEspn('dpworld_official', `https://www.europeantour.com/api/rankings/race-to-dubai/2026?pageSize=20&page=1`),
+    // 63. DP World rankings via ESPN site API
+    tryEspn('espn_site_eur_rankings', `https://site.web.api.espn.com/apis/v2/sports/golf/eur/standings?season=2026`),
 
     // 57. scorecardStatsV3 for Masters — does strokesGained have data for PGA Tour events?
     tryGql('pga_gql_scorecardStatsV3_masters_sg', `
