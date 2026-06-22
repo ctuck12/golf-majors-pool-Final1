@@ -784,6 +784,58 @@ export async function GET() {
       `https://site.api.espn.com/apis/site/v2/sports/golf/eur/scoreboard?limit=1`
     ),
 
+    // ── DP World Tour final attempts ────────────────────────────────────────
+
+    // 86. ESPN EUR athlete overview (site.web common v3) — may have race to dubai rank
+    tryEspn('espn_web_eur_aaron_rai_overview',
+      `https://site.web.api.espn.com/apis/common/v3/sports/golf/eur/athletes/10906/overview`
+    ),
+
+    // 87. ESPN EUR season-level athlete stats (different from event stats)
+    tryEspn('espn_core_eur_season_athlete',
+      `${ESPN_CORE}/eur/seasons/2026/athletes/10906`
+    ),
+
+    // 88. ESPN EUR athlete statistics (core, no season path)
+    tryEspn('espn_core_eur_athlete_stats',
+      `${ESPN_CORE}/eur/athletes/10906/statistics`
+    ),
+
+    // 89. ESPN eur stats site API
+    tryEspn('espn_site_eur_stats',
+      `https://site.api.espn.com/apis/site/v2/sports/golf/eur/statistics?season=2026`
+    ),
+
+    // 90. OWGR.com rankings JSON API
+    tryEspn('owgr_rankings_top200',
+      `https://www.owgr.com/api/v2/rankings/world/2026?limit=200`
+    ),
+
+    // 91. OWGR.com official current rankings
+    tryEspn('owgr_current_rankings',
+      `https://www.owgr.com/ranking`
+    ),
+
+    // 92. ESPN EUR season athlete event log - might show season totals/position
+    tryEspn('espn_core_eur_aaron_rai_eventlog',
+      `${ESPN_CORE}/eur/seasons/2026/athletes/10906/eventlog`
+    ),
+
+    // 93. ESPN EUR athlete season statistics
+    tryEspn('espn_core_eur_athlete_season_stats',
+      `${ESPN_CORE}/eur/seasons/2026/athletes/10906/statistics`
+    ),
+
+    // 94. DP World Tour CDN standings v2 pattern
+    tryEspn('dpworldtour_cdn_standings',
+      `https://cdn.europeantour.com/api/stats/rankings?season=2026&type=rtd&page=1&pageSize=10`
+    ),
+
+    // 95. OWGR SDR API by alternate ID
+    tryEspn('owgr_sdr_aaron_rai',
+      `https://www.owgr.com/api/v1/player/4415131/ranking`
+    ),
+
     // 57. scorecardStatsV3 for Masters — does strokesGained have data for PGA Tour events?
     tryGql('pga_gql_scorecardStatsV3_masters_sg', `
       query MastersSG($id: ID!, $playerId: ID!) {
