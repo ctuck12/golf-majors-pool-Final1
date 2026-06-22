@@ -655,12 +655,20 @@ export async function GET() {
       `${ESPN_CORE}/pga/events/${ESPN_EVENT_MASTERS}/competitions/${ESPN_EVENT_MASTERS}/competitors/${TEST_ESPN_ID}/statistics/0`
     ),
 
-    // 59. EUR leaders — check category names and whether Scheffler ESPN ID 9478 appears
-    tryEspn('espn_eur_leaders_sample', `${ESPN_CORE}/eur/seasons/2026/types/2/leaders?limit=5`),
+    // 59. EUR leaders types/1 — try different season type
+    tryEspn('espn_eur_leaders_type1', `${ESPN_CORE}/eur/seasons/2026/types/1/leaders?limit=5`),
 
-    // 60. EUR leaders full — check if ESPN ID 9478 (Scheffler) is present (PGA-only player shouldn't be)
-    //     Also check with Aaron Rai ESPN ID — need to find it first via search
-    tryEspn('espn_search_aaron_rai', `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=Aaron%20Rai&limit=20&type=player`),
+    // 60. EUR season info — what types/seasons exist for EUR league
+    tryEspn('espn_eur_season_2026', `${ESPN_CORE}/eur/seasons/2026`),
+
+    // 61. EUR leaders types/2 with larger limit and Aaron Rai ID 10906
+    tryEspn('espn_eur_leaders_type2_full', `${ESPN_CORE}/eur/seasons/2026/types/2/leaders?limit=400`),
+
+    // 62. Aaron Rai EUR athlete page — check if he exists in EUR league
+    tryEspn('espn_eur_aaron_rai', `${ESPN_CORE}/eur/seasons/2026/athletes/10906`),
+
+    // 63. DP World Tour official API
+    tryEspn('dpworld_official', `https://www.europeantour.com/api/rankings/race-to-dubai/2026?pageSize=20&page=1`),
 
     // 57. scorecardStatsV3 for Masters — does strokesGained have data for PGA Tour events?
     tryGql('pga_gql_scorecardStatsV3_masters_sg', `
