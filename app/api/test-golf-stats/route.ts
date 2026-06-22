@@ -670,6 +670,68 @@ export async function GET() {
     // 63. Check if Aaron Rai (ESPN ID 10906) appears in World Rankings date entry
     tryEspn('espn_world_rankings_aaron_rai', `${ESPN_CORE}/all/seasons/2026/rankings/1/dates/20260621/athletes/10906`),
 
+    // ── DP World Tour / Race to Dubai standings probes ───────────────────────
+
+    // 64. DataGolf DG Rankings free endpoint
+    tryEspn('datagolf_dg_rankings_free',
+      `https://feeds.datagolf.com/preds/get-dg-rankings?file_format=json&key=free`
+    ),
+
+    // 65. DataGolf Euro tour standings
+    tryEspn('datagolf_euro_standings_free',
+      `https://feeds.datagolf.com/preds/get-dg-rankings?tour=euro&file_format=json&key=free`
+    ),
+
+    // 66. ESPN EUR season standings (site.web.api)
+    tryEspn('espn_eur_standings_site_web',
+      `https://site.web.api.espn.com/apis/v2/sports/golf/eur/standings?season=2026&limit=200`
+    ),
+
+    // 67. ESPN EUR season scoreboard
+    tryEspn('espn_eur_scoreboard',
+      `https://site.api.espn.com/apis/site/v2/sports/golf/eur/scoreboard`
+    ),
+
+    // 68. ESPN Core EUR rankings list
+    tryEspn('espn_core_eur_rankings',
+      `${ESPN_CORE}/eur/seasons/2026/rankings?limit=10`
+    ),
+
+    // 69. ESPN Core EUR season types
+    tryEspn('espn_core_eur_season_types',
+      `${ESPN_CORE}/eur/seasons/2026/types`
+    ),
+
+    // 70. ESPN Core EUR season standings item 1 expanded
+    tryEspn('espn_core_eur_standings_item1',
+      `${ESPN_CORE}/eur/seasons/2026/types/2/standings/1?limit=5`
+    ),
+
+    // 71. ESPN Core EUR standings overview - type 2 (regular season)
+    tryEspn('espn_core_eur_standings_type2',
+      `${ESPN_CORE}/eur/seasons/2026/types/2/standings?limit=5`
+    ),
+
+    // 72. ESPN Core EUR season groups
+    tryEspn('espn_core_eur_groups',
+      `${ESPN_CORE}/eur/seasons/2026/types/2/groups?limit=5`
+    ),
+
+    // 73. DP World Tour official feeds (common CDN pattern)
+    tryEspn('dpworldtour_feeds_standings',
+      `https://feeds.europeantour.com/feeds/cms/rankings/dpworldtour/2026/race-to-dubai/season-rankings?pageSize=10&pageNumber=1`
+    ),
+
+    // 74. DP World Tour official API v1 pattern
+    tryEspn('dpworldtour_api_v1_rankings',
+      `https://api.europeantour.com/api/v1/rankings?season=2026&pageSize=10`
+    ),
+
+    // 75. Check if Aaron Rai (ESPN ID 10906) is in EUR league rankings
+    tryEspn('espn_core_eur_athlete_10906',
+      `${ESPN_CORE}/eur/seasons/2026/athletes/10906/statistics/0`
+    ),
+
     // 57. scorecardStatsV3 for Masters — does strokesGained have data for PGA Tour events?
     tryGql('pga_gql_scorecardStatsV3_masters_sg', `
       query MastersSG($id: ID!, $playerId: ID!) {
