@@ -1299,6 +1299,7 @@ export default function Page() {
   const [isMobile, setIsMobile] = useState(false);
   const [isSmallMobile, setIsSmallMobile] = useState(false);
   const [landscapeZoom, setLandscapeZoom] = useState(1);
+  const [isLandscapePhone, setIsLandscapePhone] = useState(false);
 
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [installDone, setInstallDone] = useState(false);
@@ -1410,6 +1411,7 @@ export default function Page() {
       // Scale down the desktop layout on landscape phones so everything fits proportionally.
       // Target effective content width: 1050px. Clamp zoom to [0.72, 1].
       const isLandscapePhone = h < 500 && w < 1100 && navigator.maxTouchPoints > 0;
+      setIsLandscapePhone(isLandscapePhone);
       setLandscapeZoom(isLandscapePhone ? Math.max(0.72, Math.min(1, w / 1100)) : 1);
     };
     checkMobile();
@@ -3766,8 +3768,8 @@ export default function Page() {
               gridTemplateColumns: (isMobile || showFutureTournamentView)
                 ? 'minmax(0, 1fr)'
                 : showFinalTournamentView
-                ? 'minmax(0, 1.7fr) minmax(360px, 0.9fr)'
-                : 'minmax(0, 1.5fr) minmax(320px, 0.9fr)',
+                ? isLandscapePhone ? 'minmax(0, 1.2fr) minmax(320px, 1.1fr)' : 'minmax(0, 1.7fr) minmax(360px, 0.9fr)'
+                : isLandscapePhone ? 'minmax(0, 1.1fr) minmax(300px, 1.1fr)' : 'minmax(0, 1.5fr) minmax(320px, 0.9fr)',
               gap: 20,
             }}
           >
@@ -3824,13 +3826,13 @@ export default function Page() {
                 {showLivePayoutStrip ? (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: isMobile ? 4 : 6, flexShrink: 0 }}>
                     <div style={{ display: 'flex', gap: isSmallMobile ? 5 : 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : isMobile ? '4px 9px' : '6px 10px', fontSize: isSmallMobile ? 10 : isMobile ? 11 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
+                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : isMobile ? '4px 9px' : isLandscapePhone ? '3px 7px' : '6px 10px', fontSize: isSmallMobile ? 10 : isMobile ? 11 : isLandscapePhone ? 10 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
                         1st: <span style={{ color: '#fff' }}>{formatPayoutAmount(selectedTournamentPayouts?.first)}</span>
                       </div>
-                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : isMobile ? '4px 9px' : '6px 10px', fontSize: isSmallMobile ? 10 : isMobile ? 11 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
+                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : isMobile ? '4px 9px' : isLandscapePhone ? '3px 7px' : '6px 10px', fontSize: isSmallMobile ? 10 : isMobile ? 11 : isLandscapePhone ? 10 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
                         2nd: <span style={{ color: '#fff' }}>{formatPayoutAmount(selectedTournamentPayouts?.second)}</span>
                       </div>
-                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : isMobile ? '4px 9px' : '6px 10px', fontSize: isSmallMobile ? 10 : isMobile ? 11 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
+                      <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63', padding: isSmallMobile ? '3px 7px' : isMobile ? '4px 9px' : isLandscapePhone ? '3px 7px' : '6px 10px', fontSize: isSmallMobile ? 10 : isMobile ? 11 : isLandscapePhone ? 10 : 13, fontWeight: 800, color: '#fff', border: selectedTournament === 'masters' ? '1.5px solid #1a4a33' : selectedTournament === 'pga' ? '1.5px solid #8a7040' : selectedTournament === 'us-open' ? '1.5px solid #7b1a13' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(30,80,50,0.45)' : selectedTournament === 'pga' ? '0 2px 8px rgba(140,112,64,0.4)' : selectedTournament === 'us-open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
                         3rd: <span style={{ color: '#fff' }}>{formatPayoutAmount(selectedTournamentPayouts?.third)}</span>
                       </div>
                     </div>
