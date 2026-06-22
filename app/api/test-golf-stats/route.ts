@@ -655,6 +655,21 @@ export async function GET() {
       `${ESPN_CORE}/pga/events/${ESPN_EVENT_MASTERS}/competitions/${ESPN_EVENT_MASTERS}/competitors/${TEST_ESPN_ID}/statistics/0`
     ),
 
+    // 59. All-league rankings/4
+    tryEspn('espn_all_rankings_4', `${ESPN_CORE}/all/seasons/2026/rankings/4?limit=5`),
+
+    // 60. All-league rankings/5
+    tryEspn('espn_all_rankings_5', `${ESPN_CORE}/all/seasons/2026/rankings/5?limit=5`),
+
+    // 61. All-league rankings/6
+    tryEspn('espn_all_rankings_6', `${ESPN_CORE}/all/seasons/2026/rankings/6?limit=5`),
+
+    // 62. World Rankings (OWGR) latest date - top 5 players to see structure
+    tryEspn('espn_world_rankings_latest', `${ESPN_CORE}/all/seasons/2026/rankings/1/dates/20260621?limit=5`),
+
+    // 63. Check if Aaron Rai (ESPN ID 10906) appears in World Rankings date entry
+    tryEspn('espn_world_rankings_aaron_rai', `${ESPN_CORE}/all/seasons/2026/rankings/1/dates/20260621/athletes/10906`),
+
     // 57. scorecardStatsV3 for Masters — does strokesGained have data for PGA Tour events?
     tryGql('pga_gql_scorecardStatsV3_masters_sg', `
       query MastersSG($id: ID!, $playerId: ID!) {
