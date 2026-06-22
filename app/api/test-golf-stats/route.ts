@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic';
 
+import redis from '@/app/lib/redis';
+
 // Test player: Scottie Scheffler
 const TEST_PLAYER_NAME = 'Scottie Scheffler';
 const TEST_PGA_TOUR_ID = '46046';
@@ -193,6 +195,9 @@ export async function GET() {
   const output = results.map((r) =>
     r.status === 'fulfilled' ? r.value : { error: String(r.reason) }
   );
+
+  // Fire-and-forget cache write — does not block the response
+  redis.setex('golf-stats-test-results', 3600, JSON.stringify(output)).catch(() => {});
 
   return Response.json({ testPlayer: TEST_PLAYER_NAME, pgaTourId: TEST_PGA_TOUR_ID, espnId: TEST_ESPN_ID, results: output }, { headers: { 'Cache-Control': 'no-store' } });
 }

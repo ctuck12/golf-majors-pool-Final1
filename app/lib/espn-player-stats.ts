@@ -17,6 +17,11 @@ export type PlayerStats = {
   bogeys: string | null;
   eagles: string | null;
   scoreToPar: string | null;
+  sgTotal: string | null;
+  sgOffTee: string | null;
+  sgApproach: string | null;
+  sgAroundGreen: string | null;
+  sgPutting: string | null;
 };
 
 type Stat = { name?: string; value?: number; displayValue?: string };
@@ -73,6 +78,11 @@ function extractSeason(data: Overview): PlayerStats {
     bogeys: null,
     eagles: null,
     scoreToPar: null,
+    sgTotal: null,
+    sgOffTee: null,
+    sgApproach: null,
+    sgAroundGreen: null,
+    sgPutting: null,
   };
 }
 
@@ -82,6 +92,7 @@ function extractTournament(stats: Stat[]): PlayerStats {
     puttAverage: null, avgPuttsPerRound: null, proximity: null,
     scoringAverage: null, birdiesPerRound: null,
     birdies: null, pars: null, bogeys: null, eagles: null, scoreToPar: null,
+    sgTotal: null, sgOffTee: null, sgApproach: null, sgAroundGreen: null, sgPutting: null,
   };
 
   const total = getStat(stats, 'regScore');
@@ -106,6 +117,11 @@ function extractTournament(stats: Stat[]): PlayerStats {
     pars: hasScoring ? String(parseStat?.value ?? 0) : null,
     bogeys: hasScoring ? String(getStat(stats, 'bogeys')?.value ?? 0) : null,
     eagles: hasScoring ? String(getStat(stats, 'eagles')?.value ?? 0) : null,
+    sgTotal: null,
+    sgOffTee: null,
+    sgApproach: null,
+    sgAroundGreen: null,
+    sgPutting: null,
   };
 }
 

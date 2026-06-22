@@ -1174,7 +1174,7 @@ export default function Page() {
     fullResultsLoading: boolean;
     careerResults: { year: number; course: string; position: string }[] | null;
     careerResultsLoading: boolean;
-    playerStats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null } | null;
+    playerStats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null } | null;
     playerStatsLoading: boolean;
     playerRounds: { round: number; score: string }[] | null;
     statsContext: 'season' | 'tournament';
@@ -2584,6 +2584,7 @@ export default function Page() {
     const statsCtx: 'season' | 'tournament' = showFutureTournamentView ? 'season' : 'tournament';
     const params = new URLSearchParams({ name: player.name, context: statsCtx });
     if (espnEventId && !showFutureTournamentView) params.set('eventId', espnEventId);
+    params.set('pgaTourId', String(player.pgaTourId));
     setPickHistoryView('stats');
     setPickHistoryPlayerPopup({
       player,
@@ -2605,7 +2606,7 @@ export default function Page() {
     Promise.all([
       readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
       readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
-      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
+      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
       scorecardFetch,
     ]).then(([fullData, fedexData, statsData, scData]) => {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
@@ -8381,6 +8382,13 @@ export default function Page() {
                   } else {
                     if (s?.birdiesPerRound) statCells.push({ label: 'Birdies/Rd', value: s.birdiesPerRound });
                     if (s?.scoringAverage) statCells.push({ label: 'Scoring Avg', value: s.scoringAverage });
+                  }
+                  if (!isTournCtx) {
+                    if (s?.sgTotal) statCells.push({ label: 'SG: Total', value: s.sgTotal });
+                    if (s?.sgOffTee) statCells.push({ label: 'SG: Off Tee', value: s.sgOffTee });
+                    if (s?.sgApproach) statCells.push({ label: 'SG: Approach', value: s.sgApproach });
+                    if (s?.sgAroundGreen) statCells.push({ label: 'SG: Around', value: s.sgAroundGreen });
+                    if (s?.sgPutting) statCells.push({ label: 'SG: Putting', value: s.sgPutting });
                   }
                   if (pickHistoryPlayerPopup.playerStatsLoading) {
                     return (
