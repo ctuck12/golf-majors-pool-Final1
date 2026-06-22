@@ -3768,8 +3768,8 @@ export default function Page() {
               gridTemplateColumns: (isMobile || showFutureTournamentView)
                 ? 'minmax(0, 1fr)'
                 : showFinalTournamentView
-                ? isLandscapePhone ? 'minmax(0, 1.2fr) minmax(320px, 1.1fr)' : 'minmax(0, 1.7fr) minmax(360px, 0.9fr)'
-                : isLandscapePhone ? 'minmax(0, 1.1fr) minmax(300px, 1.1fr)' : 'minmax(0, 1.5fr) minmax(320px, 0.9fr)',
+                ? isLandscapePhone ? 'minmax(0, 1.4fr) minmax(300px, 1fr)' : 'minmax(0, 1.7fr) minmax(360px, 0.9fr)'
+                : isLandscapePhone ? 'minmax(0, 1.3fr) minmax(280px, 1fr)' : 'minmax(0, 1.5fr) minmax(320px, 0.9fr)',
               gap: 20,
             }}
           >
@@ -3844,7 +3844,7 @@ export default function Page() {
                         ) : null}
                         <button
                           onClick={() => setShowBonusPoints(true)}
-                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: selectedTournament === 'pga' ? '#173b63' : selectedTournament === 'us-open' ? '#173b63' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', border: selectedTournament === 'masters' ? '1.5px solid #c8b800' : (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '1.5px solid #0f2d6b' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : '1.5px solid #a07010', cursor: 'pointer', padding: isMobile ? '4px 10px' : '5px 12px', borderRadius: 999, letterSpacing: '0.07em', textTransform: 'uppercase', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 2px 8px rgba(14,45,140,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(180,140,0,0.4)' }}
+                          style={{ fontSize: isMobile ? 9 : 10, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: selectedTournament === 'pga' ? '#173b63' : selectedTournament === 'us-open' ? '#173b63' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', border: selectedTournament === 'masters' ? '1.5px solid #c8b800' : (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '1.5px solid #0f2d6b' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : '1.5px solid #a07010', cursor: 'pointer', padding: isMobile ? '4px 10px' : isLandscapePhone ? '3px 7px' : '5px 12px', borderRadius: 999, letterSpacing: '0.07em', textTransform: 'uppercase', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : (selectedTournament === 'pga' || selectedTournament === 'us-open') ? '0 2px 8px rgba(14,45,140,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : '0 2px 8px rgba(180,140,0,0.4)' }}
                         >
                           Bonus Points
                         </button>
