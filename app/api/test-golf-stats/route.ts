@@ -6,12 +6,13 @@ import redis from '@/app/lib/redis';
 const TEST_PLAYER_NAME = 'Scottie Scheffler';
 const TEST_PGA_TOUR_ID = '46046';
 const TEST_ESPN_ID = '9478';
-// The Open Championship ESPN event ID (upcoming, so good for testing tournament stats)
-const TEST_ESPN_EVENT_ID = '401811952'; // US Open 2026
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues';
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
+
+const ESPN_EVENT_MASTERS = '401811941';
+const ESPN_EVENT_USOPEN = '401811952';
 
 function gqlHeaders() {
   return {
@@ -54,10 +55,95 @@ async function tryEspn(label: string, url: string) {
 export async function GET() {
   const results = await Promise.allSettled([
 
-    // ── PGA Tour GraphQL queries ──────────────────────────────────────────────
+    // ── ESPN Core: direct competition stats (no recency window) ───────────────
 
-    // 1. playerProfileStats — attempt A: stats[] nested
-    tryGql('pga_gql_playerProfileStats_A', `
+    // 1. Masters stats for Scheffler via direct ESPN Core competitor endpoint
+    tryEspn('espn_core_masters_competitor_stats',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_MASTERS}/competitions/${ESPN_EVENT_MASTERS}/competitors/${TEST_ESPN_ID}/statistics/0`
+    ),
+
+    // 2. US Open stats for Scheffler via direct ESPN Core competitor endpoint
+    tryEspn('espn_core_usopen_competitor_stats',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_USOPEN}/competitions/${ESPN_EVENT_USOPEN}/competitors/${TEST_ESPN_ID}/statistics/0`
+    ),
+
+    // 3. Masters linescores for Scheffler
+    tryEspn('espn_core_masters_linescores',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_MASTERS}/competitions/${ESPN_EVENT_MASTERS}/competitors/${TEST_ESPN_ID}/linescores`
+    ),
+
+    // 4. US Open linescores for Scheffler
+    tryEspn('espn_core_usopen_linescores',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_USOPEN}/competitions/${ESPN_EVENT_USOPEN}/competitors/${TEST_ESPN_ID}/linescores`
+    ),
+
+    // 5. Masters competitors list — verify competitor ID format (is it the ESPN athlete ID?)
+    tryEspn('espn_core_masters_competitors_list',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_MASTERS}/competitions/${ESPN_EVENT_MASTERS}/competitors?limit=5`
+    ),
+
+    // 6. Masters competition info
+    tryEspn('espn_core_masters_competition',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_MASTERS}/competitions/${ESPN_EVENT_MASTERS}`
+    ),
+
+    // ── PGA Tour GQL: tournament-specific stats ───────────────────────────────
+
+    // 7. Introspect playerProfileTournamentResults type
+    tryGql('pga_gql_introspect_tournamentResults', `
+      {
+        __type(name: "PlayerProfileTournamentResults") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 8. playerProfileTournamentResults — attempt with nested events
+    tryGql('pga_gql_tournamentResults_A', `
+      query TournamentResults($playerId: ID!) {
+        playerProfileTournamentResults(playerId: $playerId) {
+          events {
+            tournamentName
+            tournamentId
+            season
+            rounds
+            position
+            strokes
+            scoreToPar
+            earnings
+          }
+        }
+      }
+    `, { playerId: TEST_PGA_TOUR_ID }),
+
+    // 9. playerProfileTournamentResults — minimal fields probe
+    tryGql('pga_gql_tournamentResults_B', `
+      query TournamentResultsB($playerId: ID!) {
+        playerProfileTournamentResults(playerId: $playerId) {
+          __typename
+        }
+      }
+    `, { playerId: TEST_PGA_TOUR_ID }),
+
+    // 10. Introspect playerProfileCourseResults type
+    tryGql('pga_gql_introspect_courseResults', `
+      {
+        __type(name: "PlayerProfileCourseResults") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 11. playerProfileStats — confirmed working query
+    tryGql('pga_gql_playerProfileStats', `
       query PlayerProfileStats($playerId: ID!) {
         playerProfileStats(playerId: $playerId) {
           stats {
@@ -71,110 +157,9 @@ export async function GET() {
       }
     `, { playerId: TEST_PGA_TOUR_ID }),
 
-    // 2. playerProfileStats — attempt B: with year, categories[] nested
-    tryGql('pga_gql_playerProfileStats_B', `
-      query PlayerProfileStatsB($playerId: ID!, $year: Int) {
-        playerProfileStats(playerId: $playerId, year: $year) {
-          categories {
-            statId
-            statTitle
-            statName
-            statValue
-            rank
-          }
-        }
-      }
-    `, { playerId: TEST_PGA_TOUR_ID, year: 2026 }),
-
-    // 3. playerProfileStats — attempt C: tourCode param, different nesting
-    tryGql('pga_gql_playerProfileStats_C', `
-      query PlayerProfileStatsC($playerId: ID!) {
-        playerProfileStats(playerId: $playerId, tourCode: "R") {
-          statDetails {
-            statId
-            statTitle
-            statValue
-            rank
-          }
-        }
-      }
-    `, { playerId: TEST_PGA_TOUR_ID }),
-
-    // 4. statLeaders — correct name per introspection, SG Total stat
-    tryGql('pga_gql_statLeaders_sgTotal', `
-      query StatLeaders($statId: ID!, $year: Int) {
-        statLeaders(statId: $statId, year: $year) {
-          statId
-          statTitle
-          leaders {
-            playerId
-            playerName
-            statValue
-            rank
-          }
-        }
-      }
-    `, { statId: '02674', year: 2026 }),
-
-    // 5. statDetails — what does this return?
-    tryGql('pga_gql_statDetails', `
-      query StatDetails($statId: ID!, $playerId: ID!, $year: Int) {
-        statDetails(statId: $statId, playerId: $playerId, year: $year) {
-          statId
-          statTitle
-          statValue
-          rank
-        }
-      }
-    `, { statId: '02674', playerId: TEST_PGA_TOUR_ID, year: 2026 }),
-
-    // 6. player — what fields does it actually have?
-    tryGql('pga_gql_player_fields', `
-      query Player($playerId: ID!) {
-        player(id: $playerId) {
-          id
-          firstName
-          lastName
-          country
-          owgr
-          points
-          ranking
-        }
-      }
-    `, { playerId: TEST_PGA_TOUR_ID }),
-
-    // 7. Introspection — find return type of playerProfileStats
-    tryGql('pga_gql_introspect_playerProfileStats_type', `
-      {
-        __schema {
-          queryType {
-            fields {
-              name
-              type {
-                name
-                kind
-                ofType { name kind ofType { name kind } }
-              }
-              args {
-                name
-                type { name kind ofType { name kind } }
-              }
-            }
-          }
-        }
-      }
-    `, {}),
-
-    // ── ESPN stats endpoints ──────────────────────────────────────────────────
-
-    // 8. ESPN season statistics for Scheffler
-    tryEspn('espn_season_stats',
+    // 12. ESPN Core: season athlete statistics
+    tryEspn('espn_core_season_stats',
       `${ESPN_CORE}/pga/seasons/2026/athletes/${TEST_ESPN_ID}/statistics`
-    ),
-
-    // 9. ESPN athlete overview (broader data)
-    tryEspn('espn_athlete_overview',
-      `https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes/${TEST_ESPN_ID}/overview`
     ),
 
   ]);
@@ -183,8 +168,14 @@ export async function GET() {
     r.status === 'fulfilled' ? r.value : { error: String(r.reason) }
   );
 
-  // Fire-and-forget cache write — does not block the response
   redis.setex('golf-stats-test-results', 3600, JSON.stringify(output)).catch(() => {});
 
-  return Response.json({ testPlayer: TEST_PLAYER_NAME, pgaTourId: TEST_PGA_TOUR_ID, espnId: TEST_ESPN_ID, results: output }, { headers: { 'Cache-Control': 'no-store' } });
+  return Response.json({
+    testPlayer: TEST_PLAYER_NAME,
+    pgaTourId: TEST_PGA_TOUR_ID,
+    espnId: TEST_ESPN_ID,
+    espnEventMasters: ESPN_EVENT_MASTERS,
+    espnEventUsOpen: ESPN_EVENT_USOPEN,
+    results: output,
+  }, { headers: { 'Cache-Control': 'no-store' } });
 }

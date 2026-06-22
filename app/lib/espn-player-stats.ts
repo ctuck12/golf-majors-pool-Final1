@@ -103,12 +103,17 @@ function extractTournament(stats: Stat[]): PlayerStats {
     rounds: null,
   };
 
-  const total = getStat(stats, 'regScore');
-  if (!total?.value || total.value === 0) return empty;
+  // regScore = total strokes. Check several alternate names ESPN uses across endpoints.
+  const total = getStat(stats, 'regScore')
+    ?? getStat(stats, 'totalStrokes')
+    ?? getStat(stats, 'totalScore')
+    ?? getStat(stats, 'score');
+  const totalVal = total?.value ?? parseFloat(total?.displayValue ?? '0');
+  if (!totalVal || totalVal === 0) return empty;
 
   const parseStat = getStat(stats, 'pars');
   const hasScoring = (parseStat?.value ?? 0) > 0;
-  const scoreToParStat = getStat(stats, 'scoreToPar');
+  const scoreToParStat = getStat(stats, 'scoreToPar') ?? getStat(stats, 'topar') ?? getStat(stats, 'toPar');
 
   return {
     drivingDistance: statVal(stats, 'driveDistAvg'),
@@ -157,8 +162,10 @@ async function fetchCoreLinescores(espnId: string, eventId: string, statsArr: St
     const data = await res.json() as { items?: Array<{ value?: number }> };
     const items = data?.items;
     if (!Array.isArray(items) || items.length === 0) return null;
-    const regScore = getStat(statsArr, 'regScore')?.value ?? 0;
-    const scoreToPar = getStat(statsArr, 'scoreToPar')?.value ?? 0;
+    const regScoreStat = getStat(statsArr, 'regScore') ?? getStat(statsArr, 'totalStrokes') ?? getStat(statsArr, 'totalScore') ?? getStat(statsArr, 'score');
+    const regScore = regScoreStat?.value ?? parseFloat(regScoreStat?.displayValue ?? '0');
+    const scoreToParStat2 = getStat(statsArr, 'scoreToPar') ?? getStat(statsArr, 'topar') ?? getStat(statsArr, 'toPar');
+    const scoreToPar = scoreToParStat2?.value ?? 0;
     if (regScore <= 0) return null;
     const coursePar = Math.round((regScore - scoreToPar) / items.length);
     return items.map((ls) => {
@@ -216,8 +223,10 @@ export async function fetchPlayerTournamentStats(name: string, eventId: string):
         let rounds: string[] | null = null;
         const linescore = competitor?.linescores?.items ?? [];
         if (linescore.length > 0) {
-          const regScore = getStat(statsArr, 'regScore')?.value ?? 0;
-          const scoreToPar = getStat(statsArr, 'scoreToPar')?.value ?? 0;
+          const rsStat = getStat(statsArr, 'regScore') ?? getStat(statsArr, 'totalStrokes') ?? getStat(statsArr, 'totalScore');
+          const regScore = rsStat?.value ?? parseFloat(rsStat?.displayValue ?? '0');
+          const stpStat = getStat(statsArr, 'scoreToPar') ?? getStat(statsArr, 'topar') ?? getStat(statsArr, 'toPar');
+          const scoreToPar = stpStat?.value ?? 0;
           if (regScore > 0) {
             const coursePar = Math.round((regScore - scoreToPar) / linescore.length);
             rounds = linescore.map((ls) => {
