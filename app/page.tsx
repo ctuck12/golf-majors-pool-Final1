@@ -8405,13 +8405,11 @@ export default function Page() {
                     if (s?.birdiesPerRound) statCells.push({ label: 'Birdies/Rd', value: s.birdiesPerRound });
                     if (s?.scoringAverage) statCells.push({ label: 'Scoring Avg', value: s.scoringAverage });
                   }
-                  if (!isTournCtx) {
-                    if (s?.sgTotal) statCells.push({ label: 'SG: Total', value: s.sgTotal });
-                    if (s?.sgOffTee) statCells.push({ label: 'SG: Off Tee', value: s.sgOffTee });
-                    if (s?.sgApproach) statCells.push({ label: 'SG: Approach', value: s.sgApproach });
-                    if (s?.sgAroundGreen) statCells.push({ label: 'SG: Around', value: s.sgAroundGreen });
-                    if (s?.sgPutting) statCells.push({ label: 'SG: Putting', value: s.sgPutting });
-                  }
+                  if (s?.sgTotal) statCells.push({ label: 'SG: Total', value: s.sgTotal });
+                  if (s?.sgOffTee) statCells.push({ label: 'SG: Off Tee', value: s.sgOffTee });
+                  if (s?.sgApproach) statCells.push({ label: 'SG: Approach', value: s.sgApproach });
+                  if (s?.sgAroundGreen) statCells.push({ label: 'SG: Around', value: s.sgAroundGreen });
+                  if (s?.sgPutting) statCells.push({ label: 'SG: Putting', value: s.sgPutting });
                   if (pickHistoryPlayerPopup.playerStatsLoading) {
                     return (
                       <div key="stats-loading" style={{ display: 'grid', gap: 10 }}>
