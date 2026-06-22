@@ -469,6 +469,60 @@ export async function GET() {
       }
     `, {}),
 
+    // 45. leaderboardStats STROKES_GAINED with players + __typename to find player type name
+    tryGql('pga_gql_leaderboardStats_SG_players_typename', `
+      query LeaderboardStatsSGPlayers($id: ID!) {
+        leaderboardStats(id: $id, statsType: STROKES_GAINED) {
+          id
+          type
+          titles
+          statIds
+          players {
+            __typename
+          }
+          rounds
+        }
+      }
+    `, { id: 'R2026026' }),
+
+    // 46. Introspect all types containing "Stat" or "Leaderboard" player
+    tryGql('pga_gql_introspect_LeaderboardStatPlayer', `
+      {
+        __type(name: "LeaderboardStatPlayer") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 47. Introspect ScorecardRound (likely type for PlayerScorecardStats.rounds items)
+    tryGql('pga_gql_introspect_ScorecardRound', `
+      {
+        __type(name: "ScorecardRound") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 48. scorecardStatsV3 — query only rounds field with __typename
+    tryGql('pga_gql_scorecardStatsV3_rounds_typename', `
+      query ScorecardStatsRounds($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            __typename
+          }
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
   ]);
 
   const output = results.map((r) =>
