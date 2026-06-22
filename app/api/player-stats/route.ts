@@ -15,8 +15,8 @@ export async function GET(request: Request) {
 
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
-    ? `player-stats:tourn:${eventId}:${name}`
-    : `player-stats:season:2026:${name}`;
+    ? `player-stats:v2:tourn:${eventId}:${name}`
+    : `player-stats:v2:season:2026:${name}`;
   const ttl = isTournament ? 1800 : 86400;
 
   try {
