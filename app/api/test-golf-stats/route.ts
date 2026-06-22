@@ -630,9 +630,9 @@ export async function GET() {
       }
     `, {}),
 
-    // 55. scorecardStatsV3 scoring items with actual fields
-    tryGql('pga_gql_scorecardStatsV3_scoring_fields', `
-      query ScorecardStatsScoringFields($id: ID!, $playerId: ID!) {
+    // 55. scorecardStatsV3 scoring items with CORRECT fields
+    tryGql('pga_gql_scorecardStatsV3_scoring_correct', `
+      query ScorecardStatsScoringCorrect($id: ID!, $playerId: ID!) {
         scorecardStatsV3(id: $id, playerId: $playerId) {
           id
           rounds {
@@ -640,10 +640,10 @@ export async function GET() {
             displayName
             scoring {
               label
-              value
-              displayValue
+              total
+              rank
+              yearToDate
               statId
-              id
             }
           }
         }
