@@ -44,8 +44,7 @@ export async function GET(request: Request) {
 
     // ESPN world rankings date entries: try both 'athletes' and 'rankings' array formats
     const entries: Array<Record<string, unknown>> =
-      (data.athletes as Array<Record<string, unknown>> | undefined) ??
-      (data.rankings as Array<Record<string, unknown>> | undefined) ??
+      (data.ranks as Array<Record<string, unknown>> | undefined) ??
       [];
 
     for (let i = 0; i < entries.length; i++) {
@@ -60,8 +59,7 @@ export async function GET(request: Request) {
           : '';
       const id = ref.match(/athletes\/(\d+)/)?.[1];
       if (id === espnId) {
-        // Rank may be explicit in entry, or implied by position
-        const explicitRank = entry.rank ?? entry.ranking;
+        const explicitRank = entry.current;
         return Response.json({ rank: typeof explicitRank === 'number' ? explicitRank : i + 1 });
       }
     }
