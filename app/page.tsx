@@ -8454,26 +8454,86 @@ export default function Page() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              style={{ background: '#fff', borderRadius: 20, padding: 28, width: '100%', maxWidth: 380, boxShadow: '0 18px 48px rgba(9,34,51,0.25)' }}
+              style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 380, boxShadow: '0 18px 48px rgba(9,34,51,0.25)', overflow: 'hidden', maxHeight: 'calc(100vh - 40px)', display: 'flex', flexDirection: 'column' }}
             >
-              <div style={{ fontSize: 18, fontWeight: 900, color: '#0f1720', marginBottom: 6 }}>Confirm Your Roster</div>
-              <div style={{ color: '#5b6b79', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
-                <div>Par = <strong style={{ color: '#0f1720' }}>{TOURNAMENT_TOTAL_PAR[selectedTournament] ?? '—'}</strong></div>
-                <div>Your tiebreak value: <strong style={{ color: '#0f1720' }}>{tieBreakInput}</strong></div>
+              {/* Coloured header */}
+              <div style={{ background: entriesTournamentBg, padding: '16px 20px 14px', flexShrink: 0 }}>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>Confirm Your Roster</div>
+                {!hasSubmittedRoster && (
+                  <div style={{ marginTop: 5, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.88)', letterSpacing: '0.01em' }}>Pool Entry Fee: $30</div>
+                )}
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button
-                  onClick={() => { setShowRosterConfirm(false); void handleSave(); }}
-                  style={{ flex: 1, border: 'none', borderRadius: 12, padding: '12px 0', background: 'linear-gradient(135deg, #3f73ad 0%, #315f95 100%)', color: '#fff', fontSize: 15, fontWeight: 900, cursor: 'pointer' }}
-                >
-                  Confirm
-                </button>
-                <button
-                  onClick={() => setShowRosterConfirm(false)}
-                  style={{ flex: 1, border: '2px solid #dfe5eb', borderRadius: 12, padding: '12px 0', background: '#fff', color: '#374151', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
-                >
-                  Cancel
-                </button>
+
+              {/* Body */}
+              <div style={{ padding: '14px 18px 18px', overflowY: 'auto' }}>
+                {/* Roster list */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
+                  {orderedRosterPlayers.map((player) => (
+                    <div key={player.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 14 }}>
+                      <span style={{ fontWeight: 700, color: '#0f1720' }}>{player.name}</span>
+                      <span style={{ fontWeight: 600, color: '#5b6b79' }}>${player.salary.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ borderTop: '1px solid #e8edf2', marginBottom: 10 }} />
+
+                {/* Salary summary */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 5 }}>
+                  <span style={{ color: '#5b6b79' }}>Salary used</span>
+                  <span style={{ fontWeight: 700, color: '#0f1720' }}>${salaryUsed.toLocaleString()} <span style={{ fontWeight: 400, color: '#8a99a6' }}>/ $50,000</span></span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 12 }}>
+                  <span style={{ color: '#5b6b79' }}>Remaining</span>
+                  <span style={{ fontWeight: 700, color: salaryRemaining < 0 ? '#dc2626' : '#0f1720' }}>${salaryRemaining.toLocaleString()}</span>
+                </div>
+
+                <div style={{ borderTop: '1px solid #e8edf2', marginBottom: 10 }} />
+
+                {/* Tiebreaker */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 16 }}>
+                  <span style={{ color: '#5b6b79' }}>Your tiebreaker</span>
+                  <span style={{ fontWeight: 700, color: '#0f1720' }}>{tieBreakInput} <span style={{ fontWeight: 400, color: '#8a99a6' }}>(par {TOURNAMENT_TOTAL_PAR[entriesTournamentId] ?? '—'})</span></span>
+                </div>
+
+                {/* Buttons */}
+                <div style={{ display: 'flex', gap: 10 }}>
+                  {!hasSubmittedRoster ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          setShowRosterConfirm(false);
+                          void handleSave();
+                          window.location.href = `venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=${encodeURIComponent('⛳')}`;
+                        }}
+                        style={{ flex: 1, border: 'none', borderRadius: 12, padding: '13px 0', background: entriesTournamentBg, color: '#fff', fontSize: 15, fontWeight: 900, cursor: 'pointer' }}
+                      >
+                        Pay Entry Fee
+                      </button>
+                      <button
+                        onClick={() => setShowRosterConfirm(false)}
+                        style={{ flex: 1, border: '2px solid #dfe5eb', borderRadius: 12, padding: '13px 0', background: '#fff', color: '#374151', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+                      >
+                        Edit
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => { setShowRosterConfirm(false); void handleSave(); }}
+                        style={{ flex: 1, border: 'none', borderRadius: 12, padding: '13px 0', background: entriesTournamentBg, color: '#fff', fontSize: 15, fontWeight: 900, cursor: 'pointer' }}
+                      >
+                        Submit
+                      </button>
+                      <button
+                        onClick={() => setShowRosterConfirm(false)}
+                        style={{ flex: 1, border: '2px solid #dfe5eb', borderRadius: 12, padding: '13px 0', background: '#fff', color: '#374151', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+                      >
+                        Edit
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
