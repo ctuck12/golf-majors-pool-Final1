@@ -8,6 +8,8 @@ export type PlayerStats = {
   gir: string | null;
   scrambling: string | null;
   puttAverage: string | null;
+  avgPuttsPerRound: string | null;
+  proximity: string | null;
   scoringAverage: string | null;
   birdiesPerRound: string | null;
   birdies: string | null;
@@ -59,9 +61,11 @@ function extractSeason(data: Overview): PlayerStats {
   return {
     drivingDistance: statVal(cats, 'yardsPerDrive'),
     drivingAccuracy: statVal(cats, 'driveAccuracyPct', '%'),
-    gir: null,
+    gir: statVal(cats, 'gir', '%'),
     scrambling: statVal(cats, 'sandSaves', '%'),
     puttAverage: statVal(cats, 'puttsGirAvg'),
+    avgPuttsPerRound: statVal(cats, 'puttsPerRound') ?? statVal(cats, 'avgPutts') ?? statVal(cats, 'avgPutt'),
+    proximity: statVal(cats, 'proximity') ?? statVal(cats, 'proxHole'),
     scoringAverage: scoringAvg,
     birdiesPerRound: statVal(cats, 'birdiesPerRound'),
     birdies: null,
@@ -75,7 +79,8 @@ function extractSeason(data: Overview): PlayerStats {
 function extractTournament(stats: Stat[]): PlayerStats {
   const empty: PlayerStats = {
     drivingDistance: null, drivingAccuracy: null, gir: null, scrambling: null,
-    puttAverage: null, scoringAverage: null, birdiesPerRound: null,
+    puttAverage: null, avgPuttsPerRound: null, proximity: null,
+    scoringAverage: null, birdiesPerRound: null,
     birdies: null, pars: null, bogeys: null, eagles: null, scoreToPar: null,
   };
 
@@ -92,6 +97,8 @@ function extractTournament(stats: Stat[]): PlayerStats {
     gir: statVal(stats, 'gir', '%'),
     scrambling: statVal(stats, 'sandSaves', '%'),
     puttAverage: statVal(stats, 'puttsGirAvg'),
+    avgPuttsPerRound: statVal(stats, 'puttsPerRound') ?? statVal(stats, 'avgPutts') ?? statVal(stats, 'avgPutt'),
+    proximity: statVal(stats, 'proximity') ?? statVal(stats, 'proxHole') ?? statVal(stats, 'approachProximity'),
     scoringAverage: null,
     birdiesPerRound: null,
     scoreToPar: scoreToParStat?.displayValue ?? null,

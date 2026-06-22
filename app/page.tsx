@@ -1174,7 +1174,7 @@ export default function Page() {
     fullResultsLoading: boolean;
     careerResults: { year: number; course: string; position: string }[] | null;
     careerResultsLoading: boolean;
-    playerStats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null } | null;
+    playerStats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null } | null;
     playerStatsLoading: boolean;
     statsContext: 'season' | 'tournament';
   } | null>(null);
@@ -2600,7 +2600,7 @@ export default function Page() {
     Promise.all([
       readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
       readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
-      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
+      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
     ]).then(([fullData, fedexData, statsData]) => {
       setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, playerStats: statsData.stats, playerStatsLoading: false } : null);
     });
@@ -8327,9 +8327,10 @@ export default function Page() {
               {/* Tab bar */}
               <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #e2e8ef', flexShrink: 0 }}>
                 {(['stats', 'season', 'career'] as const).map((tab) => {
+                  const careerName = TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'Major';
                   const label = tab === 'stats'
                     ? (pickHistoryPlayerPopup.statsContext === 'tournament' ? 'Tournament Stats' : 'Season Stats')
-                    : tab === 'season' ? '2026 Season' : 'Career';
+                    : tab === 'season' ? '2026 Season' : `${careerName} Career`;
                   const isActive = pickHistoryView === tab;
                   return (
                     <button
@@ -8347,7 +8348,7 @@ export default function Page() {
                           }
                         }
                       }}
-                      style={{ flex: 1, border: 'none', borderBottom: isActive ? '2.5px solid #0f1720' : '2.5px solid transparent', background: 'none', padding: '11px 4px', fontSize: 12, fontWeight: isActive ? 800 : 600, color: isActive ? '#0f1720' : '#7a8c99', cursor: 'pointer', transition: 'color 0.15s, border-color 0.15s', letterSpacing: '0.01em' }}
+                      style={{ flex: 1, border: 'none', borderBottom: isActive ? '2.5px solid #0f1720' : '2.5px solid transparent', background: 'none', padding: '11px 2px', fontSize: 'clamp(9px, 2.4vw, 11.5px)', whiteSpace: 'nowrap', overflow: 'hidden', fontWeight: isActive ? 800 : 600, color: isActive ? '#0f1720' : '#7a8c99', cursor: 'pointer', transition: 'color 0.15s, border-color 0.15s', letterSpacing: '0.01em' }}
                     >
                       {label}
                     </button>
@@ -8361,20 +8362,17 @@ export default function Page() {
                   const s = pickHistoryPlayerPopup.playerStats;
                   const isTournCtx = pickHistoryPlayerPopup.statsContext === 'tournament';
                   const statCells: { label: string; value: string }[] = [];
-                  if (isTournCtx && s?.scoreToPar) statCells.push({ label: 'Score', value: s.scoreToPar });
                   if (s?.drivingDistance) statCells.push({ label: 'Drive Dist', value: s.drivingDistance });
                   if (s?.drivingAccuracy) statCells.push({ label: 'Drive Acc', value: s.drivingAccuracy });
                   if (s?.gir) statCells.push({ label: 'GIR%', value: s.gir });
-                  if (s?.puttAverage) statCells.push({ label: 'Putts/GIR', value: s.puttAverage });
                   if (s?.scrambling) statCells.push({ label: 'Scrambling', value: s.scrambling });
-                  if (!isTournCtx) {
+                  if (s?.avgPuttsPerRound) statCells.push({ label: 'Avg Putts/Rd', value: s.avgPuttsPerRound });
+                  else if (s?.puttAverage) statCells.push({ label: 'Putts/GIR', value: s.puttAverage });
+                  if (isTournCtx) {
+                    if (s?.proximity) statCells.push({ label: 'Proximity', value: s.proximity });
+                  } else {
                     if (s?.birdiesPerRound) statCells.push({ label: 'Birdies/Rd', value: s.birdiesPerRound });
                     if (s?.scoringAverage) statCells.push({ label: 'Scoring Avg', value: s.scoringAverage });
-                  } else if (s?.pars) {
-                    statCells.push({ label: 'Eagles', value: s.eagles ?? '0' });
-                    statCells.push({ label: 'Birdies', value: s.birdies ?? '0' });
-                    statCells.push({ label: 'Pars', value: s.pars ?? '0' });
-                    statCells.push({ label: 'Bogeys', value: s.bogeys ?? '0' });
                   }
                   if (pickHistoryPlayerPopup.playerStatsLoading) {
                     return (
