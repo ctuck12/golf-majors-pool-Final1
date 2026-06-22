@@ -655,20 +655,20 @@ export async function GET() {
       `${ESPN_CORE}/pga/events/${ESPN_EVENT_MASTERS}/competitions/${ESPN_EVENT_MASTERS}/competitors/${TEST_ESPN_ID}/statistics/0`
     ),
 
-    // 59. EUR overall standings (id=0) - probe first 3 entries to see data shape
-    tryEspn('espn_eur_standings_overall', `${ESPN_CORE}/eur/seasons/2026/types/2/standings/0?limit=5`),
+    // 59. All-league rankings/4
+    tryEspn('espn_all_rankings_4', `${ESPN_CORE}/all/seasons/2026/rankings/4?limit=5`),
 
-    // 60. All-league rankings/1 — might be OWGR or Race to Dubai
-    tryEspn('espn_all_rankings_1', `${ESPN_CORE}/all/seasons/2026/rankings/1?limit=5`),
+    // 60. All-league rankings/5
+    tryEspn('espn_all_rankings_5', `${ESPN_CORE}/all/seasons/2026/rankings/5?limit=5`),
 
-    // 61. All-league rankings/2
-    tryEspn('espn_all_rankings_2', `${ESPN_CORE}/all/seasons/2026/rankings/2?limit=5`),
+    // 61. All-league rankings/6
+    tryEspn('espn_all_rankings_6', `${ESPN_CORE}/all/seasons/2026/rankings/6?limit=5`),
 
-    // 62. All-league rankings/3
-    tryEspn('espn_all_rankings_3', `${ESPN_CORE}/all/seasons/2026/rankings/3?limit=5`),
+    // 62. World Rankings (OWGR) latest date - top 5 players to see structure
+    tryEspn('espn_world_rankings_latest', `${ESPN_CORE}/all/seasons/2026/rankings/1/dates/20260621?limit=5`),
 
-    // 63. EUR June standings (most recent month) - standings/6
-    tryEspn('espn_eur_standings_june', `${ESPN_CORE}/eur/seasons/2026/types/2/standings/6?limit=5`),
+    // 63. Check if Aaron Rai (ESPN ID 10906) appears in World Rankings date entry
+    tryEspn('espn_world_rankings_aaron_rai', `${ESPN_CORE}/all/seasons/2026/rankings/1/dates/20260621/athletes/10906`),
 
     // 57. scorecardStatsV3 for Masters — does strokesGained have data for PGA Tour events?
     tryGql('pga_gql_scorecardStatsV3_masters_sg', `
