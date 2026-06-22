@@ -63,7 +63,7 @@ export async function GET(request: Request) {
   const pattern = TOURNAMENT_PATTERNS[tournamentId];
   if (!pattern) return Response.json({ results: null });
 
-  const cacheKey = `player-career:${tournamentId}:${name}`;
+  const cacheKey = `player-career:v2:${tournamentId}:${name}`;
 
   try {
     const cached = await redis.get(cacheKey);
@@ -72,7 +72,9 @@ export async function GET(request: Request) {
     const espnId = await getEspnId(name);
     if (!espnId) return Response.json({ results: null });
 
-    const years = Array.from({ length: 16 }, (_, i) => 2010 + i); // 2010–2025
+    const currentYear = new Date().getFullYear();
+    const startYear = 2010;
+    const years = Array.from({ length: currentYear - startYear + 1 }, (_, i) => startYear + i);
     const opts = { next: { revalidate: 3600 } };
 
     const results: CareerResult[] = (
