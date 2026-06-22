@@ -298,6 +298,393 @@ export async function GET() {
       } catch (e) { return { label, error: String(e) }; }
     })(),
 
+    // 30. PGA Tour GQL scorecardStatsV3 — US Open, try R2026026
+    tryGql('pga_gql_scorecardStatsV3_R2026026', `
+      query ScorecardStatsV3($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          __typename
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 31. PGA Tour GQL scorecardStatsV3 introspect return type
+    tryGql('pga_gql_introspect_scorecardStatsV3_type', `
+      {
+        __type(name: "ScorecardStatsV3") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 32. PGA Tour GQL leaderboardStats — US Open R2026026
+    tryGql('pga_gql_leaderboardStats_R2026026', `
+      query LeaderboardStats($id: ID!) {
+        leaderboardStats(id: $id) {
+          __typename
+        }
+      }
+    `, { id: 'R2026026' }),
+
+    // 33. PGA Tour GQL fieldStats — US Open R2026026
+    tryGql('pga_gql_fieldStats_R2026026', `
+      query FieldStats($tournamentId: ID!) {
+        fieldStats(tournamentId: $tournamentId) {
+          __typename
+        }
+      }
+    `, { tournamentId: 'R2026026' }),
+
+    // 34. PGA Tour GQL scorecardStats (non-v3) — US Open R2026026
+    tryGql('pga_gql_scorecardStats_R2026026', `
+      query ScorecardStats($id: ID!, $playerId: ID!) {
+        scorecardStats(id: $id, playerId: $playerId) {
+          __typename
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 35. PGA Tour GQL scorecardStatsV3 — try without R prefix
+    tryGql('pga_gql_scorecardStatsV3_2026026', `
+      query ScorecardStatsV3b($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          __typename
+        }
+      }
+    `, { id: '2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 36. PGA Tour GQL: introspect LeaderboardStatsType enum values
+    tryGql('pga_gql_introspect_LeaderboardStatsType', `
+      {
+        __type(name: "LeaderboardStatsType") {
+          name
+          enumValues { name }
+        }
+      }
+    `, {}),
+
+    // 37. PGA Tour GQL: introspect FieldStatType enum values
+    tryGql('pga_gql_introspect_FieldStatType', `
+      {
+        __type(name: "FieldStatType") {
+          name
+          enumValues { name }
+        }
+      }
+    `, {}),
+
+    // 38. PGA Tour GQL scorecardStatsV3 — try PGA Championship (known working tourn) for schema check
+    tryGql('pga_gql_scorecardStatsV3_R2026033', `
+      query ScorecardStatsV3pga($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          __typename
+        }
+      }
+    `, { id: 'R2026033', playerId: TEST_PGA_TOUR_ID }),
+
+    // 39. Introspect PlayerScorecardStats type fields
+    tryGql('pga_gql_introspect_PlayerScorecardStats', `
+      {
+        __type(name: "PlayerScorecardStats") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind ofType { name kind } } }
+          }
+        }
+      }
+    `, {}),
+
+    // 40. scorecardStatsV3 — US Open with all likely stat fields
+    tryGql('pga_gql_scorecardStatsV3_full_R2026026', `
+      query ScorecardStatsV3Full($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          __typename
+          sgTotal
+          sgOtt
+          sgApp
+          sgArg
+          sgPutt
+          sgTee
+          drivingDistance
+          drivingAccuracy
+          gir
+          scrambling
+          puttsPerRound
+          proximity
+          scoringAverage
+          totalStrokes
+          toPar
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 41. leaderboardStats STROKES_GAINED — US Open
+    tryGql('pga_gql_leaderboardStats_SG_R2026026', `
+      query LeaderboardStatsSG($id: ID!) {
+        leaderboardStats(id: $id, statsType: STROKES_GAINED) {
+          __typename
+        }
+      }
+    `, { id: 'R2026026' }),
+
+    // 42. Introspect LeaderboardStats type
+    tryGql('pga_gql_introspect_LeaderboardStats', `
+      {
+        __type(name: "LeaderboardStats") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 43. fieldStats — US Open with likely field names
+    tryGql('pga_gql_fieldStats_full_R2026026', `
+      query FieldStatsFull($tournamentId: ID!) {
+        fieldStats(tournamentId: $tournamentId) {
+          __typename
+          players {
+            __typename
+          }
+        }
+      }
+    `, { tournamentId: 'R2026026' }),
+
+    // 44. Introspect FieldStats type
+    tryGql('pga_gql_introspect_FieldStats', `
+      {
+        __type(name: "FieldStats") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 45. leaderboardStats STROKES_GAINED with players + __typename to find player type name
+    tryGql('pga_gql_leaderboardStats_SG_players_typename', `
+      query LeaderboardStatsSGPlayers($id: ID!) {
+        leaderboardStats(id: $id, statsType: STROKES_GAINED) {
+          id
+          type
+          titles
+          statIds
+          players {
+            __typename
+          }
+          rounds
+        }
+      }
+    `, { id: 'R2026026' }),
+
+    // 46. Introspect all types containing "Stat" or "Leaderboard" player
+    tryGql('pga_gql_introspect_LeaderboardStatPlayer', `
+      {
+        __type(name: "LeaderboardStatPlayer") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 47. Introspect ScorecardRound (likely type for PlayerScorecardStats.rounds items)
+    tryGql('pga_gql_introspect_ScorecardRound', `
+      {
+        __type(name: "ScorecardRound") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 48. scorecardStatsV3 — query only rounds field with __typename
+    tryGql('pga_gql_scorecardStatsV3_rounds_typename', `
+      query ScorecardStatsRounds($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            __typename
+          }
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 49. Introspect PlayerScorecardRoundStats
+    tryGql('pga_gql_introspect_PlayerScorecardRoundStats', `
+      {
+        __type(name: "PlayerScorecardRoundStats") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 50. scorecardStatsV3 — get actual round stats with all likely field names
+    tryGql('pga_gql_scorecardStatsV3_rounds_full', `
+      query ScorecardStatsRoundsFull($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            __typename
+            roundNumber
+            roundId
+            score
+            toPar
+            sgTotal
+            sgOtt
+            sgApp
+            sgArg
+            sgPutt
+            drivingDistance
+            drivingAccuracy
+            gir
+            scrambling
+            puttsPerRound
+            proximity
+          }
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 51. leaderboardStats rounds with sub-selection
+    tryGql('pga_gql_leaderboardStats_rounds', `
+      query LeaderboardStatsRounds($id: ID!) {
+        leaderboardStats(id: $id, statsType: STROKES_GAINED) {
+          id
+          type
+          titles
+          statIds
+          players {
+            __typename
+          }
+          rounds {
+            __typename
+          }
+        }
+      }
+    `, { id: 'R2026026' }),
+
+    // 52. scorecardStatsV3 with correct fields: round, strokesGained, performance, scoring
+    tryGql('pga_gql_scorecardStatsV3_correct_fields', `
+      query ScorecardStatsCorrect($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            round
+            displayName
+            roundStatus
+            strokesGained {
+              __typename
+            }
+            performance {
+              __typename
+            }
+            scoring {
+              __typename
+            }
+          }
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 53. Introspect LeaderboardRoundStats
+    tryGql('pga_gql_introspect_LeaderboardRoundStats', `
+      {
+        __type(name: "LeaderboardRoundStats") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 54. Introspect ScorecardStatsItem
+    tryGql('pga_gql_introspect_ScorecardStatsItem', `
+      {
+        __type(name: "ScorecardStatsItem") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 55. scorecardStatsV3 scoring items with CORRECT fields
+    tryGql('pga_gql_scorecardStatsV3_scoring_correct', `
+      query ScorecardStatsScoringCorrect($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            round
+            displayName
+            scoring {
+              label
+              total
+              rank
+              yearToDate
+              statId
+            }
+          }
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 56. Dump ALL ESPN Core stat names for Masters (to find SG field names)
+    tryEspn('espn_core_masters_all_stat_names',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_MASTERS}/competitions/${ESPN_EVENT_MASTERS}/competitors/${TEST_ESPN_ID}/statistics/0`
+    ),
+
+    // 57. scorecardStatsV3 for Masters — does strokesGained have data for PGA Tour events?
+    tryGql('pga_gql_scorecardStatsV3_masters_sg', `
+      query MastersSG($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            round
+            displayName
+            strokesGained { label total rank statId }
+            performance { label total rank statId }
+          }
+        }
+      }
+    `, { id: 'R2026014', playerId: TEST_PGA_TOUR_ID }),
+
+    // 58. scorecardStatsV3 for PGA Championship
+    tryGql('pga_gql_scorecardStatsV3_pga_sg', `
+      query PgaSG($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            round
+            displayName
+            strokesGained { label total rank statId }
+            performance { label total rank statId }
+          }
+        }
+      }
+    `, { id: 'R2026033', playerId: TEST_PGA_TOUR_ID }),
+
   ]);
 
   const output = results.map((r) =>
