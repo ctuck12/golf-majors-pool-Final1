@@ -257,6 +257,47 @@ export async function GET() {
       `${ESPN_CORE}/pga/events/${ESPN_EVENT_USOPEN}/statistics`
     ),
 
+    // 24. ESPN Core: US Open competitor stats group 1 (alternative to /0)
+    tryEspn('espn_core_usopen_stats_1',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_USOPEN}/competitions/${ESPN_EVENT_USOPEN}/competitors/${TEST_ESPN_ID}/statistics/1`
+    ),
+
+    // 25. ESPN Core: US Open competitor stats group 2
+    tryEspn('espn_core_usopen_stats_2',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_USOPEN}/competitions/${ESPN_EVENT_USOPEN}/competitors/${TEST_ESPN_ID}/statistics/2`
+    ),
+
+    // 26. ESPN Core: competition-level statistics (all stat categories for event)
+    tryEspn('espn_core_usopen_competition_stats',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_USOPEN}/competitions/${ESPN_EVENT_USOPEN}/statistics`
+    ),
+
+    // 27. DataGolf free endpoint — historical event-level summary for US Open
+    tryEspn('datagolf_usopen_event',
+      `https://feeds.datagolf.com/historical-raw-data/event-level-summary?tour=pga&event_id=026&year=2026&file_format=json&key=free`
+    ),
+
+    // 28. DataGolf free ranking endpoint (test if API is accessible at all)
+    tryEspn('datagolf_rankings',
+      `https://feeds.datagolf.com/preds/get-dg-rankings?file_format=json&key=free`
+    ),
+
+    // 29. SlashGolf: check if /stats endpoint exists (with auth headers)
+    (async () => {
+      const label = 'slashgolf_stats_endpoint';
+      try {
+        const key = process.env.SLASH_GOLF_API_KEY ?? '';
+        const res = await fetch('https://live-golf-data.p.rapidapi.com/stats?tournId=026&year=2026', {
+          cache: 'no-store',
+          headers: { 'x-rapidapi-host': 'live-golf-data.p.rapidapi.com', 'x-rapidapi-key': key },
+          signal: AbortSignal.timeout(8000),
+        });
+        const text = await res.text();
+        let json: unknown; try { json = JSON.parse(text); } catch { json = text; }
+        return { label, status: res.status, ok: res.ok, data: json };
+      } catch (e) { return { label, error: String(e) }; }
+    })(),
+
   ]);
 
   const output = results.map((r) =>
