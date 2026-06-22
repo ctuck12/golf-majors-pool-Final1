@@ -71,15 +71,15 @@ async function gqlPost(query: string, variables: Record<string, unknown>): Promi
 
 export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<Partial<PlayerStats> | null> {
   try {
-    // First attempt: playerById query
-    const query1 = `
-      query PlayerById($id: ID!) {
-        playerById(id: $id) {
-          playerStats {
+    const query = `
+      query PlayerProfileStats($playerId: ID!) {
+        playerProfileStats(playerId: $playerId) {
+          stats {
             statId
+            statTitle
             statName
             statValue
-            statRank
+            rank
           }
         }
       }
@@ -88,39 +88,15 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<Partia
     let stats: GqlStat[] | null = null;
 
     try {
-      const data1 = await gqlPost(query1, { id: pgaTourId }) as {
-        data?: { playerById?: { playerStats?: GqlStat[] } };
+      const data = await gqlPost(query, { playerId: pgaTourId }) as {
+        data?: { playerProfileStats?: { stats?: GqlStat[] } };
       };
-      const arr1 = data1?.data?.playerById?.playerStats;
-      if (Array.isArray(arr1) && arr1.length > 0) {
-        stats = arr1;
+      const arr = data?.data?.playerProfileStats?.stats;
+      if (Array.isArray(arr) && arr.length > 0) {
+        stats = arr;
       }
     } catch {
-      // fall through to second query
-    }
-
-    // Second attempt: playerProfileStatistics query
-    if (!stats) {
-      const query2 = `
-        query PlayerProfileStatistics($playerId: ID!) {
-          playerProfileStatistics(playerId: $playerId) {
-            stats {
-              statId
-              statTitle
-              statName
-              statValue
-              rank
-            }
-          }
-        }
-      `;
-      const data2 = await gqlPost(query2, { playerId: pgaTourId }) as {
-        data?: { playerProfileStatistics?: { stats?: GqlStat[] } };
-      };
-      const arr2 = data2?.data?.playerProfileStatistics?.stats;
-      if (Array.isArray(arr2) && arr2.length > 0) {
-        stats = arr2;
-      }
+      // query failed
     }
 
     if (!stats || stats.length === 0) return null;

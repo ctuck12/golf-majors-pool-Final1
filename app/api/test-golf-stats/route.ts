@@ -5,7 +5,7 @@ import redis from '@/app/lib/redis';
 // Test player: Scottie Scheffler
 const TEST_PLAYER_NAME = 'Scottie Scheffler';
 const TEST_PGA_TOUR_ID = '46046';
-const TEST_ESPN_ID = '4848'; // via getEspnId override
+const TEST_ESPN_ID = '9478';
 // The Open Championship ESPN event ID (upcoming, so good for testing tournament stats)
 const TEST_ESPN_EVENT_ID = '401811952'; // US Open 2026
 
@@ -75,15 +75,12 @@ export async function GET() {
       }
     `, { playerId: TEST_PGA_TOUR_ID, year: 2026 }),
 
-    // 2. Player profile statistics (alternative schema)
-    tryGql('pga_gql_playerProfileStatistics', `
-      query PlayerProfileStatistics($playerId: ID!) {
-        playerProfileStatistics(playerId: $playerId) {
-          playerId
-          statsYear
+    // 2. Player profile stats (correct field name from introspection)
+    tryGql('pga_gql_playerProfileStats', `
+      query PlayerProfileStats($playerId: ID!) {
+        playerProfileStats(playerId: $playerId) {
           stats {
             statId
-            statType
             statTitle
             statName
             statValue
