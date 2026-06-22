@@ -37,7 +37,7 @@ function mapPerformanceStat(statId: string, raw: string, acc: Partial<PlayerStat
     case '101': acc.drivingDistance = v; break;
     case '102': acc.drivingAccuracy = v; break;
     case '103': acc.gir = v; break;
-    case '104': acc.avgPuttsPerRound = v; break;
+    case '104': acc.puttAverage = v; break; // putts/GIR from scorecard — display layer multiplies ×18
     case '130': acc.scrambling = v; break;
   }
 }
