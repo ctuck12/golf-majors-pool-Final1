@@ -385,6 +385,90 @@ export async function GET() {
       }
     `, { id: 'R2026033', playerId: TEST_PGA_TOUR_ID }),
 
+    // 39. Introspect PlayerScorecardStats type fields
+    tryGql('pga_gql_introspect_PlayerScorecardStats', `
+      {
+        __type(name: "PlayerScorecardStats") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind ofType { name kind } } }
+          }
+        }
+      }
+    `, {}),
+
+    // 40. scorecardStatsV3 — US Open with all likely stat fields
+    tryGql('pga_gql_scorecardStatsV3_full_R2026026', `
+      query ScorecardStatsV3Full($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          __typename
+          sgTotal
+          sgOtt
+          sgApp
+          sgArg
+          sgPutt
+          sgTee
+          drivingDistance
+          drivingAccuracy
+          gir
+          scrambling
+          puttsPerRound
+          proximity
+          scoringAverage
+          totalStrokes
+          toPar
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 41. leaderboardStats STROKES_GAINED — US Open
+    tryGql('pga_gql_leaderboardStats_SG_R2026026', `
+      query LeaderboardStatsSG($id: ID!) {
+        leaderboardStats(id: $id, statsType: STROKES_GAINED) {
+          __typename
+        }
+      }
+    `, { id: 'R2026026' }),
+
+    // 42. Introspect LeaderboardStats type
+    tryGql('pga_gql_introspect_LeaderboardStats', `
+      {
+        __type(name: "LeaderboardStats") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 43. fieldStats — US Open with likely field names
+    tryGql('pga_gql_fieldStats_full_R2026026', `
+      query FieldStatsFull($tournamentId: ID!) {
+        fieldStats(tournamentId: $tournamentId) {
+          __typename
+          players {
+            __typename
+          }
+        }
+      }
+    `, { tournamentId: 'R2026026' }),
+
+    // 44. Introspect FieldStats type
+    tryGql('pga_gql_introspect_FieldStats', `
+      {
+        __type(name: "FieldStats") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
   ]);
 
   const output = results.map((r) =>
