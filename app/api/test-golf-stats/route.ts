@@ -581,6 +581,42 @@ export async function GET() {
       }
     `, { id: 'R2026026' }),
 
+    // 52. scorecardStatsV3 with correct fields: round, strokesGained, performance, scoring
+    tryGql('pga_gql_scorecardStatsV3_correct_fields', `
+      query ScorecardStatsCorrect($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            round
+            displayName
+            roundStatus
+            strokesGained {
+              __typename
+            }
+            performance {
+              __typename
+            }
+            scoring {
+              __typename
+            }
+          }
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 53. Introspect LeaderboardRoundStats
+    tryGql('pga_gql_introspect_LeaderboardRoundStats', `
+      {
+        __type(name: "LeaderboardRoundStats") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
   ]);
 
   const output = results.map((r) =>
