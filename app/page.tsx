@@ -1176,6 +1176,7 @@ export default function Page() {
     careerResultsLoading: boolean;
     playerStats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null } | null;
     playerStatsLoading: boolean;
+    playerRounds: { round: number; score: string }[] | null;
     statsContext: 'season' | 'tournament';
   } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
@@ -2595,14 +2596,20 @@ export default function Page() {
       careerResultsLoading: false,
       playerStats: null,
       playerStatsLoading: true,
+      playerRounds: null,
       statsContext: statsCtx,
     });
+    const scorecardFetch = statsCtx === 'tournament'
+      ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
+      : Promise.resolve({ rounds: null });
     Promise.all([
       readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
       readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
       readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
-    ]).then(([fullData, fedexData, statsData]) => {
-      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, playerStats: statsData.stats, playerStatsLoading: false } : null);
+      scorecardFetch,
+    ]).then(([fullData, fedexData, statsData, scData]) => {
+      const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
+      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, playerStats: statsData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null } : null);
     });
   };
 
@@ -8361,6 +8368,7 @@ export default function Page() {
                 {pickHistoryView === 'stats' && (() => {
                   const s = pickHistoryPlayerPopup.playerStats;
                   const isTournCtx = pickHistoryPlayerPopup.statsContext === 'tournament';
+                  const rounds = isTournCtx ? (pickHistoryPlayerPopup.playerRounds ?? []) : [];
                   const statCells: { label: string; value: string }[] = [];
                   if (s?.drivingDistance) statCells.push({ label: 'Drive Dist', value: s.drivingDistance });
                   if (s?.drivingAccuracy) statCells.push({ label: 'Drive Acc', value: s.drivingAccuracy });
@@ -8376,8 +8384,15 @@ export default function Page() {
                   }
                   if (pickHistoryPlayerPopup.playerStatsLoading) {
                     return (
-                      <div key="stats-loading" style={{ display: 'grid', gap: 6 }}>
-                        <div className="ph-skeleton" style={{ height: 11, width: 130, marginBottom: 6, borderRadius: 4 }} />
+                      <div key="stats-loading" style={{ display: 'grid', gap: 10 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+                          {[0,1,2,3].map((i) => (
+                            <div key={i} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', textAlign: 'center' }}>
+                              <div className="ph-skeleton" style={{ height: 9, width: 22, marginBottom: 4, borderRadius: 3, margin: '0 auto 4px' }} />
+                              <div className="ph-skeleton" style={{ height: 14, width: 28, borderRadius: 3, margin: '0 auto' }} />
+                            </div>
+                          ))}
+                        </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
                           {[0,1,2,3,4,5].map((i) => (
                             <div key={i} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
@@ -8389,17 +8404,41 @@ export default function Page() {
                       </div>
                     );
                   }
-                  if (statCells.length === 0) {
+                  if (statCells.length === 0 && rounds.length === 0) {
                     return <div key="stats-empty" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>No stats available for this {isTournCtx ? 'tournament' : 'season'}.</div>;
                   }
                   return (
-                    <div key="stats-loaded" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-                      {statCells.map(({ label, value }) => (
-                        <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
-                          <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{value}</div>
+                    <div key="stats-loaded" style={{ display: 'grid', gap: 10 }}>
+                      {rounds.length > 0 && (
+                        <div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Round Scores</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${rounds.length}, 1fr)`, gap: 6 }}>
+                            {rounds.map(({ round, score }) => {
+                              const val = score === 'E' ? 0 : parseInt(score, 10);
+                              const scoreColor = isNaN(val) ? '#0f1720' : val < 0 ? '#2c6449' : val > 0 ? '#cc2944' : '#607282';
+                              return (
+                                <div key={round} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '9px 6px', textAlign: 'center' }}>
+                                  <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>R{round}</div>
+                                  <div style={{ fontSize: 15, fontWeight: 900, color: scoreColor, lineHeight: 1 }}>{score}</div>
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
-                      ))}
+                      )}
+                      {statCells.length > 0 && (
+                        <div>
+                          {rounds.length > 0 && <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Course Stats</div>}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+                            {statCells.map(({ label, value }) => (
+                              <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
+                                <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
+                                <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{value}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
