@@ -32,7 +32,7 @@ export async function GET(request: Request) {
 
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
-    ? `player-stats:v9:tourn:${eventId}:${name}`
+    ? `player-stats:v10:tourn:${eventId}:${name}`
     : `player-stats:v5:season:2026:${name}`;
   const ttl = isTournament ? 1800 : 3600;
 
@@ -45,19 +45,21 @@ export async function GET(request: Request) {
       const meta = getTournamentMetaByEspnId(eventId);
       const pgaTournId = meta ? pgaTourTournId(meta.slashGolfTournId, meta.year) : null;
 
-      const [espnStats, pgaScorecardStats, pgaSeasonStats] = await Promise.all([
+      const [espnStats, pgaScorecardStats, pgaSeasonStats, espnSeasonStats] = await Promise.all([
         fetchPlayerTournamentStats(name, eventId),
         pgaTourId && pgaTournId ? fetchPgaScorecardStats(pgaTournId, pgaTourId) : Promise.resolve(null),
         pgaTourId ? fetchPgaTourPlayerStats(pgaTourId) : Promise.resolve(null),
+        fetchPlayerSeasonStats(name),
       ]);
 
-      // Merge in priority order: season stats as base (fills course stats + SG for events
-      // without ShotLink like Masters/US Open, or for cut players missing scorecard SG),
-      // then ESPN tournament stats (tournament-specific driving/GIR override season),
-      // then PGA scorecard SG (highest priority — tournament-specific SG when available).
+      // Priority (lowest → highest):
+      // 1. ESPN season stats — reliable base for course stats (no SG)
+      // 2. PGA Tour season stats — adds season SG; fills course stats for no-ShotLink events
+      // 3. ESPN tournament stats — tournament-specific driving/GIR/rounds override season
+      // 4. PGA scorecard SG — tournament-specific SG (Players, PGA, Open; not Masters/US Open)
       // null from a higher-priority source never overwrites a non-null lower-priority value.
-      const stats = espnStats || pgaScorecardStats || pgaSeasonStats
-        ? mergeStats(pgaSeasonStats, espnStats, pgaScorecardStats)
+      const stats = espnStats || pgaScorecardStats || pgaSeasonStats || espnSeasonStats
+        ? mergeStats(espnSeasonStats, pgaSeasonStats, espnStats, pgaScorecardStats)
         : null;
 
       if (stats) {
