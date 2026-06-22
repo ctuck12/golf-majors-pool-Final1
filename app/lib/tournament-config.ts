@@ -17,8 +17,8 @@ export const TOURNAMENT_META: Record<string, TournamentMeta> = {
     year: '2026',
     courseName: 'TPC Sawgrass',
     par: 72,
+    espnEventId: '401811937',
     lockAtUtc: '2026-03-12T11:40:00Z', // 7:40 AM EDT
-    // not tracked this year
   },
   masters: {
     slashGolfTournId: '014',

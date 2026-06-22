@@ -43,6 +43,7 @@ const TOURNAMENT_TOTAL_PAR: Partial<Record<string, number>> = {
 };
 
 const TOURNAMENT_ESPN_EVENT_IDS: Partial<Record<string, string>> = {
+  players: '401811937',
   masters: '401811941',
   pga: '401811947',
   'us-open': '401811952',

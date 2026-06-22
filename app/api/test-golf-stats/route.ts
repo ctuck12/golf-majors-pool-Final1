@@ -195,11 +195,6 @@ export async function GET() {
       `${ESPN_CORE}/pga/seasons/2026/athletes/${TEST_ESPN_ID}/statistics`
     ),
 
-    // 16. ESPN Core: 2026 PGA Tour events list (to find The Players event ID)
-    tryEspn('espn_core_2026_events',
-      `${ESPN_CORE}/pga/seasons/2026/types/2/events?limit=50`
-    ),
-
   ]);
 
   const output = results.map((r) =>
