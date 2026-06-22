@@ -142,22 +142,43 @@ export async function GET() {
       }
     `, {}),
 
-    // 11. playerProfileStats — confirmed working query
-    tryGql('pga_gql_playerProfileStats', `
-      query PlayerProfileStats($playerId: ID!) {
-        playerProfileStats(playerId: $playerId) {
-          stats {
-            statId
-            statTitle
-            statName
-            statValue
-            rank
+    // 11. Introspect PlayerProfileStatItem — find actual field names
+    tryGql('pga_gql_introspect_statItem', `
+      {
+        __type(name: "PlayerProfileStatItem") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
           }
+        }
+      }
+    `, {}),
+
+    // 12. playerProfileStats — direct list (no stats{} wrapper), known fields
+    tryGql('pga_gql_playerProfileStats_direct', `
+      query PlayerProfileStatsDirect($playerId: ID!) {
+        playerProfileStats(playerId: $playerId) {
+          statId
+          statTitle
+          statName
+          statValue
+          rank
         }
       }
     `, { playerId: TEST_PGA_TOUR_ID }),
 
-    // 12. ESPN Core: season athlete statistics
+    // 13. playerProfileStats — alternate field names probe
+    tryGql('pga_gql_playerProfileStats_altFields', `
+      query PlayerProfileStatsAlt($playerId: ID!) {
+        playerProfileStats(playerId: $playerId) {
+          __typename
+          statId
+        }
+      }
+    `, { playerId: TEST_PGA_TOUR_ID }),
+
+    // 14. ESPN Core: season athlete statistics
     tryEspn('espn_core_season_stats',
       `${ESPN_CORE}/pga/seasons/2026/athletes/${TEST_ESPN_ID}/statistics`
     ),
