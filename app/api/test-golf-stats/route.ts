@@ -732,6 +732,58 @@ export async function GET() {
       `${ESPN_CORE}/eur/seasons/2026/athletes/10906/statistics/0`
     ),
 
+    // ── DP World Tour standings drill-down ───────────────────────────────────
+
+    // 76. ESPN Core EUR overall standings/0 - full object
+    tryEspn('espn_core_eur_standings_0_full',
+      `${ESPN_CORE}/eur/seasons/2026/types/2/standings/0`
+    ),
+
+    // 77. ESPN Core EUR overall standings/0 entries sub-resource
+    tryEspn('espn_core_eur_standings_0_entries',
+      `${ESPN_CORE}/eur/seasons/2026/types/2/standings/0/entries?limit=5`
+    ),
+
+    // 78. ESPN site.web EUR standings with different params
+    tryEspn('espn_web_eur_standings_v2_group',
+      `https://site.web.api.espn.com/apis/v2/sports/golf/eur/standings?season=2026&seasontype=2&group=0`
+    ),
+
+    // 79. EUR overall standings via site.web with type 2
+    tryEspn('espn_web_eur_standings_type2',
+      `https://site.web.api.espn.com/apis/v2/sports/golf/eur/standings?season=2026&type=2`
+    ),
+
+    // 80. EUR season stats leaders (type 2, category 0)
+    tryEspn('espn_core_eur_leaders_type2',
+      `${ESPN_CORE}/eur/seasons/2026/types/2/leaders?limit=5`
+    ),
+
+    // 81. EUR season stats leaders (type 2, category 1)
+    tryEspn('espn_core_eur_leaders_type2_cat1',
+      `${ESPN_CORE}/eur/seasons/2026/types/2/leaders/1?limit=5`
+    ),
+
+    // 82. ESPN EUR season athletes list
+    tryEspn('espn_core_eur_athletes',
+      `${ESPN_CORE}/eur/seasons/2026/athletes?limit=5`
+    ),
+
+    // 83. ESPN Core EUR season athlete stats for Aaron Rai
+    tryEspn('espn_core_eur_season_stats_aaron_rai',
+      `${ESPN_CORE}/eur/seasons/2026/athletes/10906/statistics/0`
+    ),
+
+    // 84. Aaron Rai athlete profile in EUR league
+    tryEspn('espn_core_eur_aaron_rai_profile',
+      `${ESPN_CORE}/eur/athletes/10906`
+    ),
+
+    // 85. ESPN EUR scoreboard with dates — check if current event has standings link
+    tryEspn('espn_eur_scoreboard_with_stats',
+      `https://site.api.espn.com/apis/site/v2/sports/golf/eur/scoreboard?limit=1`
+    ),
+
     // 57. scorecardStatsV3 for Masters — does strokesGained have data for PGA Tour events?
     tryGql('pga_gql_scorecardStatsV3_masters_sg', `
       query MastersSG($id: ID!, $playerId: ID!) {
