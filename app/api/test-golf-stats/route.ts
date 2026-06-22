@@ -523,6 +523,64 @@ export async function GET() {
       }
     `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
 
+    // 49. Introspect PlayerScorecardRoundStats
+    tryGql('pga_gql_introspect_PlayerScorecardRoundStats', `
+      {
+        __type(name: "PlayerScorecardRoundStats") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 50. scorecardStatsV3 — get actual round stats with all likely field names
+    tryGql('pga_gql_scorecardStatsV3_rounds_full', `
+      query ScorecardStatsRoundsFull($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            __typename
+            roundNumber
+            roundId
+            score
+            toPar
+            sgTotal
+            sgOtt
+            sgApp
+            sgArg
+            sgPutt
+            drivingDistance
+            drivingAccuracy
+            gir
+            scrambling
+            puttsPerRound
+            proximity
+          }
+        }
+      }
+    `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
+
+    // 51. leaderboardStats rounds with sub-selection
+    tryGql('pga_gql_leaderboardStats_rounds', `
+      query LeaderboardStatsRounds($id: ID!) {
+        leaderboardStats(id: $id, statsType: STROKES_GAINED) {
+          id
+          type
+          titles
+          statIds
+          players {
+            __typename
+          }
+          rounds {
+            __typename
+          }
+        }
+      }
+    `, { id: 'R2026026' }),
+
   ]);
 
   const output = results.map((r) =>
