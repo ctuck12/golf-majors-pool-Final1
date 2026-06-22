@@ -73,7 +73,7 @@ export async function GET(request: Request) {
     if (!espnId) return Response.json({ results: null });
 
     const currentYear = new Date().getFullYear();
-    const startYear = 2010;
+    const startYear = 1990;
     const years = Array.from({ length: currentYear - startYear + 1 }, (_, i) => startYear + i);
     const opts = { next: { revalidate: 3600 } };
 
