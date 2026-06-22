@@ -89,60 +89,19 @@ export async function GET() {
 
     // ── PGA Tour GQL: tournament-specific stats ───────────────────────────────
 
-    // 7. Introspect playerProfileTournamentResults type
-    tryGql('pga_gql_introspect_tournamentResults', `
+    // 7. Introspect the Query type — find playerProfileStats return type
+    tryGql('pga_gql_introspect_query_type', `
       {
-        __type(name: "PlayerProfileTournamentResults") {
-          name
+        __type(name: "Query") {
           fields {
             name
-            type { name kind ofType { name kind } }
+            type { name kind ofType { name kind ofType { name kind } } }
           }
         }
       }
     `, {}),
 
-    // 8. playerProfileTournamentResults — attempt with nested events
-    tryGql('pga_gql_tournamentResults_A', `
-      query TournamentResults($playerId: ID!) {
-        playerProfileTournamentResults(playerId: $playerId) {
-          events {
-            tournamentName
-            tournamentId
-            season
-            rounds
-            position
-            strokes
-            scoreToPar
-            earnings
-          }
-        }
-      }
-    `, { playerId: TEST_PGA_TOUR_ID }),
-
-    // 9. playerProfileTournamentResults — minimal fields probe
-    tryGql('pga_gql_tournamentResults_B', `
-      query TournamentResultsB($playerId: ID!) {
-        playerProfileTournamentResults(playerId: $playerId) {
-          __typename
-        }
-      }
-    `, { playerId: TEST_PGA_TOUR_ID }),
-
-    // 10. Introspect playerProfileCourseResults type
-    tryGql('pga_gql_introspect_courseResults', `
-      {
-        __type(name: "PlayerProfileCourseResults") {
-          name
-          fields {
-            name
-            type { name kind ofType { name kind } }
-          }
-        }
-      }
-    `, {}),
-
-    // 11. Introspect PlayerProfileStatItem — find actual field names
+    // 8. Introspect PlayerProfileStatItem — find actual field names
     tryGql('pga_gql_introspect_statItem', `
       {
         __type(name: "PlayerProfileStatItem") {
@@ -155,22 +114,75 @@ export async function GET() {
       }
     `, {}),
 
-    // 12. playerProfileStats — direct list (no stats{} wrapper), known fields
-    tryGql('pga_gql_playerProfileStats_direct', `
-      query PlayerProfileStatsDirect($playerId: ID!) {
+    // 9. Introspect PlayerProfileStats (wrapper type, has stats sub-field)
+    tryGql('pga_gql_introspect_statWrapper', `
+      {
+        __type(name: "PlayerProfileStats") {
+          name
+          fields {
+            name
+            type { name kind ofType { name kind } }
+          }
+        }
+      }
+    `, {}),
+
+    // 10. playerProfileStats with stats{} wrapper — minimal __typename only
+    tryGql('pga_gql_stats_typename_only', `
+      query StatsTypename($playerId: ID!) {
         playerProfileStats(playerId: $playerId) {
-          statId
-          statTitle
-          statName
-          statValue
-          rank
+          stats {
+            __typename
+          }
         }
       }
     `, { playerId: TEST_PGA_TOUR_ID }),
 
-    // 13. playerProfileStats — alternate field names probe
-    tryGql('pga_gql_playerProfileStats_altFields', `
-      query PlayerProfileStatsAlt($playerId: ID!) {
+    // 11. playerProfileStats with stats{} wrapper — probe set A: statId, statTitle, statValue, rank
+    tryGql('pga_gql_stats_probe_A', `
+      query StatsProbeA($playerId: ID!) {
+        playerProfileStats(playerId: $playerId) {
+          stats {
+            statId
+            statTitle
+            statValue
+            rank
+          }
+        }
+      }
+    `, { playerId: TEST_PGA_TOUR_ID }),
+
+    // 12. playerProfileStats with stats{} wrapper — probe set B: id, title, value, rank
+    tryGql('pga_gql_stats_probe_B', `
+      query StatsProbeB($playerId: ID!) {
+        playerProfileStats(playerId: $playerId) {
+          stats {
+            id
+            title
+            value
+            rank
+          }
+        }
+      }
+    `, { playerId: TEST_PGA_TOUR_ID }),
+
+    // 13. playerProfileStats with stats{} wrapper — probe set C: statId, name, displayValue, statRank
+    tryGql('pga_gql_stats_probe_C', `
+      query StatsProbeC($playerId: ID!) {
+        playerProfileStats(playerId: $playerId) {
+          stats {
+            statId
+            name
+            displayValue
+            statRank
+          }
+        }
+      }
+    `, { playerId: TEST_PGA_TOUR_ID }),
+
+    // 14. playerProfileStats without stats{} wrapper — direct list probe
+    tryGql('pga_gql_stats_direct_probe', `
+      query StatsDirectProbe($playerId: ID!) {
         playerProfileStats(playerId: $playerId) {
           __typename
           statId
@@ -178,7 +190,7 @@ export async function GET() {
       }
     `, { playerId: TEST_PGA_TOUR_ID }),
 
-    // 14. ESPN Core: season athlete statistics
+    // 15. ESPN Core: season athlete statistics
     tryEspn('espn_core_season_stats',
       `${ESPN_CORE}/pga/seasons/2026/athletes/${TEST_ESPN_ID}/statistics`
     ),

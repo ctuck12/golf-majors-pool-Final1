@@ -71,15 +71,18 @@ async function gqlPost(query: string, variables: Record<string, unknown>): Promi
 
 export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<Partial<PlayerStats> | null> {
   try {
-    // playerProfileStats returns a direct list (NON_NULL LIST NON_NULL PlayerProfileStatItem)
+    // playerProfileStats returns { stats: PlayerProfileStatItem[] }
+    // Confirmed: "stats" is a valid sub-field; field names on PlayerProfileStatItem TBD
     const query = `
       query PlayerProfileStats($playerId: ID!) {
         playerProfileStats(playerId: $playerId) {
-          statId
-          statTitle
-          statName
-          statValue
-          rank
+          stats {
+            statId
+            statTitle
+            statName
+            statValue
+            rank
+          }
         }
       }
     `;
@@ -88,9 +91,9 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<Partia
 
     try {
       const data = await gqlPost(query, { playerId: pgaTourId }) as {
-        data?: { playerProfileStats?: GqlStat[] };
+        data?: { playerProfileStats?: { stats?: GqlStat[] } };
       };
-      const arr = data?.data?.playerProfileStats;
+      const arr = data?.data?.playerProfileStats?.stats;
       if (Array.isArray(arr) && arr.length > 0) {
         stats = arr;
       }
