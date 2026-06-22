@@ -22,6 +22,7 @@ export type PlayerStats = {
   sgApproach: string | null;
   sgAroundGreen: string | null;
   sgPutting: string | null;
+  rounds: string[] | null;
 };
 
 type Stat = { name?: string; value?: number; displayValue?: string };
@@ -36,7 +37,11 @@ type Overview = {
     eventsStats?: Array<{
       id: string;
       competitions?: Array<{
-        competitors?: Array<{ stats?: Stat[] }>;
+        competitors?: Array<{
+          score?: { value?: number; displayValue?: string };
+          linescores?: { items?: Array<{ value: number }> };
+          stats?: Stat[];
+        }>;
       }>;
     }>;
   }>;
@@ -83,6 +88,7 @@ function extractSeason(data: Overview): PlayerStats {
     sgApproach: null,
     sgAroundGreen: null,
     sgPutting: null,
+    rounds: null,
   };
 }
 
@@ -93,6 +99,7 @@ function extractTournament(stats: Stat[]): PlayerStats {
     scoringAverage: null, birdiesPerRound: null,
     birdies: null, pars: null, bogeys: null, eagles: null, scoreToPar: null,
     sgTotal: null, sgOffTee: null, sgApproach: null, sgAroundGreen: null, sgPutting: null,
+    rounds: null,
   };
 
   const total = getStat(stats, 'regScore');
@@ -122,6 +129,7 @@ function extractTournament(stats: Stat[]): PlayerStats {
     sgApproach: null,
     sgAroundGreen: null,
     sgPutting: null,
+    rounds: null,
   };
 }
 
@@ -153,9 +161,28 @@ export async function fetchPlayerTournamentStats(name: string, eventId: string):
   for (const group of data.recentTournaments ?? []) {
     for (const event of group.eventsStats ?? []) {
       if (event.id === eventId) {
-        const statsArr = event.competitions?.[0]?.competitors?.[0]?.stats ?? [];
+        const competitor = event.competitions?.[0]?.competitors?.[0];
+        const statsArr = competitor?.stats ?? [];
         const stats = extractTournament(statsArr);
-        return Object.values(stats).some((v) => v !== null) ? stats : null;
+
+        // Extract per-round scores to par from ESPN linescores (works even when ShotLink data is absent)
+        let rounds: string[] | null = null;
+        const linescore = competitor?.linescores?.items ?? [];
+        if (linescore.length > 0) {
+          const regScore = getStat(statsArr, 'regScore')?.value ?? 0;
+          const scoreToPar = getStat(statsArr, 'scoreToPar')?.value ?? 0;
+          if (regScore > 0) {
+            const coursePar = Math.round((regScore - scoreToPar) / linescore.length);
+            rounds = linescore.map((ls) => {
+              const toPar = ls.value - coursePar;
+              return toPar === 0 ? 'E' : toPar > 0 ? `+${toPar}` : String(toPar);
+            });
+          }
+        }
+
+        const hasStats = Object.values(stats).some((v) => v !== null);
+        if (!hasStats && !rounds) return null;
+        return { ...stats, rounds };
       }
     }
   }

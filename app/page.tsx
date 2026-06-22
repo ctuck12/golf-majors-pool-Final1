@@ -1174,7 +1174,7 @@ export default function Page() {
     fullResultsLoading: boolean;
     careerResults: { year: number; course: string; position: string }[] | null;
     careerResultsLoading: boolean;
-    playerStats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null } | null;
+    playerStats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null;
     playerStatsLoading: boolean;
     playerRounds: { round: number; score: string }[] | null;
     statsContext: 'season' | 'tournament';
@@ -2606,7 +2606,7 @@ export default function Page() {
     Promise.all([
       readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
       readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
-      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
+      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
       scorecardFetch,
     ]).then(([fullData, fedexData, statsData, scData]) => {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
@@ -8369,14 +8369,19 @@ export default function Page() {
                 {pickHistoryView === 'stats' && (() => {
                   const s = pickHistoryPlayerPopup.playerStats;
                   const isTournCtx = pickHistoryPlayerPopup.statsContext === 'tournament';
-                  const rounds = isTournCtx ? (pickHistoryPlayerPopup.playerRounds ?? []) : [];
+                  const espnRounds = isTournCtx
+                    ? (pickHistoryPlayerPopup.playerStats?.rounds ?? []).map((score, i) => ({ round: i + 1, score }))
+                    : [];
+                  const rounds = isTournCtx
+                    ? (pickHistoryPlayerPopup.playerRounds?.length ? pickHistoryPlayerPopup.playerRounds : espnRounds)
+                    : [];
                   const statCells: { label: string; value: string }[] = [];
                   if (s?.drivingDistance) statCells.push({ label: 'Drive Dist', value: s.drivingDistance });
                   if (s?.drivingAccuracy) statCells.push({ label: 'Drive Acc', value: s.drivingAccuracy });
                   if (s?.gir) statCells.push({ label: 'GIR%', value: s.gir });
                   if (s?.scrambling) statCells.push({ label: 'Scrambling', value: s.scrambling });
-                  if (s?.avgPuttsPerRound) statCells.push({ label: 'Avg Putts/Rd', value: s.avgPuttsPerRound });
-                  else if (s?.puttAverage) statCells.push({ label: 'Putts/GIR', value: s.puttAverage });
+                  if (s?.avgPuttsPerRound) statCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound });
+                  else if (s?.puttAverage) statCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1) });
                   if (isTournCtx) {
                     if (s?.proximity) statCells.push({ label: 'Proximity', value: s.proximity });
                   } else {
