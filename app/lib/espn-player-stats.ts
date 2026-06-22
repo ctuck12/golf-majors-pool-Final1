@@ -1,6 +1,6 @@
 import { getEspnId } from './espn-player-season';
 
-const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues';
+const ESPN_OVERVIEW = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
 
 export type PlayerStats = {
   drivingDistance: string | null;
@@ -9,83 +9,133 @@ export type PlayerStats = {
   scrambling: string | null;
   puttAverage: string | null;
   scoringAverage: string | null;
+  birdiesPerRound: string | null;
+  birdies: string | null;
+  pars: string | null;
+  bogeys: string | null;
+  eagles: string | null;
+  scoreToPar: string | null;
 };
 
-type EspnStat = {
-  name?: string;
-  displayName?: string;
-  value?: number;
-  displayValue?: string;
-};
+type Stat = { name?: string; value?: number; displayValue?: string };
 
-type EspnCategory = {
-  stats?: EspnStat[];
-};
-
-const STAT_KEYS: { field: keyof PlayerStats; patterns: string[] }[] = [
-  { field: 'drivingDistance',  patterns: ['drivingdistance', 'driving distance'] },
-  { field: 'drivingAccuracy',  patterns: ['drivingaccuracy', 'driving accuracy', 'fairwayshit', 'fairways hit', 'fairways in regulation'] },
-  { field: 'gir',              patterns: ['greensinregulation', 'greens in regulation', 'gir', 'greens hit in regulation'] },
-  { field: 'scrambling',       patterns: ['scrambling', 'scramblingpct', 'scrambling pct'] },
-  { field: 'puttAverage',      patterns: ['puttingaverage', 'putting average', 'puttsperround', 'putts per round', 'avgputts'] },
-  { field: 'scoringAverage',   patterns: ['scoringaverage', 'scoring average', 'scoringavgdiff', 'adjusted scoring average'] },
-];
-
-function extractStats(categories: EspnCategory[]): PlayerStats {
-  const result: PlayerStats = {
-    drivingDistance: null, drivingAccuracy: null, gir: null,
-    scrambling: null, puttAverage: null, scoringAverage: null,
+type Overview = {
+  seasonRankings?: { categories?: Stat[] };
+  statistics?: {
+    names?: string[];
+    splits?: Array<{ displayName: string; stats: string[] }>;
   };
-  for (const cat of categories) {
-    for (const stat of cat.stats ?? []) {
-      const nameLC = (stat.name ?? '').toLowerCase();
-      const displayLC = (stat.displayName ?? '').toLowerCase();
-      for (const { field, patterns } of STAT_KEYS) {
-        if (result[field] !== null) continue;
-        if (patterns.some((p) => nameLC.includes(p) || displayLC.includes(p))) {
-          result[field] = stat.displayValue ?? (stat.value != null ? String(stat.value) : null);
-          break;
-        }
-      }
-    }
+  recentTournaments?: Array<{
+    eventsStats?: Array<{
+      id: string;
+      competitions?: Array<{
+        competitors?: Array<{ stats?: Stat[] }>;
+      }>;
+    }>;
+  }>;
+};
+
+function getStat(stats: Stat[], name: string): Stat | undefined {
+  return stats.find((s) => s.name === name);
+}
+
+function statVal(stats: Stat[], name: string, suffix = ''): string | null {
+  const s = getStat(stats, name);
+  if (!s) return null;
+  const dv = s.displayValue ?? '';
+  if (!dv || dv === '-' || dv === '--') return null;
+  if (!isNaN(parseFloat(dv)) && parseFloat(dv) === 0) return null;
+  return suffix ? `${dv}${suffix}` : dv;
+}
+
+function extractSeason(data: Overview): PlayerStats {
+  const cats = data.seasonRankings?.categories ?? [];
+  const names = data.statistics?.names ?? [];
+  const splits = data.statistics?.splits ?? [];
+  const pgaSplit = splits.find((s) => s.displayName?.includes('PGA')) ?? splits[0];
+  const avgIdx = names.findIndex((n) => /scoring average/i.test(n));
+  const scoringAvg = pgaSplit && avgIdx >= 0 ? (pgaSplit.stats[avgIdx] ?? null) : null;
+
+  return {
+    drivingDistance: statVal(cats, 'yardsPerDrive'),
+    drivingAccuracy: statVal(cats, 'driveAccuracyPct', '%'),
+    gir: null,
+    scrambling: statVal(cats, 'sandSaves', '%'),
+    puttAverage: statVal(cats, 'puttsGirAvg'),
+    scoringAverage: scoringAvg,
+    birdiesPerRound: statVal(cats, 'birdiesPerRound'),
+    birdies: null,
+    pars: null,
+    bogeys: null,
+    eagles: null,
+    scoreToPar: null,
+  };
+}
+
+function extractTournament(stats: Stat[]): PlayerStats {
+  const empty: PlayerStats = {
+    drivingDistance: null, drivingAccuracy: null, gir: null, scrambling: null,
+    puttAverage: null, scoringAverage: null, birdiesPerRound: null,
+    birdies: null, pars: null, bogeys: null, eagles: null, scoreToPar: null,
+  };
+
+  const total = getStat(stats, 'regScore');
+  if (!total?.value || total.value === 0) return empty;
+
+  const parseStat = getStat(stats, 'pars');
+  const hasScoring = (parseStat?.value ?? 0) > 0;
+  const scoreToParStat = getStat(stats, 'scoreToPar');
+
+  return {
+    drivingDistance: statVal(stats, 'driveDistAvg'),
+    drivingAccuracy: statVal(stats, 'driveAccuracyPct', '%'),
+    gir: statVal(stats, 'gir', '%'),
+    scrambling: statVal(stats, 'sandSaves', '%'),
+    puttAverage: statVal(stats, 'puttsGirAvg'),
+    scoringAverage: null,
+    birdiesPerRound: null,
+    scoreToPar: scoreToParStat?.displayValue ?? null,
+    birdies: hasScoring ? String(getStat(stats, 'birdies')?.value ?? 0) : null,
+    pars: hasScoring ? String(parseStat?.value ?? 0) : null,
+    bogeys: hasScoring ? String(getStat(stats, 'bogeys')?.value ?? 0) : null,
+    eagles: hasScoring ? String(getStat(stats, 'eagles')?.value ?? 0) : null,
+  };
+}
+
+async function fetchOverview(espnId: string): Promise<Overview | null> {
+  try {
+    const res = await fetch(`${ESPN_OVERVIEW}/${espnId}/overview`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    return (await res.json()) as Overview;
+  } catch {
+    return null;
   }
-  return result;
 }
 
 export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats | null> {
   const espnId = await getEspnId(name);
   if (!espnId) return null;
-  try {
-    const res = await fetch(
-      `${ESPN_CORE}/pga/seasons/2026/athletes/${espnId}/statistics`,
-      { next: { revalidate: 86400 } },
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    const categories: EspnCategory[] = data.splits?.categories ?? [];
-    const stats = extractStats(categories);
-    const hasAny = Object.values(stats).some((v) => v !== null);
-    return hasAny ? stats : null;
-  } catch {
-    return null;
-  }
+  const data = await fetchOverview(espnId);
+  if (!data) return null;
+  const stats = extractSeason(data);
+  return Object.values(stats).some((v) => v !== null) ? stats : null;
 }
 
 export async function fetchPlayerTournamentStats(name: string, eventId: string): Promise<PlayerStats | null> {
   const espnId = await getEspnId(name);
   if (!espnId) return null;
-  try {
-    const res = await fetch(
-      `${ESPN_CORE}/pga/events/${eventId}/competitions/${eventId}/competitors/${espnId}/statistics`,
-      { cache: 'no-store' },
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    const categories: EspnCategory[] = data.splits?.categories ?? data.categories ?? [];
-    const stats = extractStats(categories);
-    const hasAny = Object.values(stats).some((v) => v !== null);
-    return hasAny ? stats : null;
-  } catch {
-    return null;
+  const data = await fetchOverview(espnId);
+  if (!data) return null;
+
+  for (const group of data.recentTournaments ?? []) {
+    for (const event of group.eventsStats ?? []) {
+      if (event.id === eventId) {
+        const statsArr = event.competitions?.[0]?.competitors?.[0]?.stats ?? [];
+        const stats = extractTournament(statsArr);
+        return Object.values(stats).some((v) => v !== null) ? stats : null;
+      }
+    }
   }
+
+  return null;
 }
