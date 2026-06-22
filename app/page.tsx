@@ -1172,6 +1172,7 @@ export default function Page() {
     loading: boolean;
     fedexRank: number | null;
     dpWorldRank: number | null;
+    owgrRank: number | null;
     fullResults: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null;
     fullResultsLoading: boolean;
     careerResults: { year: number; course: string; position: string }[] | null;
@@ -2594,6 +2595,7 @@ export default function Page() {
       loading: false,
       fedexRank: null,
       dpWorldRank: null,
+      owgrRank: null,
       fullResults: null,
       fullResultsLoading: true,
       careerResults: null,
@@ -2610,11 +2612,12 @@ export default function Page() {
       readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
       readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
       readJson<{ rank: number | null }>(`/api/player-dpworld-rank?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
+      readJson<{ rank: number | null }>(`/api/player-owgr-rank?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
       readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
       scorecardFetch,
-    ]).then(([fullData, fedexData, dpWorldData, statsData, scData]) => {
+    ]).then(([fullData, fedexData, dpWorldData, owgrData, statsData, scData]) => {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
-      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, playerStats: statsData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null } : null);
+      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null } : null);
     });
   };
 
@@ -8333,9 +8336,9 @@ export default function Page() {
                         <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>DP World: {pickHistoryPlayerPopup.dpWorldRank}</span>
                       </div>
                     )}
-                    {pickHistoryPlayerPopup.player.worldRank != null && (
+                    {(pickHistoryPlayerPopup.owgrRank ?? pickHistoryPlayerPopup.player.worldRank) != null && (
                       <div style={{ background: '#000', border: '1.5px solid #fff', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
-                        <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>OWGR: {pickHistoryPlayerPopup.player.worldRank}</span>
+                        <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>OWGR: {pickHistoryPlayerPopup.owgrRank ?? pickHistoryPlayerPopup.player.worldRank}</span>
                       </div>
                     )}
                   </div>
