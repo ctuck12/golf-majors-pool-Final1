@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
-    ? `player-stats:v7:tourn:${eventId}:${name}`
+    ? `player-stats:v8:tourn:${eventId}:${name}`
     : `player-stats:v5:season:2026:${name}`;
   const ttl = isTournament ? 1800 : 3600;
 
@@ -37,9 +37,14 @@ export async function GET(request: Request) {
         pgaTourId && pgaTournId ? fetchPgaScorecardStats(pgaTournId, pgaTourId) : Promise.resolve(null),
       ]);
 
-      // Merge: ESPN provides base (driving, GIR, putts, rounds), PGA scorecard overrides/adds SG
-      const stats = espnStats || pgaScorecardStats
-        ? { ...(espnStats ?? {}), ...(pgaScorecardStats ?? {}) }
+      // If scorecard had no SG data (cut players, no-ShotLink events), fall back to season SG
+      const sgFallback = !pgaScorecardStats && pgaTourId
+        ? await fetchPgaTourPlayerStats(pgaTourId)
+        : null;
+
+      // Merge: season SG as base → ESPN tournament stats → scorecard SG takes priority
+      const stats = espnStats || pgaScorecardStats || sgFallback
+        ? { ...(sgFallback ?? {}), ...(espnStats ?? {}), ...(pgaScorecardStats ?? {}) }
         : null;
 
       if (stats) {
