@@ -655,6 +655,36 @@ export async function GET() {
       `${ESPN_CORE}/pga/events/${ESPN_EVENT_MASTERS}/competitions/${ESPN_EVENT_MASTERS}/competitors/${TEST_ESPN_ID}/statistics/0`
     ),
 
+    // 57. scorecardStatsV3 for Masters — does strokesGained have data for PGA Tour events?
+    tryGql('pga_gql_scorecardStatsV3_masters_sg', `
+      query MastersSG($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            round
+            displayName
+            strokesGained { label total rank statId }
+            performance { label total rank statId }
+          }
+        }
+      }
+    `, { id: 'R2026014', playerId: TEST_PGA_TOUR_ID }),
+
+    // 58. scorecardStatsV3 for PGA Championship
+    tryGql('pga_gql_scorecardStatsV3_pga_sg', `
+      query PgaSG($id: ID!, $playerId: ID!) {
+        scorecardStatsV3(id: $id, playerId: $playerId) {
+          id
+          rounds {
+            round
+            displayName
+            strokesGained { label total rank statId }
+            performance { label total rank statId }
+          }
+        }
+      }
+    `, { id: 'R2026033', playerId: TEST_PGA_TOUR_ID }),
+
   ]);
 
   const output = results.map((r) =>
