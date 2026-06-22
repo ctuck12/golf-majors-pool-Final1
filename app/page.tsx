@@ -1178,7 +1178,7 @@ export default function Page() {
     playerStatsLoading: boolean;
     statsContext: 'season' | 'tournament';
   } | null>(null);
-  const [pickHistoryView, setPickHistoryView] = useState<'majors' | 'full' | 'career'>('majors');
+  const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
   useEffect(() => {
     if (!pickHistoryPlayerPopup) return;
     const scrollY = window.scrollY;
@@ -2583,7 +2583,7 @@ export default function Page() {
     const statsCtx: 'season' | 'tournament' = showFutureTournamentView ? 'season' : 'tournament';
     const params = new URLSearchParams({ name: player.name, context: statsCtx });
     if (espnEventId && !showFutureTournamentView) params.set('eventId', espnEventId);
-    setPickHistoryView('full');
+    setPickHistoryView('stats');
     setPickHistoryPlayerPopup({
       player,
       results: {},
@@ -8309,42 +8309,12 @@ export default function Page() {
                       <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 700, fontSize: 12 }}>{getCountryLabel(pickHistoryPlayerPopup.player.name)}</span>
                     </>}
                   </div>
-                  {/* FedEx bubble + Full Results toggle */}
+                  {/* FedEx bubble */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 7 }}>
                     <div style={{ background: '#7c3aed', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
                       <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>Fed</span>
                       <span style={{ color: '#fb923c', fontWeight: 800, fontSize: 11 }}>Ex</span>
                       <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>: {pickHistoryPlayerPopup.fedexRank != null ? `${pickHistoryPlayerPopup.fedexRank}` : '--'}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      {pickHistoryView === 'career' && (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setPickHistoryView('full'); }}
-                          style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                        >
-                          <span style={{ fontSize: 10, opacity: 0.8 }}>‹</span> Back
-                        </button>
-                      )}
-                      {pickHistoryView === 'full' && (
-                        <button
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            setPickHistoryView('career');
-                            if (pickHistoryPlayerPopup.careerResults === null && !pickHistoryPlayerPopup.careerResultsLoading) {
-                              setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: true } : null);
-                              try {
-                                const data = await readJson<{ results: { year: number; course: string; position: string }[] | null }>(`/api/player-career?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}&tournamentId=${careerTournamentId}`, { cache: 'no-store' });
-                                setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResults: data.results, careerResultsLoading: false } : null);
-                              } catch {
-                                setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: false } : null);
-                              }
-                            }
-                          }}
-                          style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                        >
-                          {TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? ''} Career Results <span style={{ fontSize: 10, opacity: 0.8 }}>›</span>
-                        </button>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -8354,96 +8324,89 @@ export default function Page() {
                 >✕</button>
               </div>
 
+              {/* Tab bar */}
+              <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #e2e8ef', flexShrink: 0 }}>
+                {(['stats', 'season', 'career'] as const).map((tab) => {
+                  const label = tab === 'stats'
+                    ? (pickHistoryPlayerPopup.statsContext === 'tournament' ? 'Tournament Stats' : 'Season Stats')
+                    : tab === 'season' ? '2026 Season' : 'Career';
+                  const isActive = pickHistoryView === tab;
+                  return (
+                    <button
+                      key={tab}
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        setPickHistoryView(tab);
+                        if (tab === 'career' && pickHistoryPlayerPopup.careerResults === null && !pickHistoryPlayerPopup.careerResultsLoading) {
+                          setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: true } : null);
+                          try {
+                            const data = await readJson<{ results: { year: number; course: string; position: string }[] | null }>(`/api/player-career?name=${encodeURIComponent(pickHistoryPlayerPopup.player.name)}&tournamentId=${careerTournamentId}`, { cache: 'no-store' });
+                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResults: data.results, careerResultsLoading: false } : null);
+                          } catch {
+                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: false } : null);
+                          }
+                        }
+                      }}
+                      style={{ flex: 1, border: 'none', borderBottom: isActive ? '2.5px solid #0f1720' : '2.5px solid transparent', background: 'none', padding: '11px 4px', fontSize: 12, fontWeight: isActive ? 800 : 600, color: isActive ? '#0f1720' : '#7a8c99', cursor: 'pointer', transition: 'color 0.15s, border-color 0.15s', letterSpacing: '0.01em' }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+
               {/* Body */}
               <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '14px 18px 20px', background: '#f4f7fa', borderRadius: '0 0 20px 20px' }}>
-                {pickHistoryView === 'career' ? (
-                  pickHistoryPlayerPopup.careerResultsLoading ? (
-                    <div key="career-loading" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
-                      <div className="ph-skeleton" style={{ height: 13, width: 140, marginBottom: 4 }} />
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
-                          <div style={{ flex: 1, display: 'grid', gap: 5 }}>
-                            <div className="ph-skeleton" style={{ height: 12, width: 36 }} />
-                            <div className="ph-skeleton" style={{ height: 10, width: 120 }} />
-                          </div>
-                          <div className="ph-skeleton" style={{ height: 18, width: 32, borderRadius: 4 }} />
-                        </div>
-                      ))}
-                    </div>
-                  ) : pickHistoryPlayerPopup.careerResults === null ? (
-                    <div key="career-empty" className="ph-fade-in" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Has not competed in {TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'this tournament'}</div>
-                  ) : (
-                    <div key="career-loaded" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2 }}>{TOURNAMENTS.find((t) => t.id === careerTournamentId)?.fullName ?? ''} Career Results</div>
-                      {pickHistoryPlayerPopup.careerResults.map((r, i) => {
-                        const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
-                        return (
-                          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
-                            <div style={{ minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720' }}>{r.year}</div>
-                              <div style={{ fontSize: 11, color: '#7a8c99', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.course}</div>
-                            </div>
-                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                              <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{r.position}</div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )
-                ) : (
-                  <>
-                  {(() => {
-                    const s = pickHistoryPlayerPopup.playerStats;
-                    const isTournCtx = pickHistoryPlayerPopup.statsContext === 'tournament';
-                    const statsLabel = isTournCtx ? 'This Tournament' : '2026 Season Averages';
-                    const statCells: { label: string; value: string }[] = [];
-                    if (isTournCtx && s?.scoreToPar) statCells.push({ label: 'Score', value: s.scoreToPar });
-                    if (s?.drivingDistance) statCells.push({ label: 'Drive Dist', value: s.drivingDistance });
-                    if (s?.drivingAccuracy) statCells.push({ label: 'Drive Acc', value: s.drivingAccuracy });
-                    if (s?.gir) statCells.push({ label: 'GIR%', value: s.gir });
-                    if (s?.puttAverage) statCells.push({ label: 'Putts/GIR', value: s.puttAverage });
-                    if (s?.scrambling) statCells.push({ label: 'Scrambling', value: s.scrambling });
-                    if (!isTournCtx) {
-                      if (s?.birdiesPerRound) statCells.push({ label: 'Birdies/Rd', value: s.birdiesPerRound });
-                      if (s?.scoringAverage) statCells.push({ label: 'Scoring Avg', value: s.scoringAverage });
-                    } else if (s?.pars) {
-                      statCells.push({ label: 'Eagles', value: s.eagles ?? '0' });
-                      statCells.push({ label: 'Birdies', value: s.birdies ?? '0' });
-                      statCells.push({ label: 'Pars', value: s.pars ?? '0' });
-                      statCells.push({ label: 'Bogeys', value: s.bogeys ?? '0' });
-                    }
-                    if (pickHistoryPlayerPopup.playerStatsLoading) {
-                      return (
-                        <div key="stats-loading" style={{ marginBottom: 12 }}>
-                          <div className="ph-skeleton" style={{ height: 11, width: 130, marginBottom: 6, borderRadius: 4 }} />
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-                            {[0,1,2,3,4,5].map((i) => (
-                              <div key={i} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
-                                <div className="ph-skeleton" style={{ height: 9, width: 48, marginBottom: 4, borderRadius: 3 }} />
-                                <div className="ph-skeleton" style={{ height: 13, width: 60, borderRadius: 3 }} />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    }
-                    if (statCells.length === 0) return null;
+                {pickHistoryView === 'stats' && (() => {
+                  const s = pickHistoryPlayerPopup.playerStats;
+                  const isTournCtx = pickHistoryPlayerPopup.statsContext === 'tournament';
+                  const statCells: { label: string; value: string }[] = [];
+                  if (isTournCtx && s?.scoreToPar) statCells.push({ label: 'Score', value: s.scoreToPar });
+                  if (s?.drivingDistance) statCells.push({ label: 'Drive Dist', value: s.drivingDistance });
+                  if (s?.drivingAccuracy) statCells.push({ label: 'Drive Acc', value: s.drivingAccuracy });
+                  if (s?.gir) statCells.push({ label: 'GIR%', value: s.gir });
+                  if (s?.puttAverage) statCells.push({ label: 'Putts/GIR', value: s.puttAverage });
+                  if (s?.scrambling) statCells.push({ label: 'Scrambling', value: s.scrambling });
+                  if (!isTournCtx) {
+                    if (s?.birdiesPerRound) statCells.push({ label: 'Birdies/Rd', value: s.birdiesPerRound });
+                    if (s?.scoringAverage) statCells.push({ label: 'Scoring Avg', value: s.scoringAverage });
+                  } else if (s?.pars) {
+                    statCells.push({ label: 'Eagles', value: s.eagles ?? '0' });
+                    statCells.push({ label: 'Birdies', value: s.birdies ?? '0' });
+                    statCells.push({ label: 'Pars', value: s.pars ?? '0' });
+                    statCells.push({ label: 'Bogeys', value: s.bogeys ?? '0' });
+                  }
+                  if (pickHistoryPlayerPopup.playerStatsLoading) {
                     return (
-                      <div key="stats-loaded" style={{ marginBottom: 12 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 6 }}>{statsLabel}</div>
+                      <div key="stats-loading" style={{ display: 'grid', gap: 6 }}>
+                        <div className="ph-skeleton" style={{ height: 11, width: 130, marginBottom: 6, borderRadius: 4 }} />
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-                          {statCells.map(({ label, value }) => (
-                            <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
-                              <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
-                              <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{value}</div>
+                          {[0,1,2,3,4,5].map((i) => (
+                            <div key={i} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
+                              <div className="ph-skeleton" style={{ height: 9, width: 48, marginBottom: 4, borderRadius: 3 }} />
+                              <div className="ph-skeleton" style={{ height: 13, width: 60, borderRadius: 3 }} />
                             </div>
                           ))}
                         </div>
                       </div>
                     );
-                  })()}
-                  {pickHistoryPlayerPopup.fullResultsLoading ? (
+                  }
+                  if (statCells.length === 0) {
+                    return <div key="stats-empty" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>No stats available for this {isTournCtx ? 'tournament' : 'season'}.</div>;
+                  }
+                  return (
+                    <div key="stats-loaded" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+                      {statCells.map(({ label, value }) => (
+                        <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
+                          <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+                {pickHistoryView === 'season' && (
+                  pickHistoryPlayerPopup.fullResultsLoading ? (
                     <div key="full-loading" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
                       <div className="ph-skeleton" style={{ height: 13, width: 160, marginBottom: 4 }} />
                       {Array.from({ length: 7 }).map((_, i) => (
@@ -8515,8 +8478,42 @@ export default function Page() {
                       })()}
                     </div>
                   )
-                  }
-                  </>
+                )}
+                {pickHistoryView === 'career' && (
+                  pickHistoryPlayerPopup.careerResultsLoading ? (
+                    <div key="career-loading" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
+                      <div className="ph-skeleton" style={{ height: 13, width: 140, marginBottom: 4 }} />
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
+                          <div style={{ flex: 1, display: 'grid', gap: 5 }}>
+                            <div className="ph-skeleton" style={{ height: 12, width: 36 }} />
+                            <div className="ph-skeleton" style={{ height: 10, width: 120 }} />
+                          </div>
+                          <div className="ph-skeleton" style={{ height: 18, width: 32, borderRadius: 4 }} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : pickHistoryPlayerPopup.careerResults === null ? (
+                    <div key="career-empty" className="ph-fade-in" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Has not competed in {TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'this tournament'}</div>
+                  ) : (
+                    <div key="career-loaded" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2 }}>{TOURNAMENTS.find((t) => t.id === careerTournamentId)?.fullName ?? ''} Career Results</div>
+                      {pickHistoryPlayerPopup.careerResults.map((r, i) => {
+                        const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
+                        return (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: '1px solid #e2e8ef', background: '#fff', gap: 10 }}>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: 12, fontWeight: 800, color: '#0f1720' }}>{r.year}</div>
+                              <div style={{ fontSize: 11, color: '#7a8c99', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.course}</div>
+                            </div>
+                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                              <div style={{ fontSize: 16, fontWeight: 900, color: isCut ? '#cc2944' : '#0f1720', lineHeight: 1 }}>{r.position}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )
                 )}
               </div>
             </div>
