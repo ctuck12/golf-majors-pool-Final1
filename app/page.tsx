@@ -1343,7 +1343,7 @@ export default function Page() {
   const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
   const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
   const entriesTournamentId = getDefaultTournamentId(tournamentCardStatuses, new Date());
-  const careerTournamentId = getDefaultTournamentId(tournamentCardStatuses, new Date());
+  const careerTournamentId = selectedTournament;
   const entriesTournament = TOURNAMENTS.find((item) => item.id === entriesTournamentId) ?? TOURNAMENTS[0];
   const entriesTournamentStatus = tournamentCardStatuses[entriesTournamentId];
   const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE' && pool?.picksOpen?.[entriesTournamentId] === true;
