@@ -8353,8 +8353,9 @@ export default function Page() {
               <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #e2e8ef', flexShrink: 0 }}>
                 {(['stats', 'season', 'career'] as const).map((tab) => {
                   const careerName = TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'Major';
+                  const isSeasonStatsEvent = careerTournamentId === 'masters' || careerTournamentId === 'us-open';
                   const label = tab === 'stats'
-                    ? (pickHistoryPlayerPopup.statsContext === 'tournament' ? 'Tournament Stats' : 'Season Stats')
+                    ? (pickHistoryPlayerPopup.statsContext === 'tournament' && !isSeasonStatsEvent ? 'Tournament Stats' : 'Season Stats')
                     : tab === 'season' ? '2026 Season' : `${careerName} Career`;
                   const isActive = pickHistoryView === tab;
                   return (
