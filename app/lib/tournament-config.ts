@@ -9,6 +9,11 @@ export type TournamentMeta = {
   lockAtUtc?: string;
 };
 
+// Look up tournament meta by ESPN event ID
+export function getTournamentMetaByEspnId(espnEventId: string): TournamentMeta | undefined {
+  return Object.values(TOURNAMENT_META).find((m) => m.espnEventId === espnEventId);
+}
+
 // tournIds confirmed via /schedule?year=2026 — no "R2026" prefix, just the 3-digit code
 // ESPN event IDs confirmed via site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard
 export const TOURNAMENT_META: Record<string, TournamentMeta> = {
