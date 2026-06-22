@@ -650,6 +650,11 @@ export async function GET() {
       }
     `, { id: 'R2026026', playerId: TEST_PGA_TOUR_ID }),
 
+    // 56. Dump ALL ESPN Core stat names for Masters (to find SG field names)
+    tryEspn('espn_core_masters_all_stat_names',
+      `${ESPN_CORE}/pga/events/${ESPN_EVENT_MASTERS}/competitions/${ESPN_EVENT_MASTERS}/competitors/${TEST_ESPN_ID}/statistics/0`
+    ),
+
   ]);
 
   const output = results.map((r) =>
