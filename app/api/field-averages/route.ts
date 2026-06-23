@@ -18,24 +18,22 @@ function statNumeric(stats: Stat[], name: string): number | null {
   return !isNaN(v) && v !== 0 ? v : null;
 }
 
-// Fetch all competitor ESPN IDs for a tournament from ESPN scoreboard
+// Fetch all competitor ESPN IDs directly from ESPN Core (works for live and completed events)
 async function fetchCompetitorIds(eventId: string): Promise<string[]> {
   try {
-    const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const res = await fetch(
-      `https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?dates=${today}`,
-      { cache: 'no-store' },
-    );
+    const url = `${ESPN_CORE}/pga/events/${eventId}/competitions/${eventId}/competitors?limit=500`;
+    const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
     if (!res.ok) return [];
     const data = await res.json() as {
-      events?: Array<{
-        id: string;
-        competitions?: Array<{ competitors?: Array<{ id: string }> }>;
-      }>;
+      items?: Array<{ id?: string; $ref?: string }>;
     };
-    const event = data.events?.find((e) => e.id === eventId);
-    const competitors = event?.competitions?.[0]?.competitors ?? [];
-    return competitors.map((c) => c.id).filter(Boolean);
+    const items = data.items ?? [];
+    return items.map((item) => {
+      if (item.id) return item.id;
+      // Extract ID from $ref URL: ".../competitors/12345"
+      const match = item.$ref?.match(/competitors\/(\d+)/);
+      return match?.[1] ?? '';
+    }).filter(Boolean);
   } catch {
     return [];
   }
@@ -75,7 +73,7 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!eventId) return Response.json({ averages: {} });
 
-  const cacheKey = `field-averages:v2:${eventId}`;
+  const cacheKey = `field-averages:v3:${eventId}`;
 
   try {
     const cached = await redis.get(cacheKey);
