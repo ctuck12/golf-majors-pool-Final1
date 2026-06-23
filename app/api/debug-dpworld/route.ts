@@ -22,7 +22,7 @@ async function tryFetch(label: string, url: string, options: RequestInit = {}) {
   try {
     const res = await fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
     const text = await res.text();
-    return { label, status: res.status, body: text.slice(0, 3000) };
+    return { label, status: res.status, body: text.slice(0, 4000) };
   } catch (e) {
     return { label, error: String(e) };
   }
@@ -30,27 +30,25 @@ async function tryFetch(label: string, url: string, options: RequestInit = {}) {
 
 export async function GET() {
   const results = await Promise.all([
-    // Probe priorityRankings - might have DP World / Race to Dubai
-    tryGql('priorityRankings', `{ priorityRankings { __typename } }`),
-    // Probe playerHub for Rory (28237) - might expose rankings
-    tryGql('playerHub-rory', `query { playerHub(id: "28237") { __typename } }`),
-    // Probe player query fields
-    tryGql('player-rory-introspect', `{ __type(name: "Player") { fields { name } } }`),
-    // Try player with ranking-related fields
-    tryGql('player-rory', `query { player(id: "28237") { id displayName rankings { rankTypeId rankTypeName rank } } }`),
-    // Try tourCup for DP World Tour
-    tryGql('tourCup-dp', `query { tourCup(tourCode: "R", year: 2026) { __typename players { rank player { displayName } points } } }`),
-    // Try the europeantour.com Race to Dubai standings JSON feed directly
-    tryFetch('europeantour-rtd', 'https://www.europeantour.com/api/feeds/?feed=stats&tour=DP&format=json&type=standings', {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)', 'Accept': 'application/json' }
+    // priorityRankings requires tourCode — try DP World / European Tour codes
+    tryGql('priorityRankings-R', `query { priorityRankings(tourCode: "R") { __typename } }`),
+    tryGql('priorityRankings-E', `query { priorityRankings(tourCode: "E") { __typename } }`),
+    // playerHub with correct playerId arg (not id)
+    tryGql('playerHub-rory', `query { playerHub(playerId: "28237") { __typename } }`),
+    // Introspect TourCup type to find fields
+    tryGql('tourCup-introspect', `{ __type(name: "TourCupRankingEvent") { fields { name } } }`),
+    tryGql('tourCup-id-arg', `query { tourCup(id: "R2026") { __typename } }`),
+    // Try OWGR direct API (they have a REST API backing their Next.js site)
+    tryFetch('owgr-api-ranking', 'https://api.owgr.com/events/latest/ranking?pageNo=1&pageSize=5&country=All', {
+      headers: { 'Accept': 'application/json', 'Origin': 'https://www.owgr.com', 'Referer': 'https://www.owgr.com/' }
     }),
-    // Try DP World Tour live scores / standings feed
-    tryFetch('dpworldtour-standings', 'https://feeds.europeantour.com/feeds/stats/2026/standings.json', {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Accept': '*/*' }
+    // Try OWGR REST API alternate path
+    tryFetch('owgr-api2', 'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=5&country=All', {
+      headers: { 'Accept': 'application/json' }
     }),
-    // Try OWGR rankings
-    tryFetch('owgr', 'https://www.owgr.com/ranking?pageNo=1&pageSize=50&country=All', {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Accept': 'application/json, text/html' }
+    // Try SofaScore golf rankings
+    tryFetch('sofascore-rtd', 'https://api.sofascore.com/api/v1/sport/golf/rankings', {
+      headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0' }
     }),
   ]);
 
