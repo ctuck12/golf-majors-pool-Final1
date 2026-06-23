@@ -8363,7 +8363,7 @@ export default function Page() {
                       <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>: {pickHistoryPlayerPopup.fedexRank != null ? `${pickHistoryPlayerPopup.fedexRank}` : '--'}</span>
                     </div>
                     {pickHistoryPlayerPopup.dpWorldRank != null && (
-                      <div style={{ background: '#1e3a5f', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
+                      <div style={{ background: '#4a7fb5', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
                         <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>DP World: {pickHistoryPlayerPopup.dpWorldRank}</span>
                       </div>
                     )}
