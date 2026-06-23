@@ -1171,6 +1171,7 @@ export default function Page() {
     results: Partial<Record<TournamentId, { position: string; score: string } | null>>;
     loading: boolean;
     fedexRank: number | null;
+    dpWorldRank: number | null;
     fullResults: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null;
     fullResultsLoading: boolean;
     careerResults: { year: number; course: string; position: string }[] | null;
@@ -2592,6 +2593,7 @@ export default function Page() {
       results: {},
       loading: false,
       fedexRank: null,
+      dpWorldRank: null,
       fullResults: null,
       fullResultsLoading: true,
       careerResults: null,
@@ -2606,12 +2608,12 @@ export default function Page() {
       : Promise.resolve({ rounds: null });
     Promise.all([
       readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
-      readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
+      readJson<{ rank: number | null; dpWorldRank: number | null }>(`/api/player-fedex-rank?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null, dpWorldRank: null })),
       readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
       scorecardFetch,
     ]).then(([fullData, fedexData, statsData, scData]) => {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
-      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, playerStats: statsData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null } : null);
+      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: fedexData.dpWorldRank, playerStats: statsData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null } : null);
     });
   };
 
@@ -8318,13 +8320,20 @@ export default function Page() {
                       <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 700, fontSize: 12 }}>{getCountryLabel(pickHistoryPlayerPopup.player.name)}</span>
                     </>}
                   </div>
-                  {/* FedEx bubble */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 7 }}>
+                  {/* Rankings bubbles */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 7, flexWrap: 'wrap' }}>
                     <div style={{ background: '#7c3aed', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
                       <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>Fed</span>
                       <span style={{ color: '#fb923c', fontWeight: 800, fontSize: 11 }}>Ex</span>
                       <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>: {pickHistoryPlayerPopup.fedexRank != null ? `${pickHistoryPlayerPopup.fedexRank}` : '--'}</span>
                     </div>
+                    {pickHistoryPlayerPopup.dpWorldRank != null && (
+                      <div style={{ background: '#0f5c8a', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                        <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>DP</span>
+                        <span style={{ color: '#7dd3fc', fontWeight: 800, fontSize: 11 }}>World</span>
+                        <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>: {pickHistoryPlayerPopup.dpWorldRank}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <button

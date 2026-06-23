@@ -1,55 +1,58 @@
 export const dynamic = 'force-dynamic';
 
-const ESPN_ID_OVERRIDES: Record<string, string> = {
-  'Justin Thomas': '4848',
-  'John Keefer': '5217048',
-};
+import { getEspnId } from '@/app/lib/espn-player-season';
+import { getActiveSeason } from '@/app/lib/tournament-config';
 
-async function getEspnId(name: string): Promise<string | null> {
-  if (ESPN_ID_OVERRIDES[name]) return ESPN_ID_OVERRIDES[name];
-  const res = await fetch(
-    `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(name)}&limit=20&type=player`,
-    { next: { revalidate: 86400 } },
+const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues';
+
+async function getRankFromLeaders(
+  standingsRes: Response,
+  espnId: string,
+  categoryName: string,
+): Promise<number | null> {
+  if (!standingsRes.ok) return null;
+  const data = await standingsRes.json();
+  const cat = (data.categories as Array<{ name: string; leaders: unknown[] }> | undefined)?.find(
+    (c) => c.name === categoryName,
   );
-  if (!res.ok) return null;
-  const data = await res.json();
-  const contents: Array<{ uid?: string }> = data.results?.[0]?.contents ?? [];
-  const player = contents.find((c) => c.uid?.includes('s:1100~'));
-  if (!player) return null;
-  const uid: string = player.uid ?? '';
-  return uid.split('~a:')?.[1] ?? null;
+  if (!cat) return null;
+  const leaders = cat.leaders as Array<{ athlete: Record<string, string> }>;
+  const idx = leaders.findIndex((l) => {
+    const ref = Object.values(l.athlete)[0] ?? '';
+    return ref.match(/athletes\/(\d+)/)?.[1] === espnId;
+  });
+  return idx === -1 ? null : idx + 1;
 }
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const name = searchParams.get('name') ?? '';
-  if (!name) return Response.json({ rank: null });
+  if (!name) return Response.json({ rank: null, dpWorldRank: null });
 
   try {
-    const [espnId, standingsRes] = await Promise.all([
+    const season = getActiveSeason();
+    const [espnId, fedexRes, dpWorldRes] = await Promise.all([
       getEspnId(name),
       fetch(
-        'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/seasons/2026/types/2/leaders?limit=336',
+        `${ESPN_CORE}/pga/seasons/${season}/types/2/leaders?limit=336`,
+        { next: { revalidate: 3600 } },
+      ),
+      fetch(
+        `${ESPN_CORE}/eur/seasons/${season}/types/2/leaders?limit=500`,
         { next: { revalidate: 3600 } },
       ),
     ]);
 
-    if (!espnId || !standingsRes.ok) return Response.json({ rank: null });
+    if (!espnId) return Response.json({ rank: null, dpWorldRank: null });
 
-    const data = await standingsRes.json();
-    const cupCat = (data.categories as Array<{ name: string; leaders: unknown[] }> | undefined)?.find(
-      (c) => c.name === 'cupPoints',
-    );
-    if (!cupCat) return Response.json({ rank: null });
+    // FedEx Cup uses "cupPoints"; Race to Dubai uses "racePoints"
+    const [fedexRank, dpWorldRank] = await Promise.all([
+      getRankFromLeaders(fedexRes, espnId, 'cupPoints'),
+      getRankFromLeaders(dpWorldRes, espnId, 'racePoints'),
+    ]);
 
-    const leaders = cupCat.leaders as Array<{ athlete: Record<string, string> }>;
-    const rank = leaders.findIndex((l) => {
-      const ref = Object.values(l.athlete)[0] ?? '';
-      return ref.match(/athletes\/(\d+)/)?.[1] === espnId;
-    });
-
-    return Response.json({ rank: rank === -1 ? null : rank + 1 });
+    return Response.json({ rank: fedexRank, dpWorldRank });
   } catch {
-    return Response.json({ rank: null });
+    return Response.json({ rank: null, dpWorldRank: null });
   }
 }
