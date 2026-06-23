@@ -108,6 +108,9 @@ export async function fetchPgaScorecardStats(
     // and fall back to searching all rounds if the aggregate round lacks rank data
     // Extract tournament SG ranks ONLY from strokesGained items — never from performance,
     // which carries season ranks that would contaminate tournament view
+    // DEBUG: log what strokesGained actually returns
+    console.log('[SG_DEBUG]', pgaTournId, pgaPlayerId, 'allRound:', allRound?.round, 'sg:', JSON.stringify(allRound?.strokesGained));
+
     const sgRanks: PlayerStatRanks = {};
 
     const extractFromSg = (items: PerfItem[]) => {
