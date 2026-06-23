@@ -18,19 +18,15 @@ function statNumeric(stats: Stat[], name: string): number | null {
   return !isNaN(v) && v !== 0 ? v : null;
 }
 
-// Fetch all competitor ESPN IDs directly from ESPN Core (works for live and completed events)
 async function fetchCompetitorIds(eventId: string): Promise<string[]> {
   try {
     const url = `${ESPN_CORE}/pga/events/${eventId}/competitions/${eventId}/competitors?limit=500`;
     const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
     if (!res.ok) return [];
-    const data = await res.json() as {
-      items?: Array<{ id?: string; $ref?: string }>;
-    };
+    const data = await res.json() as { items?: Array<{ id?: string; $ref?: string }> };
     const items = data.items ?? [];
     return items.map((item) => {
       if (item.id) return item.id;
-      // Extract ID from $ref URL: ".../competitors/12345"
       const match = item.$ref?.match(/competitors\/(\d+)/);
       return match?.[1] ?? '';
     }).filter(Boolean);
@@ -39,7 +35,6 @@ async function fetchCompetitorIds(eventId: string): Promise<string[]> {
   }
 }
 
-// Fetch stats for one competitor from ESPN Core
 async function fetchCompetitorStats(espnId: string, eventId: string): Promise<Stat[] | null> {
   try {
     const url = `${ESPN_CORE}/pga/events/${eventId}/competitions/${eventId}/competitors/${espnId}/statistics/0`;
@@ -53,7 +48,6 @@ async function fetchCompetitorStats(espnId: string, eventId: string): Promise<St
   }
 }
 
-// Run an array of async tasks in serial batches
 async function batchAll<T>(tasks: (() => Promise<T>)[], batchSize: number): Promise<T[]> {
   const results: T[] = [];
   for (let i = 0; i < tasks.length; i += batchSize) {
@@ -68,64 +62,79 @@ function formatAvg(avg: number, isPercent: boolean, decimals: number): string {
   return isPercent ? `${val}%` : val;
 }
 
+// Stats where lower is better (for rank computation: rank 1 = lowest value)
+const LOWER_IS_BETTER = new Set(['scoringAverage', 'avgPuttsPerRound']);
+
+const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number }> = [
+  { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
+  { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
+  { key: 'gir', espnName: 'gir', isPercent: true, decimals: 1 },
+  { key: 'scrambling', espnName: 'sandSaves', isPercent: true, decimals: 1 },
+  { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', isPercent: false, decimals: 1 },
+  { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', isPercent: false, decimals: 1, altMultiplier: 18 },
+];
+
+export type FieldData = {
+  averages: Record<string, string>;
+  // Sorted values best-first per stat — used to compute field rank for a given player value
+  distributions: Record<string, number[]>;
+};
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const eventId = searchParams.get('eventId') ?? '';
-  if (!eventId) return Response.json({ averages: {} });
+  if (!eventId) return Response.json({ averages: {}, distributions: {} });
 
-  const cacheKey = `field-averages:v3:${eventId}`;
+  const cacheKey = `field-averages:v4:${eventId}`;
 
   try {
     const cached = await redis.get(cacheKey);
-    if (cached) return Response.json({ averages: JSON.parse(cached) });
+    if (cached) return Response.json(JSON.parse(cached));
 
     const ids = await fetchCompetitorIds(eventId);
-    if (ids.length === 0) return Response.json({ averages: {} });
+    if (ids.length === 0) return Response.json({ averages: {}, distributions: {} });
 
-    // Fetch stats for all competitors in batches
     const allStats = await batchAll(
       ids.map((id) => () => fetchCompetitorStats(id, eventId)),
       BATCH_SIZE,
     );
 
-    // Accumulate totals for each stat field
-    type Acc = { sum: number; count: number; isPercent: boolean; decimals: number };
-    const acc: Record<string, Acc> = {};
-
-    const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number }> = [
-      { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
-      { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
-      { key: 'gir', espnName: 'gir', isPercent: true, decimals: 1 },
-      { key: 'scrambling', espnName: 'sandSaves', isPercent: true, decimals: 1 },
-      { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', isPercent: false, decimals: 1 },
-      { key: 'avgPuttsPerRound_alt', espnName: 'puttsGirAvg', isPercent: false, decimals: 2 }, // fallback: ×18
-    ];
+    // Collect raw values per stat key
+    const rawValues: Record<string, number[]> = {};
 
     for (const stats of allStats) {
       if (!stats) continue;
       for (const def of statDefs) {
-        const v = statNumeric(stats, def.espnName);
+        let v = statNumeric(stats, def.espnName);
         if (v === null) continue;
-        const outKey = def.key.replace('_alt', '');
-        if (!acc[outKey]) acc[outKey] = { sum: 0, count: 0, isPercent: def.isPercent ?? false, decimals: def.decimals ?? 1 };
-        // puttsGirAvg needs ×18 to get putts/round
-        acc[outKey].sum += def.key === 'avgPuttsPerRound_alt' ? v * 18 : v;
-        acc[outKey].count += 1;
+        if (def.altMultiplier) v = v * def.altMultiplier;
+        if (!rawValues[def.key]) rawValues[def.key] = [];
+        rawValues[def.key].push(v);
       }
     }
 
     const averages: Record<string, string> = {};
-    for (const [key, { sum, count, isPercent, decimals }] of Object.entries(acc)) {
-      if (count < 5) continue;
-      averages[key] = formatAvg(sum / count, isPercent, decimals);
+    const distributions: Record<string, number[]> = {};
+
+    for (const [key, values] of Object.entries(rawValues)) {
+      if (values.length < 5) continue;
+      const sum = values.reduce((a, b) => a + b, 0);
+      const def = statDefs.find((d) => d.key === key)!;
+      averages[key] = formatAvg(sum / values.length, def.isPercent ?? false, def.decimals ?? 1);
+      // Sort best-first so distributions[key].indexOf(value)+1 ≈ rank
+      distributions[key] = LOWER_IS_BETTER.has(key)
+        ? [...values].sort((a, b) => a - b)
+        : [...values].sort((a, b) => b - a);
     }
+
+    const result: FieldData = { averages, distributions };
 
     if (Object.keys(averages).length > 0) {
-      await redis.setex(cacheKey, FIELD_AVG_TTL, JSON.stringify(averages));
+      await redis.setex(cacheKey, FIELD_AVG_TTL, JSON.stringify(result));
     }
 
-    return Response.json({ averages });
+    return Response.json(result);
   } catch {
-    return Response.json({ averages: {} });
+    return Response.json({ averages: {}, distributions: {} });
   }
 }

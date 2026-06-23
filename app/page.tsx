@@ -1185,6 +1185,8 @@ export default function Page() {
     defaultTab: 'stats' | 'season';
     statAverages: Record<string, string>;
     fieldAverages: Record<string, string>;
+    statRanks: Record<string, string>;
+    fieldDistributions: Record<string, number[]>;
   } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
   const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
@@ -2615,6 +2617,8 @@ export default function Page() {
       defaultTab,
       statAverages: {},
       fieldAverages: {},
+      statRanks: {},
+      fieldDistributions: {},
     });
     const scorecardFetch = statsCtx === 'tournament'
       ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
@@ -2627,16 +2631,16 @@ export default function Page() {
       readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
       readJson<{ rank: number | null }>(`/api/player-dpworld-rank?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
       readJson<{ rank: number | null }>(`/api/player-owgr-rank?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
-      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
+      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null; ranks: Record<string, string> | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null, ranks: null })),
       scorecardFetch,
       seasonStatsFetch,
       readJson<{ averages: Record<string, string> }>('/api/tour-averages', { cache: 'no-store' }).catch(() => ({ averages: {} })),
       espnEventId && statsCtx === 'tournament'
-        ? readJson<{ averages: Record<string, string> }>(`/api/field-averages?eventId=${espnEventId}`, { cache: 'no-store' }).catch(() => ({ averages: {} }))
-        : Promise.resolve({ averages: {} }),
+        ? readJson<{ averages: Record<string, string>; distributions: Record<string, number[]> }>(`/api/field-averages?eventId=${espnEventId}`, { cache: 'no-store' }).catch(() => ({ averages: {}, distributions: {} }))
+        : Promise.resolve({ averages: {}, distributions: {} }),
     ]).then(([fullData, fedexData, dpWorldData, owgrData, statsData, scData, seasonData, avgData, fieldAvgData]) => {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
-      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {} } : null);
+      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {}, statRanks: statsData.ranks ?? {}, fieldDistributions: fieldAvgData.distributions ?? {} } : null);
     });
   };
 
@@ -8425,24 +8429,41 @@ export default function Page() {
                     ? { ...pickHistoryPlayerPopup.statAverages, ...pickHistoryPlayerPopup.fieldAverages }
                     : pickHistoryPlayerPopup.statAverages ?? {};
                   const avgLabel = isTournView ? 'Field Avg' : 'Tour Avg';
-                  const courseStatCells: { label: string; value: string; avgKey?: string }[] = [];
-                  if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Distance', value: s.drivingDistance, avgKey: 'drivingDistance' });
-                  if (s?.drivingAccuracy) courseStatCells.push({ label: 'Drive Accuracy', value: s.drivingAccuracy, avgKey: 'drivingAccuracy' });
-                  if (s?.gir) courseStatCells.push({ label: 'GIR%', value: s.gir, avgKey: 'gir' });
-                  if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling, avgKey: 'scrambling' });
-                  if (s?.avgPuttsPerRound) courseStatCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound, avgKey: 'avgPuttsPerRound' });
-                  else if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1), avgKey: 'avgPuttsPerRound' });
+                  const distributions = pickHistoryPlayerPopup.fieldDistributions ?? {};
+                  const seasonRanks = pickHistoryPlayerPopup.statRanks ?? {};
+                  // Compute rank from sorted field distribution (best-first array)
+                  function getFieldRank(key: string, rawValue: string | null): string | null {
+                    if (!rawValue) return null;
+                    const dist = distributions[key];
+                    if (!dist || dist.length < 5) return null;
+                    const playerVal = parseFloat(rawValue.replace('%', ''));
+                    if (isNaN(playerVal)) return null;
+                    // Count players strictly better than this player
+                    const lowerIsBetter = key === 'scoringAverage' || key === 'avgPuttsPerRound';
+                    const betterCount = dist.filter((v) => lowerIsBetter ? v < playerVal : v > playerVal).length;
+                    return String(betterCount + 1);
+                  }
+                  function getRank(key: string, rawValue: string | null): string | null {
+                    return isTournView ? getFieldRank(key, rawValue) : (seasonRanks[key] ?? null);
+                  }
+                  const courseStatCells: { label: string; value: string; avgKey?: string; rankKey?: string }[] = [];
+                  if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Distance', value: s.drivingDistance, avgKey: 'drivingDistance', rankKey: 'drivingDistance' });
+                  if (s?.drivingAccuracy) courseStatCells.push({ label: 'Drive Accuracy', value: s.drivingAccuracy, avgKey: 'drivingAccuracy', rankKey: 'drivingAccuracy' });
+                  if (s?.gir) courseStatCells.push({ label: 'GIR%', value: s.gir, avgKey: 'gir', rankKey: 'gir' });
+                  if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling, avgKey: 'scrambling', rankKey: 'scrambling' });
+                  if (s?.avgPuttsPerRound) courseStatCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound, avgKey: 'avgPuttsPerRound', rankKey: 'avgPuttsPerRound' });
+                  else if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1), avgKey: 'avgPuttsPerRound', rankKey: 'avgPuttsPerRound' });
                   if (showSubToggle && statsSubView === 'tournament') {
                     if (s?.proximity) courseStatCells.push({ label: 'Proximity', value: s.proximity });
                   } else {
-                    if (s?.scoringAverage) courseStatCells.push({ label: 'Scoring Avg', value: s.scoringAverage, avgKey: 'scoringAverage' });
+                    if (s?.scoringAverage) courseStatCells.push({ label: 'Scoring Avg', value: s.scoringAverage, avgKey: 'scoringAverage', rankKey: 'scoringAverage' });
                   }
-                  const sgStatCells: { label: string; value: string; avgKey?: string }[] = [];
-                  if (s?.sgTotal) sgStatCells.push({ label: 'SG: Total', value: s.sgTotal, avgKey: 'sgTotal' });
-                  if (s?.sgOffTee) sgStatCells.push({ label: 'SG: Off Tee', value: s.sgOffTee, avgKey: 'sgOffTee' });
-                  if (s?.sgApproach) sgStatCells.push({ label: 'SG: Approach', value: s.sgApproach, avgKey: 'sgApproach' });
-                  if (s?.sgAroundGreen) sgStatCells.push({ label: 'SG: Around', value: s.sgAroundGreen, avgKey: 'sgAroundGreen' });
-                  if (s?.sgPutting) sgStatCells.push({ label: 'SG: Putting', value: s.sgPutting, avgKey: 'sgPutting' });
+                  const sgStatCells: { label: string; value: string; rankKey?: string }[] = [];
+                  if (s?.sgTotal) sgStatCells.push({ label: 'SG: Total', value: s.sgTotal, rankKey: 'sgTotal' });
+                  if (s?.sgOffTee) sgStatCells.push({ label: 'SG: Off Tee', value: s.sgOffTee, rankKey: 'sgOffTee' });
+                  if (s?.sgApproach) sgStatCells.push({ label: 'SG: Approach', value: s.sgApproach, rankKey: 'sgApproach' });
+                  if (s?.sgAroundGreen) sgStatCells.push({ label: 'SG: Around', value: s.sgAroundGreen, rankKey: 'sgAroundGreen' });
+                  if (s?.sgPutting) sgStatCells.push({ label: 'SG: Putting', value: s.sgPutting, rankKey: 'sgPutting' });
                   const statCells = [...courseStatCells, ...sgStatCells];
                   const subToggle = showSubToggle ? (
                     <div key="stats-subtoggle" style={{ display: 'flex', background: '#e8edf2', borderRadius: 8, padding: 3, marginBottom: 10, justifySelf: 'start' }}>
@@ -8489,12 +8510,15 @@ export default function Page() {
                       {courseStatCells.length > 0 && (
                         <div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-                            {courseStatCells.map(({ label, value, avgKey }) => {
+                            {courseStatCells.map(({ label, value, avgKey, rankKey }) => {
                               const avg = avgKey ? avgs[avgKey] : undefined;
+                              const rank = rankKey ? getRank(rankKey, value) : null;
                               return (
                                 <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
                                   <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
-                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{value}</div>
+                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
+                                    {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>(#{rank})</span>}
+                                  </div>
                                   {avg && <div style={{ fontSize: 9, color: '#a0adb8', marginTop: 3 }}>{avgLabel}: {avg}</div>}
                                 </div>
                               );
@@ -8506,11 +8530,14 @@ export default function Page() {
                         <div>
                           <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Strokes Gained</div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-                            {sgStatCells.map(({ label, value }) => {
+                            {sgStatCells.map(({ label, value, rankKey }) => {
+                              const rank = rankKey ? getRank(rankKey, value) : null;
                               return (
                                 <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
                                   <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
-                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{value}</div>
+                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
+                                    {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>(#{rank})</span>}
+                                  </div>
                                 </div>
                               );
                             })}

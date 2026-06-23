@@ -74,7 +74,26 @@ async function gqlPost(query: string, variables: Record<string, unknown>): Promi
   return res.json();
 }
 
-export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<Partial<PlayerStats> | null> {
+// Stat ID → PlayerStats field name (for rank mapping)
+const STAT_ID_TO_FIELD: Record<string, string> = {
+  '101': 'drivingDistance',
+  '102': 'drivingAccuracy',
+  '103': 'gir',
+  '104': 'avgPuttsPerRound',
+  '106': 'scrambling',
+  '130': 'scrambling',
+  '108': 'scoringAverage',
+  '111': 'birdiesPerRound',
+  '02674': 'sgTotal',
+  '02567': 'sgOffTee',
+  '02568': 'sgApproach',
+  '02569': 'sgAroundGreen',
+  '02564': 'sgPutting',
+};
+
+export type PlayerStatRanks = Partial<Record<string, string>>;
+
+export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<{ stats: Partial<PlayerStats>; ranks: PlayerStatRanks } | null> {
   try {
     // playerProfileStats returns [PlayerProfileStat], each with stats: [PlayerProfileStatItem]
     // Valid fields on PlayerProfileStatItem: statId, rank, displayValue
@@ -109,13 +128,18 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<Partia
     if (!stats || stats.length === 0) return null;
 
     const acc: Partial<PlayerStats> = {};
+    const ranks: PlayerStatRanks = {};
     for (const stat of stats) {
       if (stat.statId) {
         mapStat(stat.statId, stat.value ?? stat.displayValue, acc);
+        const field = STAT_ID_TO_FIELD[stat.statId];
+        if (field && stat.rank != null && String(stat.rank) !== '0') {
+          ranks[field] = String(stat.rank);
+        }
       }
     }
 
-    return Object.keys(acc).length > 0 ? acc : null;
+    return Object.keys(acc).length > 0 ? { stats: acc, ranks } : null;
   } catch {
     return null;
   }
