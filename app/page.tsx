@@ -8356,7 +8356,7 @@ export default function Page() {
                 {(pickHistoryPlayerPopup.defaultTab === 'season' ? (['season', 'career', 'stats'] as const) : (['stats', 'season', 'career'] as const)).map((tab) => {
                   const careerName = TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'Major';
                   const label = tab === 'stats'
-                    ? 'Stats'
+                    ? (careerTournamentId === 'us-open' ? 'Season Stats' : 'Stats')
                     : tab === 'season' ? 'Season Results' : `${careerName} Career`;
                   const isActive = pickHistoryView === tab;
                   return (
