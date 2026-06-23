@@ -1,4 +1,5 @@
 import type { PlayerStats } from './espn-player-stats';
+import type { PlayerStatRanks } from './pga-player-stats';
 
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
@@ -94,4 +95,58 @@ export async function fetchPgaScorecardStats(
   } catch {
     return null;
   }
+}
+
+// SG stat IDs used in tournament context → PlayerStats field names
+const TOURN_SG_STATS: Array<{ statId: string; field: string }> = [
+  { statId: '02675', field: 'sgTotal' },     // tournament SG total (differs from season 02674)
+  { statId: '02567', field: 'sgOffTee' },
+  { statId: '02568', field: 'sgApproach' },
+  { statId: '02569', field: 'sgAroundGreen' },
+  { statId: '02564', field: 'sgPutting' },
+];
+
+// Fetch tournament-specific SG rankings from PGA Tour statLeaderboard
+export async function fetchTournamentSgRanks(
+  pgaTournId: string,
+  pgaPlayerId: string,
+): Promise<PlayerStatRanks> {
+  const ranks: PlayerStatRanks = {};
+  const query = `
+    query TournStatLeaderboard($statId: ID!, $tournamentId: ID!) {
+      statLeaderboard(statId: $statId, tournamentId: $tournamentId) {
+        rows {
+          rank
+          player { id }
+        }
+      }
+    }
+  `;
+
+  await Promise.all(
+    TOURN_SG_STATS.map(async ({ statId, field }) => {
+      try {
+        const res = await fetch(PGA_GQL, {
+          method: 'POST',
+          headers: gqlHeaders(),
+          body: JSON.stringify({ query, variables: { statId, tournamentId: pgaTournId } }),
+          signal: AbortSignal.timeout(5000),
+        });
+        if (!res.ok) return;
+        const data = await res.json() as {
+          data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; player?: { id?: string } }> } };
+        };
+        const rows = data?.data?.statLeaderboard?.rows;
+        if (!Array.isArray(rows)) return;
+        const row = rows.find((r) => String(r.player?.id) === String(pgaPlayerId));
+        if (!row) return;
+        const rankNum = parseInt(String(row.rank ?? ''));
+        if (!isNaN(rankNum) && rankNum > 0) ranks[field] = String(rankNum);
+      } catch {
+        // ignore per-stat failures
+      }
+    })
+  );
+
+  return ranks;
 }
