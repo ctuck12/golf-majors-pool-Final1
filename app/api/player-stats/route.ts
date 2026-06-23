@@ -52,6 +52,13 @@ export async function GET(request: Request) {
         fetchPlayerSeasonStats(name),
       ]);
 
+      console.log(`[player-stats] ${name} tourn=${eventId} pgaTourId=${pgaTourId}`, JSON.stringify({
+        espnStats: espnStats ? Object.fromEntries(Object.entries(espnStats).filter(([,v]) => v !== null)) : null,
+        pgaScorecardStats: pgaScorecardStats ? Object.fromEntries(Object.entries(pgaScorecardStats).filter(([,v]) => v !== null)) : null,
+        pgaSeasonStats: pgaSeasonStats ? Object.fromEntries(Object.entries(pgaSeasonStats).filter(([,v]) => v !== null)) : null,
+        espnSeasonStats: espnSeasonStats ? Object.fromEntries(Object.entries(espnSeasonStats).filter(([,v]) => v !== null)) : null,
+      }));
+
       // Priority (lowest → highest):
       // 1. ESPN season stats — reliable base for course stats (no SG)
       // 2. PGA Tour season stats — adds season SG; fills course stats for no-ShotLink events
