@@ -37,8 +37,9 @@ function mapStat(
     case '101': acc.drivingDistance = v; break;
     case '102': acc.drivingAccuracy = withPercent(v); break;
     case '103': acc.gir = withPercent(v); break;
-    case '104': acc.avgPuttsPerRound = v; break;
+    case '104': acc.puttAverage = v; break;  // putts/GIR — display layer multiplies ×18
     case '106': acc.scrambling = withPercent(v); break;
+    case '130': acc.scrambling = withPercent(v); break;
     case '111': acc.birdiesPerRound = v; break;
     case '108': acc.scoringAverage = v; break;
     case '02674': acc.sgTotal = v; break;   // SG: Tee-to-Green / Total (playerProfile)
