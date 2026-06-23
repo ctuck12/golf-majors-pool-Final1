@@ -20,18 +20,10 @@ async function tryGql(label: string, query: string, variables: Record<string, un
 
 export async function GET() {
   const results = await Promise.all([
-    // Introspect CupRankingPlayerWrapper — the actual wrapper type
-    tryGql('CupRankingPlayerWrapper', `{ __type(name: "CupRankingPlayerWrapper") { fields { name type { name kind ofType { name } } } } }`),
-    // Introspect CupRankingPlayer — the player row type
-    tryGql('CupRankingPlayer', `{ __type(name: "CupRankingPlayer") { fields { name type { name kind ofType { name } } } } }`),
-    // Introspect StandardCupRanking — the standings type
-    tryGql('StandardCupRanking', `{ __type(name: "StandardCupRanking") { fields { name type { name kind ofType { name } } } } }`),
-    // Try inline fragments on rankings to get CupRankingPlayer fields
-    tryGql('rankings-inline-frag', `query { tourCup(id: "R-2700-2026") { rankings { ... on CupRankingPlayer { __typename } } } }`),
-    // Introspect CupRankingPlayerInfoRow
-    tryGql('CupRankingPlayerInfoRow', `{ __type(name: "CupRankingPlayerInfoRow") { fields { name type { name kind ofType { name } } } } }`),
-    // priorityRankings categories fields
-    tryGql('priorityRankings-categories', `{ __type(name: "PriorityRankingsCategory") { fields { name type { name kind ofType { name } } } } }`),
+    // Fetch real RTD rankings with position+id+name+total
+    tryGql('rtd-real-data', `query { tourCup(id: "R-2700-2026") { rankings { ... on CupRankingPlayer { position id name total } } } }`),
+    // Scheffler pgaTourId=46046, Rory=28237 — look them up
+    tryGql('rtd-scheffler-check', `query { tourCup(id: "R-2700-2026") { rankings { ... on CupRankingPlayer { position id name } } } }`),
   ]);
 
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
