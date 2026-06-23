@@ -1184,6 +1184,7 @@ export default function Page() {
     statsContext: 'season' | 'tournament';
     defaultTab: 'stats' | 'season';
     statAverages: Record<string, string>;
+    fieldAverages: Record<string, string>;
   } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
   const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
@@ -2613,6 +2614,7 @@ export default function Page() {
       statsContext: statsCtx,
       defaultTab,
       statAverages: {},
+      fieldAverages: {},
     });
     const scorecardFetch = statsCtx === 'tournament'
       ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
@@ -2629,9 +2631,12 @@ export default function Page() {
       scorecardFetch,
       seasonStatsFetch,
       readJson<{ averages: Record<string, string> }>('/api/tour-averages', { cache: 'no-store' }).catch(() => ({ averages: {} })),
-    ]).then(([fullData, fedexData, dpWorldData, owgrData, statsData, scData, seasonData, avgData]) => {
+      espnEventId && statsCtx === 'tournament'
+        ? readJson<{ averages: Record<string, string> }>(`/api/field-averages?eventId=${espnEventId}`, { cache: 'no-store' }).catch(() => ({ averages: {} }))
+        : Promise.resolve({ averages: {} }),
+    ]).then(([fullData, fedexData, dpWorldData, owgrData, statsData, scData, seasonData, avgData, fieldAvgData]) => {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
-      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {} } : null);
+      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {} } : null);
     });
   };
 
@@ -8409,8 +8414,11 @@ export default function Page() {
                   const rounds = isTournCtx
                     ? (pickHistoryPlayerPopup.playerRounds?.length ? pickHistoryPlayerPopup.playerRounds : espnRounds)
                     : [];
-                  const avgs = pickHistoryPlayerPopup.statAverages ?? {};
-                  const avgLabel = (showSubToggle && statsSubView === 'tournament') || (!showSubToggle && isTournCtx) ? 'Field Avg' : 'Tour Avg';
+                  const isTournView = (showSubToggle && statsSubView === 'tournament') || (!showSubToggle && isTournCtx);
+                  const avgs = isTournView
+                    ? { ...pickHistoryPlayerPopup.statAverages, ...pickHistoryPlayerPopup.fieldAverages }
+                    : pickHistoryPlayerPopup.statAverages ?? {};
+                  const avgLabel = isTournView ? 'Field Avg' : 'Tour Avg';
                   const courseStatCells: { label: string; value: string; avgKey?: string }[] = [];
                   if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Distance', value: s.drivingDistance, avgKey: 'drivingDistance' });
                   if (s?.drivingAccuracy) courseStatCells.push({ label: 'Drive Accuracy', value: s.drivingAccuracy, avgKey: 'drivingAccuracy' });
