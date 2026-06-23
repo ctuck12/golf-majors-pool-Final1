@@ -1,6 +1,15 @@
 import type { PlayerStats } from './espn-player-stats';
 import type { PlayerStatRanks } from './pga-player-stats';
 
+// statId → PlayerStats field name for SG rank mapping
+const SG_STAT_ID_TO_FIELD: Record<string, string> = {
+  '02675': 'sgTotal',
+  '02567': 'sgOffTee',
+  '02568': 'sgApproach',
+  '02569': 'sgAroundGreen',
+  '02564': 'sgPutting',
+};
+
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 
@@ -24,7 +33,7 @@ function parseStatValue(raw: string): string | null {
   return null;
 }
 
-type PerfItem = { statId?: string; total?: string };
+type PerfItem = { statId?: string; total?: string; rank?: string | number | null };
 
 function mapPerformanceStat(statId: string, raw: string, acc: Partial<PlayerStats>): void {
   const v = parseStatValue(raw);
@@ -51,7 +60,7 @@ export function pgaTourTournId(slashGolfTournId: string, year: string): string {
 export async function fetchPgaScorecardStats(
   pgaTournId: string,
   pgaPlayerId: string,
-): Promise<Partial<PlayerStats> | null> {
+): Promise<{ stats: Partial<PlayerStats>; sgRanks: PlayerStatRanks } | null> {
   try {
     const query = `
       query ScorecardStats($id: ID!, $playerId: ID!) {
@@ -59,6 +68,7 @@ export async function fetchPgaScorecardStats(
           rounds {
             round
             performance { statId total }
+            strokesGained { statId total rank }
           }
         }
       }
@@ -73,7 +83,7 @@ export async function fetchPgaScorecardStats(
     const data = await res.json() as {
       data?: {
         scorecardStatsV3?: {
-          rounds?: Array<{ round?: string; performance?: PerfItem[] }>;
+          rounds?: Array<{ round?: string; performance?: PerfItem[]; strokesGained?: PerfItem[] }>;
         };
       };
     };
@@ -82,7 +92,8 @@ export async function fetchPgaScorecardStats(
     const rounds = data?.data?.scorecardStatsV3?.rounds ?? [];
     const allRound = rounds.find((r) => r.round === '-1') ?? rounds[0];
     const perf = allRound?.performance ?? [];
-    if (perf.length === 0) return null;
+    const sg = allRound?.strokesGained ?? [];
+    if (perf.length === 0 && sg.length === 0) return null;
 
     const acc: Partial<PlayerStats> = {};
     for (const item of perf) {
@@ -91,7 +102,21 @@ export async function fetchPgaScorecardStats(
       }
     }
 
-    return Object.keys(acc).length > 0 ? acc : null;
+    // Extract tournament SG ranks directly from scorecardStatsV3
+    const sgRanks: PlayerStatRanks = {};
+    for (const item of sg) {
+      if (item.statId) {
+        const field = SG_STAT_ID_TO_FIELD[item.statId];
+        const rankNum = parseInt(String(item.rank ?? ''));
+        if (field && !isNaN(rankNum) && rankNum > 0) {
+          sgRanks[field] = String(rankNum);
+        }
+      }
+    }
+
+    return Object.keys(acc).length > 0 || Object.keys(sgRanks).length > 0
+      ? { stats: acc, sgRanks }
+      : null;
   } catch {
     return null;
   }

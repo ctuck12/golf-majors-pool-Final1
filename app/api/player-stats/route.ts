@@ -33,7 +33,7 @@ export async function GET(request: Request) {
 
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
-    ? `player-stats:v13:tourn:${eventId}:${name}`
+    ? `player-stats:v14:tourn:${eventId}:${name}`
     : `player-stats:v10:season:2026:${name}`;
   const ranksCacheKey = `player-stats:v10:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 1800 : 3600;
@@ -50,23 +50,30 @@ export async function GET(request: Request) {
       const meta = getTournamentMetaByEspnId(eventId);
       const pgaTournId = meta ? pgaTourTournId(meta.slashGolfTournId, meta.year) : null;
 
-      const [espnStats, pgaScorecardStats, pgaResult, espnSeasonStats] = await Promise.all([
+      const [espnStats, scorecardResult, pgaResult, espnSeasonStats] = await Promise.all([
         fetchPlayerTournamentStats(name, eventId),
         pgaTourId && pgaTournId ? fetchPgaScorecardStats(pgaTournId, pgaTourId) : Promise.resolve(null),
         pgaTourId ? fetchPgaTourPlayerStats(pgaTourId) : Promise.resolve(null),
         fetchPlayerSeasonStats(name),
       ]);
 
+      const pgaScorecardStats = scorecardResult?.stats ?? null;
       const pgaSeasonStats = pgaResult?.stats ?? null;
 
       const stats = espnStats || pgaScorecardStats || pgaSeasonStats || espnSeasonStats
         ? mergeStats(espnSeasonStats, pgaSeasonStats, espnStats, pgaScorecardStats)
         : null;
 
+      // Tournament SG ranks come from scorecardStatsV3 strokesGained.rank (tournament-specific)
+      // Season course stat ranks come from playerProfileStats (PGA Tour season)
+      const seasonRanks = pgaResult?.ranks ?? {};
+      const tournSgRanks = scorecardResult?.sgRanks ?? {};
+      const mergedRanks = { ...seasonRanks, ...tournSgRanks };
+
       if (stats) {
         await redis.setex(cacheKey, ttl, JSON.stringify(stats));
       }
-      return Response.json({ stats, ranks: pgaResult?.ranks ?? null });
+      return Response.json({ stats, ranks: Object.keys(mergedRanks).length > 0 ? mergedRanks : null });
     }
 
     // Season context
