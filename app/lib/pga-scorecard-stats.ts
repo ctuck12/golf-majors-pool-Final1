@@ -1,10 +1,8 @@
 import type { PlayerStats } from './espn-player-stats';
 import type { PlayerStatRanks } from './pga-player-stats';
 
-// statId → PlayerStats field name for SG rank mapping
-// Both 02674 (season/tee-to-green) and 02675 (tournament total) map to sgTotal
+// statId → PlayerStats field name for SG rank mapping (tournament scorecard IDs only)
 const SG_STAT_ID_TO_FIELD: Record<string, string> = {
-  '02674': 'sgTotal',
   '02675': 'sgTotal',
   '02567': 'sgOffTee',
   '02568': 'sgApproach',
@@ -106,9 +104,11 @@ export async function fetchPgaScorecardStats(
 
     // Extract tournament SG ranks — check performance items, strokesGained items,
     // and fall back to searching all rounds if the aggregate round lacks rank data
+    // Extract tournament SG ranks ONLY from strokesGained items — never from performance,
+    // which carries season ranks that would contaminate tournament view
     const sgRanks: PlayerStatRanks = {};
 
-    const extractSgRanks = (items: PerfItem[]) => {
+    const extractFromSg = (items: PerfItem[]) => {
       for (const item of items) {
         if (!item.statId) continue;
         const field = SG_STAT_ID_TO_FIELD[item.statId];
@@ -118,16 +118,13 @@ export async function fetchPgaScorecardStats(
       }
     };
 
-    extractSgRanks(perf);
-    extractSgRanks(sg);
+    extractFromSg(sg);
 
-    // If still missing ranks, search all rounds for rank data (some tournaments
-    // only populate rank on individual round entries, not the aggregate)
+    // If aggregate round lacks rank data, search individual rounds' strokesGained
     if (Object.keys(sgRanks).length < Object.keys(SG_STAT_ID_TO_FIELD).length) {
       for (const round of rounds) {
         if (round.round === '-1') continue;
-        extractSgRanks(round.performance ?? []);
-        extractSgRanks(round.strokesGained ?? []);
+        extractFromSg(round.strokesGained ?? []);
       }
     }
 
