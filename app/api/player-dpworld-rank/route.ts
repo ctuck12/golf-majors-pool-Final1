@@ -47,14 +47,26 @@ async function fetchRtdStandings(): Promise<RtdPlayer[]> {
   return rankings;
 }
 
+function lastName(name: string): string {
+  return name.trim().split(/\s+/).pop()?.toLowerCase() ?? '';
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const pgaTourId = searchParams.get('pgaTourId') ?? '';
-  if (!pgaTourId) return Response.json({ rank: null });
+  const name = searchParams.get('name') ?? '';
+  if (!pgaTourId && !name) return Response.json({ rank: null });
 
   try {
     const standings = await fetchRtdStandings();
-    const entry = standings.find((r) => String(r.id) === String(pgaTourId));
+    let entry = pgaTourId
+      ? standings.find((r) => String(r.id) === String(pgaTourId))
+      : undefined;
+    // Fall back to last-name match when pgaTourId is missing or unmatched
+    if (!entry && name) {
+      const needle = lastName(name);
+      entry = standings.find((r) => lastName(r.name) === needle);
+    }
     if (!entry) return Response.json({ rank: null });
     const rank = parseInt(entry.position);
     return Response.json({ rank: isNaN(rank) ? null : rank });
