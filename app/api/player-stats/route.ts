@@ -35,7 +35,9 @@ export async function GET(request: Request) {
   const cacheKey = isTournament
     ? `player-stats:v24:tourn:${eventId}:${name}`
     : `player-stats:v10:season:2026:${name}`;
-  const ranksCacheKey = `player-stats:v10:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
+  const ranksCacheKey = isTournament
+    ? `player-stats:v24:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
+    : `player-stats:v10:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 1800 : 3600;
 
   try {
@@ -77,7 +79,11 @@ export async function GET(request: Request) {
       if (stats) {
         await redis.setex(cacheKey, ttl, JSON.stringify(stats));
       }
-      return Response.json({ stats, ranks: Object.keys(mergedRanks).length > 0 ? mergedRanks : null });
+      const tournRanksToCache = Object.keys(mergedRanks).length > 0 ? mergedRanks : null;
+      if (tournRanksToCache) {
+        await redis.setex(ranksCacheKey, ttl, JSON.stringify(tournRanksToCache));
+      }
+      return Response.json({ stats, ranks: tournRanksToCache });
     }
 
     // Season context
