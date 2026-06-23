@@ -5,8 +5,8 @@ import redis from '@/app/lib/redis';
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 const RTD_CUP_ID = 'R-2700-2026';
-const CACHE_KEY = 'rtd-standings:2026:v1';
-const CACHE_TTL = 21600; // 6 hours
+const CACHE_KEY = 'rtd-standings:2026:v3';
+const CACHE_TTL = 3600; // 1 hour
 
 type RtdPlayer = { position: string; id: string; name: string };
 
