@@ -11,45 +11,33 @@ const GQL_HEADERS = {
 
 async function probe(url: string, opts?: RequestInit): Promise<{ url: string; status: number; preview: string }> {
   try {
-    const res = await fetch(url, { ...opts, signal: AbortSignal.timeout(6000) });
+    const res = await fetch(url, { ...opts, signal: AbortSignal.timeout(7000) });
     const text = await res.text().catch(() => '');
-    return { url, status: res.status, preview: text.slice(0, 500) };
+    return { url, status: res.status, preview: text.slice(0, 600) };
   } catch (e) {
     return { url, status: 0, preview: String(e) };
   }
 }
 
-async function gqlQuery(query: string): Promise<{ url: string; status: number; preview: string }> {
-  return probe(PGA_GQL, {
-    method: 'POST',
-    headers: GQL_HEADERS,
-    body: JSON.stringify({ query }),
-  });
+async function gql(query: string) {
+  return probe(PGA_GQL, { method: 'POST', headers: GQL_HEADERS, body: JSON.stringify({ query }) });
 }
 
 export async function GET() {
   const results = await Promise.all([
-    // Try Sky Sports / TNT Sports with realistic headers
-    probe('https://www.skysports.com/golf/european-tour/race-to-dubai', {
-      headers: { 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1', 'Accept': 'application/json' },
-    }),
-    // Try PGA Tour DP World Tour eligibility GQL query
-    gqlQuery(`{ tourCup(id: "R-2700-2026") { id name rankings { ... on CupRankingPlayer { position id name total } } } }`),
-    // Try broader GQL - maybe a different tour cup ID covers full RTD
-    gqlQuery(`{ tourCup(id: "R-1500-2026") { id name rankings { ... on CupRankingPlayer { position id name total } } } }`),
-    // Try stat leaderboard for RTD stat IDs
-    gqlQuery(`{ statLeaderboard(statId: "02366", year: 2026) { rows { rank player { id displayName } } } }`),
-    gqlQuery(`{ statLeaderboard(statId: "11", year: 2026) { rows { rank player { id displayName } } } }`),
-    // Try playerProfile for Rory to see if RTD rank is exposed
-    gqlQuery(`{ playerProfile(playerId: "28237") { dpWorldTourRanking rtdRank raceToDubaiRank currentSeasonStats { statName statValue } } }`),
-    // Try World Golf Rankings page
-    probe('https://www.owgr.com/ranking?pageNo=1&pageSize=100&country=ALL&tour=EDPW&year=2026', {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json, text/html' },
-    }),
-    // BBC Sport
-    probe('https://www.bbc.co.uk/sport/golf/european-tour/race-to-dubai', {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json, text/html' },
-    }),
+    // Dump full current tourCup standings (all 20 players with IDs and names)
+    gql(`{ tourCup(id: "R-2700-2026") { rankings { ... on CupRankingPlayer { position id name total } } } }`),
+
+    // OWGR API patterns
+    probe('https://www.owgr.com/api/ranking?tour=EDPW&year=2026&pageNo=1&pageSize=50', { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }),
+    probe('https://www.owgr.com/api/stats/ranking?tour=EDPW&year=2026', { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }),
+
+    // Sofascore golf European Tour
+    probe('https://api.sofascore.com/api/v1/unique-tournament/995/seasons', { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }),
+    probe('https://api.sofascore.com/api/v1/unique-tournament/1013/standings/total', { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }),
+
+    // Golf Channel / Golf.com
+    probe('https://www.golfchannel.com/api/tour-standings?tour=euro&season=2026', { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }),
   ]);
 
   return Response.json(results);
