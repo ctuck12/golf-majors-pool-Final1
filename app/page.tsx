@@ -8334,6 +8334,14 @@ export default function Page() {
                         <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>: {pickHistoryPlayerPopup.dpWorldRank}</span>
                       </div>
                     )}
+                    {(() => {
+                      const wr = playersById[pickHistoryPlayerPopup.player.id]?.worldRank;
+                      return wr != null ? (
+                        <div style={{ background: '#fff', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center', border: '1.5px solid rgba(255,255,255,0.3)' }}>
+                          <span style={{ color: '#0f1720', fontWeight: 800, fontSize: 11 }}>OWGR: {wr}</span>
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
                 <button
