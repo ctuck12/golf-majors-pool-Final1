@@ -8530,7 +8530,7 @@ export default function Page() {
                                 <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
                                   <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
                                   <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
-                                    {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>(#{rank})</span>}
+                                    {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>({rank})</span>}
                                   </div>
                                   {avg && <div style={{ fontSize: 9, color: '#a0adb8', marginTop: 3 }}>{avgLabel}: {avg}</div>}
                                 </div>
@@ -8549,7 +8549,7 @@ export default function Page() {
                                 <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
                                   <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
                                   <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
-                                    {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>(#{rank})</span>}
+                                    {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>({rank})</span>}
                                   </div>
                                 </div>
                               );
