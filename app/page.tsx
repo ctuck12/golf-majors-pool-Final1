@@ -8496,7 +8496,7 @@ export default function Page() {
                           </div>
                         </div>
                       )}
-                      {sgStatCells.length > 0 && (
+                      {sgStatCells.length > 0 && !(careerTournamentId === 'masters' && isTournView) && (
                         <div>
                           <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Strokes Gained</div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
