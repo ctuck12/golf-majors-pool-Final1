@@ -1,94 +1,63 @@
 export const dynamic = 'force-dynamic';
 
-import { getEspnId } from '@/app/lib/espn-player-season';
+import redis from '@/app/lib/redis';
 
-const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/all/seasons/2026';
+const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
+const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
+const RTD_CUP_ID = 'R-2700-2026';
+const CACHE_KEY = 'rtd-standings:2026:v1';
+const CACHE_TTL = 21600; // 6 hours
 
-// Race to Dubai is one of rankings 4-6; try each until one matches a DP World Tour type
-const DP_WORLD_RANKING_CANDIDATES = [4, 5, 6];
+type RtdPlayer = { position: string; id: string; name: string };
 
-async function findDpWorldRankingId(): Promise<number | null> {
-  for (const id of DP_WORLD_RANKING_CANDIDATES) {
-    try {
-      const res = await fetch(`${ESPN_CORE}/rankings/${id}`, { next: { revalidate: 86400 } } as RequestInit);
-      if (!res.ok) continue;
-      const data = await res.json();
-      const type: string = (data.type ?? '').toUpperCase();
-      const name: string = (data.name ?? '').toLowerCase();
-      if (
-        type.includes('EURO') || type.includes('DPWORLD') || type.includes('RTD') ||
-        type.includes('EUR') || name.includes('dubai') || name.includes('race') ||
-        name.includes('european') || name.includes('dp world')
-      ) {
-        return id;
+async function fetchRtdStandings(): Promise<RtdPlayer[]> {
+  const cached = await redis.get(CACHE_KEY);
+  if (cached) return JSON.parse(cached) as RtdPlayer[];
+
+  const query = `
+    query {
+      tourCup(id: "${RTD_CUP_ID}") {
+        rankings {
+          ... on CupRankingPlayer { position id name }
+        }
       }
-    } catch {
-      continue;
     }
-  }
-  return null;
-}
+  `;
+  const res = await fetch(PGA_GQL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': PGA_API_KEY,
+      'Referer': 'https://www.pgatour.com/',
+      'Origin': 'https://www.pgatour.com',
+    },
+    body: JSON.stringify({ query }),
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) return [];
+  const data = await res.json() as {
+    data?: { tourCup?: { rankings?: Array<Partial<RtdPlayer>> } };
+  };
+  const rankings = (data?.data?.tourCup?.rankings ?? [])
+    .filter((r): r is RtdPlayer => !!r.id && !!r.position);
 
-async function getMostRecentDateForRanking(rankingId: number): Promise<string | null> {
-  try {
-    const res = await fetch(`${ESPN_CORE}/rankings/${rankingId}`, { next: { revalidate: 86400 } } as RequestInit);
-    if (!res.ok) return null;
-    const data = await res.json();
-    const rankings = data.rankings as Array<{ $ref?: string }> | undefined;
-    if (!Array.isArray(rankings) || rankings.length === 0) return null;
-    const ref = rankings[0]?.$ref ?? '';
-    const match = ref.match(/\/dates\/(\d{8})/);
-    return match?.[1] ?? null;
-  } catch {
-    return null;
+  if (rankings.length > 0) {
+    await redis.setex(CACHE_KEY, CACHE_TTL, JSON.stringify(rankings));
   }
+  return rankings;
 }
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const name = searchParams.get('name') ?? '';
-  if (!name) return Response.json({ rank: null });
+  const pgaTourId = searchParams.get('pgaTourId') ?? '';
+  if (!pgaTourId) return Response.json({ rank: null });
 
   try {
-    const [espnId, rankingId] = await Promise.all([
-      getEspnId(name),
-      findDpWorldRankingId(),
-    ]);
-
-    if (!espnId || !rankingId) return Response.json({ rank: null });
-
-    const dateKey = await getMostRecentDateForRanking(rankingId);
-    if (!dateKey) return Response.json({ rank: null });
-
-    const rankRes = await fetch(`${ESPN_CORE}/rankings/${rankingId}/dates/${dateKey}?limit=500`, {
-      next: { revalidate: 86400 },
-    } as RequestInit);
-    if (!rankRes.ok) return Response.json({ rank: null });
-
-    const data = await rankRes.json();
-
-    const entries: Array<Record<string, unknown>> =
-      (data.athletes as Array<Record<string, unknown>> | undefined) ??
-      (data.rankings as Array<Record<string, unknown>> | undefined) ??
-      [];
-
-    for (let i = 0; i < entries.length; i++) {
-      const entry = entries[i];
-      const athleteVal = entry.athlete as Record<string, string> | string | undefined;
-      const ref: string =
-        typeof athleteVal === 'string'
-          ? athleteVal
-          : typeof athleteVal === 'object' && athleteVal
-          ? (Object.values(athleteVal)[0] ?? '')
-          : '';
-      const id = ref.match(/athletes\/(\d+)/)?.[1];
-      if (id === espnId) {
-        const explicitRank = entry.rank ?? entry.ranking;
-        return Response.json({ rank: typeof explicitRank === 'number' ? explicitRank : i + 1 });
-      }
-    }
-
-    return Response.json({ rank: null });
+    const standings = await fetchRtdStandings();
+    const entry = standings.find((r) => String(r.id) === String(pgaTourId));
+    if (!entry) return Response.json({ rank: null });
+    const rank = parseInt(entry.position);
+    return Response.json({ rank: isNaN(rank) ? null : rank });
   } catch {
     return Response.json({ rank: null });
   }
