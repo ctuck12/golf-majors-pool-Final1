@@ -8,6 +8,7 @@ export type PlayerStats = {
   drivingAccuracy: string | null;
   gir: string | null;
   scrambling: string | null;
+  sandSaves: string | null;
   puttAverage: string | null;
   avgPuttsPerRound: string | null;
   proximity: string | null;
@@ -88,7 +89,8 @@ function extractSeason(data: Overview): PlayerStats {
     drivingDistance: statVal(cats, 'yardsPerDrive'),
     drivingAccuracy: statVal(cats, 'driveAccuracyPct', '%'),
     gir,
-    scrambling: statVal(cats, 'sandSaves', '%'),
+    scrambling: statVal(cats, 'scramblingPct', '%') ?? statVal(cats, 'scrambling', '%') ?? statVal(cats, 'scrambPct', '%'),
+    sandSaves: statVal(cats, 'sandSaves', '%'),
     puttAverage: statVal(cats, 'puttsGirAvg'),
     avgPuttsPerRound: statVal(cats, 'puttsPerRound') ?? statVal(cats, 'avgPutts') ?? statVal(cats, 'avgPutt'),
     proximity: statVal(cats, 'proximity') ?? statVal(cats, 'proxHole'),
@@ -110,7 +112,7 @@ function extractSeason(data: Overview): PlayerStats {
 
 function extractTournament(stats: Stat[]): PlayerStats {
   const empty: PlayerStats = {
-    drivingDistance: null, drivingAccuracy: null, gir: null, scrambling: null,
+    drivingDistance: null, drivingAccuracy: null, gir: null, scrambling: null, sandSaves: null,
     puttAverage: null, avgPuttsPerRound: null, proximity: null,
     scoringAverage: null, birdiesPerRound: null,
     birdies: null, pars: null, bogeys: null, eagles: null, scoreToPar: null,
@@ -134,7 +136,8 @@ function extractTournament(stats: Stat[]): PlayerStats {
     drivingDistance: statVal(stats, 'driveDistAvg'),
     drivingAccuracy: statVal(stats, 'driveAccuracyPct', '%'),
     gir: statVal(stats, 'gir', '%'),
-    scrambling: statVal(stats, 'sandSaves', '%'),
+    scrambling: statVal(stats, 'scramblingPct', '%') ?? statVal(stats, 'scrambling', '%') ?? statVal(stats, 'scrambPct', '%'),
+    sandSaves: statVal(stats, 'sandSaves', '%'),
     puttAverage: statVal(stats, 'puttsGirAvg'),
     avgPuttsPerRound: statVal(stats, 'puttsPerRound') ?? statVal(stats, 'avgPutts') ?? statVal(stats, 'avgPutt'),
     proximity: statVal(stats, 'proximity') ?? statVal(stats, 'proxHole') ?? statVal(stats, 'approachProximity'),
