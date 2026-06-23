@@ -4,6 +4,7 @@ import type { PlayerStatRanks } from './pga-player-stats';
 // Stat IDs for Off Tee/Approach/Around/Putting are identical in season & tournament
 // contexts and carry tournament ranks inside scorecardStatsV3 performance items.
 const SG_PERF_RANK_IDS: Record<string, string> = {
+  '02675': 'sgTotal',
   '02567': 'sgOffTee',
   '02568': 'sgApproach',
   '02569': 'sgAroundGreen',
@@ -125,7 +126,8 @@ export async function fetchPgaScorecardStats(
       if (!item.statId) continue;
       const field = SG_PERF_RANK_IDS[item.statId];
       if (!field || sgRanks[field]) continue;
-      const rankNum = parseInt(String(item.rank ?? ''));
+      // Strip leading "T" (tied) prefix before parsing — e.g. "T14" → 14, " 7" → 7
+      const rankNum = parseInt(String(item.rank ?? '').replace(/^\s*T/i, '').trim());
       if (!isNaN(rankNum) && rankNum > 0) sgRanks[field] = String(rankNum);
     }
 
