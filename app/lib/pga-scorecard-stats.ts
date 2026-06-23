@@ -2,7 +2,9 @@ import type { PlayerStats } from './espn-player-stats';
 import type { PlayerStatRanks } from './pga-player-stats';
 
 // statId → PlayerStats field name for SG rank mapping
+// Both 02674 (season/tee-to-green) and 02675 (tournament total) map to sgTotal
 const SG_STAT_ID_TO_FIELD: Record<string, string> = {
+  '02674': 'sgTotal',
   '02675': 'sgTotal',
   '02567': 'sgOffTee',
   '02568': 'sgApproach',
