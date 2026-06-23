@@ -8462,7 +8462,7 @@ export default function Page() {
                   const courseStatCells: { label: string; value: string; avgKey?: string; rankKey?: string }[] = [];
                   if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Distance', value: s.drivingDistance, avgKey: 'drivingDistance', rankKey: 'drivingDistance' });
                   if (s?.drivingAccuracy) courseStatCells.push({ label: 'Drive Accuracy', value: s.drivingAccuracy, avgKey: 'drivingAccuracy', rankKey: 'drivingAccuracy' });
-                  if (s?.gir) courseStatCells.push({ label: 'GIR%', value: s.gir, avgKey: 'gir', rankKey: 'gir' });
+                  if (s?.gir) courseStatCells.push({ label: 'Greens In Reg%', value: s.gir, avgKey: 'gir', rankKey: 'gir' });
                   if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling, avgKey: 'scrambling', rankKey: 'scrambling' });
                   if (s?.avgPuttsPerRound) courseStatCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound, avgKey: 'avgPuttsPerRound', rankKey: 'avgPuttsPerRound' });
                   else if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1), avgKey: 'avgPuttsPerRound', rankKey: 'avgPuttsPerRound' });
