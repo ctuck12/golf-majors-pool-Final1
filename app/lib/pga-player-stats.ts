@@ -133,8 +133,9 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<{ stat
       if (stat.statId) {
         mapStat(stat.statId, stat.value ?? stat.displayValue, acc);
         const field = STAT_ID_TO_FIELD[stat.statId];
-        if (field && stat.rank != null && String(stat.rank) !== '0') {
-          ranks[field] = String(stat.rank);
+        const rankNum = parseInt(String(stat.rank ?? ''));
+        if (field && !isNaN(rankNum) && rankNum > 0) {
+          ranks[field] = String(rankNum);
         }
       }
     }
