@@ -8389,7 +8389,7 @@ export default function Page() {
                   if (s?.drivingDistance) statCells.push({ label: 'Drive Dist', value: s.drivingDistance });
                   if (s?.drivingAccuracy) statCells.push({ label: 'Drive Acc', value: s.drivingAccuracy });
                   if (s?.gir) statCells.push({ label: 'GIR%', value: s.gir });
-                  if (s?.scrambling) statCells.push({ label: 'Scrambling', value: s.scrambling });
+                  if (s?.scrambling) statCells.push({ label: 'Sand Saves%', value: s.scrambling });
                   if (s?.avgPuttsPerRound) statCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound });
                   else if (s?.puttAverage) statCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1) });
                   if (isTournCtx) {
