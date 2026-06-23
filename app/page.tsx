@@ -1178,11 +1178,18 @@ export default function Page() {
     careerResults: { year: number; course: string; position: string }[] | null;
     careerResultsLoading: boolean;
     playerStats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null;
+    playerSeasonStats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null;
     playerStatsLoading: boolean;
     playerRounds: { round: number; score: string }[] | null;
     statsContext: 'season' | 'tournament';
+    defaultTab: 'stats' | 'season';
+    statAverages: Record<string, string>;
+    fieldAverages: Record<string, string>;
+    statRanks: Record<string, string>;
+    fieldDistributions: Record<string, number[]>;
   } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
+  const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
   useEffect(() => {
     if (!pickHistoryPlayerPopup) return;
     const scrollY = window.scrollY;
@@ -2582,13 +2589,15 @@ export default function Page() {
 
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
 
-  const openPlayerPopup = (player: { id: number; name: string; pgaTourId: number; photoUrl?: string; worldRank?: number }) => {
+  const openPlayerPopup = (player: { id: number; name: string; pgaTourId: number; photoUrl?: string; worldRank?: number }, defaultTab: 'stats' | 'season' = 'stats') => {
     const espnEventId = TOURNAMENT_ESPN_EVENT_IDS[selectedTournament];
     const statsCtx: 'season' | 'tournament' = showFutureTournamentView ? 'season' : 'tournament';
     const params = new URLSearchParams({ name: player.name, context: statsCtx });
     if (espnEventId && !showFutureTournamentView) params.set('eventId', espnEventId);
     params.set('pgaTourId', String(player.pgaTourId));
-    setPickHistoryView('stats');
+    const showSubToggle = statsCtx === 'tournament' && selectedTournament !== 'us-open' && defaultTab === 'stats';
+    setStatsSubView('tournament');
+    setPickHistoryView(defaultTab);
     setPickHistoryPlayerPopup({
       player,
       results: {},
@@ -2601,23 +2610,37 @@ export default function Page() {
       careerResults: null,
       careerResultsLoading: false,
       playerStats: null,
+      playerSeasonStats: null,
       playerStatsLoading: true,
       playerRounds: null,
       statsContext: statsCtx,
+      defaultTab,
+      statAverages: {},
+      fieldAverages: {},
+      statRanks: {},
+      fieldDistributions: {},
     });
     const scorecardFetch = statsCtx === 'tournament'
       ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
       : Promise.resolve({ rounds: null });
+    const seasonStatsFetch = showSubToggle
+      ? readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null }>(`/api/player-stats?name=${encodeURIComponent(player.name)}&context=season&pgaTourId=${player.pgaTourId}`, { cache: 'no-store' }).catch(() => ({ stats: null }))
+      : Promise.resolve({ stats: null });
     Promise.all([
       readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
       readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
       readJson<{ rank: number | null }>(`/api/player-dpworld-rank?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
       readJson<{ rank: number | null }>(`/api/player-owgr-rank?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
-      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
+      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null; ranks: Record<string, string> | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null, ranks: null })),
       scorecardFetch,
-    ]).then(([fullData, fedexData, dpWorldData, owgrData, statsData, scData]) => {
+      seasonStatsFetch,
+      readJson<{ averages: Record<string, string> }>('/api/tour-averages', { cache: 'no-store' }).catch(() => ({ averages: {} })),
+      espnEventId && statsCtx === 'tournament'
+        ? readJson<{ averages: Record<string, string>; distributions: Record<string, number[]> }>(`/api/field-averages?eventId=${espnEventId}`, { cache: 'no-store' }).catch(() => ({ averages: {}, distributions: {} }))
+        : Promise.resolve({ averages: {}, distributions: {} }),
+    ]).then(([fullData, fedexData, dpWorldData, owgrData, statsData, scData, seasonData, avgData, fieldAvgData]) => {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
-      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null } : null);
+      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {}, statRanks: statsData.ranks ?? {}, fieldDistributions: fieldAvgData.distributions ?? {} } : null);
     });
   };
 
@@ -5604,7 +5627,7 @@ export default function Page() {
                             >
                               <div style={{ fontSize: isMobile ? 13 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
                               <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>
-                                {(() => { const customSplit = isMobile ? MOBILE_CUSTOM_SPLITS[player.name] : undefined; const parts = player.name.split(' '); const first = customSplit ? customSplit[0] : parts.slice(0, -1).join(' '); const last = customSplit ? customSplit[1] : parts[parts.length - 1]; const forcedBreak = isMobile && MOBILE_TWO_LINE_NAMES.has(player.name); const infoBtn = <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl, worldRank: player.worldRank }); }} style={{ width: isMobile ? 11 : 15, height: isMobile ? 11 : 15, borderRadius: '50%', border: `${isMobile ? 1 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 7 : 9, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 3 : 5, flexShrink: 0 }} aria-label={`View ${player.name} stats`}>i</button>; return (<>{first}{forcedBreak ? <br /> : (first ? ' ' : '')}<span style={{ whiteSpace: 'nowrap' }}>{last}{infoBtn}</span></>); })()}
+                                {(() => { const customSplit = isMobile ? MOBILE_CUSTOM_SPLITS[player.name] : undefined; const parts = player.name.split(' '); const first = customSplit ? customSplit[0] : parts.slice(0, -1).join(' '); const last = customSplit ? customSplit[1] : parts[parts.length - 1]; const forcedBreak = isMobile && MOBILE_TWO_LINE_NAMES.has(player.name); const infoBtn = <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl, worldRank: player.worldRank }, 'season'); }} style={{ width: isMobile ? 11 : 15, height: isMobile ? 11 : 15, borderRadius: '50%', border: `${isMobile ? 1 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 7 : 9, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 3 : 5, flexShrink: 0 }} aria-label={`View ${player.name} stats`}>i</button>; return (<>{first}{forcedBreak ? <br /> : (first ? ' ' : '')}<span style={{ whiteSpace: 'nowrap' }}>{last}{infoBtn}</span></>); })()}
                               </div>
                               <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
                               <button
@@ -5675,7 +5698,7 @@ export default function Page() {
                                   <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                     <div>
                                       <div style={{ fontSize: isMobile ? 18 : 19, fontWeight: 800, color: '#0f1720' }}>
-                                        {(() => { const customSplit = isMobile ? MOBILE_CUSTOM_SPLITS[golfer.name] : undefined; const parts = golfer.name.split(' '); const first = customSplit ? customSplit[0] : parts.slice(0, -1).join(' '); const last = customSplit ? customSplit[1] : parts[parts.length - 1]; const forcedBreak = isMobile && MOBILE_TWO_LINE_NAMES.has(golfer.name); const infoBtn = <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: golfer.id, name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl, worldRank: golfer.worldRank }); }} style={{ width: isMobile ? 17 : 17, height: isMobile ? 17 : 17, borderRadius: '50%', border: `${isMobile ? 1.5 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 11 : 11, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 5 : 6, flexShrink: 0 }} aria-label={`View ${golfer.name} stats`}>i</button>; return (<>{first}{forcedBreak ? <br /> : (first ? ' ' : '')}<span style={{ whiteSpace: 'nowrap' }}>{last}{infoBtn}</span></>); })()}
+                                        {(() => { const customSplit = isMobile ? MOBILE_CUSTOM_SPLITS[golfer.name] : undefined; const parts = golfer.name.split(' '); const first = customSplit ? customSplit[0] : parts.slice(0, -1).join(' '); const last = customSplit ? customSplit[1] : parts[parts.length - 1]; const forcedBreak = isMobile && MOBILE_TWO_LINE_NAMES.has(golfer.name); const infoBtn = <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: golfer.id, name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl, worldRank: golfer.worldRank }, 'season'); }} style={{ width: isMobile ? 17 : 17, height: isMobile ? 17 : 17, borderRadius: '50%', border: `${isMobile ? 1.5 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 11 : 11, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 5 : 6, flexShrink: 0 }} aria-label={`View ${golfer.name} stats`}>i</button>; return (<>{first}{forcedBreak ? <br /> : (first ? ' ' : '')}<span style={{ whiteSpace: 'nowrap' }}>{last}{infoBtn}</span></>); })()}
                                       </div>
                                       <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 15, color: '#607282' }}>
                                         Salary: <span style={{ fontWeight: 800, color: salaryColor }}>${golfer.salary.toLocaleString()}</span>
@@ -6826,7 +6849,7 @@ export default function Page() {
                           >
                             <div style={{ fontSize: isMobile ? 13 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
                             <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 600, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>
-                              {(() => { const customSplit = isMobile ? MOBILE_CUSTOM_SPLITS[player.name] : undefined; const parts = player.name.split(' '); const first = customSplit ? customSplit[0] : parts.slice(0, -1).join(' '); const last = customSplit ? customSplit[1] : parts[parts.length - 1]; const forcedBreak = isMobile && MOBILE_TWO_LINE_NAMES.has(player.name); const infoBtn = <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl, worldRank: player.worldRank }); }} style={{ width: isMobile ? 11 : 15, height: isMobile ? 11 : 15, borderRadius: '50%', border: `${isMobile ? 1 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 7 : 9, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 3 : 5, flexShrink: 0 }} aria-label={`View ${player.name} stats`}>i</button>; return (<>{first}{forcedBreak ? <br /> : (first ? ' ' : '')}<span style={{ whiteSpace: 'nowrap' }}>{last}{infoBtn}</span></>); })()}
+                              {(() => { const customSplit = isMobile ? MOBILE_CUSTOM_SPLITS[player.name] : undefined; const parts = player.name.split(' '); const first = customSplit ? customSplit[0] : parts.slice(0, -1).join(' '); const last = customSplit ? customSplit[1] : parts[parts.length - 1]; const forcedBreak = isMobile && MOBILE_TWO_LINE_NAMES.has(player.name); const infoBtn = <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl, worldRank: player.worldRank }, 'season'); }} style={{ width: isMobile ? 11 : 15, height: isMobile ? 11 : 15, borderRadius: '50%', border: `${isMobile ? 1 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 7 : 9, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 3 : 5, flexShrink: 0 }} aria-label={`View ${player.name} stats`}>i</button>; return (<>{first}{forcedBreak ? <br /> : (first ? ' ' : '')}<span style={{ whiteSpace: 'nowrap' }}>{last}{infoBtn}</span></>); })()}
                             </div>
                             <div style={{ fontSize: isMobile ? 13 : 17, fontWeight: 700, color: '#0f1720' }}>${player.salary.toLocaleString()}</div>
                             <button
@@ -6901,7 +6924,7 @@ export default function Page() {
                                 <div style={{ flex: 1, padding: isMobile ? '8px 14px' : '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                   <div>
                                     <div style={{ fontSize: isMobile ? 18 : 19, fontWeight: 800, color: '#0f1720' }}>
-                                      {(() => { const customSplit = isMobile ? MOBILE_CUSTOM_SPLITS[golfer.name] : undefined; const parts = golfer.name.split(' '); const first = customSplit ? customSplit[0] : parts.slice(0, -1).join(' '); const last = customSplit ? customSplit[1] : parts[parts.length - 1]; const forcedBreak = isMobile && MOBILE_TWO_LINE_NAMES.has(golfer.name); const infoBtn = <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: golfer.id, name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl, worldRank: golfer.worldRank }); }} style={{ width: isMobile ? 17 : 17, height: isMobile ? 17 : 17, borderRadius: '50%', border: `${isMobile ? 1.5 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 11 : 11, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 5 : 6, flexShrink: 0 }} aria-label={`View ${golfer.name} stats`}>i</button>; return (<>{first}{forcedBreak ? <br /> : (first ? ' ' : '')}<span style={{ whiteSpace: 'nowrap' }}>{last}{infoBtn}</span></>); })()}
+                                      {(() => { const customSplit = isMobile ? MOBILE_CUSTOM_SPLITS[golfer.name] : undefined; const parts = golfer.name.split(' '); const first = customSplit ? customSplit[0] : parts.slice(0, -1).join(' '); const last = customSplit ? customSplit[1] : parts[parts.length - 1]; const forcedBreak = isMobile && MOBILE_TWO_LINE_NAMES.has(golfer.name); const infoBtn = <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: golfer.id, name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl, worldRank: golfer.worldRank }, 'season'); }} style={{ width: isMobile ? 17 : 17, height: isMobile ? 17 : 17, borderRadius: '50%', border: `${isMobile ? 1.5 : 1.5}px solid #9ca3af`, background: 'transparent', color: '#9ca3af', fontSize: isMobile ? 11 : 11, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 5 : 6, flexShrink: 0 }} aria-label={`View ${golfer.name} stats`}>i</button>; return (<>{first}{forcedBreak ? <br /> : (first ? ' ' : '')}<span style={{ whiteSpace: 'nowrap' }}>{last}{infoBtn}</span></>); })()}
                                     </div>
                                     <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 15, color: '#607282' }}>
                                       Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
@@ -8351,18 +8374,24 @@ export default function Page() {
 
               {/* Tab bar */}
               <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #e2e8ef', flexShrink: 0 }}>
-                {(['stats', 'season', 'career'] as const).map((tab) => {
-                  const careerName = TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'Major';
+                {(pickHistoryPlayerPopup.defaultTab === 'season' ? (['season', 'career', 'stats'] as const) : (['stats', 'season', 'career'] as const)).map((tab) => {
+                  const careerTabLabel: Record<string, string> = {
+                    players: 'Players Career',
+                    masters: 'Masters Career',
+                    pga: 'PGA Champ Career',
+                    'us-open': 'U.S. Open Career',
+                    open: 'The Open Career',
+                  };
                   const label = tab === 'stats'
-                    ? (pickHistoryPlayerPopup.statsContext === 'tournament' ? 'Tournament Stats' : 'Season Stats')
-                    : tab === 'season' ? '2026 Season' : `${careerName} Career`;
+                    ? (careerTournamentId === 'us-open' ? 'Season Stats' : 'Stats')
+                    : tab === 'season' ? 'Season Results' : (careerTabLabel[careerTournamentId] ?? 'Major Career');
                   const isActive = pickHistoryView === tab;
                   return (
                     <button
                       key={tab}
                       onClick={async (e) => {
                         e.stopPropagation();
-                        setPickHistoryView(tab);
+                        setPickHistoryView(tab as 'stats' | 'season' | 'career');
                         if (tab === 'career' && pickHistoryPlayerPopup.careerResults === null && !pickHistoryPlayerPopup.careerResultsLoading) {
                           setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: true } : null);
                           try {
@@ -8384,37 +8413,88 @@ export default function Page() {
               {/* Body */}
               <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '14px 18px 20px', background: '#f4f7fa', borderRadius: '0 0 20px 20px' }}>
                 {pickHistoryView === 'stats' && (() => {
-                  const s = pickHistoryPlayerPopup.playerStats;
                   const isTournCtx = pickHistoryPlayerPopup.statsContext === 'tournament';
+                  const showSubToggle = isTournCtx && careerTournamentId !== 'us-open' && pickHistoryPlayerPopup.defaultTab === 'stats';
+                  const s = showSubToggle && statsSubView === 'season'
+                    ? pickHistoryPlayerPopup.playerSeasonStats
+                    : pickHistoryPlayerPopup.playerStats;
                   const espnRounds = isTournCtx
                     ? (pickHistoryPlayerPopup.playerStats?.rounds ?? []).map((score, i) => ({ round: i + 1, score }))
                     : [];
                   const rounds = isTournCtx
                     ? (pickHistoryPlayerPopup.playerRounds?.length ? pickHistoryPlayerPopup.playerRounds : espnRounds)
                     : [];
-                  const statCells: { label: string; value: string }[] = [];
-                  if (s?.drivingDistance) statCells.push({ label: 'Drive Dist', value: s.drivingDistance });
-                  if (s?.drivingAccuracy) statCells.push({ label: 'Drive Acc', value: s.drivingAccuracy });
-                  if (s?.gir) statCells.push({ label: 'GIR%', value: s.gir });
-                  if (s?.scrambling) statCells.push({ label: 'Scrambling', value: s.scrambling });
-                  if (s?.avgPuttsPerRound) statCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound });
-                  else if (s?.puttAverage) statCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1) });
-                  if (isTournCtx) {
-                    if (s?.proximity) statCells.push({ label: 'Proximity', value: s.proximity });
+                  const isTournView = (showSubToggle && statsSubView === 'tournament') || (!showSubToggle && isTournCtx);
+                  const avgs = isTournView
+                    ? { ...pickHistoryPlayerPopup.statAverages, ...pickHistoryPlayerPopup.fieldAverages }
+                    : pickHistoryPlayerPopup.statAverages ?? {};
+                  const avgLabel = isTournView ? 'Field Avg' : 'Tour Avg';
+                  const distributions = pickHistoryPlayerPopup.fieldDistributions ?? {};
+                  const seasonRanks = pickHistoryPlayerPopup.statRanks ?? {};
+                  function ordinal(n: string | number): string {
+                    const num = parseInt(String(n));
+                    if (isNaN(num)) return String(n);
+                    const v = num % 100;
+                    const suffix = (v >= 11 && v <= 13) ? 'th' : ['th','st','nd','rd','th'][Math.min(num % 10, 4)];
+                    return `${num}${suffix}`;
+                  }
+                  // Compute rank from sorted field distribution (best-first array)
+                  function getFieldRank(key: string, rawValue: string | null): string | null {
+                    if (!rawValue) return null;
+                    const dist = distributions[key];
+                    if (!dist || dist.length < 5) return null;
+                    const playerVal = parseFloat(rawValue.replace('%', ''));
+                    if (isNaN(playerVal)) return null;
+                    const lowerIsBetter = key === 'scoringAverage' || key === 'avgPuttsPerRound';
+                    const betterCount = dist.filter((v) => lowerIsBetter ? v < playerVal : v > playerVal).length;
+                    return String(betterCount + 1);
+                  }
+                  const SG_KEYS = new Set(['sgTotal','sgOffTee','sgApproach','sgAroundGreen','sgPutting']);
+                  function getRank(key: string, rawValue: string | null): string | null {
+                    if (isTournView) {
+                      // SG has no ESPN Core field distributions — fall back to season tour rank
+                      const r = SG_KEYS.has(key) ? (seasonRanks[key] ?? null) : getFieldRank(key, rawValue);
+                      return r ? ordinal(r) : null;
+                    }
+                    const r = seasonRanks[key] ?? null;
+                    return r ? ordinal(r) : null;
+                  }
+                  const courseStatCells: { label: string; value: string; avgKey?: string; rankKey?: string }[] = [];
+                  if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Distance', value: s.drivingDistance, avgKey: 'drivingDistance', rankKey: 'drivingDistance' });
+                  if (s?.drivingAccuracy) courseStatCells.push({ label: 'Drive Accuracy', value: s.drivingAccuracy, avgKey: 'drivingAccuracy', rankKey: 'drivingAccuracy' });
+                  if (s?.gir) courseStatCells.push({ label: 'Greens In Reg%', value: s.gir, avgKey: 'gir', rankKey: 'gir' });
+                  if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling, avgKey: 'scrambling', rankKey: 'scrambling' });
+                  if (s?.avgPuttsPerRound) courseStatCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound, avgKey: 'avgPuttsPerRound', rankKey: 'avgPuttsPerRound' });
+                  else if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1), avgKey: 'avgPuttsPerRound', rankKey: 'avgPuttsPerRound' });
+                  if (showSubToggle && statsSubView === 'tournament') {
+                    if (s?.proximity) courseStatCells.push({ label: 'Proximity', value: s.proximity });
                   } else {
-                    if (s?.birdiesPerRound) statCells.push({ label: 'Birdies/Rd', value: s.birdiesPerRound });
-                    if (s?.scoringAverage) statCells.push({ label: 'Scoring Avg', value: s.scoringAverage });
+                    if (s?.scoringAverage) courseStatCells.push({ label: 'Scoring Avg', value: s.scoringAverage, avgKey: 'scoringAverage', rankKey: 'scoringAverage' });
                   }
-                  if (!isTournCtx) {
-                    if (s?.sgTotal) statCells.push({ label: 'SG: Total', value: s.sgTotal });
-                    if (s?.sgOffTee) statCells.push({ label: 'SG: Off Tee', value: s.sgOffTee });
-                    if (s?.sgApproach) statCells.push({ label: 'SG: Approach', value: s.sgApproach });
-                    if (s?.sgAroundGreen) statCells.push({ label: 'SG: Around', value: s.sgAroundGreen });
-                    if (s?.sgPutting) statCells.push({ label: 'SG: Putting', value: s.sgPutting });
-                  }
+                  const sgStatCells: { label: string; value: string; rankKey?: string }[] = [];
+                  if (s?.sgTotal) sgStatCells.push({ label: 'SG: Total', value: s.sgTotal, rankKey: 'sgTotal' });
+                  if (s?.sgOffTee) sgStatCells.push({ label: 'SG: Off Tee', value: s.sgOffTee, rankKey: 'sgOffTee' });
+                  if (s?.sgApproach) sgStatCells.push({ label: 'SG: Approach', value: s.sgApproach, rankKey: 'sgApproach' });
+                  if (s?.sgAroundGreen) sgStatCells.push({ label: 'SG: Around', value: s.sgAroundGreen, rankKey: 'sgAroundGreen' });
+                  if (s?.sgPutting) sgStatCells.push({ label: 'SG: Putting', value: s.sgPutting, rankKey: 'sgPutting' });
+                  const statCells = [...courseStatCells, ...sgStatCells];
+                  const subToggle = showSubToggle ? (
+                    <div key="stats-subtoggle" style={{ display: 'flex', background: '#e8edf2', borderRadius: 8, padding: 3, marginBottom: 10, justifySelf: 'start' }}>
+                      {(['tournament', 'season'] as const).map((v) => (
+                        <button
+                          key={v}
+                          onClick={() => setStatsSubView(v)}
+                          style={{ padding: '4px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', transition: 'all 0.15s', background: statsSubView === v ? '#fff' : 'transparent', color: statsSubView === v ? '#0f1720' : '#607282', boxShadow: statsSubView === v ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
+                        >
+                          {v === 'tournament' ? 'Tournament' : 'Season'}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null;
                   if (pickHistoryPlayerPopup.playerStatsLoading) {
                     return (
                       <div key="stats-loading" style={{ display: 'grid', gap: 10 }}>
+                        {subToggle}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
                           {[0,1,2,3].map((i) => (
                             <div key={i} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', textAlign: 'center' }}>
@@ -8434,38 +8514,46 @@ export default function Page() {
                       </div>
                     );
                   }
-                  if (statCells.length === 0 && rounds.length === 0) {
-                    return <div key="stats-empty" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>No stats available for this {isTournCtx ? 'tournament' : 'season'}.</div>;
+                  if (statCells.length === 0) {
+                    return <div key="stats-empty" style={{ display: 'grid', gap: 0 }}>{subToggle}<div style={{ textAlign: 'center', color: '#607282', padding: '20px 0', fontSize: 14 }}>No stats available for this {isTournCtx && statsSubView === 'tournament' ? 'tournament' : 'season'}.</div></div>;
                   }
                   return (
                     <div key="stats-loaded" style={{ display: 'grid', gap: 10 }}>
-                      {rounds.length > 0 && (
+                      {subToggle}
+                      {courseStatCells.length > 0 && (
                         <div>
-                          <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Round Scores</div>
-                          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${rounds.length}, 1fr)`, gap: 6 }}>
-                            {rounds.map(({ round, score }) => {
-                              const val = score === 'E' ? 0 : parseInt(score, 10);
-                              const scoreColor = isNaN(val) ? '#0f1720' : val < 0 ? '#2c6449' : val > 0 ? '#cc2944' : '#607282';
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+                            {courseStatCells.map(({ label, value, avgKey, rankKey }) => {
+                              const avg = avgKey ? avgs[avgKey] : undefined;
+                              const rank = rankKey ? getRank(rankKey, value) : null;
                               return (
-                                <div key={round} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '9px 6px', textAlign: 'center' }}>
-                                  <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>R{round}</div>
-                                  <div style={{ fontSize: 15, fontWeight: 900, color: scoreColor, lineHeight: 1 }}>{score}</div>
+                                <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
+                                  <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
+                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
+                                    {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>({rank})</span>}
+                                  </div>
+                                  {avg && <div style={{ fontSize: 9, color: '#a0adb8', marginTop: 3 }}>{avgLabel}: {avg}</div>}
                                 </div>
                               );
                             })}
                           </div>
                         </div>
                       )}
-                      {statCells.length > 0 && (
+                      {sgStatCells.length > 0 && !(careerTournamentId === 'masters' && isTournView) && (
                         <div>
-                          {rounds.length > 0 && <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Course Stats</div>}
+                          <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Strokes Gained</div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-                            {statCells.map(({ label, value }) => (
-                              <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
-                                <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
-                                <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{value}</div>
-                              </div>
-                            ))}
+                            {sgStatCells.map(({ label, value, rankKey }) => {
+                              const rank = rankKey ? getRank(rankKey, value) : null;
+                              return (
+                                <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
+                                  <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
+                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
+                                    {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>({rank})</span>}
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
                       )}
@@ -8564,7 +8652,6 @@ export default function Page() {
                     <div key="career-empty" className="ph-fade-in" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Has not competed in {TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'this tournament'}</div>
                   ) : (
                     <div key="career-loaded" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2 }}>{TOURNAMENTS.find((t) => t.id === careerTournamentId)?.fullName ?? ''} Career Results</div>
                       {pickHistoryPlayerPopup.careerResults.map((r, i) => {
                         const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
                         return (
