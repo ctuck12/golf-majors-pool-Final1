@@ -20,10 +20,18 @@ async function tryGql(label: string, query: string, variables: Record<string, un
 
 export async function GET() {
   const results = await Promise.all([
-    // Fetch real RTD rankings with position+id+name+total
-    tryGql('rtd-real-data', `query { tourCup(id: "R-2700-2026") { rankings { ... on CupRankingPlayer { position id name total } } } }`),
-    // Scheffler pgaTourId=46046, Rory=28237 — look them up
-    tryGql('rtd-scheffler-check', `query { tourCup(id: "R-2700-2026") { rankings { ... on CupRankingPlayer { position id name } } } }`),
+    // Try type=FULL or other TourCupType enum values
+    tryGql('tourCupType-enum', `{ __type(name: "TourCupType") { enumValues { name } } }`),
+    // Try with type arg on tourCup
+    tryGql('tourCup-type-arg', `query { tourCup(id: "R-2700-2026", type: FULL) { rankings { ... on CupRankingPlayer { position id name } } } }`),
+    // Try standings.rankings (StandardCupRanking has a rankings field)
+    tryGql('standings-rankings', `query { tourCup(id: "R-2700-2026") { standings { ... on StandardCupRanking { rankings { ... on CupRankingPlayer { position id name } } } } } }`),
+    // priorityRankings with tourCode R — categories fields
+    tryGql('priorityRankings-R-full', `query { priorityRankings(tourCode: R) { categories { __typename } } }`),
+    // Introspect PriorityRankingsCategory
+    tryGql('PriorityRankingsCategory', `{ __type(name: "PriorityRankingsCategory") { fields { name type { name kind ofType { name } } } } }`),
+    // statDetails for RTD stat — stat 02671 is FedEx, try 02700 for RTD
+    tryGql('statDetails-rtd', `query { statDetails(tourCode: R, statId: "02700", year: 2026) { rows { ... on StatDetailsPlayer { rank playerName playerId } } } }`),
   ]);
 
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
