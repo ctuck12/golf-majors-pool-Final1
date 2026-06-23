@@ -24,6 +24,7 @@ export type PlayerStats = {
   sgApproach: string | null;
   sgAroundGreen: string | null;
   sgPutting: string | null;
+  sgTeeToGreen: string | null;
   rounds: string[] | null;
 };
 
@@ -106,6 +107,7 @@ function extractSeason(data: Overview): PlayerStats {
     sgApproach: null,
     sgAroundGreen: null,
     sgPutting: null,
+    sgTeeToGreen: null,
     rounds: null,
   };
 }
@@ -116,7 +118,7 @@ function extractTournament(stats: Stat[]): PlayerStats {
     puttAverage: null, avgPuttsPerRound: null, proximity: null,
     scoringAverage: null, birdiesPerRound: null,
     birdies: null, pars: null, bogeys: null, eagles: null, scoreToPar: null,
-    sgTotal: null, sgOffTee: null, sgApproach: null, sgAroundGreen: null, sgPutting: null,
+    sgTotal: null, sgOffTee: null, sgApproach: null, sgAroundGreen: null, sgPutting: null, sgTeeToGreen: null,
     rounds: null,
   };
 
@@ -153,6 +155,7 @@ function extractTournament(stats: Stat[]): PlayerStats {
     sgApproach: null,
     sgAroundGreen: null,
     sgPutting: null,
+    sgTeeToGreen: statVal(stats, 'sgTeeToGreen') ?? statVal(stats, 'teeToGreen') ?? statVal(stats, 'sgBallStriking'),
     rounds: null,
   };
 }
