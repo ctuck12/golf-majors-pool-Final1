@@ -8450,7 +8450,14 @@ export default function Page() {
                     return String(betterCount + 1);
                   }
                   const SG_KEYS = new Set(['sgTotal','sgOffTee','sgApproach','sgAroundGreen','sgPutting']);
+                  // Hide SG ranks for cut players when Round 3 has started
+                  const feedPlayer = feed?.fullLeaderboard?.find((p) => p.name === pickHistoryPlayerPopup.player.name)
+                    ?? (feed?.players ?? []).find((p) => p.canonicalName === pickHistoryPlayerPopup.player.name);
+                  const playerMissedCut = feedPlayer?.score === 'CUT' || feedPlayer?.position === 'CUT'
+                    || feedPlayer?.score === 'MDF' || feedPlayer?.position === 'MDF';
+                  const hideSgRanks = isTournView && roundTwoComplete && playerMissedCut;
                   function getRank(key: string, rawValue: string | null): string | null {
+                    if (hideSgRanks && SG_KEYS.has(key)) return null;
                     if (isTournView) {
                       // SG has no ESPN Core field distributions — fall back to season tour rank
                       const r = SG_KEYS.has(key) ? (seasonRanks[key] ?? null) : getFieldRank(key, rawValue);

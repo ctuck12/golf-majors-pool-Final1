@@ -74,6 +74,33 @@ async function gqlPost(query: string, variables: Record<string, unknown>): Promi
   return res.json();
 }
 
+// Fetch a player's rank for a specific stat from the leaderboard (fallback for non-qualifying players)
+async function fetchStatLeaderboardRank(statId: string, pgaTourId: string): Promise<string | null> {
+  try {
+    const query = `
+      query StatLeaderboard($statId: ID!) {
+        statLeaderboard(statId: $statId) {
+          rows {
+            rank
+            player { id }
+          }
+        }
+      }
+    `;
+    const data = await gqlPost(query, { statId }) as {
+      data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; player?: { id?: string } }> } };
+    };
+    const rows = data?.data?.statLeaderboard?.rows;
+    if (!Array.isArray(rows)) return null;
+    const row = rows.find((r) => String(r.player?.id) === String(pgaTourId));
+    if (!row) return null;
+    const rankNum = parseInt(String(row.rank ?? ''));
+    return !isNaN(rankNum) && rankNum > 0 ? String(rankNum) : null;
+  } catch {
+    return null;
+  }
+}
+
 // Stat ID → PlayerStats field name (for rank mapping)
 const STAT_ID_TO_FIELD: Record<string, string> = {
   '101': 'drivingDistance',
@@ -137,6 +164,26 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<{ stat
         if (field && !isNaN(rankNum) && rankNum > 0) {
           ranks[field] = String(rankNum);
         }
+      }
+    }
+
+    // For course stats with missing ranks, try the statLeaderboard fallback
+    const COURSE_STAT_IDS = ['101', '102', '103', '106', '130', '111', '108', '104'];
+    const missingStatIds = COURSE_STAT_IDS.filter((id) => {
+      const field = STAT_ID_TO_FIELD[id];
+      return field && !ranks[field];
+    });
+
+    if (missingStatIds.length > 0) {
+      const fallbackRanks = await Promise.all(
+        missingStatIds.map(async (id) => ({
+          id,
+          rank: await fetchStatLeaderboardRank(id, pgaTourId),
+        }))
+      );
+      for (const { id, rank } of fallbackRanks) {
+        const field = STAT_ID_TO_FIELD[id];
+        if (field && rank) ranks[field] = rank;
       }
     }
 
