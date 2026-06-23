@@ -4504,6 +4504,12 @@ export default function Page() {
                                       onClick={() => {
                                         if (player.poolPlayerId !== null && timesPicked > 0) {
                                           setSelectedLeaderboardPlayerId(activePlayer ? null : player.poolPlayerId);
+                                        } else if (player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ') {
+                                          setCutScorecardGolfer({ name: player.name, pgaTourId: player.pgaTourId ?? 0, photoUrl: player.photoUrl ?? undefined });
+                                          setCutScorecardData(null);
+                                          setCutScorecardLoading(true);
+                                          fetch(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}&round=2`)
+                                            .then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false));
                                         } else {
                                           setScorecardGolferName(player.name);
                                           setScorecardGolferPhoto(null);
