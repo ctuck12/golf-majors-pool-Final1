@@ -41,11 +41,11 @@ function mapStat(
     case '106': acc.scrambling = withPercent(v); break;
     case '111': acc.birdiesPerRound = v; break;
     case '108': acc.scoringAverage = v; break;
-    case '02674': acc.sgTotal = v; break;
-    case '02564': acc.sgOffTee = v; break;
-    case '02567': acc.sgApproach = v; break;
-    case '02568': acc.sgAroundGreen = v; break;
-    case '02569': acc.sgPutting = v; break;
+    case '02674': acc.sgTotal = v; break;   // SG: Tee-to-Green / Total (playerProfile)
+    case '02567': acc.sgOffTee = v; break;
+    case '02568': acc.sgApproach = v; break;
+    case '02569': acc.sgAroundGreen = v; break;
+    case '02564': acc.sgPutting = v; break;
   }
 }
 
