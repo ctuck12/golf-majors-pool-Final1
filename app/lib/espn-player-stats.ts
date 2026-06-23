@@ -106,7 +106,7 @@ function extractSeason(data: Overview): PlayerStats {
     puttAverage: statVal(cats, 'puttsGirAvg'),
     avgPuttsPerRound: statVal(cats, 'puttsPerRound') ?? statVal(cats, 'avgPutts') ?? statVal(cats, 'avgPutt'),
     proximity: statVal(cats, 'proximity') ?? statVal(cats, 'proxHole'),
-    scoringAverage: scoringAvg,
+    scoringAverage: scoringAvg ?? summaryStatVal(sumStats, 'scoringAverage') ?? summaryStatVal(sumStats, 'avgScore') ?? statVal(cats, 'scoringAverage') ?? statVal(cats, 'avgScore'),
     birdiesPerRound: statVal(cats, 'birdiesPerRound'),
     birdies: null,
     pars: null,
