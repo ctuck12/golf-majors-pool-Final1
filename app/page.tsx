@@ -8416,7 +8416,7 @@ export default function Page() {
                   if (isTournCtx && statsSubView === 'tournament') {
                     if (s?.proximity) courseStatCells.push({ label: 'Proximity', value: s.proximity });
                   } else {
-                    if (s?.birdiesPerRound) courseStatCells.push({ label: 'Birdies/Rd', value: s.birdiesPerRound });
+
                     if (s?.scoringAverage) courseStatCells.push({ label: 'Scoring Avg', value: s.scoringAverage });
                   }
                   const sgStatCells: { label: string; value: string }[] = [];
@@ -8427,7 +8427,7 @@ export default function Page() {
                   if (s?.sgPutting) sgStatCells.push({ label: 'SG: Putting', value: s.sgPutting });
                   const statCells = [...courseStatCells, ...sgStatCells];
                   const subToggle = showSubToggle ? (
-                    <div key="stats-subtoggle" style={{ display: 'flex', background: '#e8edf2', borderRadius: 8, padding: 3, marginBottom: 10, alignSelf: 'flex-start' }}>
+                    <div key="stats-subtoggle" style={{ display: 'flex', background: '#e8edf2', borderRadius: 8, padding: 3, marginBottom: 10, justifySelf: 'start' }}>
                       {(['tournament', 'season'] as const).map((v) => (
                         <button
                           key={v}
