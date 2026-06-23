@@ -8492,13 +8492,11 @@ export default function Page() {
                         <div>
                           <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Strokes Gained</div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-                            {sgStatCells.map(({ label, value, avgKey }) => {
-                              const avg = avgKey ? avgs[avgKey] : undefined;
+                            {sgStatCells.map(({ label, value }) => {
                               return (
                                 <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
                                   <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
                                   <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{value}</div>
-                                  {avg && <div style={{ fontSize: 9, color: '#a0adb8', marginTop: 3 }}>{avgLabel}: {avg}</div>}
                                 </div>
                               );
                             })}
