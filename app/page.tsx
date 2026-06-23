@@ -8371,10 +8371,16 @@ export default function Page() {
               {/* Tab bar */}
               <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #e2e8ef', flexShrink: 0 }}>
                 {(pickHistoryPlayerPopup.defaultTab === 'season' ? (['season', 'career', 'stats'] as const) : (['stats', 'season', 'career'] as const)).map((tab) => {
-                  const careerName = TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'Major';
+                  const careerTabLabel: Record<string, string> = {
+                    players: 'Players Career',
+                    masters: 'Masters Career',
+                    pga: 'PGA Champ Career',
+                    'us-open': 'U.S. Open Career',
+                    open: 'The Open Career',
+                  };
                   const label = tab === 'stats'
                     ? (careerTournamentId === 'us-open' ? 'Season Stats' : 'Stats')
-                    : tab === 'season' ? 'Season Results' : `${careerName} Career`;
+                    : tab === 'season' ? 'Season Results' : (careerTabLabel[careerTournamentId] ?? 'Major Career');
                   const isActive = pickHistoryView === tab;
                   return (
                     <button
@@ -8606,7 +8612,6 @@ export default function Page() {
                     <div key="career-empty" className="ph-fade-in" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>Has not competed in {TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'this tournament'}</div>
                   ) : (
                     <div key="career-loaded" className="ph-fade-in" style={{ display: 'grid', gap: 6 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2 }}>{TOURNAMENTS.find((t) => t.id === careerTournamentId)?.fullName ?? ''} Career Results</div>
                       {pickHistoryPlayerPopup.careerResults.map((r, i) => {
                         const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
                         return (
