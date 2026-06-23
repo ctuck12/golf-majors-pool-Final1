@@ -4,7 +4,7 @@ import redis from '@/app/lib/redis';
 import { fetchPlayerSeasonStats, fetchPlayerTournamentStats } from '@/app/lib/espn-player-stats';
 import { fetchPgaTourPlayerStats } from '@/app/lib/pga-player-stats';
 import type { PlayerStatRanks } from '@/app/lib/pga-player-stats';
-import { fetchPgaScorecardStats, fetchTournamentSgRanks, pgaTourTournId } from '@/app/lib/pga-scorecard-stats';
+import { fetchPgaScorecardStats, pgaTourTournId } from '@/app/lib/pga-scorecard-stats';
 import { getTournamentMetaByEspnId } from '@/app/lib/tournament-config';
 
 export type { PlayerStats } from '@/app/lib/espn-player-stats';
@@ -50,12 +50,11 @@ export async function GET(request: Request) {
       const meta = getTournamentMetaByEspnId(eventId);
       const pgaTournId = meta ? pgaTourTournId(meta.slashGolfTournId, meta.year) : null;
 
-      const [espnStats, pgaScorecardStats, pgaResult, espnSeasonStats, tournSgRanks] = await Promise.all([
+      const [espnStats, pgaScorecardStats, pgaResult, espnSeasonStats] = await Promise.all([
         fetchPlayerTournamentStats(name, eventId),
         pgaTourId && pgaTournId ? fetchPgaScorecardStats(pgaTournId, pgaTourId) : Promise.resolve(null),
         pgaTourId ? fetchPgaTourPlayerStats(pgaTourId) : Promise.resolve(null),
         fetchPlayerSeasonStats(name),
-        pgaTourId && pgaTournId ? fetchTournamentSgRanks(pgaTournId, pgaTourId) : Promise.resolve({}),
       ]);
 
       const pgaSeasonStats = pgaResult?.stats ?? null;
@@ -64,14 +63,10 @@ export async function GET(request: Request) {
         ? mergeStats(espnSeasonStats, pgaSeasonStats, espnStats, pgaScorecardStats)
         : null;
 
-      // Tournament SG ranks take priority over season SG ranks (covers LIV players, etc.)
-      const seasonRanks = pgaResult?.ranks ?? {};
-      const mergedRanks = { ...seasonRanks, ...tournSgRanks };
-
       if (stats) {
         await redis.setex(cacheKey, ttl, JSON.stringify(stats));
       }
-      return Response.json({ stats, ranks: Object.keys(mergedRanks).length > 0 ? mergedRanks : null });
+      return Response.json({ stats, ranks: pgaResult?.ranks ?? null });
     }
 
     // Season context

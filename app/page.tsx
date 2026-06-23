@@ -8459,9 +8459,15 @@ export default function Page() {
                   function getRank(key: string, rawValue: string | null): string | null {
                     if (hideSgRanks && SG_KEYS.has(key)) return null;
                     if (isTournView) {
-                      // SG has no ESPN Core field distributions — fall back to season tour rank
-                      const r = SG_KEYS.has(key) ? (seasonRanks[key] ?? null) : getFieldRank(key, rawValue);
-                      return r ? ordinal(r) : null;
+                      // Use field distribution rank when available (covers SG if ESPN provides it)
+                      const fieldRank = getFieldRank(key, rawValue);
+                      if (fieldRank) return ordinal(fieldRank);
+                      // SG fallback: season tour rank only if no field distribution
+                      if (SG_KEYS.has(key)) {
+                        const r = seasonRanks[key] ?? null;
+                        return r ? ordinal(r) : null;
+                      }
+                      return null;
                     }
                     const r = seasonRanks[key] ?? null;
                     return r ? ordinal(r) : null;

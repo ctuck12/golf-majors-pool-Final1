@@ -72,6 +72,17 @@ const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; deci
   { key: 'scrambling', espnName: 'sandSaves', isPercent: true, decimals: 1 },
   { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', isPercent: false, decimals: 1 },
   { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', isPercent: false, decimals: 1, altMultiplier: 18 },
+  // SG stats — ESPN Core may provide these; populated when available
+  { key: 'sgTotal', espnName: 'strokesGainedTotal', isPercent: false, decimals: 3 },
+  { key: 'sgTotal', espnName: 'sgTotal', isPercent: false, decimals: 3 },
+  { key: 'sgOffTee', espnName: 'strokesGainedOffTee', isPercent: false, decimals: 3 },
+  { key: 'sgOffTee', espnName: 'sgOffTee', isPercent: false, decimals: 3 },
+  { key: 'sgApproach', espnName: 'strokesGainedApproach', isPercent: false, decimals: 3 },
+  { key: 'sgApproach', espnName: 'sgApproach', isPercent: false, decimals: 3 },
+  { key: 'sgAroundGreen', espnName: 'strokesGainedAroundGreen', isPercent: false, decimals: 3 },
+  { key: 'sgAroundGreen', espnName: 'sgAroundGreen', isPercent: false, decimals: 3 },
+  { key: 'sgPutting', espnName: 'strokesGainedPutting', isPercent: false, decimals: 3 },
+  { key: 'sgPutting', espnName: 'sgPutting', isPercent: false, decimals: 3 },
 ];
 
 export type FieldData = {
@@ -85,7 +96,7 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!eventId) return Response.json({ averages: {}, distributions: {} });
 
-  const cacheKey = `field-averages:v4:${eventId}`;
+  const cacheKey = `field-averages:v5:${eventId}`;
 
   try {
     const cached = await redis.get(cacheKey);
