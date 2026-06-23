@@ -8431,6 +8431,13 @@ export default function Page() {
                   const avgLabel = isTournView ? 'Field Avg' : 'Tour Avg';
                   const distributions = pickHistoryPlayerPopup.fieldDistributions ?? {};
                   const seasonRanks = pickHistoryPlayerPopup.statRanks ?? {};
+                  function ordinal(n: string | number): string {
+                    const num = parseInt(String(n));
+                    if (isNaN(num)) return String(n);
+                    const v = num % 100;
+                    const suffix = (v >= 11 && v <= 13) ? 'th' : ['th','st','nd','rd','th'][Math.min(num % 10, 4)];
+                    return `${num}${suffix}`;
+                  }
                   // Compute rank from sorted field distribution (best-first array)
                   function getFieldRank(key: string, rawValue: string | null): string | null {
                     if (!rawValue) return null;
@@ -8438,13 +8445,19 @@ export default function Page() {
                     if (!dist || dist.length < 5) return null;
                     const playerVal = parseFloat(rawValue.replace('%', ''));
                     if (isNaN(playerVal)) return null;
-                    // Count players strictly better than this player
                     const lowerIsBetter = key === 'scoringAverage' || key === 'avgPuttsPerRound';
                     const betterCount = dist.filter((v) => lowerIsBetter ? v < playerVal : v > playerVal).length;
                     return String(betterCount + 1);
                   }
+                  const SG_KEYS = new Set(['sgTotal','sgOffTee','sgApproach','sgAroundGreen','sgPutting']);
                   function getRank(key: string, rawValue: string | null): string | null {
-                    return isTournView ? getFieldRank(key, rawValue) : (seasonRanks[key] ?? null);
+                    if (isTournView) {
+                      // SG has no ESPN Core field distributions — fall back to season tour rank
+                      const r = SG_KEYS.has(key) ? (seasonRanks[key] ?? null) : getFieldRank(key, rawValue);
+                      return r ? ordinal(r) : null;
+                    }
+                    const r = seasonRanks[key] ?? null;
+                    return r ? ordinal(r) : null;
                   }
                   const courseStatCells: { label: string; value: string; avgKey?: string; rankKey?: string }[] = [];
                   if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Distance', value: s.drivingDistance, avgKey: 'drivingDistance', rankKey: 'drivingDistance' });
