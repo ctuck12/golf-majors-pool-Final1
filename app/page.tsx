@@ -1186,6 +1186,7 @@ export default function Page() {
     statAverages: Record<string, string>;
     fieldAverages: Record<string, string>;
     statRanks: Record<string, string>;
+    seasonStatRanks: Record<string, string>;
     fieldDistributions: Record<string, number[]>;
   } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
@@ -2618,14 +2619,15 @@ export default function Page() {
       statAverages: {},
       fieldAverages: {},
       statRanks: {},
+      seasonStatRanks: {},
       fieldDistributions: {},
     });
     const scorecardFetch = statsCtx === 'tournament'
       ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
       : Promise.resolve({ rounds: null });
     const seasonStatsFetch = showSubToggle
-      ? readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null }>(`/api/player-stats?name=${encodeURIComponent(player.name)}&context=season&pgaTourId=${player.pgaTourId}`, { cache: 'no-store' }).catch(() => ({ stats: null }))
-      : Promise.resolve({ stats: null });
+      ? readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null; ranks: Record<string, string> | null }>(`/api/player-stats?name=${encodeURIComponent(player.name)}&context=season&pgaTourId=${player.pgaTourId}`, { cache: 'no-store' }).catch(() => ({ stats: null, ranks: null }))
+      : Promise.resolve({ stats: null, ranks: null });
     Promise.all([
       readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
       readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
@@ -2640,7 +2642,7 @@ export default function Page() {
         : Promise.resolve({ averages: {}, distributions: {} }),
     ]).then(([fullData, fedexData, dpWorldData, owgrData, statsData, scData, seasonData, avgData, fieldAvgData]) => {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
-      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {}, statRanks: statsData.ranks ?? {}, fieldDistributions: fieldAvgData.distributions ?? {} } : null);
+      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {}, statRanks: statsData.ranks ?? {}, seasonStatRanks: seasonData.ranks ?? {}, fieldDistributions: fieldAvgData.distributions ?? {} } : null);
     });
   };
 
@@ -8430,7 +8432,10 @@ export default function Page() {
                     : pickHistoryPlayerPopup.statAverages ?? {};
                   const avgLabel = isTournView ? 'Field Avg' : 'Tour Avg';
                   const distributions = pickHistoryPlayerPopup.fieldDistributions ?? {};
-                  const seasonRanks = pickHistoryPlayerPopup.statRanks ?? {};
+                  const tournRanks = pickHistoryPlayerPopup.statRanks ?? {};
+                  const seasonRanks = isTournView
+                    ? tournRanks
+                    : (pickHistoryPlayerPopup.seasonStatRanks ?? tournRanks);
                   function ordinal(n: string | number): string {
                     const num = parseInt(String(n));
                     if (isNaN(num)) return String(n);
@@ -8459,11 +8464,12 @@ export default function Page() {
                   function getRank(key: string, rawValue: string | null): string | null {
                     if (hideSgRanks && SG_KEYS.has(key)) return null;
                     if (isTournView) {
-                      // SG ranks: from scorecardStatsV3 strokesGained.rank (tournament-specific)
-                      // Course stat ranks: from field distributions
-                      const r = SG_KEYS.has(key) ? (seasonRanks[key] ?? null) : getFieldRank(key, rawValue);
+                      // SG: tournament-specific ranks from scorecardStatsV3 strokesGained.rank
+                      // Course stats: field distribution ranks
+                      const r = SG_KEYS.has(key) ? (tournRanks[key] ?? null) : getFieldRank(key, rawValue);
                       return r ? ordinal(r) : null;
                     }
+                    // Season view: pure season PGA Tour ranks
                     const r = seasonRanks[key] ?? null;
                     return r ? ordinal(r) : null;
                   }
