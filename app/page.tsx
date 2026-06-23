@@ -8355,7 +8355,7 @@ export default function Page() {
                   const careerName = TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'Major';
                   const isSeasonStatsEvent = careerTournamentId === 'masters' || careerTournamentId === 'us-open';
                   const label = tab === 'stats'
-                    ? (pickHistoryPlayerPopup.statsContext === 'tournament' && !isSeasonStatsEvent ? 'Tournament Stats' : 'Season Stats')
+                    ? 'Stats'
                     : tab === 'season' ? '2026 Season' : `${careerName} Career`;
                   const isActive = pickHistoryView === tab;
                   return (
@@ -8435,31 +8435,13 @@ export default function Page() {
                       </div>
                     );
                   }
-                  if (statCells.length === 0 && rounds.length === 0) {
+                  if (statCells.length === 0) {
                     return <div key="stats-empty" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>No stats available for this {isTournCtx ? 'tournament' : 'season'}.</div>;
                   }
                   return (
                     <div key="stats-loaded" style={{ display: 'grid', gap: 10 }}>
-                      {rounds.length > 0 && (
-                        <div>
-                          <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Round Scores</div>
-                          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${rounds.length}, 1fr)`, gap: 6 }}>
-                            {rounds.map(({ round, score }) => {
-                              const val = score === 'E' ? 0 : parseInt(score, 10);
-                              const scoreColor = isNaN(val) ? '#0f1720' : val < 0 ? '#2c6449' : val > 0 ? '#cc2944' : '#607282';
-                              return (
-                                <div key={round} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '9px 6px', textAlign: 'center' }}>
-                                  <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>R{round}</div>
-                                  <div style={{ fontSize: 15, fontWeight: 900, color: scoreColor, lineHeight: 1 }}>{score}</div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
                       {courseStatCells.length > 0 && (
                         <div>
-                          {rounds.length > 0 && <div style={{ fontSize: 10, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Course Stats</div>}
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
                             {courseStatCells.map(({ label, value }) => (
                               <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
