@@ -8353,7 +8353,7 @@ export default function Page() {
 
               {/* Tab bar */}
               <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #e2e8ef', flexShrink: 0 }}>
-                {(pickHistoryPlayerPopup.defaultTab === 'season' ? ['season', 'career', 'stats'] : ['stats', 'season', 'career'] as const).map((tab) => {
+                {(pickHistoryPlayerPopup.defaultTab === 'season' ? (['season', 'career', 'stats'] as const) : (['stats', 'season', 'career'] as const)).map((tab) => {
                   const careerName = TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'Major';
                   const label = tab === 'stats'
                     ? 'Stats'
@@ -8364,7 +8364,7 @@ export default function Page() {
                       key={tab}
                       onClick={async (e) => {
                         e.stopPropagation();
-                        setPickHistoryView(tab);
+                        setPickHistoryView(tab as 'stats' | 'season' | 'career');
                         if (tab === 'career' && pickHistoryPlayerPopup.careerResults === null && !pickHistoryPlayerPopup.careerResultsLoading) {
                           setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: true } : null);
                           try {
