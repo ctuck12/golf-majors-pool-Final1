@@ -1,8 +1,17 @@
 import type { PlayerStats } from './espn-player-stats';
 import type { PlayerStatRanks } from './pga-player-stats';
 
-// statId → PlayerStats field name for SG rank mapping
-// strokesGained may use 02674 or 02675 for the total depending on tournament
+// Stat IDs for Off Tee/Approach/Around/Putting are identical in season & tournament
+// contexts and carry tournament ranks inside scorecardStatsV3 performance items.
+const SG_PERF_RANK_IDS: Record<string, string> = {
+  '02567': 'sgOffTee',
+  '02568': 'sgApproach',
+  '02569': 'sgAroundGreen',
+  '02564': 'sgPutting',
+};
+
+// sgTotal uses 02674 (season) or 02675 (tournament) in strokesGained only.
+// 02674 in performance carries the season rank — never read it from there.
 const SG_STAT_ID_TO_FIELD: Record<string, string> = {
   '02674': 'sgTotal',
   '02675': 'sgTotal',
@@ -108,28 +117,35 @@ export async function fetchPgaScorecardStats(
     // and fall back to searching all rounds if the aggregate round lacks rank data
     // Extract tournament SG ranks ONLY from strokesGained items — never from performance,
     // which carries season ranks that would contaminate tournament view
-    // DEBUG: log what strokesGained actually returns
-    console.log('[SG_DEBUG]', pgaTournId, pgaPlayerId, 'allRound:', allRound?.round, 'sg:', JSON.stringify(allRound?.strokesGained));
-
     const sgRanks: PlayerStatRanks = {};
 
-    const extractFromSg = (items: PerfItem[]) => {
+    // Off Tee / Approach / Around Green / Putting: same stat IDs in both contexts;
+    // performance items carry tournament-specific ranks for these.
+    for (const item of perf) {
+      if (!item.statId) continue;
+      const field = SG_PERF_RANK_IDS[item.statId];
+      if (!field || sgRanks[field]) continue;
+      const rankNum = parseInt(String(item.rank ?? ''));
+      if (!isNaN(rankNum) && rankNum > 0) sgRanks[field] = String(rankNum);
+    }
+
+    // SG Total: 02674/02675 in performance carries season rank — only trust strokesGained
+    const extractTotalFromSg = (items: PerfItem[]) => {
       for (const item of items) {
-        if (!item.statId) continue;
+        if (!item.statId || sgRanks['sgTotal']) continue;
         const field = SG_STAT_ID_TO_FIELD[item.statId];
-        if (!field || sgRanks[field]) continue;
+        if (field !== 'sgTotal') continue;
         const rankNum = parseInt(String(item.rank ?? ''));
-        if (!isNaN(rankNum) && rankNum > 0) sgRanks[field] = String(rankNum);
+        if (!isNaN(rankNum) && rankNum > 0) sgRanks['sgTotal'] = String(rankNum);
       }
     };
 
-    extractFromSg(sg);
-
-    // If aggregate round lacks rank data, search individual rounds' strokesGained
-    if (Object.keys(sgRanks).length < Object.keys(SG_STAT_ID_TO_FIELD).length) {
+    extractTotalFromSg(sg);
+    // Fallback: search individual rounds' strokesGained for sgTotal rank
+    if (!sgRanks['sgTotal']) {
       for (const round of rounds) {
         if (round.round === '-1') continue;
-        extractFromSg(round.strokesGained ?? []);
+        extractTotalFromSg(round.strokesGained ?? []);
       }
     }
 
