@@ -1,8 +1,10 @@
 import type { PlayerStats } from './espn-player-stats';
 import type { PlayerStatRanks } from './pga-player-stats';
 
-// statId → PlayerStats field name for SG rank mapping (tournament scorecard IDs only)
+// statId → PlayerStats field name for SG rank mapping
+// strokesGained may use 02674 or 02675 for the total depending on tournament
 const SG_STAT_ID_TO_FIELD: Record<string, string> = {
+  '02674': 'sgTotal',
   '02675': 'sgTotal',
   '02567': 'sgOffTee',
   '02568': 'sgApproach',
