@@ -2591,7 +2591,7 @@ export default function Page() {
     const params = new URLSearchParams({ name: player.name, context: statsCtx });
     if (espnEventId && !showFutureTournamentView) params.set('eventId', espnEventId);
     params.set('pgaTourId', String(player.pgaTourId));
-    const showSubToggle = statsCtx === 'tournament' && selectedTournament !== 'us-open';
+    const showSubToggle = statsCtx === 'tournament' && selectedTournament !== 'us-open' && defaultTab === 'stats';
     setStatsSubView('tournament');
     setPickHistoryView(defaultTab);
     setPickHistoryPlayerPopup({
@@ -8396,7 +8396,7 @@ export default function Page() {
               <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '14px 18px 20px', background: '#f4f7fa', borderRadius: '0 0 20px 20px' }}>
                 {pickHistoryView === 'stats' && (() => {
                   const isTournCtx = pickHistoryPlayerPopup.statsContext === 'tournament';
-                  const showSubToggle = isTournCtx && careerTournamentId !== 'us-open';
+                  const showSubToggle = isTournCtx && careerTournamentId !== 'us-open' && pickHistoryPlayerPopup.defaultTab === 'stats';
                   const s = showSubToggle && statsSubView === 'season'
                     ? pickHistoryPlayerPopup.playerSeasonStats
                     : pickHistoryPlayerPopup.playerStats;
@@ -8413,10 +8413,9 @@ export default function Page() {
                   if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling });
                   if (s?.avgPuttsPerRound) courseStatCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound });
                   else if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1) });
-                  if (isTournCtx && statsSubView === 'tournament') {
+                  if (showSubToggle && statsSubView === 'tournament') {
                     if (s?.proximity) courseStatCells.push({ label: 'Proximity', value: s.proximity });
                   } else {
-
                     if (s?.scoringAverage) courseStatCells.push({ label: 'Scoring Avg', value: s.scoringAverage });
                   }
                   const sgStatCells: { label: string; value: string }[] = [];
