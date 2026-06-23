@@ -33,7 +33,7 @@ export async function GET(request: Request) {
 
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
-    ? `player-stats:v23:tourn:${eventId}:${name}`
+    ? `player-stats:v24:tourn:${eventId}:${name}`
     : `player-stats:v10:season:2026:${name}`;
   const ranksCacheKey = `player-stats:v10:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 1800 : 3600;
@@ -68,10 +68,11 @@ export async function GET(request: Request) {
       // Season course stat ranks come from playerProfileStats (PGA Tour season)
       const seasonRanks = pgaResult?.ranks ?? {};
       const tournSgRanks = scorecardResult?.sgRanks ?? {};
-      // Strip sgTotal from season ranks — it must not bleed into tournament view;
-      // if tournament-specific sgTotal rank is unavailable we show nothing rather than the wrong season rank
-      const { sgTotal: _ignored, ...seasonRanksNoSgTotal } = seasonRanks;
-      const mergedRanks = { ...seasonRanksNoSgTotal, ...tournSgRanks };
+      // Strip ALL SG ranks from season in tournament context — tournament SG ranks must only
+      // come from scorecardStatsV3 (tournSgRanks). Season SG ranks must never bleed into
+      // tournament view even if the scorecard returned no ranks for a particular category.
+      const { sgTotal: _i1, sgOffTee: _i2, sgApproach: _i3, sgAroundGreen: _i4, sgPutting: _i5, ...seasonNonSgRanks } = seasonRanks;
+      const mergedRanks = { ...seasonNonSgRanks, ...tournSgRanks };
 
       if (stats) {
         await redis.setex(cacheKey, ttl, JSON.stringify(stats));
