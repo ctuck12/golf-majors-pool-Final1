@@ -4505,7 +4505,7 @@ export default function Page() {
                                         if (player.poolPlayerId !== null && timesPicked > 0) {
                                           setSelectedLeaderboardPlayerId(activePlayer ? null : player.poolPlayerId);
                                         } else if (player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ') {
-                                          setCutScorecardGolfer({ name: player.name, pgaTourId: player.pgaTourId ?? 0, photoUrl: player.photoUrl ?? undefined });
+                                          setCutScorecardGolfer({ name: player.name, pgaTourId: 0, photoUrl: undefined });
                                           setCutScorecardData(null);
                                           setCutScorecardLoading(true);
                                           fetch(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}&round=2`)
