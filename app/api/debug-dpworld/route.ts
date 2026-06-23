@@ -20,17 +20,12 @@ async function tryGql(label: string, query: string, variables: Record<string, un
 
 export async function GET() {
   const results = await Promise.all([
-    // Try full id format
-    tryGql('combined-full-id', `query { tourCupCombined(tourCode: R, id: "R-2700-2026", year: 2026) { players { id displayName officialSort } } }`),
-    // Try without year
-    tryGql('combined-no-year', `query { tourCupCombined(tourCode: R, id: "2700") { players { id displayName officialSort } } }`),
-    // tourCupSplit fields and data
-    tryGql('tourCupSplit-fields', `{ __type(name: "TourCupSplit") { fields { name type { name kind ofType { name } } } } }`),
-    tryGql('tourCupSplit-players', `query { tourCupSplit(tourCode: R, id: "2700", year: 2026) { players { __typename } } }`),
-    // Try tourCode E (European Tour)
-    tryGql('combined-tourcode-E', `query { tourCupCombined(tourCode: E, id: "2700", year: 2026) { players { id displayName officialSort } } }`),
-    // defaultTourCup for R
-    tryGql('defaultTourCup-R', `query { defaultTourCup(tour: R) { id title } }`),
+    // Introspect TourCupCombinedRow — actual type of players items
+    tryGql('TourCupCombinedRow', `{ __type(name: "TourCupCombinedRow") { fields { name type { name kind ofType { name } } } } }`),
+    // tourCupSplit officialPlayers
+    tryGql('split-officialPlayers', `query { tourCupSplit(tourCode: R, id: "2700", year: 2026) { officialPlayers { __typename } } }`),
+    // tourCupCombined players with __typename to find actual type
+    tryGql('combined-players-typename', `query { tourCupCombined(tourCode: R, id: "2700", year: 2026) { players { __typename } } }`),
   ]);
 
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
