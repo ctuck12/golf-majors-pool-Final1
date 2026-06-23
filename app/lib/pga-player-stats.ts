@@ -12,9 +12,9 @@ function gqlHeaders() {
   };
 }
 
-// Normalise a raw stat value string; returns null if meaningless
-function normalizeValue(raw: string | null | undefined): string | null {
-  if (!raw) return null;
+// Normalise a raw stat value string or number; returns null if meaningless
+function normalizeValue(raw: string | number | null | undefined): string | null {
+  if (raw === null || raw === undefined) return null;
   const v = String(raw).trim();
   if (!v || v === '0' || v === '0.000' || v === '0.00' || v === '0.0') return null;
   return v;
@@ -27,7 +27,7 @@ function withPercent(v: string): string {
 // Map PGA Tour stat IDs to PlayerStats fields
 function mapStat(
   statId: string,
-  rawValue: string | null | undefined,
+  rawValue: string | number | null | undefined,
   acc: Partial<PlayerStats>
 ): void {
   const v = normalizeValue(rawValue);
@@ -49,11 +49,12 @@ function mapStat(
   }
 }
 
-// Confirmed valid fields on PlayerProfileStatItem: statId, rank, displayValue
 // playerProfileStats returns [PlayerProfileStat]; each has stats: [PlayerProfileStatItem]
+// Note: 'displayValue' was removed from the schema; use 'value' (numeric) instead
 type GqlStat = {
   statId?: string;
-  displayValue?: string | null;
+  value?: number | null;
+  displayValue?: string | null; // kept for schema forward-compat, may be null/undefined
   rank?: string | number | null;
 };
 
@@ -76,12 +77,13 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<Partia
   try {
     // playerProfileStats returns [PlayerProfileStat], each with stats: [PlayerProfileStatItem]
     // Valid fields on PlayerProfileStatItem: statId, rank, displayValue
+    // 'displayValue' was removed from PlayerProfileStatItem schema — use 'value' (numeric)
     const query = `
       query PlayerProfileStats($playerId: ID!) {
         playerProfileStats(playerId: $playerId) {
           stats {
             statId
-            displayValue
+            value
             rank
           }
         }
@@ -108,7 +110,7 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<Partia
     const acc: Partial<PlayerStats> = {};
     for (const stat of stats) {
       if (stat.statId) {
-        mapStat(stat.statId, stat.displayValue, acc);
+        mapStat(stat.statId, stat.value ?? stat.displayValue, acc);
       }
     }
 

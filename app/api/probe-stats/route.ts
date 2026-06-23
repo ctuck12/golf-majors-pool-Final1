@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       const query = `
         query PlayerProfileStats($playerId: ID!) {
           playerProfileStats(playerId: $playerId) {
-            stats { statId displayValue rank }
+            stats { statId value rank }
           }
         }
       `;
