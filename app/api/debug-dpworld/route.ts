@@ -20,18 +20,18 @@ async function tryGql(label: string, query: string, variables: Record<string, un
 
 export async function GET() {
   const results = await Promise.all([
-    // TourCode enum R is valid — pass without quotes (enum value not string)
-    tryGql('priorityRankings-R-enum', `query { priorityRankings(tourCode: R) { __typename } }`),
-    // Get tourCups with correct args - tour enum, year int
-    tryGql('tourCups-R-2026', `query { tourCups(tour: R, year: 2026) { id title } }`),
-    // PlayerHub payload — it's compressed, try decoding it
-    tryGql('playerHub-payload', `query { playerHub(playerId: "28237") { payload } }`),
-    // Introspect priorityRankings return type
-    tryGql('priorityRankingsType', `{ __type(name: "Query") { fields { name args { name type { name kind ofType { name } } } } } }`),
-    // Try playerProfileStats with just id to get what fields work
-    tryGql('playerProfileStats-test', `query { playerProfileStats(playerId: "28237", tourCode: PGA, year: 2026) { __typename } }`),
-    // tourCup with tour enum
-    tryGql('tourCup-introspect-args', `{ __type(name: "TourCupRankingEvent") { fields { name type { name kind ofType { name } } } } }`),
+    // Probe RTD cup directly
+    tryGql('tourCup-rtd', `query { tourCup(id: "R-2700-2026") { rankings { __typename } standings { __typename } } }`),
+    // Introspect PriorityRankings fields
+    tryGql('priorityRankingsFields', `{ __type(name: "PriorityRankings") { fields { name } } }`),
+    // Introspect TourCupRankingData fields
+    tryGql('tourCupRankingData', `{ __type(name: "TourCupRankingData") { fields { name } } }`),
+    // Introspect TourCupRanking fields (the standings row type)
+    tryGql('tourCupRankingFields', `{ __type(name: "TourCupRanking") { fields { name } } }`),
+    // Try fetching actual standings with player data
+    tryGql('tourCup-rtd-standings', `query { tourCup(id: "R-2700-2026") { standings { __typename } } }`),
+    // Try fetching rankings array
+    tryGql('tourCup-rtd-rankings-items', `query { tourCup(id: "R-2700-2026") { rankings { rank player { id displayName } points } } }`),
   ]);
 
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
