@@ -67,7 +67,7 @@ export async function fetchPgaScorecardStats(
         scorecardStatsV3(id: $id, playerId: $playerId) {
           rounds {
             round
-            performance { statId total }
+            performance { statId total rank }
             strokesGained { statId total rank }
           }
         }
@@ -88,9 +88,9 @@ export async function fetchPgaScorecardStats(
       };
     };
 
-    // Use "All" round (round === "-1") for tournament totals
+    // Use "All" round (round === "-1") for tournament totals; fall back to last round
     const rounds = data?.data?.scorecardStatsV3?.rounds ?? [];
-    const allRound = rounds.find((r) => r.round === '-1') ?? rounds[0];
+    const allRound = rounds.find((r) => r.round === '-1') ?? rounds[rounds.length - 1];
     const perf = allRound?.performance ?? [];
     const sg = allRound?.strokesGained ?? [];
     if (perf.length === 0 && sg.length === 0) return null;
@@ -102,15 +102,30 @@ export async function fetchPgaScorecardStats(
       }
     }
 
-    // Extract tournament SG ranks directly from scorecardStatsV3
+    // Extract tournament SG ranks — check performance items, strokesGained items,
+    // and fall back to searching all rounds if the aggregate round lacks rank data
     const sgRanks: PlayerStatRanks = {};
-    for (const item of sg) {
-      if (item.statId) {
+
+    const extractSgRanks = (items: PerfItem[]) => {
+      for (const item of items) {
+        if (!item.statId) continue;
         const field = SG_STAT_ID_TO_FIELD[item.statId];
+        if (!field || sgRanks[field]) continue;
         const rankNum = parseInt(String(item.rank ?? ''));
-        if (field && !isNaN(rankNum) && rankNum > 0) {
-          sgRanks[field] = String(rankNum);
-        }
+        if (!isNaN(rankNum) && rankNum > 0) sgRanks[field] = String(rankNum);
+      }
+    };
+
+    extractSgRanks(perf);
+    extractSgRanks(sg);
+
+    // If still missing ranks, search all rounds for rank data (some tournaments
+    // only populate rank on individual round entries, not the aggregate)
+    if (Object.keys(sgRanks).length < Object.keys(SG_STAT_ID_TO_FIELD).length) {
+      for (const round of rounds) {
+        if (round.round === '-1') continue;
+        extractSgRanks(round.performance ?? []);
+        extractSgRanks(round.strokesGained ?? []);
       }
     }
 
