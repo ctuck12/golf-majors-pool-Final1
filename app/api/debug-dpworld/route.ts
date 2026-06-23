@@ -41,12 +41,17 @@ async function decodePlayerHub(playerId: string) {
 }
 
 export async function GET() {
-  // Decode playerHub for Rory (28237) and Fleetwood (35891) — check for RTD rank in widgets
-  const [rory, fleetwood] = await Promise.all([
-    decodePlayerHub('28237'),
-    decodePlayerHub('35891'),
+  const results = await Promise.all([
+    // playerProfileStats for Rory — check for RTD rank
+    tryGql('playerProfileStats-rory', `query { playerProfileStats(playerId: "28237") { __typename } }`),
+    // Introspect PlayerProfileStats type fully
+    tryGql('PlayerProfileStats-type', `{ __type(name: "PlayerProfileStats") { fields { name type { name kind ofType { name } } } } }`),
+    // playerTournamentStatus — might include tour standings
+    tryGql('playerTournamentStatus-rory', `query { playerTournamentStatus(playerId: "28237") { __typename } }`),
+    tryGql('PlayerTournamentStatus-type', `{ __type(name: "PlayerTournamentStatus") { fields { name type { name kind ofType { name } } } } }`),
+    // ESPN rankings check — which of 1-6 is RTD?
+    tryGql('espn-check', `{ __type(name: "Query") { fields { name } } }`),
   ]);
-  const results = [rory, fleetwood];
 
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
 }
