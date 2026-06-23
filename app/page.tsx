@@ -1178,12 +1178,14 @@ export default function Page() {
     careerResults: { year: number; course: string; position: string }[] | null;
     careerResultsLoading: boolean;
     playerStats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null;
+    playerSeasonStats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null;
     playerStatsLoading: boolean;
     playerRounds: { round: number; score: string }[] | null;
     statsContext: 'season' | 'tournament';
     defaultTab: 'stats' | 'season';
   } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
+  const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
   useEffect(() => {
     if (!pickHistoryPlayerPopup) return;
     const scrollY = window.scrollY;
@@ -2589,6 +2591,8 @@ export default function Page() {
     const params = new URLSearchParams({ name: player.name, context: statsCtx });
     if (espnEventId && !showFutureTournamentView) params.set('eventId', espnEventId);
     params.set('pgaTourId', String(player.pgaTourId));
+    const showSubToggle = statsCtx === 'tournament' && selectedTournament !== 'us-open';
+    setStatsSubView('tournament');
     setPickHistoryView(defaultTab);
     setPickHistoryPlayerPopup({
       player,
@@ -2602,6 +2606,7 @@ export default function Page() {
       careerResults: null,
       careerResultsLoading: false,
       playerStats: null,
+      playerSeasonStats: null,
       playerStatsLoading: true,
       playerRounds: null,
       statsContext: statsCtx,
@@ -2610,6 +2615,9 @@ export default function Page() {
     const scorecardFetch = statsCtx === 'tournament'
       ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
       : Promise.resolve({ rounds: null });
+    const seasonStatsFetch = showSubToggle
+      ? readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null }>(`/api/player-stats?name=${encodeURIComponent(player.name)}&context=season&pgaTourId=${player.pgaTourId}`, { cache: 'no-store' }).catch(() => ({ stats: null }))
+      : Promise.resolve({ stats: null });
     Promise.all([
       readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
       readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
@@ -2617,9 +2625,10 @@ export default function Page() {
       readJson<{ rank: number | null }>(`/api/player-owgr-rank?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
       readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; rounds: string[] | null } | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null })),
       scorecardFetch,
-    ]).then(([fullData, fedexData, dpWorldData, owgrData, statsData, scData]) => {
+      seasonStatsFetch,
+    ]).then(([fullData, fedexData, dpWorldData, owgrData, statsData, scData, seasonData]) => {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
-      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null } : null);
+      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null } : null);
     });
   };
 
@@ -8386,8 +8395,11 @@ export default function Page() {
               {/* Body */}
               <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '14px 18px 20px', background: '#f4f7fa', borderRadius: '0 0 20px 20px' }}>
                 {pickHistoryView === 'stats' && (() => {
-                  const s = pickHistoryPlayerPopup.playerStats;
                   const isTournCtx = pickHistoryPlayerPopup.statsContext === 'tournament';
+                  const showSubToggle = isTournCtx && careerTournamentId !== 'us-open';
+                  const s = showSubToggle && statsSubView === 'season'
+                    ? pickHistoryPlayerPopup.playerSeasonStats
+                    : pickHistoryPlayerPopup.playerStats;
                   const espnRounds = isTournCtx
                     ? (pickHistoryPlayerPopup.playerStats?.rounds ?? []).map((score, i) => ({ round: i + 1, score }))
                     : [];
@@ -8401,7 +8413,7 @@ export default function Page() {
                   if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling });
                   if (s?.avgPuttsPerRound) courseStatCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound });
                   else if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1) });
-                  if (isTournCtx) {
+                  if (isTournCtx && statsSubView === 'tournament') {
                     if (s?.proximity) courseStatCells.push({ label: 'Proximity', value: s.proximity });
                   } else {
                     if (s?.birdiesPerRound) courseStatCells.push({ label: 'Birdies/Rd', value: s.birdiesPerRound });
@@ -8414,9 +8426,23 @@ export default function Page() {
                   if (s?.sgAroundGreen) sgStatCells.push({ label: 'SG: Around', value: s.sgAroundGreen });
                   if (s?.sgPutting) sgStatCells.push({ label: 'SG: Putting', value: s.sgPutting });
                   const statCells = [...courseStatCells, ...sgStatCells];
+                  const subToggle = showSubToggle ? (
+                    <div key="stats-subtoggle" style={{ display: 'flex', background: '#e8edf2', borderRadius: 8, padding: 3, marginBottom: 10, alignSelf: 'flex-start' }}>
+                      {(['tournament', 'season'] as const).map((v) => (
+                        <button
+                          key={v}
+                          onClick={() => setStatsSubView(v)}
+                          style={{ padding: '4px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', transition: 'all 0.15s', background: statsSubView === v ? '#fff' : 'transparent', color: statsSubView === v ? '#0f1720' : '#607282', boxShadow: statsSubView === v ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
+                        >
+                          {v === 'tournament' ? 'Tournament' : 'Season'}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null;
                   if (pickHistoryPlayerPopup.playerStatsLoading) {
                     return (
                       <div key="stats-loading" style={{ display: 'grid', gap: 10 }}>
+                        {subToggle}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
                           {[0,1,2,3].map((i) => (
                             <div key={i} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', textAlign: 'center' }}>
@@ -8437,10 +8463,11 @@ export default function Page() {
                     );
                   }
                   if (statCells.length === 0) {
-                    return <div key="stats-empty" style={{ textAlign: 'center', color: '#607282', padding: '30px 0', fontSize: 14 }}>No stats available for this {isTournCtx ? 'tournament' : 'season'}.</div>;
+                    return <div key="stats-empty" style={{ display: 'grid', gap: 0 }}>{subToggle}<div style={{ textAlign: 'center', color: '#607282', padding: '20px 0', fontSize: 14 }}>No stats available for this {isTournCtx && statsSubView === 'tournament' ? 'tournament' : 'season'}.</div></div>;
                   }
                   return (
                     <div key="stats-loaded" style={{ display: 'grid', gap: 10 }}>
+                      {subToggle}
                       {courseStatCells.length > 0 && (
                         <div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
