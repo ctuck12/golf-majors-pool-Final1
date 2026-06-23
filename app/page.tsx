@@ -8351,12 +8351,11 @@ export default function Page() {
 
               {/* Tab bar */}
               <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #e2e8ef', flexShrink: 0 }}>
-                {(['stats', 'season', 'career'] as const).map((tab) => {
+                {(['season', 'career', 'stats'] as const).map((tab) => {
                   const careerName = TOURNAMENTS.find((t) => t.id === careerTournamentId)?.name ?? 'Major';
-                  const isSeasonStatsEvent = careerTournamentId === 'masters' || careerTournamentId === 'us-open';
                   const label = tab === 'stats'
                     ? 'Stats'
-                    : tab === 'season' ? '2026 Season' : `${careerName} Career`;
+                    : tab === 'season' ? 'Season Results' : `${careerName} Career`;
                   const isActive = pickHistoryView === tab;
                   return (
                     <button
