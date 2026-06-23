@@ -20,18 +20,18 @@ async function tryGql(label: string, query: string, variables: Record<string, un
 
 export async function GET() {
   const results = await Promise.all([
-    // PlayerHub works! Introspect PlayerHubPlayerCompressed type to find ranking fields
-    tryGql('playerHubType', `{ __type(name: "PlayerHubPlayerCompressed") { fields { name } } }`),
-    // Also introspect PlayerHubPlayer type (uncompressed might exist)
-    tryGql('playerHubPlayerType', `{ __type(name: "PlayerHubPlayer") { fields { name } } }`),
-    // TourCode enum values
-    tryGql('tourCodeEnum', `{ __type(name: "TourCode") { enumValues { name } } }`),
-    // TourCupRankingEvent has standings — introspect it
-    tryGql('tourCupStandingsType', `{ __type(name: "TourCupStanding") { fields { name } } }`),
-    // Try tourCups (plural) - list of available cups
-    tryGql('tourCups', `query { tourCups(tourCode: "PGA") { __typename id title } }`),
-    // Fetch playerHub for Rory with all potential ranking fields
-    tryGql('playerHub-rory-full', `query { playerHub(playerId: "28237") { rankings { __typename } } }`),
+    // TourCode enum R is valid — pass without quotes (enum value not string)
+    tryGql('priorityRankings-R-enum', `query { priorityRankings(tourCode: R) { __typename } }`),
+    // Get tourCups with correct args - tour enum, year int
+    tryGql('tourCups-R-2026', `query { tourCups(tour: R, year: 2026) { id title } }`),
+    // PlayerHub payload — it's compressed, try decoding it
+    tryGql('playerHub-payload', `query { playerHub(playerId: "28237") { payload } }`),
+    // Introspect priorityRankings return type
+    tryGql('priorityRankingsType', `{ __type(name: "Query") { fields { name args { name type { name kind ofType { name } } } } } }`),
+    // Try playerProfileStats with just id to get what fields work
+    tryGql('playerProfileStats-test', `query { playerProfileStats(playerId: "28237", tourCode: PGA, year: 2026) { __typename } }`),
+    // tourCup with tour enum
+    tryGql('tourCup-introspect-args', `{ __type(name: "TourCupRankingEvent") { fields { name type { name kind ofType { name } } } } }`),
   ]);
 
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
