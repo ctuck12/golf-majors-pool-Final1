@@ -41,17 +41,47 @@ async function decodePlayerHub(playerId: string) {
 }
 
 export async function GET() {
-  const results = await Promise.all([
-    // playerProfileStats for Rory — check for RTD rank
-    tryGql('playerProfileStats-rory', `query { playerProfileStats(playerId: "28237") { __typename } }`),
-    // Introspect PlayerProfileStats type fully
-    tryGql('PlayerProfileStats-type', `{ __type(name: "PlayerProfileStats") { fields { name type { name kind ofType { name } } } } }`),
-    // playerTournamentStatus — might include tour standings
-    tryGql('playerTournamentStatus-rory', `query { playerTournamentStatus(playerId: "28237") { __typename } }`),
-    tryGql('PlayerTournamentStatus-type', `{ __type(name: "PlayerTournamentStatus") { fields { name type { name kind ofType { name } } } } }`),
-    // ESPN rankings check — which of 1-6 is RTD?
-    tryGql('espn-check', `{ __type(name: "Query") { fields { name } } }`),
-  ]);
+  const ESPN_BASE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/all/seasons/2026/rankings';
+
+  async function espnRanking(id: number) {
+    try {
+      const res = await fetch(`${ESPN_BASE}/${id}`, { signal: AbortSignal.timeout(5000) });
+      if (!res.ok) return { id, status: res.status };
+      const data = await res.json();
+      return { id, name: data.name, type: data.type, count: (data.rankings as unknown[])?.length };
+    } catch (e) { return { id, error: String(e) }; }
+  }
+
+  async function espnRankingEntries(id: number) {
+    try {
+      // Get the most recent date ref
+      const meta = await fetch(`${ESPN_BASE}/${id}`, { signal: AbortSignal.timeout(5000) });
+      if (!meta.ok) return { id, status: meta.status };
+      const metaData = await meta.json();
+      const refs: Array<{ $ref?: string }> = metaData.rankings ?? [];
+      const dateRef = refs[0]?.$ref ?? '';
+      const dateMatch = dateRef.match(/dates\/(\d{8})/);
+      if (!dateMatch) return { id, noDate: true };
+      const res = await fetch(`${ESPN_BASE}/${id}/dates/${dateMatch[1]}?limit=250`, { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) return { id, status: res.status };
+      const data = await res.json();
+      const entries: unknown[] = data.athletes ?? data.rankings ?? [];
+      return { id, date: dateMatch[1], totalEntries: data.count ?? entries.length, first3: entries.slice(0, 3) };
+    } catch (e) { return { id, error: String(e) }; }
+  }
+
+  const [r1, r2, r3, r4, r5, r6] = await Promise.all([1,2,3,4,5,6].map(espnRanking));
+  const results = [r1, r2, r3, r4, r5, r6];
+
+  // If any looks like RTD, fetch its entries
+  const rtdCandidate = [r1, r2, r3, r4, r5, r6].find((r: Record<string, unknown>) =>
+    String(r.name ?? '').toLowerCase().includes('dubai') ||
+    String(r.name ?? '').toLowerCase().includes('race') ||
+    String(r.type ?? '').toLowerCase().includes('euro')
+  ) as { id?: number } | undefined;
+  if (rtdCandidate?.id) {
+    (results as unknown[]).push(await espnRankingEntries(rtdCandidate.id));
+  }
 
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
 }
