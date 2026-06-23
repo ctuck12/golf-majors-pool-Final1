@@ -18,38 +18,20 @@ async function tryGql(label: string, query: string, variables: Record<string, un
   }
 }
 
-async function tryFetch(label: string, url: string, options: RequestInit = {}) {
-  try {
-    const res = await fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
-    const text = await res.text();
-    return { label, status: res.status, body: text.slice(0, 4000) };
-  } catch (e) {
-    return { label, error: String(e) };
-  }
-}
-
 export async function GET() {
   const results = await Promise.all([
-    // priorityRankings requires tourCode — try DP World / European Tour codes
-    tryGql('priorityRankings-R', `query { priorityRankings(tourCode: "R") { __typename } }`),
-    tryGql('priorityRankings-E', `query { priorityRankings(tourCode: "E") { __typename } }`),
-    // playerHub with correct playerId arg (not id)
-    tryGql('playerHub-rory', `query { playerHub(playerId: "28237") { __typename } }`),
-    // Introspect TourCup type to find fields
-    tryGql('tourCup-introspect', `{ __type(name: "TourCupRankingEvent") { fields { name } } }`),
-    tryGql('tourCup-id-arg', `query { tourCup(id: "R2026") { __typename } }`),
-    // Try OWGR direct API (they have a REST API backing their Next.js site)
-    tryFetch('owgr-api-ranking', 'https://api.owgr.com/events/latest/ranking?pageNo=1&pageSize=5&country=All', {
-      headers: { 'Accept': 'application/json', 'Origin': 'https://www.owgr.com', 'Referer': 'https://www.owgr.com/' }
-    }),
-    // Try OWGR REST API alternate path
-    tryFetch('owgr-api2', 'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=5&country=All', {
-      headers: { 'Accept': 'application/json' }
-    }),
-    // Try SofaScore golf rankings
-    tryFetch('sofascore-rtd', 'https://api.sofascore.com/api/v1/sport/golf/rankings', {
-      headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0' }
-    }),
+    // PlayerHub works! Introspect PlayerHubPlayerCompressed type to find ranking fields
+    tryGql('playerHubType', `{ __type(name: "PlayerHubPlayerCompressed") { fields { name } } }`),
+    // Also introspect PlayerHubPlayer type (uncompressed might exist)
+    tryGql('playerHubPlayerType', `{ __type(name: "PlayerHubPlayer") { fields { name } } }`),
+    // TourCode enum values
+    tryGql('tourCodeEnum', `{ __type(name: "TourCode") { enumValues { name } } }`),
+    // TourCupRankingEvent has standings — introspect it
+    tryGql('tourCupStandingsType', `{ __type(name: "TourCupStanding") { fields { name } } }`),
+    // Try tourCups (plural) - list of available cups
+    tryGql('tourCups', `query { tourCups(tourCode: "PGA") { __typename id title } }`),
+    // Fetch playerHub for Rory with all potential ranking fields
+    tryGql('playerHub-rory-full', `query { playerHub(playerId: "28237") { rankings { __typename } } }`),
   ]);
 
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
