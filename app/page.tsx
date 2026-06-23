@@ -8407,8 +8407,8 @@ export default function Page() {
                     ? (pickHistoryPlayerPopup.playerRounds?.length ? pickHistoryPlayerPopup.playerRounds : espnRounds)
                     : [];
                   const courseStatCells: { label: string; value: string }[] = [];
-                  if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Dist', value: s.drivingDistance });
-                  if (s?.drivingAccuracy) courseStatCells.push({ label: 'Drive Acc', value: s.drivingAccuracy });
+                  if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Distance', value: s.drivingDistance });
+                  if (s?.drivingAccuracy) courseStatCells.push({ label: 'Drive Accuracy', value: s.drivingAccuracy });
                   if (s?.gir) courseStatCells.push({ label: 'GIR%', value: s.gir });
                   if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling });
                   if (s?.avgPuttsPerRound) courseStatCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound });
