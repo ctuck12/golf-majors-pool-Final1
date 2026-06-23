@@ -18,24 +18,40 @@ async function tryGql(label: string, query: string, variables: Record<string, un
   }
 }
 
+async function tryFetch(label: string, url: string, options: RequestInit = {}) {
+  try {
+    const res = await fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
+    const text = await res.text();
+    return { label, status: res.status, body: text.slice(0, 3000) };
+  } catch (e) {
+    return { label, error: String(e) };
+  }
+}
+
 export async function GET() {
   const results = await Promise.all([
-    // Introspect top-level Query fields for anything DP World / standings related
-    tryGql('introspect-query-fields', `{ __type(name: "Query") { fields { name description } } }`),
-    // Try playerBio with Rory McIlroy (28237 is his PGA Tour ID)
-    tryGql('playerBio-rory', `query { playerBio(id: "28237") { id displayName tourMemberships { tourCode tourName } dpWorldRank raceToDubaiRank dpWorldPoints } }`),
-    // Try playerById
-    tryGql('playerById-rory', `query { playerById(id: "28237") { id displayName rankings { dpWorldRank raceToDubai { rank points } } } }`),
-    // Try the known playerProfileStats to see if it has rankings/standings
-    tryGql('playerProfileStats-rory', `query { playerProfileStats(playerId: "28237") { id statGroups { stats { statId value rank } } dpWorldRank raceToDubaiRank } }`),
-    // Try a player stats query with broader fields
-    tryGql('playerSeasonStats-rory', `query { playerSeasonStats(playerId: "28237", year: 2026) { dpWorldRank raceToDubai { rank points } } }`),
-    // Try leaderStandings
-    tryGql('leaderStandings-dp', `query { leaderStandings(tourCode: "DP", season: 2026) { players { rank displayName points } } }`),
-    // Try orderOfMerit
-    tryGql('orderOfMerit', `query { orderOfMerit(year: 2026) { players { rank name points } } }`),
-    // Try tourLeaderboard
-    tryGql('tourLeaderboard', `query { tourLeaderboard(tourCode: "DP") { players { rank player { displayName } points } } }`),
+    // Probe priorityRankings - might have DP World / Race to Dubai
+    tryGql('priorityRankings', `{ priorityRankings { __typename } }`),
+    // Probe playerHub for Rory (28237) - might expose rankings
+    tryGql('playerHub-rory', `query { playerHub(id: "28237") { __typename } }`),
+    // Probe player query fields
+    tryGql('player-rory-introspect', `{ __type(name: "Player") { fields { name } } }`),
+    // Try player with ranking-related fields
+    tryGql('player-rory', `query { player(id: "28237") { id displayName rankings { rankTypeId rankTypeName rank } } }`),
+    // Try tourCup for DP World Tour
+    tryGql('tourCup-dp', `query { tourCup(tourCode: "R", year: 2026) { __typename players { rank player { displayName } points } } }`),
+    // Try the europeantour.com Race to Dubai standings JSON feed directly
+    tryFetch('europeantour-rtd', 'https://www.europeantour.com/api/feeds/?feed=stats&tour=DP&format=json&type=standings', {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)', 'Accept': 'application/json' }
+    }),
+    // Try DP World Tour live scores / standings feed
+    tryFetch('dpworldtour-standings', 'https://feeds.europeantour.com/feeds/stats/2026/standings.json', {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Accept': '*/*' }
+    }),
+    // Try OWGR rankings
+    tryFetch('owgr', 'https://www.owgr.com/ranking?pageNo=1&pageSize=50&country=All', {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'Accept': 'application/json, text/html' }
+    }),
   ]);
 
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
