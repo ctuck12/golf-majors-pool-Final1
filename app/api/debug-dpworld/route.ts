@@ -20,12 +20,18 @@ async function tryGql(label: string, query: string, variables: Record<string, un
 
 export async function GET() {
   const results = await Promise.all([
-    // Introspect TourCupCombinedRow — actual type of players items
-    tryGql('TourCupCombinedRow', `{ __type(name: "TourCupCombinedRow") { fields { name type { name kind ofType { name } } } } }`),
-    // tourCupSplit officialPlayers
-    tryGql('split-officialPlayers', `query { tourCupSplit(tourCode: R, id: "2700", year: 2026) { officialPlayers { __typename } } }`),
-    // tourCupCombined players with __typename to find actual type
-    tryGql('combined-players-typename', `query { tourCupCombined(tourCode: R, id: "2700", year: 2026) { players { __typename } } }`),
+    // defaultTourCup for E tour (pure DP World / European Tour)
+    tryGql('defaultTourCup-E', `query { defaultTourCup(tour: E) { id title } }`),
+    // tourCups for E tour
+    tryGql('tourCups-E-2026', `query { tourCups(tour: E, year: 2026) { id title } }`),
+    // statLeaderboard for RTD stat 02700 (no tournament = season standings)
+    tryGql('statLeaderboard-02700', `query { statLeaderboard(statId: "02700") { rows { rank player { id displayName } } } }`),
+    // statLeaderboard with tourCode R for stat 02671 (FedEx-like but for RTD)
+    tryGql('statDetails-R-02700', `query { statDetails(tourCode: R, statId: "02700", year: 2026) { rows { __typename } } }`),
+    // tourCup standings with type PROJECTED — may populate rankings
+    tryGql('tourCup-projected-standings', `query { tourCup(id: "R-2700-2026", type: PROJECTED) { standings { ... on StandardCupRanking { rankings { ... on CupRankingPlayer { position id name } } } } } }`),
+    // Introspect StatLeaderboard — check if it has a tournamentId-optional signature
+    tryGql('StatLeaderboard-type', `{ __type(name: "StatLeaderboard") { fields { name type { name kind } } } }`),
   ]);
 
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
