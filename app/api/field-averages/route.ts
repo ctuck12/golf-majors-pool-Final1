@@ -2,26 +2,72 @@ export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
 
-const STAT_KEYS = [
-  'drivingDistance', 'drivingAccuracy', 'gir', 'scrambling',
-  'avgPuttsPerRound', 'puttAverage', 'scoringAverage',
-] as const;
-
+const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues';
 const FIELD_AVG_TTL = 1800; // 30 minutes
+const BATCH_SIZE = 25;
 
-function parseNumeric(v: string | null | undefined): number | null {
-  if (!v) return null;
-  const n = parseFloat(v.replace('%', ''));
-  return isNaN(n) ? null : n;
+type Stat = { name?: string; value?: number; displayValue?: string };
+
+function getStat(stats: Stat[], name: string): Stat | undefined {
+  return stats.find((s) => s.name === name);
 }
 
-function formatLike(avg: number, sample: string): string {
-  if (sample.endsWith('%')) return `${avg.toFixed(1)}%`;
-  if (sample.includes('.')) {
-    const decimals = sample.split('.')[1]?.length ?? 1;
-    return avg.toFixed(Math.min(decimals, 2));
+function statNumeric(stats: Stat[], name: string): number | null {
+  const s = getStat(stats, name);
+  const v = s?.value ?? parseFloat(s?.displayValue ?? '');
+  return !isNaN(v) && v !== 0 ? v : null;
+}
+
+// Fetch all competitor ESPN IDs for a tournament from ESPN scoreboard
+async function fetchCompetitorIds(eventId: string): Promise<string[]> {
+  try {
+    const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const res = await fetch(
+      `https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?dates=${today}`,
+      { cache: 'no-store' },
+    );
+    if (!res.ok) return [];
+    const data = await res.json() as {
+      events?: Array<{
+        id: string;
+        competitions?: Array<{ competitors?: Array<{ id: string }> }>;
+      }>;
+    };
+    const event = data.events?.find((e) => e.id === eventId);
+    const competitors = event?.competitions?.[0]?.competitors ?? [];
+    return competitors.map((c) => c.id).filter(Boolean);
+  } catch {
+    return [];
   }
-  return avg.toFixed(1);
+}
+
+// Fetch stats for one competitor from ESPN Core
+async function fetchCompetitorStats(espnId: string, eventId: string): Promise<Stat[] | null> {
+  try {
+    const url = `${ESPN_CORE}/pga/events/${eventId}/competitions/${eventId}/competitors/${espnId}/statistics/0`;
+    const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return null;
+    const data = await res.json() as { splits?: { categories?: Array<{ stats?: Stat[] }> } };
+    const stats = data?.splits?.categories?.[0]?.stats;
+    return Array.isArray(stats) && stats.length > 0 ? stats : null;
+  } catch {
+    return null;
+  }
+}
+
+// Run an array of async tasks in serial batches
+async function batchAll<T>(tasks: (() => Promise<T>)[], batchSize: number): Promise<T[]> {
+  const results: T[] = [];
+  for (let i = 0; i < tasks.length; i += batchSize) {
+    const batch = tasks.slice(i, i + batchSize).map((t) => t());
+    results.push(...await Promise.all(batch));
+  }
+  return results;
+}
+
+function formatAvg(avg: number, isPercent: boolean, decimals: number): string {
+  const val = avg.toFixed(decimals);
+  return isPercent ? `${val}%` : val;
 }
 
 export async function GET(request: Request) {
@@ -29,56 +75,51 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!eventId) return Response.json({ averages: {} });
 
-  const cacheKey = `player-stats:field-avg:v1:${eventId}`;
+  const cacheKey = `field-averages:v2:${eventId}`;
 
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ averages: JSON.parse(cached) });
 
-    // Scan Redis for all cached player stats for this tournament
-    const pattern = `player-stats:v12:tourn:${eventId}:*`;
-    const playerKeys: string[] = [];
-    let cursor = '0';
-    do {
-      const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 200);
-      cursor = nextCursor;
-      playerKeys.push(...keys);
-    } while (cursor !== '0');
+    const ids = await fetchCompetitorIds(eventId);
+    if (ids.length === 0) return Response.json({ averages: {} });
 
-    if (playerKeys.length < 3) return Response.json({ averages: {} });
+    // Fetch stats for all competitors in batches
+    const allStats = await batchAll(
+      ids.map((id) => () => fetchCompetitorStats(id, eventId)),
+      BATCH_SIZE,
+    );
 
-    // Fetch all player stats in parallel
-    const rawValues = await Promise.all(playerKeys.map((k) => redis.get(k)));
+    // Accumulate totals for each stat field
+    type Acc = { sum: number; count: number; isPercent: boolean; decimals: number };
+    const acc: Record<string, Acc> = {};
 
-    // Accumulate totals per stat
-    const totals: Record<string, { sum: number; count: number; sample: string }> = {};
+    const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number }> = [
+      { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
+      { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
+      { key: 'gir', espnName: 'gir', isPercent: true, decimals: 1 },
+      { key: 'scrambling', espnName: 'sandSaves', isPercent: true, decimals: 1 },
+      { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', isPercent: false, decimals: 1 },
+      { key: 'avgPuttsPerRound_alt', espnName: 'puttsGirAvg', isPercent: false, decimals: 2 }, // fallback: ×18
+    ];
 
-    for (const raw of rawValues) {
-      if (!raw) continue;
-      try {
-        const stats = JSON.parse(raw) as Record<string, string | null>;
-        for (const key of STAT_KEYS) {
-          let rawVal = stats[key] ?? null;
-          // puttAverage → avgPuttsPerRound conversion (putts/GIR × 18)
-          if (key === 'avgPuttsPerRound' && !rawVal && stats.puttAverage) {
-            const n = parseNumeric(stats.puttAverage);
-            if (n !== null) rawVal = (n * 18).toFixed(1);
-          }
-          const n = parseNumeric(rawVal);
-          if (n === null || n === 0) continue;
-          if (!totals[key]) totals[key] = { sum: 0, count: 0, sample: rawVal! };
-          totals[key].sum += n;
-          totals[key].count += 1;
-        }
-      } catch {
-        // skip malformed
+    for (const stats of allStats) {
+      if (!stats) continue;
+      for (const def of statDefs) {
+        const v = statNumeric(stats, def.espnName);
+        if (v === null) continue;
+        const outKey = def.key.replace('_alt', '');
+        if (!acc[outKey]) acc[outKey] = { sum: 0, count: 0, isPercent: def.isPercent ?? false, decimals: def.decimals ?? 1 };
+        // puttsGirAvg needs ×18 to get putts/round
+        acc[outKey].sum += def.key === 'avgPuttsPerRound_alt' ? v * 18 : v;
+        acc[outKey].count += 1;
       }
     }
 
     const averages: Record<string, string> = {};
-    for (const [key, { sum, count, sample }] of Object.entries(totals)) {
-      if (count < 3) continue;
-      averages[key] = formatLike(sum / count, sample);
+    for (const [key, { sum, count, isPercent, decimals }] of Object.entries(acc)) {
+      if (count < 5) continue;
+      averages[key] = formatAvg(sum / count, isPercent, decimals);
     }
 
     if (Object.keys(averages).length > 0) {
