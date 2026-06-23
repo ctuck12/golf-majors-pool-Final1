@@ -20,12 +20,12 @@ async function tryGql(label: string, query: string, variables: Record<string, un
 
 export async function GET() {
   const results = await Promise.all([
-    // Get displayNames of all 48 categories + first player item typename
-    tryGql('priorityRankings-displayNames', `query { priorityRankings(tourCode: R) { categories { ... on PriorityCategory { displayName players { __typename } } } } }`),
-    // Introspect TourCupCombined type
-    tryGql('TourCupCombined-fields', `{ __type(name: "TourCupCombined") { fields { name type { name kind ofType { name } } } } }`),
-    // tourCupCombined with more fields
-    tryGql('tourCupCombined-data', `query { tourCupCombined(tourCode: R, id: "2700", year: 2026) { rankings { __typename } } }`),
+    // Fetch TourCupCombined players — likely the full standings
+    tryGql('tourCupCombined-players', `query { tourCupCombined(tourCode: R, id: "2700", year: 2026) { players { __typename } } }`),
+    // Introspect TourCupCombinedPlayer type (guessing name)
+    tryGql('TourCupCombinedPlayer', `{ __type(name: "TourCupCombinedPlayer") { fields { name type { name kind ofType { name } } } } }`),
+    // tourCupSplit — another variant
+    tryGql('tourCupSplit', `query { tourCupSplit(tourCode: R, id: "2700", year: 2026) { __typename } }`),
   ]);
 
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
