@@ -125,7 +125,11 @@ function extractSeason(data: Overview): PlayerStats {
 
   const sandSaves =
     statVal(cats, 'sandSaves', '%') ??
-    summaryStatVal(sumStats, 'sandSaves', '%');
+    statVal(cats, 'sandSavePct', '%') ??
+    statVal(cats, 'sandSave', '%') ??
+    statVal(cats, 'bunkerSavePct', '%') ??
+    summaryStatVal(sumStats, 'sandSaves', '%') ??
+    summaryStatVal(sumStats, 'sandSavePct', '%');
 
   const SEASON_STAT_LABEL_MAP: Record<string, string> = {
     yardsPerDrive: 'Drive Dist',
@@ -294,12 +298,44 @@ async function fetchOverview(espnId: string): Promise<Overview | null> {
   }
 }
 
+// ESPN Core athlete season stats — same format as competitor stats, often includes sandSaves
+async function fetchCoreAthleteSeasonStats(espnId: string): Promise<Stat[] | null> {
+  const year = new Date().getFullYear();
+  const urls = [
+    `${ESPN_CORE}/pga/seasons/${year}/athletes/${espnId}/statistics`,
+    `${ESPN_CORE}/pga/athletes/${espnId}/statistics`,
+  ];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+      if (!res.ok) continue;
+      const data = await res.json() as { splits?: { categories?: Array<{ stats?: Stat[] }> } };
+      const stats = data?.splits?.categories?.[0]?.stats;
+      if (Array.isArray(stats) && stats.length > 0) return stats;
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
 export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats | null> {
   const espnId = await getEspnId(name);
   if (!espnId) return null;
-  const data = await fetchOverview(espnId);
-  if (!data) return null;
-  const stats = extractSeason(data);
+  const [overviewData, coreStats] = await Promise.all([
+    fetchOverview(espnId),
+    fetchCoreAthleteSeasonStats(espnId),
+  ]);
+  if (!overviewData) return null;
+  const stats = extractSeason(overviewData);
+  // Fill in sandSaves from ESPN Core athlete stats if the overview didn't have it
+  if (!stats.sandSaves && coreStats) {
+    stats.sandSaves =
+      statVal(coreStats, 'sandSaves', '%') ??
+      statVal(coreStats, 'sandSavePct', '%') ??
+      statVal(coreStats, 'sandSave', '%') ??
+      null;
+  }
   return Object.values(stats).some((v) => v !== null) ? stats : null;
 }
 
