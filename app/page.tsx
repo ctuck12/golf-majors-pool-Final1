@@ -8470,10 +8470,15 @@ export default function Page() {
                   function getRank(key: string, rawValue: string | null): string | null {
                     if (hideSgRanks && SG_KEYS.has(key)) return null;
                     if (isTournView) {
-                      // SG: tournament-specific ranks from scorecardStatsV3 strokesGained.rank
-                      // Course stats: field distribution ranks
-                      const r = SG_KEYS.has(key) ? (tournRanks[key] ?? null) : getFieldRank(key, rawValue);
-                      return r ? ordinal(r) : null;
+                      if (SG_KEYS.has(key)) {
+                        const r = tournRanks[key] ?? null;
+                        return r ? ordinal(r) : null;
+                      }
+                      // Course stats: field distribution rank, fall back to season PGA Tour rank
+                      const fieldRank = getFieldRank(key, rawValue);
+                      if (fieldRank) return ordinal(fieldRank);
+                      const pgaSeasonRank = (pickHistoryPlayerPopup?.seasonStatRanks ?? {})[key] ?? null;
+                      return pgaSeasonRank ? ordinal(pgaSeasonRank) : null;
                     }
                     // Season view: pure season PGA Tour ranks
                     const r = seasonRanks[key] ?? null;
