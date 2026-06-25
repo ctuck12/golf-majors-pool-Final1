@@ -107,6 +107,18 @@ function extractSeason(data: Overview): PlayerStats {
   const avgIdx = names.findIndex((n) => /scoring average/i.test(n));
   const scoringAvg = pgaSplit && avgIdx >= 0 ? (pgaSplit.stats[avgIdx] ?? null) : null;
 
+  // Helper: extract a stat value from statistics.splits by searching names for a pattern
+  function splitStatVal(pattern: RegExp, suffix = ''): string | null {
+    const idx = names.findIndex((n) => pattern.test(n));
+    if (idx < 0 || !pgaSplit) return null;
+    const raw = pgaSplit.stats[idx] ?? '';
+    if (!raw || raw === '-' || raw === '--') return null;
+    const num = parseFloat(raw.replace('%', ''));
+    if (isNaN(num) || num === 0) return null;
+    if (raw.includes('%')) return raw;
+    return suffix ? `${raw}${suffix}` : raw;
+  }
+
   // GIR: try summaryStatistics first, then several category name variants
   const gir =
     summaryStatVal(sumStats, 'greensInRegPct', '%') ??
@@ -121,7 +133,8 @@ function extractSeason(data: Overview): PlayerStats {
     statVal(cats, 'scrambling', '%') ??
     statVal(cats, 'scramblingPct', '%') ??
     summaryStatVal(sumStats, 'scrambling', '%') ??
-    summaryStatVal(sumStats, 'scramblingPct', '%');
+    summaryStatVal(sumStats, 'scramblingPct', '%') ??
+    splitStatVal(/scrambling/i, '%');
 
   const sandSaves =
     statVal(cats, 'sandSaves', '%') ??
@@ -129,7 +142,9 @@ function extractSeason(data: Overview): PlayerStats {
     statVal(cats, 'sandSave', '%') ??
     statVal(cats, 'bunkerSavePct', '%') ??
     summaryStatVal(sumStats, 'sandSaves', '%') ??
-    summaryStatVal(sumStats, 'sandSavePct', '%');
+    summaryStatVal(sumStats, 'sandSavePct', '%') ??
+    splitStatVal(/sand save/i, '%') ??
+    splitStatVal(/bunker save/i, '%');
 
   const SEASON_STAT_LABEL_MAP: Record<string, string> = {
     yardsPerDrive: 'Drive Dist',
