@@ -197,6 +197,41 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<{ stat
       }
     }
 
+    // Extra fallback: try playerProfileStats with displayValue for sand saves (stat 107)
+    // in case statLeaderboard returned no value
+    if (!acc.sandSaves) {
+      try {
+        const dvQuery = `
+          query PlayerProfileStatsV2($playerId: ID!) {
+            playerProfileStats(playerId: $playerId) {
+              stats {
+                statId
+                displayValue
+                rank
+              }
+            }
+          }
+        `;
+        const dvData = await gqlPost(dvQuery, { playerId: pgaTourId }) as {
+          data?: { playerProfileStats?: GqlStatGroup[] };
+        };
+        const dvGroups = dvData?.data?.playerProfileStats;
+        if (Array.isArray(dvGroups)) {
+          const flat = dvGroups.flatMap((g) => g.stats ?? []);
+          const sandSavesStat = flat.find((s) => s.statId === '107');
+          if (sandSavesStat?.displayValue) {
+            mapStat('107', sandSavesStat.displayValue, acc);
+            const rankNum = parseInt(String(sandSavesStat.rank ?? ''));
+            if (!isNaN(rankNum) && rankNum > 0 && !ranks.sandSaves) {
+              ranks.sandSaves = String(rankNum);
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+
     return Object.keys(acc).length > 0 ? { stats: acc, ranks } : null;
   } catch {
     return null;

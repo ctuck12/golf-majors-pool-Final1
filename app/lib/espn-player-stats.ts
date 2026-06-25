@@ -302,16 +302,39 @@ async function fetchOverview(espnId: string): Promise<Overview | null> {
 async function fetchCoreAthleteSeasonStats(espnId: string): Promise<Stat[] | null> {
   const year = new Date().getFullYear();
   const urls = [
+    `${ESPN_CORE}/pga/seasons/${year}/athletes/${espnId}/statistics/0`,
     `${ESPN_CORE}/pga/seasons/${year}/athletes/${espnId}/statistics`,
+    `${ESPN_CORE}/pga/seasons/${year - 1}/athletes/${espnId}/statistics/0`,
+    `${ESPN_CORE}/pga/athletes/${espnId}/statistics/0`,
     `${ESPN_CORE}/pga/athletes/${espnId}/statistics`,
   ];
   for (const url of urls) {
     try {
       const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
       if (!res.ok) continue;
-      const data = await res.json() as { splits?: { categories?: Array<{ stats?: Stat[] }> } };
-      const stats = data?.splits?.categories?.[0]?.stats;
-      if (Array.isArray(stats) && stats.length > 0) return stats;
+      // Handle multiple possible response shapes from ESPN Core
+      const data = await res.json() as {
+        splits?: { categories?: Array<{ stats?: Stat[] }>; displayName?: string } | Array<{ stats?: Stat[]; displayName?: string }>;
+        categories?: Array<{ stats?: Stat[] }>;
+        stats?: Stat[];
+      };
+      // Shape 1: splits.categories[0].stats (competitor stats format)
+      if (data?.splits && !Array.isArray(data.splits)) {
+        const cats = (data.splits as { categories?: Array<{ stats?: Stat[] }> }).categories;
+        const stats = cats?.[0]?.stats;
+        if (Array.isArray(stats) && stats.length > 0) return stats;
+      }
+      // Shape 2: splits[0].stats (array format)
+      if (Array.isArray(data?.splits)) {
+        for (const split of data.splits as Array<{ stats?: Stat[] }>) {
+          if (Array.isArray(split?.stats) && split.stats.length > 0) return split.stats;
+        }
+      }
+      // Shape 3: categories[0].stats
+      const cats2 = data?.categories;
+      if (Array.isArray(cats2) && cats2[0]?.stats?.length) return cats2[0].stats;
+      // Shape 4: top-level stats array
+      if (Array.isArray(data?.stats) && data.stats.length > 0) return data.stats;
     } catch {
       continue;
     }
