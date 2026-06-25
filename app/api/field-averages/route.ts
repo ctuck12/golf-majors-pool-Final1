@@ -71,6 +71,7 @@ const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; deci
   { key: 'gir', espnName: 'gir', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scramblingPct', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
+  { key: 'scrambling', espnName: 'scrambPct', isPercent: true, decimals: 1 },
   { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1 },
   { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', isPercent: false, decimals: 1 },
   { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', isPercent: false, decimals: 1, altMultiplier: 18 },
@@ -98,7 +99,7 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!eventId) return Response.json({ averages: {}, distributions: {} });
 
-  const cacheKey = `field-averages:v6:${eventId}`;
+  const cacheKey = `field-averages:v7:${eventId}`;
 
   try {
     const cached = await redis.get(cacheKey);

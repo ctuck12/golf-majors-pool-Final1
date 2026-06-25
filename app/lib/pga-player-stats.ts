@@ -75,30 +75,33 @@ async function gqlPost(query: string, variables: Record<string, unknown>): Promi
   return res.json();
 }
 
-// Fetch a player's rank for a specific stat from the leaderboard (fallback for non-qualifying players)
-async function fetchStatLeaderboardRank(statId: string, pgaTourId: string): Promise<string | null> {
+// Fetch a player's rank AND value for a specific stat from the leaderboard
+async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string): Promise<{ rank: string | null; value: string | null }> {
   try {
     const query = `
       query StatLeaderboard($statId: ID!) {
         statLeaderboard(statId: $statId) {
           rows {
             rank
+            value
             player { id }
           }
         }
       }
     `;
     const data = await gqlPost(query, { statId }) as {
-      data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; player?: { id?: string } }> } };
+      data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; value?: number | null; player?: { id?: string } }> } };
     };
     const rows = data?.data?.statLeaderboard?.rows;
-    if (!Array.isArray(rows)) return null;
+    if (!Array.isArray(rows)) return { rank: null, value: null };
     const row = rows.find((r) => String(r.player?.id) === String(pgaTourId));
-    if (!row) return null;
+    if (!row) return { rank: null, value: null };
     const rankNum = parseInt(String(row.rank ?? ''));
-    return !isNaN(rankNum) && rankNum > 0 ? String(rankNum) : null;
+    const rank = !isNaN(rankNum) && rankNum > 0 ? String(rankNum) : null;
+    const value = row.value != null && row.value !== 0 ? String(row.value) : null;
+    return { rank, value };
   } catch {
-    return null;
+    return { rank: null, value: null };
   }
 }
 
@@ -169,23 +172,27 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<{ stat
       }
     }
 
-    // For course stats with missing ranks, try the statLeaderboard fallback
+    // For course stats with missing ranks or values, try the statLeaderboard fallback
     const COURSE_STAT_IDS = ['101', '102', '103', '106', '107', '130', '111', '108', '104'];
     const missingStatIds = COURSE_STAT_IDS.filter((id) => {
       const field = STAT_ID_TO_FIELD[id];
-      return field && !ranks[field];
+      return field && (!ranks[field] || !acc[field as keyof typeof acc]);
     });
 
     if (missingStatIds.length > 0) {
-      const fallbackRanks = await Promise.all(
+      const fallbackEntries = await Promise.all(
         missingStatIds.map(async (id) => ({
           id,
-          rank: await fetchStatLeaderboardRank(id, pgaTourId),
+          ...(await fetchStatLeaderboardEntry(id, pgaTourId)),
         }))
       );
-      for (const { id, rank } of fallbackRanks) {
+      for (const { id, rank, value } of fallbackEntries) {
         const field = STAT_ID_TO_FIELD[id];
-        if (field && rank) ranks[field] = rank;
+        if (!field) continue;
+        if (rank && !ranks[field]) ranks[field] = rank;
+        if (value && !acc[field as keyof typeof acc]) {
+          mapStat(id, value, acc);
+        }
       }
     }
 
