@@ -41,7 +41,7 @@ function mapStat(
     case '106': acc.scrambling = withPercent(v); break;
     case '130': acc.scrambling = withPercent(v); break;
     case '107': acc.sandSaves = withPercent(v); break;
-    case '111': acc.birdiesPerRound = v; break;
+    case '111': acc.sandSaves = withPercent(v); break;
     case '108': acc.scoringAverage = v; break;
     case '02674': acc.sgTotal = v; break;   // SG: Tee-to-Green / Total (playerProfile)
     case '02567': acc.sgOffTee = v; break;
@@ -116,7 +116,7 @@ const STAT_ID_TO_FIELD: Record<string, string> = {
   '130': 'scrambling',
   '107': 'sandSaves',
   '108': 'scoringAverage',
-  '111': 'birdiesPerRound',
+  '111': 'sandSaves',
   '02674': 'sgTotal',
   '02567': 'sgOffTee',
   '02568': 'sgApproach',
