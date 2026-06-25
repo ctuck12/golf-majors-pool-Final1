@@ -34,10 +34,10 @@ export async function GET(request: Request) {
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
     ? `player-stats:v25:tourn:${eventId}:${name}`
-    : `player-stats:v10:season:2026:${name}`;
+    : `player-stats:v17:season:2026:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v25:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v10:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v17:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -93,7 +93,28 @@ export async function GET(request: Request) {
     ]);
 
     const pgaStats = pgaResult?.stats ?? null;
-    const ranks: PlayerStatRanks | null = pgaResult?.ranks ?? null;
+    const pgaRanks: PlayerStatRanks = pgaResult?.ranks ?? {};
+
+    // Merge ESPN label-keyed ranks into field-keyed ranks for stats PGA Tour doesn't cover
+    const ESPN_LABEL_TO_FIELD: Record<string, string> = {
+      'Sand Saves%': 'sandSaves',
+      'Scrambling%': 'scrambling',
+      'GIR%': 'gir',
+      'Drive Dist': 'drivingDistance',
+      'Drive Acc': 'drivingAccuracy',
+      'Putts/Round': 'avgPuttsPerRound',
+      'Birdies/Rd': 'birdiesPerRound',
+    };
+    const espnLabelRanks = espnStats?.statRanks ?? {};
+    const mergedSeasonRanks: PlayerStatRanks = { ...pgaRanks };
+    for (const [label, rankStr] of Object.entries(espnLabelRanks)) {
+      const field = ESPN_LABEL_TO_FIELD[label];
+      if (field && !mergedSeasonRanks[field] && rankStr) {
+        const num = parseInt(rankStr);
+        if (!isNaN(num) && num > 0) mergedSeasonRanks[field] = String(num);
+      }
+    }
+    const ranks: PlayerStatRanks | null = Object.keys(mergedSeasonRanks).length > 0 ? mergedSeasonRanks : null;
 
     const stats = espnStats || pgaStats
       ? mergeStats(espnStats, pgaStats)

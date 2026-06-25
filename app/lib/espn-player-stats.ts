@@ -89,6 +89,16 @@ function buildRankAvgMaps(
   return { ranks, avgs };
 }
 
+// Extract value from averageDisplayValue or average field (used when displayValue is 0)
+function statAvgVal(stats: Stat[], name: string, suffix = ''): string | null {
+  const s = getStat(stats, name);
+  if (!s) return null;
+  const dv = s.averageDisplayValue ?? (s.average != null ? String(s.average) : null);
+  if (!dv || dv === '-' || dv === '--') return null;
+  if (!isNaN(parseFloat(dv)) && parseFloat(dv) === 0) return null;
+  return suffix ? `${dv}${suffix}` : dv;
+}
+
 function summaryStatVal(stats: SummaryStat[], name: string, suffix = ''): string | null {
   const s = stats.find((st) => st.name === name);
   if (!s) return null;
@@ -125,7 +135,16 @@ function extractSeason(data: Overview): PlayerStats {
 
   const sandSaves =
     statVal(cats, 'sandSaves', '%') ??
-    summaryStatVal(sumStats, 'sandSaves', '%');
+    statVal(cats, 'sandSavePct', '%') ??
+    statVal(cats, 'sandSave', '%') ??
+    statVal(cats, 'bunkerSavePct', '%') ??
+    summaryStatVal(sumStats, 'sandSaves', '%') ??
+    summaryStatVal(sumStats, 'sandSavePct', '%') ??
+    splitStatVal(/sand save/i, '%') ??
+    splitStatVal(/bunker save/i, '%') ??
+    statAvgVal(cats, 'sandSaves', '%') ??
+    statAvgVal(cats, 'sandSavePct', '%') ??
+    statAvgVal(cats, 'sandSave', '%');
 
   const SEASON_STAT_LABEL_MAP: Record<string, string> = {
     yardsPerDrive: 'Drive Dist',
