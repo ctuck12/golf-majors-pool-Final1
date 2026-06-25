@@ -89,6 +89,13 @@ function buildRankAvgMaps(
   return { ranks, avgs };
 }
 
+// Extract value from the numeric value field (used when displayValue is "0" but value is non-zero)
+function statNumVal(stats: Stat[], name: string, suffix = ''): string | null {
+  const s = getStat(stats, name);
+  if (!s || s.value == null || s.value === 0) return null;
+  return suffix ? `${s.value}${suffix}` : String(s.value);
+}
+
 // Extract value from averageDisplayValue or average field (used when displayValue is 0)
 function statAvgVal(stats: Stat[], name: string, suffix = ''): string | null {
   const s = getStat(stats, name);
@@ -155,6 +162,8 @@ function extractSeason(data: Overview): PlayerStats {
     summaryStatVal(sumStats, 'sandSavePct', '%') ??
     splitStatVal(/sand save/i, '%') ??
     splitStatVal(/bunker save/i, '%') ??
+    statNumVal(cats, 'sandSaves', '%') ??
+    statNumVal(cats, 'sandSavePct', '%') ??
     statAvgVal(cats, 'sandSaves', '%') ??
     statAvgVal(cats, 'sandSavePct', '%') ??
     statAvgVal(cats, 'sandSave', '%');

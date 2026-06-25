@@ -106,7 +106,7 @@ export async function GET(request: Request) {
     espnId,
     pgaTourId,
     espnSummaryStatNames: summaryStats.map((s) => ({ name: s.name, value: s.displayValue })),
-    espnCategoryNames: categories.map((c) => ({ name: c.name, value: c.displayValue ?? c.value, rank: c.rank, avg: c.averageDisplayValue ?? c.average })),
+    espnCategoryNames: categories.map((c) => ({ name: c.name, displayValue: c.displayValue, numericValue: c.value, rank: c.rank, average: c.average, averageDisplayValue: c.averageDisplayValue })),
     espnStatisticsNames: statisticsNames ?? [],
     espnStatisticsSplits: (statisticsSplits ?? []).map((sp) => ({ displayName: sp.displayName, stats: sp.stats?.slice(0, 20) })),
     coreSeasonResults,
