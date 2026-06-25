@@ -9,6 +9,7 @@ const FALLBACK_AVERAGES: StatAverages = {
   drivingAccuracy: '61.9%',
   gir: '65.2%',
   scrambling: '59.1%',
+  sandSaves: '55.8%',
   scoringAverage: '70.54',
   avgPuttsPerRound: '29.4',
 };
@@ -19,6 +20,7 @@ const STAT_MAP: Array<{ statId: string; key: string; suffix?: string; multiplier
   { statId: '102', key: 'drivingAccuracy', suffix: '%' },
   { statId: '103', key: 'gir', suffix: '%' },
   { statId: '130', key: 'scrambling', suffix: '%' },
+  { statId: '107', key: 'sandSaves', suffix: '%' },
   { statId: '108', key: 'scoringAverage' },
   { statId: '104', key: 'avgPuttsPerRound', multiplier: 18 }, // putts/GIR → putts/round
 ];
