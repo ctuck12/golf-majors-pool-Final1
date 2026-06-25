@@ -83,7 +83,6 @@ async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string): Pro
         statLeaderboard(statId: $statId) {
           rows {
             rank
-            value
             displayValue
             player { id }
           }
@@ -91,7 +90,7 @@ async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string): Pro
       }
     `;
     const data = await gqlPost(query, { statId }) as {
-      data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; value?: number | null; displayValue?: string | null; player?: { id?: string } }> } };
+      data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; displayValue?: string | null; player?: { id?: string } }> } };
     };
     const rows = data?.data?.statLeaderboard?.rows;
     if (!Array.isArray(rows)) return { rank: null, value: null };
@@ -99,10 +98,8 @@ async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string): Pro
     if (!row) return { rank: null, value: null };
     const rankNum = parseInt(String(row.rank ?? ''));
     const rank = !isNaN(rankNum) && rankNum > 0 ? String(rankNum) : null;
-    // Try numeric value first, then displayValue string
-    const numVal = row.value != null && row.value !== 0 ? String(row.value) : null;
-    const dispVal = row.displayValue && row.displayValue !== '0' && row.displayValue !== '0.0' && row.displayValue !== '0.00' ? row.displayValue : null;
-    const value = numVal ?? dispVal;
+    const dispVal = row.displayValue;
+    const value = dispVal && dispVal !== '0' && dispVal !== '0.0' && dispVal !== '0.00' ? dispVal : null;
     return { rank, value };
   } catch {
     return { rank: null, value: null };
