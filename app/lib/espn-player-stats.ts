@@ -107,8 +107,22 @@ function extractSeason(data: Overview): PlayerStats {
   const avgIdx = names.findIndex((n) => /scoring average/i.test(n));
   const scoringAvg = pgaSplit && avgIdx >= 0 ? (pgaSplit.stats[avgIdx] ?? null) : null;
 
-  // GIR: seasonRankings.categories has count only (greensHit); percentage is in summaryStatistics as greensInRegPct
-  const gir = summaryStatVal(sumStats, 'greensInRegPct', '%') ?? statVal(cats, 'gir', '%');
+  // GIR: try summaryStatistics first, then several category name variants
+  const gir =
+    summaryStatVal(sumStats, 'greensInRegPct', '%') ??
+    summaryStatVal(sumStats, 'girPct', '%') ??
+    statVal(cats, 'gir', '%') ??
+    statVal(cats, 'greensInReg', '%') ??
+    statVal(cats, 'greensInRegPct', '%') ??
+    statVal(cats, 'girPct', '%');
+
+  // Scrambling: ESPN uses several names across player profiles
+  const scrambling =
+    statVal(cats, 'scrambling', '%') ??
+    statVal(cats, 'scramblingPct', '%') ??
+    statVal(cats, 'sandSaves', '%') ??
+    summaryStatVal(sumStats, 'scrambling', '%') ??
+    summaryStatVal(sumStats, 'scramblingPct', '%');
 
   const SEASON_STAT_LABEL_MAP: Record<string, string> = {
     yardsPerDrive: 'Drive Dist',
@@ -136,26 +150,22 @@ function extractSeason(data: Overview): PlayerStats {
     drivingDistance: statVal(cats, 'yardsPerDrive'),
     drivingAccuracy: statVal(cats, 'driveAccuracyPct', '%'),
     gir,
-    scrambling: statVal(cats, 'scramblingPct', '%') ?? statVal(cats, 'scrambling', '%') ?? statVal(cats, 'scrambPct', '%'),
-    sandSaves: statVal(cats, 'sandSaves', '%'),
+    scrambling,
     puttAverage: statVal(cats, 'puttsGirAvg'),
     avgPuttsPerRound: statVal(cats, 'puttsPerRound') ?? statVal(cats, 'avgPutts') ?? statVal(cats, 'avgPutt'),
     proximity: statVal(cats, 'proximity') ?? statVal(cats, 'proxHole'),
-    scoringAverage: scoringAvg,
+    scoringAverage: scoringAvg ?? summaryStatVal(sumStats, 'scoringAverage') ?? summaryStatVal(sumStats, 'avgScore') ?? statVal(cats, 'scoringAverage') ?? statVal(cats, 'avgScore'),
     birdiesPerRound: statVal(cats, 'birdiesPerRound'),
     birdies: null,
     pars: null,
     bogeys: null,
     eagles: null,
     scoreToPar: null,
-    sgTotal: null,
-    sgOffTee: null,
-    sgApproach: null,
-    sgAroundGreen: null,
-    sgPutting: null,
-    sgTeeToGreen: null,
-    statRanks: Object.keys(statRanks).length > 0 ? statRanks : null,
-    statAvgs: Object.keys(statAvgs).length > 0 ? statAvgs : null,
+    sgTotal: summaryStatVal(sumStats, 'strokesGainedTotal') ?? summaryStatVal(sumStats, 'sgTotal') ?? statVal(cats, 'strokesGainedTotal') ?? statVal(cats, 'sgTotal'),
+    sgOffTee: summaryStatVal(sumStats, 'strokesGainedOffTee') ?? summaryStatVal(sumStats, 'sgOffTee') ?? statVal(cats, 'strokesGainedOffTee') ?? statVal(cats, 'sgOffTee'),
+    sgApproach: summaryStatVal(sumStats, 'strokesGainedApproach') ?? summaryStatVal(sumStats, 'sgApproach') ?? statVal(cats, 'strokesGainedApproach') ?? statVal(cats, 'sgApproach'),
+    sgAroundGreen: summaryStatVal(sumStats, 'strokesGainedAroundGreen') ?? summaryStatVal(sumStats, 'sgAroundGreen') ?? statVal(cats, 'strokesGainedAroundGreen') ?? statVal(cats, 'sgAroundGreen'),
+    sgPutting: summaryStatVal(sumStats, 'strokesGainedPutting') ?? summaryStatVal(sumStats, 'sgPutting') ?? statVal(cats, 'strokesGainedPutting') ?? statVal(cats, 'sgPutting'),
     rounds: null,
   };
 }
