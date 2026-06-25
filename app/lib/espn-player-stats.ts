@@ -120,9 +120,12 @@ function extractSeason(data: Overview): PlayerStats {
   const scrambling =
     statVal(cats, 'scrambling', '%') ??
     statVal(cats, 'scramblingPct', '%') ??
-    statVal(cats, 'sandSaves', '%') ??
     summaryStatVal(sumStats, 'scrambling', '%') ??
     summaryStatVal(sumStats, 'scramblingPct', '%');
+
+  const sandSaves =
+    statVal(cats, 'sandSaves', '%') ??
+    summaryStatVal(sumStats, 'sandSaves', '%');
 
   const SEASON_STAT_LABEL_MAP: Record<string, string> = {
     yardsPerDrive: 'Drive Dist',
@@ -151,6 +154,7 @@ function extractSeason(data: Overview): PlayerStats {
     drivingAccuracy: statVal(cats, 'driveAccuracyPct', '%'),
     gir,
     scrambling,
+    sandSaves,
     puttAverage: statVal(cats, 'puttsGirAvg'),
     avgPuttsPerRound: statVal(cats, 'puttsPerRound') ?? statVal(cats, 'avgPutts') ?? statVal(cats, 'avgPutt'),
     proximity: statVal(cats, 'proximity') ?? statVal(cats, 'proxHole'),
@@ -166,6 +170,9 @@ function extractSeason(data: Overview): PlayerStats {
     sgApproach: summaryStatVal(sumStats, 'strokesGainedApproach') ?? summaryStatVal(sumStats, 'sgApproach') ?? statVal(cats, 'strokesGainedApproach') ?? statVal(cats, 'sgApproach'),
     sgAroundGreen: summaryStatVal(sumStats, 'strokesGainedAroundGreen') ?? summaryStatVal(sumStats, 'sgAroundGreen') ?? statVal(cats, 'strokesGainedAroundGreen') ?? statVal(cats, 'sgAroundGreen'),
     sgPutting: summaryStatVal(sumStats, 'strokesGainedPutting') ?? summaryStatVal(sumStats, 'sgPutting') ?? statVal(cats, 'strokesGainedPutting') ?? statVal(cats, 'sgPutting'),
+    sgTeeToGreen: summaryStatVal(sumStats, 'strokesGainedTeeToGreen') ?? summaryStatVal(sumStats, 'sgTeeToGreen') ?? statVal(cats, 'sgTeeToGreen') ?? statVal(cats, 'teeToGreen'),
+    statRanks: Object.keys(statRanks).length > 0 ? statRanks : null,
+    statAvgs: Object.keys(statAvgs).length > 0 ? statAvgs : null,
     rounds: null,
   };
 }

@@ -40,6 +40,7 @@ function mapStat(
     case '104': acc.puttAverage = v; break;  // putts/GIR — display layer multiplies ×18
     case '106': acc.scrambling = withPercent(v); break;
     case '130': acc.scrambling = withPercent(v); break;
+    case '107': acc.sandSaves = withPercent(v); break;
     case '111': acc.birdiesPerRound = v; break;
     case '108': acc.scoringAverage = v; break;
     case '02674': acc.sgTotal = v; break;   // SG: Tee-to-Green / Total (playerProfile)
@@ -109,6 +110,7 @@ const STAT_ID_TO_FIELD: Record<string, string> = {
   '104': 'avgPuttsPerRound',
   '106': 'scrambling',
   '130': 'scrambling',
+  '107': 'sandSaves',
   '108': 'scoringAverage',
   '111': 'birdiesPerRound',
   '02674': 'sgTotal',
@@ -168,7 +170,7 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<{ stat
     }
 
     // For course stats with missing ranks, try the statLeaderboard fallback
-    const COURSE_STAT_IDS = ['101', '102', '103', '106', '130', '111', '108', '104'];
+    const COURSE_STAT_IDS = ['101', '102', '103', '106', '107', '130', '111', '108', '104'];
     const missingStatIds = COURSE_STAT_IDS.filter((id) => {
       const field = STAT_ID_TO_FIELD[id];
       return field && !ranks[field];
