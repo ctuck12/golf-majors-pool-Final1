@@ -8,6 +8,7 @@ export type PlayerStats = {
   drivingAccuracy: string | null;
   gir: string | null;
   scrambling: string | null;
+  sandSaves: string | null;
   puttAverage: string | null;
   avgPuttsPerRound: string | null;
   proximity: string | null;
@@ -23,10 +24,13 @@ export type PlayerStats = {
   sgApproach: string | null;
   sgAroundGreen: string | null;
   sgPutting: string | null;
+  sgTeeToGreen: string | null;
+  statRanks: Partial<Record<string, string>> | null;
+  statAvgs: Partial<Record<string, string>> | null;
   rounds: string[] | null;
 };
 
-type Stat = { name?: string; value?: number; displayValue?: string };
+type Stat = { name?: string; value?: number; displayValue?: string; rank?: number; average?: number; averageDisplayValue?: string };
 type SummaryStat = { name?: string; displayValue?: string };
 
 type Overview = {
@@ -61,6 +65,28 @@ function statVal(stats: Stat[], name: string, suffix = ''): string | null {
   if (!dv || dv === '-' || dv === '--') return null;
   if (!isNaN(parseFloat(dv)) && parseFloat(dv) === 0) return null;
   return suffix ? `${dv}${suffix}` : dv;
+}
+
+function ordinal(n: number): string {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
+}
+
+function buildRankAvgMaps(
+  stats: Stat[],
+  labelMap: Record<string, string>,
+): { ranks: Partial<Record<string, string>>; avgs: Partial<Record<string, string>> } {
+  const ranks: Partial<Record<string, string>> = {};
+  const avgs: Partial<Record<string, string>> = {};
+  for (const [statName, label] of Object.entries(labelMap)) {
+    const s = stats.find((st) => st.name === statName);
+    if (!s) continue;
+    if (s.rank != null && s.rank > 0) ranks[label] = ordinal(s.rank);
+    const avgDv = s.averageDisplayValue ?? (s.average != null ? String(s.average) : undefined);
+    if (avgDv && avgDv !== '-' && avgDv !== '--') avgs[label] = avgDv;
+  }
+  return { ranks, avgs };
 }
 
 function summaryStatVal(stats: SummaryStat[], name: string, suffix = ''): string | null {
@@ -98,6 +124,28 @@ function extractSeason(data: Overview): PlayerStats {
     summaryStatVal(sumStats, 'scrambling', '%') ??
     summaryStatVal(sumStats, 'scramblingPct', '%');
 
+  const SEASON_STAT_LABEL_MAP: Record<string, string> = {
+    yardsPerDrive: 'Drive Dist',
+    driveAccuracyPct: 'Drive Acc',
+    greensInRegPct: 'GIR%',
+    scramblingPct: 'Scrambling%',
+    scrambling: 'Scrambling%',
+    sandSaves: 'Sand Saves%',
+    puttsPerRound: 'Putts/Round',
+    avgPutts: 'Putts/Round',
+    proximity: 'Proximity',
+    proxHole: 'Proximity',
+    birdiesPerRound: 'Birdies/Rd',
+    sgTotal: 'SG: Total',
+    sgOffTee: 'SG: Off Tee',
+    sgApproach: 'SG: Approach',
+    sgAroundGreen: 'SG: Around',
+    sgPutting: 'SG: Putting',
+    sgTeeToGreen: 'SG: Tee-to-Green',
+    teeToGreen: 'SG: Tee-to-Green',
+  };
+  const { ranks: statRanks, avgs: statAvgs } = buildRankAvgMaps(cats, SEASON_STAT_LABEL_MAP);
+
   return {
     drivingDistance: statVal(cats, 'yardsPerDrive'),
     drivingAccuracy: statVal(cats, 'driveAccuracyPct', '%'),
@@ -124,11 +172,12 @@ function extractSeason(data: Overview): PlayerStats {
 
 function extractTournament(stats: Stat[]): PlayerStats {
   const empty: PlayerStats = {
-    drivingDistance: null, drivingAccuracy: null, gir: null, scrambling: null,
+    drivingDistance: null, drivingAccuracy: null, gir: null, scrambling: null, sandSaves: null,
     puttAverage: null, avgPuttsPerRound: null, proximity: null,
     scoringAverage: null, birdiesPerRound: null,
     birdies: null, pars: null, bogeys: null, eagles: null, scoreToPar: null,
-    sgTotal: null, sgOffTee: null, sgApproach: null, sgAroundGreen: null, sgPutting: null,
+    sgTotal: null, sgOffTee: null, sgApproach: null, sgAroundGreen: null, sgPutting: null, sgTeeToGreen: null,
+    statRanks: null, statAvgs: null,
     rounds: null,
   };
 
@@ -148,7 +197,8 @@ function extractTournament(stats: Stat[]): PlayerStats {
     drivingDistance: statVal(stats, 'driveDistAvg'),
     drivingAccuracy: statVal(stats, 'driveAccuracyPct', '%'),
     gir: statVal(stats, 'gir', '%'),
-    scrambling: statVal(stats, 'sandSaves', '%'),
+    scrambling: statVal(stats, 'scramblingPct', '%') ?? statVal(stats, 'scrambling', '%') ?? statVal(stats, 'scrambPct', '%'),
+    sandSaves: statVal(stats, 'sandSaves', '%'),
     puttAverage: statVal(stats, 'puttsGirAvg'),
     avgPuttsPerRound: statVal(stats, 'puttsPerRound') ?? statVal(stats, 'avgPutts') ?? statVal(stats, 'avgPutt'),
     proximity: statVal(stats, 'proximity') ?? statVal(stats, 'proxHole') ?? statVal(stats, 'approachProximity'),
@@ -164,6 +214,27 @@ function extractTournament(stats: Stat[]): PlayerStats {
     sgApproach: null,
     sgAroundGreen: null,
     sgPutting: null,
+    sgTeeToGreen: statVal(stats, 'sgTeeToGreen') ?? statVal(stats, 'teeToGreen') ?? statVal(stats, 'sgBallStriking'),
+    ...(() => {
+      const TOURN_STAT_LABEL_MAP: Record<string, string> = {
+        driveDistAvg: 'Drive Dist',
+        driveAccuracyPct: 'Drive Acc',
+        gir: 'GIR%',
+        scramblingPct: 'Scrambling%',
+        scrambling: 'Scrambling%',
+        sandSaves: 'Sand Saves%',
+        puttsPerRound: 'Putts/Round',
+        avgPutts: 'Putts/Round',
+        proximity: 'Proximity',
+        proxHole: 'Proximity',
+        approachProximity: 'Proximity',
+      };
+      const { ranks, avgs } = buildRankAvgMaps(stats, TOURN_STAT_LABEL_MAP);
+      return {
+        statRanks: Object.keys(ranks).length > 0 ? ranks : null,
+        statAvgs: Object.keys(avgs).length > 0 ? avgs : null,
+      };
+    })(),
     rounds: null,
   };
 }

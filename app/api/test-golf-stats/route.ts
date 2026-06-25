@@ -282,6 +282,26 @@ export async function GET() {
       `https://feeds.datagolf.com/preds/get-dg-rankings?file_format=json&key=free`
     ),
 
+    // 30. ESPN Core: DP World (EUR) Race to Dubai standings — top 200, check for racePoints category
+    tryEspn('espn_eur_race_to_dubai_standings',
+      `${ESPN_CORE}/eur/seasons/2026/types/2/leaders?limit=200`
+    ),
+
+    // 31. ESPN Core: EUR standings with season from getActiveSeason (sanity check year)
+    tryEspn('espn_eur_standings_2025',
+      `${ESPN_CORE}/eur/seasons/2025/types/2/leaders?limit=10`
+    ),
+
+    // 32. ESPN Core: Scheffler EUR athlete rank (should be null/missing, confirms endpoint shape)
+    tryEspn('espn_eur_athlete_scheffler',
+      `${ESPN_CORE}/eur/seasons/2026/athletes/${TEST_ESPN_ID}/statistics`
+    ),
+
+    // 33. ESPN Core: Rory McIlroy EUR athlete stats (ESPN ID 3470 — confirm eur league works for him)
+    tryEspn('espn_eur_athlete_mcilroy',
+      `${ESPN_CORE}/eur/seasons/2026/athletes/3470/statistics`
+    ),
+
     // 29. SlashGolf: check if /stats endpoint exists (with auth headers)
     (async () => {
       const label = 'slashgolf_stats_endpoint';

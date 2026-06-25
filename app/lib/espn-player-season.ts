@@ -1,3 +1,5 @@
+import { getActiveSeason } from './tournament-config';
+
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues';
 const LEAGUES = ['pga', 'liv', 'eur'] as const;
 type League = (typeof LEAGUES)[number];
@@ -25,8 +27,9 @@ async function getEventIdsForLeague(
   espnId: string,
   league: League,
 ): Promise<Array<{ eventId: string; league: League }>> {
+  const season = getActiveSeason();
   const res = await fetch(
-    `${ESPN_CORE}/${league}/seasons/2026/athletes/${espnId}/eventlog`,
+    `${ESPN_CORE}/${league}/seasons/${season}/athletes/${espnId}/eventlog`,
     { next: { revalidate: 3600 } },
   );
   if (!res.ok) return [];

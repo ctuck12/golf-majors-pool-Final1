@@ -1,3 +1,12 @@
+// Returns the active golf season year. The PGA/DP World season rolls over on
+// Nov 1 each year (e.g. Nov 1 2026 → season 2027). Adjust cutoff if needed.
+export function getActiveSeason(): number {
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth() + 1; // 1-based
+  return month >= 11 ? year + 1 : year;
+}
+
 export type TournamentMeta = {
   slashGolfTournId: string;
   year: string;
