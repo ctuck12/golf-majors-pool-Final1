@@ -8357,6 +8357,11 @@ export default function Page() {
                   </div>
                   {/* Ranking bubbles */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 7, flexWrap: 'wrap' }}>
+                    {(pickHistoryPlayerPopup.owgrRank ?? pickHistoryPlayerPopup.player.worldRank) != null && (
+                      <div style={{ background: '#fff', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
+                        <span style={{ color: '#0f1720', fontWeight: 800, fontSize: 11 }}>World Rank: {pickHistoryPlayerPopup.owgrRank ?? pickHistoryPlayerPopup.player.worldRank}</span>
+                      </div>
+                    )}
                     <div style={{ background: '#7c3aed', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
                       <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>Fed</span>
                       <span style={{ color: '#fb923c', fontWeight: 800, fontSize: 11 }}>Ex</span>
@@ -8365,11 +8370,6 @@ export default function Page() {
                     {pickHistoryPlayerPopup.dpWorldRank != null && (
                       <div style={{ background: '#4a7fb5', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
                         <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>DP World: {pickHistoryPlayerPopup.dpWorldRank}</span>
-                      </div>
-                    )}
-                    {(pickHistoryPlayerPopup.owgrRank ?? pickHistoryPlayerPopup.player.worldRank) != null && (
-                      <div style={{ background: '#000', border: '1.5px solid #fff', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
-                        <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>OWGR: {pickHistoryPlayerPopup.owgrRank ?? pickHistoryPlayerPopup.player.worldRank}</span>
                       </div>
                     )}
                   </div>
