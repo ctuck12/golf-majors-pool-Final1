@@ -1191,6 +1191,7 @@ export default function Page() {
   } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
   const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
+  const [statLeaderboardModal, setStatLeaderboardModal] = useState<{ label: string; statKey: string; entries: { rank: number; name: string; value: string }[] | null } | null>(null);
   useEffect(() => {
     if (!pickHistoryPlayerPopup) return;
     const scrollY = window.scrollY;
@@ -8335,6 +8336,35 @@ export default function Page() {
           );
         })()}
 
+        {statLeaderboardModal !== null && (
+          <div onClick={() => setStatLeaderboardModal(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, zIndex: 400 }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 340, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.35)' }}>
+              <div style={{ background: '#0f1720', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: '#607282', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Season Leaders</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>{statLeaderboardModal.label}</div>
+                </div>
+                <button onClick={() => setStatLeaderboardModal(null)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 999, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 16, fontWeight: 700 }}>×</button>
+              </div>
+              <div style={{ padding: '6px 0 12px' }}>
+                {statLeaderboardModal.entries === null ? (
+                  <div style={{ padding: '24px 0', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>Loading…</div>
+                ) : statLeaderboardModal.entries.length === 0 ? (
+                  <div style={{ padding: '24px 0', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>No data available</div>
+                ) : (
+                  statLeaderboardModal.entries.map((entry, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < statLeaderboardModal.entries!.length - 1 ? '1px solid #f0f4f8' : 'none' }}>
+                      <div style={{ width: 28, fontSize: 12, fontWeight: 800, color: i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af', flexShrink: 0 }}>{entry.rank}</div>
+                      <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0f1720' }}>{entry.name}</div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{entry.value}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {pickHistoryPlayerPopup !== null && (
           <div
             onClick={() => setPickHistoryPlayerPopup(null)}
@@ -8555,7 +8585,7 @@ export default function Page() {
                               const avg = avgKey ? avgs[avgKey] : undefined;
                               const rank = rankKey ? getRank(rankKey, value) : null;
                               return (
-                                <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
+                                <div key={label} onClick={() => { if (rankKey) { setStatLeaderboardModal({ label, statKey: rankKey, entries: null }); fetch(`/api/stat-leaderboard?statKey=${rankKey}`).then(r => r.json()).then(d => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: d.entries ?? [] } : prev)).catch(() => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: [] } : prev)); } }} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', cursor: rankKey ? 'pointer' : 'default' }}>
                                   <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
                                   <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
                                     {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>({rank})</span>}
@@ -8574,7 +8604,7 @@ export default function Page() {
                             {sgStatCells.map(({ label, value, rankKey }) => {
                               const rank = rankKey ? getRank(rankKey, value) : null;
                               return (
-                                <div key={label} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px' }}>
+                                <div key={label} onClick={() => { if (rankKey) { setStatLeaderboardModal({ label: `SG: ${label}`, statKey: rankKey, entries: null }); fetch(`/api/stat-leaderboard?statKey=${rankKey}`).then(r => r.json()).then(d => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: d.entries ?? [] } : prev)).catch(() => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: [] } : prev)); } }} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', cursor: rankKey ? 'pointer' : 'default' }}>
                                   <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
                                   <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
                                     {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>({rank})</span>}
