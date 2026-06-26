@@ -37,19 +37,21 @@ const COMPUTED_STAT_DEFS: Array<{ key: string; espnName: string; isPercent?: boo
 ];
 
 type Stat = { name?: string; value?: number; displayValue?: string; average?: number; averageDisplayValue?: string };
+type OverviewData = {
+  seasonRankings?: { categories?: Stat[] };
+  summaryStatistics?: Stat[];
+  statistics?: { names?: string[]; splits?: Array<{ displayName?: string; stats?: string[] }> };
+};
 
 function statNumericSafe(stats: Stat[], def: typeof COMPUTED_STAT_DEFS[0]): number | null {
   const s = stats.find((x) => x.name === def.espnName);
   if (!s) return null;
-  // For sandSaves the percentage lives in the average field, not value
   if (def.useAvgField) {
     if (s.average != null && !isNaN(s.average) && s.average !== 0) return s.average;
     const av = parseFloat(s.averageDisplayValue ?? '');
     if (!isNaN(av) && av !== 0) return av;
     return null;
   }
-  // For percentage stats, displayValue has the correct per-round/percentage number;
-  // value field may be a raw season count (e.g. total greens hit)
   if (def.isPercent) {
     const dv = parseFloat((s.displayValue ?? '').replace('%', ''));
     if (!isNaN(dv) && dv !== 0) return dv;
@@ -58,6 +60,18 @@ function statNumericSafe(stats: Stat[], def: typeof COMPUTED_STAT_DEFS[0]): numb
   const dv2 = parseFloat((s.displayValue ?? '').replace('%', ''));
   if (!isNaN(dv2) && dv2 !== 0) return dv2;
   return null;
+}
+
+function splitStatNumeric(data: OverviewData, pattern: RegExp): number | null {
+  const names = data.statistics?.names ?? [];
+  const splits = data.statistics?.splits ?? [];
+  const split = splits.find((s) => s.displayName?.includes('PGA')) ?? splits[0];
+  if (!split) return null;
+  const idx = names.findIndex((n) => pattern.test(n));
+  if (idx < 0) return null;
+  const raw = split.stats?.[idx] ?? '';
+  const num = parseFloat(raw.replace('%', ''));
+  return !isNaN(num) && num !== 0 ? num : null;
 }
 
 function formatAvg(v: number, key: string): string {
@@ -110,13 +124,11 @@ async function fetchPgaPlayerIds(): Promise<string[]> {
   return Array.from(idSet);
 }
 
-async function fetchOverviewStats(espnId: string): Promise<Stat[] | null> {
+async function fetchOverviewData(espnId: string): Promise<OverviewData | null> {
   try {
     const res = await fetch(`${ESPN_OVERVIEW}/${espnId}/overview`, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
     if (!res.ok) return null;
-    const data = await res.json() as { seasonRankings?: { categories?: Stat[] }; summaryStatistics?: Stat[] };
-    const merged = [...(data?.seasonRankings?.categories ?? []), ...(data?.summaryStatistics ?? [])];
-    return merged.length > 0 ? merged : null;
+    return await res.json() as OverviewData;
   } catch { return null; }
 }
 
@@ -128,32 +140,55 @@ async function batchAll<T>(tasks: (() => Promise<T>)[], size: number): Promise<T
   return results;
 }
 
+// Stats that come from statistics.splits (not seasonRankings.categories)
+const SPLIT_STAT_PATTERNS: Array<{ key: string; pattern: RegExp; isPercent: boolean }> = [
+  { key: 'gir', pattern: /green.*regulation|greens in reg/i, isPercent: true },
+  { key: 'scrambling', pattern: /scrambling/i, isPercent: true },
+  { key: 'sandSaves', pattern: /sand save|bunker save/i, isPercent: true },
+];
+
 async function computeFromAllPlayers(): Promise<StatAverages> {
   const ids = await fetchPgaPlayerIds();
   if (ids.length === 0) return {};
-  const allStats = await batchAll(ids.map((id) => () => fetchOverviewStats(id)), BATCH_SIZE);
+  const allOverviews = await batchAll(ids.map((id) => () => fetchOverviewData(id)), BATCH_SIZE);
 
   const sums: Record<string, number> = {};
   const counts: Record<string, number> = {};
 
-  for (const stats of allStats) {
-    if (!stats) continue;
+  for (const data of allOverviews) {
+    if (!data) continue;
+    const cats = [...(data.seasonRankings?.categories ?? []), ...(data.summaryStatistics ?? [])];
     const seen = new Set<string>();
+
+    // Category-based stats (drivingDistance, drivingAccuracy, avgPuttsPerRound)
     for (const def of COMPUTED_STAT_DEFS) {
       if (seen.has(def.key)) continue;
-      let raw = statNumericSafe(stats, def);
+      let raw = statNumericSafe(cats, def);
       if (raw === null) continue;
       if (def.altMultiplier) raw = raw * def.altMultiplier;
       sums[def.key] = (sums[def.key] ?? 0) + raw;
       counts[def.key] = (counts[def.key] ?? 0) + 1;
       seen.add(def.key);
     }
+
+    // Split-based stats (gir, scrambling, sandSaves) — live in statistics.splits
+    for (const { key, pattern } of SPLIT_STAT_PATTERNS) {
+      if (seen.has(key)) continue;
+      const raw = splitStatNumeric(data, pattern);
+      if (raw === null) continue;
+      sums[key] = (sums[key] ?? 0) + raw;
+      counts[key] = (counts[key] ?? 0) + 1;
+      seen.add(key);
+    }
   }
 
   const results: StatAverages = {};
   for (const key of Object.keys(sums)) {
     const avg = sums[key] / counts[key];
-    results[key] = formatAvg(avg, key);
+    const isPercent = COMPUTED_STAT_DEFS.find((d) => d.key === key)?.isPercent
+      ?? SPLIT_STAT_PATTERNS.find((d) => d.key === key)?.isPercent ?? false;
+    const decimals = COMPUTED_STAT_DEFS.find((d) => d.key === key)?.decimals ?? 1;
+    results[key] = isPercent ? `${avg.toFixed(decimals)}%` : avg.toFixed(decimals);
     console.log(`[tour-avg] key=${key} source=computed avg=${results[key]} n=${counts[key]}`);
   }
   return results;
