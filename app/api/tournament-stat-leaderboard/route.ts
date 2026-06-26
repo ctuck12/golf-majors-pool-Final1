@@ -142,7 +142,12 @@ export async function GET(request: Request) {
     }
 
     console.log(`[tourn-stat-lb] playerValues=${playerValues.length} statsNonNull=${allStats.filter(Boolean).length}`);
-    if (playerValues.length === 0) return Response.json({ entries: [] });
+    if (playerValues.length === 0) {
+      // Log stat names from first available player to diagnose missing stat name
+      const firstStats = allStats.find(Boolean);
+      if (firstStats) console.log(`[tourn-stat-lb] availableStatNames=${JSON.stringify(firstStats.map(s => s.name))}`);
+      return Response.json({ entries: [] });
+    }
 
     playerValues.sort((a, b) =>
       LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value
