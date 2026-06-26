@@ -9,10 +9,16 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'John Keefer': '5217048',
 };
 
+// Maps pool names to the name ESPN uses for that player
+const ESPN_NAME_ALIASES: Record<string, string> = {
+  'Tom Kim': 'Joohyung Kim',
+};
+
 export async function getEspnId(name: string): Promise<string | null> {
   if (ESPN_ID_OVERRIDES[name]) return ESPN_ID_OVERRIDES[name];
+  const searchName = ESPN_NAME_ALIASES[name] ?? name;
   const res = await fetch(
-    `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(name)}&limit=20&type=player`,
+    `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(searchName)}&limit=20&type=player`,
     { next: { revalidate: 86400 } },
   );
   if (!res.ok) return null;

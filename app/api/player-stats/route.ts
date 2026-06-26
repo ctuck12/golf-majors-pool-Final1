@@ -22,12 +22,17 @@ function mergeStats(...sources: (Record<string, unknown> | null)[]): Record<stri
 
 const RANKS_CACHE_SUFFIX = ':ranks';
 
+// PGA Tour IDs for players whose pool name differs from PGA Tour records
+const PGA_TOUR_ID_BY_NAME: Record<string, string> = {
+  'Tom Kim': '58724',
+};
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const name = searchParams.get('name') ?? '';
   const context = searchParams.get('context') ?? 'season';
   const eventId = searchParams.get('eventId') ?? '';
-  const pgaTourId = searchParams.get('pgaTourId') ?? '';
+  const pgaTourId = searchParams.get('pgaTourId') || PGA_TOUR_ID_BY_NAME[name] || '';
 
   if (!name) return Response.json({ stats: null, ranks: null });
 
