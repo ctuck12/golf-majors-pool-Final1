@@ -43,8 +43,19 @@ async function fetchStatTourAvg(statId: string): Promise<string | null> {
   }
 }
 
+// Fallback used only if PGA Tour GQL is unreachable — live fetch overrides every 6h
+const FALLBACK_AVERAGES: StatAverages = {
+  drivingDistance: '304.7',
+  drivingAccuracy: '61.9%',
+  gir: '65.2%',
+  scrambling: '59.1%',
+  sandSaves: '55.8%',
+  scoringAverage: '70.54',
+  avgPuttsPerRound: '29.4',
+};
+
 export async function fetchTourAverages(): Promise<StatAverages> {
-  const results: StatAverages = {};
+  const results: StatAverages = { ...FALLBACK_AVERAGES };
 
   await Promise.all(
     STAT_MAP.map(async ({ statId, key, suffix, multiplier }) => {
