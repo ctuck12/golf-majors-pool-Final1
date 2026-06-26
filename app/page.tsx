@@ -8460,7 +8460,7 @@ export default function Page() {
                     const betterCount = dist.filter((v) => lowerIsBetter ? v < playerVal : v > playerVal).length;
                     return String(betterCount + 1);
                   }
-                  const SG_KEYS = new Set(['sgTotal','sgOffTee','sgApproach','sgAroundGreen','sgPutting']);
+                  const SG_KEYS = new Set(['sgTotal','sgTeeToGreen','sgOffTee','sgApproach','sgAroundGreen','sgPutting']);
                   // Hide SG ranks for cut players when Round 3 has started
                   const feedPlayer = feed?.fullLeaderboard?.find((p) => p.name === pickHistoryPlayerPopup.player.name)
                     ?? (feed?.players ?? []).find((p) => p.canonicalName === pickHistoryPlayerPopup.player.name);
@@ -8497,6 +8497,7 @@ export default function Page() {
                   }
                   const sgStatCells: { label: string; value: string; rankKey?: string }[] = [];
                   if (s?.sgTotal) sgStatCells.push({ label: 'SG: Total', value: s.sgTotal, rankKey: 'sgTotal' });
+                  if (s?.sgTeeToGreen) sgStatCells.push({ label: 'SG: T2G', value: s.sgTeeToGreen, rankKey: 'sgTeeToGreen' });
                   if (s?.sgOffTee) sgStatCells.push({ label: 'SG: Off Tee', value: s.sgOffTee, rankKey: 'sgOffTee' });
                   if (s?.sgApproach) sgStatCells.push({ label: 'SG: Approach', value: s.sgApproach, rankKey: 'sgApproach' });
                   if (s?.sgAroundGreen) sgStatCells.push({ label: 'SG: Around', value: s.sgAroundGreen, rankKey: 'sgAroundGreen' });

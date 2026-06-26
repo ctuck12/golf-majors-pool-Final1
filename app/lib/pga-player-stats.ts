@@ -43,6 +43,7 @@ function mapStat(
     case '107': acc.sandSaves = withPercent(v); break;
     case '111': acc.sandSaves = withPercent(v); break;
     case '108': acc.scoringAverage = v; break;
+    case '02675': acc.sgTeeToGreen = v; break;
     case '02674': acc.sgTotal = v; break;   // SG: Tee-to-Green / Total (playerProfile)
     case '02567': acc.sgOffTee = v; break;
     case '02568': acc.sgApproach = v; break;
@@ -117,6 +118,7 @@ const STAT_ID_TO_FIELD: Record<string, string> = {
   '107': 'sandSaves',
   '108': 'scoringAverage',
   '111': 'sandSaves',
+  '02675': 'sgTeeToGreen',
   '02674': 'sgTotal',
   '02567': 'sgOffTee',
   '02568': 'sgApproach',
