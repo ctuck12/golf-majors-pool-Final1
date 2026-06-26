@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import redis from '@/app/lib/redis';
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
-const ESPN_SITE = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
+const ESPN_CORE_ATHLETES = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/athletes';
 const BATCH_SIZE = 25;
 
 type Stat = { name?: string; value?: number; displayValue?: string };
@@ -79,19 +79,17 @@ async function fetchCompetitorStats(espnId: string, eventId: string): Promise<St
   }
 }
 
-// Get player display name via ESPN site athlete overview (proven to return displayName)
+// Get player display name via ESPN Core athletes endpoint
 async function fetchAthleteName(espnId: string): Promise<string> {
   try {
-    // Try the site overview endpoint first — same one used by espn-player-stats.ts
     const res = await fetch(
-      `${ESPN_SITE}/${espnId}/overview`,
+      `${ESPN_CORE_ATHLETES}/${espnId}?lang=en&region=us`,
       { cache: 'no-store', signal: AbortSignal.timeout(4000) }
     );
     if (!res.ok) return '';
-    const data = await res.json() as { athlete?: { displayName?: string; fullName?: string; firstName?: string; lastName?: string } };
-    const a = data?.athlete;
-    return a?.displayName ?? a?.fullName
-      ?? ([a?.firstName, a?.lastName].filter(Boolean).join(' '))
+    const data = await res.json() as { displayName?: string; fullName?: string; firstName?: string; lastName?: string };
+    return data?.displayName ?? data?.fullName
+      ?? ([data?.firstName, data?.lastName].filter(Boolean).join(' '))
       ?? '';
   } catch {
     return '';
@@ -112,7 +110,7 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!statKey || !eventId) return Response.json({ entries: [] });
 
-  const cacheKey = `tourn-stat-lb:v6:${eventId}:${statKey}`;
+  const cacheKey = `tourn-stat-lb:v7:${eventId}:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });

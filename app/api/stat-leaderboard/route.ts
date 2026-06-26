@@ -1,33 +1,40 @@
 export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
-import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
 
-const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
-const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
+const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
+const BATCH_SIZE = 25;
 
-const GQL_HEADERS = {
-  'Content-Type': 'application/json',
-  'x-api-key': PGA_API_KEY,
-  'Referer': 'https://www.pgatour.com/',
-  'Origin': 'https://www.pgatour.com',
-};
+type Stat = { name?: string; value?: number; displayValue?: string };
 
-const STAT_KEY_TO_ID: Record<string, string> = {
-  drivingDistance: '101',
-  drivingAccuracy: '102',
-  gir: '103',
-  avgPuttsPerRound: '104',
-  scrambling: '106',
-  sandSaves: '107',
-  scoringAverage: '108',
-  sgTotal: '02674',
-  sgTeeToGreen: '02675',
-  sgOffTee: '02567',
-  sgApproach: '02568',
-  sgAroundGreen: '02569',
-  sgPutting: '02564',
-};
+const LOWER_IS_BETTER = new Set(['scoringAverage', 'avgPuttsPerRound']);
+
+const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number }> = [
+  { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
+  { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
+  { key: 'gir', espnName: 'gir', isPercent: true, decimals: 1 },
+  { key: 'scrambling', espnName: 'scramblingPct', isPercent: true, decimals: 1 },
+  { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
+  { key: 'scrambling', espnName: 'scrambPct', isPercent: true, decimals: 1 },
+  { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1 },
+  { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', isPercent: false, decimals: 1 },
+  { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', isPercent: false, decimals: 1, altMultiplier: 18 },
+  { key: 'sgTotal', espnName: 'strokesGainedTotal', isPercent: false, decimals: 3 },
+  { key: 'sgTotal', espnName: 'sgTotal', isPercent: false, decimals: 3 },
+  { key: 'sgOffTee', espnName: 'strokesGainedOffTee', isPercent: false, decimals: 3 },
+  { key: 'sgOffTee', espnName: 'sgOffTee', isPercent: false, decimals: 3 },
+  { key: 'sgApproach', espnName: 'strokesGainedApproach', isPercent: false, decimals: 3 },
+  { key: 'sgApproach', espnName: 'sgApproach', isPercent: false, decimals: 3 },
+  { key: 'sgAroundGreen', espnName: 'strokesGainedAroundGreen', isPercent: false, decimals: 3 },
+  { key: 'sgAroundGreen', espnName: 'sgAroundGreen', isPercent: false, decimals: 3 },
+  { key: 'sgPutting', espnName: 'strokesGainedPutting', isPercent: false, decimals: 3 },
+  { key: 'sgPutting', espnName: 'sgPutting', isPercent: false, decimals: 3 },
+  { key: 'sgTeeToGreen', espnName: 'strokesGainedTeeToGreen', isPercent: false, decimals: 3 },
+  { key: 'sgTeeToGreen', espnName: 'sgTeeToGreen', isPercent: false, decimals: 3 },
+  { key: 'scoringAverage', espnName: 'scoringAverage', isPercent: false, decimals: 2 },
+  { key: 'scoringAverage', espnName: 'adjScoringAvg', isPercent: false, decimals: 2 },
+  { key: 'scoringAverage', espnName: 'scoringAvg', isPercent: false, decimals: 2 },
+];
 
 export type StatLeaderboardEntry = {
   rank: number;
@@ -35,155 +42,156 @@ export type StatLeaderboardEntry = {
   value: string;
 };
 
-// Pool map as reliable baseline — covers pool players always
-const POOL_NAME_BY_PGA_ID = new Map<string, string>(
-  PLAYER_POOL_WITH_PGA_IDS
-    .filter((p) => (p.pgaTourId as number) !== 99999)
-    .map((p) => [String(p.pgaTourId), p.name])
-);
-
-// Supplement pool map with all PGA Tour player names via GQL players query
-// Returns a merged map: pool names first, GQL fills in non-pool players
-async function buildNameMap(): Promise<Map<string, string>> {
-  const map = new Map<string, string>(POOL_NAME_BY_PGA_ID);
-
-  const cacheKey = 'pga:player-names:v1';
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      for (const [id, name] of JSON.parse(cached) as [string, string][]) {
-        if (!map.has(id)) map.set(id, name);
-      }
-      return map;
-    }
-  } catch { /* ignore */ }
-
-  try {
-    const query = `query { players { id firstName lastName } }`;
-    const res = await fetch(PGA_GQL, {
-      method: 'POST',
-      headers: GQL_HEADERS,
-      body: JSON.stringify({ query }),
-      signal: AbortSignal.timeout(10000),
-    });
-    if (res.ok) {
-      const data = await res.json() as { data?: { players?: Array<{ id: string; firstName?: string; lastName?: string }> } };
-      const players = data?.data?.players ?? [];
-      const entries: [string, string][] = players
-        .filter((p) => p.id)
-        .map((p) => [String(p.id), [p.firstName, p.lastName].filter(Boolean).join(' ')] as [string, string])
-        .filter(([, name]) => name);
-      if (entries.length > 0) {
-        try { await redis.setex(cacheKey, 86400, JSON.stringify(entries)); } catch { /* ignore */ }
-        for (const [id, name] of entries) {
-          if (!map.has(id)) map.set(id, name);
-        }
-      }
-    }
-  } catch { /* fall back to pool map only */ }
-
-  return map;
+function statNumeric(stats: Stat[], name: string): number | null {
+  const s = stats.find((x) => x.name === name);
+  const v = s?.value ?? parseFloat(s?.displayValue ?? '');
+  return !isNaN(v) && v !== 0 ? v : null;
 }
 
-async function fetchStatLeaderboardRows(statId: string): Promise<Array<{ pgaId: string; rank: number; displayValue: string | null }>> {
-  const query = `
-    query StatLeaderboard($statId: ID!) {
-      statLeaderboard(statId: $statId) {
-        rows {
-          rank
-          displayValue
-          player { id }
-        }
-      }
-    }
-  `;
-  const res = await fetch(PGA_GQL, {
-    method: 'POST',
-    headers: GQL_HEADERS,
-    body: JSON.stringify({ query, variables: { statId } }),
-    signal: AbortSignal.timeout(8000),
-  });
-  if (!res.ok) return [];
-  const data = await res.json() as {
-    data?: { statLeaderboard?: { rows?: Array<{ rank?: number | string; displayValue?: string | null; player?: { id?: string } }> } };
-  };
-  const rows = data?.data?.statLeaderboard?.rows ?? [];
-  console.log(`[stat-lb] statId=${statId} http=${res.status} totalRows=${rows.length} first3=${JSON.stringify(rows.slice(0,3))}`);
-  return rows
-    .filter((r) => r.player?.id)
-    .slice(0, 10)
-    .map((r) => ({
-      pgaId: String(r.player!.id!),
-      rank: parseInt(String(r.rank ?? 0)) || 0,
-      displayValue: r.displayValue ?? null,
-    }));
+function formatValue(v: number, key: string): string {
+  const def = statDefs.find((d) => d.key === key);
+  const str = v.toFixed(def?.decimals ?? 1);
+  return def?.isPercent ? `${str}%` : str;
 }
 
-async function fetchStatValue(pgaId: string, statId: string): Promise<string | null> {
-  try {
-    const query = `
-      query PlayerProfileStats($playerId: ID!) {
-        playerProfileStats(playerId: $playerId) {
-          stats { statId value rank }
-        }
+async function fetchSeasonAthleteIds(): Promise<string[]> {
+  const year = new Date().getFullYear();
+  // Try to get athlete list from current season; falls back to previous year
+  for (const y of [year, year - 1]) {
+    try {
+      const res = await fetch(
+        `${ESPN_CORE}/seasons/${y}/athletes?limit=500`,
+        { cache: 'no-store', signal: AbortSignal.timeout(8000) }
+      );
+      if (!res.ok) continue;
+      const data = await res.json() as { items?: Array<{ id?: string; $ref?: string }> };
+      const ids = (data.items ?? []).map((item) => {
+        if (item.id) return item.id;
+        const match = item.$ref?.match(/athletes\/(\d+)/);
+        return match?.[1] ?? '';
+      }).filter(Boolean);
+      if (ids.length > 0) {
+        console.log(`[stat-lb] season=${y} athleteCount=${ids.length}`);
+        return ids;
       }
-    `;
-    const res = await fetch(PGA_GQL, {
-      method: 'POST',
-      headers: GQL_HEADERS,
-      body: JSON.stringify({ query, variables: { playerId: pgaId } }),
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!res.ok) return null;
-    const data = await res.json() as {
-      data?: { playerProfileStats?: Array<{ stats?: Array<{ statId?: string; value?: number | null }> }> };
-    };
-    const groups = data?.data?.playerProfileStats ?? [];
-    const flat = groups.flatMap((g) => g.stats ?? []);
-    const stat = flat.find((s) => s.statId === statId);
-    const v = stat?.value;
-    if (v != null && v !== 0) return String(v);
-    return null;
-  } catch {
-    return null;
+    } catch { /* try next year */ }
   }
+  return [];
+}
+
+async function fetchAthleteSeasonStats(espnId: string): Promise<Stat[] | null> {
+  const year = new Date().getFullYear();
+  const urls = [
+    `${ESPN_CORE}/seasons/${year}/athletes/${espnId}/statistics/0`,
+    `${ESPN_CORE}/seasons/${year}/athletes/${espnId}/statistics`,
+    `${ESPN_CORE}/seasons/${year - 1}/athletes/${espnId}/statistics/0`,
+  ];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+      if (!res.ok) continue;
+      const data = await res.json() as {
+        splits?: { categories?: Array<{ stats?: Stat[] }> } | Array<{ stats?: Stat[] }>;
+        categories?: Array<{ stats?: Stat[] }>;
+        stats?: Stat[];
+      };
+      if (data?.splits && !Array.isArray(data.splits)) {
+        const stats = (data.splits as { categories?: Array<{ stats?: Stat[] }> }).categories?.[0]?.stats;
+        if (Array.isArray(stats) && stats.length > 0) return stats;
+      }
+      if (Array.isArray(data?.splits)) {
+        for (const split of data.splits as Array<{ stats?: Stat[] }>) {
+          if (Array.isArray(split?.stats) && split.stats.length > 0) return split.stats;
+        }
+      }
+      const cats = data?.categories;
+      if (Array.isArray(cats) && cats[0]?.stats?.length) return cats[0].stats;
+      if (Array.isArray(data?.stats) && data.stats.length > 0) return data.stats;
+    } catch { continue; }
+  }
+  return null;
+}
+
+async function fetchAthleteName(espnId: string): Promise<string> {
+  try {
+    const res = await fetch(
+      `${ESPN_CORE}/athletes/${espnId}?lang=en&region=us`,
+      { cache: 'no-store', signal: AbortSignal.timeout(4000) }
+    );
+    if (!res.ok) return '';
+    const data = await res.json() as { displayName?: string; fullName?: string; firstName?: string; lastName?: string };
+    return data?.displayName ?? data?.fullName
+      ?? ([data?.firstName, data?.lastName].filter(Boolean).join(' '))
+      ?? '';
+  } catch {
+    return '';
+  }
+}
+
+async function batchAll<T>(tasks: (() => Promise<T>)[], size: number): Promise<T[]> {
+  const results: T[] = [];
+  for (let i = 0; i < tasks.length; i += size) {
+    results.push(...await Promise.all(tasks.slice(i, i + size).map((t) => t())));
+  }
+  return results;
 }
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const statKey = searchParams.get('statKey') ?? '';
-  const statId = STAT_KEY_TO_ID[statKey];
-  if (!statId) return Response.json({ entries: [] });
+  if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v6:${statId}`;
+  const cacheKey = `stat-lb:v8:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });
   } catch { /* ignore */ }
 
   try {
-    const [rows, nameMap] = await Promise.all([
-      fetchStatLeaderboardRows(statId),
-      buildNameMap(),
-    ]);
-    if (rows.length === 0) return Response.json({ entries: [] });
+    const ids = await fetchSeasonAthleteIds();
+    if (ids.length === 0) return Response.json({ entries: [] });
 
-    const entries: StatLeaderboardEntry[] = await Promise.all(
-      rows.map(async (r) => {
-        const name = nameMap.get(r.pgaId) ?? '';
-        const dv = r.displayValue;
-        const value = (dv && dv !== '-' && dv !== '--' && dv !== '0')
-          ? dv
-          : (await fetchStatValue(r.pgaId, statId)) ?? '';
-        return { rank: r.rank, name, value };
-      })
+    const allStats = await batchAll(
+      ids.map((id) => () => fetchAthleteSeasonStats(id)),
+      BATCH_SIZE,
     );
 
-    const valid = entries.filter((e) => e.name && e.value);
-    if (valid.length > 0) {
-      try { await redis.setex(cacheKey, 3600, JSON.stringify(valid)); } catch { /* ignore */ }
+    const defsForKey = statDefs.filter((d) => d.key === statKey);
+    const playerValues: Array<{ espnId: string; value: number }> = [];
+
+    for (let i = 0; i < ids.length; i++) {
+      const stats = allStats[i];
+      if (!stats) continue;
+      for (const def of defsForKey) {
+        let raw = statNumeric(stats, def.espnName);
+        if (raw === null) continue;
+        if (def.altMultiplier) raw = raw * def.altMultiplier;
+        playerValues.push({ espnId: ids[i], value: raw });
+        break;
+      }
     }
-    return Response.json({ entries: valid });
+
+    console.log(`[stat-lb] statKey=${statKey} totalAthletes=${ids.length} withValues=${playerValues.length}`);
+    if (playerValues.length === 0) return Response.json({ entries: [] });
+
+    playerValues.sort((a, b) =>
+      LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value
+    );
+    const top10 = playerValues.slice(0, 10);
+
+    const names = await Promise.all(top10.map((p) => fetchAthleteName(p.espnId)));
+    console.log(`[stat-lb] top10ids=${top10.map(p => p.espnId)} names=${JSON.stringify(names)}`);
+
+    const entries: StatLeaderboardEntry[] = top10.map((p, i) => ({
+      rank: i + 1,
+      name: names[i],
+      value: formatValue(p.value, statKey),
+    })).filter((e) => e.name);
+
+    if (entries.length > 0) {
+      try { await redis.setex(cacheKey, 3600, JSON.stringify(entries)); } catch { /* ignore */ }
+    }
+    return Response.json({ entries });
   } catch {
     return Response.json({ entries: [] });
   }
