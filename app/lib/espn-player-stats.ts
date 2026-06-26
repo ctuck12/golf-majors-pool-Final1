@@ -136,6 +136,8 @@ function extractSeason(data: Overview): PlayerStats {
     return suffix ? `${raw}${suffix}` : raw;
   }
 
+  console.log(`[espn-extract] statistics.names=${JSON.stringify(names.slice(0, 30))}`);
+
   // GIR: try summaryStatistics, category name variants, then statistics.splits (same as scrambling)
   const gir =
     summaryStatVal(sumStats, 'greensInRegPct', '%') ??
@@ -147,7 +149,9 @@ function extractSeason(data: Overview): PlayerStats {
     statNumVal(cats, 'gir', '%') ??
     statNumVal(cats, 'greensInReg', '%') ??
     statNumVal(cats, 'greensInRegPct', '%') ??
-    splitStatVal(/green.*regulation|greens in reg/i, '%');
+    splitStatVal(/green/i, '%') ??
+    splitStatVal(/gir/i, '%');
+  console.log(`[espn-extract] gir=${gir}`);
 
   // Scrambling: ESPN uses several names across player profiles
   const scrambling =
