@@ -163,10 +163,24 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
   const sums: Record<string, number> = {};
   const counts: Record<string, number> = {};
 
+  let diagLogged = false;
   for (const data of allOverviews) {
     if (!data) continue;
     const cats = [...(data.seasonRankings?.categories ?? []), ...(data.summaryStatistics ?? [])];
     const seen = new Set<string>();
+
+    // One-time diagnostic: log all cat names and split names for putts investigation
+    if (!diagLogged && data.seasonRankings?.categories?.some((c) => c.name === 'greensHit')) {
+      diagLogged = true;
+      const allCatNames = (data.seasonRankings?.categories ?? []).map((c) => c.name);
+      const puttCats = (data.seasonRankings?.categories ?? []).filter((c) => /putt/i.test(c.name ?? ''));
+      const splitNames = data.statistics?.names ?? [];
+      const puttSplitNames = splitNames.filter((n) => /putt/i.test(n));
+      console.log('[tour-avg-diag] all cat names:', JSON.stringify(allCatNames));
+      console.log('[tour-avg-diag] putt cats:', JSON.stringify(puttCats.map((c) => ({ name: c.name, value: c.value, displayValue: c.displayValue, rank: c.rank }))));
+      console.log('[tour-avg-diag] all split names:', JSON.stringify(splitNames));
+      console.log('[tour-avg-diag] putt split names:', JSON.stringify(puttSplitNames));
+    }
 
     for (const def of COMPUTED_STAT_DEFS) {
       if (seen.has(def.key)) continue;
