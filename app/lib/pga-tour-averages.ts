@@ -18,15 +18,15 @@ const GQL_STAT_MAP: Array<{ statId: string; key: string; suffix?: string; multip
   { statId: '104', key: 'avgPuttsPerRound', multiplier: 18 },
 ];
 
-// ESPN stat names that safely return percentage/rate values (not cumulative counts)
-// Only use names that are confirmed to return per-round or percentage values
+// ESPN stat names — for percentage stats, displayValue has the correct number; value field may be a raw count
 const COMPUTED_STAT_DEFS: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number; useAvgField?: boolean }> = [
   { key: 'drivingDistance', espnName: 'yardsPerDrive', decimals: 1 },
   { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
-  { key: 'gir', espnName: 'greensInRegPct', isPercent: true, decimals: 1 },  // pct name only — 'gir' is a count
+  { key: 'gir', espnName: 'gir', isPercent: true, decimals: 1 },           // displayValue = "65.2", value = raw count
+  { key: 'gir', espnName: 'greensInRegPct', isPercent: true, decimals: 1 },
+  { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scramblingPct', isPercent: true, decimals: 1 },
-  { key: 'scrambling', espnName: 'scrambPct', isPercent: true, decimals: 1 },
-  { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1, useAvgField: true },  // % is in average field
+  { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1, useAvgField: true }, // % is in average field
   { key: 'sandSaves', espnName: 'sandSavePct', isPercent: true, decimals: 1 },
   { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', decimals: 1 },
   { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', decimals: 1, altMultiplier: 18 },
@@ -44,9 +44,15 @@ function statNumericSafe(stats: Stat[], def: typeof COMPUTED_STAT_DEFS[0]): numb
     if (!isNaN(av) && av !== 0) return av;
     return null;
   }
+  // For percentage stats, displayValue has the correct per-round/percentage number;
+  // value field may be a raw season count (e.g. total greens hit)
+  if (def.isPercent) {
+    const dv = parseFloat((s.displayValue ?? '').replace('%', ''));
+    if (!isNaN(dv) && dv !== 0) return dv;
+  }
   if (s.value != null && !isNaN(s.value) && s.value !== 0) return s.value;
-  const dv = parseFloat(s.displayValue ?? '');
-  if (!isNaN(dv) && dv !== 0) return dv;
+  const dv2 = parseFloat((s.displayValue ?? '').replace('%', ''));
+  if (!isNaN(dv2) && dv2 !== 0) return dv2;
   return null;
 }
 
