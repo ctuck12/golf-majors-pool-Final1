@@ -91,7 +91,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 169, name: 'Adrien Saddier',                   pgaTourId: 34371, defaultOdds: '+30000',  worldRank: 115 },
   { id: 193, name: 'Sudarshan Yellamaraju',            pgaTourId: 99999, defaultOdds: '+20000',  worldRank: 105, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_60386' },
   { id: 197, name: 'Lucas Herbert',                    pgaTourId: 39058, defaultOdds: '+20000',  worldRank:  88, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_39058' },
-  { id: 198, name: 'Joohyung Kim',                     pgaTourId: 58724, defaultOdds: '+20000',  worldRank: 141 },
+  { id: 198, name: 'Joohyung Kim',                     pgaTourId: 57719, defaultOdds: '+20000',  worldRank: 141 },
   { id: 199, name: 'Davis Thompson',                   pgaTourId: 55547, defaultOdds: '+20000',  worldRank: 138 },
   { id: 200, name: 'Jackson Suber',                    pgaTourId: 60019, defaultOdds: '+20000',  worldRank: 128 },
   { id: 201, name: 'Carlos Ortiz',                     pgaTourId: 35617, defaultOdds: '+20000',  worldRank: 188 },

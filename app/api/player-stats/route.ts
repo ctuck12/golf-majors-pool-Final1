@@ -24,7 +24,7 @@ const RANKS_CACHE_SUFFIX = ':ranks';
 
 // PGA Tour IDs for players whose pool name differs from PGA Tour records
 const PGA_TOUR_ID_BY_NAME: Record<string, string> = {
-  'Tom Kim': '58724',
+  'Tom Kim': '57719',
 };
 
 export async function GET(request: Request) {

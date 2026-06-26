@@ -14,9 +14,7 @@ const ESPN_NAME_ALIASES: Record<string, string> = {
   'Tom Kim': 'Joohyung Kim',
 };
 
-export async function getEspnId(name: string): Promise<string | null> {
-  if (ESPN_ID_OVERRIDES[name]) return ESPN_ID_OVERRIDES[name];
-  const searchName = ESPN_NAME_ALIASES[name] ?? name;
+async function searchEspnByName(searchName: string): Promise<string | null> {
   const res = await fetch(
     `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(searchName)}&limit=20&type=player`,
     { next: { revalidate: 86400 } },
@@ -24,9 +22,21 @@ export async function getEspnId(name: string): Promise<string | null> {
   if (!res.ok) return null;
   const data = await res.json();
   const contents: Array<{ uid?: string }> = data.results?.[0]?.contents ?? [];
-  const player = contents.find((c) => c.uid?.includes('s:1100~'));
+  // Accept any golf sport code (s:1100=PGA, s:1109=DP World, etc.)
+  const player = contents.find((c) => c.uid?.includes('s:110') && c.uid?.includes('~a:'));
   const uid: string = player?.uid ?? '';
   return uid.split('~a:')?.[1] ?? null;
+}
+
+export async function getEspnId(name: string): Promise<string | null> {
+  if (ESPN_ID_OVERRIDES[name]) return ESPN_ID_OVERRIDES[name];
+  // Try alias name first, then original name as fallback
+  const alias = ESPN_NAME_ALIASES[name];
+  if (alias) {
+    const id = await searchEspnByName(alias);
+    if (id) return id;
+  }
+  return searchEspnByName(name);
 }
 
 async function getEventIdsForLeague(
