@@ -136,7 +136,7 @@ function extractSeason(data: Overview): PlayerStats {
     return suffix ? `${raw}${suffix}` : raw;
   }
 
-  // GIR: try summaryStatistics first, then several category name variants
+  // GIR: try summaryStatistics, category name variants, then statistics.splits (same as scrambling)
   const gir =
     summaryStatVal(sumStats, 'greensInRegPct', '%') ??
     summaryStatVal(sumStats, 'girPct', '%') ??
@@ -146,7 +146,8 @@ function extractSeason(data: Overview): PlayerStats {
     statVal(cats, 'girPct', '%') ??
     statNumVal(cats, 'gir', '%') ??
     statNumVal(cats, 'greensInReg', '%') ??
-    statNumVal(cats, 'greensInRegPct', '%');
+    statNumVal(cats, 'greensInRegPct', '%') ??
+    splitStatVal(/green.*regulation|greens in reg/i, '%');
 
   // Scrambling: ESPN uses several names across player profiles
   const scrambling =

@@ -94,9 +94,8 @@ async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string): Pro
       data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; displayValue?: string | null; player?: { id?: string } }> } };
     };
     const rows = data?.data?.statLeaderboard?.rows;
-    if (!Array.isArray(rows)) { console.log(`[lb-entry] statId=${statId} rows=null`); return { rank: null, value: null }; }
+    if (!Array.isArray(rows)) return { rank: null, value: null };
     const row = rows.find((r) => String(r.player?.id) === String(pgaTourId));
-    if (statId === '103') console.log(`[lb-entry] statId=103 pgaTourId=${pgaTourId} rowsLen=${rows.length} sampleId=${rows[0]?.player?.id ?? 'none'} found=${!!row} row=${JSON.stringify(row)}`);
     if (!row) return { rank: null, value: null };
     const rankNum = parseInt(String(row.rank ?? ''));
     const rank = !isNaN(rankNum) && rankNum > 0 ? String(rankNum) : null;
