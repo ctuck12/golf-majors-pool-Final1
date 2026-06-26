@@ -8432,7 +8432,8 @@ export default function Page() {
                   const rounds = isTournCtx
                     ? (pickHistoryPlayerPopup.playerRounds?.length ? pickHistoryPlayerPopup.playerRounds : espnRounds)
                     : [];
-                  const isTournView = (showSubToggle && statsSubView === 'tournament') || (!showSubToggle && isTournCtx);
+                  const isUsOpenSeasonTab = careerTournamentId === 'us-open';
+                  const isTournView = !isUsOpenSeasonTab && ((showSubToggle && statsSubView === 'tournament') || (!showSubToggle && isTournCtx));
                   const avgs = isTournView
                     ? { ...pickHistoryPlayerPopup.statAverages, ...pickHistoryPlayerPopup.fieldAverages }
                     : pickHistoryPlayerPopup.statAverages ?? {};
