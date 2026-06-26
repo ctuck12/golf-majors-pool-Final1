@@ -136,10 +136,32 @@ function extractSeason(data: Overview): PlayerStats {
     return suffix ? `${raw}${suffix}` : raw;
   }
 
-  // GIR: ESPN categories field is "greensHit". displayValue is blank; value is raw count (471).
-  // The percentage is in averageDisplayValue (e.g. "62.3").
+  // GIR: 'greensHit' has raw count (value=471) and correct rank but no % value.
+  // averageDisplayValue is null; compute from count / (rounds × 18).
+  // Rounds derived from birdiesPerRound total / per-round rate (both reliably populated).
+  const greensHitStat = getStat(cats, 'greensHit');
+  const bprStat = getStat(cats, 'birdiesPerRound');
+  const girComputed = (() => {
+    if (!greensHitStat?.value || greensHitStat.value < 10) return null;
+    // If average is in greens/round range (0-18), use it directly
+    if (greensHitStat.average && greensHitStat.average > 0 && greensHitStat.average < 18) {
+      return `${((greensHitStat.average / 18) * 100).toFixed(2)}%`;
+    }
+    // Derive rounds: birdiesPerRound.value / birdiesPerRound.average (or displayValue)
+    const bprTotal = bprStat?.value;
+    const bprRate = bprStat?.average ??
+      (bprStat?.averageDisplayValue ? parseFloat(bprStat.averageDisplayValue) : null) ??
+      (bprStat?.displayValue ? parseFloat(bprStat.displayValue) : null);
+    if (!bprTotal || !bprRate || bprRate <= 0) return null;
+    const rounds = Math.round(bprTotal / bprRate);
+    if (rounds < 10 || rounds > 200) return null;
+    const pct = (greensHitStat.value / (rounds * 18)) * 100;
+    return pct > 0 && pct < 100 ? `${pct.toFixed(2)}%` : null;
+  })();
+
   const gir =
     statAvgVal(cats, 'greensHit', '%') ??
+    girComputed ??
     statAvgVal(cats, 'greensInRegPct', '%') ??
     summaryStatVal(sumStats, 'greensInRegPct', '%') ??
     summaryStatVal(sumStats, 'girPct', '%') ??
