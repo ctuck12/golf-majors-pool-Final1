@@ -177,7 +177,7 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
       const splitNames = data.statistics?.names ?? [];
       const puttSplitNames = splitNames.filter((n) => /putt/i.test(n));
       console.log('[tour-avg-diag] all cat names:', JSON.stringify(allCatNames));
-      console.log('[tour-avg-diag] putt cats:', JSON.stringify(puttCats.map((c) => ({ name: c.name, value: c.value, displayValue: c.displayValue, rank: c.rank }))));
+      console.log('[tour-avg-diag] putt cats:', JSON.stringify(puttCats.map((c) => ({ name: c.name, value: c.value, displayValue: c.displayValue }))));
       console.log('[tour-avg-diag] all split names:', JSON.stringify(splitNames));
       console.log('[tour-avg-diag] putt split names:', JSON.stringify(puttSplitNames));
     }
