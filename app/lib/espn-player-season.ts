@@ -7,12 +7,11 @@ type League = (typeof LEAGUES)[number];
 export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Justin Thomas': '4848',
   'John Keefer': '5217048',
+  'Tom Kim': '4602673',
 };
 
 // Maps pool names to the name ESPN uses for that player
-const ESPN_NAME_ALIASES: Record<string, string> = {
-  'Tom Kim': 'Joohyung Kim',
-};
+const ESPN_NAME_ALIASES: Record<string, string> = {};
 
 async function searchEspnByName(searchName: string): Promise<string | null> {
   const res = await fetch(
