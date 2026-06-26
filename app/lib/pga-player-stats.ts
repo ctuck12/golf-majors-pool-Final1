@@ -77,7 +77,7 @@ async function gqlPost(query: string, variables: Record<string, unknown>): Promi
 }
 
 // Fetch a player's rank AND value for a specific stat from the leaderboard
-async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string): Promise<{ rank: string | null; value: string | null }> {
+async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string, playerName?: string): Promise<{ rank: string | null; value: string | null }> {
   try {
     const query = `
       query StatLeaderboard($statId: ID!) {
@@ -95,10 +95,20 @@ async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string): Pro
     };
     const rows = data?.data?.statLeaderboard?.rows;
     if (!Array.isArray(rows)) return { rank: null, value: null };
-    const row = rows.find((r) =>
-      String(r.player?.id) === String(pgaTourId) ||
-      String(r.player?.playerId) === String(pgaTourId)
-    );
+    const targetName = playerName?.toLowerCase().trim();
+    const row = rows.find((r) => {
+      const p = r.player;
+      if (!p) return false;
+      // Match by numeric ID (strip any non-digit prefix like "R")
+      const rowId = String(p.id ?? '').replace(/\D/g, '');
+      const rowPid = String(p.playerId ?? '').replace(/\D/g, '');
+      if (rowId === String(pgaTourId) || rowPid === String(pgaTourId)) return true;
+      // Fallback: match by full name
+      if (targetName && p.firstName && p.lastName) {
+        return `${p.firstName} ${p.lastName}`.toLowerCase().trim() === targetName;
+      }
+      return false;
+    });
     if (!row) return { rank: null, value: null };
     const rankNum = parseInt(String(row.rank ?? ''));
     const rank = !isNaN(rankNum) && rankNum > 0 ? String(rankNum) : null;
@@ -131,7 +141,7 @@ const STAT_ID_TO_FIELD: Record<string, string> = {
 
 export type PlayerStatRanks = Partial<Record<string, string>>;
 
-export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<{ stats: Partial<PlayerStats>; ranks: PlayerStatRanks } | null> {
+export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: string): Promise<{ stats: Partial<PlayerStats>; ranks: PlayerStatRanks } | null> {
   try {
     // playerProfileStats returns [PlayerProfileStat], each with stats: [PlayerProfileStatItem]
     // Valid fields on PlayerProfileStatItem: statId, rank, displayValue
@@ -193,7 +203,7 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<{ stat
       const fallbackEntries = await Promise.all(
         missingStatIds.map(async (id) => ({
           id,
-          ...(await fetchStatLeaderboardEntry(id, pgaTourId)),
+          ...(await fetchStatLeaderboardEntry(id, pgaTourId, playerName)),
         }))
       );
       for (const { id, rank, value } of fallbackEntries) {
