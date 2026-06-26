@@ -143,7 +143,10 @@ function extractSeason(data: Overview): PlayerStats {
     statVal(cats, 'gir', '%') ??
     statVal(cats, 'greensInReg', '%') ??
     statVal(cats, 'greensInRegPct', '%') ??
-    statVal(cats, 'girPct', '%');
+    statVal(cats, 'girPct', '%') ??
+    statNumVal(cats, 'gir', '%') ??
+    statNumVal(cats, 'greensInReg', '%') ??
+    statNumVal(cats, 'greensInRegPct', '%');
 
   // Scrambling: ESPN uses several names across player profiles
   const scrambling =
@@ -151,7 +154,9 @@ function extractSeason(data: Overview): PlayerStats {
     statVal(cats, 'scramblingPct', '%') ??
     summaryStatVal(sumStats, 'scrambling', '%') ??
     summaryStatVal(sumStats, 'scramblingPct', '%') ??
-    splitStatVal(/scrambling/i, '%');
+    splitStatVal(/scrambling/i, '%') ??
+    statNumVal(cats, 'scrambling', '%') ??
+    statNumVal(cats, 'scramblingPct', '%');
 
   const sandSaves =
     statVal(cats, 'sandSaves', '%') ??
@@ -191,16 +196,16 @@ function extractSeason(data: Overview): PlayerStats {
   const { ranks: statRanks, avgs: statAvgs } = buildRankAvgMaps(cats, SEASON_STAT_LABEL_MAP);
 
   return {
-    drivingDistance: statVal(cats, 'yardsPerDrive'),
-    drivingAccuracy: statVal(cats, 'driveAccuracyPct', '%'),
+    drivingDistance: statVal(cats, 'yardsPerDrive') ?? statNumVal(cats, 'yardsPerDrive'),
+    drivingAccuracy: statVal(cats, 'driveAccuracyPct', '%') ?? statNumVal(cats, 'driveAccuracyPct', '%'),
     gir,
     scrambling,
     sandSaves,
-    puttAverage: statVal(cats, 'puttsGirAvg'),
-    avgPuttsPerRound: statVal(cats, 'puttsPerRound') ?? statVal(cats, 'avgPutts') ?? statVal(cats, 'avgPutt'),
-    proximity: statVal(cats, 'proximity') ?? statVal(cats, 'proxHole'),
-    scoringAverage: scoringAvg ?? summaryStatVal(sumStats, 'scoringAverage') ?? summaryStatVal(sumStats, 'avgScore') ?? statVal(cats, 'scoringAverage') ?? statVal(cats, 'avgScore'),
-    birdiesPerRound: statVal(cats, 'birdiesPerRound'),
+    puttAverage: statVal(cats, 'puttsGirAvg') ?? statNumVal(cats, 'puttsGirAvg'),
+    avgPuttsPerRound: statVal(cats, 'puttsPerRound') ?? statVal(cats, 'avgPutts') ?? statVal(cats, 'avgPutt') ?? statNumVal(cats, 'puttsPerRound') ?? statNumVal(cats, 'avgPutts'),
+    proximity: statVal(cats, 'proximity') ?? statVal(cats, 'proxHole') ?? statNumVal(cats, 'proximity') ?? statNumVal(cats, 'proxHole'),
+    scoringAverage: scoringAvg ?? summaryStatVal(sumStats, 'scoringAverage') ?? summaryStatVal(sumStats, 'avgScore') ?? statVal(cats, 'scoringAverage') ?? statVal(cats, 'avgScore') ?? statNumVal(cats, 'scoringAverage') ?? statNumVal(cats, 'avgScore'),
+    birdiesPerRound: statVal(cats, 'birdiesPerRound') ?? statNumVal(cats, 'birdiesPerRound'),
     birdies: null,
     pars: null,
     bogeys: null,

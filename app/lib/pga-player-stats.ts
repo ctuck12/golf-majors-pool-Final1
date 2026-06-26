@@ -16,7 +16,7 @@ function gqlHeaders() {
 function normalizeValue(raw: string | number | null | undefined): string | null {
   if (raw === null || raw === undefined) return null;
   const v = String(raw).trim();
-  if (!v || v === '0' || v === '0.000' || v === '0.00' || v === '0.0') return null;
+  if (!v || v === '0' || v === '0.000' || v === '0.00' || v === '0.0' || v === '-' || v === '--') return null;
   return v;
 }
 
