@@ -7,9 +7,9 @@ const ESPN_CORE_ATHLETES = 'https://sports.core.api.espn.com/v2/sports/golf/leag
 const ESPN_OVERVIEW = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
 const BATCH_SIZE = 25;
 
-type Stat = { name?: string; value?: number; displayValue?: string };
+type Stat = { name?: string; value?: number; displayValue?: string; average?: number; averageDisplayValue?: string };
 
-const LOWER_IS_BETTER = new Set(['scoringAverage', 'avgPuttsPerRound']);
+const LOWER_IS_BETTER = new Set(['scoringAverage', 'puttAverage']);
 
 const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number }> = [
   { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
@@ -19,8 +19,7 @@ const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; deci
   { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scrambPct', isPercent: true, decimals: 1 },
   { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', isPercent: false, decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', isPercent: false, decimals: 1, altMultiplier: 18 },
+  { key: 'puttAverage', espnName: 'puttsGirAvg', isPercent: false, decimals: 3 },
   { key: 'sgTotal', espnName: 'strokesGainedTotal', isPercent: false, decimals: 3 },
   { key: 'sgTotal', espnName: 'sgTotal', isPercent: false, decimals: 3 },
   { key: 'sgOffTee', espnName: 'strokesGainedOffTee', isPercent: false, decimals: 3 },
@@ -37,8 +36,14 @@ const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; deci
 
 function statNumeric(stats: Stat[], name: string): number | null {
   const s = stats.find((x) => x.name === name);
-  const v = s?.value ?? parseFloat(s?.displayValue ?? '');
-  return !isNaN(v) && v !== 0 ? v : null;
+  if (!s) return null;
+  if (s.value != null && !isNaN(s.value) && s.value !== 0) return s.value;
+  const dv = parseFloat(s.displayValue ?? '');
+  if (!isNaN(dv) && dv !== 0) return dv;
+  if (s.average != null && !isNaN(s.average) && s.average !== 0) return s.average;
+  const av = parseFloat(s.averageDisplayValue ?? '');
+  if (!isNaN(av) && av !== 0) return av;
+  return null;
 }
 
 function formatValue(v: number, key: string): string {
@@ -127,7 +132,7 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!statKey || !eventId) return Response.json({ entries: [] });
 
-  const cacheKey = `tourn-stat-lb:v7:${eventId}:${statKey}`;
+  const cacheKey = `tourn-stat-lb:v8:${eventId}:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });
