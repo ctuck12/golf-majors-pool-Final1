@@ -2,15 +2,14 @@ export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
 
-const ESPN_SITE = 'https://site.api.espn.com/apis/site/v2/sports/golf/pga';
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 const BATCH_SIZE = 25;
 
 type Stat = { name?: string; value?: number; displayValue?: string };
 
-// Stats where lower is better
 const LOWER_IS_BETTER = new Set(['scoringAverage', 'avgPuttsPerRound']);
 
+// Same stat defs as field-averages (all known ESPN stat name variants)
 const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number }> = [
   { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
   { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
@@ -43,34 +42,8 @@ function statNumeric(stats: Stat[], name: string): number | null {
 
 function formatValue(v: number, key: string): string {
   const def = statDefs.find((d) => d.key === key);
-  if (!def) return String(v);
-  const str = v.toFixed(def.decimals ?? 1);
-  return def.isPercent ? `${str}%` : str;
-}
-
-async function fetchCompetitorNames(eventId: string): Promise<Map<string, string>> {
-  const nameMap = new Map<string, string>();
-  try {
-    const res = await fetch(
-      `${ESPN_SITE}/leaderboard?event=${eventId}`,
-      { cache: 'no-store', signal: AbortSignal.timeout(8000) }
-    );
-    if (!res.ok) return nameMap;
-    const data = await res.json() as {
-      events?: Array<{
-        competitions?: Array<{
-          competitors?: Array<{ id?: string; athlete?: { displayName?: string; fullName?: string } }>;
-        }>;
-      }>;
-    };
-    const competitors = data?.events?.[0]?.competitions?.[0]?.competitors ?? [];
-    for (const c of competitors) {
-      if (c.id && (c.athlete?.displayName || c.athlete?.fullName)) {
-        nameMap.set(c.id, c.athlete?.displayName ?? c.athlete?.fullName ?? '');
-      }
-    }
-  } catch { /* ignore */ }
-  return nameMap;
+  const str = v.toFixed(def?.decimals ?? 1);
+  return def?.isPercent ? `${str}%` : str;
 }
 
 async function fetchCompetitorIds(eventId: string): Promise<string[]> {
@@ -106,6 +79,23 @@ async function fetchCompetitorStats(espnId: string, eventId: string): Promise<St
   }
 }
 
+// Fetch athlete name from ESPN Core athletes endpoint
+async function fetchAthleteName(espnId: string): Promise<string> {
+  try {
+    const res = await fetch(
+      `https://sports.core.api.espn.com/v2/sports/golf/athletes/${espnId}`,
+      { cache: 'no-store', signal: AbortSignal.timeout(4000) }
+    );
+    if (!res.ok) return '';
+    const data = await res.json() as { displayName?: string; fullName?: string; firstName?: string; lastName?: string };
+    return data.displayName ?? data.fullName
+      ?? ([data.firstName, data.lastName].filter(Boolean).join(' '))
+      ?? '';
+  } catch {
+    return '';
+  }
+}
+
 async function batchAll<T>(tasks: (() => Promise<T>)[], size: number): Promise<T[]> {
   const results: T[] = [];
   for (let i = 0; i < tasks.length; i += size) {
@@ -120,20 +110,17 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!statKey || !eventId) return Response.json({ entries: [] });
 
-  const cacheKey = `tourn-stat-lb:v3:${eventId}:${statKey}`;
+  const cacheKey = `tourn-stat-lb:v4:${eventId}:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });
   } catch { /* ignore */ }
 
   try {
-    const [nameMap, ids] = await Promise.all([
-      fetchCompetitorNames(eventId),
-      fetchCompetitorIds(eventId),
-    ]);
-
+    const ids = await fetchCompetitorIds(eventId);
     if (ids.length === 0) return Response.json({ entries: [] });
 
+    // Fetch stats for all competitors (same as field-averages)
     const allStats = await batchAll(
       ids.map((id) => () => fetchCompetitorStats(id, eventId)),
       BATCH_SIZE,
@@ -141,41 +128,38 @@ export async function GET(request: Request) {
 
     // Collect per-player values for the requested stat
     const defsForKey = statDefs.filter((d) => d.key === statKey);
-    const playerValues: Array<{ id: string; name: string; value: number }> = [];
+    const playerValues: Array<{ espnId: string; value: number }> = [];
 
     for (let i = 0; i < ids.length; i++) {
       const stats = allStats[i];
       if (!stats) continue;
-      const name = nameMap.get(ids[i]) ?? '';
-      if (!name) continue;
-
-      let v: number | null = null;
       for (const def of defsForKey) {
         let raw = statNumeric(stats, def.espnName);
         if (raw === null) continue;
         if (def.altMultiplier) raw = raw * def.altMultiplier;
-        v = raw;
+        playerValues.push({ espnId: ids[i], value: raw });
         break;
       }
-      if (v === null) continue;
-      playerValues.push({ id: ids[i], name, value: v });
     }
 
-    // Sort best-first
+    // Sort best-first and take top 10
     playerValues.sort((a, b) =>
       LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value
     );
+    const top10 = playerValues.slice(0, 10);
 
-    const entries = playerValues.slice(0, 10).map((p, i) => ({
+    // Fetch names only for the top 10 (not all 150+ competitors)
+    const names = await Promise.all(top10.map((p) => fetchAthleteName(p.espnId)));
+
+    const entries = top10.map((p, i) => ({
       rank: i + 1,
-      name: p.name,
+      name: names[i],
       value: formatValue(p.value, statKey),
-    }));
+    })).filter((e) => e.name);
 
     if (entries.length > 0) {
       try { await redis.setex(cacheKey, 1800, JSON.stringify(entries)); } catch { /* ignore */ }
     }
-
     return Response.json({ entries });
   } catch {
     return Response.json({ entries: [] });
