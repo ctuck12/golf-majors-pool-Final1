@@ -114,6 +114,23 @@ async function fetchTourAvgFromLbRows(statId: string, multiplier?: number, suffi
   } catch { return null; }
 }
 
+// Diagnostic: probe candidate stat IDs for "Putts Per Round" (looking for values 27-30)
+async function probePuttsStatIds(): Promise<void> {
+  const candidates = ['109', '119', '120', '121', '02674', '02559', '02560'];
+  await Promise.all(candidates.map(async (statId) => {
+    try {
+      const query = `query StatLeaderboard($statId: ID!) { statLeaderboard(statId: $statId) { rows { displayValue } } }`;
+      const data = await gqlPost(query, { statId }) as { data?: { statLeaderboard?: { rows?: Array<{ displayValue?: string | null }> } } };
+      const rows = data?.data?.statLeaderboard?.rows;
+      if (!Array.isArray(rows) || rows.length === 0) { console.log(`[putts-probe] statId=${statId} rows=0`); return; }
+      const nums = rows.map((r) => parseFloat((r.displayValue ?? '').replace('%', ''))).filter((n) => !isNaN(n) && n > 0);
+      if (nums.length === 0) { console.log(`[putts-probe] statId=${statId} no numeric values, sample=${rows.slice(0,3).map(r=>r.displayValue).join(',')}`); return; }
+      const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
+      console.log(`[putts-probe] statId=${statId} avg=${avg.toFixed(2)} top3=${nums.slice(0,3).join(',')} n=${nums.length}`);
+    } catch (e) { console.log(`[putts-probe] statId=${statId} error=${e}`); }
+  }));
+}
+
 async function fetchFromGqlLeaderboard(): Promise<StatAverages> {
   const results: StatAverages = {};
   await Promise.all(GQL_LB_STAT_MAP.map(async ({ statId, key, suffix, multiplier, decimals }) => {
@@ -244,6 +261,8 @@ async function fetchFromLeaderboardCache(): Promise<StatAverages> {
 }
 
 export async function fetchTourAverages(): Promise<StatAverages> {
+  await probePuttsStatIds().catch(() => {});
+
   // Primary: PGA Tour GQL statLeaderboard — fetches all player rows, averages them.
   // This is the same endpoint used by pga-player-stats.ts for individual player lookups
   // and is confirmed reachable from Vercel.
