@@ -136,7 +136,9 @@ function extractSeason(data: Overview): PlayerStats {
     return suffix ? `${raw}${suffix}` : raw;
   }
 
-  console.log(`[espn-extract] statistics.names=${JSON.stringify(names.slice(0, 30))}`);
+  const catNames = cats.map((c) => c.name);
+  const splitsSample = pgaSplit?.stats?.slice(0, 20) ?? [];
+  console.log(`[espn-extract] catNames=${JSON.stringify(catNames)} splitNames=${JSON.stringify(names.slice(0, 30))} splitVals=${JSON.stringify(splitsSample)} sumStatNames=${JSON.stringify(sumStats.map((s) => s.name))}`);
 
   // GIR: try summaryStatistics, category name variants, then statistics.splits (same as scrambling)
   const gir =
