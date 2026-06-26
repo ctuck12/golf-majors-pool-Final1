@@ -3,16 +3,6 @@ export type StatAverages = Record<string, string>;
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 
-// 2026 PGA Tour season hardcoded fallback averages
-const FALLBACK_AVERAGES: StatAverages = {
-  drivingDistance: '304.7',
-  drivingAccuracy: '61.9%',
-  gir: '65.2%',
-  scrambling: '59.1%',
-  sandSaves: '55.8%',
-  scoringAverage: '70.54',
-  avgPuttsPerRound: '29.4',
-};
 
 // Stat IDs and their PlayerStats field names + formatting
 const STAT_MAP: Array<{ statId: string; key: string; suffix?: string; multiplier?: number }> = [
@@ -54,7 +44,7 @@ async function fetchStatTourAvg(statId: string): Promise<string | null> {
 }
 
 export async function fetchTourAverages(): Promise<StatAverages> {
-  const results: StatAverages = { ...FALLBACK_AVERAGES };
+  const results: StatAverages = {};
 
   await Promise.all(
     STAT_MAP.map(async ({ statId, key, suffix, multiplier }) => {
