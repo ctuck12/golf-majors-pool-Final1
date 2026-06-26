@@ -186,6 +186,21 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
       counts[key] = (counts[key] ?? 0) + 1;
       seen.add(key);
     }
+
+    // GIR: compute from greensHit count / (totalDrives × 9) — totalDrives = 9-hole halves played
+    if (!seen.has('gir')) {
+      const rawCats = data.seasonRankings?.categories ?? [];
+      const ghStat = rawCats.find((c) => c.name === 'greensHit');
+      const tdStat = rawCats.find((c) => c.name === 'totalDrives');
+      if (ghStat?.value && tdStat?.value && tdStat.value > 2) {
+        const pct = (ghStat.value / (tdStat.value * 9)) * 100;
+        if (pct > 40 && pct < 90) {
+          sums['gir'] = (sums['gir'] ?? 0) + pct;
+          counts['gir'] = (counts['gir'] ?? 0) + 1;
+          seen.add('gir');
+        }
+      }
+    }
   }
 
   const results: StatAverages = {};
@@ -193,7 +208,7 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
     const avg = sums[key] / counts[key];
     const pctDef = SPLIT_STAT_PATTERNS.find((d) => d.key === key);
     const catDef = COMPUTED_STAT_DEFS.find((d) => d.key === key);
-    const isPercent = pctDef?.isPercent ?? catDef?.isPercent ?? false;
+    const isPercent = pctDef?.isPercent ?? catDef?.isPercent ?? key === 'gir' ?? false;
     const decimals = pctDef?.decimals ?? catDef?.decimals ?? 1;
     results[key] = isPercent ? `${avg.toFixed(decimals)}%` : avg.toFixed(decimals);
     console.log(`[tour-avg] key=${key} source=espn-computed avg=${results[key]} n=${counts[key]}`);
