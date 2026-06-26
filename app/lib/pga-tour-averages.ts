@@ -5,7 +5,7 @@ const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 
 // 2026 PGA Tour season hardcoded fallback averages
 const FALLBACK_AVERAGES: StatAverages = {
-  drivingDistance: '298.4',
+  drivingDistance: '304.7',
   drivingAccuracy: '61.9%',
   gir: '65.2%',
   scrambling: '59.1%',
