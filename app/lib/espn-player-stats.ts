@@ -137,15 +137,24 @@ function extractSeason(data: Overview): PlayerStats {
   }
 
   // GIR: 'greensHit' has raw count (value=471) and correct rank but no % value.
-  // averageDisplayValue is null; compute from count / (rounds × 18).
-  // Rounds derived from birdiesPerRound total / per-round rate (both reliably populated).
+  // Log key fields so we can see exactly what ESPN provides (remove after confirming).
   const greensHitStat = getStat(cats, 'greensHit');
   const bprStat = getStat(cats, 'birdiesPerRound');
+  const totalDrivesStat = getStat(cats, 'totalDrives');
+  console.log('[gir-data]', JSON.stringify({ gh: { v: greensHitStat?.value, avg: greensHitStat?.average, avgDv: greensHitStat?.averageDisplayValue }, bpr: { v: bprStat?.value, avg: bprStat?.average, dv: bprStat?.displayValue }, td: { v: totalDrivesStat?.value, dv: totalDrivesStat?.displayValue } }));
   const girComputed = (() => {
     if (!greensHitStat?.value || greensHitStat.value < 10) return null;
     // If average is in greens/round range (0-18), use it directly
     if (greensHitStat.average && greensHitStat.average > 0 && greensHitStat.average < 18) {
       return `${((greensHitStat.average / 18) * 100).toFixed(2)}%`;
+    }
+    // Try totalDrives: ESPN stores total drives attempted (count); PGA Tour uses 14 per round
+    if (totalDrivesStat?.value && totalDrivesStat.value > 14) {
+      const rounds = Math.round(totalDrivesStat.value / 14);
+      if (rounds >= 10 && rounds <= 200) {
+        const pct = (greensHitStat.value / (rounds * 18)) * 100;
+        if (pct > 40 && pct < 90) return `${pct.toFixed(2)}%`;
+      }
     }
     // Derive rounds: birdiesPerRound.value / birdiesPerRound.average (or displayValue)
     const bprTotal = bprStat?.value;
