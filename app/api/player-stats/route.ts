@@ -38,10 +38,10 @@ export async function GET(request: Request) {
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
     ? `player-stats:v28:tourn:${eventId}:${name}`
-    : `player-stats:v43:season:2026:${name}`;
+    : `player-stats:v44:season:2026:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v28:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v43:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v44:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -81,7 +81,7 @@ export async function GET(request: Request) {
       // ESPN season ranks as base fallback for players without PGA Tour GQL data (LIV/DP World)
       const ESPN_LABEL_TO_FIELD_TOURN: Record<string, string> = {
         'Scrambling%': 'scrambling', 'Sand Saves%': 'sandSaves', 'GIR%': 'gir',
-        'Drive Dist': 'drivingDistance', 'Drive Acc': 'drivingAccuracy', 'Putts/Round': 'avgPuttsPerRound',
+        'Drive Dist': 'drivingDistance', 'Drive Acc': 'drivingAccuracy', 'Putts/Green': 'puttAverage',
       };
       const espnSeasonRanks: Record<string, string> = {};
       for (const [label, field] of Object.entries(ESPN_LABEL_TO_FIELD_TOURN)) {
@@ -118,7 +118,7 @@ export async function GET(request: Request) {
       'GIR%': 'gir',
       'Drive Dist': 'drivingDistance',
       'Drive Acc': 'drivingAccuracy',
-      'Putts/Round': 'avgPuttsPerRound',
+      'Putts/Green': 'puttAverage',
       'Birdies/Rd': 'birdiesPerRound',
     };
     // Stats where PGA Tour GQL rank is authoritative — do not let ESPN override when PGA has a value

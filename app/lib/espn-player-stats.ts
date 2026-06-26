@@ -200,6 +200,7 @@ function extractSeason(data: Overview): PlayerStats {
     sandSaves: 'Sand Saves%',
     puttsPerRound: 'Putts/Round',
     avgPutts: 'Putts/Round',
+    puttsGirAvg: 'Putts/Green',
     proximity: 'Proximity',
     proxHole: 'Proximity',
     birdiesPerRound: 'Birdies/Rd',
