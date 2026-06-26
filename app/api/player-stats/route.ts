@@ -37,10 +37,10 @@ export async function GET(request: Request) {
 
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
-    ? `player-stats:v27:tourn:${eventId}:${name}`
+    ? `player-stats:v28:tourn:${eventId}:${name}`
     : `player-stats:v25:season:2026:${name}`;
   const ranksCacheKey = isTournament
-    ? `player-stats:v27:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
+    ? `player-stats:v28:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
     : `player-stats:v25:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
@@ -78,7 +78,17 @@ export async function GET(request: Request) {
       // come from scorecardStatsV3 (tournSgRanks). Season SG ranks must never bleed into
       // tournament view even if the scorecard returned no ranks for a particular category.
       const { sgTotal: _i1, sgOffTee: _i2, sgApproach: _i3, sgAroundGreen: _i4, sgPutting: _i5, ...seasonNonSgRanks } = seasonRanks;
-      const mergedRanks = { ...seasonNonSgRanks, ...tournSgRanks };
+      // ESPN season ranks as base fallback for players without PGA Tour GQL data (LIV/DP World)
+      const ESPN_LABEL_TO_FIELD_TOURN: Record<string, string> = {
+        'Scrambling%': 'scrambling', 'Sand Saves%': 'sandSaves', 'GIR%': 'gir',
+        'Drive Dist': 'drivingDistance', 'Drive Acc': 'drivingAccuracy', 'Putts/Round': 'avgPuttsPerRound',
+      };
+      const espnSeasonRanks: Record<string, string> = {};
+      for (const [label, field] of Object.entries(ESPN_LABEL_TO_FIELD_TOURN)) {
+        const rankStr = (espnSeasonStats?.statRanks as Record<string, string> | null)?.[label];
+        if (rankStr) { const num = parseInt(rankStr); if (!isNaN(num) && num > 0) espnSeasonRanks[field] = String(num); }
+      }
+      const mergedRanks = { ...espnSeasonRanks, ...seasonNonSgRanks, ...tournSgRanks };
 
       if (stats) {
         await redis.setex(cacheKey, ttl, JSON.stringify(stats));
