@@ -158,13 +158,15 @@ export async function GET(request: Request) {
   if (!statKey) return Response.json({ entries: [] });
 
   const cacheKey = `stat-lb:v8:${statKey}`;
+  console.log(`[stat-lb] request statKey=${statKey}`);
   try {
     const cached = await redis.get(cacheKey);
-    if (cached) return Response.json({ entries: JSON.parse(cached) });
+    if (cached) { console.log(`[stat-lb] cache hit`); return Response.json({ entries: JSON.parse(cached) }); }
   } catch { /* ignore */ }
 
   try {
     const ids = await fetchSeasonAthleteIds();
+    console.log(`[stat-lb] athleteIds=${ids.length}`);
     if (ids.length === 0) return Response.json({ entries: [] });
 
     const allStats = await batchAll(
