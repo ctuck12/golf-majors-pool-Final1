@@ -20,7 +20,7 @@ const GQL_LB_STAT_MAP: Array<{ statId: string; key: string; suffix?: string; mul
   { statId: '130', key: 'scrambling', suffix: '%', decimals: 2 },
   { statId: '107', key: 'sandSaves', suffix: '%', decimals: 2 },
   { statId: '108', key: 'scoringAverage', decimals: 2 },
-  { statId: '104', key: 'avgPuttsPerRound', multiplier: 18, decimals: 1 },
+  { statId: '104', key: 'puttAverage', decimals: 3 },
 ];
 
 // ESPN overview category stat definitions — fallback only
@@ -34,8 +34,7 @@ type OverviewData = {
 const COMPUTED_STAT_DEFS: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number; useAvgField?: boolean }> = [
   { key: 'drivingDistance', espnName: 'yardsPerDrive', decimals: 1 },
   { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', decimals: 1, altMultiplier: 18 },
+  { key: 'puttAverage', espnName: 'puttsGirAvg', decimals: 3 },
 ];
 const SPLIT_STAT_PATTERNS: Array<{ key: string; pattern: RegExp; isPercent: boolean; decimals: number }> = [
   { key: 'gir', pattern: /green.*regulation|greens in reg/i, isPercent: true, decimals: 2 },
@@ -114,22 +113,7 @@ async function fetchTourAvgFromLbRows(statId: string, multiplier?: number, suffi
   } catch { return null; }
 }
 
-// Diagnostic: probe candidate stat IDs for "Putts Per Round" (looking for values 27-30)
-async function probePuttsStatIds(): Promise<void> {
-  const candidates = ['109', '119', '120', '121', '02674', '02559', '02560'];
-  await Promise.all(candidates.map(async (statId) => {
-    try {
-      const query = `query StatLeaderboard($statId: ID!) { statLeaderboard(statId: $statId) { rows { displayValue } } }`;
-      const data = await gqlPost(query, { statId }) as { data?: { statLeaderboard?: { rows?: Array<{ displayValue?: string | null }> } } };
-      const rows = data?.data?.statLeaderboard?.rows;
-      if (!Array.isArray(rows) || rows.length === 0) { console.log(`[putts-probe] statId=${statId} rows=0`); return; }
-      const nums = rows.map((r) => parseFloat((r.displayValue ?? '').replace('%', ''))).filter((n) => !isNaN(n) && n > 0);
-      if (nums.length === 0) { console.log(`[putts-probe] statId=${statId} no numeric values, sample=${rows.slice(0,3).map(r=>r.displayValue).join(',')}`); return; }
-      const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
-      console.log(`[putts-probe] statId=${statId} avg=${avg.toFixed(2)} top3=${nums.slice(0,3).join(',')} n=${nums.length}`);
-    } catch (e) { console.log(`[putts-probe] statId=${statId} error=${e}`); }
-  }));
-}
+
 
 async function fetchFromGqlLeaderboard(): Promise<StatAverages> {
   const results: StatAverages = {};
@@ -180,24 +164,10 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
   const sums: Record<string, number> = {};
   const counts: Record<string, number> = {};
 
-  let diagLogged = false;
   for (const data of allOverviews) {
     if (!data) continue;
     const cats = [...(data.seasonRankings?.categories ?? []), ...(data.summaryStatistics ?? [])];
     const seen = new Set<string>();
-
-    // One-time diagnostic: log all cat names and split names for putts investigation
-    if (!diagLogged && data.seasonRankings?.categories?.some((c) => c.name === 'greensHit')) {
-      diagLogged = true;
-      const allCatNames = (data.seasonRankings?.categories ?? []).map((c) => c.name);
-      const puttCats = (data.seasonRankings?.categories ?? []).filter((c) => /putt/i.test(c.name ?? ''));
-      const splitNames = data.statistics?.names ?? [];
-      const puttSplitNames = splitNames.filter((n) => /putt/i.test(n));
-      console.log('[tour-avg-diag] all cat names:', JSON.stringify(allCatNames));
-      console.log('[tour-avg-diag] putt cats:', JSON.stringify(puttCats.map((c) => ({ name: c.name, value: c.value, displayValue: c.displayValue }))));
-      console.log('[tour-avg-diag] all split names:', JSON.stringify(splitNames));
-      console.log('[tour-avg-diag] putt split names:', JSON.stringify(puttSplitNames));
-    }
 
     for (const def of COMPUTED_STAT_DEFS) {
       if (seen.has(def.key)) continue;
@@ -247,7 +217,7 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
   return results;
 }
 
-const LB_STAT_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'avgPuttsPerRound', 'scoringAverage'];
+const LB_STAT_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'puttAverage', 'scoringAverage'];
 
 async function fetchFromLeaderboardCache(): Promise<StatAverages> {
   const results: StatAverages = {};
@@ -261,8 +231,6 @@ async function fetchFromLeaderboardCache(): Promise<StatAverages> {
 }
 
 export async function fetchTourAverages(): Promise<StatAverages> {
-  await probePuttsStatIds().catch(() => {});
-
   // Primary: PGA Tour GQL statLeaderboard — fetches all player rows, averages them.
   // This is the same endpoint used by pga-player-stats.ts for individual player lookups
   // and is confirmed reachable from Vercel.

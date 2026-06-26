@@ -14,7 +14,7 @@ const PGA_EVENT_IDS = ['401811952', '401811947', '401811941']; // US Open, PGA C
 
 type Stat = { name?: string; value?: number; displayValue?: string; average?: number; averageDisplayValue?: string };
 
-const LOWER_IS_BETTER = new Set(['scoringAverage', 'avgPuttsPerRound']);
+const LOWER_IS_BETTER = new Set(['scoringAverage', 'puttAverage']);
 
 const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number }> = [
   { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
@@ -32,10 +32,7 @@ const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; deci
   { key: 'sandSaves', espnName: 'sandSavePct', isPercent: true, decimals: 1 },
   { key: 'sandSaves', espnName: 'sandSave', isPercent: true, decimals: 1 },
   { key: 'sandSaves', espnName: 'bunkerSavePct', isPercent: true, decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', isPercent: false, decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'avgPutts', isPercent: false, decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'avgPutt', isPercent: false, decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', isPercent: false, decimals: 1, altMultiplier: 18 },
+  { key: 'puttAverage', espnName: 'puttsGirAvg', isPercent: false, decimals: 3 },
   { key: 'sgTotal', espnName: 'strokesGainedTotal', isPercent: false, decimals: 3 },
   { key: 'sgTotal', espnName: 'sgTotal', isPercent: false, decimals: 3 },
   { key: 'sgOffTee', espnName: 'strokesGainedOffTee', isPercent: false, decimals: 3 },

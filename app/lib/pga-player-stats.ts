@@ -146,7 +146,7 @@ const STAT_ID_TO_FIELD: Record<string, string> = {
   '101': 'drivingDistance',
   '102': 'drivingAccuracy',
   '103': 'gir',
-  '104': 'avgPuttsPerRound',
+  '104': 'puttAverage',
   '106': 'scrambling',
   '130': 'scrambling',
   '107': 'sandSaves',

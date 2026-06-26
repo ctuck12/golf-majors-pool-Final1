@@ -8489,7 +8489,7 @@ export default function Page() {
                     if (!dist || dist.length < 5) return null;
                     const playerVal = parseFloat(rawValue.replace('%', ''));
                     if (isNaN(playerVal)) return null;
-                    const lowerIsBetter = key === 'scoringAverage' || key === 'avgPuttsPerRound';
+                    const lowerIsBetter = key === 'scoringAverage' || key === 'puttAverage';
                     const betterCount = dist.filter((v) => lowerIsBetter ? v < playerVal : v > playerVal).length;
                     return String(betterCount + 1);
                   }
@@ -8523,8 +8523,7 @@ export default function Page() {
                   if (s?.gir) courseStatCells.push({ label: 'Greens in Reg', value: s.gir, avgKey: 'gir', rankKey: 'gir' });
                   if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling, avgKey: 'scrambling', rankKey: 'scrambling' });
                   if (s?.sandSaves) courseStatCells.push({ label: 'Sand Saves', value: s.sandSaves, avgKey: 'sandSaves', rankKey: 'sandSaves' });
-                  if (s?.avgPuttsPerRound) courseStatCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound, avgKey: 'avgPuttsPerRound', rankKey: 'avgPuttsPerRound' });
-                  else if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1), avgKey: 'avgPuttsPerRound', rankKey: 'avgPuttsPerRound' });
+                  if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Green', value: s.puttAverage, avgKey: 'puttAverage', rankKey: 'puttAverage' });
                   if (showSubToggle && statsSubView === 'tournament') {
                     if (s?.proximity) courseStatCells.push({ label: 'Proximity', value: s.proximity });
                   }
