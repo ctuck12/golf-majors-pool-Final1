@@ -136,6 +136,17 @@ function extractSeason(data: Overview): PlayerStats {
     return suffix ? `${raw}${suffix}` : raw;
   }
 
+  // Diagnostic: dump all category/summary fields to find raw totalPutts field
+  if (cats.some((c) => c.name === 'greensHit')) {
+    const puttsCats = cats.filter((c) => /putt/i.test(c.name ?? ''));
+    const puttsSummary = sumStats.filter((s) => /putt/i.test(s.name ?? ''));
+    const puttsNames = names.filter((n) => /putt/i.test(n));
+    console.log('[espn-diag] putt cats:', JSON.stringify(puttsCats.map((c) => ({ name: c.name, value: c.value, displayValue: c.displayValue, average: c.average, rank: c.rank }))));
+    console.log('[espn-diag] putt sumStats:', JSON.stringify(puttsSummary));
+    console.log('[espn-diag] putt split names:', JSON.stringify(puttsNames));
+    console.log('[espn-diag] all cat names:', JSON.stringify(cats.map((c) => c.name)));
+  }
+
   // GIR: 'greensHit' has raw count of greens hit; 'totalDrives' = 9-hole halves played
   // (rounds × 2), so total holes = totalDrives × 9. GIR% = greensHit / (totalDrives × 9).
   const greensHitStat = getStat(cats, 'greensHit');
