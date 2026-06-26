@@ -58,6 +58,30 @@ export async function GET(request: Request) {
     }
   }
 
+  // PGA Tour GQL: player search by name
+  let pgaPlayerSearch: unknown = null;
+  try {
+    const searchQuery = `
+      query PlayerSearch($searchString: String!) {
+        playerSearch(searchString: $searchString) {
+          id
+          firstName
+          lastName
+          shortName
+        }
+      }
+    `;
+    const res = await fetch(PGA_GQL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': PGA_API_KEY, 'Referer': 'https://www.pgatour.com/', 'Origin': 'https://www.pgatour.com' },
+      body: JSON.stringify({ query: searchQuery, variables: { searchString: name } }),
+      signal: AbortSignal.timeout(8000),
+    });
+    pgaPlayerSearch = { status: res.status, data: res.ok ? await res.json() : await res.text() };
+  } catch (e) {
+    pgaPlayerSearch = { error: String(e) };
+  }
+
   // PGA Tour GQL: playerProfileStats
   let pgaProfileRaw: unknown = null;
   if (pgaTourId) {
@@ -114,6 +138,7 @@ export async function GET(request: Request) {
   const statisticsSplits = (overview?.statistics as Record<string, unknown> | undefined)?.splits as Array<{ displayName?: string; stats?: string[] }> | undefined;
 
   return Response.json({
+    pgaPlayerSearch,
     espnId,
     espnSearchRaw,
     pgaTourId,
