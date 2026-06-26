@@ -62,22 +62,23 @@ export async function GET(request: Request) {
   let pgaPlayerSearch: unknown = null;
   try {
     const searchQuery = `
-      query PlayerSearch($searchString: String!) {
-        playerSearch(searchString: $searchString) {
+      query Players {
+        players {
           id
           firstName
           lastName
-          shortName
         }
       }
     `;
     const res = await fetch(PGA_GQL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': PGA_API_KEY, 'Referer': 'https://www.pgatour.com/', 'Origin': 'https://www.pgatour.com' },
-      body: JSON.stringify({ query: searchQuery, variables: { searchString: name } }),
+      body: JSON.stringify({ query: searchQuery }),
       signal: AbortSignal.timeout(8000),
     });
-    pgaPlayerSearch = { status: res.status, data: res.ok ? await res.json() : await res.text() };
+    const allPlayers = res.ok ? await res.json() as { data?: { players?: Array<{ id: string; firstName: string; lastName: string }> } } : null;
+    const kimPlayers = allPlayers?.data?.players?.filter((p) => p.lastName?.toLowerCase().includes('kim') || p.firstName?.toLowerCase().includes('joohyung'));
+    pgaPlayerSearch = { status: res.status, kimPlayers, totalPlayers: allPlayers?.data?.players?.length };
   } catch (e) {
     pgaPlayerSearch = { error: String(e) };
   }
