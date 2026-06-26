@@ -8369,7 +8369,7 @@ export default function Page() {
                     </div>
                     {pickHistoryPlayerPopup.dpWorldRank != null && (
                       <div style={{ background: '#6EB487', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
-                        <span style={{ color: '#D67B88', fontWeight: 800, fontSize: 11 }}>DP World:</span>
+                        <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>DP World:</span>
                         <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>{pickHistoryPlayerPopup.dpWorldRank}</span>
                       </div>
                     )}
