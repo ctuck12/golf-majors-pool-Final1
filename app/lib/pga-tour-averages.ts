@@ -60,13 +60,17 @@ export async function fetchTourAverages(): Promise<StatAverages> {
   await Promise.all(
     STAT_MAP.map(async ({ statId, key, suffix, multiplier }) => {
       const raw = await fetchStatTourAvg(statId);
-      if (!raw) return;
+      if (!raw) {
+        console.log(`[tour-avg] statId=${statId} key=${key} GQL returned null — using fallback=${results[key] ?? 'none'}`);
+        return;
+      }
       let val = raw.trim();
       if (multiplier) {
         const num = parseFloat(val);
         if (!isNaN(num)) val = (num * multiplier).toFixed(1);
       }
       if (suffix && !val.endsWith(suffix)) val = `${val}${suffix}`;
+      console.log(`[tour-avg] statId=${statId} key=${key} GQL=${raw} -> ${val}`);
       results[key] = val;
     })
   );
