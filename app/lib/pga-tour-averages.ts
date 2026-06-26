@@ -11,37 +11,37 @@ const ESPN_OVERVIEW = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/
 const PGA_EVENT_IDS = ['401811952', '401811947', '401811941'];
 const BATCH_SIZE = 25;
 
-// PGA Tour GQL stat IDs for tour averages
-const GQL_STAT_MAP: Array<{ statId: string; key: string; suffix?: string; multiplier?: number }> = [
-  { statId: '101', key: 'drivingDistance' },
-  { statId: '102', key: 'drivingAccuracy', suffix: '%' },
-  { statId: '103', key: 'gir', suffix: '%' },
-  { statId: '130', key: 'scrambling', suffix: '%' },
-  { statId: '107', key: 'sandSaves', suffix: '%' },
-  { statId: '108', key: 'scoringAverage' },
-  { statId: '104', key: 'avgPuttsPerRound', multiplier: 18 },
+// Stat IDs → tour average config
+// The statLeaderboard GQL query returns every player's value for the stat — we average all rows.
+const GQL_LB_STAT_MAP: Array<{ statId: string; key: string; suffix?: string; multiplier?: number; decimals: number }> = [
+  { statId: '101', key: 'drivingDistance', decimals: 1 },
+  { statId: '102', key: 'drivingAccuracy', suffix: '%', decimals: 1 },
+  { statId: '103', key: 'gir', suffix: '%', decimals: 2 },
+  { statId: '130', key: 'scrambling', suffix: '%', decimals: 2 },
+  { statId: '107', key: 'sandSaves', suffix: '%', decimals: 2 },
+  { statId: '108', key: 'scoringAverage', decimals: 2 },
+  { statId: '104', key: 'avgPuttsPerRound', multiplier: 18, decimals: 1 },
 ];
 
-// ESPN stat names — for percentage stats, displayValue has the correct number; value field may be a raw count
-const COMPUTED_STAT_DEFS: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number; useAvgField?: boolean }> = [
-  { key: 'drivingDistance', espnName: 'yardsPerDrive', decimals: 1 },
-  { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
-  { key: 'gir', espnName: 'gir', isPercent: true, decimals: 1 },           // displayValue = "65.2", value = raw count
-  { key: 'gir', espnName: 'greensInRegPct', isPercent: true, decimals: 1 },
-  { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
-  { key: 'scrambling', espnName: 'scramblingPct', isPercent: true, decimals: 1 },
-  { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1, useAvgField: true }, // % is in average field
-  { key: 'sandSaves', espnName: 'sandSavePct', isPercent: true, decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', decimals: 1, altMultiplier: 18 },
-];
-
+// ESPN overview category stat definitions — fallback only
 type Stat = { name?: string; value?: number; displayValue?: string; average?: number; averageDisplayValue?: string };
 type OverviewData = {
   seasonRankings?: { categories?: Stat[] };
   summaryStatistics?: Stat[];
   statistics?: { names?: string[]; splits?: Array<{ displayName?: string; stats?: string[] }> };
 };
+
+const COMPUTED_STAT_DEFS: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number; useAvgField?: boolean }> = [
+  { key: 'drivingDistance', espnName: 'yardsPerDrive', decimals: 1 },
+  { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
+  { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', decimals: 1 },
+  { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', decimals: 1, altMultiplier: 18 },
+];
+const SPLIT_STAT_PATTERNS: Array<{ key: string; pattern: RegExp; isPercent: boolean; decimals: number }> = [
+  { key: 'gir', pattern: /green.*regulation|greens in reg/i, isPercent: true, decimals: 2 },
+  { key: 'scrambling', pattern: /scrambling/i, isPercent: true, decimals: 2 },
+  { key: 'sandSaves', pattern: /sand save|bunker save/i, isPercent: true, decimals: 2 },
+];
 
 function statNumericSafe(stats: Stat[], def: typeof COMPUTED_STAT_DEFS[0]): number | null {
   const s = stats.find((x) => x.name === def.espnName);
@@ -74,36 +74,51 @@ function splitStatNumeric(data: OverviewData, pattern: RegExp): number | null {
   return !isNaN(num) && num !== 0 ? num : null;
 }
 
-function formatAvg(v: number, key: string): string {
-  const def = COMPUTED_STAT_DEFS.find((d) => d.key === key);
-  const str = v.toFixed(def?.decimals ?? 1);
-  return def?.isPercent ? `${str}%` : str;
+async function gqlPost(query: string, variables: Record<string, unknown>): Promise<unknown> {
+  const res = await fetch(PGA_GQL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': PGA_API_KEY, 'Referer': 'https://www.pgatour.com/', 'Origin': 'https://www.pgatour.com' },
+    body: JSON.stringify({ query, variables }),
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) throw new Error(`GQL HTTP ${res.status}`);
+  return res.json();
 }
 
-async function fetchStatTourAvg(statId: string): Promise<string | null> {
+// Fetch all rows from statLeaderboard and compute tour average from them.
+// statLeaderboard works from Vercel (used in pga-player-stats.ts for individual players).
+async function fetchTourAvgFromLbRows(statId: string, multiplier?: number, suffix?: string, decimals = 1): Promise<string | null> {
   try {
-    const res = await fetch(PGA_GQL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': PGA_API_KEY, 'Referer': 'https://www.pgatour.com/', 'Origin': 'https://www.pgatour.com' },
-      body: JSON.stringify({ query: `query StatDetails($statId: ID!) { statDetails(statId: $statId) { tourAvg } }`, variables: { statId } }),
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!res.ok) return null;
-    const data = await res.json() as { data?: { statDetails?: { tourAvg?: string } } };
-    return data?.data?.statDetails?.tourAvg ?? null;
+    const query = `
+      query StatLeaderboard($statId: ID!) {
+        statLeaderboard(statId: $statId) {
+          rows { displayValue }
+        }
+      }
+    `;
+    const data = await gqlPost(query, { statId }) as {
+      data?: { statLeaderboard?: { rows?: Array<{ displayValue?: string | null }> } };
+    };
+    const rows = data?.data?.statLeaderboard?.rows;
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+    const nums = rows
+      .map((r) => parseFloat((r.displayValue ?? '').replace('%', '')))
+      .filter((n) => !isNaN(n) && n !== 0);
+    if (nums.length === 0) return null;
+    let avg = nums.reduce((a, b) => a + b, 0) / nums.length;
+    if (multiplier) avg = avg * multiplier;
+    const str = avg.toFixed(decimals);
+    const result = suffix && !str.endsWith(suffix) ? `${str}${suffix}` : str;
+    console.log(`[tour-avg] key=statId${statId} source=lb-rows avg=${result} n=${nums.length}`);
+    return result;
   } catch { return null; }
 }
 
-async function fetchFromGql(): Promise<StatAverages> {
+async function fetchFromGqlLeaderboard(): Promise<StatAverages> {
   const results: StatAverages = {};
-  await Promise.all(GQL_STAT_MAP.map(async ({ statId, key, suffix, multiplier }) => {
-    const raw = await fetchStatTourAvg(statId);
-    if (!raw) return;
-    let val = raw.trim();
-    if (multiplier) { const n = parseFloat(val); if (!isNaN(n)) val = (n * multiplier).toFixed(1); }
-    if (suffix && !val.endsWith(suffix)) val = `${val}${suffix}`;
-    console.log(`[tour-avg] key=${key} source=GQL value=${val}`);
-    results[key] = val;
+  await Promise.all(GQL_LB_STAT_MAP.map(async ({ statId, key, suffix, multiplier, decimals }) => {
+    const val = await fetchTourAvgFromLbRows(statId, multiplier, suffix, decimals);
+    if (val) results[key] = val;
   }));
   return results;
 }
@@ -140,13 +155,6 @@ async function batchAll<T>(tasks: (() => Promise<T>)[], size: number): Promise<T
   return results;
 }
 
-// Stats that come from statistics.splits (not seasonRankings.categories)
-const SPLIT_STAT_PATTERNS: Array<{ key: string; pattern: RegExp; isPercent: boolean }> = [
-  { key: 'gir', pattern: /green.*regulation|greens in reg/i, isPercent: true },
-  { key: 'scrambling', pattern: /scrambling/i, isPercent: true },
-  { key: 'sandSaves', pattern: /sand save|bunker save/i, isPercent: true },
-];
-
 async function computeFromAllPlayers(): Promise<StatAverages> {
   const ids = await fetchPgaPlayerIds();
   if (ids.length === 0) return {};
@@ -160,7 +168,6 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
     const cats = [...(data.seasonRankings?.categories ?? []), ...(data.summaryStatistics ?? [])];
     const seen = new Set<string>();
 
-    // Category-based stats (drivingDistance, drivingAccuracy, avgPuttsPerRound)
     for (const def of COMPUTED_STAT_DEFS) {
       if (seen.has(def.key)) continue;
       let raw = statNumericSafe(cats, def);
@@ -171,7 +178,6 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
       seen.add(def.key);
     }
 
-    // Split-based stats (gir, scrambling, sandSaves) — live in statistics.splits
     for (const { key, pattern } of SPLIT_STAT_PATTERNS) {
       if (seen.has(key)) continue;
       const raw = splitStatNumeric(data, pattern);
@@ -185,11 +191,12 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
   const results: StatAverages = {};
   for (const key of Object.keys(sums)) {
     const avg = sums[key] / counts[key];
-    const isPercent = COMPUTED_STAT_DEFS.find((d) => d.key === key)?.isPercent
-      ?? SPLIT_STAT_PATTERNS.find((d) => d.key === key)?.isPercent ?? false;
-    const decimals = COMPUTED_STAT_DEFS.find((d) => d.key === key)?.decimals ?? 1;
+    const pctDef = SPLIT_STAT_PATTERNS.find((d) => d.key === key);
+    const catDef = COMPUTED_STAT_DEFS.find((d) => d.key === key);
+    const isPercent = pctDef?.isPercent ?? catDef?.isPercent ?? false;
+    const decimals = pctDef?.decimals ?? catDef?.decimals ?? 1;
     results[key] = isPercent ? `${avg.toFixed(decimals)}%` : avg.toFixed(decimals);
-    console.log(`[tour-avg] key=${key} source=computed avg=${results[key]} n=${counts[key]}`);
+    console.log(`[tour-avg] key=${key} source=espn-computed avg=${results[key]} n=${counts[key]}`);
   }
   return results;
 }
@@ -208,33 +215,35 @@ async function fetchFromLeaderboardCache(): Promise<StatAverages> {
 }
 
 export async function fetchTourAverages(): Promise<StatAverages> {
-  // Primary: read averages computed by stat-leaderboard route (covers all 6 course stats accurately)
+  // Primary: PGA Tour GQL statLeaderboard — fetches all player rows, averages them.
+  // This is the same endpoint used by pga-player-stats.ts for individual player lookups
+  // and is confirmed reachable from Vercel.
+  try {
+    const gqlResults = await fetchFromGqlLeaderboard();
+    if (Object.keys(gqlResults).length >= 4) {
+      return gqlResults;
+    }
+    console.log(`[tour-avg] gql-lb returned only ${Object.keys(gqlResults).length} stats, trying redis lb-cache`);
+  } catch (err) {
+    console.log(`[tour-avg] gql-lb failed: ${err}`);
+  }
+
+  // Secondary: Redis keys populated by stat-leaderboard route as side effect
   try {
     const lbResults = await fetchFromLeaderboardCache();
     if (Object.keys(lbResults).length >= 4) {
       return lbResults;
     }
-    console.log(`[tour-avg] lb-cache returned only ${Object.keys(lbResults).length} stats, trying GQL`);
+    console.log(`[tour-avg] lb-cache returned only ${Object.keys(lbResults).length} stats, falling back to ESPN computed`);
   } catch (err) {
     console.log(`[tour-avg] lb-cache failed: ${err}`);
-  }
-
-  // Secondary: PGA Tour GQL statDetails tourAvg
-  try {
-    const gqlResults = await fetchFromGql();
-    if (Object.keys(gqlResults).length >= 4) {
-      return gqlResults;
-    }
-    console.log(`[tour-avg] GQL returned only ${Object.keys(gqlResults).length} stats, falling back to computed`);
-  } catch (err) {
-    console.log(`[tour-avg] GQL failed: ${err}`);
   }
 
   // Fallback: compute mean from all PGA Tour player ESPN overview stats
   try {
     return await computeFromAllPlayers();
   } catch (err) {
-    console.log(`[tour-avg] computed fallback failed: ${err}`);
+    console.log(`[tour-avg] espn-computed fallback failed: ${err}`);
     return {};
   }
 }
