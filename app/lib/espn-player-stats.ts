@@ -136,10 +136,11 @@ function extractSeason(data: Overview): PlayerStats {
     return suffix ? `${raw}${suffix}` : raw;
   }
 
-  // GIR: ESPN categories field is "greensHit" (not greensInRegPct)
+  // GIR: ESPN categories field is "greensHit". displayValue is blank; value is raw count (471).
+  // The percentage is in averageDisplayValue (e.g. "62.3").
   const gir =
-    statVal(cats, 'greensHit', '%') ??
-    statNumVal(cats, 'greensHit', '%') ??
+    statAvgVal(cats, 'greensHit', '%') ??
+    statAvgVal(cats, 'greensInRegPct', '%') ??
     summaryStatVal(sumStats, 'greensInRegPct', '%') ??
     summaryStatVal(sumStats, 'girPct', '%') ??
     statVal(cats, 'gir', '%') ??

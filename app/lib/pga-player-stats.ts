@@ -85,17 +85,20 @@ async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string): Pro
           rows {
             rank
             displayValue
-            player { id }
+            player { id playerId firstName lastName }
           }
         }
       }
     `;
     const data = await gqlPost(query, { statId }) as {
-      data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; displayValue?: string | null; player?: { id?: string } }> } };
+      data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; displayValue?: string | null; player?: { id?: string; playerId?: string; firstName?: string; lastName?: string } }> } };
     };
     const rows = data?.data?.statLeaderboard?.rows;
     if (!Array.isArray(rows)) return { rank: null, value: null };
-    const row = rows.find((r) => String(r.player?.id) === String(pgaTourId));
+    const row = rows.find((r) =>
+      String(r.player?.id) === String(pgaTourId) ||
+      String(r.player?.playerId) === String(pgaTourId)
+    );
     if (!row) return { rank: null, value: null };
     const rankNum = parseInt(String(row.rank ?? ''));
     const rank = !isNaN(rankNum) && rankNum > 0 ? String(rankNum) : null;
