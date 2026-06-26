@@ -136,36 +136,19 @@ function extractSeason(data: Overview): PlayerStats {
     return suffix ? `${raw}${suffix}` : raw;
   }
 
-  // GIR: 'greensHit' has raw count (value=471) and correct rank but no % value.
-  // Log key fields so we can see exactly what ESPN provides (remove after confirming).
+  // GIR: 'greensHit' has raw count of greens hit; 'totalDrives' = 9-hole halves played
+  // (rounds × 2), so total holes = totalDrives × 9. GIR% = greensHit / (totalDrives × 9).
   const greensHitStat = getStat(cats, 'greensHit');
-  const bprStat = getStat(cats, 'birdiesPerRound');
   const totalDrivesStat = getStat(cats, 'totalDrives');
-  console.log('[gir-data]', JSON.stringify({ gh: { v: greensHitStat?.value, avg: greensHitStat?.average, avgDv: greensHitStat?.averageDisplayValue }, bpr: { v: bprStat?.value, avg: bprStat?.average, dv: bprStat?.displayValue }, td: { v: totalDrivesStat?.value, dv: totalDrivesStat?.displayValue } }));
+  const bprStat = getStat(cats, 'birdiesPerRound');
   const girComputed = (() => {
     if (!greensHitStat?.value || greensHitStat.value < 10) return null;
-    // If average is in greens/round range (0-18), use it directly
-    if (greensHitStat.average && greensHitStat.average > 0 && greensHitStat.average < 18) {
-      return `${((greensHitStat.average / 18) * 100).toFixed(2)}%`;
+    // Primary: totalDrives × 9 = total holes played (confirmed: 84 × 9 = 756 = 42 rounds × 18)
+    if (totalDrivesStat?.value && totalDrivesStat.value > 2) {
+      const pct = (greensHitStat.value / (totalDrivesStat.value * 9)) * 100;
+      if (pct > 40 && pct < 90) return `${pct.toFixed(2)}%`;
     }
-    // Try totalDrives: ESPN stores total drives attempted (count); PGA Tour uses 14 per round
-    if (totalDrivesStat?.value && totalDrivesStat.value > 14) {
-      const rounds = Math.round(totalDrivesStat.value / 14);
-      if (rounds >= 10 && rounds <= 200) {
-        const pct = (greensHitStat.value / (rounds * 18)) * 100;
-        if (pct > 40 && pct < 90) return `${pct.toFixed(2)}%`;
-      }
-    }
-    // Derive rounds: birdiesPerRound.value / birdiesPerRound.average (or displayValue)
-    const bprTotal = bprStat?.value;
-    const bprRate = bprStat?.average ??
-      (bprStat?.averageDisplayValue ? parseFloat(bprStat.averageDisplayValue) : null) ??
-      (bprStat?.displayValue ? parseFloat(bprStat.displayValue) : null);
-    if (!bprTotal || !bprRate || bprRate <= 0) return null;
-    const rounds = Math.round(bprTotal / bprRate);
-    if (rounds < 10 || rounds > 200) return null;
-    const pct = (greensHitStat.value / (rounds * 18)) * 100;
-    return pct > 0 && pct < 100 ? `${pct.toFixed(2)}%` : null;
+    return null;
   })();
 
   const gir =
