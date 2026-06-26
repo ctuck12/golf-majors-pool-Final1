@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import redis from '@/app/lib/redis';
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
+const ESPN_OVERVIEW = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
 const BATCH_SIZE = 25;
 
 type Stat = { name?: string; value?: number; displayValue?: string };
@@ -112,6 +113,21 @@ async function fetchAthleteSeasonStats(espnId: string): Promise<Stat[] | null> {
   return null;
 }
 
+async function fetchAthleteOverviewCategories(espnId: string): Promise<Stat[] | null> {
+  try {
+    const res = await fetch(`${ESPN_OVERVIEW}/${espnId}/overview`, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return null;
+    const data = await res.json() as { seasonRankings?: { categories?: Stat[] }; summaryStatistics?: Stat[] };
+    const cats = data?.seasonRankings?.categories;
+    if (Array.isArray(cats) && cats.length > 0) return cats;
+    const sumStats = data?.summaryStatistics;
+    if (Array.isArray(sumStats) && sumStats.length > 0) return sumStats;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 async function fetchAthleteName(espnId: string): Promise<string> {
   try {
     const res = await fetch(
@@ -172,6 +188,28 @@ export async function GET(request: Request) {
     }
 
     console.log(`[stat-lb] statKey=${statKey} totalAthletes=${ids.length} withValues=${playerValues.length}`);
+
+    // Fall back to overview seasonRankings.categories (source for scrambling and other stats not in core stats)
+    if (playerValues.length === 0) {
+      console.log(`[stat-lb] no core values for ${statKey}, falling back to overview categories`);
+      const overviewCats = await batchAll(
+        ids.map((id) => () => fetchAthleteOverviewCategories(id)),
+        BATCH_SIZE,
+      );
+      for (let i = 0; i < ids.length; i++) {
+        const cats = overviewCats[i];
+        if (!cats) continue;
+        for (const def of defsForKey) {
+          let raw = statNumeric(cats, def.espnName);
+          if (raw === null) continue;
+          if (def.altMultiplier) raw = raw * def.altMultiplier;
+          playerValues.push({ espnId: ids[i], value: raw });
+          break;
+        }
+      }
+      console.log(`[stat-lb] overview fallback withValues=${playerValues.length}`);
+    }
+
     if (playerValues.length === 0) return Response.json({ entries: [] });
 
     playerValues.sort((a, b) =>

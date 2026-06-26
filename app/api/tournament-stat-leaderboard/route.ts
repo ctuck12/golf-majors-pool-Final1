@@ -4,6 +4,7 @@ import redis from '@/app/lib/redis';
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 const ESPN_CORE_ATHLETES = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/athletes';
+const ESPN_OVERVIEW = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
 const BATCH_SIZE = 25;
 
 type Stat = { name?: string; value?: number; displayValue?: string };
@@ -79,37 +80,20 @@ async function fetchCompetitorStats(espnId: string, eventId: string): Promise<St
   }
 }
 
-async function fetchAthleteSeasonStats(espnId: string): Promise<Stat[] | null> {
-  const year = new Date().getFullYear();
-  const urls = [
-    `${ESPN_CORE}/seasons/${year}/athletes/${espnId}/statistics/0`,
-    `${ESPN_CORE}/seasons/${year}/athletes/${espnId}/statistics`,
-    `${ESPN_CORE}/seasons/${year - 1}/athletes/${espnId}/statistics/0`,
-  ];
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
-      if (!res.ok) continue;
-      const data = await res.json() as {
-        splits?: { categories?: Array<{ stats?: Stat[] }> } | Array<{ stats?: Stat[] }>;
-        categories?: Array<{ stats?: Stat[] }>;
-        stats?: Stat[];
-      };
-      if (data?.splits && !Array.isArray(data.splits)) {
-        const stats = (data.splits as { categories?: Array<{ stats?: Stat[] }> }).categories?.[0]?.stats;
-        if (Array.isArray(stats) && stats.length > 0) return stats;
-      }
-      if (Array.isArray(data?.splits)) {
-        for (const split of data.splits as Array<{ stats?: Stat[] }>) {
-          if (Array.isArray(split?.stats) && split.stats.length > 0) return split.stats;
-        }
-      }
-      const cats = data?.categories;
-      if (Array.isArray(cats) && cats[0]?.stats?.length) return cats[0].stats;
-      if (Array.isArray(data?.stats) && data.stats.length > 0) return data.stats;
-    } catch { continue; }
+// Fetch overview seasonRankings.categories — the same source espn-player-stats uses for scrambling
+async function fetchAthleteOverviewCategories(espnId: string): Promise<Stat[] | null> {
+  try {
+    const res = await fetch(`${ESPN_OVERVIEW}/${espnId}/overview`, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return null;
+    const data = await res.json() as { seasonRankings?: { categories?: Stat[] }; summaryStatistics?: Stat[] };
+    const cats = data?.seasonRankings?.categories;
+    if (Array.isArray(cats) && cats.length > 0) return cats;
+    const sumStats = data?.summaryStatistics;
+    if (Array.isArray(sumStats) && sumStats.length > 0) return sumStats;
+    return null;
+  } catch {
+    return null;
   }
-  return null;
 }
 
 // Get player display name via ESPN Core athletes endpoint
@@ -176,25 +160,25 @@ export async function GET(request: Request) {
 
     console.log(`[tourn-stat-lb] playerValues=${playerValues.length} statsNonNull=${allStats.filter(Boolean).length}`);
 
-    // If no values found in competitor stats, fall back to season stats for the tournament field
+    // If no values found in competitor stats, fall back to overview seasonRankings (source of scrambling for individual players)
     if (playerValues.length === 0) {
-      console.log(`[tourn-stat-lb] no competitor values for ${statKey}, falling back to season stats`);
-      const seasonStats = await batchAll(
-        ids.map((id) => () => fetchAthleteSeasonStats(id)),
+      console.log(`[tourn-stat-lb] no competitor values for ${statKey}, falling back to overview categories`);
+      const overviewCats = await batchAll(
+        ids.map((id) => () => fetchAthleteOverviewCategories(id)),
         BATCH_SIZE,
       );
       for (let i = 0; i < ids.length; i++) {
-        const stats = seasonStats[i];
-        if (!stats) continue;
+        const cats = overviewCats[i];
+        if (!cats) continue;
         for (const def of defsForKey) {
-          let raw = statNumeric(stats, def.espnName);
+          let raw = statNumeric(cats, def.espnName);
           if (raw === null) continue;
           if (def.altMultiplier) raw = raw * def.altMultiplier;
           playerValues.push({ espnId: ids[i], value: raw });
           break;
         }
       }
-      console.log(`[tourn-stat-lb] season fallback playerValues=${playerValues.length}`);
+      console.log(`[tourn-stat-lb] overview fallback playerValues=${playerValues.length}`);
     }
 
     if (playerValues.length === 0) return Response.json({ entries: [] });
