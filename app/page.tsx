@@ -8501,7 +8501,7 @@ export default function Page() {
                   const sgStatCells: { label: string; value: string; rankKey?: string }[] = [];
                   if (s?.sgTotal) sgStatCells.push({ label: 'Total', value: s.sgTotal, rankKey: 'sgTotal' });
                   if (s?.sgTeeToGreen) sgStatCells.push({ label: 'Tee to Green', value: s.sgTeeToGreen, rankKey: 'sgTeeToGreen' });
-                  if (s?.sgOffTee) sgStatCells.push({ label: 'Off Tee', value: s.sgOffTee, rankKey: 'sgOffTee' });
+                  if (s?.sgOffTee) sgStatCells.push({ label: 'Off the Tee', value: s.sgOffTee, rankKey: 'sgOffTee' });
                   if (s?.sgApproach) sgStatCells.push({ label: 'Approach', value: s.sgApproach, rankKey: 'sgApproach' });
                   if (s?.sgAroundGreen) sgStatCells.push({ label: 'Around Green', value: s.sgAroundGreen, rankKey: 'sgAroundGreen' });
                   if (s?.sgPutting) sgStatCells.push({ label: 'Putting', value: s.sgPutting, rankKey: 'sgPutting' });
