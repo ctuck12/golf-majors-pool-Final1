@@ -76,6 +76,27 @@ async function gqlPost(query: string, variables: Record<string, unknown>): Promi
   return res.json();
 }
 
+// Fetch a stat value from the leaderboard by rank position (no player ID needed)
+export async function fetchStatLeaderboardValueByRank(statId: string, targetRank: number): Promise<string | null> {
+  try {
+    const query = `
+      query StatLeaderboard($statId: ID!) {
+        statLeaderboard(statId: $statId) {
+          rows { rank displayValue }
+        }
+      }
+    `;
+    const data = await gqlPost(query, { statId }) as {
+      data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; displayValue?: string | null }> } };
+    };
+    const rows = data?.data?.statLeaderboard?.rows;
+    if (!Array.isArray(rows)) return null;
+    const row = rows.find((r) => parseInt(String(r.rank ?? '')) === targetRank);
+    const dv = row?.displayValue;
+    return dv && dv !== '0' && dv !== '0.0' ? dv : null;
+  } catch { return null; }
+}
+
 // Fetch a player's rank AND value for a specific stat from the leaderboard
 async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string, playerName?: string): Promise<{ rank: string | null; value: string | null }> {
   try {

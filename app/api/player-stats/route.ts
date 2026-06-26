@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
 import { fetchPlayerSeasonStats, fetchPlayerTournamentStats } from '@/app/lib/espn-player-stats';
-import { fetchPgaTourPlayerStats } from '@/app/lib/pga-player-stats';
+import { fetchPgaTourPlayerStats, fetchStatLeaderboardValueByRank } from '@/app/lib/pga-player-stats';
 import type { PlayerStatRanks } from '@/app/lib/pga-player-stats';
 import { fetchPgaScorecardStats, pgaTourTournId } from '@/app/lib/pga-scorecard-stats';
 import { getTournamentMetaByEspnId } from '@/app/lib/tournament-config';
@@ -38,10 +38,10 @@ export async function GET(request: Request) {
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
     ? `player-stats:v28:tourn:${eventId}:${name}`
-    : `player-stats:v38:season:2026:${name}`;
+    : `player-stats:v39:season:2026:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v28:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v38:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v39:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -144,6 +144,21 @@ export async function GET(request: Request) {
       if (pgaStats.scrambling) merged.scrambling = pgaStats.scrambling;
       if (pgaStats.sandSaves) merged.sandSaves = pgaStats.sandSaves;
     }
+
+    // GIR: ESPN has correct rank (greensHit.rank), PGA statLeaderboard has correct value.
+    // Look up the value by rank — no player ID matching needed.
+    if (merged) {
+      const espnGirRankStr = espnStats?.statRanks?.['GIR%'];
+      const espnGirRank = espnGirRankStr ? parseInt(espnGirRankStr) : null;
+      if (espnGirRank && espnGirRank > 0) {
+        const girValue = await fetchStatLeaderboardValueByRank('103', espnGirRank);
+        if (girValue) {
+          merged.gir = girValue.endsWith('%') ? girValue : `${girValue}%`;
+          ranks.gir = String(espnGirRank);
+        }
+      }
+    }
+
     const stats = merged;
 
     if (stats) {
