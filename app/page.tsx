@@ -8487,21 +8487,21 @@ export default function Page() {
                   const courseStatCells: { label: string; value: string; avgKey?: string; rankKey?: string }[] = [];
                   if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Distance', value: s.drivingDistance, avgKey: 'drivingDistance', rankKey: 'drivingDistance' });
                   if (s?.drivingAccuracy) courseStatCells.push({ label: 'Drive Accuracy', value: s.drivingAccuracy, avgKey: 'drivingAccuracy', rankKey: 'drivingAccuracy' });
-                  if (s?.gir) courseStatCells.push({ label: 'Greens In Reg%', value: s.gir, avgKey: 'gir', rankKey: 'gir' });
-                  if (s?.scrambling) courseStatCells.push({ label: 'Scrambling%', value: s.scrambling, avgKey: 'scrambling', rankKey: 'scrambling' });
-                  if (s?.sandSaves) courseStatCells.push({ label: 'Sand Saves%', value: s.sandSaves, avgKey: 'sandSaves', rankKey: 'sandSaves' });
+                  if (s?.gir) courseStatCells.push({ label: 'Greens in Reg', value: s.gir, avgKey: 'gir', rankKey: 'gir' });
+                  if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling, avgKey: 'scrambling', rankKey: 'scrambling' });
+                  if (s?.sandSaves) courseStatCells.push({ label: 'Sand Saves', value: s.sandSaves, avgKey: 'sandSaves', rankKey: 'sandSaves' });
                   if (s?.avgPuttsPerRound) courseStatCells.push({ label: 'Putts/Round', value: s.avgPuttsPerRound, avgKey: 'avgPuttsPerRound', rankKey: 'avgPuttsPerRound' });
                   else if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Round', value: (parseFloat(s.puttAverage) * 18).toFixed(1), avgKey: 'avgPuttsPerRound', rankKey: 'avgPuttsPerRound' });
                   if (showSubToggle && statsSubView === 'tournament') {
                     if (s?.proximity) courseStatCells.push({ label: 'Proximity', value: s.proximity });
                   }
                   const sgStatCells: { label: string; value: string; rankKey?: string }[] = [];
-                  if (s?.sgTotal) sgStatCells.push({ label: 'SG: Total', value: s.sgTotal, rankKey: 'sgTotal' });
-                  if (s?.sgTeeToGreen) sgStatCells.push({ label: 'SG: T2G', value: s.sgTeeToGreen, rankKey: 'sgTeeToGreen' });
-                  if (s?.sgOffTee) sgStatCells.push({ label: 'SG: Off Tee', value: s.sgOffTee, rankKey: 'sgOffTee' });
-                  if (s?.sgApproach) sgStatCells.push({ label: 'SG: Approach', value: s.sgApproach, rankKey: 'sgApproach' });
-                  if (s?.sgAroundGreen) sgStatCells.push({ label: 'SG: Around', value: s.sgAroundGreen, rankKey: 'sgAroundGreen' });
-                  if (s?.sgPutting) sgStatCells.push({ label: 'SG: Putting', value: s.sgPutting, rankKey: 'sgPutting' });
+                  if (s?.sgTotal) sgStatCells.push({ label: 'Total', value: s.sgTotal, rankKey: 'sgTotal' });
+                  if (s?.sgTeeToGreen) sgStatCells.push({ label: 'Tee to Green', value: s.sgTeeToGreen, rankKey: 'sgTeeToGreen' });
+                  if (s?.sgOffTee) sgStatCells.push({ label: 'Off Tee', value: s.sgOffTee, rankKey: 'sgOffTee' });
+                  if (s?.sgApproach) sgStatCells.push({ label: 'Approach', value: s.sgApproach, rankKey: 'sgApproach' });
+                  if (s?.sgAroundGreen) sgStatCells.push({ label: 'Around Green', value: s.sgAroundGreen, rankKey: 'sgAroundGreen' });
+                  if (s?.sgPutting) sgStatCells.push({ label: 'Putting', value: s.sgPutting, rankKey: 'sgPutting' });
                   const statCells = [...courseStatCells, ...sgStatCells];
                   const subToggle = showSubToggle ? (
                     <div key="stats-subtoggle" style={{ display: 'flex', background: '#e8edf2', borderRadius: 8, padding: 3, marginBottom: 10, justifySelf: 'start' }}>
