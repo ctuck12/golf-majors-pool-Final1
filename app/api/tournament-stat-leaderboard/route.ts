@@ -79,6 +79,39 @@ async function fetchCompetitorStats(espnId: string, eventId: string): Promise<St
   }
 }
 
+async function fetchAthleteSeasonStats(espnId: string): Promise<Stat[] | null> {
+  const year = new Date().getFullYear();
+  const urls = [
+    `${ESPN_CORE}/seasons/${year}/athletes/${espnId}/statistics/0`,
+    `${ESPN_CORE}/seasons/${year}/athletes/${espnId}/statistics`,
+    `${ESPN_CORE}/seasons/${year - 1}/athletes/${espnId}/statistics/0`,
+  ];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+      if (!res.ok) continue;
+      const data = await res.json() as {
+        splits?: { categories?: Array<{ stats?: Stat[] }> } | Array<{ stats?: Stat[] }>;
+        categories?: Array<{ stats?: Stat[] }>;
+        stats?: Stat[];
+      };
+      if (data?.splits && !Array.isArray(data.splits)) {
+        const stats = (data.splits as { categories?: Array<{ stats?: Stat[] }> }).categories?.[0]?.stats;
+        if (Array.isArray(stats) && stats.length > 0) return stats;
+      }
+      if (Array.isArray(data?.splits)) {
+        for (const split of data.splits as Array<{ stats?: Stat[] }>) {
+          if (Array.isArray(split?.stats) && split.stats.length > 0) return split.stats;
+        }
+      }
+      const cats = data?.categories;
+      if (Array.isArray(cats) && cats[0]?.stats?.length) return cats[0].stats;
+      if (Array.isArray(data?.stats) && data.stats.length > 0) return data.stats;
+    } catch { continue; }
+  }
+  return null;
+}
+
 // Get player display name via ESPN Core athletes endpoint
 async function fetchAthleteName(espnId: string): Promise<string> {
   try {
@@ -142,12 +175,29 @@ export async function GET(request: Request) {
     }
 
     console.log(`[tourn-stat-lb] playerValues=${playerValues.length} statsNonNull=${allStats.filter(Boolean).length}`);
+
+    // If no values found in competitor stats, fall back to season stats for the tournament field
     if (playerValues.length === 0) {
-      // Log stat names from first available player to diagnose missing stat name
-      const firstStats = allStats.find(Boolean);
-      if (firstStats) console.log(`[tourn-stat-lb] availableStatNames=${JSON.stringify(firstStats.map(s => s.name))}`);
-      return Response.json({ entries: [] });
+      console.log(`[tourn-stat-lb] no competitor values for ${statKey}, falling back to season stats`);
+      const seasonStats = await batchAll(
+        ids.map((id) => () => fetchAthleteSeasonStats(id)),
+        BATCH_SIZE,
+      );
+      for (let i = 0; i < ids.length; i++) {
+        const stats = seasonStats[i];
+        if (!stats) continue;
+        for (const def of defsForKey) {
+          let raw = statNumeric(stats, def.espnName);
+          if (raw === null) continue;
+          if (def.altMultiplier) raw = raw * def.altMultiplier;
+          playerValues.push({ espnId: ids[i], value: raw });
+          break;
+        }
+      }
+      console.log(`[tourn-stat-lb] season fallback playerValues=${playerValues.length}`);
     }
+
+    if (playerValues.length === 0) return Response.json({ entries: [] });
 
     playerValues.sort((a, b) =>
       LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value
