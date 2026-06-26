@@ -208,7 +208,7 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
     const avg = sums[key] / counts[key];
     const pctDef = SPLIT_STAT_PATTERNS.find((d) => d.key === key);
     const catDef = COMPUTED_STAT_DEFS.find((d) => d.key === key);
-    const isPercent = pctDef?.isPercent ?? catDef?.isPercent ?? false || key === 'gir';
+    const isPercent = (pctDef?.isPercent ?? catDef?.isPercent ?? false) || key === 'gir';
     const decimals = pctDef?.decimals ?? catDef?.decimals ?? 1;
     results[key] = isPercent ? `${avg.toFixed(decimals)}%` : avg.toFixed(decimals);
     console.log(`[tour-avg] key=${key} source=espn-computed avg=${results[key]} n=${counts[key]}`);
