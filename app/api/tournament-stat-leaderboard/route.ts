@@ -120,6 +120,7 @@ export async function GET(request: Request) {
 
   try {
     const ids = await fetchCompetitorIds(eventId);
+    console.log(`[tourn-stat-lb] eventId=${eventId} statKey=${statKey} competitorCount=${ids.length}`);
     if (ids.length === 0) return Response.json({ entries: [] });
 
     const allStats = await batchAll(
@@ -142,6 +143,7 @@ export async function GET(request: Request) {
       }
     }
 
+    console.log(`[tourn-stat-lb] playerValues=${playerValues.length} statsNonNull=${allStats.filter(Boolean).length}`);
     if (playerValues.length === 0) return Response.json({ entries: [] });
 
     playerValues.sort((a, b) =>
@@ -150,6 +152,7 @@ export async function GET(request: Request) {
     const top10 = playerValues.slice(0, 10);
 
     const names = await Promise.all(top10.map((p) => fetchAthleteName(p.espnId)));
+    console.log(`[tourn-stat-lb] top10espnIds=${top10.map(p=>p.espnId)} names=${JSON.stringify(names)}`);
 
     const entries = top10.map((p, i) => ({
       rank: i + 1,

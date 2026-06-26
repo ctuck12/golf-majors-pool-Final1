@@ -108,6 +108,7 @@ async function fetchStatLeaderboardRows(statId: string): Promise<Array<{ pgaId: 
     data?: { statLeaderboard?: { rows?: Array<{ rank?: number | string; displayValue?: string | null; player?: { id?: string } }> } };
   };
   const rows = data?.data?.statLeaderboard?.rows ?? [];
+  console.log(`[stat-lb] statId=${statId} http=${res.status} totalRows=${rows.length} first3=${JSON.stringify(rows.slice(0,3))}`);
   return rows
     .filter((r) => r.player?.id)
     .slice(0, 10)
