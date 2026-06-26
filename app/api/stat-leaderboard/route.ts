@@ -6,20 +6,23 @@ const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 const ESPN_OVERVIEW = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
 const BATCH_SIZE = 25;
 
-type Stat = { name?: string; value?: number; displayValue?: string };
+// Recent PGA Tour major events — used as reliable source of active PGA Tour player IDs
+// (avoids Champions Tour / dual-status players that appear in season athlete lists)
+const PGA_EVENT_IDS = ['401811952', '401811947', '401811941']; // US Open, PGA Champ, Masters
+
+type Stat = { name?: string; value?: number; displayValue?: string; average?: number; averageDisplayValue?: string };
 
 const LOWER_IS_BETTER = new Set(['scoringAverage', 'avgPuttsPerRound']);
 
 const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number }> = [
-  // ESPN Core competitor/season stats names
   { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
-  // ESPN overview seasonRankings.categories name
   { key: 'drivingDistance', espnName: 'yardsPerDrive', isPercent: false, decimals: 1 },
   { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
   { key: 'gir', espnName: 'gir', isPercent: true, decimals: 1 },
   { key: 'gir', espnName: 'greensInRegPct', isPercent: true, decimals: 1 },
   { key: 'gir', espnName: 'greensInReg', isPercent: true, decimals: 1 },
   { key: 'gir', espnName: 'girPct', isPercent: true, decimals: 1 },
+  { key: 'gir', espnName: 'greensHit', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scramblingPct', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scrambPct', isPercent: true, decimals: 1 },
@@ -54,10 +57,20 @@ export type StatLeaderboardEntry = {
   value: string;
 };
 
+// Check value, displayValue, average, and averageDisplayValue — different ESPN stats use different fields
 function statNumeric(stats: Stat[], name: string): number | null {
   const s = stats.find((x) => x.name === name);
-  const v = s?.value ?? parseFloat(s?.displayValue ?? '');
-  return !isNaN(v) && v !== 0 ? v : null;
+  if (!s) return null;
+  // Primary: value field
+  if (s.value != null && !isNaN(s.value) && s.value !== 0) return s.value;
+  // Secondary: parse displayValue (e.g. "78.2" or "78.2%")
+  const dv = parseFloat(s.displayValue ?? '');
+  if (!isNaN(dv) && dv !== 0) return dv;
+  // Tertiary: average field (used by ESPN for sand saves and some other % stats)
+  if (s.average != null && !isNaN(s.average) && s.average !== 0) return s.average;
+  const av = parseFloat(s.averageDisplayValue ?? '');
+  if (!isNaN(av) && av !== 0) return av;
+  return null;
 }
 
 function formatValue(v: number, key: string): string {
@@ -66,74 +79,39 @@ function formatValue(v: number, key: string): string {
   return def?.isPercent ? `${str}%` : str;
 }
 
-async function fetchSeasonAthleteIds(): Promise<string[]> {
-  const year = new Date().getFullYear();
-  // Try to get athlete list from current season; falls back to previous year
-  for (const y of [year, year - 1]) {
+// Get unique PGA Tour player ESPN IDs from recent major events
+// This guarantees we only show active PGA Tour players (not Champions Tour)
+async function fetchPgaPlayerIds(): Promise<string[]> {
+  const idSet = new Set<string>();
+  await Promise.all(PGA_EVENT_IDS.map(async (eventId) => {
     try {
       const res = await fetch(
-        `${ESPN_CORE}/seasons/${y}/athletes?limit=500`,
+        `${ESPN_CORE}/events/${eventId}/competitions/${eventId}/competitors?limit=500`,
         { cache: 'no-store', signal: AbortSignal.timeout(8000) }
       );
-      if (!res.ok) continue;
+      if (!res.ok) return;
       const data = await res.json() as { items?: Array<{ id?: string; $ref?: string }> };
-      const ids = (data.items ?? []).map((item) => {
-        if (item.id) return item.id;
-        const match = item.$ref?.match(/athletes\/(\d+)/);
-        return match?.[1] ?? '';
-      }).filter(Boolean);
-      if (ids.length > 0) {
-        console.log(`[stat-lb] season=${y} athleteCount=${ids.length}`);
-        return ids;
+      for (const item of data.items ?? []) {
+        const id = item.id ?? item.$ref?.match(/competitors\/(\d+)/)?.[1];
+        if (id) idSet.add(id);
       }
-    } catch { /* try next year */ }
-  }
-  return [];
+    } catch { /* ignore */ }
+  }));
+  console.log(`[stat-lb] pgaPlayerIds=${idSet.size}`);
+  return Array.from(idSet);
 }
 
-async function fetchAthleteSeasonStats(espnId: string): Promise<Stat[] | null> {
-  const year = new Date().getFullYear();
-  const urls = [
-    `${ESPN_CORE}/seasons/${year}/athletes/${espnId}/statistics/0`,
-    `${ESPN_CORE}/seasons/${year}/athletes/${espnId}/statistics`,
-    `${ESPN_CORE}/seasons/${year - 1}/athletes/${espnId}/statistics/0`,
-  ];
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
-      if (!res.ok) continue;
-      const data = await res.json() as {
-        splits?: { categories?: Array<{ stats?: Stat[] }> } | Array<{ stats?: Stat[] }>;
-        categories?: Array<{ stats?: Stat[] }>;
-        stats?: Stat[];
-      };
-      if (data?.splits && !Array.isArray(data.splits)) {
-        const stats = (data.splits as { categories?: Array<{ stats?: Stat[] }> }).categories?.[0]?.stats;
-        if (Array.isArray(stats) && stats.length > 0) return stats;
-      }
-      if (Array.isArray(data?.splits)) {
-        for (const split of data.splits as Array<{ stats?: Stat[] }>) {
-          if (Array.isArray(split?.stats) && split.stats.length > 0) return split.stats;
-        }
-      }
-      const cats = data?.categories;
-      if (Array.isArray(cats) && cats[0]?.stats?.length) return cats[0].stats;
-      if (Array.isArray(data?.stats) && data.stats.length > 0) return data.stats;
-    } catch { continue; }
-  }
-  return null;
-}
-
-async function fetchAthleteOverviewCategories(espnId: string): Promise<Stat[] | null> {
+// Fetch overview and return merged seasonRankings.categories + summaryStatistics
+// Different stats live in different sections; merging ensures we find all of them
+async function fetchAthleteOverviewStats(espnId: string): Promise<Stat[] | null> {
   try {
     const res = await fetch(`${ESPN_OVERVIEW}/${espnId}/overview`, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
     if (!res.ok) return null;
     const data = await res.json() as { seasonRankings?: { categories?: Stat[] }; summaryStatistics?: Stat[] };
-    const cats = data?.seasonRankings?.categories;
-    if (Array.isArray(cats) && cats.length > 0) return cats;
-    const sumStats = data?.summaryStatistics;
-    if (Array.isArray(sumStats) && sumStats.length > 0) return sumStats;
-    return null;
+    const cats = data?.seasonRankings?.categories ?? [];
+    const sumStats = data?.summaryStatistics ?? [];
+    const merged = [...cats, ...sumStats];
+    return merged.length > 0 ? merged : null;
   } catch {
     return null;
   }
@@ -168,28 +146,27 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v9:${statKey}`;
-  console.log(`[stat-lb] request statKey=${statKey}`);
+  const cacheKey = `stat-lb:v10:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
-    if (cached) { console.log(`[stat-lb] cache hit`); return Response.json({ entries: JSON.parse(cached) }); }
+    if (cached) return Response.json({ entries: JSON.parse(cached) });
   } catch { /* ignore */ }
 
   try {
-    const ids = await fetchSeasonAthleteIds();
-    console.log(`[stat-lb] athleteIds=${ids.length}`);
+    const ids = await fetchPgaPlayerIds();
     if (ids.length === 0) return Response.json({ entries: [] });
-
-    const allStats = await batchAll(
-      ids.map((id) => () => fetchAthleteSeasonStats(id)),
-      BATCH_SIZE,
-    );
 
     const defsForKey = statDefs.filter((d) => d.key === statKey);
     const playerValues: Array<{ espnId: string; value: number }> = [];
 
+    // Fetch overview stats for all players (contains season stats, GIR %, sand saves %, scrambling, etc.)
+    const allOverviewStats = await batchAll(
+      ids.map((id) => () => fetchAthleteOverviewStats(id)),
+      BATCH_SIZE,
+    );
+
     for (let i = 0; i < ids.length; i++) {
-      const stats = allStats[i];
+      const stats = allOverviewStats[i];
       if (!stats) continue;
       for (const def of defsForKey) {
         let raw = statNumeric(stats, def.espnName);
@@ -200,34 +177,12 @@ export async function GET(request: Request) {
       }
     }
 
-    console.log(`[stat-lb] statKey=${statKey} totalAthletes=${ids.length} withValues=${playerValues.length}`);
-
-    // Fall back to overview seasonRankings.categories (source for scrambling and other stats not in core stats)
+    console.log(`[stat-lb] statKey=${statKey} pgaPlayers=${ids.length} withValues=${playerValues.length}`);
     if (playerValues.length === 0) {
-      console.log(`[stat-lb] no core values for ${statKey}, falling back to overview categories`);
-      const overviewCats = await batchAll(
-        ids.map((id) => () => fetchAthleteOverviewCategories(id)),
-        BATCH_SIZE,
-      );
-      for (let i = 0; i < ids.length; i++) {
-        const cats = overviewCats[i];
-        if (!cats) continue;
-        for (const def of defsForKey) {
-          let raw = statNumeric(cats, def.espnName);
-          if (raw === null) continue;
-          if (def.altMultiplier) raw = raw * def.altMultiplier;
-          playerValues.push({ espnId: ids[i], value: raw });
-          break;
-        }
-      }
-      console.log(`[stat-lb] overview fallback withValues=${playerValues.length}`);
-      if (playerValues.length === 0) {
-        const firstCats = overviewCats.find(Boolean);
-        if (firstCats) console.log(`[stat-lb] overviewCatNames=${JSON.stringify(firstCats.map((s: Stat) => s.name))}`);
-      }
+      const first = allOverviewStats.find(Boolean);
+      if (first) console.log(`[stat-lb] sampleStatNames=${JSON.stringify(first.map((s: Stat) => s.name))}`);
+      return Response.json({ entries: [] });
     }
-
-    if (playerValues.length === 0) return Response.json({ entries: [] });
 
     playerValues.sort((a, b) =>
       LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value
@@ -235,7 +190,6 @@ export async function GET(request: Request) {
     const top10 = playerValues.slice(0, 10);
 
     const names = await Promise.all(top10.map((p) => fetchAthleteName(p.espnId)));
-    console.log(`[stat-lb] top10ids=${top10.map(p => p.espnId)} names=${JSON.stringify(names)}`);
 
     const entries: StatLeaderboardEntry[] = top10.map((p, i) => ({
       rank: i + 1,
