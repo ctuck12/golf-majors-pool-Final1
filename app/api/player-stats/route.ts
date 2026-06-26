@@ -38,10 +38,10 @@ export async function GET(request: Request) {
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
     ? `player-stats:v28:tourn:${eventId}:${name}`
-    : `player-stats:v31:season:2026:${name}`;
+    : `player-stats:v32:season:2026:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v28:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v31:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v32:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -140,7 +140,6 @@ export async function GET(request: Request) {
     // But override GIR/scrambling/sandSaves back to PGA Tour GQL values when available —
     // ESPN computes these with a different formula that produces incorrect percentages.
     const merged = (espnStats || pgaStats) ? mergeStats(pgaStats, espnStats) : null;
-    console.log(`[player-stats] season name=${name} pgaGir=${pgaStats?.gir ?? 'null'} espnGir=${espnStats?.gir ?? 'null'} pgaScrambling=${pgaStats?.scrambling ?? 'null'} pgaSandSaves=${pgaStats?.sandSaves ?? 'null'}`);
     if (merged && pgaStats) {
       if (pgaStats.gir) merged.gir = pgaStats.gir;
       if (pgaStats.scrambling) merged.scrambling = pgaStats.scrambling;

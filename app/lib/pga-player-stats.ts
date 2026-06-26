@@ -175,9 +175,13 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<{ stat
       }
     }
 
-    // For course stats with missing ranks or values, try the statLeaderboard fallback
+    // For course stats with missing ranks or values, try the statLeaderboard fallback.
+    // Stat 103 (GIR): playerProfileStats returns an incorrect internal metric — always
+    // override with statLeaderboard which matches the official PGA Tour leaderboard.
     const COURSE_STAT_IDS = ['101', '102', '103', '106', '107', '130', '111', '108', '104'];
+    const ALWAYS_USE_LB = new Set(['103']);
     const missingStatIds = COURSE_STAT_IDS.filter((id) => {
+      if (ALWAYS_USE_LB.has(id)) return true;
       const field = STAT_ID_TO_FIELD[id];
       return field && (!ranks[field] || !acc[field as keyof typeof acc]);
     });
@@ -192,8 +196,8 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string): Promise<{ stat
       for (const { id, rank, value } of fallbackEntries) {
         const field = STAT_ID_TO_FIELD[id];
         if (!field) continue;
-        if (rank && !ranks[field]) ranks[field] = rank;
-        if (value && !acc[field as keyof typeof acc]) {
+        if (rank && (!ranks[field] || ALWAYS_USE_LB.has(id))) ranks[field] = rank;
+        if (value && (!acc[field as keyof typeof acc] || ALWAYS_USE_LB.has(id))) {
           mapStat(id, value, acc);
         }
       }
