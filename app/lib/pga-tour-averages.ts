@@ -132,6 +132,15 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
   const sums: Record<string, number> = {};
   const counts: Record<string, number> = {};
 
+  // Log all stat names from first player to diagnose missing stats
+  const firstStats = allStats.find(Boolean);
+  if (firstStats) {
+    console.log(`[tour-avg] sample stat names: ${JSON.stringify(firstStats.map(s => s.name))}`);
+    console.log(`[tour-avg] sample gir stat: ${JSON.stringify(firstStats.find(s => s.name === 'gir'))}`);
+    console.log(`[tour-avg] sample scrambling stat: ${JSON.stringify(firstStats.find(s => s.name === 'scrambling') ?? firstStats.find(s => s.name === 'scramblingPct'))}`);
+    console.log(`[tour-avg] sample sandSaves stat: ${JSON.stringify(firstStats.find(s => s.name === 'sandSaves') ?? firstStats.find(s => s.name === 'sandSavePct'))}`);
+  }
+
   for (const stats of allStats) {
     if (!stats) continue;
     const seen = new Set<string>();
