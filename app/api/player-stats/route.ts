@@ -154,7 +154,7 @@ export async function GET(request: Request) {
         const girValue = await fetchStatLeaderboardValueByRank('103', espnGirRank);
         if (girValue) {
           merged.gir = girValue.endsWith('%') ? girValue : `${girValue}%`;
-          ranks.gir = String(espnGirRank);
+          mergedSeasonRanks.gir = String(espnGirRank);
         }
       }
     }
