@@ -2625,7 +2625,7 @@ export default function Page() {
     const scorecardFetch = statsCtx === 'tournament'
       ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
       : Promise.resolve({ rounds: null });
-    const seasonStatsFetch = showSubToggle
+    const seasonStatsFetch = showSubToggle || selectedTournament === 'us-open'
       ? readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; sandSaves: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; sgTeeToGreen: string | null; rounds: string[] | null } | null; ranks: Record<string, string> | null }>(`/api/player-stats?name=${encodeURIComponent(player.name)}&context=season&pgaTourId=${player.pgaTourId}`, { cache: 'no-store' }).catch(() => ({ stats: null, ranks: null }))
       : Promise.resolve({ stats: null, ranks: null });
     Promise.all([
@@ -8440,9 +8440,10 @@ export default function Page() {
                   const avgLabel = isTournView ? 'Field Avg' : 'Tour Avg';
                   const distributions = pickHistoryPlayerPopup.fieldDistributions ?? {};
                   const tournRanks = pickHistoryPlayerPopup.statRanks ?? {};
+                  const rawSeasonStatRanks = pickHistoryPlayerPopup.seasonStatRanks ?? {};
                   const seasonRanks = isTournView
                     ? tournRanks
-                    : (pickHistoryPlayerPopup.seasonStatRanks ?? tournRanks);
+                    : (Object.keys(rawSeasonStatRanks).length > 0 ? rawSeasonStatRanks : tournRanks);
                   function ordinal(n: string | number): string {
                     const num = parseInt(String(n));
                     if (isNaN(num)) return String(n);
