@@ -1,5 +1,9 @@
 export type StatAverages = Record<string, string>;
 
+import redis from '@/app/lib/redis';
+
+const TOUR_AVG_LB_PREFIX = 'tour-avg:lb:v1:';
+
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
@@ -132,15 +136,6 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
   const sums: Record<string, number> = {};
   const counts: Record<string, number> = {};
 
-  // Log all stat names from first player to diagnose missing stats
-  const firstStats = allStats.find(Boolean);
-  if (firstStats) {
-    console.log(`[tour-avg] sample stat names: ${JSON.stringify(firstStats.map(s => s.name))}`);
-    console.log(`[tour-avg] sample gir stat: ${JSON.stringify(firstStats.find(s => s.name === 'gir'))}`);
-    console.log(`[tour-avg] sample scrambling stat: ${JSON.stringify(firstStats.find(s => s.name === 'scrambling') ?? firstStats.find(s => s.name === 'scramblingPct'))}`);
-    console.log(`[tour-avg] sample sandSaves stat: ${JSON.stringify(firstStats.find(s => s.name === 'sandSaves') ?? firstStats.find(s => s.name === 'sandSavePct'))}`);
-  }
-
   for (const stats of allStats) {
     if (!stats) continue;
     const seen = new Set<string>();
@@ -164,8 +159,32 @@ async function computeFromAllPlayers(): Promise<StatAverages> {
   return results;
 }
 
+const LB_STAT_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'avgPuttsPerRound', 'scoringAverage'];
+
+async function fetchFromLeaderboardCache(): Promise<StatAverages> {
+  const results: StatAverages = {};
+  await Promise.all(LB_STAT_KEYS.map(async (key) => {
+    try {
+      const val = await redis.get(`${TOUR_AVG_LB_PREFIX}${key}`);
+      if (val) { results[key] = val; console.log(`[tour-avg] key=${key} source=lb-cache value=${val}`); }
+    } catch { /* ignore */ }
+  }));
+  return results;
+}
+
 export async function fetchTourAverages(): Promise<StatAverages> {
-  // Primary: PGA Tour GQL statDetails tourAvg (official tour average, may lag slightly)
+  // Primary: read averages computed by stat-leaderboard route (covers all 6 course stats accurately)
+  try {
+    const lbResults = await fetchFromLeaderboardCache();
+    if (Object.keys(lbResults).length >= 4) {
+      return lbResults;
+    }
+    console.log(`[tour-avg] lb-cache returned only ${Object.keys(lbResults).length} stats, trying GQL`);
+  } catch (err) {
+    console.log(`[tour-avg] lb-cache failed: ${err}`);
+  }
+
+  // Secondary: PGA Tour GQL statDetails tourAvg
   try {
     const gqlResults = await fetchFromGql();
     if (Object.keys(gqlResults).length >= 4) {

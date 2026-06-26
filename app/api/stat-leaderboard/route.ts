@@ -2,6 +2,8 @@ export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
 
+const TOUR_AVG_LB_PREFIX = 'tour-avg:lb:v1:';
+
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 const ESPN_OVERVIEW = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
 const BATCH_SIZE = 25;
@@ -199,6 +201,17 @@ export async function GET(request: Request) {
 
     if (entries.length > 0) {
       try { await redis.setex(cacheKey, 3600, JSON.stringify(entries)); } catch { /* ignore */ }
+    }
+
+    // Store tour average (mean of all players with data) for use by tour-averages endpoint
+    if (playerValues.length > 0) {
+      try {
+        const sum = playerValues.reduce((acc, p) => acc + p.value, 0);
+        const avg = sum / playerValues.length;
+        const avgStr = formatValue(avg, statKey);
+        await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, avgStr);
+        console.log(`[stat-lb] stored tour-avg key=${statKey} avg=${avgStr} n=${playerValues.length}`);
+      } catch { /* ignore */ }
     }
 
     return Response.json({ entries });
