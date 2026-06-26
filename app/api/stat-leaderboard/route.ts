@@ -11,14 +11,25 @@ type Stat = { name?: string; value?: number; displayValue?: string };
 const LOWER_IS_BETTER = new Set(['scoringAverage', 'avgPuttsPerRound']);
 
 const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number }> = [
+  // ESPN Core competitor/season stats names
   { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
+  // ESPN overview seasonRankings.categories name
+  { key: 'drivingDistance', espnName: 'yardsPerDrive', isPercent: false, decimals: 1 },
   { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
   { key: 'gir', espnName: 'gir', isPercent: true, decimals: 1 },
+  { key: 'gir', espnName: 'greensInRegPct', isPercent: true, decimals: 1 },
+  { key: 'gir', espnName: 'greensInReg', isPercent: true, decimals: 1 },
+  { key: 'gir', espnName: 'girPct', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scramblingPct', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scrambPct', isPercent: true, decimals: 1 },
   { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1 },
+  { key: 'sandSaves', espnName: 'sandSavePct', isPercent: true, decimals: 1 },
+  { key: 'sandSaves', espnName: 'sandSave', isPercent: true, decimals: 1 },
+  { key: 'sandSaves', espnName: 'bunkerSavePct', isPercent: true, decimals: 1 },
   { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', isPercent: false, decimals: 1 },
+  { key: 'avgPuttsPerRound', espnName: 'avgPutts', isPercent: false, decimals: 1 },
+  { key: 'avgPuttsPerRound', espnName: 'avgPutt', isPercent: false, decimals: 1 },
   { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', isPercent: false, decimals: 1, altMultiplier: 18 },
   { key: 'sgTotal', espnName: 'strokesGainedTotal', isPercent: false, decimals: 3 },
   { key: 'sgTotal', espnName: 'sgTotal', isPercent: false, decimals: 3 },
@@ -157,7 +168,7 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v8:${statKey}`;
+  const cacheKey = `stat-lb:v9:${statKey}`;
   console.log(`[stat-lb] request statKey=${statKey}`);
   try {
     const cached = await redis.get(cacheKey);
@@ -210,6 +221,10 @@ export async function GET(request: Request) {
         }
       }
       console.log(`[stat-lb] overview fallback withValues=${playerValues.length}`);
+      if (playerValues.length === 0) {
+        const firstCats = overviewCats.find(Boolean);
+        if (firstCats) console.log(`[stat-lb] overviewCatNames=${JSON.stringify(firstCats.map((s: Stat) => s.name))}`);
+      }
     }
 
     if (playerValues.length === 0) return Response.json({ entries: [] });
