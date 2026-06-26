@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
+import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
 
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
@@ -34,12 +35,27 @@ export type StatLeaderboardEntry = {
   value: string;
 };
 
-// Fetch all PGA Tour player names keyed by player ID, cached 24h
-async function fetchPlayerNames(): Promise<Map<string, string>> {
+// Pool map as reliable baseline — covers pool players always
+const POOL_NAME_BY_PGA_ID = new Map<string, string>(
+  PLAYER_POOL_WITH_PGA_IDS
+    .filter((p) => (p.pgaTourId as number) !== 99999)
+    .map((p) => [String(p.pgaTourId), p.name])
+);
+
+// Supplement pool map with all PGA Tour player names via GQL players query
+// Returns a merged map: pool names first, GQL fills in non-pool players
+async function buildNameMap(): Promise<Map<string, string>> {
+  const map = new Map<string, string>(POOL_NAME_BY_PGA_ID);
+
   const cacheKey = 'pga:player-names:v1';
   try {
     const cached = await redis.get(cacheKey);
-    if (cached) return new Map(JSON.parse(cached) as [string, string][]);
+    if (cached) {
+      for (const [id, name] of JSON.parse(cached) as [string, string][]) {
+        if (!map.has(id)) map.set(id, name);
+      }
+      return map;
+    }
   } catch { /* ignore */ }
 
   try {
@@ -50,22 +66,23 @@ async function fetchPlayerNames(): Promise<Map<string, string>> {
       body: JSON.stringify({ query }),
       signal: AbortSignal.timeout(10000),
     });
-    if (!res.ok) return new Map();
-    const data = await res.json() as { data?: { players?: Array<{ id: string; firstName?: string; lastName?: string }> } };
-    const players = data?.data?.players ?? [];
-    const map = new Map<string, string>(
-      players
+    if (res.ok) {
+      const data = await res.json() as { data?: { players?: Array<{ id: string; firstName?: string; lastName?: string }> } };
+      const players = data?.data?.players ?? [];
+      const entries: [string, string][] = players
         .filter((p) => p.id)
-        .map((p) => [String(p.id), [p.firstName, p.lastName].filter(Boolean).join(' ')])
-        .filter(([, name]) => name) as [string, string][]
-    );
-    if (map.size > 0) {
-      try { await redis.setex(cacheKey, 86400, JSON.stringify([...map])); } catch { /* ignore */ }
+        .map((p) => [String(p.id), [p.firstName, p.lastName].filter(Boolean).join(' ')] as [string, string])
+        .filter(([, name]) => name);
+      if (entries.length > 0) {
+        try { await redis.setex(cacheKey, 86400, JSON.stringify(entries)); } catch { /* ignore */ }
+        for (const [id, name] of entries) {
+          if (!map.has(id)) map.set(id, name);
+        }
+      }
     }
-    return map;
-  } catch {
-    return new Map();
-  }
+  } catch { /* fall back to pool map only */ }
+
+  return map;
 }
 
 async function fetchStatLeaderboardRows(statId: string): Promise<Array<{ pgaId: string; rank: number; displayValue: string | null }>> {
@@ -101,7 +118,6 @@ async function fetchStatLeaderboardRows(statId: string): Promise<Array<{ pgaId: 
     }));
 }
 
-// Get stat value from playerProfileStats — fallback when displayValue is missing
 async function fetchStatValue(pgaId: string, statId: string): Promise<string | null> {
   try {
     const query = `
@@ -138,7 +154,7 @@ export async function GET(request: Request) {
   const statId = STAT_KEY_TO_ID[statKey];
   if (!statId) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v5:${statId}`;
+  const cacheKey = `stat-lb:v6:${statId}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });
@@ -147,7 +163,7 @@ export async function GET(request: Request) {
   try {
     const [rows, nameMap] = await Promise.all([
       fetchStatLeaderboardRows(statId),
-      fetchPlayerNames(),
+      buildNameMap(),
     ]);
     if (rows.length === 0) return Response.json({ entries: [] });
 
