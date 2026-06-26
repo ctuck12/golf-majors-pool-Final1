@@ -32,7 +32,8 @@ export async function GET(request: Request) {
   const name = searchParams.get('name') ?? '';
   const context = searchParams.get('context') ?? 'season';
   const eventId = searchParams.get('eventId') ?? '';
-  const pgaTourId = searchParams.get('pgaTourId') || PGA_TOUR_ID_BY_NAME[name] || '';
+  const rawPgaTourId = searchParams.get('pgaTourId') ?? '';
+  const pgaTourId = (rawPgaTourId && rawPgaTourId !== '0') ? rawPgaTourId : (PGA_TOUR_ID_BY_NAME[name] ?? '');
 
   if (!name) return Response.json({ stats: null, ranks: null });
 
