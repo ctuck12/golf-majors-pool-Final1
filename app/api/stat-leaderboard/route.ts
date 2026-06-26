@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
-import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
 
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
@@ -29,20 +28,46 @@ const STAT_KEY_TO_ID: Record<string, string> = {
   sgPutting: '02564',
 };
 
-// pgaTourId → pool name
-const POOL_NAME_BY_PGA_ID: Map<string, string> = new Map(
-  PLAYER_POOL_WITH_PGA_IDS
-    .filter((p) => (p.pgaTourId as number) !== 99999)
-    .map((p) => [String(p.pgaTourId), p.name])
-);
-
 export type StatLeaderboardEntry = {
   rank: number;
   name: string;
   value: string;
 };
 
-// Get top-10 player IDs + ranks from statLeaderboard (proven to work)
+// Fetch all PGA Tour player names keyed by player ID, cached 24h
+async function fetchPlayerNames(): Promise<Map<string, string>> {
+  const cacheKey = 'pga:player-names:v1';
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) return new Map(JSON.parse(cached) as [string, string][]);
+  } catch { /* ignore */ }
+
+  try {
+    const query = `query { players { id firstName lastName } }`;
+    const res = await fetch(PGA_GQL, {
+      method: 'POST',
+      headers: GQL_HEADERS,
+      body: JSON.stringify({ query }),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) return new Map();
+    const data = await res.json() as { data?: { players?: Array<{ id: string; firstName?: string; lastName?: string }> } };
+    const players = data?.data?.players ?? [];
+    const map = new Map<string, string>(
+      players
+        .filter((p) => p.id)
+        .map((p) => [String(p.id), [p.firstName, p.lastName].filter(Boolean).join(' ')])
+        .filter(([, name]) => name) as [string, string][]
+    );
+    if (map.size > 0) {
+      try { await redis.setex(cacheKey, 86400, JSON.stringify([...map])); } catch { /* ignore */ }
+    }
+    return map;
+  } catch {
+    return new Map();
+  }
+}
+
 async function fetchStatLeaderboardRows(statId: string): Promise<Array<{ pgaId: string; rank: number; displayValue: string | null }>> {
   const query = `
     query StatLeaderboard($statId: ID!) {
@@ -76,13 +101,13 @@ async function fetchStatLeaderboardRows(statId: string): Promise<Array<{ pgaId: 
     }));
 }
 
-// Get a specific stat value for a player from playerProfileStats (same source as individual player stats)
+// Get stat value from playerProfileStats — fallback when displayValue is missing
 async function fetchStatValue(pgaId: string, statId: string): Promise<string | null> {
   try {
     const query = `
       query PlayerProfileStats($playerId: ID!) {
         playerProfileStats(playerId: $playerId) {
-          stats { statId value displayValue }
+          stats { statId value rank }
         }
       }
     `;
@@ -94,16 +119,12 @@ async function fetchStatValue(pgaId: string, statId: string): Promise<string | n
     });
     if (!res.ok) return null;
     const data = await res.json() as {
-      data?: { playerProfileStats?: Array<{ stats?: Array<{ statId?: string; value?: number | null; displayValue?: string | null }> }> };
+      data?: { playerProfileStats?: Array<{ stats?: Array<{ statId?: string; value?: number | null }> }> };
     };
     const groups = data?.data?.playerProfileStats ?? [];
     const flat = groups.flatMap((g) => g.stats ?? []);
     const stat = flat.find((s) => s.statId === statId);
-    if (!stat) return null;
-    // Use displayValue first, fall back to numeric value
-    const dv = stat.displayValue;
-    if (dv && dv !== '-' && dv !== '--' && dv !== '0') return dv;
-    const v = stat.value;
+    const v = stat?.value;
     if (v != null && v !== 0) return String(v);
     return null;
   } catch {
@@ -117,22 +138,25 @@ export async function GET(request: Request) {
   const statId = STAT_KEY_TO_ID[statKey];
   if (!statId) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v3:${statId}`;
+  const cacheKey = `stat-lb:v5:${statId}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });
   } catch { /* ignore */ }
 
   try {
-    const rows = await fetchStatLeaderboardRows(statId);
+    const [rows, nameMap] = await Promise.all([
+      fetchStatLeaderboardRows(statId),
+      fetchPlayerNames(),
+    ]);
     if (rows.length === 0) return Response.json({ entries: [] });
 
     const entries: StatLeaderboardEntry[] = await Promise.all(
       rows.map(async (r) => {
-        const name = POOL_NAME_BY_PGA_ID.get(r.pgaId) ?? '';
-        // Use displayValue from leaderboard row if present, otherwise fetch from playerProfileStats
-        const value = (r.displayValue && r.displayValue !== '-' && r.displayValue !== '0')
-          ? r.displayValue
+        const name = nameMap.get(r.pgaId) ?? '';
+        const dv = r.displayValue;
+        const value = (dv && dv !== '-' && dv !== '--' && dv !== '0')
+          ? dv
           : (await fetchStatValue(r.pgaId, statId)) ?? '';
         return { rank: r.rank, name, value };
       })

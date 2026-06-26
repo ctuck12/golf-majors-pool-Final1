@@ -1,107 +1,104 @@
 export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
+import { getTournamentMetaByEspnId } from '@/app/lib/tournament-config';
+import { pgaTourTournId } from '@/app/lib/pga-scorecard-stats';
 
-const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
-const BATCH_SIZE = 25;
+const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
+const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 
-type Stat = { name?: string; value?: number; displayValue?: string };
+const GQL_HEADERS = {
+  'Content-Type': 'application/json',
+  'x-api-key': PGA_API_KEY,
+  'Referer': 'https://www.pgatour.com/',
+  'Origin': 'https://www.pgatour.com',
+};
 
-const LOWER_IS_BETTER = new Set(['scoringAverage', 'avgPuttsPerRound']);
+// Tournament stat IDs — scrambling uses 130 and sand saves 111 in tournament context
+const STAT_KEY_TO_ID: Record<string, string> = {
+  drivingDistance: '101',
+  drivingAccuracy: '102',
+  gir: '103',
+  avgPuttsPerRound: '104',
+  scrambling: '130',
+  sandSaves: '111',
+  scoringAverage: '108',
+  sgTotal: '02675',
+  sgTeeToGreen: '02675',
+  sgOffTee: '02567',
+  sgApproach: '02568',
+  sgAroundGreen: '02569',
+  sgPutting: '02564',
+};
 
-// Same stat defs as field-averages (all known ESPN stat name variants)
-const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number }> = [
-  { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
-  { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
-  { key: 'gir', espnName: 'gir', isPercent: true, decimals: 1 },
-  { key: 'scrambling', espnName: 'scramblingPct', isPercent: true, decimals: 1 },
-  { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
-  { key: 'scrambling', espnName: 'scrambPct', isPercent: true, decimals: 1 },
-  { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', isPercent: false, decimals: 1 },
-  { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', isPercent: false, decimals: 1, altMultiplier: 18 },
-  { key: 'sgTotal', espnName: 'strokesGainedTotal', isPercent: false, decimals: 3 },
-  { key: 'sgTotal', espnName: 'sgTotal', isPercent: false, decimals: 3 },
-  { key: 'sgOffTee', espnName: 'strokesGainedOffTee', isPercent: false, decimals: 3 },
-  { key: 'sgOffTee', espnName: 'sgOffTee', isPercent: false, decimals: 3 },
-  { key: 'sgApproach', espnName: 'strokesGainedApproach', isPercent: false, decimals: 3 },
-  { key: 'sgApproach', espnName: 'sgApproach', isPercent: false, decimals: 3 },
-  { key: 'sgAroundGreen', espnName: 'strokesGainedAroundGreen', isPercent: false, decimals: 3 },
-  { key: 'sgAroundGreen', espnName: 'sgAroundGreen', isPercent: false, decimals: 3 },
-  { key: 'sgPutting', espnName: 'strokesGainedPutting', isPercent: false, decimals: 3 },
-  { key: 'sgPutting', espnName: 'sgPutting', isPercent: false, decimals: 3 },
-  { key: 'sgTeeToGreen', espnName: 'strokesGainedTeeToGreen', isPercent: false, decimals: 3 },
-  { key: 'sgTeeToGreen', espnName: 'sgTeeToGreen', isPercent: false, decimals: 3 },
-];
-
-function statNumeric(stats: Stat[], name: string): number | null {
-  const s = stats.find((x) => x.name === name);
-  const v = s?.value ?? parseFloat(s?.displayValue ?? '');
-  return !isNaN(v) && v !== 0 ? v : null;
-}
-
-function formatValue(v: number, key: string): string {
-  const def = statDefs.find((d) => d.key === key);
-  const str = v.toFixed(def?.decimals ?? 1);
-  return def?.isPercent ? `${str}%` : str;
-}
-
-async function fetchCompetitorIds(eventId: string): Promise<string[]> {
+// Fetch all PGA Tour player names keyed by player ID, cached 24h (shared with season route)
+async function fetchPlayerNames(): Promise<Map<string, string>> {
+  const cacheKey = 'pga:player-names:v1';
   try {
-    const res = await fetch(
-      `${ESPN_CORE}/events/${eventId}/competitions/${eventId}/competitors?limit=500`,
-      { cache: 'no-store', signal: AbortSignal.timeout(8000) }
-    );
-    if (!res.ok) return [];
-    const data = await res.json() as { items?: Array<{ id?: string; $ref?: string }> };
-    return (data.items ?? []).map((item) => {
-      if (item.id) return item.id;
-      const match = item.$ref?.match(/competitors\/(\d+)/);
-      return match?.[1] ?? '';
-    }).filter(Boolean);
-  } catch {
-    return [];
-  }
-}
+    const cached = await redis.get(cacheKey);
+    if (cached) return new Map(JSON.parse(cached) as [string, string][]);
+  } catch { /* ignore */ }
 
-async function fetchCompetitorStats(espnId: string, eventId: string): Promise<Stat[] | null> {
   try {
-    const res = await fetch(
-      `${ESPN_CORE}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/statistics/0`,
-      { cache: 'no-store', signal: AbortSignal.timeout(6000) }
+    const query = `query { players { id firstName lastName } }`;
+    const res = await fetch(PGA_GQL, {
+      method: 'POST',
+      headers: GQL_HEADERS,
+      body: JSON.stringify({ query }),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) return new Map();
+    const data = await res.json() as { data?: { players?: Array<{ id: string; firstName?: string; lastName?: string }> } };
+    const players = data?.data?.players ?? [];
+    const map = new Map<string, string>(
+      players
+        .filter((p) => p.id)
+        .map((p) => [String(p.id), [p.firstName, p.lastName].filter(Boolean).join(' ')])
+        .filter(([, name]) => name) as [string, string][]
     );
-    if (!res.ok) return null;
-    const data = await res.json() as { splits?: { categories?: Array<{ stats?: Stat[] }> } };
-    const stats = data?.splits?.categories?.[0]?.stats;
-    return Array.isArray(stats) && stats.length > 0 ? stats : null;
+    if (map.size > 0) {
+      try { await redis.setex(cacheKey, 86400, JSON.stringify([...map])); } catch { /* ignore */ }
+    }
+    return map;
   } catch {
-    return null;
+    return new Map();
   }
 }
 
-// Fetch athlete name from ESPN Core athletes endpoint
-async function fetchAthleteName(espnId: string): Promise<string> {
-  try {
-    const res = await fetch(
-      `https://sports.core.api.espn.com/v2/sports/golf/athletes/${espnId}`,
-      { cache: 'no-store', signal: AbortSignal.timeout(4000) }
-    );
-    if (!res.ok) return '';
-    const data = await res.json() as { displayName?: string; fullName?: string; firstName?: string; lastName?: string };
-    return data.displayName ?? data.fullName
-      ?? ([data.firstName, data.lastName].filter(Boolean).join(' '))
-      ?? '';
-  } catch {
-    return '';
-  }
-}
-
-async function batchAll<T>(tasks: (() => Promise<T>)[], size: number): Promise<T[]> {
-  const results: T[] = [];
-  for (let i = 0; i < tasks.length; i += size) {
-    results.push(...await Promise.all(tasks.slice(i, i + size).map((t) => t())));
-  }
-  return results;
+async function fetchTournStatLeaderboardRows(
+  statId: string,
+  tournamentId: string,
+): Promise<Array<{ pgaId: string; rank: number; displayValue: string | null }>> {
+  const query = `
+    query TournStatLeaderboard($statId: ID!, $tournamentId: ID!) {
+      statLeaderboard(statId: $statId, tournamentId: $tournamentId) {
+        rows {
+          rank
+          displayValue
+          player { id }
+        }
+      }
+    }
+  `;
+  const res = await fetch(PGA_GQL, {
+    method: 'POST',
+    headers: GQL_HEADERS,
+    body: JSON.stringify({ query, variables: { statId, tournamentId } }),
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) return [];
+  const data = await res.json() as {
+    data?: { statLeaderboard?: { rows?: Array<{ rank?: number | string; displayValue?: string | null; player?: { id?: string } }> } };
+  };
+  const rows = data?.data?.statLeaderboard?.rows ?? [];
+  return rows
+    .filter((r) => r.player?.id)
+    .slice(0, 10)
+    .map((r) => ({
+      pgaId: String(r.player!.id!),
+      rank: parseInt(String(r.rank ?? 0)) || 0,
+      displayValue: r.displayValue ?? null,
+    }));
 }
 
 export async function GET(request: Request) {
@@ -110,52 +107,35 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!statKey || !eventId) return Response.json({ entries: [] });
 
-  const cacheKey = `tourn-stat-lb:v4:${eventId}:${statKey}`;
+  // Derive PGA Tour tournament ID from ESPN event ID
+  const meta = getTournamentMetaByEspnId(eventId);
+  if (!meta) return Response.json({ entries: [] });
+  const tournId = pgaTourTournId(meta.slashGolfTournId, meta.year);
+
+  const statId = STAT_KEY_TO_ID[statKey];
+  if (!statId) return Response.json({ entries: [] });
+
+  const cacheKey = `tourn-stat-lb:v5:${tournId}:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });
   } catch { /* ignore */ }
 
   try {
-    const ids = await fetchCompetitorIds(eventId);
-    if (ids.length === 0) return Response.json({ entries: [] });
+    const [rows, nameMap] = await Promise.all([
+      fetchTournStatLeaderboardRows(statId, tournId),
+      fetchPlayerNames(),
+    ]);
+    if (rows.length === 0) return Response.json({ entries: [] });
 
-    // Fetch stats for all competitors (same as field-averages)
-    const allStats = await batchAll(
-      ids.map((id) => () => fetchCompetitorStats(id, eventId)),
-      BATCH_SIZE,
-    );
-
-    // Collect per-player values for the requested stat
-    const defsForKey = statDefs.filter((d) => d.key === statKey);
-    const playerValues: Array<{ espnId: string; value: number }> = [];
-
-    for (let i = 0; i < ids.length; i++) {
-      const stats = allStats[i];
-      if (!stats) continue;
-      for (const def of defsForKey) {
-        let raw = statNumeric(stats, def.espnName);
-        if (raw === null) continue;
-        if (def.altMultiplier) raw = raw * def.altMultiplier;
-        playerValues.push({ espnId: ids[i], value: raw });
-        break;
-      }
-    }
-
-    // Sort best-first and take top 10
-    playerValues.sort((a, b) =>
-      LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value
-    );
-    const top10 = playerValues.slice(0, 10);
-
-    // Fetch names only for the top 10 (not all 150+ competitors)
-    const names = await Promise.all(top10.map((p) => fetchAthleteName(p.espnId)));
-
-    const entries = top10.map((p, i) => ({
-      rank: i + 1,
-      name: names[i],
-      value: formatValue(p.value, statKey),
-    })).filter((e) => e.name);
+    const entries = rows
+      .map((r) => {
+        const name = nameMap.get(r.pgaId) ?? '';
+        const dv = r.displayValue;
+        const value = (dv && dv !== '-' && dv !== '--' && dv !== '0') ? dv : '';
+        return { rank: r.rank, name, value };
+      })
+      .filter((e) => e.name && e.value);
 
     if (entries.length > 0) {
       try { await redis.setex(cacheKey, 1800, JSON.stringify(entries)); } catch { /* ignore */ }
