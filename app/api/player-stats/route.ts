@@ -38,10 +38,10 @@ export async function GET(request: Request) {
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
     ? `player-stats:v28:tourn:${eventId}:${name}`
-    : `player-stats:v27:season:2026:${name}`;
+    : `player-stats:v29:season:2026:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v28:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v27:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v29:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -109,7 +109,7 @@ export async function GET(request: Request) {
     const pgaStats = pgaResult?.stats ?? null;
     const pgaRanks: PlayerStatRanks = pgaResult?.ranks ?? {};
 
-    // Merge ESPN label-keyed ranks into field-keyed ranks for stats PGA Tour doesn't cover
+    // ESPN ranks win over PGA Tour GQL ranks for course stats — PGA Tour GQL rank field is unreliable
     const ESPN_LABEL_TO_FIELD: Record<string, string> = {
       'Sand Saves%': 'sandSaves',
       'Scrambling%': 'scrambling',
@@ -123,7 +123,7 @@ export async function GET(request: Request) {
     const mergedSeasonRanks: PlayerStatRanks = { ...pgaRanks };
     for (const [label, rankStr] of Object.entries(espnLabelRanks)) {
       const field = ESPN_LABEL_TO_FIELD[label];
-      if (field && !mergedSeasonRanks[field] && rankStr) {
+      if (field && rankStr) {
         const num = parseInt(rankStr);
         if (!isNaN(num) && num > 0) mergedSeasonRanks[field] = String(num);
       }
