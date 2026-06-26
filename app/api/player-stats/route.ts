@@ -140,6 +140,7 @@ export async function GET(request: Request) {
     // But override GIR/scrambling/sandSaves back to PGA Tour GQL values when available —
     // ESPN computes these with a different formula that produces incorrect percentages.
     const merged = (espnStats || pgaStats) ? mergeStats(pgaStats, espnStats) : null;
+    console.log(`[player-stats] season name=${name} pgaGir=${pgaStats?.gir ?? 'null'} pgaGirRank=${pgaRanks?.gir ?? 'null'}`);
     if (merged && pgaStats) {
       if (pgaStats.gir) merged.gir = pgaStats.gir;
       if (pgaStats.scrambling) merged.scrambling = pgaStats.scrambling;
