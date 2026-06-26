@@ -23,9 +23,7 @@ function mergeStats(...sources: (Record<string, unknown> | null)[]): Record<stri
 const RANKS_CACHE_SUFFIX = ':ranks';
 
 // PGA Tour IDs for players whose pool name differs from PGA Tour records
-const PGA_TOUR_ID_BY_NAME: Record<string, string> = {
-  'Tom Kim': '57719',
-};
+const PGA_TOUR_ID_BY_NAME: Record<string, string> = {};
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -40,10 +38,10 @@ export async function GET(request: Request) {
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
     ? `player-stats:v25:tourn:${eventId}:${name}`
-    : `player-stats:v22:season:2026:${name}`;
+    : `player-stats:v23:season:2026:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v25:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v22:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v23:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
