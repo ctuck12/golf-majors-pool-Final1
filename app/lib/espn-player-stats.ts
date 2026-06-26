@@ -196,7 +196,7 @@ function extractSeason(data: Overview): PlayerStats {
   const { ranks: statRanks, avgs: statAvgs } = buildRankAvgMaps(cats, SEASON_STAT_LABEL_MAP);
 
   return {
-    drivingDistance: statVal(cats, 'yardsPerDrive') ?? statNumVal(cats, 'yardsPerDrive'),
+    drivingDistance: statNumVal(cats, 'yardsPerDrive') ?? statVal(cats, 'yardsPerDrive'),
     drivingAccuracy: statVal(cats, 'driveAccuracyPct', '%') ?? statNumVal(cats, 'driveAccuracyPct', '%'),
     gir,
     scrambling,
