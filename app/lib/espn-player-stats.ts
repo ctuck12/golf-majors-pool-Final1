@@ -136,12 +136,10 @@ function extractSeason(data: Overview): PlayerStats {
     return suffix ? `${raw}${suffix}` : raw;
   }
 
-  const catNames = cats.map((c) => c.name);
-  const splitsSample = pgaSplit?.stats?.slice(0, 20) ?? [];
-  console.log(`[espn-extract] catNames=${JSON.stringify(catNames)} splitNames=${JSON.stringify(names.slice(0, 30))} splitVals=${JSON.stringify(splitsSample)} sumStatNames=${JSON.stringify(sumStats.map((s) => s.name))}`);
-
-  // GIR: try summaryStatistics, category name variants, then statistics.splits (same as scrambling)
+  // GIR: ESPN categories field is "greensHit" (not greensInRegPct)
   const gir =
+    statVal(cats, 'greensHit', '%') ??
+    statNumVal(cats, 'greensHit', '%') ??
     summaryStatVal(sumStats, 'greensInRegPct', '%') ??
     summaryStatVal(sumStats, 'girPct', '%') ??
     statVal(cats, 'gir', '%') ??
@@ -150,10 +148,7 @@ function extractSeason(data: Overview): PlayerStats {
     statVal(cats, 'girPct', '%') ??
     statNumVal(cats, 'gir', '%') ??
     statNumVal(cats, 'greensInReg', '%') ??
-    statNumVal(cats, 'greensInRegPct', '%') ??
-    splitStatVal(/green/i, '%') ??
-    splitStatVal(/gir/i, '%');
-  console.log(`[espn-extract] gir=${gir}`);
+    statNumVal(cats, 'greensInRegPct', '%');
 
   // Scrambling: ESPN uses several names across player profiles
   const scrambling =
@@ -183,6 +178,7 @@ function extractSeason(data: Overview): PlayerStats {
   const SEASON_STAT_LABEL_MAP: Record<string, string> = {
     yardsPerDrive: 'Drive Dist',
     driveAccuracyPct: 'Drive Acc',
+    greensHit: 'GIR%',
     greensInRegPct: 'GIR%',
     scramblingPct: 'Scrambling%',
     scrambling: 'Scrambling%',
