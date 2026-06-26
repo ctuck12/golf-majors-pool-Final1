@@ -16,6 +16,17 @@ export async function GET(request: Request) {
 
   const espnId = await getEspnId(name);
 
+  // Raw ESPN search results for debugging
+  const espnSearchRaw: Record<string, unknown> = {};
+  for (const q of [name, 'Joohyung Kim', 'Tom Kim', 'Kim Joohyung']) {
+    try {
+      const res = await fetch(`https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(q)}&limit=10&type=player`, { cache: 'no-store' });
+      const data = res.ok ? await res.json() as { results?: Array<{ contents?: Array<{ uid?: string; description?: string }> }> } : null;
+      const contents = data?.results?.[0]?.contents ?? [];
+      espnSearchRaw[q] = contents.map((c) => ({ uid: c.uid, description: c.description }));
+    } catch (e) { espnSearchRaw[q] = { error: String(e) }; }
+  }
+
   // Fetch ESPN overview raw data
   let overview: Record<string, unknown> | null = null;
   if (espnId) {
@@ -104,6 +115,7 @@ export async function GET(request: Request) {
 
   return Response.json({
     espnId,
+    espnSearchRaw,
     pgaTourId,
     espnSummaryStatNames: summaryStats.map((s) => ({ name: s.name, value: s.displayValue })),
     espnCategoryNames: categories.map((c) => ({ name: c.name, displayValue: c.displayValue, numericValue: c.value, rank: c.rank, average: c.average, averageDisplayValue: c.averageDisplayValue })),
