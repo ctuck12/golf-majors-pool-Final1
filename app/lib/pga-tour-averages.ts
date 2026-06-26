@@ -1,10 +1,10 @@
+import redis from '@/app/lib/redis';
+
 export type StatAverages = Record<string, string>;
 
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 
-
-// Stat IDs and their PlayerStats field names + formatting
 const STAT_MAP: Array<{ statId: string; key: string; suffix?: string; multiplier?: number }> = [
   { statId: '101', key: 'drivingDistance' },
   { statId: '102', key: 'drivingAccuracy', suffix: '%' },
@@ -12,7 +12,7 @@ const STAT_MAP: Array<{ statId: string; key: string; suffix?: string; multiplier
   { statId: '130', key: 'scrambling', suffix: '%' },
   { statId: '107', key: 'sandSaves', suffix: '%' },
   { statId: '108', key: 'scoringAverage' },
-  { statId: '104', key: 'avgPuttsPerRound', multiplier: 18 }, // putts/GIR → putts/round
+  { statId: '104', key: 'avgPuttsPerRound', multiplier: 18 },
 ];
 
 async function fetchStatTourAvg(statId: string): Promise<string | null> {
@@ -43,10 +43,11 @@ async function fetchStatTourAvg(statId: string): Promise<string | null> {
   }
 }
 
-// Fallback used only if PGA Tour GQL is unreachable — live fetch overrides every 6h
+// Last-resort fallback — only used before any stat leaderboard has ever been computed
+// and if PGA Tour GQL also fails. Update these when season resets.
 const FALLBACK_AVERAGES: StatAverages = {
   drivingDistance: '304.7',
-  drivingAccuracy: '61.9%',
+  drivingAccuracy: '59.48%',
   gir: '65.2%',
   scrambling: '59.1%',
   sandSaves: '55.8%',
@@ -59,9 +60,20 @@ export async function fetchTourAverages(): Promise<StatAverages> {
 
   await Promise.all(
     STAT_MAP.map(async ({ statId, key, suffix, multiplier }) => {
+      // Primary: computed average from real ESPN player data (written by stat-leaderboard route)
+      try {
+        const computed = await redis.get(`tour-avg:computed:v1:${key}`);
+        if (computed) {
+          console.log(`[tour-avg] key=${key} source=computed value=${computed}`);
+          results[key] = computed;
+          return;
+        }
+      } catch { /* ignore */ }
+
+      // Secondary: PGA Tour GQL statDetails
       const raw = await fetchStatTourAvg(statId);
       if (!raw) {
-        console.log(`[tour-avg] statId=${statId} key=${key} GQL returned null — using fallback=${results[key] ?? 'none'}`);
+        console.log(`[tour-avg] key=${key} source=fallback value=${results[key] ?? 'none'}`);
         return;
       }
       let val = raw.trim();
@@ -70,7 +82,7 @@ export async function fetchTourAverages(): Promise<StatAverages> {
         if (!isNaN(num)) val = (num * multiplier).toFixed(1);
       }
       if (suffix && !val.endsWith(suffix)) val = `${val}${suffix}`;
-      console.log(`[tour-avg] statId=${statId} key=${key} GQL=${raw} -> ${val}`);
+      console.log(`[tour-avg] key=${key} source=GQL gqlRaw=${raw} value=${val}`);
       results[key] = val;
     })
   );

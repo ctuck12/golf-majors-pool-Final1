@@ -200,6 +200,17 @@ export async function GET(request: Request) {
     if (entries.length > 0) {
       try { await redis.setex(cacheKey, 3600, JSON.stringify(entries)); } catch { /* ignore */ }
     }
+
+    // Compute and cache tour average from real player data so tour-averages route can use it
+    if (playerValues.length > 0) {
+      try {
+        const sum = playerValues.reduce((acc, p) => acc + p.value, 0);
+        const avg = sum / playerValues.length;
+        const avgStr = formatValue(avg, statKey);
+        await redis.setex(`tour-avg:computed:v1:${statKey}`, 3600, avgStr);
+      } catch { /* ignore */ }
+    }
+
     return Response.json({ entries });
   } catch {
     return Response.json({ entries: [] });
