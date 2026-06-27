@@ -40,8 +40,8 @@ function mapStat(
     case '104': acc.puttAverage = v; break;  // putts/GIR — display layer multiplies ×18
     case '106': acc.scrambling = withPercent(v); break;
     case '130': acc.scrambling = withPercent(v); break;
-    case '107': acc.sandSaves = withPercent(v); break;
-    case '111': acc.sandSaves = withPercent(v); break;
+    // 107/111: PGA playerProfileStats returns a different internal metric (~50%) that
+    // doesn't match their own public leaderboard. Use ESPN averageDisplayValue instead.
     case '108': acc.scoringAverage = v; break;
     case '02675': acc.sgTeeToGreen = v; break;
     case '02674': acc.sgTotal = v; break;   // SG: Tee-to-Green / Total (playerProfile)
@@ -209,7 +209,8 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
     // For course stats with missing ranks or values, try the statLeaderboard fallback.
     // Stat 103 (GIR): playerProfileStats returns an incorrect internal metric — always
     // override with statLeaderboard which matches the official PGA Tour leaderboard.
-    const COURSE_STAT_IDS = ['101', '102', '103', '106', '107', '130', '111', '108', '104'];
+    // 107/111 (sandSaves) excluded — playerProfileStats/statLeaderboard return unreliable values; use ESPN instead
+    const COURSE_STAT_IDS = ['101', '102', '103', '106', '130', '108', '104'];
     const ALWAYS_USE_LB = new Set(['103']);
     const missingStatIds = COURSE_STAT_IDS.filter((id) => {
       if (ALWAYS_USE_LB.has(id)) return true;
