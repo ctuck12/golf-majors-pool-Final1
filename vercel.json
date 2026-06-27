@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/refresh-scores",
       "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/cron/warm-stat-caches",
+      "schedule": "0 * * * *"
     }
   ]
 }
