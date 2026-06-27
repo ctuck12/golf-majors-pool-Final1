@@ -231,29 +231,24 @@ async function fetchFromLeaderboardCache(): Promise<StatAverages> {
 }
 
 export async function fetchTourAverages(): Promise<StatAverages> {
-  // Primary: PGA Tour GQL statLeaderboard — fetches all player rows, averages them.
-  // This is the same endpoint used by pga-player-stats.ts for individual player lookups
-  // and is confirmed reachable from Vercel.
-  try {
-    const gqlResults = await fetchFromGqlLeaderboard();
-    if (Object.keys(gqlResults).length >= 4) {
-      return gqlResults;
-    }
-    console.log(`[tour-avg] gql-lb returned only ${Object.keys(gqlResults).length} stats, trying redis lb-cache`);
-  } catch (err) {
-    console.log(`[tour-avg] gql-lb failed: ${err}`);
-  }
+  // Always read lb-cache (populated by stat-leaderboard route) in parallel with GQL.
+  // GQL covers most stats but not sandSaves (stat 107 excluded — unreliable).
+  // lb-cache fills the gaps, especially sandSaves computed from ESPN Core types/2.
+  const [gqlResults, lbResults] = await Promise.allSettled([
+    fetchFromGqlLeaderboard(),
+    fetchFromLeaderboardCache(),
+  ]);
 
-  // Secondary: Redis keys populated by stat-leaderboard route as side effect
-  try {
-    const lbResults = await fetchFromLeaderboardCache();
-    if (Object.keys(lbResults).length >= 4) {
-      return lbResults;
-    }
-    console.log(`[tour-avg] lb-cache returned only ${Object.keys(lbResults).length} stats, falling back to ESPN computed`);
-  } catch (err) {
-    console.log(`[tour-avg] lb-cache failed: ${err}`);
+  const gql = gqlResults.status === 'fulfilled' ? gqlResults.value : {};
+  const lb = lbResults.status === 'fulfilled' ? lbResults.value : {};
+
+  // lb-cache wins over GQL where both have a value (lb-cache uses confirmed ESPN Core data)
+  const merged = { ...gql, ...lb };
+  if (Object.keys(merged).length >= 4) {
+    return merged;
   }
+  console.log(`[tour-avg] gql+lb-cache returned only ${Object.keys(merged).length} stats, falling back to ESPN computed`);
+
 
   // Fallback: compute mean from all PGA Tour player ESPN overview stats
   try {
