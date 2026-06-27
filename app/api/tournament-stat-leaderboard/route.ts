@@ -19,6 +19,9 @@ const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; deci
   { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scrambPct', isPercent: true, decimals: 1 },
   { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1 },
+  { key: 'sandSaves', espnName: 'sandSavePct', isPercent: true, decimals: 1 },
+  { key: 'sandSaves', espnName: 'sandSave', isPercent: true, decimals: 1 },
+  { key: 'sandSaves', espnName: 'bunkerSavePct', isPercent: true, decimals: 1 },
   { key: 'puttAverage', espnName: 'puttsGirAvg', isPercent: false, decimals: 3 },
   { key: 'sgTotal', espnName: 'strokesGainedTotal', isPercent: false, decimals: 3 },
   { key: 'sgTotal', espnName: 'sgTotal', isPercent: false, decimals: 3 },
@@ -40,9 +43,9 @@ function statNumeric(stats: Stat[], name: string): number | null {
   if (s.value != null && !isNaN(s.value) && s.value !== 0) return s.value;
   const dv = parseFloat(s.displayValue ?? '');
   if (!isNaN(dv) && dv !== 0) return dv;
-  if (s.average != null && !isNaN(s.average) && s.average !== 0) return s.average;
   const av = parseFloat(s.averageDisplayValue ?? '');
   if (!isNaN(av) && av !== 0) return av;
+  if (s.average != null && !isNaN(s.average) && s.average !== 0) return s.average;
   return null;
 }
 
@@ -132,7 +135,7 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!statKey || !eventId) return Response.json({ entries: [] });
 
-  const cacheKey = `tourn-stat-lb:v8:${eventId}:${statKey}`;
+  const cacheKey = `tourn-stat-lb:v9:${eventId}:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });

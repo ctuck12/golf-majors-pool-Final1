@@ -64,10 +64,10 @@ function statNumeric(stats: Stat[], name: string): number | null {
   // Secondary: parse displayValue (e.g. "78.2" or "78.2%")
   const dv = parseFloat(s.displayValue ?? '');
   if (!isNaN(dv) && dv !== 0) return dv;
-  // Tertiary: average field (used by ESPN for sand saves and some other % stats)
-  if (s.average != null && !isNaN(s.average) && s.average !== 0) return s.average;
+  // averageDisplayValue before average — average may be a raw decimal (0.625) while averageDisplayValue has the display string (62.5)
   const av = parseFloat(s.averageDisplayValue ?? '');
   if (!isNaN(av) && av !== 0) return av;
+  if (s.average != null && !isNaN(s.average) && s.average !== 0) return s.average;
   return null;
 }
 
@@ -153,7 +153,7 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v11:${statKey}`;
+  const cacheKey = `stat-lb:v12:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });
