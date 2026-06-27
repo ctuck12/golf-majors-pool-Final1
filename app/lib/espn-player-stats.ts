@@ -375,8 +375,11 @@ async function fetchOverview(espnId: string): Promise<Overview | null> {
 async function fetchCoreAthleteSeasonStats(espnId: string): Promise<Stat[] | null> {
   const year = new Date().getFullYear();
   const urls = [
+    `${ESPN_CORE}/pga/seasons/${year}/types/2/athletes/${espnId}/statistics/0`,
+    `${ESPN_CORE}/pga/seasons/${year}/types/2/athletes/${espnId}/statistics`,
     `${ESPN_CORE}/pga/seasons/${year}/athletes/${espnId}/statistics/0`,
     `${ESPN_CORE}/pga/seasons/${year}/athletes/${espnId}/statistics`,
+    `${ESPN_CORE}/pga/seasons/${year - 1}/types/2/athletes/${espnId}/statistics/0`,
     `${ESPN_CORE}/pga/seasons/${year - 1}/athletes/${espnId}/statistics/0`,
     `${ESPN_CORE}/pga/athletes/${espnId}/statistics/0`,
     `${ESPN_CORE}/pga/athletes/${espnId}/statistics`,
@@ -447,6 +450,7 @@ export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats 
       stats.sandSaves =
         statAvgVal(coreStats, 'sandSaves', '%') ??
         statAvgVal(coreStats, 'sandSavePct', '%') ??
+        statVal(coreStats, 'savePct', '%') ??
         statVal(coreStats, 'sandSaves', '%') ??
         statVal(coreStats, 'sandSavePct', '%') ??
         statVal(coreStats, 'sandSave', '%') ??

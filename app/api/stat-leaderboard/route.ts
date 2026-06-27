@@ -27,6 +27,7 @@ const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; deci
   { key: 'scrambling', espnName: 'scramblingPct', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scrambPct', isPercent: true, decimals: 1 },
+  { key: 'sandSaves', espnName: 'savePct', isPercent: true, decimals: 1 },
   { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1 },
   { key: 'sandSaves', espnName: 'sandSavePct', isPercent: true, decimals: 1 },
   { key: 'sandSaves', espnName: 'sandSave', isPercent: true, decimals: 1 },
