@@ -25,6 +25,24 @@ export async function GET() {
   const sandSavesIdx = statisticsNames.findIndex((n: string) => /sand save/i.test(n));
   const pgaSplit = statisticsSplits.find((s: { displayName?: string }) => s.displayName?.includes('PGA')) ?? statisticsSplits[0];
 
+  // Also check ESPN Core season stats
+  let coreStats = null;
+  let coreError = null;
+  try {
+    const coreRes = await fetch(
+      `https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/seasons/2026/athletes/${espnId}/statistics/0`,
+      { cache: 'no-store' }
+    );
+    coreStats = await coreRes.json();
+  } catch (e) {
+    coreError = String(e);
+  }
+
+  // Find sand saves in core stats
+  const coreCategories = coreStats?.splits?.categories ?? [];
+  const coreSandSaves = coreCategories.flatMap((cat: { stats?: unknown[] }) => cat.stats ?? [])
+    .filter((s: { name?: string }) => /sand/i.test(s.name ?? ''));
+
   return Response.json({
     espnId,
     sandSavesStat,
@@ -34,5 +52,8 @@ export async function GET() {
     sandSavesFromSplits: sandSavesIdx >= 0 ? pgaSplit?.stats?.[sandSavesIdx] : null,
     pgaSplitName: pgaSplit?.displayName,
     summaryStats: overview?.summaryStatistics?.filter((s: { name?: string }) => s.name?.toLowerCase().includes('sand')) ?? [],
+    coreError,
+    coreAllCategoryNames: coreCategories.map((c: { name?: string; displayName?: string }) => ({ name: c.name, displayName: c.displayName })),
+    coreSandSaves,
   });
 }
