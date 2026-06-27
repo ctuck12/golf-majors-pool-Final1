@@ -193,12 +193,12 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Shane Lowry': 'ie', 'Seamus Power': 'ie', 'Padraig Harrington': 'ie',
   'Niall Kearney': 'ie', 'John Murphy': 'ie',
   // Sweden
-  'Ludvig Aberg': 'se', 'Alex Noren': 'se', 'Henrik Stenson': 'se',
+  'Ludvig Aberg': 'se', 'Ludvig Åberg': 'se', 'Alex Noren': 'se', 'Henrik Stenson': 'se',
   'Joakim Lagergren': 'se', 'Jesper Svensson': 'se',
   // Norway
   'Viktor Hovland': 'no', 'Kristoffer Ventura': 'no', 'Kristoffer Reitan': 'no',
   // Denmark
-  'Thorbjorn Olesen': 'dk', 'Rasmus Hojgaard': 'dk', 'Nicolai Hojgaard': 'dk',
+  'Thorbjorn Olesen': 'dk', 'Rasmus Hojgaard': 'dk', 'Rasmus Højgaard': 'dk', 'Nicolai Hojgaard': 'dk', 'Nicolai Højgaard': 'dk',
   'Jeff Winther': 'dk', 'Niklas Norgaard': 'dk', 'Rasmus Neergaard-Petersen': 'dk', 'Niklas Norgaard Moller': 'dk',
   // Spain
   'Jon Rahm': 'es', 'Sergio Garcia': 'es', 'Adrian Otaegui': 'es',
@@ -8355,8 +8355,13 @@ export default function Page() {
                   statLeaderboardModal.entries.map((entry, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < statLeaderboardModal.entries!.length - 1 ? '1px solid #f0f4f8' : 'none' }}>
                       <div style={{ width: 28, fontSize: 12, fontWeight: 800, color: i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af', flexShrink: 0 }}>{entry.rank}</div>
-                      {getFlagSrc(entry.name) && <img src={getFlagSrc(entry.name)} alt="" style={{ height: 14, borderRadius: 2, marginRight: 7, flexShrink: 0 }} />}
                       <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0f1720' }}>{entry.name}</div>
+                      {getFlagSrc(entry.name) && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 6, marginRight: 10, flexShrink: 0 }}>
+                          <img src={getFlagSrc(entry.name)} alt="" style={{ height: 14, borderRadius: 2, border: '1px solid #d1d9e0', flexShrink: 0 }} />
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#607282', letterSpacing: '0.04em' }}>{getCountryLabel(entry.name)}</span>
+                        </div>
+                      )}
                       <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{entry.value}</div>
                     </div>
                   ))
