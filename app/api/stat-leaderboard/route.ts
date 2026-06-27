@@ -122,8 +122,15 @@ async function fetchCoreSandSavesPct(espnId: string): Promise<number | null> {
     const url = `${ESPN_CORE}/seasons/${CURRENT_YEAR}/types/2/athletes/${espnId}/statistics/0`;
     const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
     if (!res.ok) return null;
-    const data = await res.json() as { splits?: { categories?: Array<{ stats?: Stat[] }> } };
-    const stats: Stat[] = data?.splits?.categories?.[0]?.stats ?? [];
+    const data = await res.json() as {
+      splits?: { categories?: Array<{ stats?: Stat[] }> } | Array<{ stats?: Stat[] }>;
+    };
+    let stats: Stat[] = [];
+    if (data?.splits && !Array.isArray(data.splits)) {
+      stats = (data.splits as { categories?: Array<{ stats?: Stat[] }> }).categories?.[0]?.stats ?? [];
+    } else if (Array.isArray(data?.splits)) {
+      stats = (data.splits as Array<{ stats?: Stat[] }>)[0]?.stats ?? [];
+    }
     const s = stats.find((x) => x.name === 'savePct');
     if (s?.value && !isNaN(s.value) && s.value > 0) return s.value;
     const dv = parseFloat(s?.displayValue ?? '');
@@ -173,7 +180,7 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v13:${statKey}`;
+  const cacheKey = `stat-lb:v14:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });
