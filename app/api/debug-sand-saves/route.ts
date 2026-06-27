@@ -83,8 +83,8 @@ export async function GET() {
     const profileData = await profileRes.json();
     const groups = profileData?.data?.playerProfileStats ?? [];
     const allStats = Array.isArray(groups) ? groups.flatMap((g: { stats?: unknown[] }) => g.stats ?? []) : [];
-    const stat107 = allStats.find((s: { statId?: string }) => s.statId === '107');
-    const stat111 = allStats.find((s: { statId?: string }) => s.statId === '111');
+    const stat107 = (allStats as Array<{ statId?: string; value?: unknown; displayValue?: unknown; rank?: unknown }>).find((s) => s.statId === '107');
+    const stat111 = (allStats as Array<{ statId?: string; value?: unknown; displayValue?: unknown; rank?: unknown }>).find((s) => s.statId === '111');
     pgaProfileResult = { status: profileRes.status, stat107, stat111, statCount: allStats.length, errors: profileData?.errors };
   } catch (e) {
     pgaProfileResult = { error: String(e) };
