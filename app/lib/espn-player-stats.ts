@@ -175,20 +175,21 @@ function extractSeason(data: Overview): PlayerStats {
     statNumVal(cats, 'scrambling', '%') ??
     statNumVal(cats, 'scramblingPct', '%');
 
+  // ESPN stores sandSaves displayValue as a raw fraction (e.g. "0.500") while
+  // averageDisplayValue holds the true percentage ("62.5"). Always prefer averageDisplayValue.
   const sandSaves =
-    statVal(cats, 'sandSaves', '%') ??
-    statVal(cats, 'sandSavePct', '%') ??
-    statVal(cats, 'sandSave', '%') ??
-    statVal(cats, 'bunkerSavePct', '%') ??
+    statAvgVal(cats, 'sandSaves', '%') ??
+    statAvgVal(cats, 'sandSavePct', '%') ??
+    statAvgVal(cats, 'sandSave', '%') ??
+    statAvgVal(cats, 'bunkerSavePct', '%') ??
     summaryStatVal(sumStats, 'sandSaves', '%') ??
     summaryStatVal(sumStats, 'sandSavePct', '%') ??
     splitStatVal(/sand save/i, '%') ??
     splitStatVal(/bunker save/i, '%') ??
-    statNumVal(cats, 'sandSaves', '%') ??
-    statNumVal(cats, 'sandSavePct', '%') ??
-    statAvgVal(cats, 'sandSaves', '%') ??
-    statAvgVal(cats, 'sandSavePct', '%') ??
-    statAvgVal(cats, 'sandSave', '%');
+    statVal(cats, 'sandSaves', '%') ??
+    statVal(cats, 'sandSavePct', '%') ??
+    statVal(cats, 'sandSave', '%') ??
+    statVal(cats, 'bunkerSavePct', '%');
 
   const SEASON_STAT_LABEL_MAP: Record<string, string> = {
     yardsPerDrive: 'Drive Dist',
