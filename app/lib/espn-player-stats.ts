@@ -427,7 +427,8 @@ export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats 
   // Sand saves: ESPN overview sandSaves.displayValue = "0" (wrong), value field may be decimal.
   // Try overview value field directly first, then core stats.
   if (!stats.sandSaves) {
-    const sandSavesOverviewStat = getStat(cats, 'sandSaves') ?? getStat(cats, 'sandSavePct') ?? getStat(cats, 'sandSave') ?? getStat(cats, 'bunkerSavePct');
+    const overviewCats = overviewData.seasonRankings?.categories ?? [];
+    const sandSavesOverviewStat = getStat(overviewCats, 'sandSaves') ?? getStat(overviewCats, 'sandSavePct') ?? getStat(overviewCats, 'sandSave') ?? getStat(overviewCats, 'bunkerSavePct');
     if (sandSavesOverviewStat?.value && sandSavesOverviewStat.value > 0 && sandSavesOverviewStat.value < 1.5) {
       // Raw decimal (e.g. 0.625 = 62.5%)
       stats.sandSaves = `${(sandSavesOverviewStat.value * 100).toFixed(1)}%`;
