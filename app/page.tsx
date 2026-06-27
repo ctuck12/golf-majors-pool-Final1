@@ -1191,7 +1191,7 @@ export default function Page() {
   } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
   const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
-  const [statLeaderboardModal, setStatLeaderboardModal] = useState<{ label: string; statKey: string; subtitle: string; entries: { rank: number; name: string; value: string }[] | null } | null>(null);
+  const [statLeaderboardModal, setStatLeaderboardModal] = useState<{ label: string; statKey: string; subtitle: string; tourAvg: string | null; entries: { rank: number; name: string; value: string }[] | null } | null>(null);
   useEffect(() => {
     if (!pickHistoryPlayerPopup) return;
     const scrollY = window.scrollY;
@@ -8343,6 +8343,11 @@ export default function Page() {
                 <div>
                   <div style={{ fontSize: 9, fontWeight: 700, color: '#607282', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{statLeaderboardModal.subtitle}</div>
                   <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>{statLeaderboardModal.label}</div>
+                  {statLeaderboardModal.tourAvg && (
+                    <div style={{ marginTop: 4, fontSize: 11, color: '#8fa3b1' }}>
+                      Tour Avg: <span style={{ fontWeight: 700, color: '#b8cad6' }}>{statLeaderboardModal.tourAvg}</span>
+                    </div>
+                  )}
                 </div>
                 <button onClick={() => setStatLeaderboardModal(null)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 999, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 16, fontWeight: 700 }}>×</button>
               </div>
@@ -8592,7 +8597,7 @@ export default function Page() {
                               const avg = avgKey ? avgs[avgKey] : undefined;
                               const rank = rankKey ? getRank(rankKey, value) : null;
                               return (
-                                <div key={label} onClick={() => { if (rankKey) { const lbEventId = TOURNAMENT_ESPN_EVENT_IDS[careerTournamentId]; const url = isTournView && lbEventId ? `/api/tournament-stat-leaderboard?statKey=${rankKey}&eventId=${lbEventId}` : `/api/stat-leaderboard?statKey=${rankKey}`; const subtitle = isTournView ? 'Tournament Leaders' : 'Season Leaders'; setStatLeaderboardModal({ label, statKey: rankKey, subtitle, entries: null }); fetch(url).then(r => r.json()).then(d => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: d.entries ?? [] } : prev)).catch(() => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: [] } : prev)); } }} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', cursor: rankKey ? 'pointer' : 'default' }}>
+                                <div key={label} onClick={() => { if (rankKey) { const lbEventId = TOURNAMENT_ESPN_EVENT_IDS[careerTournamentId]; const url = isTournView && lbEventId ? `/api/tournament-stat-leaderboard?statKey=${rankKey}&eventId=${lbEventId}` : `/api/stat-leaderboard?statKey=${rankKey}`; const subtitle = isTournView ? 'Tournament Leaders' : 'Season Leaders'; setStatLeaderboardModal({ label, statKey: rankKey, subtitle, tourAvg: null, entries: null }); fetch(url).then(r => r.json()).then(d => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, tourAvg: d.tourAvg ?? null, entries: d.entries ?? [] } : prev)).catch(() => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: [] } : prev)); } }} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', cursor: rankKey ? 'pointer' : 'default' }}>
                                   <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
                                   <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
                                     {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>({rank})</span>}
@@ -8611,7 +8616,7 @@ export default function Page() {
                             {sgStatCells.map(({ label, value, rankKey }) => {
                               const rank = rankKey ? getRank(rankKey, value) : null;
                               return (
-                                <div key={label} onClick={() => { if (rankKey) { const lbEventId = TOURNAMENT_ESPN_EVENT_IDS[careerTournamentId]; const url = isTournView && lbEventId ? `/api/tournament-stat-leaderboard?statKey=${rankKey}&eventId=${lbEventId}` : `/api/stat-leaderboard?statKey=${rankKey}`; const subtitle = isTournView ? 'Tournament Leaders' : 'Season Leaders'; setStatLeaderboardModal({ label: `SG: ${label}`, statKey: rankKey, subtitle, entries: null }); fetch(url).then(r => r.json()).then(d => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: d.entries ?? [] } : prev)).catch(() => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: [] } : prev)); } }} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', cursor: rankKey ? 'pointer' : 'default' }}>
+                                <div key={label} onClick={() => { if (rankKey) { const lbEventId = TOURNAMENT_ESPN_EVENT_IDS[careerTournamentId]; const url = isTournView && lbEventId ? `/api/tournament-stat-leaderboard?statKey=${rankKey}&eventId=${lbEventId}` : `/api/stat-leaderboard?statKey=${rankKey}`; const subtitle = isTournView ? 'Tournament Leaders' : 'Season Leaders'; setStatLeaderboardModal({ label: `SG: ${label}`, statKey: rankKey, subtitle, tourAvg: null, entries: null }); fetch(url).then(r => r.json()).then(d => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, tourAvg: d.tourAvg ?? null, entries: d.entries ?? [] } : prev)).catch(() => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: [] } : prev)); } }} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', cursor: rankKey ? 'pointer' : 'default' }}>
                                   <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
                                   <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
                                     {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>({rank})</span>}

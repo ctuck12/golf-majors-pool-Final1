@@ -253,17 +253,18 @@ export async function GET(request: Request) {
     }
 
     // Store tour average (mean of all players with data) for use by tour-averages endpoint
+    let tourAvg: string | null = null;
     if (playerValues.length > 0) {
       try {
         const sum = playerValues.reduce((acc, p) => acc + p.value, 0);
         const avg = sum / playerValues.length;
-        const avgStr = formatValue(avg, statKey);
-        await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, avgStr);
-        console.log(`[stat-lb] stored tour-avg key=${statKey} avg=${avgStr} n=${playerValues.length}`);
+        tourAvg = formatValue(avg, statKey);
+        await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg);
+        console.log(`[stat-lb] stored tour-avg key=${statKey} avg=${tourAvg} n=${playerValues.length}`);
       } catch { /* ignore */ }
     }
 
-    return Response.json({ entries });
+    return Response.json({ entries, tourAvg });
   } catch {
     return Response.json({ entries: [] });
   }
