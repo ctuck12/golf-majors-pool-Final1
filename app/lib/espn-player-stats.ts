@@ -457,6 +457,26 @@ export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats 
         null;
     }
   }
+  // Scrambling: ESPN overview returns 0/null for this stat (internal formula mismatch).
+  // Try ESPN Core types/2 which has the correct season value.
+  if (!stats.scrambling && coreStats) {
+    const SCRAMBLE_NAMES = ['scramblingPct', 'scrambling', 'scramblePct', 'scrmblPct', 'upAndDown', 'upAndDownPct'];
+    const scrambCoreStat = coreStats.find((s) => SCRAMBLE_NAMES.some((n) => s.name?.toLowerCase() === n.toLowerCase()));
+    if (scrambCoreStat) {
+      const raw = scrambCoreStat.value;
+      if (raw && !isNaN(raw) && raw > 0) {
+        if (raw < 1) stats.scrambling = `${(raw * 100).toFixed(2)}%`;
+        else if (raw >= 30 && raw <= 100) stats.scrambling = `${raw.toFixed(2)}%`;
+      }
+    }
+    if (!stats.scrambling) {
+      stats.scrambling =
+        statVal(coreStats, 'scramblingPct', '%') ??
+        statVal(coreStats, 'scrambling', '%') ??
+        statVal(coreStats, 'scramblePct', '%') ??
+        null;
+    }
+  }
   return Object.values(stats).some((v) => v !== null) ? stats : null;
 }
 

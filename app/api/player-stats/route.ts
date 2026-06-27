@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v51:season:${seasonYear}:${name}`;
+    : `player-stats:v52:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v51:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v52:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -111,19 +111,17 @@ export async function GET(request: Request) {
     const pgaRanks: PlayerStatRanks = pgaResult?.ranks ?? {};
 
     // ESPN ranks win for driving stats (ESPN values are more reliable there).
-    // PGA Tour GQL ranks win for GIR/scrambling/sandSaves — ESPN uses a different formula
-    // that produces wrong values and ranks for these three stats.
+    // Scrambling rank is NOT included here — playerProfileStats rank for stat 106 is wrong,
+    // and ESPN overview rank is also based on their wrong formula. The rank will be absent
+    // until the stat-leaderboard route computes it from ESPN Core types/2.
     const ESPN_LABEL_TO_FIELD: Record<string, string> = {
       'Sand Saves%': 'sandSaves',
-      'Scrambling%': 'scrambling',
       'GIR%': 'gir',
       'Drive Dist': 'drivingDistance',
       'Drive Acc': 'drivingAccuracy',
       'Putts/Green': 'puttAverage',
       'Birdies/Rd': 'birdiesPerRound',
     };
-    // Stats where PGA Tour GQL rank is authoritative — do not let ESPN override when PGA has a value
-    const PGA_AUTHORITATIVE = new Set(['scrambling']);
     const espnLabelRanks = espnStats?.statRanks ?? {};
     const mergedSeasonRanks: PlayerStatRanks = { ...pgaRanks };
     for (const [label, rankStr] of Object.entries(espnLabelRanks)) {
@@ -131,22 +129,16 @@ export async function GET(request: Request) {
       if (!field || !rankStr) continue;
       const num = parseInt(rankStr);
       if (isNaN(num) || num <= 0) continue;
-      // Don't overwrite PGA Tour rank for GIR/scrambling/sandSaves — ESPN formula is unreliable
-      if (PGA_AUTHORITATIVE.has(field) && mergedSeasonRanks[field]) continue;
       mergedSeasonRanks[field] = String(num);
     }
     const ranks: PlayerStatRanks | null = Object.keys(mergedSeasonRanks).length > 0 ? mergedSeasonRanks : null;
 
-    // ESPN wins the merge for most stats (more reliable driving distance/accuracy values).
-    // But override GIR/scrambling/sandSaves back to PGA Tour GQL values when available —
-    // ESPN computes these with a different formula that produces incorrect percentages.
+    // ESPN wins the merge for most stats (more reliable values).
+    // Do NOT override scrambling with pgaStats — playerProfileStats stats 106/130 return an
+    // internal metric (~60%) that doesn't match pgatour.com. ESPN Core types/2 in espnStats
+    // provides the correct value via fetchPlayerSeasonStats.
+    // Similarly, sandSaves: pgaStats stat 107 returns a different internal metric.
     const merged = (espnStats || pgaStats) ? mergeStats(pgaStats, espnStats) : null;
-    if (merged && pgaStats) {
-      if (pgaStats.scrambling) merged.scrambling = pgaStats.scrambling;
-      // sandSaves: do NOT override with pgaStats — playerProfileStats stat 107 returns a different
-      // internal metric (~50%) that differs from the official PGA Tour leaderboard (60-63%).
-      // ESPN's averageDisplayValue is closer to the official value.
-    }
 
     const stats = merged;
 

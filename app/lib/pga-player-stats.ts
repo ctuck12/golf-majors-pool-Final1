@@ -38,8 +38,8 @@ function mapStat(
     case '102': acc.drivingAccuracy = withPercent(v); break;
     case '103': acc.gir = withPercent(v); break;
     case '104': acc.puttAverage = v; break;  // putts/GIR — display layer multiplies ×18
-    case '106': acc.scrambling = withPercent(v); break;
-    case '130': acc.scrambling = withPercent(v); break;
+    // stat 106: playerProfileStats internal metric (~60%), omitted — ESPN Core types/2 is correct source
+    // stat 130: playerProfileStats internal metric, omitted — ESPN Core types/2 is correct source
     // 107/111: PGA playerProfileStats returns a different internal metric (~50%) that
     // doesn't match their own public leaderboard. Use ESPN averageDisplayValue instead.
     case '108': acc.scoringAverage = v; break;
@@ -195,12 +195,14 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
 
     const acc: Partial<PlayerStats> = {};
     const ranks: PlayerStatRanks = {};
+    // Stats whose playerProfileStats rank is unreliable — value/rank come from ESPN Core types/2
+    const SKIP_PROFILE_RANK = new Set(['scrambling']);
     for (const stat of stats) {
       if (stat.statId) {
         mapStat(stat.statId, stat.value ?? stat.displayValue, acc);
         const field = STAT_ID_TO_FIELD[stat.statId];
         const rankNum = parseInt(String(stat.rank ?? ''));
-        if (field && !isNaN(rankNum) && rankNum > 0) {
+        if (field && !isNaN(rankNum) && rankNum > 0 && !SKIP_PROFILE_RANK.has(field)) {
           ranks[field] = String(rankNum);
         }
       }
@@ -210,10 +212,10 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
     // Stat 103 (GIR): playerProfileStats returns an incorrect internal metric — always
     // override with statLeaderboard which matches the official PGA Tour leaderboard.
     // 107/111 (sandSaves) excluded — playerProfileStats/statLeaderboard return unreliable values; use ESPN instead
-    const COURSE_STAT_IDS = ['101', '102', '103', '130', '108', '104'];
+    const COURSE_STAT_IDS = ['101', '102', '103', '108', '104'];
     // playerProfileStats returns incorrect internal metrics for these stats — always
     // override with statLeaderboard which matches the official PGA Tour leaderboard.
-    const ALWAYS_USE_LB = new Set(['103', '130']);
+    const ALWAYS_USE_LB = new Set(['103']);
     const missingStatIds = COURSE_STAT_IDS.filter((id) => {
       if (ALWAYS_USE_LB.has(id)) return true;
       const field = STAT_ID_TO_FIELD[id];

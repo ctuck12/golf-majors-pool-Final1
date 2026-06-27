@@ -17,7 +17,6 @@ const GQL_LB_STAT_MAP: Array<{ statId: string; key: string; suffix?: string; mul
   { statId: '101', key: 'drivingDistance', decimals: 1 },
   { statId: '102', key: 'drivingAccuracy', suffix: '%', decimals: 1 },
   { statId: '103', key: 'gir', suffix: '%', decimals: 2 },
-  { statId: '130', key: 'scrambling', suffix: '%', decimals: 2 },
   { statId: '107', key: 'sandSaves', suffix: '%', decimals: 2 },
   { statId: '108', key: 'scoringAverage', decimals: 2 },
   { statId: '104', key: 'puttAverage', decimals: 3 },
