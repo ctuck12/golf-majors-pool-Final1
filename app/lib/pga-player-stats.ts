@@ -257,9 +257,14 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
         if (Array.isArray(dvGroups)) {
           const flat = dvGroups.flatMap((g) => g.stats ?? []);
           const sandSavesStat = flat.find((s) => s.statId === '107');
-          if (sandSavesStat?.displayValue) {
-            mapStat('107', sandSavesStat.displayValue, acc);
-            const rankNum = parseInt(String(sandSavesStat.rank ?? ''));
+          // Use displayValue (human-readable string like "60.6%"), NOT numeric value
+          // which returns a different internal metric (~50%). mapStat is bypassed
+          // because stat 107 is excluded from it to prevent the wrong value from
+          // the primary query from ever being used.
+          const dv = normalizeValue(sandSavesStat?.displayValue);
+          if (dv) {
+            acc.sandSaves = withPercent(dv);
+            const rankNum = parseInt(String(sandSavesStat?.rank ?? ''));
             if (!isNaN(rankNum) && rankNum > 0 && !ranks.sandSaves) {
               ranks.sandSaves = String(rankNum);
             }
