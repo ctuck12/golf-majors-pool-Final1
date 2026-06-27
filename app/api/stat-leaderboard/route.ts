@@ -7,7 +7,7 @@ const TOUR_AVG_LB_PREFIX = 'tour-avg:lb:v1:';
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 const ESPN_OVERVIEW = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
 const BATCH_SIZE = 25;
-const CURRENT_YEAR = 2026;
+const CURRENT_YEAR = new Date().getFullYear();
 
 // Recent PGA Tour major events — used as reliable source of active PGA Tour player IDs
 // (avoids Champions Tour / dual-status players that appear in season athlete lists)
