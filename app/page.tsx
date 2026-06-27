@@ -8358,7 +8358,7 @@ export default function Page() {
                       <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0f1720' }}>{entry.name}</div>
                       {getFlagSrc(entry.name) && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 6, marginRight: 10, flexShrink: 0 }}>
-                          <img src={getFlagSrc(entry.name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0', flexShrink: 0 }} />
+                          <img src={getFlagSrc(entry.name)} alt="" style={{ height: 18, width: 26, objectFit: 'cover', borderRadius: 3, border: '1px solid #d1d9e0', flexShrink: 0 }} />
                           <span style={{ fontSize: 10, fontWeight: 700, color: '#607282', letterSpacing: '0.04em' }}>{getCountryLabel(entry.name)}</span>
                         </div>
                       )}
