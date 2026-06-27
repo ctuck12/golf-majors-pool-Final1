@@ -175,21 +175,32 @@ function extractSeason(data: Overview): PlayerStats {
     statNumVal(cats, 'scrambling', '%') ??
     statNumVal(cats, 'scramblingPct', '%');
 
-  // ESPN stores sandSaves displayValue as a raw fraction (e.g. "0.500") while
-  // averageDisplayValue holds the true percentage ("62.5"). Always prefer averageDisplayValue.
+  // sandSaves: averageDisplayValue has the clean % string ("62.5"); displayValue may be a
+  // raw fraction ("0.500") or percentage ("50.0") from a different formula. Use
+  // averageDisplayValue first, then statistics.splits (confirmed working path), then others.
+  const sandSavesAvgDisplay = (() => {
+    for (const name of ['sandSaves', 'sandSavePct', 'sandSave', 'bunkerSavePct']) {
+      const s = getStat(cats, name);
+      if (!s) continue;
+      const dv = s.averageDisplayValue;
+      if (dv && dv !== '-' && dv !== '--' && !isNaN(parseFloat(dv)) && parseFloat(dv) !== 0) {
+        return `${dv}%`;
+      }
+    }
+    return null;
+  })();
   const sandSaves =
-    statAvgVal(cats, 'sandSaves', '%') ??
-    statAvgVal(cats, 'sandSavePct', '%') ??
-    statAvgVal(cats, 'sandSave', '%') ??
-    statAvgVal(cats, 'bunkerSavePct', '%') ??
-    summaryStatVal(sumStats, 'sandSaves', '%') ??
-    summaryStatVal(sumStats, 'sandSavePct', '%') ??
+    sandSavesAvgDisplay ??
     splitStatVal(/sand save/i, '%') ??
     splitStatVal(/bunker save/i, '%') ??
+    summaryStatVal(sumStats, 'sandSaves', '%') ??
+    summaryStatVal(sumStats, 'sandSavePct', '%') ??
     statVal(cats, 'sandSaves', '%') ??
     statVal(cats, 'sandSavePct', '%') ??
     statVal(cats, 'sandSave', '%') ??
-    statVal(cats, 'bunkerSavePct', '%');
+    statVal(cats, 'bunkerSavePct', '%') ??
+    statAvgVal(cats, 'sandSaves', '%') ??
+    statAvgVal(cats, 'sandSavePct', '%');
 
   const SEASON_STAT_LABEL_MAP: Record<string, string> = {
     yardsPerDrive: 'Drive Dist',
@@ -416,6 +427,8 @@ export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats 
   // Fill in sandSaves from ESPN Core athlete stats if the overview didn't have it
   if (!stats.sandSaves && coreStats) {
     stats.sandSaves =
+      statAvgVal(coreStats, 'sandSaves', '%') ??
+      statAvgVal(coreStats, 'sandSavePct', '%') ??
       statVal(coreStats, 'sandSaves', '%') ??
       statVal(coreStats, 'sandSavePct', '%') ??
       statVal(coreStats, 'sandSave', '%') ??
