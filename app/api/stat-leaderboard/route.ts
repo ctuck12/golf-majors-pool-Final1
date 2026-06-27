@@ -215,24 +215,25 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v17:${statKey}`;
+  const cacheKey = `stat-lb:v18:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) { const parsed = JSON.parse(cached); return Response.json(Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed); }
   } catch { /* ignore */ }
 
   try {
-    // scrambling: PGA Tour GQL statLeaderboard (stat 130) is the authoritative source —
+    // scrambling: PGA Tour GQL statLeaderboard is the authoritative source —
     // same data pgatour.com displays; ESPN uses a different formula that doesn't match.
+    // Try stat 130 first (scrambling %), then 106 as fallback.
     if (statKey === 'scrambling') {
-      const gqlRows = await fetchGqlStatLeaderboard('130');
+      const gqlRows = await fetchGqlStatLeaderboard('130') ?? await fetchGqlStatLeaderboard('106');
       if (gqlRows && gqlRows.length > 0) {
         const top15 = gqlRows.slice(0, 15);
-        const tourAvg = gqlRows.length > 0 ? `${(gqlRows.reduce((s, r) => s + r.value, 0) / gqlRows.length).toFixed(2)}%` : null;
+        const tourAvg = `${(gqlRows.reduce((s, r) => s + r.value, 0) / gqlRows.length).toFixed(2)}%`;
         const entries: StatLeaderboardEntry[] = top15.map((r, i) => ({ rank: i + 1, name: r.name, value: `${r.value.toFixed(2)}%` }));
         if (entries.length > 0) {
           try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
-          if (tourAvg) { try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ } }
+          try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
         }
         return Response.json({ entries, tourAvg });
       }

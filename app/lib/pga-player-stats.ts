@@ -210,8 +210,10 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
     // Stat 103 (GIR): playerProfileStats returns an incorrect internal metric — always
     // override with statLeaderboard which matches the official PGA Tour leaderboard.
     // 107/111 (sandSaves) excluded — playerProfileStats/statLeaderboard return unreliable values; use ESPN instead
-    const COURSE_STAT_IDS = ['101', '102', '103', '106', '130', '108', '104'];
-    const ALWAYS_USE_LB = new Set(['103']);
+    const COURSE_STAT_IDS = ['101', '102', '103', '130', '108', '104'];
+    // playerProfileStats returns incorrect internal metrics for these stats — always
+    // override with statLeaderboard which matches the official PGA Tour leaderboard.
+    const ALWAYS_USE_LB = new Set(['103', '130']);
     const missingStatIds = COURSE_STAT_IDS.filter((id) => {
       if (ALWAYS_USE_LB.has(id)) return true;
       const field = STAT_ID_TO_FIELD[id];
