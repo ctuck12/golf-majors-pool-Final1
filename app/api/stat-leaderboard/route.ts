@@ -24,7 +24,6 @@ const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; deci
   { key: 'gir', espnName: 'greensInRegPct', isPercent: true, decimals: 1 },
   { key: 'gir', espnName: 'greensInReg', isPercent: true, decimals: 1 },
   { key: 'gir', espnName: 'girPct', isPercent: true, decimals: 1 },
-  { key: 'gir', espnName: 'greensHit', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scramblingPct', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
   { key: 'scrambling', espnName: 'scrambPct', isPercent: true, decimals: 1 },
@@ -100,20 +99,29 @@ async function fetchPgaPlayerIds(): Promise<string[]> {
   return Array.from(idSet);
 }
 
-// Fetch overview and return merged seasonRankings.categories + summaryStatistics
-// Different stats live in different sections; merging ensures we find all of them
-async function fetchAthleteOverviewStats(espnId: string): Promise<Stat[] | null> {
+type OverviewData = { seasonRankings?: { categories?: Stat[] }; summaryStatistics?: Stat[] };
+
+// Fetch overview and return the raw data — callers merge categories+summaryStatistics as needed
+async function fetchAthleteOverviewStats(espnId: string): Promise<OverviewData | null> {
   try {
     const res = await fetch(`${ESPN_OVERVIEW}/${espnId}/overview`, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
     if (!res.ok) return null;
-    const data = await res.json() as { seasonRankings?: { categories?: Stat[] }; summaryStatistics?: Stat[] };
-    const cats = data?.seasonRankings?.categories ?? [];
-    const sumStats = data?.summaryStatistics ?? [];
-    const merged = [...cats, ...sumStats];
-    return merged.length > 0 ? merged : null;
+    const data = await res.json() as OverviewData;
+    const hasData = (data?.seasonRankings?.categories?.length ?? 0) > 0 || (data?.summaryStatistics?.length ?? 0) > 0;
+    return hasData ? data : null;
   } catch {
     return null;
   }
+}
+
+// Compute GIR% from raw ESPN counts: greensHit / (totalDrives × 9) × 100
+// totalDrives = 9-hole halves played, so totalDrives × 9 = total holes played
+function computeGirPct(cats: Stat[]): number | null {
+  const gh = cats.find((s) => s.name === 'greensHit');
+  const td = cats.find((s) => s.name === 'totalDrives');
+  if (!gh?.value || !td?.value || td.value <= 2) return null;
+  const pct = (gh.value / (td.value * 9)) * 100;
+  return pct > 40 && pct < 90 ? pct : null;
 }
 
 async function fetchAthleteName(espnId: string): Promise<string> {
@@ -145,7 +153,7 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v10:${statKey}`;
+  const cacheKey = `stat-lb:v11:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });
@@ -159,16 +167,25 @@ export async function GET(request: Request) {
     const playerValues: Array<{ espnId: string; value: number }> = [];
 
     // Fetch overview stats for all players (contains season stats, GIR %, sand saves %, scrambling, etc.)
-    const allOverviewStats = await batchAll(
+    const allOverviewData = await batchAll(
       ids.map((id) => () => fetchAthleteOverviewStats(id)),
       BATCH_SIZE,
     );
 
     for (let i = 0; i < ids.length; i++) {
-      const stats = allOverviewStats[i];
-      if (!stats) continue;
+      const overview = allOverviewData[i];
+      if (!overview) continue;
+      const cats = overview.seasonRankings?.categories ?? [];
+      const merged = [...cats, ...(overview.summaryStatistics ?? [])];
+
+      // GIR: ESPN stores raw greensHit count, not %; compute from greensHit / (totalDrives × 9)
+      if (statKey === 'gir') {
+        const pct = computeGirPct(cats);
+        if (pct !== null) { playerValues.push({ espnId: ids[i], value: pct }); continue; }
+      }
+
       for (const def of defsForKey) {
-        let raw = statNumeric(stats, def.espnName);
+        let raw = statNumeric(merged, def.espnName);
         if (raw === null) continue;
         if (def.altMultiplier) raw = raw * def.altMultiplier;
         playerValues.push({ espnId: ids[i], value: raw });
@@ -177,11 +194,7 @@ export async function GET(request: Request) {
     }
 
     console.log(`[stat-lb] statKey=${statKey} pgaPlayers=${ids.length} withValues=${playerValues.length}`);
-    if (playerValues.length === 0) {
-      const first = allOverviewStats.find(Boolean);
-      if (first) console.log(`[stat-lb] sampleStatNames=${JSON.stringify(first.map((s: Stat) => s.name))}`);
-      return Response.json({ entries: [] });
-    }
+    if (playerValues.length === 0) return Response.json({ entries: [] });
 
     playerValues.sort((a, b) =>
       LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value
