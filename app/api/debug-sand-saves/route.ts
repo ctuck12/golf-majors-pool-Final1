@@ -43,9 +43,13 @@ export async function GET() {
   const coreSandSaves = coreCategories.flatMap((cat: { stats?: unknown[] }) => cat.stats ?? [])
     .filter((s: { name?: string }) => /sand/i.test(s.name ?? ''));
 
+  // Also show ALL fields of sandSavesStat (including value, average, averageDisplayValue)
+  const sandSavesStatFull = cats.find((s: Record<string, unknown>) => s.name === 'sandSaves') ?? null;
+
   return Response.json({
     espnId,
     sandSavesStat,
+    sandSavesStatFull,
     allCatNames: cats.map((c: { name?: string }) => c.name),
     statisticsNames,
     sandSavesIdx,

@@ -424,15 +424,33 @@ export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats 
   ]);
   if (!overviewData) return null;
   const stats = extractSeason(overviewData);
-  // Fill in sandSaves from ESPN Core athlete stats if the overview didn't have it
+  // Sand saves: ESPN overview sandSaves.displayValue = "0" (wrong), value field may be decimal.
+  // Try overview value field directly first, then core stats.
+  if (!stats.sandSaves) {
+    const sandSavesOverviewStat = getStat(cats, 'sandSaves') ?? getStat(cats, 'sandSavePct') ?? getStat(cats, 'sandSave') ?? getStat(cats, 'bunkerSavePct');
+    if (sandSavesOverviewStat?.value && sandSavesOverviewStat.value > 0 && sandSavesOverviewStat.value < 1.5) {
+      // Raw decimal (e.g. 0.625 = 62.5%)
+      stats.sandSaves = `${(sandSavesOverviewStat.value * 100).toFixed(1)}%`;
+    } else if (sandSavesOverviewStat?.value && sandSavesOverviewStat.value >= 1.5) {
+      // Already a percentage (e.g. 62.5)
+      stats.sandSaves = `${sandSavesOverviewStat.value}%`;
+    }
+  }
   if (!stats.sandSaves && coreStats) {
-    stats.sandSaves =
-      statAvgVal(coreStats, 'sandSaves', '%') ??
-      statAvgVal(coreStats, 'sandSavePct', '%') ??
-      statVal(coreStats, 'sandSaves', '%') ??
-      statVal(coreStats, 'sandSavePct', '%') ??
-      statVal(coreStats, 'sandSave', '%') ??
-      null;
+    const sandSavesCoreStat = coreStats.find((s) => /^(sandSaves?|sandSavePct|bunkerSavePct)$/i.test(s.name ?? ''));
+    if (sandSavesCoreStat?.value && sandSavesCoreStat.value > 0 && sandSavesCoreStat.value < 1.5) {
+      stats.sandSaves = `${(sandSavesCoreStat.value * 100).toFixed(1)}%`;
+    } else if (sandSavesCoreStat?.value && sandSavesCoreStat.value >= 1.5) {
+      stats.sandSaves = `${sandSavesCoreStat.value}%`;
+    } else {
+      stats.sandSaves =
+        statAvgVal(coreStats, 'sandSaves', '%') ??
+        statAvgVal(coreStats, 'sandSavePct', '%') ??
+        statVal(coreStats, 'sandSaves', '%') ??
+        statVal(coreStats, 'sandSavePct', '%') ??
+        statVal(coreStats, 'sandSave', '%') ??
+        null;
+    }
   }
   return Object.values(stats).some((v) => v !== null) ? stats : null;
 }
