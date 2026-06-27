@@ -8355,14 +8355,16 @@ export default function Page() {
                   statLeaderboardModal.entries.map((entry, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < statLeaderboardModal.entries!.length - 1 ? '1px solid #f0f4f8' : 'none' }}>
                       <div style={{ width: 28, fontSize: 12, fontWeight: 800, color: i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af', flexShrink: 0 }}>{entry.rank}</div>
-                      <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0f1720' }}>{entry.name}</div>
-                      {getFlagSrc(entry.name) && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 6, marginRight: 10, flexShrink: 0 }}>
-                          <img src={getFlagSrc(entry.name)} alt="" style={{ height: 18, width: 26, objectFit: 'cover', borderRadius: 3, border: '1px solid #d1d9e0', flexShrink: 0 }} />
-                          <span style={{ fontSize: 10, fontWeight: 700, color: '#607282', letterSpacing: '0.04em' }}>{getCountryLabel(entry.name)}</span>
-                        </div>
-                      )}
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{entry.value}</div>
+                      <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#0f1720', whiteSpace: 'nowrap' }}>{entry.name}</span>
+                        {getFlagSrc(entry.name) && (
+                          <>
+                            <img src={getFlagSrc(entry.name)} alt="" style={{ height: 18, width: 26, objectFit: 'cover', borderRadius: 3, border: '1px solid #d1d9e0', flexShrink: 0 }} />
+                            <span style={{ fontSize: 10, fontWeight: 700, color: '#607282', letterSpacing: '0.04em', flexShrink: 0 }}>{getCountryLabel(entry.name)}</span>
+                          </>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720', flexShrink: 0 }}>{entry.value}</div>
                     </div>
                   ))
                 )}
