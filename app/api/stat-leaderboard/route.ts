@@ -180,7 +180,7 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v14:${statKey}`;
+  const cacheKey = `stat-lb:v15:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });
@@ -238,11 +238,11 @@ export async function GET(request: Request) {
     playerValues.sort((a, b) =>
       LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value
     );
-    const top10 = playerValues.slice(0, 10);
+    const top15 = playerValues.slice(0, 15);
 
-    const names = await Promise.all(top10.map((p) => fetchAthleteName(p.espnId)));
+    const names = await Promise.all(top15.map((p) => fetchAthleteName(p.espnId)));
 
-    const entries: StatLeaderboardEntry[] = top10.map((p, i) => ({
+    const entries: StatLeaderboardEntry[] = top15.map((p, i) => ({
       rank: i + 1,
       name: names[i],
       value: formatValue(p.value, statKey),

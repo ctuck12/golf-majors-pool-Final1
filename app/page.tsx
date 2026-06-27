@@ -8355,6 +8355,7 @@ export default function Page() {
                   statLeaderboardModal.entries.map((entry, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < statLeaderboardModal.entries!.length - 1 ? '1px solid #f0f4f8' : 'none' }}>
                       <div style={{ width: 28, fontSize: 12, fontWeight: 800, color: i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af', flexShrink: 0 }}>{entry.rank}</div>
+                      {getFlagSrc(entry.name) && <img src={getFlagSrc(entry.name)} alt="" style={{ height: 14, borderRadius: 2, marginRight: 7, flexShrink: 0 }} />}
                       <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0f1720' }}>{entry.name}</div>
                       <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{entry.value}</div>
                     </div>
