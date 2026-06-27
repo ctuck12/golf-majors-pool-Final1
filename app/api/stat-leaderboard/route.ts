@@ -180,10 +180,10 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v15:${statKey}`;
+  const cacheKey = `stat-lb:v16:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
-    if (cached) return Response.json({ entries: JSON.parse(cached) });
+    if (cached) { const parsed = JSON.parse(cached); return Response.json(Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed); }
   } catch { /* ignore */ }
 
   try {
@@ -248,10 +248,6 @@ export async function GET(request: Request) {
       value: formatValue(p.value, statKey),
     })).filter((e) => e.name);
 
-    if (entries.length > 0) {
-      try { await redis.setex(cacheKey, 3600, JSON.stringify(entries)); } catch { /* ignore */ }
-    }
-
     // Store tour average (mean of all players with data) for use by tour-averages endpoint
     let tourAvg: string | null = null;
     if (playerValues.length > 0) {
@@ -262,6 +258,10 @@ export async function GET(request: Request) {
         await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg);
         console.log(`[stat-lb] stored tour-avg key=${statKey} avg=${tourAvg} n=${playerValues.length}`);
       } catch { /* ignore */ }
+    }
+
+    if (entries.length > 0) {
+      try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
     }
 
     return Response.json({ entries, tourAvg });
