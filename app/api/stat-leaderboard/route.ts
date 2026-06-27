@@ -7,6 +7,7 @@ const TOUR_AVG_LB_PREFIX = 'tour-avg:lb:v1:';
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 const ESPN_OVERVIEW = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
 const BATCH_SIZE = 25;
+const CURRENT_YEAR = 2026;
 
 // Recent PGA Tour major events — used as reliable source of active PGA Tour player IDs
 // (avoids Champions Tour / dual-status players that appear in season athlete lists)
@@ -115,6 +116,24 @@ async function fetchAthleteOverviewStats(espnId: string): Promise<OverviewData |
   }
 }
 
+// Fetch savePct (sand saves %) from ESPN Core types/2 — only reliable source for this stat
+async function fetchCoreSandSavesPct(espnId: string): Promise<number | null> {
+  try {
+    const url = `${ESPN_CORE}/seasons/${CURRENT_YEAR}/types/2/athletes/${espnId}/statistics/0`;
+    const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return null;
+    const data = await res.json() as { splits?: { categories?: Array<{ stats?: Stat[] }> } };
+    const stats: Stat[] = data?.splits?.categories?.[0]?.stats ?? [];
+    const s = stats.find((x) => x.name === 'savePct');
+    if (s?.value && !isNaN(s.value) && s.value > 0) return s.value;
+    const dv = parseFloat(s?.displayValue ?? '');
+    if (!isNaN(dv) && dv > 0) return dv;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 // Compute GIR% from raw ESPN counts: greensHit / (totalDrives × 9) × 100
 // totalDrives = 9-hole halves played, so totalDrives × 9 = total holes played
 function computeGirPct(cats: Stat[]): number | null {
@@ -154,7 +173,7 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v12:${statKey}`;
+  const cacheKey = `stat-lb:v13:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ entries: JSON.parse(cached) });
@@ -173,7 +192,19 @@ export async function GET(request: Request) {
       BATCH_SIZE,
     );
 
+    // sandSaves: savePct only exists in ESPN Core types/2, not overview — fetch per player
+    const allCoreSandSaves = statKey === 'sandSaves'
+      ? await batchAll(ids.map((id) => () => fetchCoreSandSavesPct(id)), BATCH_SIZE)
+      : null;
+
     for (let i = 0; i < ids.length; i++) {
+      // sandSaves: use ESPN Core types/2 savePct directly
+      if (statKey === 'sandSaves') {
+        const pct = allCoreSandSaves?.[i];
+        if (pct !== null && pct !== undefined) { playerValues.push({ espnId: ids[i], value: pct }); }
+        continue;
+      }
+
       const overview = allOverviewData[i];
       if (!overview) continue;
       const cats = overview.seasonRankings?.categories ?? [];
