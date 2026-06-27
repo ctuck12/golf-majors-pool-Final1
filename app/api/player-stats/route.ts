@@ -37,11 +37,11 @@ export async function GET(request: Request) {
 
   const isTournament = context === 'tournament' && eventId;
   const cacheKey = isTournament
-    ? `player-stats:v28:tourn:${eventId}:${name}`
-    : `player-stats:v44:season:2026:${name}`;
+    ? `player-stats:v29:tourn:${eventId}:${name}`
+    : `player-stats:v45:season:2026:${name}`;
   const ranksCacheKey = isTournament
-    ? `player-stats:v28:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v44:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
+    ? `player-stats:v29:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
+    : `player-stats:v45:season:2026:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -122,7 +122,7 @@ export async function GET(request: Request) {
       'Birdies/Rd': 'birdiesPerRound',
     };
     // Stats where PGA Tour GQL rank is authoritative — do not let ESPN override when PGA has a value
-    const PGA_AUTHORITATIVE = new Set(['scrambling', 'sandSaves']);
+    const PGA_AUTHORITATIVE = new Set(['scrambling']);
     const espnLabelRanks = espnStats?.statRanks ?? {};
     const mergedSeasonRanks: PlayerStatRanks = { ...pgaRanks };
     for (const [label, rankStr] of Object.entries(espnLabelRanks)) {
@@ -142,7 +142,9 @@ export async function GET(request: Request) {
     const merged = (espnStats || pgaStats) ? mergeStats(pgaStats, espnStats) : null;
     if (merged && pgaStats) {
       if (pgaStats.scrambling) merged.scrambling = pgaStats.scrambling;
-      if (pgaStats.sandSaves) merged.sandSaves = pgaStats.sandSaves;
+      // sandSaves: do NOT override with pgaStats — playerProfileStats stat 107 returns a different
+      // internal metric (~50%) that differs from the official PGA Tour leaderboard (60-63%).
+      // ESPN's averageDisplayValue is closer to the official value.
     }
 
     const stats = merged;
