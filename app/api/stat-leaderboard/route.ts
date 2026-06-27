@@ -8,6 +8,8 @@ const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 const ESPN_OVERVIEW = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
 const BATCH_SIZE = 25;
 const CURRENT_YEAR = new Date().getFullYear();
+const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
+const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 
 // Recent PGA Tour major events — used as reliable source of active PGA Tour player IDs
 // (avoids Champions Tour / dual-status players that appear in season athlete lists)
@@ -167,6 +169,39 @@ async function fetchAthleteName(espnId: string): Promise<string> {
   }
 }
 
+// Fetch all rows from PGA Tour GQL statLeaderboard for a given stat ID.
+// Returns entries sorted by rank with name and numeric value already parsed.
+async function fetchGqlStatLeaderboard(statId: string): Promise<Array<{ name: string; value: number }> | null> {
+  try {
+    const query = `
+      query StatLeaderboard($statId: ID!) {
+        statLeaderboard(statId: $statId) {
+          rows { rank displayValue player { firstName lastName } }
+        }
+      }
+    `;
+    const res = await fetch(PGA_GQL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': PGA_API_KEY, 'Referer': 'https://www.pgatour.com/', 'Origin': 'https://www.pgatour.com' },
+      body: JSON.stringify({ query, variables: { statId } }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as { data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; displayValue?: string | null; player?: { firstName?: string; lastName?: string } }> } } };
+    const rows = data?.data?.statLeaderboard?.rows;
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+    const entries: Array<{ name: string; value: number }> = [];
+    for (const row of rows) {
+      const firstName = row.player?.firstName ?? '';
+      const lastName = row.player?.lastName ?? '';
+      const name = [firstName, lastName].filter(Boolean).join(' ');
+      const value = parseFloat((row.displayValue ?? '').replace('%', ''));
+      if (name && !isNaN(value) && value !== 0) entries.push({ name, value });
+    }
+    return entries.length > 0 ? entries : null;
+  } catch { return null; }
+}
+
 async function batchAll<T>(tasks: (() => Promise<T>)[], size: number): Promise<T[]> {
   const results: T[] = [];
   for (let i = 0; i < tasks.length; i += size) {
@@ -180,13 +215,29 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v16:${statKey}`;
+  const cacheKey = `stat-lb:v17:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) { const parsed = JSON.parse(cached); return Response.json(Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed); }
   } catch { /* ignore */ }
 
   try {
+    // scrambling: PGA Tour GQL statLeaderboard (stat 130) is the authoritative source —
+    // same data pgatour.com displays; ESPN uses a different formula that doesn't match.
+    if (statKey === 'scrambling') {
+      const gqlRows = await fetchGqlStatLeaderboard('130');
+      if (gqlRows && gqlRows.length > 0) {
+        const top15 = gqlRows.slice(0, 15);
+        const tourAvg = gqlRows.length > 0 ? `${(gqlRows.reduce((s, r) => s + r.value, 0) / gqlRows.length).toFixed(2)}%` : null;
+        const entries: StatLeaderboardEntry[] = top15.map((r, i) => ({ rank: i + 1, name: r.name, value: `${r.value.toFixed(2)}%` }));
+        if (entries.length > 0) {
+          try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
+          if (tourAvg) { try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ } }
+        }
+        return Response.json({ entries, tourAvg });
+      }
+    }
+
     const ids = await fetchPgaPlayerIds();
     if (ids.length === 0) return Response.json({ entries: [] });
 
