@@ -262,7 +262,7 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v19:${statKey}`;
+  const cacheKey = `stat-lb:v20:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) { const parsed = JSON.parse(cached); return Response.json(Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed); }
@@ -317,6 +317,21 @@ export async function GET(request: Request) {
       }
     }
 
+    // sandSaves: try PGA Tour GQL statLeaderboard (stat 111) before falling back to per-player fetch
+    if (statKey === 'sandSaves') {
+      const gqlRows = await fetchGqlStatLeaderboard('111') ?? await fetchGqlStatLeaderboard('107');
+      if (gqlRows && gqlRows.length > 0) {
+        const top15 = gqlRows.slice(0, 15);
+        const tourAvg = `${(gqlRows.reduce((s, r) => s + r.value, 0) / gqlRows.length).toFixed(1)}%`;
+        const entries: StatLeaderboardEntry[] = top15.map((r, i) => ({ rank: i + 1, name: r.name, value: `${r.value.toFixed(1)}%` }));
+        if (entries.length > 0) {
+          try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
+          try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
+        }
+        return Response.json({ entries, tourAvg });
+      }
+    }
+
     const ids = await fetchPgaPlayerIds();
     if (ids.length === 0) return Response.json({ entries: [] });
 
@@ -329,14 +344,16 @@ export async function GET(request: Request) {
       BATCH_SIZE,
     );
 
-    // sandSaves: savePct only exists in ESPN Core types/2, not overview — fetch per player
+    // sandSaves: try ESPN Core types/2 (savePct) first; fall back to overview if Core unavailable
     const allCoreSandSaves = statKey === 'sandSaves'
       ? await batchAll(ids.map((id) => () => fetchCoreSandSavesPct(id)), BATCH_SIZE)
       : null;
+    const sandSavesCoreHit = allCoreSandSaves?.some((v) => v !== null) ?? false;
+    console.log(`[stat-lb] sandSaves core hit=${sandSavesCoreHit}`);
 
     for (let i = 0; i < ids.length; i++) {
-      // sandSaves: use ESPN Core types/2 savePct directly
-      if (statKey === 'sandSaves') {
+      // sandSaves: use ESPN Core types/2 value if available, otherwise fall through to overview below
+      if (statKey === 'sandSaves' && sandSavesCoreHit) {
         const pct = allCoreSandSaves?.[i];
         if (pct !== null && pct !== undefined) { playerValues.push({ espnId: ids[i], value: pct }); }
         continue;
