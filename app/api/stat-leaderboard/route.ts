@@ -190,36 +190,6 @@ async function fetchCoreScrambling(espnId: string): Promise<number | null> {
   return null;
 }
 
-// Fetch savePct (sand saves %) from ESPN Core types/2 — only reliable source for this stat
-async function fetchCoreSandSavesPct(espnId: string): Promise<number | null> {
-  const stats = await fetchCoreStats(espnId);
-  if (!stats) return null;
-  const s = stats.find((x) => x.name === 'savePct');
-  if (s?.value && !isNaN(s.value) && s.value > 0) return s.value;
-  const dv = parseFloat(s?.displayValue ?? '');
-  if (!isNaN(dv) && dv > 0) return dv;
-  return null;
-}
-
-// Fetch scrambling % from ESPN Core types/2 — ESPN overview returns 0 for this stat
-// Tries multiple possible stat names; normalizes fraction (0-1) to percentage (0-100)
-async function fetchCoreScrambling(espnId: string): Promise<number | null> {
-  const stats = await fetchCoreStats(espnId);
-  if (!stats) return null;
-  const NAMES = ['scramblingPct', 'scrambling', 'scramblePct', 'scrmblPct', 'upAndDown', 'upAndDownPct'];
-  for (const name of NAMES) {
-    const s = stats.find((x) => x.name === name);
-    if (!s) continue;
-    const raw = s.value ?? parseFloat(s.displayValue ?? '');
-    if (!raw || isNaN(raw) || raw === 0) continue;
-    // Fraction (0-1) → percentage
-    if (raw > 0 && raw < 1) return raw * 100;
-    // Already a percentage (reasonable range 30-100%)
-    if (raw >= 30 && raw <= 100) return raw;
-  }
-  return null;
-}
-
 // Compute GIR% from raw ESPN counts: greensHit / (totalDrives × 9) × 100
 // totalDrives = 9-hole halves played, so totalDrives × 9 = total holes played
 function computeGirPct(cats: Stat[]): number | null {
