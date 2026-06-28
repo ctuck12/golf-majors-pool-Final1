@@ -1201,6 +1201,7 @@ export default function Page() {
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
   const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
   const [statLeaderboardModal, setStatLeaderboardModal] = useState<{ label: string; statKey: string; subtitle: string; tourAvg: string | null; playerName: string | null; entries: { rank: number; name: string; value: string }[] | null } | null>(null);
+  const [statLbSearch, setStatLbSearch] = useState('');
   useEffect(() => {
     if (!pickHistoryPlayerPopup) return;
     const scrollY = window.scrollY;
@@ -8346,7 +8347,7 @@ export default function Page() {
         })()}
 
         {statLeaderboardModal !== null && (
-          <div onClick={() => setStatLeaderboardModal(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, zIndex: 400 }}>
+          <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, zIndex: 400 }}>
             <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 340, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.35)' }}>
               <div style={{ background: '#0f1720', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
@@ -8358,7 +8359,16 @@ export default function Page() {
                     </div>
                   )}
                 </div>
-                <button onClick={() => setStatLeaderboardModal(null)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 999, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 16, fontWeight: 700 }}>×</button>
+                <button onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 999, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 16, fontWeight: 700 }}>×</button>
+              </div>
+              <div style={{ padding: '8px 14px 4px', background: '#fff', borderBottom: '1px solid #eaf0f5' }}>
+                <input
+                  type="text"
+                  placeholder="Search by name…"
+                  value={statLbSearch}
+                  onChange={(e) => setStatLbSearch(e.target.value)}
+                  style={{ width: '100%', padding: '7px 12px', fontSize: 13, border: '1px solid #d1d9e0', borderRadius: 8, outline: 'none', color: '#0f1720', background: '#f6f9fb', boxSizing: 'border-box' }}
+                />
               </div>
               <div style={{ overflowY: 'auto', maxHeight: '60vh', padding: '6px 0 12px' }}>
                 {statLeaderboardModal.entries === null ? (
@@ -8366,7 +8376,9 @@ export default function Page() {
                 ) : statLeaderboardModal.entries.length === 0 ? (
                   <div style={{ padding: '24px 0', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>No data available</div>
                 ) : (() => {
-                  const entries = statLeaderboardModal.entries!;
+                  const allEntries = statLeaderboardModal.entries!;
+                  const searchQ = statLbSearch.trim().toLowerCase();
+                  const entries = searchQ ? allEntries.filter(e => e.name.toLowerCase().includes(searchQ)) : allEntries;
                   const tourAvgNum = statLeaderboardModal.tourAvg ? parseFloat(statLeaderboardModal.tourAvg.replace('%', '')) : NaN;
                   const lowerIsBetter = ['scoringAverage', 'puttAverage'].includes(statLeaderboardModal.statKey);
                   let dividerIdx = -1;
@@ -8390,11 +8402,11 @@ export default function Page() {
                       );
                     }
                     rows.push(
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < entries.length - 1 ? `1px solid ${isSelected ? '#c0392b' : '#f0f4f8'}` : 'none', background: isSelected ? '#c0392b' : 'transparent', borderLeft: isSelected ? '4px solid #8b0000' : '4px solid transparent' }}>
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', padding: '9px 18px', borderBottom: i < entries.length - 1 ? `1px solid ${isSelected ? '#c0392b' : '#f0f4f8'}` : 'none', background: isSelected ? '#c0392b' : 'transparent', borderLeft: isSelected ? '4px solid #8b0000' : '4px solid transparent' }}>
                         {/* Rank — right-aligned so units digit always lines up (9 aligns with 0 in 10) */}
-                        <div style={{ width: 26, fontSize: 12, fontWeight: 800, color: isSelected ? 'rgba(255,255,255,0.7)' : rankColor, flexShrink: 0, textAlign: 'right', marginRight: 6 }}>{entry.rank}</div>
+                        <div style={{ width: 26, fontSize: 12, fontWeight: 800, color: isSelected ? 'rgba(255,255,255,0.7)' : rankColor, flexShrink: 0, textAlign: 'right', marginRight: 6, paddingTop: 1 }}>{entry.rank}</div>
                         {/* Flag + country — fixed width so player name always starts at same X */}
-                        <div style={{ width: 50, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <div style={{ width: 50, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4, paddingTop: 1 }}>
                           {getFlagSrc(entry.name) ? (
                             <>
                               <img src={getFlagSrc(entry.name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: `1px solid ${isSelected ? 'rgba(255,255,255,0.4)' : '#d1d9e0'}`, flexShrink: 0 }} />
@@ -8402,10 +8414,10 @@ export default function Page() {
                             </>
                           ) : null}
                         </div>
-                        {/* Player name — white on red if selected */}
-                        <span style={{ flex: 1, fontSize: 13, fontWeight: 800, color: isSelected ? '#fff' : '#0f1720', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
+                        {/* Player name — wraps to second line if long; white on red if selected */}
+                        <span style={{ flex: 1, fontSize: 13, fontWeight: 800, color: isSelected ? '#fff' : '#0f1720', minWidth: 0, wordBreak: 'break-word', lineHeight: 1.3 }}>{entry.name}</span>
                         {/* Value — tabular nums + fixed width so every digit lines up vertically */}
-                        <div style={{ fontSize: 13, fontWeight: 800, color: isSelected ? '#fff' : '#0f1720', flexShrink: 0, width: 68, textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontFeatureSettings: '"tnum"' }}>{entry.value}</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: isSelected ? '#fff' : '#0f1720', flexShrink: 0, width: 68, textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontFeatureSettings: '"tnum"', paddingTop: 1 }}>{entry.value}</div>
                       </div>
                     );
                   });
