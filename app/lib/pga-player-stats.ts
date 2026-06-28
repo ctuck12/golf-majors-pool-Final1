@@ -40,8 +40,7 @@ function mapStat(
     case '104': acc.puttAverage = v; break;  // putts/GIR — display layer multiplies ×18
     case '130': acc.scrambling = withPercent(v); break; // conventional scrambling — first group only (current season)
     // stat 106: total scrambling (different calc), skip
-    // 107/111: PGA playerProfileStats returns a different internal metric (~50%) that
-    // doesn't match their own public leaderboard. Use ESPN averageDisplayValue instead.
+    case '111': acc.sandSaves = withPercent(v); break;
     case '108': acc.scoringAverage = v; break;
     case '02675': acc.sgTeeToGreen = v; break;
     case '02674': acc.sgTotal = v; break;   // SG: Tee-to-Green / Total (playerProfile)
@@ -97,44 +96,44 @@ export async function fetchStatLeaderboardValueByRank(statId: string, targetRank
   } catch { return null; }
 }
 
-// Fetch a player's rank AND value for a specific stat from the leaderboard
-async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string, playerName?: string): Promise<{ rank: string | null; value: string | null }> {
+// Fetch a player's rank AND value for a specific stat from statDetails leaderboard
+async function fetchStatLeaderboardEntry(statId: string, _pgaTourId: string, playerName?: string): Promise<{ rank: string | null; value: string | null }> {
   try {
     const query = `
-      query StatLeaderboard($statId: ID!) {
-        statLeaderboard(statId: $statId) {
+      query StatDetails($statId: String!) {
+        statDetails(tourCode: R, statId: $statId) {
           rows {
-            rank
-            displayValue
-            player { id playerId firstName lastName }
+            ... on StatDetailsPlayer {
+              playerId
+              playerName
+              rank
+              stats {
+                ... on CategoryPlayerStat {
+                  statName
+                  statValue
+                }
+              }
+            }
           }
         }
       }
     `;
     const data = await gqlPost(query, { statId }) as {
-      data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; displayValue?: string | null; player?: { id?: string; playerId?: string; firstName?: string; lastName?: string } }> } };
+      data?: { statDetails?: { rows?: Array<{ playerId?: string; playerName?: string; rank?: string | number; stats?: Array<{ statName?: string; statValue?: string }> }> } };
     };
-    const rows = data?.data?.statLeaderboard?.rows;
+    const rows = data?.data?.statDetails?.rows;
     if (!Array.isArray(rows)) return { rank: null, value: null };
     const targetName = playerName?.toLowerCase().trim();
     const row = rows.find((r) => {
-      const p = r.player;
-      if (!p) return false;
-      // Match by numeric ID (strip any non-digit prefix like "R")
-      const rowId = String(p.id ?? '').replace(/\D/g, '');
-      const rowPid = String(p.playerId ?? '').replace(/\D/g, '');
-      if (rowId === String(pgaTourId) || rowPid === String(pgaTourId)) return true;
-      // Fallback: match by full name
-      if (targetName && p.firstName && p.lastName) {
-        return `${p.firstName} ${p.lastName}`.toLowerCase().trim() === targetName;
-      }
+      if (!r.playerName) return false;
+      if (targetName) return r.playerName.toLowerCase().trim() === targetName;
       return false;
     });
     if (!row) return { rank: null, value: null };
     const rankNum = parseInt(String(row.rank ?? ''));
     const rank = !isNaN(rankNum) && rankNum > 0 ? String(rankNum) : null;
-    const dispVal = row.displayValue;
-    const value = dispVal && dispVal !== '0' && dispVal !== '0.0' && dispVal !== '0.00' ? dispVal : null;
+    const statVal = row.stats?.[0]?.statValue;
+    const value = statVal && statVal !== '0' && statVal !== '0.0' && statVal !== '0.00' ? statVal : null;
     return { rank, value };
   } catch {
     return { rank: null, value: null };
@@ -148,6 +147,7 @@ const STAT_ID_TO_FIELD: Record<string, string> = {
   '103': 'gir',
   '106': 'scrambling',
   '130': 'scrambling',
+  '111': 'sandSaves',
   '108': 'scoringAverage',
   '02675': 'sgTeeToGreen',
   '02674': 'sgTotal',
@@ -213,11 +213,10 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
     // For course stats with missing ranks or values, try the statLeaderboard fallback.
     // Stat 103 (GIR): playerProfileStats returns an incorrect internal metric — always
     // override with statLeaderboard which matches the official PGA Tour leaderboard.
-    // 107/111 (sandSaves) excluded — playerProfileStats/statLeaderboard return unreliable values; use ESPN instead
-    const COURSE_STAT_IDS = ['101', '102', '103', '108', '104'];
+    const COURSE_STAT_IDS = ['101', '102', '103', '108', '104', '111'];
     // playerProfileStats returns incorrect internal metrics for these stats — always
-    // override with statLeaderboard which matches the official PGA Tour leaderboard.
-    const ALWAYS_USE_LB = new Set(['103']);
+    // override with statDetails which matches the official PGA Tour leaderboard.
+    const ALWAYS_USE_LB = new Set(['103', '111']);
     const missingStatIds = COURSE_STAT_IDS.filter((id) => {
       if (ALWAYS_USE_LB.has(id)) return true;
       const field = STAT_ID_TO_FIELD[id];
