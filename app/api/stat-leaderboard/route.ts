@@ -216,14 +216,25 @@ async function fetchAthleteName(espnId: string): Promise<string> {
   }
 }
 
-// Fetch all rows from PGA Tour GQL statLeaderboard for a given stat ID.
+// Fetch all rows from PGA Tour GQL statDetails for a given stat ID.
 // Returns entries sorted by rank with name and numeric value already parsed.
-async function fetchGqlStatLeaderboard(statId: string): Promise<Array<{ name: string; value: number }> | null> {
+async function fetchStatDetailsLeaderboard(statId: string): Promise<Array<{ name: string; value: number }> | null> {
   try {
     const query = `
-      query StatLeaderboard($statId: ID!) {
-        statLeaderboard(statId: $statId) {
-          rows { rank displayValue player { firstName lastName } }
+      query StatDetails($statId: String!) {
+        statDetails(tourCode: R, statId: $statId) {
+          rows {
+            ... on StatDetailsPlayer {
+              playerName
+              rank
+              stats {
+                ... on CategoryPlayerStat {
+                  statName
+                  statValue
+                }
+              }
+            }
+          }
         }
       }
     `;
@@ -234,18 +245,23 @@ async function fetchGqlStatLeaderboard(statId: string): Promise<Array<{ name: st
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) return null;
-    const data = await res.json() as { data?: { statLeaderboard?: { rows?: Array<{ rank?: string | number; displayValue?: string | null; player?: { firstName?: string; lastName?: string } }> } } };
-    const rows = data?.data?.statLeaderboard?.rows;
+    const data = await res.json() as {
+      data?: { statDetails?: { rows?: Array<{ playerName?: string; rank?: number; stats?: Array<{ statName?: string; statValue?: string }> }> } };
+    };
+    const rows = data?.data?.statDetails?.rows;
     if (!Array.isArray(rows) || rows.length === 0) return null;
-    const entries: Array<{ name: string; value: number }> = [];
+    const entries: Array<{ name: string; rank: number; value: number }> = [];
     for (const row of rows) {
-      const firstName = row.player?.firstName ?? '';
-      const lastName = row.player?.lastName ?? '';
-      const name = [firstName, lastName].filter(Boolean).join(' ');
-      const value = parseFloat((row.displayValue ?? '').replace('%', ''));
-      if (name && !isNaN(value) && value !== 0) entries.push({ name, value });
+      if (!row.playerName) continue; // skip StatDetailTourAvg rows (no playerName)
+      // Primary stat value is the first CategoryPlayerStat entry
+      const statValue = row.stats?.[0]?.statValue ?? '';
+      const value = parseFloat(statValue.replace('%', ''));
+      if (!isNaN(value) && value !== 0) {
+        entries.push({ name: row.playerName, rank: row.rank ?? 9999, value });
+      }
     }
-    return entries.length > 0 ? entries : null;
+    entries.sort((a, b) => a.rank - b.rank);
+    return entries.length > 0 ? entries.map(({ name, value }) => ({ name, value })) : null;
   } catch { return null; }
 }
 
@@ -262,7 +278,7 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v20:${statKey}`;
+  const cacheKey = `stat-lb:v21:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) { const parsed = JSON.parse(cached); return Response.json(Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed); }
@@ -276,7 +292,7 @@ export async function GET(request: Request) {
     // These often return no valid rows for scrambling, in which case we fall back
     // to ESPN Core types/2 per-player fetch (same approach as sandSaves).
     if (statKey === 'scrambling') {
-      const gqlRows = await fetchGqlStatLeaderboard('130') ?? await fetchGqlStatLeaderboard('106');
+      const gqlRows = await fetchStatDetailsLeaderboard('130') ?? await fetchStatDetailsLeaderboard('106');
       if (gqlRows && gqlRows.length > 0) {
         const top15 = gqlRows.slice(0, 15);
         const tourAvg = `${(gqlRows.reduce((s, r) => s + r.value, 0) / gqlRows.length).toFixed(2)}%`;
@@ -319,7 +335,7 @@ export async function GET(request: Request) {
 
     // sandSaves: try PGA Tour GQL statLeaderboard (stat 111) before falling back to per-player fetch
     if (statKey === 'sandSaves') {
-      const gqlRows = await fetchGqlStatLeaderboard('111') ?? await fetchGqlStatLeaderboard('107');
+      const gqlRows = await fetchStatDetailsLeaderboard('111') ?? await fetchStatDetailsLeaderboard('107');
       if (gqlRows && gqlRows.length > 0) {
         const top15 = gqlRows.slice(0, 15);
         const tourAvg = `${(gqlRows.reduce((s, r) => s + r.value, 0) / gqlRows.length).toFixed(1)}%`;
