@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v52:season:${seasonYear}:${name}`;
+    : `player-stats:v53:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v52:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v53:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -133,12 +133,13 @@ export async function GET(request: Request) {
     }
     const ranks: PlayerStatRanks | null = Object.keys(mergedSeasonRanks).length > 0 ? mergedSeasonRanks : null;
 
-    // ESPN wins the merge for most stats (more reliable values).
-    // Do NOT override scrambling with pgaStats — playerProfileStats stats 106/130 return an
-    // internal metric (~60%) that doesn't match pgatour.com. ESPN Core types/2 in espnStats
-    // provides the correct value via fetchPlayerSeasonStats.
-    // Similarly, sandSaves: pgaStats stat 107 returns a different internal metric.
+    // ESPN wins the merge for most stats. For scrambling, espnStats now uses averageDisplayValue
+    // which may contain the correct value; pgaStats is used only as a last-resort fallback
+    // (playerProfileStats stat 130 returns an internal metric that doesn't match pgatour.com).
     const merged = (espnStats || pgaStats) ? mergeStats(pgaStats, espnStats) : null;
+    if (merged && pgaStats && !espnStats?.scrambling) {
+      if (pgaStats.scrambling) merged.scrambling = pgaStats.scrambling;
+    }
 
     const stats = merged;
 

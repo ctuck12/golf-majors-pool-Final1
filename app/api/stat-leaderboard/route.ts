@@ -119,6 +119,7 @@ async function fetchAthleteOverviewStats(espnId: string): Promise<OverviewData |
 }
 
 // Fetch stats from ESPN Core types/2 — returns the full stats array
+// Fetch stats array from ESPN Core types/2 — shared helper for sandSaves and scrambling
 async function fetchCoreStats(espnId: string): Promise<Stat[] | null> {
   try {
     const url = `${ESPN_CORE}/seasons/${CURRENT_YEAR}/types/2/athletes/${espnId}/statistics/0`;
@@ -136,7 +137,59 @@ async function fetchCoreStats(espnId: string): Promise<Stat[] | null> {
     return null;
   } catch {
     return null;
+  } catch { return null; }
+}
+
+// Fetch savePct (sand saves %) from ESPN Core types/2 — only reliable source for this stat
+async function fetchCoreSandSavesPct(espnId: string): Promise<number | null> {
+  const stats = await fetchCoreStats(espnId);
+  if (!stats) return null;
+  const s = stats.find((x) => x.name === 'savePct');
+  if (s?.value && !isNaN(s.value) && s.value > 0) return s.value;
+  const dv = parseFloat(s?.displayValue ?? '');
+  if (!isNaN(dv) && dv > 0) return dv;
+  return null;
+}
+
+let _scramblingStatNameLogged = false;
+
+// Fetch scrambling % from ESPN Core types/2 — ESPN overview returns 0 for this stat
+async function fetchCoreScrambling(espnId: string): Promise<number | null> {
+  const stats = await fetchCoreStats(espnId);
+  if (!stats) return null;
+  // Log all stat names once so we can discover the correct scrambling stat name in Vercel logs
+  if (!_scramblingStatNameLogged) {
+    _scramblingStatNameLogged = true;
+    console.log(`[scrambling-debug espnId=${espnId}] Core types/2 stat names+values: ${stats.map((s) => `${s.name}=${s.value}`).join(', ')}`);
   }
+  const NAMES = [
+    'scramblingPct', 'scrambling', 'scramblePct', 'scrmblPct',
+    'upAndDown', 'upAndDownPct', 'upAndDownConventional',
+    'parSave', 'parSavePct', 'parSaves', 'conventionalScrambling',
+    'scrambles', 'scramblesTotal', 'scramblingConventional',
+  ];
+  for (const name of NAMES) {
+    const s = stats.find((x) => x.name === name);
+    if (!s) continue;
+    const raw = (s.value !== undefined && s.value !== null && s.value !== 0)
+      ? s.value
+      : parseFloat(s.averageDisplayValue ?? s.displayValue ?? '');
+    if (!raw || isNaN(raw) || raw === 0) continue;
+    if (raw > 0 && raw < 1) return raw * 100;
+    if (raw >= 30 && raw <= 100) return raw;
+  }
+  // Broad regex fallback: any stat name containing 'scrambl' (case-insensitive)
+  for (const s of stats) {
+    if (!s.name || !/scrambl/i.test(s.name)) continue;
+    const raw = (s.value !== undefined && s.value !== null && s.value !== 0)
+      ? s.value
+      : parseFloat(s.averageDisplayValue ?? s.displayValue ?? '');
+    if (!raw || isNaN(raw) || raw === 0) continue;
+    console.log(`[scrambling-debug] regex match: name=${s.name} raw=${raw}`);
+    if (raw > 0 && raw < 1) return raw * 100;
+    if (raw >= 30 && raw <= 100) return raw;
+  }
+  return null;
 }
 
 // Fetch savePct (sand saves %) from ESPN Core types/2 — only reliable source for this stat
@@ -251,6 +304,9 @@ export async function GET(request: Request) {
     // scrambling: PGA Tour GQL statLeaderboard is tried first. If it returns no valid rows
     // (stat 130 is often not available in statLeaderboard), fall back to ESPN Core types/2
     // which is the same reliable approach used for sandSaves.
+    // scrambling: try PGA Tour GQL statLeaderboard first (stat 130, then 106).
+    // These often return no valid rows for scrambling, in which case we fall back
+    // to ESPN Core types/2 per-player fetch (same approach as sandSaves).
     if (statKey === 'scrambling') {
       const gqlRows = await fetchGqlStatLeaderboard('130') ?? await fetchGqlStatLeaderboard('106');
       if (gqlRows && gqlRows.length > 0) {
@@ -265,6 +321,7 @@ export async function GET(request: Request) {
       }
       // GQL failed — use ESPN Core types/2 (same as sandSaves path below)
       // Fall through to the main player loop but use fetchCoreScrambling instead of overview
+      // GQL returned no rows — fall back to ESPN Core types/2 per-player (mirrors sandSaves path)
       const scrambIds = await fetchPgaPlayerIds();
       if (scrambIds.length > 0) {
         const allCoreScrambling = await batchAll(scrambIds.map((id) => () => fetchCoreScrambling(id)), BATCH_SIZE);
