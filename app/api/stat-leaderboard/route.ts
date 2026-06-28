@@ -286,8 +286,8 @@ const STAT_DETAILS_IDS: Record<string, string[]> = {
   scoringAverage: ['108'],
   scrambling: ['130', '106'],
   sandSaves: ['111', '107'],
-  sgTotal: ['02674'],
-  sgTeeToGreen: ['02675'],
+  sgTotal: ['02675'],
+  sgTeeToGreen: ['02674'],
   sgOffTee: ['02567'],
   sgApproach: ['02568'],
   sgAroundGreen: ['02569'],
@@ -307,7 +307,7 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v24:${statKey}`;
+  const cacheKey = `stat-lb:v25:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) { const parsed = JSON.parse(cached); return Response.json(Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed); }

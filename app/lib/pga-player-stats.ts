@@ -42,8 +42,8 @@ function mapStat(
     // stat 106: total scrambling (different calc), skip
     case '111': acc.sandSaves = withPercent(v); break;
     case '108': acc.scoringAverage = v; break;
-    case '02675': acc.sgTeeToGreen = v; break;
-    case '02674': acc.sgTotal = v; break;   // SG: Tee-to-Green / Total (playerProfile)
+    case '02674': acc.sgTeeToGreen = v; break;
+    case '02675': acc.sgTotal = v; break;   // corrected: 02675=Total, 02674=Tee-to-Green
     case '02567': acc.sgOffTee = v; break;
     case '02568': acc.sgApproach = v; break;
     case '02569': acc.sgAroundGreen = v; break;
