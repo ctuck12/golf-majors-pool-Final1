@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-// Debug: introspect PGA Tour GQL schema to find available query fields.
-// /api/debug-espn-stats
+// Debug: probe statLeaders and statDetails GQL queries for scrambling (stat 130).
 
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
@@ -15,29 +14,39 @@ function gqlHeaders() {
   };
 }
 
-export async function GET() {
+async function tryGql(label: string, query: string, variables: Record<string, unknown> = {}) {
   try {
     const res = await fetch(PGA_GQL, {
       method: 'POST',
       headers: gqlHeaders(),
-      body: JSON.stringify({
-        query: `query { __schema { queryType { fields { name description } } } }`,
-      }),
+      body: JSON.stringify({ query, variables }),
       signal: AbortSignal.timeout(8000),
     });
-    const data = await res.json() as {
-      data?: { __schema?: { queryType?: { fields?: Array<{ name: string; description?: string }> } } };
-    };
-    const fields = data?.data?.__schema?.queryType?.fields ?? [];
-    const statRelated = fields.filter((f) =>
-      /stat|score|lead|rank|player|tour/i.test(f.name)
-    );
-    return Response.json({
-      totalQueryFields: fields.length,
-      allNames: fields.map((f) => f.name).sort(),
-      statRelated,
-    });
+    const text = await res.text();
+    let parsed: unknown = null;
+    try { parsed = JSON.parse(text); } catch { /* not json */ }
+    return { label, status: res.status, response: parsed };
   } catch (e) {
-    return Response.json({ error: String(e) });
+    return { label, error: String(e) };
   }
+}
+
+export async function GET() {
+  const results = await Promise.all([
+    // Try statLeaders — likely replacement for statLeaderboard
+    tryGql('statLeaders-130-introspect', `query { __type(name: "Query") { fields { name args { name type { name kind ofType { name kind } } } } } }`),
+
+    tryGql('statLeaders-130', `query { statLeaders(statId: "130") { rows { rank displayValue player { firstName lastName } } } }`),
+
+    tryGql('statLeaders-130-v2', `query($statId: ID!) { statLeaders(statId: $statId) { rows { rank displayValue player { firstName lastName } } } }`, { statId: '130' }),
+
+    tryGql('statDetails-130', `query { statDetails(statId: "130") { rows { rank displayValue player { firstName lastName } } } }`),
+
+    tryGql('statOverview-130', `query { statOverview(statId: "130") { rows { rank displayValue player { firstName lastName } } } }`),
+
+    // Introspect what args statLeaders accepts
+    tryGql('statLeaders-schema', `query { __type(name: "Query") { fields(includeDeprecated: true) { name args { name type { name kind ofType { name } } } } } }`),
+  ]);
+
+  return Response.json({ results });
 }
