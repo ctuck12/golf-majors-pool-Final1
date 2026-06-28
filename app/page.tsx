@@ -8428,7 +8428,7 @@ export default function Page() {
                     const rankColor = '#9ca3af';
                     if (i === dividerIdx) {
                       rows.push(
-                        <div key="tour-avg-divider" style={{ display: 'flex', alignItems: 'center', padding: '5px 18px', background: '#f0f4f8', borderTop: '2px solid #0f1720', borderBottom: '2px solid #0f1720' }}>
+                        <div key="tour-avg-divider" style={{ display: 'flex', alignItems: 'center', padding: '5px 18px 5px 10px', background: '#f0f4f8', borderTop: '2px solid #0f1720', borderBottom: '2px solid #0f1720' }}>
                           <div style={{ flex: 1, height: 1, background: '#0f1720', opacity: 0.15 }} />
                           <span style={{ fontSize: 10, fontWeight: 800, color: '#0f1720', padding: '0 10px', whiteSpace: 'nowrap', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Tour Avg: {statLeaderboardModal.tourAvg}</span>
                           <div style={{ flex: 1, height: 1, background: '#0f1720', opacity: 0.15 }} />
@@ -8436,7 +8436,7 @@ export default function Page() {
                       );
                     }
                     rows.push(
-                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', padding: '9px 18px', borderBottom: i < entries.length - 1 ? `1px solid ${isSelected ? '#c0392b' : '#f0f4f8'}` : 'none', background: isSelected ? '#c0392b' : 'transparent', borderLeft: isSelected ? '4px solid #8b0000' : '4px solid transparent' }}>
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', padding: '9px 18px 9px 10px', borderBottom: i < entries.length - 1 ? `1px solid ${isSelected ? '#c0392b' : '#f0f4f8'}` : 'none', background: isSelected ? '#c0392b' : 'transparent', borderLeft: isSelected ? '4px solid #8b0000' : '4px solid transparent' }}>
                         {/* Rank — right-aligned so units digit always lines up (9 aligns with 0 in 10) */}
                         <div style={{ width: 26, fontSize: 12, fontWeight: 800, color: isSelected ? 'rgba(255,255,255,0.7)' : rankColor, flexShrink: 0, textAlign: 'right', marginRight: 6, paddingTop: 1 }}>{entry.rank}</div>
                         {/* Flag + country — fixed width so player name always starts at same X */}
