@@ -244,8 +244,9 @@ export async function fetchTourAverages(): Promise<StatAverages> {
   const gql = gqlResults.status === 'fulfilled' ? gqlResults.value : {};
   const lb = lbResults.status === 'fulfilled' ? lbResults.value : {};
 
-  // lb-cache wins over GQL where both have a value (lb-cache uses confirmed ESPN Core data)
-  const merged = { ...gql, ...lb };
+  // GQL wins — it uses StatDetailTourAvg (official PGA Tour number), same source as the popup
+  // lb-cache fills gaps for any stats not covered by GQL
+  const merged = { ...lb, ...gql };
   if (Object.keys(merged).length >= 4) {
     return merged;
   }
