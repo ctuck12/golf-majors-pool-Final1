@@ -217,8 +217,9 @@ async function fetchAthleteName(espnId: string): Promise<string> {
 }
 
 // Fetch all rows from PGA Tour GQL statDetails for a given stat ID.
-// Returns entries sorted by rank with name and numeric value already parsed.
-async function fetchStatDetailsLeaderboard(statId: string): Promise<Array<{ name: string; value: number }> | null> {
+// Returns entries sorted by rank with name and numeric value already parsed,
+// plus the official tour average from the StatDetailTourAvg row if present.
+async function fetchStatDetailsLeaderboard(statId: string): Promise<{ players: Array<{ name: string; value: number }>; officialTourAvg: number | null } | null> {
   try {
     const query = `
       query StatDetails($statId: String!) {
@@ -234,6 +235,10 @@ async function fetchStatDetailsLeaderboard(statId: string): Promise<Array<{ name
                 }
               }
             }
+            ... on StatDetailTourAvg {
+              displayName
+              value
+            }
           }
         }
       }
@@ -246,14 +251,21 @@ async function fetchStatDetailsLeaderboard(statId: string): Promise<Array<{ name
     });
     if (!res.ok) return null;
     const data = await res.json() as {
-      data?: { statDetails?: { rows?: Array<{ playerName?: string; rank?: number; stats?: Array<{ statName?: string; statValue?: string }> }> } };
+      data?: { statDetails?: { rows?: Array<{ playerName?: string; rank?: number; stats?: Array<{ statName?: string; statValue?: string }>; displayName?: string; value?: string }> } };
     };
     const rows = data?.data?.statDetails?.rows;
     if (!Array.isArray(rows) || rows.length === 0) return null;
     const entries: Array<{ name: string; rank: number; value: number }> = [];
+    let officialTourAvg: number | null = null;
     for (const row of rows) {
-      if (!row.playerName) continue; // skip StatDetailTourAvg rows (no playerName)
-      // Primary stat value is the first CategoryPlayerStat entry
+      if (!row.playerName) {
+        // StatDetailTourAvg row — extract official tour average
+        if (row.value) {
+          const avg = parseFloat(row.value.replace('%', ''));
+          if (!isNaN(avg) && avg !== 0) officialTourAvg = avg;
+        }
+        continue;
+      }
       const statValue = row.stats?.[0]?.statValue ?? '';
       const value = parseFloat(statValue.replace('%', ''));
       if (!isNaN(value) && value !== 0) {
@@ -261,7 +273,7 @@ async function fetchStatDetailsLeaderboard(statId: string): Promise<Array<{ name
       }
     }
     entries.sort((a, b) => a.rank - b.rank);
-    return entries.length > 0 ? entries.map(({ name, value }) => ({ name, value })) : null;
+    return entries.length > 0 ? { players: entries.map(({ name, value }) => ({ name, value })), officialTourAvg } : null;
   } catch { return null; }
 }
 
@@ -295,7 +307,7 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v23:${statKey}`;
+  const cacheKey = `stat-lb:v24:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) { const parsed = JSON.parse(cached); return Response.json(Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed); }
@@ -305,19 +317,22 @@ export async function GET(request: Request) {
     // Try PGA Tour statDetails first — covers the full tour field (~155 players) for all stats
     const pgaStatIds = STAT_DETAILS_IDS[statKey];
     if (pgaStatIds) {
-      let gqlRows: Array<{ name: string; value: number }> | null = null;
+      let gqlResult: { players: Array<{ name: string; value: number }>; officialTourAvg: number | null } | null = null;
       for (const id of pgaStatIds) {
-        gqlRows = await fetchStatDetailsLeaderboard(id);
-        if (gqlRows && gqlRows.length > 0) break;
+        gqlResult = await fetchStatDetailsLeaderboard(id);
+        if (gqlResult && gqlResult.players.length > 0) break;
       }
-      if (gqlRows && gqlRows.length > 0) {
+      if (gqlResult && gqlResult.players.length > 0) {
         const def = statDefs.find((d) => d.key === statKey);
         const isPercent = def?.isPercent ?? false;
         const decimals = def?.decimals ?? 1;
         const fmt = (v: number) => isPercent ? `${v.toFixed(decimals)}%` : v.toFixed(decimals);
-        const sum = gqlRows.reduce((s, r) => s + r.value, 0);
-        const tourAvg = fmt(sum / gqlRows.length);
-        const entries: StatLeaderboardEntry[] = gqlRows.map((r, i) => ({ rank: i + 1, name: r.name, value: fmt(r.value) }));
+        // Use official PGA Tour average if available; fall back to computed mean
+        const avgNum = gqlResult.officialTourAvg !== null
+          ? gqlResult.officialTourAvg
+          : gqlResult.players.reduce((s, r) => s + r.value, 0) / gqlResult.players.length;
+        const tourAvg = fmt(avgNum);
+        const entries: StatLeaderboardEntry[] = gqlResult.players.map((r, i) => ({ rank: i + 1, name: r.name, value: fmt(r.value) }));
         try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
         try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
         return Response.json({ entries, tourAvg });
