@@ -24,13 +24,6 @@ function withPercent(v: string): string {
   return v.endsWith('%') ? v : `${v}%`;
 }
 
-function fmt(v: string, decimals: number, isPercent = false): string {
-  const num = parseFloat(v.replace('%', ''));
-  if (isNaN(num)) return isPercent ? withPercent(v) : v;
-  const s = num.toFixed(decimals);
-  return isPercent ? `${s}%` : s;
-}
-
 // Map PGA Tour stat IDs to PlayerStats fields
 function mapStat(
   statId: string,
@@ -41,20 +34,20 @@ function mapStat(
   if (v === null) return;
 
   switch (statId) {
-    case '101': acc.drivingDistance = fmt(v, 2); break;
-    case '102': acc.drivingAccuracy = fmt(v, 2, true); break;
-    case '103': acc.gir = fmt(v, 2, true); break;
-    case '104': acc.puttAverage = fmt(v, 3); break;
-    case '130': acc.scrambling = fmt(v, 2, true); break;
+    case '101': acc.drivingDistance = v; break;
+    case '102': acc.drivingAccuracy = withPercent(v); break;
+    case '103': acc.gir = withPercent(v); break;
+    case '104': acc.puttAverage = v; break;  // putts/GIR — display layer multiplies ×18
+    case '130': acc.scrambling = withPercent(v); break; // conventional scrambling — first group only (current season)
     // stat 106: total scrambling (different calc), skip
-    case '111': acc.sandSaves = fmt(v, 2, true); break;
-    case '108': acc.scoringAverage = fmt(v, 2); break;
-    case '02675': acc.sgTeeToGreen = fmt(v, 2); break;
-    case '02674': acc.sgTotal = fmt(v, 2); break;
-    case '02567': acc.sgOffTee = fmt(v, 2); break;
-    case '02568': acc.sgApproach = fmt(v, 2); break;
-    case '02569': acc.sgAroundGreen = fmt(v, 2); break;
-    case '02564': acc.sgPutting = fmt(v, 2); break;
+    case '111': acc.sandSaves = withPercent(v); break;
+    case '108': acc.scoringAverage = v; break;
+    case '02675': acc.sgTeeToGreen = v; break;
+    case '02674': acc.sgTotal = v; break;   // SG: Tee-to-Green / Total (playerProfile)
+    case '02567': acc.sgOffTee = v; break;
+    case '02568': acc.sgApproach = v; break;
+    case '02569': acc.sgAroundGreen = v; break;
+    case '02564': acc.sgPutting = v; break;
   }
 }
 
