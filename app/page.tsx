@@ -8358,26 +8358,31 @@ export default function Page() {
         {statLeaderboardModal !== null && (
           <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, zIndex: 400 }}>
             <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 340, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.35)' }}>
-              <div style={{ background: '#0f1720', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: '#607282', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{statLeaderboardModal.subtitle}</div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>{statLeaderboardModal.label}</div>
-                  {statLeaderboardModal.tourAvg && (
-                    <div style={{ marginTop: 4, fontSize: 11, color: '#8fa3b1' }}>
-                      Tour Avg: <span style={{ fontWeight: 700, color: '#b8cad6' }}>{statLeaderboardModal.tourAvg}</span>
-                    </div>
+              <div style={{ background: '#0f1720', padding: '14px 18px 10px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#607282', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{statLeaderboardModal.subtitle}</div>
+                    <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>{statLeaderboardModal.label}</div>
+                    {statLeaderboardModal.tourAvg && (
+                      <div style={{ marginTop: 4, fontSize: 11, color: '#8fa3b1' }}>
+                        Tour Avg: <span style={{ fontWeight: 700, color: '#b8cad6' }}>{statLeaderboardModal.tourAvg}</span>
+                      </div>
+                    )}
+                  </div>
+                  <button onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 999, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 16, fontWeight: 700, flexShrink: 0 }}>×</button>
+                </div>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    placeholder="Search player..."
+                    value={statLbSearch}
+                    onChange={(e) => setStatLbSearch(e.target.value)}
+                    style={{ width: '100%', boxSizing: 'border-box', padding: `4px ${statLbSearch ? 28 : 10}px 4px 10px`, fontSize: 16, border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, outline: 'none', color: '#0f1720', background: '#fff' }}
+                  />
+                  {statLbSearch && (
+                    <button onMouseDown={(e) => { e.preventDefault(); setStatLbSearch(''); }} style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#607282', fontSize: 16, lineHeight: 1, padding: 2 }}>×</button>
                   )}
                 </div>
-                <button onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 999, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 16, fontWeight: 700 }}>×</button>
-              </div>
-              <div style={{ padding: '8px 14px 4px', background: '#fff', borderBottom: '1px solid #eaf0f5' }}>
-                <input
-                  type="text"
-                  placeholder="Search by name…"
-                  value={statLbSearch}
-                  onChange={(e) => setStatLbSearch(e.target.value)}
-                  style={{ width: '100%', padding: '7px 12px', fontSize: 16, border: '1px solid #d1d9e0', borderRadius: 8, outline: 'none', color: '#0f1720', background: '#f6f9fb', boxSizing: 'border-box' }}
-                />
               </div>
               <div style={{ overflowY: 'auto', maxHeight: `${Math.max(200, (visualVpHeight ?? window.innerHeight) - 220)}px`, padding: '6px 0 12px' }}>
                 {statLeaderboardModal.entries === null ? (
@@ -8387,7 +8392,15 @@ export default function Page() {
                 ) : (() => {
                   const allEntries = statLeaderboardModal.entries!;
                   const searchQ = statLbSearch.trim().toLowerCase();
-                  const entries = searchQ ? allEntries.filter(e => e.name.toLowerCase().includes(searchQ)) : allEntries;
+                  let entries = searchQ ? allEntries.filter(e => e.name.toLowerCase().includes(searchQ)) : allEntries.slice(0, 15);
+                  if (!searchQ && statLeaderboardModal.playerName) {
+                    const pn = statLeaderboardModal.playerName.toLowerCase();
+                    const already = entries.some(e => e.name.toLowerCase() === pn);
+                    if (!already) {
+                      const found = allEntries.find(e => e.name.toLowerCase() === pn);
+                      if (found) entries = [...entries, found];
+                    }
+                  }
                   const tourAvgNum = statLeaderboardModal.tourAvg ? parseFloat(statLeaderboardModal.tourAvg.replace('%', '')) : NaN;
                   const lowerIsBetter = ['scoringAverage', 'puttAverage'].includes(statLeaderboardModal.statKey);
                   let dividerIdx = -1;
