@@ -8368,17 +8368,21 @@ export default function Page() {
                 ) : (
                   statLeaderboardModal.entries.map((entry, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < statLeaderboardModal.entries!.length - 1 ? '1px solid #f0f4f8' : 'none' }}>
-                      <div style={{ width: 28, fontSize: 12, fontWeight: 800, color: i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af', flexShrink: 0 }}>{entry.rank}</div>
-                      <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
-                        {getFlagSrc(entry.name) && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                            <img src={getFlagSrc(entry.name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0' }} />
-                            <span style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.05em' }}>{getCountryLabel(entry.name)}</span>
-                          </div>
-                        )}
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#0f1720' }}>{entry.name}</span>
+                      {/* Rank — fixed width, right-aligned so digits line up */}
+                      <div style={{ width: 34, fontSize: 12, fontWeight: 800, color: i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af', flexShrink: 0, textAlign: 'right', marginRight: 10 }}>{entry.rank}</div>
+                      {/* Flag + country — always fixed width so player name always starts at same X */}
+                      <div style={{ width: 50, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        {getFlagSrc(entry.name) ? (
+                          <>
+                            <img src={getFlagSrc(entry.name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0', flexShrink: 0 }} />
+                            <span style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.05em', width: 22, display: 'inline-block' }}>{getCountryLabel(entry.name)}</span>
+                          </>
+                        ) : null}
                       </div>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720', flexShrink: 0 }}>{entry.value}</div>
+                      {/* Player name */}
+                      <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0f1720', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
+                      {/* Value */}
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720', flexShrink: 0, marginLeft: 8 }}>{entry.value}</div>
                     </div>
                   ))
                 )}
