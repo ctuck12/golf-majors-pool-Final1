@@ -8369,7 +8369,7 @@ export default function Page() {
                   statLeaderboardModal.entries.map((entry, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < statLeaderboardModal.entries!.length - 1 ? '1px solid #f0f4f8' : 'none' }}>
                       {/* Rank — fixed width, right-aligned so digits line up */}
-                      <div style={{ width: 34, fontSize: 12, fontWeight: 800, color: i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af', flexShrink: 0, textAlign: 'right', marginRight: 10 }}>{entry.rank}</div>
+                      <div style={{ width: 34, fontSize: 12, fontWeight: 800, color: i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af', flexShrink: 0, textAlign: 'left', marginRight: 10 }}>{entry.rank}</div>
                       {/* Flag + country — always fixed width so player name always starts at same X */}
                       <div style={{ width: 50, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
                         {getFlagSrc(entry.name) ? (
