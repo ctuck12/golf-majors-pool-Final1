@@ -1,51 +1,50 @@
 export const dynamic = 'force-dynamic';
 
-// Debug endpoint: returns all ESPN Core types/2 stat names+values for a given ESPN player ID.
-// Use this to discover the correct stat name for scrambling.
+// Debug endpoint: returns raw ESPN Core types/2 response for a given ESPN player ID.
 // Example: /api/debug-espn-stats?espnId=4360310 (Scheffler)
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 
-type Stat = { name?: string; value?: number; displayValue?: string; average?: number; averageDisplayValue?: string };
-
-async function fetchAllCoreStats(espnId: string): Promise<Stat[] | null> {
-  const year = new Date().getFullYear();
-  const urls = [
-    `${ESPN_CORE}/seasons/${year}/types/2/athletes/${espnId}/statistics/0`,
-    `${ESPN_CORE}/seasons/${year - 1}/types/2/athletes/${espnId}/statistics/0`,
-  ];
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
-      if (!res.ok) continue;
-      const data = await res.json() as {
-        splits?: { categories?: Array<{ stats?: Stat[] }> } | Array<{ stats?: Stat[] }>;
-      };
-      if (data?.splits && !Array.isArray(data.splits)) {
-        const stats = (data.splits as { categories?: Array<{ stats?: Stat[] }> }).categories?.[0]?.stats;
-        if (stats?.length) { console.log(`[debug-espn-stats] url=${url} stats=${JSON.stringify(stats)}`); return stats; }
-      }
-      if (Array.isArray(data?.splits)) {
-        const stats = (data.splits as Array<{ stats?: Stat[] }>)[0]?.stats;
-        if (stats?.length) { console.log(`[debug-espn-stats] url=${url} stats=${JSON.stringify(stats)}`); return stats; }
-      }
-    } catch { /* try next */ }
-  }
-  return null;
-}
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const espnId = searchParams.get('espnId') ?? '4360310'; // default: Scheffler
-  const stats = await fetchAllCoreStats(espnId);
-  if (!stats) return Response.json({ error: 'no data', espnId });
-  const result = stats.map((s) => ({
-    name: s.name,
-    value: s.value,
-    displayValue: s.displayValue,
-    averageDisplayValue: s.averageDisplayValue,
-    average: s.average,
-  }));
-  console.log(`[debug-espn-stats] espnId=${espnId} statCount=${result.length} names=${result.map(r => r.name).join(',')}`);
-  return Response.json({ espnId, statCount: result.length, stats: result });
+  const espnId = searchParams.get('espnId') ?? '4360310';
+  const year = new Date().getFullYear();
+
+  const results: Record<string, unknown> = {};
+
+  for (const yr of [year, year - 1]) {
+    for (const type of ['2', '1']) {
+      const url = `${ESPN_CORE}/seasons/${yr}/types/${type}/athletes/${espnId}/statistics/0`;
+      try {
+        const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
+        const text = await res.text();
+        let parsed: unknown = null;
+        try { parsed = JSON.parse(text); } catch { /* not json */ }
+        const key = `${yr}/type${type}`;
+        if (!res.ok) {
+          results[key] = { status: res.status, error: text.slice(0, 200) };
+          continue;
+        }
+        // Try to extract stat names
+        const data = parsed as { splits?: unknown };
+        let stats: Array<{ name?: string; value?: number; displayValue?: string; averageDisplayValue?: string }> | null = null;
+        if (data?.splits && !Array.isArray(data.splits)) {
+          stats = (data.splits as { categories?: Array<{ stats?: typeof stats }> }).categories?.[0]?.stats ?? null;
+        } else if (Array.isArray(data?.splits)) {
+          stats = (data.splits as Array<{ stats?: typeof stats }>)[0]?.stats ?? null;
+        }
+        results[key] = {
+          status: res.status,
+          hasStats: !!stats,
+          statCount: stats?.length ?? 0,
+          stats: stats?.map((s) => ({ name: s.name, value: s.value, displayValue: s.displayValue, averageDisplayValue: s.averageDisplayValue })) ?? null,
+          rawSnippet: !stats ? text.slice(0, 500) : undefined,
+        };
+      } catch (e) {
+        results[`${yr}/type${type}`] = { error: String(e) };
+      }
+    }
+  }
+
+  return Response.json({ espnId, results });
 }
