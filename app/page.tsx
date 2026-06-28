@@ -8390,22 +8390,22 @@ export default function Page() {
                       );
                     }
                     rows.push(
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < entries.length - 1 ? '1px solid #f0f4f8' : 'none', background: isSelected ? '#fff5f5' : 'transparent' }}>
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < entries.length - 1 ? `1px solid ${isSelected ? '#c0392b' : '#f0f4f8'}` : 'none', background: isSelected ? '#c0392b' : 'transparent', borderLeft: isSelected ? '4px solid #8b0000' : '4px solid transparent' }}>
                         {/* Rank — right-aligned so units digit always lines up (9 aligns with 0 in 10) */}
-                        <div style={{ width: 26, fontSize: 12, fontWeight: 800, color: rankColor, flexShrink: 0, textAlign: 'right', marginRight: 6 }}>{entry.rank}</div>
+                        <div style={{ width: 26, fontSize: 12, fontWeight: 800, color: isSelected ? 'rgba(255,255,255,0.7)' : rankColor, flexShrink: 0, textAlign: 'right', marginRight: 6 }}>{entry.rank}</div>
                         {/* Flag + country — fixed width so player name always starts at same X */}
                         <div style={{ width: 50, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
                           {getFlagSrc(entry.name) ? (
                             <>
-                              <img src={getFlagSrc(entry.name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0', flexShrink: 0 }} />
-                              <span style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.05em', width: 22, display: 'inline-block' }}>{getCountryLabel(entry.name)}</span>
+                              <img src={getFlagSrc(entry.name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: `1px solid ${isSelected ? 'rgba(255,255,255,0.4)' : '#d1d9e0'}`, flexShrink: 0 }} />
+                              <span style={{ fontSize: 9, fontWeight: 700, color: isSelected ? 'rgba(255,255,255,0.75)' : '#9ca3af', letterSpacing: '0.05em', width: 22, display: 'inline-block' }}>{getCountryLabel(entry.name)}</span>
                             </>
                           ) : null}
                         </div>
-                        {/* Player name — red if selected */}
-                        <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: isSelected ? '#cc1c1c' : '#0f1720', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
-                        {/* Value — fixed width, right-aligned; red if selected */}
-                        <div style={{ fontSize: 13, fontWeight: 800, color: isSelected ? '#cc1c1c' : '#0f1720', flexShrink: 0, width: 64, textAlign: 'right' }}>{entry.value}</div>
+                        {/* Player name — white on red if selected */}
+                        <span style={{ flex: 1, fontSize: 13, fontWeight: 800, color: isSelected ? '#fff' : '#0f1720', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
+                        {/* Value — fixed width, right-aligned; white on red if selected */}
+                        <div style={{ fontSize: 13, fontWeight: 800, color: isSelected ? '#fff' : '#0f1720', flexShrink: 0, width: 64, textAlign: 'right' }}>{entry.value}</div>
                       </div>
                     );
                   });
