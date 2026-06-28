@@ -8438,7 +8438,7 @@ export default function Page() {
                     rows.push(
                       <div key={i} style={{ display: 'flex', alignItems: 'flex-start', padding: '9px 18px 9px 5px', borderBottom: i < entries.length - 1 ? `1px solid ${isSelected ? '#c0392b' : '#f0f4f8'}` : 'none', background: isSelected ? '#c0392b' : 'transparent', borderLeft: isSelected ? '4px solid #8b0000' : '4px solid transparent' }}>
                         {/* Rank — right-aligned so units digit always lines up (9 aligns with 0 in 10) */}
-                        <div style={{ width: 26, fontSize: 12, fontWeight: 800, color: isSelected ? 'rgba(255,255,255,0.7)' : rankColor, flexShrink: 0, textAlign: 'right', marginRight: 6, paddingTop: 1 }}>{entry.rank}</div>
+                        <div style={{ width: 26, fontSize: 12, fontWeight: 800, color: isSelected ? 'rgba(255,255,255,0.7)' : rankColor, flexShrink: 0, textAlign: 'right', marginRight: 6, paddingTop: 1, fontVariantNumeric: 'tabular-nums', fontFeatureSettings: '"tnum"' }}>{entry.rank}</div>
                         {/* Flag + country — fixed width so player name always starts at same X */}
                         <div style={{ width: 50, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4, paddingTop: 1 }}>
                           {getFlagSrc(entry.name) ? (
