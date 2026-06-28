@@ -165,8 +165,11 @@ function extractSeason(data: Overview): PlayerStats {
     statNumVal(cats, 'greensInReg', '%') ??
     statNumVal(cats, 'greensInRegPct', '%');
 
-  // Scrambling: ESPN uses several names across player profiles
+  // Scrambling: ESPN uses several names across player profiles.
+  // averageDisplayValue checked first — like sandSaves, displayValue may be 0 while averageDisplayValue has the correct value.
   const scrambling =
+    statAvgVal(cats, 'scrambling', '%') ??
+    statAvgVal(cats, 'scramblingPct', '%') ??
     statVal(cats, 'scrambling', '%') ??
     statVal(cats, 'scramblingPct', '%') ??
     summaryStatVal(sumStats, 'scrambling', '%') ??

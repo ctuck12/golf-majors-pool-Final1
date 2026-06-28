@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v51:season:${seasonYear}:${name}`;
+    : `player-stats:v53:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v51:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v53:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -122,8 +122,6 @@ export async function GET(request: Request) {
       'Putts/Green': 'puttAverage',
       'Birdies/Rd': 'birdiesPerRound',
     };
-    // Stats where PGA Tour GQL rank is authoritative — do not let ESPN override when PGA has a value
-    const PGA_AUTHORITATIVE = new Set(['scrambling']);
     const espnLabelRanks = espnStats?.statRanks ?? {};
     const mergedSeasonRanks: PlayerStatRanks = { ...pgaRanks };
     for (const [label, rankStr] of Object.entries(espnLabelRanks)) {
@@ -131,21 +129,16 @@ export async function GET(request: Request) {
       if (!field || !rankStr) continue;
       const num = parseInt(rankStr);
       if (isNaN(num) || num <= 0) continue;
-      // Don't overwrite PGA Tour rank for GIR/scrambling/sandSaves — ESPN formula is unreliable
-      if (PGA_AUTHORITATIVE.has(field) && mergedSeasonRanks[field]) continue;
       mergedSeasonRanks[field] = String(num);
     }
     const ranks: PlayerStatRanks | null = Object.keys(mergedSeasonRanks).length > 0 ? mergedSeasonRanks : null;
 
-    // ESPN wins the merge for most stats (more reliable driving distance/accuracy values).
-    // But override GIR/scrambling/sandSaves back to PGA Tour GQL values when available —
-    // ESPN computes these with a different formula that produces incorrect percentages.
+    // ESPN wins the merge for most stats. For scrambling, espnStats now uses averageDisplayValue
+    // which may contain the correct value; pgaStats is used only as a last-resort fallback
+    // (playerProfileStats stat 130 returns an internal metric that doesn't match pgatour.com).
     const merged = (espnStats || pgaStats) ? mergeStats(pgaStats, espnStats) : null;
-    if (merged && pgaStats) {
+    if (merged && pgaStats && !espnStats?.scrambling) {
       if (pgaStats.scrambling) merged.scrambling = pgaStats.scrambling;
-      // sandSaves: do NOT override with pgaStats — playerProfileStats stat 107 returns a different
-      // internal metric (~50%) that differs from the official PGA Tour leaderboard (60-63%).
-      // ESPN's averageDisplayValue is closer to the official value.
     }
 
     const stats = merged;

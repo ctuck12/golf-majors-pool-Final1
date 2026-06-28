@@ -118,8 +118,8 @@ async function fetchAthleteOverviewStats(espnId: string): Promise<OverviewData |
   }
 }
 
-// Fetch savePct (sand saves %) from ESPN Core types/2 — only reliable source for this stat
-async function fetchCoreSandSavesPct(espnId: string): Promise<number | null> {
+// Fetch stats array from ESPN Core types/2 — shared helper for sandSaves and scrambling
+async function fetchCoreStats(espnId: string): Promise<Stat[] | null> {
   try {
     const url = `${ESPN_CORE}/seasons/${CURRENT_YEAR}/types/2/athletes/${espnId}/statistics/0`;
     const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
@@ -127,20 +127,66 @@ async function fetchCoreSandSavesPct(espnId: string): Promise<number | null> {
     const data = await res.json() as {
       splits?: { categories?: Array<{ stats?: Stat[] }> } | Array<{ stats?: Stat[] }>;
     };
-    let stats: Stat[] = [];
     if (data?.splits && !Array.isArray(data.splits)) {
-      stats = (data.splits as { categories?: Array<{ stats?: Stat[] }> }).categories?.[0]?.stats ?? [];
-    } else if (Array.isArray(data?.splits)) {
-      stats = (data.splits as Array<{ stats?: Stat[] }>)[0]?.stats ?? [];
+      return (data.splits as { categories?: Array<{ stats?: Stat[] }> }).categories?.[0]?.stats ?? null;
     }
-    const s = stats.find((x) => x.name === 'savePct');
-    if (s?.value && !isNaN(s.value) && s.value > 0) return s.value;
-    const dv = parseFloat(s?.displayValue ?? '');
-    if (!isNaN(dv) && dv > 0) return dv;
+    if (Array.isArray(data?.splits)) {
+      return (data.splits as Array<{ stats?: Stat[] }>)[0]?.stats ?? null;
+    }
     return null;
-  } catch {
-    return null;
+  } catch { return null; }
+}
+
+// Fetch savePct (sand saves %) from ESPN Core types/2 — only reliable source for this stat
+async function fetchCoreSandSavesPct(espnId: string): Promise<number | null> {
+  const stats = await fetchCoreStats(espnId);
+  if (!stats) return null;
+  const s = stats.find((x) => x.name === 'savePct');
+  if (s?.value && !isNaN(s.value) && s.value > 0) return s.value;
+  const dv = parseFloat(s?.displayValue ?? '');
+  if (!isNaN(dv) && dv > 0) return dv;
+  return null;
+}
+
+let _scramblingStatNameLogged = false;
+
+// Fetch scrambling % from ESPN Core types/2 — ESPN overview returns 0 for this stat
+async function fetchCoreScrambling(espnId: string): Promise<number | null> {
+  const stats = await fetchCoreStats(espnId);
+  if (!stats) return null;
+  // Log all stat names once so we can discover the correct scrambling stat name in Vercel logs
+  if (!_scramblingStatNameLogged) {
+    _scramblingStatNameLogged = true;
+    console.log(`[scrambling-debug espnId=${espnId}] Core types/2 stat names+values: ${stats.map((s) => `${s.name}=${s.value}`).join(', ')}`);
   }
+  const NAMES = [
+    'scramblingPct', 'scrambling', 'scramblePct', 'scrmblPct',
+    'upAndDown', 'upAndDownPct', 'upAndDownConventional',
+    'parSave', 'parSavePct', 'parSaves', 'conventionalScrambling',
+    'scrambles', 'scramblesTotal', 'scramblingConventional',
+  ];
+  for (const name of NAMES) {
+    const s = stats.find((x) => x.name === name);
+    if (!s) continue;
+    const raw = (s.value !== undefined && s.value !== null && s.value !== 0)
+      ? s.value
+      : parseFloat(s.averageDisplayValue ?? s.displayValue ?? '');
+    if (!raw || isNaN(raw) || raw === 0) continue;
+    if (raw > 0 && raw < 1) return raw * 100;
+    if (raw >= 30 && raw <= 100) return raw;
+  }
+  // Broad regex fallback: any stat name containing 'scrambl' (case-insensitive)
+  for (const s of stats) {
+    if (!s.name || !/scrambl/i.test(s.name)) continue;
+    const raw = (s.value !== undefined && s.value !== null && s.value !== 0)
+      ? s.value
+      : parseFloat(s.averageDisplayValue ?? s.displayValue ?? '');
+    if (!raw || isNaN(raw) || raw === 0) continue;
+    console.log(`[scrambling-debug] regex match: name=${s.name} raw=${raw}`);
+    if (raw > 0 && raw < 1) return raw * 100;
+    if (raw >= 30 && raw <= 100) return raw;
+  }
+  return null;
 }
 
 // Compute GIR% from raw ESPN counts: greensHit / (totalDrives × 9) × 100
@@ -215,16 +261,16 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v18:${statKey}`;
+  const cacheKey = `stat-lb:v19:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) { const parsed = JSON.parse(cached); return Response.json(Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed); }
   } catch { /* ignore */ }
 
   try {
-    // scrambling: PGA Tour GQL statLeaderboard is the authoritative source —
-    // same data pgatour.com displays; ESPN uses a different formula that doesn't match.
-    // Try stat 130 first (scrambling %), then 106 as fallback.
+    // scrambling: try PGA Tour GQL statLeaderboard first (stat 130, then 106).
+    // These often return no valid rows for scrambling, in which case we fall back
+    // to ESPN Core types/2 per-player fetch (same approach as sandSaves).
     if (statKey === 'scrambling') {
       const gqlRows = await fetchGqlStatLeaderboard('130') ?? await fetchGqlStatLeaderboard('106');
       if (gqlRows && gqlRows.length > 0) {
@@ -236,6 +282,32 @@ export async function GET(request: Request) {
           try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
         }
         return Response.json({ entries, tourAvg });
+      }
+      // GQL returned no rows — fall back to ESPN Core types/2 per-player (mirrors sandSaves path)
+      const scrambIds = await fetchPgaPlayerIds();
+      if (scrambIds.length > 0) {
+        const allCoreScrambling = await batchAll(scrambIds.map((id) => () => fetchCoreScrambling(id)), BATCH_SIZE);
+        const scrambValues: Array<{ espnId: string; value: number }> = [];
+        for (let i = 0; i < scrambIds.length; i++) {
+          const pct = allCoreScrambling[i];
+          if (pct !== null && pct !== undefined) scrambValues.push({ espnId: scrambIds[i], value: pct });
+        }
+        console.log(`[stat-lb] scrambling core fallback: players=${scrambIds.length} withValues=${scrambValues.length}`);
+        if (scrambValues.length > 0) {
+          scrambValues.sort((a, b) => b.value - a.value);
+          const top15 = scrambValues.slice(0, 15);
+          const names = await Promise.all(top15.map((p) => fetchAthleteName(p.espnId)));
+          const entries: StatLeaderboardEntry[] = top15
+            .map((p, i) => ({ rank: i + 1, name: names[i], value: `${p.value.toFixed(2)}%` }))
+            .filter((e) => e.name);
+          const sum = scrambValues.reduce((acc, p) => acc + p.value, 0);
+          const tourAvg = `${(sum / scrambValues.length).toFixed(2)}%`;
+          if (entries.length > 0) {
+            try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
+            try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
+          }
+          return Response.json({ entries: entries.length > 0 ? entries : [], tourAvg: entries.length > 0 ? tourAvg : null });
+        }
       }
     }
 
