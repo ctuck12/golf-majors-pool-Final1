@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-// Debug: probe statLeaders and statDetails GQL queries for scrambling (stat 130).
+// Debug: probe statDetails GQL with correct args and introspect StatDetailsRow type.
 
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
@@ -33,19 +33,19 @@ async function tryGql(label: string, query: string, variables: Record<string, un
 
 export async function GET() {
   const results = await Promise.all([
-    // Try statLeaders — likely replacement for statLeaderboard
-    tryGql('statLeaders-130-introspect', `query { __type(name: "Query") { fields { name args { name type { name kind ofType { name kind } } } } } }`),
+    // Introspect StatDetailsRow to find its fields
+    tryGql('StatDetailsRow-fields', `query { __type(name: "StatDetailsRow") { fields { name type { name kind ofType { name } } } } }`),
 
-    tryGql('statLeaders-130', `query { statLeaders(statId: "130") { rows { rank displayValue player { firstName lastName } } } }`),
+    // Try statDetails with correct tourCode arg
+    tryGql('statDetails-130-R', `query { statDetails(tourCode: R, statId: "130") { rows { __typename } } }`),
 
-    tryGql('statLeaders-130-v2', `query($statId: ID!) { statLeaders(statId: $statId) { rows { rank displayValue player { firstName lastName } } } }`, { statId: '130' }),
+    // Also introspect StatLeaderCategory
+    tryGql('StatLeaderCategory-fields', `query { __type(name: "StatLeaderCategory") { fields { name type { name kind ofType { name } } } } }`),
 
-    tryGql('statDetails-130', `query { statDetails(statId: "130") { rows { rank displayValue player { firstName lastName } } } }`),
-
-    tryGql('statOverview-130', `query { statOverview(statId: "130") { rows { rank displayValue player { firstName lastName } } } }`),
-
-    // Introspect what args statLeaders accepts
-    tryGql('statLeaders-schema', `query { __type(name: "Query") { fields(includeDeprecated: true) { name args { name type { name kind ofType { name } } } } } }`),
+    // playerProfileStatsFull — might give all stats for a player by year
+    tryGql('playerProfileStatsFull-46046', `
+      query { playerProfileStatsFull(playerId: "46046") { stats { statId value rank } } }
+    `),
   ]);
 
   return Response.json({ results });
