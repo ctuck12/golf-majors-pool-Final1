@@ -8368,9 +8368,9 @@ export default function Page() {
                 ) : (
                   statLeaderboardModal.entries.map((entry, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < statLeaderboardModal.entries!.length - 1 ? '1px solid #f0f4f8' : 'none' }}>
-                      {/* Rank — fixed width, right-aligned so digits line up */}
-                      <div style={{ width: 34, fontSize: 12, fontWeight: 800, color: i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af', flexShrink: 0, textAlign: 'left', marginRight: 10 }}>{entry.rank}</div>
-                      {/* Flag + country — always fixed width so player name always starts at same X */}
+                      {/* Rank — tight fixed width, left-aligned so first digit always lines up */}
+                      <div style={{ width: 26, fontSize: 12, fontWeight: 800, color: i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af', flexShrink: 0, textAlign: 'left', marginRight: 6 }}>{entry.rank}</div>
+                      {/* Flag + country — fixed width so player name always starts at same X */}
                       <div style={{ width: 50, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
                         {getFlagSrc(entry.name) ? (
                           <>
@@ -8381,8 +8381,8 @@ export default function Page() {
                       </div>
                       {/* Player name */}
                       <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0f1720', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
-                      {/* Value */}
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720', flexShrink: 0, marginLeft: 8 }}>{entry.value}</div>
+                      {/* Value — fixed min-width, right-aligned so all decimal points line up */}
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720', flexShrink: 0, marginLeft: 8, minWidth: 52, textAlign: 'right' }}>{entry.value}</div>
                     </div>
                   ))
                 )}
