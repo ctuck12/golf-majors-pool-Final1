@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import redis from '@/app/lib/redis';
 import { fetchTourAverages } from '@/app/lib/pga-tour-averages';
 
-const CACHE_KEY = `tour-averages:v25:${new Date().getFullYear()}`;
+const CACHE_KEY = `tour-averages:v26:${new Date().getFullYear()}`;
 const TTL = 21600; // 6 hours
 
 export async function GET() {
