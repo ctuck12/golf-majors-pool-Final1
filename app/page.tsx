@@ -8371,7 +8371,7 @@ export default function Page() {
           const kbPad = kbUp ? kbH + 8 : 0;
           // List maxHeight fills visible space above keyboard minus header and top margin.
           const listMaxH = kbUp
-            ? Math.max(120, vpH - HEADER_H - 4)
+            ? Math.max(120, vpH - HEADER_H)
             : Math.floor(fullH * 0.65);
           // Only snap modal to bottom (near keyboard) when actively searching and results fit above keyboard.
           const estimatedListH = Math.min(visibleEntries.length * ROW_H + 18, listMaxH);
