@@ -278,7 +278,7 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v21:${statKey}`;
+  const cacheKey = `stat-lb:v22:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) { const parsed = JSON.parse(cached); return Response.json(Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed); }
@@ -294,9 +294,8 @@ export async function GET(request: Request) {
     if (statKey === 'scrambling') {
       const gqlRows = await fetchStatDetailsLeaderboard('130') ?? await fetchStatDetailsLeaderboard('106');
       if (gqlRows && gqlRows.length > 0) {
-        const top15 = gqlRows.slice(0, 15);
         const tourAvg = `${(gqlRows.reduce((s, r) => s + r.value, 0) / gqlRows.length).toFixed(2)}%`;
-        const entries: StatLeaderboardEntry[] = top15.map((r, i) => ({ rank: i + 1, name: r.name, value: `${r.value.toFixed(2)}%` }));
+        const entries: StatLeaderboardEntry[] = gqlRows.map((r, i) => ({ rank: i + 1, name: r.name, value: `${r.value.toFixed(2)}%` }));
         if (entries.length > 0) {
           try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
           try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
@@ -317,9 +316,8 @@ export async function GET(request: Request) {
         console.log(`[stat-lb] scrambling core fallback: players=${scrambIds.length} withValues=${scrambValues.length}`);
         if (scrambValues.length > 0) {
           scrambValues.sort((a, b) => b.value - a.value);
-          const top15 = scrambValues.slice(0, 15);
-          const names = await Promise.all(top15.map((p) => fetchAthleteName(p.espnId)));
-          const entries: StatLeaderboardEntry[] = top15
+          const names = await Promise.all(scrambValues.map((p) => fetchAthleteName(p.espnId)));
+          const entries: StatLeaderboardEntry[] = scrambValues
             .map((p, i) => ({ rank: i + 1, name: names[i], value: `${p.value.toFixed(2)}%` }))
             .filter((e) => e.name);
           const sum = scrambValues.reduce((acc, p) => acc + p.value, 0);
@@ -337,9 +335,8 @@ export async function GET(request: Request) {
     if (statKey === 'sandSaves') {
       const gqlRows = await fetchStatDetailsLeaderboard('111') ?? await fetchStatDetailsLeaderboard('107');
       if (gqlRows && gqlRows.length > 0) {
-        const top15 = gqlRows.slice(0, 15);
         const tourAvg = `${(gqlRows.reduce((s, r) => s + r.value, 0) / gqlRows.length).toFixed(1)}%`;
-        const entries: StatLeaderboardEntry[] = top15.map((r, i) => ({ rank: i + 1, name: r.name, value: `${r.value.toFixed(1)}%` }));
+        const entries: StatLeaderboardEntry[] = gqlRows.map((r, i) => ({ rank: i + 1, name: r.name, value: `${r.value.toFixed(1)}%` }));
         if (entries.length > 0) {
           try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
           try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
@@ -401,11 +398,10 @@ export async function GET(request: Request) {
     playerValues.sort((a, b) =>
       LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value
     );
-    const top15 = playerValues.slice(0, 15);
 
-    const names = await Promise.all(top15.map((p) => fetchAthleteName(p.espnId)));
+    const names = await Promise.all(playerValues.map((p) => fetchAthleteName(p.espnId)));
 
-    const entries: StatLeaderboardEntry[] = top15.map((p, i) => ({
+    const entries: StatLeaderboardEntry[] = playerValues.map((p, i) => ({
       rank: i + 1,
       name: names[i],
       value: formatValue(p.value, statKey),

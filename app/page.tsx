@@ -8351,7 +8351,7 @@ export default function Page() {
                 </div>
                 <button onClick={() => setStatLeaderboardModal(null)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 999, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 16, fontWeight: 700 }}>×</button>
               </div>
-              <div style={{ padding: '6px 0 12px' }}>
+              <div style={{ overflowY: 'auto', maxHeight: '60vh', padding: '6px 0 12px' }}>
                 {statLeaderboardModal.entries === null ? (
                   <div style={{ padding: '24px 0', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>Loading…</div>
                 ) : statLeaderboardModal.entries.length === 0 ? (
