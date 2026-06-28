@@ -265,6 +265,23 @@ async function fetchStatDetailsLeaderboard(statId: string): Promise<Array<{ name
   } catch { return null; }
 }
 
+// PGA Tour stat IDs for each stat key — statDetails covers the full tour field (~155 players)
+const STAT_DETAILS_IDS: Record<string, string[]> = {
+  drivingDistance: ['101'],
+  drivingAccuracy: ['102'],
+  gir: ['103'],
+  puttAverage: ['104'],
+  scoringAverage: ['108'],
+  scrambling: ['130', '106'],
+  sandSaves: ['111', '107'],
+  sgTotal: ['02674'],
+  sgTeeToGreen: ['02675'],
+  sgOffTee: ['02567'],
+  sgApproach: ['02568'],
+  sgAroundGreen: ['02569'],
+  sgPutting: ['02564'],
+};
+
 async function batchAll<T>(tasks: (() => Promise<T>)[], size: number): Promise<T[]> {
   const results: T[] = [];
   for (let i = 0; i < tasks.length; i += size) {
@@ -278,106 +295,53 @@ export async function GET(request: Request) {
   const statKey = searchParams.get('statKey') ?? '';
   if (!statKey) return Response.json({ entries: [] });
 
-  const cacheKey = `stat-lb:v22:${statKey}`;
+  const cacheKey = `stat-lb:v23:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) { const parsed = JSON.parse(cached); return Response.json(Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed); }
   } catch { /* ignore */ }
 
   try {
-    // scrambling: PGA Tour GQL statLeaderboard is tried first. If it returns no valid rows
-    // (stat 130 is often not available in statLeaderboard), fall back to ESPN Core types/2
-    // which is the same reliable approach used for sandSaves.
-    // scrambling: try PGA Tour GQL statLeaderboard first (stat 130, then 106).
-    // These often return no valid rows for scrambling, in which case we fall back
-    // to ESPN Core types/2 per-player fetch (same approach as sandSaves).
-    if (statKey === 'scrambling') {
-      const gqlRows = await fetchStatDetailsLeaderboard('130') ?? await fetchStatDetailsLeaderboard('106');
-      if (gqlRows && gqlRows.length > 0) {
-        const tourAvg = `${(gqlRows.reduce((s, r) => s + r.value, 0) / gqlRows.length).toFixed(2)}%`;
-        const entries: StatLeaderboardEntry[] = gqlRows.map((r, i) => ({ rank: i + 1, name: r.name, value: `${r.value.toFixed(2)}%` }));
-        if (entries.length > 0) {
-          try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
-          try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
-        }
-        return Response.json({ entries, tourAvg });
+    // Try PGA Tour statDetails first — covers the full tour field (~155 players) for all stats
+    const pgaStatIds = STAT_DETAILS_IDS[statKey];
+    if (pgaStatIds) {
+      let gqlRows: Array<{ name: string; value: number }> | null = null;
+      for (const id of pgaStatIds) {
+        gqlRows = await fetchStatDetailsLeaderboard(id);
+        if (gqlRows && gqlRows.length > 0) break;
       }
-      // GQL failed — use ESPN Core types/2 (same as sandSaves path below)
-      // Fall through to the main player loop but use fetchCoreScrambling instead of overview
-      // GQL returned no rows — fall back to ESPN Core types/2 per-player (mirrors sandSaves path)
-      const scrambIds = await fetchPgaPlayerIds();
-      if (scrambIds.length > 0) {
-        const allCoreScrambling = await batchAll(scrambIds.map((id) => () => fetchCoreScrambling(id)), BATCH_SIZE);
-        const scrambValues: Array<{ espnId: string; value: number }> = [];
-        for (let i = 0; i < scrambIds.length; i++) {
-          const pct = allCoreScrambling[i];
-          if (pct !== null && pct !== undefined) scrambValues.push({ espnId: scrambIds[i], value: pct });
-        }
-        console.log(`[stat-lb] scrambling core fallback: players=${scrambIds.length} withValues=${scrambValues.length}`);
-        if (scrambValues.length > 0) {
-          scrambValues.sort((a, b) => b.value - a.value);
-          const names = await Promise.all(scrambValues.map((p) => fetchAthleteName(p.espnId)));
-          const entries: StatLeaderboardEntry[] = scrambValues
-            .map((p, i) => ({ rank: i + 1, name: names[i], value: `${p.value.toFixed(2)}%` }))
-            .filter((e) => e.name);
-          const sum = scrambValues.reduce((acc, p) => acc + p.value, 0);
-          const tourAvg = `${(sum / scrambValues.length).toFixed(2)}%`;
-          if (entries.length > 0) {
-            try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
-            try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
-          }
-          return Response.json({ entries: entries.length > 0 ? entries : [], tourAvg: entries.length > 0 ? tourAvg : null });
-        }
-      }
-    }
-
-    // sandSaves: try PGA Tour GQL statLeaderboard (stat 111) before falling back to per-player fetch
-    if (statKey === 'sandSaves') {
-      const gqlRows = await fetchStatDetailsLeaderboard('111') ?? await fetchStatDetailsLeaderboard('107');
       if (gqlRows && gqlRows.length > 0) {
-        const tourAvg = `${(gqlRows.reduce((s, r) => s + r.value, 0) / gqlRows.length).toFixed(1)}%`;
-        const entries: StatLeaderboardEntry[] = gqlRows.map((r, i) => ({ rank: i + 1, name: r.name, value: `${r.value.toFixed(1)}%` }));
-        if (entries.length > 0) {
-          try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
-          try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
-        }
+        const def = statDefs.find((d) => d.key === statKey);
+        const isPercent = def?.isPercent ?? false;
+        const decimals = def?.decimals ?? 1;
+        const fmt = (v: number) => isPercent ? `${v.toFixed(decimals)}%` : v.toFixed(decimals);
+        const sum = gqlRows.reduce((s, r) => s + r.value, 0);
+        const tourAvg = fmt(sum / gqlRows.length);
+        const entries: StatLeaderboardEntry[] = gqlRows.map((r, i) => ({ rank: i + 1, name: r.name, value: fmt(r.value) }));
+        try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
+        try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
         return Response.json({ entries, tourAvg });
       }
     }
 
+    // Fallback: ESPN overview (covers ~116 major-event players)
     const ids = await fetchPgaPlayerIds();
     if (ids.length === 0) return Response.json({ entries: [] });
 
     const defsForKey = statDefs.filter((d) => d.key === statKey);
     const playerValues: Array<{ espnId: string; value: number }> = [];
 
-    // Fetch overview stats for all players (contains season stats, GIR %, sand saves %, scrambling, etc.)
     const allOverviewData = await batchAll(
       ids.map((id) => () => fetchAthleteOverviewStats(id)),
       BATCH_SIZE,
     );
 
-    // sandSaves: try ESPN Core types/2 (savePct) first; fall back to overview if Core unavailable
-    const allCoreSandSaves = statKey === 'sandSaves'
-      ? await batchAll(ids.map((id) => () => fetchCoreSandSavesPct(id)), BATCH_SIZE)
-      : null;
-    const sandSavesCoreHit = allCoreSandSaves?.some((v) => v !== null) ?? false;
-    console.log(`[stat-lb] sandSaves core hit=${sandSavesCoreHit}`);
-
     for (let i = 0; i < ids.length; i++) {
-      // sandSaves: use ESPN Core types/2 value if available, otherwise fall through to overview below
-      if (statKey === 'sandSaves' && sandSavesCoreHit) {
-        const pct = allCoreSandSaves?.[i];
-        if (pct !== null && pct !== undefined) { playerValues.push({ espnId: ids[i], value: pct }); }
-        continue;
-      }
-
       const overview = allOverviewData[i];
       if (!overview) continue;
       const cats = overview.seasonRankings?.categories ?? [];
       const merged = [...cats, ...(overview.summaryStatistics ?? [])];
 
-      // GIR: ESPN stores raw greensHit count, not %; compute from greensHit / (totalDrives × 9)
       if (statKey === 'gir') {
         const pct = computeGirPct(cats);
         if (pct !== null) { playerValues.push({ espnId: ids[i], value: pct }); continue; }
@@ -392,7 +356,7 @@ export async function GET(request: Request) {
       }
     }
 
-    console.log(`[stat-lb] statKey=${statKey} pgaPlayers=${ids.length} withValues=${playerValues.length}`);
+    console.log(`[stat-lb] statKey=${statKey} espn-fallback players=${ids.length} withValues=${playerValues.length}`);
     if (playerValues.length === 0) return Response.json({ entries: [] });
 
     playerValues.sort((a, b) =>
