@@ -31,23 +31,19 @@ async function tryGql(label: string, query: string, variables: Record<string, un
 
 export async function GET() {
   const results = await Promise.all([
-    // Introspect concrete row types
-    tryGql('StatDetailsPlayer-fields', `query { __type(name: "StatDetailsPlayer") { fields { name type { name kind ofType { name } } } } }`),
-    tryGql('StatDetailTourAvg-fields', `query { __type(name: "StatDetailTourAvg") { fields { name type { name kind ofType { name } } } } }`),
-
-    // Try inline fragments on statDetails rows to get actual data
-    tryGql('statDetails-130-inline', `
+    // Get stats sub-type and first 3 rows with all known good fields
+    tryGql('statDetails-130-stats', `
       query {
         statDetails(tourCode: R, statId: "130") {
           rows {
             ... on StatDetailsPlayer {
               playerId
+              playerName
               rank
-              displayValue
-              value
+              stats { __typename }
             }
             ... on StatDetailTourAvg {
-              displayValue
+              displayName
               value
             }
           }
