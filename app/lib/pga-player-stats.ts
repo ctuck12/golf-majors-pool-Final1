@@ -38,8 +38,8 @@ function mapStat(
     case '102': acc.drivingAccuracy = withPercent(v); break;
     case '103': acc.gir = withPercent(v); break;
     case '104': acc.puttAverage = v; break;  // putts/GIR — display layer multiplies ×18
-    // stat 106: playerProfileStats internal metric (~60%), omitted — ESPN Core types/2 is correct source
-    // stat 130: playerProfileStats internal metric, omitted — ESPN Core types/2 is correct source
+    case '130': acc.scrambling = withPercent(v); break; // conventional scrambling — first group only (current season)
+    // stat 106: total scrambling (different calc), skip
     // 107/111: PGA playerProfileStats returns a different internal metric (~50%) that
     // doesn't match their own public leaderboard. Use ESPN averageDisplayValue instead.
     case '108': acc.scoringAverage = v; break;
@@ -184,7 +184,9 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
       };
       const groups = data?.data?.playerProfileStats;
       if (Array.isArray(groups) && groups.length > 0) {
-        const flat = groups.flatMap((g) => g.stats ?? []);
+        // Use only the first group (current season). Flattening all groups causes prior-season
+        // values to overwrite current-season values for duplicate statIds (e.g. stat 130).
+        const flat = groups[0].stats ?? [];
         if (flat.length > 0) stats = flat;
       }
     } catch {
@@ -196,7 +198,7 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
     const acc: Partial<PlayerStats> = {};
     const ranks: PlayerStatRanks = {};
     // Stats whose playerProfileStats rank is unreliable — value/rank come from ESPN Core types/2
-    const SKIP_PROFILE_RANK = new Set(['scrambling']);
+    const SKIP_PROFILE_RANK = new Set<string>();
     for (const stat of stats) {
       if (stat.statId) {
         mapStat(stat.statId, stat.value ?? stat.displayValue, acc);
