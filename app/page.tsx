@@ -8355,21 +8355,21 @@ export default function Page() {
           );
         })()}
 
-        {statLeaderboardModal !== null && (
-          <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, zIndex: 400 }}>
+        {statLeaderboardModal !== null && (() => {
+          const vpH = visualVpHeight ?? (typeof window !== 'undefined' ? window.innerHeight : 800);
+          const fullH = typeof window !== 'undefined' ? window.innerHeight : 800;
+          const kbUp = vpH < fullH * 0.8;
+          const listMaxH = kbUp ? Math.max(160, vpH - 160) : Math.floor(fullH * 0.6);
+          return (
+          <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems: kbUp ? 'flex-start' : 'center', justifyContent: 'center', padding: kbUp ? '8px 16px 0' : 24, zIndex: 400 }}>
             <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 340, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.35)' }}>
-              <div style={{ background: '#0f1720', padding: '14px 18px 10px' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ background: '#0f1720', padding: '12px 18px 10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <div>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: '#607282', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{statLeaderboardModal.subtitle}</div>
-                    <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>{statLeaderboardModal.label}</div>
-                    {statLeaderboardModal.tourAvg && (
-                      <div style={{ marginTop: 4, fontSize: 11, color: '#8fa3b1' }}>
-                        Tour Avg: <span style={{ fontWeight: 700, color: '#b8cad6' }}>{statLeaderboardModal.tourAvg}</span>
-                      </div>
-                    )}
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#607282', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 1 }}>{statLeaderboardModal.subtitle}</div>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1.2 }}>{statLeaderboardModal.label}{statLeaderboardModal.tourAvg && <span style={{ fontSize: 11, fontWeight: 500, color: '#8fa3b1', marginLeft: 8 }}>Avg: <span style={{ fontWeight: 700, color: '#b8cad6' }}>{statLeaderboardModal.tourAvg}</span></span>}</div>
                   </div>
-                  <button onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 999, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 16, fontWeight: 700, flexShrink: 0 }}>×</button>
+                  <button onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 999, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 16, fontWeight: 700, flexShrink: 0, marginLeft: 8 }}>×</button>
                 </div>
                 <div style={{ position: 'relative' }}>
                   <input
@@ -8377,14 +8377,14 @@ export default function Page() {
                     placeholder="Search player..."
                     value={statLbSearch}
                     onChange={(e) => setStatLbSearch(e.target.value)}
-                    style={{ width: '100%', boxSizing: 'border-box', padding: `4px ${statLbSearch ? 28 : 10}px 4px 10px`, fontSize: 16, border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, outline: 'none', color: '#0f1720', background: '#fff' }}
+                    style={{ width: '100%', boxSizing: 'border-box', padding: `4px ${statLbSearch ? 26 : 8}px 4px 8px`, fontSize: 16, border: '1px solid rgba(255,255,255,0.18)', borderRadius: 6, outline: 'none', color: '#0f1720', background: '#fff' }}
                   />
                   {statLbSearch && (
-                    <button onMouseDown={(e) => { e.preventDefault(); setStatLbSearch(''); }} style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#607282', fontSize: 16, lineHeight: 1, padding: 2 }}>×</button>
+                    <button onMouseDown={(e) => { e.preventDefault(); setStatLbSearch(''); }} style={{ position: 'absolute', right: 5, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#607282', fontSize: 15, lineHeight: 1, padding: 2 }}>×</button>
                   )}
                 </div>
               </div>
-              <div style={{ overflowY: 'auto', maxHeight: `${Math.max(200, (visualVpHeight ?? window.innerHeight) - 220)}px`, padding: '6px 0 12px' }}>
+              <div style={{ overflowY: 'auto', maxHeight: `${listMaxH}px`, padding: '6px 0 12px' }}>
                 {statLeaderboardModal.entries === null ? (
                   <div style={{ padding: '24px 0', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>Loading…</div>
                 ) : statLeaderboardModal.entries.length === 0 ? (
@@ -8392,15 +8392,7 @@ export default function Page() {
                 ) : (() => {
                   const allEntries = statLeaderboardModal.entries!;
                   const searchQ = statLbSearch.trim().toLowerCase();
-                  let entries = searchQ ? allEntries.filter(e => e.name.toLowerCase().includes(searchQ)) : allEntries.slice(0, 15);
-                  if (!searchQ && statLeaderboardModal.playerName) {
-                    const pn = statLeaderboardModal.playerName.toLowerCase();
-                    const already = entries.some(e => e.name.toLowerCase() === pn);
-                    if (!already) {
-                      const found = allEntries.find(e => e.name.toLowerCase() === pn);
-                      if (found) entries = [...entries, found];
-                    }
-                  }
+                  const entries = searchQ ? allEntries.filter(e => e.name.toLowerCase().includes(searchQ)) : allEntries;
                   const tourAvgNum = statLeaderboardModal.tourAvg ? parseFloat(statLeaderboardModal.tourAvg.replace('%', '')) : NaN;
                   const lowerIsBetter = ['scoringAverage', 'puttAverage'].includes(statLeaderboardModal.statKey);
                   let dividerIdx = -1;
@@ -8448,7 +8440,8 @@ export default function Page() {
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {pickHistoryPlayerPopup !== null && (
           <div
