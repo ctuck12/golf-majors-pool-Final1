@@ -7939,7 +7939,7 @@ export default function Page() {
                 {(() => {
                   const currentRnd = [...scorecardData.rounds].reverse().find(r => r.holes.length > 0) ?? scorecardData.rounds[scorecardData.rounds.length - 1];
                   const prevRnds = scorecardData.rounds.filter(r => r.round < currentRnd.round && r.holes.length > 0).sort((a, b) => b.round - a.round);
-                  if (prevRnds.length === 0) return <div style={{ color: '#607282', fontSize: 14, padding: '16px 0' }}>No previous round data available.</div>;
+                  const allRnds = [currentRnd, ...prevRnds];
 
                   const border = '1px solid #d1d9e0';
                   const thickBorder = '2px solid #9ab0c4';
@@ -7968,7 +7968,7 @@ export default function Page() {
                     return base;
                   };
 
-                  return prevRnds.map(rnd => {
+                  return allRnds.map(rnd => {
                     const front = rnd.holes.filter(h => h.hole <= 9);
                     const back = rnd.holes.filter(h => h.hole >= 10);
                     const frontPar = front.reduce((s, h) => s + (h.par || 0), 0);
