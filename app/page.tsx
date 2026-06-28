@@ -8404,8 +8404,8 @@ export default function Page() {
                         </div>
                         {/* Player name — white on red if selected */}
                         <span style={{ flex: 1, fontSize: 13, fontWeight: 800, color: isSelected ? '#fff' : '#0f1720', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
-                        {/* Value — fixed width, right-aligned; white on red if selected */}
-                        <div style={{ fontSize: 13, fontWeight: 800, color: isSelected ? '#fff' : '#0f1720', flexShrink: 0, width: 64, textAlign: 'right' }}>{entry.value}</div>
+                        {/* Value — tabular nums + fixed width so every digit lines up vertically */}
+                        <div style={{ fontSize: 13, fontWeight: 800, color: isSelected ? '#fff' : '#0f1720', flexShrink: 0, width: 68, textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontFeatureSettings: '"tnum"' }}>{entry.value}</div>
                       </div>
                     );
                   });
