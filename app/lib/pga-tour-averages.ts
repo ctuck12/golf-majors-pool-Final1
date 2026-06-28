@@ -12,12 +12,13 @@ const PGA_EVENT_IDS = ['401811952', '401811947', '401811941'];
 const BATCH_SIZE = 25;
 
 // Stat IDs → tour average config
-// The statLeaderboard GQL query returns every player's value for the stat — we average all rows.
-const GQL_LB_STAT_MAP: Array<{ statId: string; key: string; suffix?: string; multiplier?: number; decimals: number }> = [
+// statDetails returns a StatDetailTourAvg row with the official tour average directly.
+const GQL_LB_STAT_MAP: Array<{ statId: string; key: string; suffix?: string; decimals: number }> = [
   { statId: '101', key: 'drivingDistance', decimals: 1 },
   { statId: '102', key: 'drivingAccuracy', suffix: '%', decimals: 1 },
   { statId: '103', key: 'gir', suffix: '%', decimals: 2 },
-  { statId: '107', key: 'sandSaves', suffix: '%', decimals: 2 },
+  { statId: '130', key: 'scrambling', suffix: '%', decimals: 2 },
+  { statId: '111', key: 'sandSaves', suffix: '%', decimals: 2 },
   { statId: '108', key: 'scoringAverage', decimals: 2 },
   { statId: '104', key: 'puttAverage', decimals: 3 },
 ];
@@ -83,31 +84,33 @@ async function gqlPost(query: string, variables: Record<string, unknown>): Promi
   return res.json();
 }
 
-// Fetch all rows from statLeaderboard and compute tour average from them.
-// statLeaderboard works from Vercel (used in pga-player-stats.ts for individual players).
-async function fetchTourAvgFromLbRows(statId: string, multiplier?: number, suffix?: string, decimals = 1): Promise<string | null> {
+// Fetch the official tour average from statDetails — the StatDetailTourAvg row contains it directly.
+async function fetchTourAvgFromStatDetails(statId: string, suffix?: string, decimals = 1): Promise<string | null> {
   try {
     const query = `
-      query StatLeaderboard($statId: ID!) {
-        statLeaderboard(statId: $statId) {
-          rows { displayValue }
+      query StatDetails($statId: String!) {
+        statDetails(tourCode: R, statId: $statId) {
+          rows {
+            ... on StatDetailTourAvg {
+              displayName
+              value
+            }
+          }
         }
       }
     `;
     const data = await gqlPost(query, { statId }) as {
-      data?: { statLeaderboard?: { rows?: Array<{ displayValue?: string | null }> } };
+      data?: { statDetails?: { rows?: Array<{ displayName?: string; value?: string }> } };
     };
-    const rows = data?.data?.statLeaderboard?.rows;
-    if (!Array.isArray(rows) || rows.length === 0) return null;
-    const nums = rows
-      .map((r) => parseFloat((r.displayValue ?? '').replace('%', '')))
-      .filter((n) => !isNaN(n) && n !== 0);
-    if (nums.length === 0) return null;
-    let avg = nums.reduce((a, b) => a + b, 0) / nums.length;
-    if (multiplier) avg = avg * multiplier;
-    const str = avg.toFixed(decimals);
+    const rows = data?.data?.statDetails?.rows;
+    if (!Array.isArray(rows)) return null;
+    const avgRow = rows.find((r) => r.displayName != null);
+    if (!avgRow?.value) return null;
+    const num = parseFloat(avgRow.value.replace('%', ''));
+    if (isNaN(num) || num === 0) return null;
+    const str = num.toFixed(decimals);
     const result = suffix && !str.endsWith(suffix) ? `${str}${suffix}` : str;
-    console.log(`[tour-avg] key=statId${statId} source=lb-rows avg=${result} n=${nums.length}`);
+    console.log(`[tour-avg] statId=${statId} source=statDetails-tourAvg avg=${result}`);
     return result;
   } catch { return null; }
 }
@@ -116,8 +119,8 @@ async function fetchTourAvgFromLbRows(statId: string, multiplier?: number, suffi
 
 async function fetchFromGqlLeaderboard(): Promise<StatAverages> {
   const results: StatAverages = {};
-  await Promise.all(GQL_LB_STAT_MAP.map(async ({ statId, key, suffix, multiplier, decimals }) => {
-    const val = await fetchTourAvgFromLbRows(statId, multiplier, suffix, decimals);
+  await Promise.all(GQL_LB_STAT_MAP.map(async ({ statId, key, suffix, decimals }) => {
+    const val = await fetchTourAvgFromStatDetails(statId, suffix, decimals);
     if (val) results[key] = val;
   }));
   return results;
