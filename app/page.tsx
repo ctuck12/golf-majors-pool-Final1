@@ -8381,8 +8381,8 @@ export default function Page() {
                       </div>
                       {/* Player name */}
                       <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0f1720', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
-                      {/* Value — fixed min-width, right-aligned so all decimal points line up */}
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720', flexShrink: 0, marginLeft: 8, minWidth: 52, textAlign: 'right' }}>{entry.value}</div>
+                      {/* Value — fixed width so every row's number anchors to the same right edge */}
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720', flexShrink: 0, width: 64, textAlign: 'right' }}>{entry.value}</div>
                     </div>
                   ))
                 )}
