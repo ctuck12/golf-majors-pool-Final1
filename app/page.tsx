@@ -8364,16 +8364,21 @@ export default function Page() {
           const allEntries = statLeaderboardModal.entries ?? [];
           // Default: top 15. Searching: all matches.
           const visibleEntries = searchQ ? allEntries.filter(e => e.name.toLowerCase().includes(searchQ)) : allEntries.slice(0, 15);
-          const HEADER_H = 112; // dark header + search bar
+          const HEADER_H = 110;
           const ROW_H = 40;
-          const estimatedListH = visibleEntries.length * ROW_H + 18;
+          // Critical: add kbH as bottom padding on the backdrop so flex-end anchors
+          // to the top of the keyboard, not the bottom of the window (which is behind keyboard).
+          const kbPad = kbUp ? kbH + 8 : 0;
+          // List maxHeight fills visible space above keyboard minus header and top margin.
+          const listMaxH = kbUp
+            ? Math.max(120, vpH - HEADER_H - 16)
+            : Math.floor(fullH * 0.65);
+          // Only snap modal to bottom (near keyboard) when actively searching and results fit above keyboard.
+          const estimatedListH = Math.min(visibleEntries.length * ROW_H + 18, listMaxH);
           const estimatedModalH = estimatedListH + HEADER_H;
-          // When keyboard is up: available = vpH. If modal fits, anchor it near keyboard bottom; else pin to top.
-          const available = vpH - 16;
-          const fitsAboveKb = kbUp && estimatedModalH <= available;
-          const alignItems = !kbUp ? 'center' : fitsAboveKb ? 'flex-end' : 'flex-start';
-          const padding = !kbUp ? '24px' : fitsAboveKb ? `0 16px 8px` : '8px 16px 0';
-          const listMaxH = !kbUp ? Math.floor(fullH * 0.65) : Math.max(160, available - HEADER_H);
+          const snapToBottom = kbUp && !!searchQ && estimatedModalH <= (vpH - 16);
+          const alignItems = !kbUp ? 'center' : snapToBottom ? 'flex-end' : 'flex-start';
+          const padding = !kbUp ? '24px' : `8px 16px ${kbPad}px`;
           return (
           <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems, justifyContent: 'center', padding, zIndex: 400 }}>
             <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 340, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.35)' }}>
