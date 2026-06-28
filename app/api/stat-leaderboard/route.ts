@@ -135,8 +135,6 @@ async function fetchCoreStats(espnId: string): Promise<Stat[] | null> {
       return (data.splits as Array<{ stats?: Stat[] }>)[0]?.stats ?? null;
     }
     return null;
-  } catch {
-    return null;
   } catch { return null; }
 }
 
