@@ -8364,14 +8364,14 @@ export default function Page() {
           const allEntries = statLeaderboardModal.entries ?? [];
           // Default: top 15. Searching: all matches.
           const visibleEntries = searchQ ? allEntries.filter(e => e.name.toLowerCase().includes(searchQ)) : allEntries.slice(0, 15);
-          const HEADER_H = 110;
+          const HEADER_H = 118;
           const ROW_H = 40;
           // Critical: add kbH as bottom padding on the backdrop so flex-end anchors
           // to the top of the keyboard, not the bottom of the window (which is behind keyboard).
           const kbPad = kbUp ? kbH + 8 : 0;
           // List maxHeight fills visible space above keyboard minus header and top margin.
           const listMaxH = kbUp
-            ? Math.max(120, vpH - HEADER_H - 8)
+            ? Math.max(120, vpH - HEADER_H - 4)
             : Math.floor(fullH * 0.65);
           // Only snap modal to bottom (near keyboard) when actively searching and results fit above keyboard.
           const estimatedListH = Math.min(visibleEntries.length * ROW_H + 18, listMaxH);
@@ -8386,7 +8386,8 @@ export default function Page() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <div>
                     <div style={{ fontSize: 9, fontWeight: 700, color: '#607282', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 1 }}>{statLeaderboardModal.subtitle}</div>
-                    <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1.2 }}>{statLeaderboardModal.label}{statLeaderboardModal.tourAvg && <span style={{ fontSize: 11, fontWeight: 500, color: '#8fa3b1', marginLeft: 8 }}>Avg: <span style={{ fontWeight: 700, color: '#b8cad6' }}>{statLeaderboardModal.tourAvg}</span></span>}</div>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1.2 }}>{statLeaderboardModal.label}</div>
+                    {statLeaderboardModal.tourAvg && <div style={{ fontSize: 11, fontWeight: 500, color: '#8fa3b1', marginTop: 2 }}>Tour Avg: <span style={{ fontWeight: 700, color: '#b8cad6' }}>{statLeaderboardModal.tourAvg}</span></div>}
                   </div>
                   <button onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 999, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 16, fontWeight: 700, flexShrink: 0, marginLeft: 8 }}>×</button>
                 </div>
