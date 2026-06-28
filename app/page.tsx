@@ -1202,6 +1202,15 @@ export default function Page() {
   const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
   const [statLeaderboardModal, setStatLeaderboardModal] = useState<{ label: string; statKey: string; subtitle: string; tourAvg: string | null; playerName: string | null; entries: { rank: number; name: string; value: string }[] | null } | null>(null);
   const [statLbSearch, setStatLbSearch] = useState('');
+  const [visualVpHeight, setVisualVpHeight] = useState<number | null>(null);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const handler = () => setVisualVpHeight(vv.height);
+    vv.addEventListener('resize', handler);
+    handler();
+    return () => vv.removeEventListener('resize', handler);
+  }, []);
   useEffect(() => {
     if (!pickHistoryPlayerPopup) return;
     const scrollY = window.scrollY;
@@ -8347,8 +8356,8 @@ export default function Page() {
         })()}
 
         {statLeaderboardModal !== null && (
-          <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, zIndex: 400 }}>
-            <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 340, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.35)' }}>
+          <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: `${Math.max(8, ((visualVpHeight ?? window.innerHeight) - Math.min(560, (visualVpHeight ?? window.innerHeight) - 40)) / 2)}px 16px 8px`, zIndex: 400, overflowY: 'auto' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 340, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.35)', flexShrink: 0 }}>
               <div style={{ background: '#0f1720', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ fontSize: 9, fontWeight: 700, color: '#607282', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{statLeaderboardModal.subtitle}</div>
@@ -8367,10 +8376,10 @@ export default function Page() {
                   placeholder="Search by name…"
                   value={statLbSearch}
                   onChange={(e) => setStatLbSearch(e.target.value)}
-                  style={{ width: '100%', padding: '7px 12px', fontSize: 13, border: '1px solid #d1d9e0', borderRadius: 8, outline: 'none', color: '#0f1720', background: '#f6f9fb', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '7px 12px', fontSize: 16, border: '1px solid #d1d9e0', borderRadius: 8, outline: 'none', color: '#0f1720', background: '#f6f9fb', boxSizing: 'border-box' }}
                 />
               </div>
-              <div style={{ overflowY: 'auto', maxHeight: '60vh', padding: '6px 0 12px' }}>
+              <div style={{ overflowY: 'auto', maxHeight: `${Math.max(200, (visualVpHeight ?? window.innerHeight) - 220)}px`, padding: '6px 0 12px' }}>
                 {statLeaderboardModal.entries === null ? (
                   <div style={{ padding: '24px 0', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>Loading…</div>
                 ) : statLeaderboardModal.entries.length === 0 ? (
