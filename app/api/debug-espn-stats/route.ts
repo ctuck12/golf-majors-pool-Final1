@@ -1,7 +1,5 @@
 export const dynamic = 'force-dynamic';
 
-// Debug: probe statDetails GQL with correct args and introspect StatDetailsRow type.
-
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 
@@ -33,18 +31,28 @@ async function tryGql(label: string, query: string, variables: Record<string, un
 
 export async function GET() {
   const results = await Promise.all([
-    // Introspect StatDetailsRow to find its fields
-    tryGql('StatDetailsRow-fields', `query { __type(name: "StatDetailsRow") { fields { name type { name kind ofType { name } } } } }`),
+    // Introspect concrete row types
+    tryGql('StatDetailsPlayer-fields', `query { __type(name: "StatDetailsPlayer") { fields { name type { name kind ofType { name } } } } }`),
+    tryGql('StatDetailTourAvg-fields', `query { __type(name: "StatDetailTourAvg") { fields { name type { name kind ofType { name } } } } }`),
 
-    // Try statDetails with correct tourCode arg
-    tryGql('statDetails-130-R', `query { statDetails(tourCode: R, statId: "130") { rows { __typename } } }`),
-
-    // Also introspect StatLeaderCategory
-    tryGql('StatLeaderCategory-fields', `query { __type(name: "StatLeaderCategory") { fields { name type { name kind ofType { name } } } } }`),
-
-    // playerProfileStatsFull — might give all stats for a player by year
-    tryGql('playerProfileStatsFull-46046', `
-      query { playerProfileStatsFull(playerId: "46046") { stats { statId value rank } } }
+    // Try inline fragments on statDetails rows to get actual data
+    tryGql('statDetails-130-inline', `
+      query {
+        statDetails(tourCode: R, statId: "130") {
+          rows {
+            ... on StatDetailsPlayer {
+              playerId
+              rank
+              displayValue
+              value
+            }
+            ... on StatDetailTourAvg {
+              displayValue
+              value
+            }
+          }
+        }
+      }
     `),
   ]);
 
