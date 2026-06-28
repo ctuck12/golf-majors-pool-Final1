@@ -8356,12 +8356,26 @@ export default function Page() {
         })()}
 
         {statLeaderboardModal !== null && (() => {
-          const vpH = visualVpHeight ?? (typeof window !== 'undefined' ? window.innerHeight : 800);
           const fullH = typeof window !== 'undefined' ? window.innerHeight : 800;
-          const kbUp = vpH < fullH * 0.8;
-          const listMaxH = kbUp ? Math.max(160, vpH - 160) : Math.floor(fullH * 0.6);
+          const vpH = Math.min(visualVpHeight ?? fullH, fullH);
+          const kbH = fullH - vpH; // keyboard height (0 when no keyboard)
+          const kbUp = kbH > 80;
+          const searchQ = statLbSearch.trim().toLowerCase();
+          const allEntries = statLeaderboardModal.entries ?? [];
+          // Default: top 15. Searching: all matches.
+          const visibleEntries = searchQ ? allEntries.filter(e => e.name.toLowerCase().includes(searchQ)) : allEntries.slice(0, 15);
+          const HEADER_H = 112; // dark header + search bar
+          const ROW_H = 40;
+          const estimatedListH = visibleEntries.length * ROW_H + 18;
+          const estimatedModalH = estimatedListH + HEADER_H;
+          // When keyboard is up: available = vpH. If modal fits, anchor it near keyboard bottom; else pin to top.
+          const available = vpH - 16;
+          const fitsAboveKb = kbUp && estimatedModalH <= available;
+          const alignItems = !kbUp ? 'center' : fitsAboveKb ? 'flex-end' : 'flex-start';
+          const padding = !kbUp ? '24px' : fitsAboveKb ? `0 16px 8px` : '8px 16px 0';
+          const listMaxH = !kbUp ? Math.floor(fullH * 0.65) : Math.max(160, available - HEADER_H);
           return (
-          <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems: kbUp ? 'flex-start' : 'center', justifyContent: 'center', padding: kbUp ? '8px 16px 0' : 24, zIndex: 400 }}>
+          <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems, justifyContent: 'center', padding, zIndex: 400 }}>
             <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 340, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.35)' }}>
               <div style={{ background: '#0f1720', padding: '12px 18px 10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
