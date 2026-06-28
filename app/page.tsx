@@ -1200,7 +1200,7 @@ export default function Page() {
   } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
   const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
-  const [statLeaderboardModal, setStatLeaderboardModal] = useState<{ label: string; statKey: string; subtitle: string; tourAvg: string | null; entries: { rank: number; name: string; value: string }[] | null } | null>(null);
+  const [statLeaderboardModal, setStatLeaderboardModal] = useState<{ label: string; statKey: string; subtitle: string; tourAvg: string | null; playerName: string | null; entries: { rank: number; name: string; value: string }[] | null } | null>(null);
   useEffect(() => {
     if (!pickHistoryPlayerPopup) return;
     const scrollY = window.scrollY;
@@ -8365,27 +8365,52 @@ export default function Page() {
                   <div style={{ padding: '24px 0', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>Loading…</div>
                 ) : statLeaderboardModal.entries.length === 0 ? (
                   <div style={{ padding: '24px 0', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>No data available</div>
-                ) : (
-                  statLeaderboardModal.entries.map((entry, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < statLeaderboardModal.entries!.length - 1 ? '1px solid #f0f4f8' : 'none' }}>
-                      {/* Rank — tight fixed width, left-aligned so first digit always lines up */}
-                      <div style={{ width: 26, fontSize: 12, fontWeight: 800, color: i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af', flexShrink: 0, textAlign: 'left', marginRight: 6 }}>{entry.rank}</div>
-                      {/* Flag + country — fixed width so player name always starts at same X */}
-                      <div style={{ width: 50, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
-                        {getFlagSrc(entry.name) ? (
-                          <>
-                            <img src={getFlagSrc(entry.name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0', flexShrink: 0 }} />
-                            <span style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.05em', width: 22, display: 'inline-block' }}>{getCountryLabel(entry.name)}</span>
-                          </>
-                        ) : null}
+                ) : (() => {
+                  const entries = statLeaderboardModal.entries!;
+                  const tourAvgNum = statLeaderboardModal.tourAvg ? parseFloat(statLeaderboardModal.tourAvg.replace('%', '')) : NaN;
+                  const lowerIsBetter = ['scoringAverage', 'puttAverage'].includes(statLeaderboardModal.statKey);
+                  let dividerIdx = -1;
+                  if (!isNaN(tourAvgNum)) {
+                    for (let di = 0; di < entries.length; di++) {
+                      const v = parseFloat(entries[di].value.replace('%', ''));
+                      if (!isNaN(v) && (lowerIsBetter ? v > tourAvgNum : v < tourAvgNum)) { dividerIdx = di; break; }
+                    }
+                  }
+                  const rows: React.ReactNode[] = [];
+                  entries.forEach((entry, i) => {
+                    const isSelected = !!statLeaderboardModal.playerName && entry.name.toLowerCase() === statLeaderboardModal.playerName.toLowerCase();
+                    const rankColor = i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af';
+                    if (i === dividerIdx) {
+                      rows.push(
+                        <div key="tour-avg-divider" style={{ display: 'flex', alignItems: 'center', padding: '5px 18px', background: '#f0f4f8', borderTop: '2px solid #0f1720', borderBottom: '2px solid #0f1720' }}>
+                          <div style={{ flex: 1, height: 1, background: '#0f1720', opacity: 0.15 }} />
+                          <span style={{ fontSize: 10, fontWeight: 800, color: '#0f1720', padding: '0 10px', whiteSpace: 'nowrap', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Tour Avg: {statLeaderboardModal.tourAvg}</span>
+                          <div style={{ flex: 1, height: 1, background: '#0f1720', opacity: 0.15 }} />
+                        </div>
+                      );
+                    }
+                    rows.push(
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '9px 18px', borderBottom: i < entries.length - 1 ? '1px solid #f0f4f8' : 'none', background: isSelected ? '#fff5f5' : 'transparent' }}>
+                        {/* Rank — right-aligned so units digit always lines up (9 aligns with 0 in 10) */}
+                        <div style={{ width: 26, fontSize: 12, fontWeight: 800, color: rankColor, flexShrink: 0, textAlign: 'right', marginRight: 6 }}>{entry.rank}</div>
+                        {/* Flag + country — fixed width so player name always starts at same X */}
+                        <div style={{ width: 50, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+                          {getFlagSrc(entry.name) ? (
+                            <>
+                              <img src={getFlagSrc(entry.name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0', flexShrink: 0 }} />
+                              <span style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.05em', width: 22, display: 'inline-block' }}>{getCountryLabel(entry.name)}</span>
+                            </>
+                          ) : null}
+                        </div>
+                        {/* Player name — red if selected */}
+                        <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: isSelected ? '#cc1c1c' : '#0f1720', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
+                        {/* Value — fixed width, right-aligned; red if selected */}
+                        <div style={{ fontSize: 13, fontWeight: 800, color: isSelected ? '#cc1c1c' : '#0f1720', flexShrink: 0, width: 64, textAlign: 'right' }}>{entry.value}</div>
                       </div>
-                      {/* Player name */}
-                      <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0f1720', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
-                      {/* Value — fixed width so every row's number anchors to the same right edge */}
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720', flexShrink: 0, width: 64, textAlign: 'right' }}>{entry.value}</div>
-                    </div>
-                  ))
-                )}
+                    );
+                  });
+                  return rows;
+                })()}
               </div>
             </div>
           </div>
@@ -8610,7 +8635,7 @@ export default function Page() {
                               const avg = avgKey ? avgs[avgKey] : undefined;
                               const rank = rankKey ? getRank(rankKey, value) : null;
                               return (
-                                <div key={label} onClick={() => { if (rankKey) { const lbEventId = TOURNAMENT_ESPN_EVENT_IDS[careerTournamentId]; const url = isTournView && lbEventId ? `/api/tournament-stat-leaderboard?statKey=${rankKey}&eventId=${lbEventId}` : `/api/stat-leaderboard?statKey=${rankKey}`; const subtitle = isTournView ? 'Tournament Leaders' : 'Season Leaders'; setStatLeaderboardModal({ label, statKey: rankKey, subtitle, tourAvg: null, entries: null }); fetch(url).then(r => r.json()).then(d => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, tourAvg: d.tourAvg ?? null, entries: d.entries ?? [] } : prev)).catch(() => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: [] } : prev)); } }} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', cursor: rankKey ? 'pointer' : 'default' }}>
+                                <div key={label} onClick={() => { if (rankKey) { const lbEventId = TOURNAMENT_ESPN_EVENT_IDS[careerTournamentId]; const url = isTournView && lbEventId ? `/api/tournament-stat-leaderboard?statKey=${rankKey}&eventId=${lbEventId}` : `/api/stat-leaderboard?statKey=${rankKey}`; const subtitle = isTournView ? 'Tournament Leaders' : 'Season Leaders'; setStatLeaderboardModal({ label, statKey: rankKey, subtitle, tourAvg: null, playerName: pickHistoryPlayerPopup?.player.name ?? null, entries: null }); fetch(url).then(r => r.json()).then(d => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, tourAvg: d.tourAvg ?? null, entries: d.entries ?? [] } : prev)).catch(() => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: [] } : prev)); } }} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', cursor: rankKey ? 'pointer' : 'default' }}>
                                   <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
                                   <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
                                     {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>({rank})</span>}
@@ -8629,7 +8654,7 @@ export default function Page() {
                             {sgStatCells.map(({ label, value, rankKey }) => {
                               const rank = rankKey ? getRank(rankKey, value) : null;
                               return (
-                                <div key={label} onClick={() => { if (rankKey) { const lbEventId = TOURNAMENT_ESPN_EVENT_IDS[careerTournamentId]; const url = isTournView && lbEventId ? `/api/tournament-stat-leaderboard?statKey=${rankKey}&eventId=${lbEventId}` : `/api/stat-leaderboard?statKey=${rankKey}`; const subtitle = isTournView ? 'Tournament Leaders' : 'Season Leaders'; setStatLeaderboardModal({ label: `SG: ${label}`, statKey: rankKey, subtitle, tourAvg: null, entries: null }); fetch(url).then(r => r.json()).then(d => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, tourAvg: d.tourAvg ?? null, entries: d.entries ?? [] } : prev)).catch(() => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: [] } : prev)); } }} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', cursor: rankKey ? 'pointer' : 'default' }}>
+                                <div key={label} onClick={() => { if (rankKey) { const lbEventId = TOURNAMENT_ESPN_EVENT_IDS[careerTournamentId]; const url = isTournView && lbEventId ? `/api/tournament-stat-leaderboard?statKey=${rankKey}&eventId=${lbEventId}` : `/api/stat-leaderboard?statKey=${rankKey}`; const subtitle = isTournView ? 'Tournament Leaders' : 'Season Leaders'; setStatLeaderboardModal({ label: `SG: ${label}`, statKey: rankKey, subtitle, tourAvg: null, playerName: pickHistoryPlayerPopup?.player.name ?? null, entries: null }); fetch(url).then(r => r.json()).then(d => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, tourAvg: d.tourAvg ?? null, entries: d.entries ?? [] } : prev)).catch(() => setStatLeaderboardModal(prev => prev?.statKey === rankKey ? { ...prev, entries: [] } : prev)); } }} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8ef', padding: '8px 10px', cursor: rankKey ? 'pointer' : 'default' }}>
                                   <div style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{label}</div>
                                   <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>
                                     {value}{rank && <span style={{ fontSize: 10, fontWeight: 600, color: '#607282', marginLeft: 4 }}>({rank})</span>}
