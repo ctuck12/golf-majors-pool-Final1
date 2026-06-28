@@ -8425,7 +8425,7 @@ export default function Page() {
                   const rows: React.ReactNode[] = [];
                   entries.forEach((entry, i) => {
                     const isSelected = !!statLeaderboardModal.playerName && entry.name.toLowerCase() === statLeaderboardModal.playerName.toLowerCase();
-                    const rankColor = i === 0 ? '#c9a227' : i === 1 ? '#8e9aab' : i === 2 ? '#a0714f' : '#9ca3af';
+                    const rankColor = '#9ca3af';
                     if (i === dividerIdx) {
                       rows.push(
                         <div key="tour-avg-divider" style={{ display: 'flex', alignItems: 'center', padding: '5px 18px', background: '#f0f4f8', borderTop: '2px solid #0f1720', borderBottom: '2px solid #0f1720' }}>
