@@ -8371,14 +8371,14 @@ export default function Page() {
           const kbPad = kbUp ? kbH + 8 : 0;
           // List maxHeight fills visible space above keyboard minus header and top margin.
           const listMaxH = kbUp
-            ? Math.max(120, vpH - HEADER_H - 16)
+            ? Math.max(120, vpH - HEADER_H - 8)
             : Math.floor(fullH * 0.65);
           // Only snap modal to bottom (near keyboard) when actively searching and results fit above keyboard.
           const estimatedListH = Math.min(visibleEntries.length * ROW_H + 18, listMaxH);
           const estimatedModalH = estimatedListH + HEADER_H;
           const snapToBottom = kbUp && !!searchQ && estimatedModalH <= (vpH - 16);
           const alignItems = !kbUp ? 'center' : snapToBottom ? 'flex-end' : 'flex-start';
-          const padding = !kbUp ? '24px' : `8px 16px ${kbPad}px`;
+          const padding = !kbUp ? '24px' : `4px 16px ${kbPad}px`;
           return (
           <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems, justifyContent: 'center', padding, zIndex: 400 }}>
             <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 340, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.35)' }}>
