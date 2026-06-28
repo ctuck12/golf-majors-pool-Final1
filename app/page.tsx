@@ -8356,8 +8356,8 @@ export default function Page() {
         })()}
 
         {statLeaderboardModal !== null && (
-          <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: `${Math.max(8, ((visualVpHeight ?? window.innerHeight) - Math.min(560, (visualVpHeight ?? window.innerHeight) - 40)) / 2)}px 16px 8px`, zIndex: 400, overflowY: 'auto' }}>
-            <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 340, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.35)', flexShrink: 0 }}>
+          <div onClick={() => { setStatLeaderboardModal(null); setStatLbSearch(''); }} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.72)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, zIndex: 400 }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 340, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.35)' }}>
               <div style={{ background: '#0f1720', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ fontSize: 9, fontWeight: 700, color: '#607282', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{statLeaderboardModal.subtitle}</div>
