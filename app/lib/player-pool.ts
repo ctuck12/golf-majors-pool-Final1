@@ -2,7 +2,9 @@
 // Permanently retired IDs: 11, 26, 83, 86, 88, 95, 97, 99, 100, 101, 105, 106, 107, 108, 109, 110, 111,
 //   113, 115, 118, 120, 122, 123, 124, 125, 127, 128, 129, 130, 132, 133, 134, 135, 137, 138, 140, 141,
 //   142, 147, 156, 160, 162, 176, 177, 179, 180, 182, 187, 189
-// Next available ID: 247
+// Next available ID: 284
+// pgaTourId: 0 means the ID has not yet been resolved — bio/stats still work via name-based ESPN lookup,
+//   but photos will show the default headshot. Run /api/admin/resolve-player-ids to auto-fill.
 
 export const PLAYER_POOL_WITH_PGA_IDS = [
   { id:   1, name: 'Scottie Scheffler',                pgaTourId: 46046, defaultOdds: '+450',    worldRank:   1 },
@@ -84,7 +86,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 126, name: 'Aaron Rai',                        pgaTourId: 46414, defaultOdds: '+20000',  worldRank:  44 },
   { id: 136, name: 'Billy Horschel',                   pgaTourId: 29420, defaultOdds: '+15000',  worldRank: 117 },
   { id: 146, name: 'David Puig',                       pgaTourId: 61193, defaultOdds: '+10000',  worldRank: 109, photoUrl: 'https://cdn.sanity.io/images/2guez6v8/prd/c46890fb030a902de7f235b2bddf32006b860199-2747x2622.png?bg=ffffff&fit=crop&w=280&h=350' },
-  { id: 150, name: 'John Keefer',                      pgaTourId: 63454, defaultOdds: '+15000',  worldRank:  74, photoUrl: '/headshots/keefer-63454.png' },
+  { id: 150, name: 'Johnny Keefer',                     pgaTourId: 63454, defaultOdds: '+15000',  worldRank:  74, photoUrl: '/headshots/keefer-63454.png' },
   { id: 151, name: 'Max McGreevy',                     pgaTourId: 51950, defaultOdds: '+15000',  worldRank:  99 },
   { id: 158, name: 'Keith Mitchell',                   pgaTourId: 39546, defaultOdds: '+15000',  worldRank: 100 },
   { id: 159, name: 'John Parry',                       pgaTourId: 28723, defaultOdds: '+15000',  worldRank: 102 },
@@ -140,6 +142,44 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 244, name: 'Rocco Paolo Repetto Taylor',       pgaTourId: 65229, defaultOdds: '+30000',  worldRank: 358 },
   { id: 245, name: 'Manav Shah',                       pgaTourId: 47687, defaultOdds: '+100000', worldRank: 997 },
   { id: 246, name: 'Spencer Tibbits',                  pgaTourId: 57365, defaultOdds: '+100000', worldRank: 999 },
+  // Players added from 2025 PGA Tour season Drive Distance leaderboard — pgaTourId: 0 pending resolution
+  { id: 247, name: 'Tony Finau',                       pgaTourId:     0, defaultOdds: '+8000',   worldRank:  62 },
+  { id: 248, name: 'Taylor Moore',                     pgaTourId:     0, defaultOdds: '+25000',  worldRank: 120 },
+  { id: 249, name: 'Matthieu Pavon',                   pgaTourId:     0, defaultOdds: '+15000',  worldRank:  77 },
+  { id: 250, name: 'Seamus Power',                     pgaTourId:     0, defaultOdds: '+12000',  worldRank:  76 },
+  { id: 251, name: 'Erik van Rooyen',                  pgaTourId:     0, defaultOdds: '+15000',  worldRank:  87 },
+  { id: 252, name: 'Mackenzie Hughes',                 pgaTourId:     0, defaultOdds: '+20000',  worldRank: 101 },
+  { id: 253, name: 'Karl Vilips',                      pgaTourId:     0, defaultOdds: '+20000',  worldRank:  97 },
+  { id: 254, name: 'Austin Eckroat',                   pgaTourId:     0, defaultOdds: '+20000',  worldRank: 103 },
+  { id: 255, name: 'Doug Ghim',                        pgaTourId:     0, defaultOdds: '+25000',  worldRank: 140 },
+  { id: 256, name: 'Tom Hoge',                         pgaTourId:     0, defaultOdds: '+25000',  worldRank: 129 },
+  { id: 257, name: 'Joel Dahmen',                      pgaTourId:     0, defaultOdds: '+25000',  worldRank: 142 },
+  { id: 258, name: 'Christo Lamprecht',                pgaTourId:     0, defaultOdds: '+20000',  worldRank:  75 },
+  { id: 259, name: 'Zecheng Dou',                      pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 260, name: 'Kevin Yu',                         pgaTourId:     0, defaultOdds: '+25000',  worldRank: 148 },
+  { id: 261, name: 'Patrick Fishburn',                 pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 262, name: 'Danny Walker',                     pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 263, name: 'Mac Meissner',                     pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 264, name: 'John VanDerLaan',                  pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 265, name: 'Chad Ramey',                       pgaTourId:     0, defaultOdds: '+25000',  worldRank: 150 },
+  { id: 266, name: 'A.J. Ewart',                       pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 267, name: 'Zach Bauchou',                     pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 268, name: 'Luke Clanton',                     pgaTourId:     0, defaultOdds: '+25000',  worldRank: 150 },
+  { id: 269, name: 'Vince Whaley',                     pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 270, name: 'Beau Hossler',                     pgaTourId:     0, defaultOdds: '+25000',  worldRank: 150 },
+  { id: 271, name: 'Sam Ryder',                        pgaTourId:     0, defaultOdds: '+25000',  worldRank: 150 },
+  { id: 272, name: 'Eric Cole',                        pgaTourId:     0, defaultOdds: '+25000',  worldRank: 150 },
+  { id: 273, name: 'Lee Hodges',                       pgaTourId:     0, defaultOdds: '+25000',  worldRank: 150 },
+  { id: 274, name: 'Jeffrey Kang',                     pgaTourId:     0, defaultOdds: '+50000',  worldRank: 300 },
+  { id: 275, name: 'Hank Lebioda',                     pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 276, name: 'Mark Hubbard',                     pgaTourId:     0, defaultOdds: '+25000',  worldRank: 150 },
+  { id: 277, name: 'Kensei Hirata',                    pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 278, name: 'Takumi Kanaya',                    pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 279, name: 'Peter Malnati',                    pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 280, name: 'Adam Svensson',                    pgaTourId:     0, defaultOdds: '+25000',  worldRank: 150 },
+  { id: 281, name: 'Brice Garnett',                    pgaTourId:     0, defaultOdds: '+30000',  worldRank: 200 },
+  { id: 282, name: 'Davis Chatfield',                  pgaTourId:     0, defaultOdds: '+50000',  worldRank: 400 },
+  { id: 283, name: 'Pontus Nyholm',                    pgaTourId:     0, defaultOdds: '+30000',  worldRank: 150 },
 ] as const;
 
 // Players not currently in a tournament field — preserved so their name/photo carry forward
@@ -189,7 +229,7 @@ export const PLAYER_ARCHIVE = [
   { id: 167, name: 'Kota Kaneko',               pgaTourId: 61148, defaultOdds: '+25000',  worldRank: 192 },
   { id: 168, name: 'Bernd Wiesberger',          pgaTourId: 29454, defaultOdds: '+30000',  worldRank: 203 },
   { id: 170, name: 'Ricky Castillo',            pgaTourId: 59440, defaultOdds: '+30000',  worldRank:  90 },
-  { id: 171, name: 'Daniel Brown',              pgaTourId: 57259, defaultOdds: '+30000',  worldRank: 999 },
+  { id: 171, name: 'Dan Brown',                 pgaTourId: 57259, defaultOdds: '+30000',  worldRank: 999 },
   { id: 172, name: 'Jordan Gumberg',            pgaTourId: 51989, defaultOdds: '+50000',  worldRank: 315 },
   { id: 173, name: 'Luke Donald',               pgaTourId: 23983, defaultOdds: '+100000', worldRank: 970 },
   { id: 174, name: 'Shaun Micheel',             pgaTourId:  6515, defaultOdds: '+100000', worldRank: 999, photoUrl: 'https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/1414.png&w=280&h=350&scale=crop' },
