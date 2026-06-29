@@ -91,38 +91,35 @@ function gqlHeaders() {
   };
 }
 
-// PGA Tour GQL: try playerProfile with bio sub-fields (various schema guesses)
+// PGA Tour GQL: try playerProfile for career bio fields
 async function fetchPgaProfileBio(pgaTourId: string): Promise<Partial<PlayerBio>> {
   const result: Partial<PlayerBio> = {};
-  // Try nested playerProfile.playerBio schema
+  // Try known-working playerProfile fields first, then bio-specific sub-fields
   const queries = [
     `query PlayerProfile($id: ID!) {
       playerProfile(playerId: $id) {
         playerBio {
-          birthDate dateOfBirth
-          height weight
-          college
-          turnedPro turnedProfessional
-          pgaTourWins wins careerWins
-          majorWins
-          pgaTourStarts careerStarts events
-          majorStarts
+          birthDate dateOfBirth height weight college
+          turnedPro turnedProfessional pgaTourDebutYear
+          pgaTourWins wins careerWins majorWins
+          pgaTourStarts careerStarts majorStarts
           careerEarnings careerMoney
-          pgaTourDebutYear
         }
       }
     }`,
     `query PlayerBio($id: ID!) {
       playerBio(playerId: $id) {
-        birthDate dateOfBirth
-        height weight
-        college
-        turnedPro
-        pgaTourWins wins
-        majorWins
-        pgaTourStarts careerStarts
-        majorStarts
+        birthDate dateOfBirth height weight college
+        turnedPro pgaTourDebutYear
+        pgaTourWins wins majorWins
+        pgaTourStarts careerStarts majorStarts
         careerEarnings
+      }
+    }`,
+    `query PlayerProfile($id: ID!) {
+      playerProfile(playerId: $id) {
+        birthDate height weight college turnedPro
+        careerWins careerStarts careerEarnings majorWins majorStarts
         pgaTourDebutYear
       }
     }`,
@@ -143,7 +140,8 @@ async function fetchPgaProfileBio(pgaTourId: string): Promise<Partial<PlayerBio>
       if (!d) continue;
       const b: Record<string, unknown> | undefined =
         ((d.playerProfile as Record<string, unknown>)?.playerBio as Record<string, unknown> | undefined)
-        ?? (d.playerBio as Record<string, unknown> | undefined);
+        ?? (d.playerBio as Record<string, unknown> | undefined)
+        ?? (d.playerProfile as Record<string, unknown> | undefined);
       if (!b) continue;
 
       const dob = (b.birthDate ?? b.dateOfBirth) as string | undefined;
@@ -213,8 +211,22 @@ async function fetchEspnProfile(espnId: string): Promise<Partial<PlayerBio>> {
     const dob = (a.dateOfBirth ?? a.birthDate ?? a.dob) as string | undefined;
     if (dob) { result.dob = fmtDob(dob); result.age = calcAge(dob); }
 
-    // College comes back as an object { name: "Texas", id: "..." } from ESPN
-    result.college = parseCollege(a.college ?? a.collegeName);
+    // College comes back as an object { name: "Texas", id: "..." } from ESPN,
+    // or as a $ref-only object { "$ref": "https://sports.core.api.espn.com/v2/colleges/123" }
+    const collegeRaw = a.college ?? a.collegeName;
+    result.college = parseCollege(collegeRaw);
+    if (!result.college && typeof collegeRaw === 'object' && collegeRaw !== null) {
+      const ref = (collegeRaw as Record<string, unknown>).$ref as string | undefined;
+      if (ref && ref.includes('espn.com')) {
+        try {
+          const cr = await fetch(ref, { signal: AbortSignal.timeout(3000) });
+          if (cr.ok) {
+            const cd = await cr.json() as Record<string, unknown>;
+            result.college = parseCollege(cd) ?? (cd.name ? String(cd.name) : null);
+          }
+        } catch { /* ignore */ }
+      }
+    }
 
     const proYear = (a.proYear ?? a.turnedPro ?? a.debutYear) as unknown;
     if (proYear != null) result.turnedPro = parseYear(proYear);
@@ -224,6 +236,55 @@ async function fetchEspnProfile(espnId: string): Promise<Partial<PlayerBio>> {
     if (wins != null) result.careerWins = parseCount(wins);
     const earnings = (a.earnings ?? a.careerEarnings ?? a.totalEarnings) as unknown;
     if (earnings != null) result.careerEarnings = parseEarnings(earnings);
+  } catch { /* ignore */ }
+  return result;
+}
+
+// ESPN Core athlete endpoint — may have college $ref and career data
+async function fetchEspnCoreAthlete(espnId: string): Promise<Partial<PlayerBio>> {
+  const result: Partial<PlayerBio> = {};
+  try {
+    const res = await fetch(`${ESPN_CORE}/athletes/${espnId}`, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return result;
+    const a = await res.json() as Record<string, unknown>;
+
+    if (!result.college) {
+      const collegeRaw = a.college ?? a.collegeName;
+      result.college = parseCollege(collegeRaw);
+      if (!result.college && typeof collegeRaw === 'object' && collegeRaw !== null) {
+        const ref = (collegeRaw as Record<string, unknown>).$ref as string | undefined;
+        if (ref && ref.includes('espn.com')) {
+          try {
+            const cr = await fetch(ref, { signal: AbortSignal.timeout(3000) });
+            if (cr.ok) {
+              const cd = await cr.json() as Record<string, unknown>;
+              result.college = parseCollege(cd) ?? (cd.name ? String(cd.name) : null);
+            }
+          } catch { /* ignore */ }
+        }
+      }
+    }
+
+    const dob = (a.dateOfBirth ?? a.birthDate) as string | undefined;
+    if (dob && !result.dob) { result.dob = fmtDob(dob); result.age = calcAge(dob); }
+
+    const h = (a.height ?? a.displayHeight) as number | string | undefined;
+    if (h != null && !result.height) {
+      const hNum = parseFloat(String(h));
+      if (!isNaN(hNum) && hNum > 48 && hNum < 96) result.height = fmtHeight(hNum);
+    }
+
+    const w = (a.weight ?? a.displayWeight) as number | string | undefined;
+    if (w != null && !result.weight) {
+      const wNum = parseFloat(String(w).replace(/[^\d.]/g, ''));
+      if (!isNaN(wNum) && wNum > 100 && wNum < 400) result.weight = `${Math.round(wNum)} lbs`;
+    }
+
+    const proYear = (a.proYear ?? a.turnedPro) as unknown;
+    if (proYear != null && !result.turnedPro) result.turnedPro = parseYear(proYear);
   } catch { /* ignore */ }
   return result;
 }
@@ -314,7 +375,7 @@ export async function GET(req: Request) {
   const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v5:${name}`;
+  const cacheKey = `player-bio:v6:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ bio: JSON.parse(cached as string) });
@@ -341,6 +402,7 @@ export async function GET(req: Request) {
   if (pgaTourId) fetches.push(fetchPgaProfileBio(pgaTourId));
   if (espnId) {
     fetches.push(fetchEspnProfile(espnId));
+    fetches.push(fetchEspnCoreAthlete(espnId));
     fetches.push(fetchEspnOverviewCareer(espnId));
     fetches.push(fetchEspnCoreCareerStats(espnId));
   }
