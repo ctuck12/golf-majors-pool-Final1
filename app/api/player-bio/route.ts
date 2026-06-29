@@ -242,13 +242,26 @@ async function fetchEspnProfile(espnId: string): Promise<Partial<PlayerBio>> {
     const proYear = (a.proYear ?? a.turnedPro ?? a.debutYear) as unknown;
     if (proYear != null) result.turnedPro = parseYear(proYear);
 
-    // Handedness / swing hand
-    const hand = (a.hand ?? a.handedness ?? a.throws) as string | undefined;
-    if (hand) {
-      const h = hand.toLowerCase();
-      if (h === 'r' || h.includes('right')) result.swing = 'Right';
-      else if (h === 'l' || h.includes('left')) result.swing = 'Left';
-    }
+    // Handedness / swing hand — ESPN returns numeric (1=Right,2=Left), string "R"/"L", or object
+    const parseHand = (val: unknown): string | null => {
+      if (val == null) return null;
+      if (typeof val === 'number') return val === 1 ? 'Right' : val === 2 ? 'Left' : null;
+      if (typeof val === 'string') {
+        const h = val.toLowerCase();
+        if (h === 'r' || h === '1' || h.includes('right')) return 'Right';
+        if (h === 'l' || h === '2' || h.includes('left')) return 'Left';
+      }
+      if (typeof val === 'object' && val !== null) {
+        const obj = val as Record<string, unknown>;
+        // { id: 1, text: "Right" } or { type: "right-handed" } or { displayValue: "Right-Handed" }
+        const text = String(obj.text ?? obj.displayValue ?? obj.type ?? obj.id ?? '').toLowerCase();
+        if (text.includes('right') || text === '1') return 'Right';
+        if (text.includes('left') || text === '2') return 'Left';
+      }
+      return null;
+    };
+    const swing = parseHand(a.hand ?? a.handedness ?? a.throws ?? a.batting ?? a.hitting);
+    if (swing) result.swing = swing;
 
     // If college field is explicitly present but null/empty, note it's confirmed absent
     if ('college' in a && !result.college) result.collegeConfirmedAbsent = true;
@@ -308,11 +321,21 @@ async function fetchEspnCoreAthlete(espnId: string): Promise<Partial<PlayerBio>>
     const proYear = (a.proYear ?? a.turnedPro) as unknown;
     if (proYear != null && !result.turnedPro) result.turnedPro = parseYear(proYear);
 
-    const hand2 = (a.hand ?? a.handedness) as string | undefined;
-    if (hand2 && !result.swing) {
-      const h = hand2.toLowerCase();
-      if (h === 'r' || h.includes('right')) result.swing = 'Right';
-      else if (h === 'l' || h.includes('left')) result.swing = 'Left';
+    if (!result.swing) {
+      const handRaw = a.hand ?? a.handedness;
+      if (handRaw != null) {
+        if (typeof handRaw === 'number') result.swing = handRaw === 1 ? 'Right' : handRaw === 2 ? 'Left' : null;
+        else if (typeof handRaw === 'string') {
+          const h = handRaw.toLowerCase();
+          if (h === 'r' || h === '1' || h.includes('right')) result.swing = 'Right';
+          else if (h === 'l' || h === '2' || h.includes('left')) result.swing = 'Left';
+        } else if (typeof handRaw === 'object') {
+          const obj = handRaw as Record<string, unknown>;
+          const text = String(obj.text ?? obj.displayValue ?? obj.type ?? obj.id ?? '').toLowerCase();
+          if (text.includes('right') || text === '1') result.swing = 'Right';
+          else if (text.includes('left') || text === '2') result.swing = 'Left';
+        }
+      }
     }
 
     if ('college' in a && !result.college) result.collegeConfirmedAbsent = true;
@@ -375,28 +398,33 @@ async function fetchEspnCareerTotals(espnId: string): Promise<Partial<PlayerBio>
     const logData = await logRes.json() as { entries?: Array<{ statistics?: Array<{ statistics?: { $ref?: string } }> }> };
     const entries = logData?.entries ?? [];
 
-    // Collect all season stat $refs (type 2 = stroke play)
-    const refs: string[] = [];
+    // Collect all season stat $refs (type 2 = stroke play) and extract year from URL
+    const refs: { url: string; year: number | null }[] = [];
     for (const entry of entries) {
       for (const stat of entry.statistics ?? []) {
         const ref = stat?.statistics?.$ref;
-        if (ref && ref.includes('/types/2/')) refs.push(ref);
+        if (ref && ref.includes('/types/2/')) {
+          const yearMatch = ref.match(/\/seasons\/(\d{4})\//);
+          refs.push({ url: ref, year: yearMatch ? parseInt(yearMatch[1]) : null });
+        }
       }
     }
     if (refs.length === 0) return result;
 
+    // Derive earliest pro year from URLs alone (no fetch needed for this)
+    const years = refs.map(r => r.year).filter((y): y is number => y != null);
+    if (years.length > 0) result.turnedPro = Math.min(...years);
+
     // Fetch all season stat pages in parallel
     const pages = await Promise.allSettled(
-      refs.map(ref => fetch(ref, { cache: 'no-store', signal: AbortSignal.timeout(5000) }).then(r => r.ok ? r.json() : null))
+      refs.map(r => fetch(r.url, { cache: 'no-store', signal: AbortSignal.timeout(5000) }).then(res => res.ok ? res.json() : null))
     );
 
-    let totalStarts = 0, totalWins = 0, totalEarnings = 0, earliestYear = 9999;
+    let totalStarts = 0, totalWins = 0, totalEarnings = 0;
 
     for (const p of pages) {
       if (p.status !== 'fulfilled' || !p.value) continue;
-      const data = p.value as { season?: { year?: number }; splits?: { categories?: Array<{ stats?: Array<{ name?: string; value?: number; displayValue?: string }> }> } };
-      const seasonYear2 = data?.season?.year;
-      if (seasonYear2 && seasonYear2 > 1900 && seasonYear2 < earliestYear) earliestYear = seasonYear2;
+      const data = p.value as { splits?: { categories?: Array<{ stats?: Array<{ name?: string; value?: number; displayValue?: string }> }> } };
       const cats = data?.splits?.categories ?? [];
       for (const cat of cats) {
         for (const s of cat.stats ?? []) {
@@ -412,7 +440,6 @@ async function fetchEspnCareerTotals(espnId: string): Promise<Partial<PlayerBio>
     if (totalStarts > 0) result.careerStarts = totalStarts;
     if (totalWins >= 0 && totalStarts > 0) result.careerWins = totalWins;
     if (totalEarnings > 0) result.careerEarnings = fmtEarnings(totalEarnings);
-    if (earliestYear < 9999) result.turnedPro = earliestYear;
   } catch { /* ignore */ }
   return result;
 }
@@ -505,7 +532,7 @@ export async function GET(req: Request) {
   const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v10:${name}`;
+  const cacheKey = `player-bio:v11:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
