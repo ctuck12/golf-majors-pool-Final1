@@ -139,6 +139,21 @@ async function fetchCoreStats(espnId: string, league = 'pga'): Promise<Stat[] | 
   } catch { return null; }
 }
 
+// Fetch per-event competitor stats for a specific player — same endpoint used by tournament-stat-leaderboard.
+// This works for players like Rory whose season-level ESPN stats are empty (DP World Tour players).
+async function fetchCompetitorStatsForEvent(espnId: string, eventId: string): Promise<Stat[] | null> {
+  try {
+    const res = await fetch(
+      `${ESPN_CORE}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/statistics/0`,
+      { cache: 'no-store', signal: AbortSignal.timeout(6000) }
+    );
+    if (!res.ok) return null;
+    const data = await res.json() as { splits?: { categories?: Array<{ stats?: Stat[] }> } };
+    const stats = data?.splits?.categories?.[0]?.stats;
+    return Array.isArray(stats) && stats.length > 0 ? stats : null;
+  } catch { return null; }
+}
+
 // Fetch athlete overview stats from any ESPN league (pga, eur, liv)
 async function fetchAthleteOverviewStatsForLeague(espnId: string, league: string): Promise<OverviewData | null> {
   try {
@@ -510,6 +525,26 @@ export async function GET(request: Request) {
                   }
                 }
                 console.log(`[stat-lb] must-include ${mustName} league=${league} statKey=${statKey} val=${mustVal}`);
+              }
+
+              // Last resort: average stats from known major events.
+              // Event-level competitor stats are available even when season stats are not
+              // (DP World Tour players like Rory have empty season stats on ESPN PGA endpoints).
+              if (mustVal === null || mustVal === 0) {
+                const eventVals: number[] = [];
+                const defsForMust = statDefs.filter(d => d.key === statKey);
+                for (const eventId of PGA_EVENT_IDS) {
+                  const eventStats = await fetchCompetitorStatsForEvent(mustEspnId, eventId);
+                  if (!eventStats) continue;
+                  for (const d of defsForMust) {
+                    const raw = statNumeric(eventStats, d.espnName);
+                    if (raw !== null && raw !== 0) { eventVals.push(raw); break; }
+                  }
+                }
+                if (eventVals.length > 0) {
+                  mustVal = eventVals.reduce((a, b) => a + b, 0) / eventVals.length;
+                  console.log(`[stat-lb] must-include ${mustName} event-fallback statKey=${statKey} val=${mustVal} from ${eventVals.length} events`);
+                }
               }
 
               if (mustVal !== null && mustVal !== 0) {
