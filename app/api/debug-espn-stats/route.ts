@@ -10,29 +10,29 @@ export async function GET(request: Request) {
 
   const results: Record<string, unknown> = {};
 
-  // Discover sub-types via __typename
+  // Introspect MajorResultsTournament
   try {
-    const q = `query Q($id: String!) { playerProfileMajorResults(playerId: $id) { tournaments { __typename } timelineTournaments { __typename } } }`;
-    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q, variables: { id: pgaId } }), signal: AbortSignal.timeout(6000) });
-    const j = await r.json();
-    results['typename_probe'] = j;
-  } catch (e) { results['typename_error'] = String(e); }
+    const q = `{ __type(name: "MajorResultsTournament") { fields { name type { name kind } } } }`;
+    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q }), signal: AbortSignal.timeout(6000) });
+    const j = await r.json() as { data?: { __type?: { fields?: Array<{ name: string }> } } };
+    results['MajorResultsTournament_fields'] = j?.data?.__type?.fields?.map(f => f.name);
+  } catch (e) { results['mrt_error'] = String(e); }
 
-  // Try with common field names for tournament results
+  // Introspect MajorTimeline
   try {
-    const q = `query Q($id: String!) { playerProfileMajorResults(playerId: $id) { timelineHeaders tournaments { wins starts tourId displayName } } }`;
-    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q, variables: { id: pgaId } }), signal: AbortSignal.timeout(6000) });
-    const j = await r.json();
-    results['tournaments_probe'] = j;
-  } catch (e) { results['tournaments_error'] = String(e); }
+    const q = `{ __type(name: "MajorTimeline") { fields { name type { name kind } } } }`;
+    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q }), signal: AbortSignal.timeout(6000) });
+    const j = await r.json() as { data?: { __type?: { fields?: Array<{ name: string }> } } };
+    results['MajorTimeline_fields'] = j?.data?.__type?.fields?.map(f => f.name);
+  } catch (e) { results['mt_error'] = String(e); }
 
-  // Try timelineTournaments
+  // Also get the full data using __typename-only fields to see what we get
   try {
-    const q = `query Q($id: String!) { playerProfileMajorResults(playerId: $id) { timelineHeaders timelineTournaments { year finishes } } }`;
+    const q = `query Q($id: String!) { playerProfileMajorResults(playerId: $id) { timelineHeaders timelineTournaments { __typename } tournaments { __typename } } }`;
     const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q, variables: { id: pgaId } }), signal: AbortSignal.timeout(6000) });
-    const j = await r.json();
-    results['timeline_probe'] = j;
-  } catch (e) { results['timeline_error'] = String(e); }
+    const j = await r.json() as { data?: { playerProfileMajorResults?: { timelineHeaders?: unknown } } };
+    results['timelineHeaders'] = j?.data?.playerProfileMajorResults?.timelineHeaders;
+  } catch (e) { results['headers_error'] = String(e); }
 
   return Response.json(results);
 }
