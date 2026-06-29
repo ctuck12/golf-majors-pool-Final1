@@ -13,7 +13,7 @@ const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 
 // Recent PGA Tour major events — used as reliable source of active PGA Tour player IDs
 // (avoids Champions Tour / dual-status players that appear in season athlete lists)
-const PGA_EVENT_IDS = ['401811952', '401811947', '401811941']; // US Open, PGA Champ, Masters
+const PGA_EVENT_IDS = ['401811952', '401811947', '401811941', '401811946', '401811933']; // US Open, PGA Champ, Masters, The Open, THE PLAYERS
 
 type Stat = { name?: string; value?: number; displayValue?: string; average?: number; averageDisplayValue?: string };
 

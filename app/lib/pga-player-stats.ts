@@ -213,15 +213,23 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
     // Stat 103 (GIR): playerProfileStats returns an incorrect internal metric — always
     // override with statLeaderboard which matches the official PGA Tour leaderboard.
     const COURSE_STAT_IDS = ['101', '102', '103', '108', '104', '111', '130'];
+    const SG_STAT_IDS = ['02675', '02674', '02567', '02568', '02569', '02564'];
     // playerProfileStats returns incorrect internal metrics for these stats — always
     // override with statDetails which matches the official PGA Tour leaderboard.
     // 130 (scrambling) added: same issue as GIR/sand saves — internal metric doesn't match pgatour.com.
     const ALWAYS_USE_LB = new Set(['103', '111', '130']);
-    const missingStatIds = COURSE_STAT_IDS.filter((id) => {
-      if (ALWAYS_USE_LB.has(id)) return true;
-      const field = STAT_ID_TO_FIELD[id];
-      return field && (!ranks[field] || !acc[field as keyof typeof acc]);
-    });
+    const missingStatIds = [
+      ...COURSE_STAT_IDS.filter((id) => {
+        if (ALWAYS_USE_LB.has(id)) return true;
+        const field = STAT_ID_TO_FIELD[id];
+        return field && (!ranks[field] || !acc[field as keyof typeof acc]);
+      }),
+      // SG stats: fall back to statDetails leaderboard when playerProfileStats didn't return them
+      ...SG_STAT_IDS.filter((id) => {
+        const field = STAT_ID_TO_FIELD[id];
+        return field && (!acc[field as keyof typeof acc]);
+      }),
+    ];
 
     if (missingStatIds.length > 0) {
       const fallbackEntries = await Promise.all(
