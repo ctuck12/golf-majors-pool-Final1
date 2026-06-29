@@ -8599,7 +8599,7 @@ export default function Page() {
                           <img
                             src={photoSrc}
                             alt={pickHistoryPlayerPopup.player.name}
-                            style={{ width: 120, objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+                            style={{ width: 120, objectFit: 'contain', objectPosition: 'center bottom', display: 'block' }}
                             onError={(e) => {
                               const img = e.target as HTMLImageElement;
                               if (pgaPhotoSrc && img.src !== pgaPhotoSrc && img.src !== espnPhotoSrc) { img.src = pgaPhotoSrc; } else { img.style.display = 'none'; }
