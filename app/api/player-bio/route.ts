@@ -263,8 +263,9 @@ async function fetchEspnProfile(espnId: string): Promise<Partial<PlayerBio>> {
     const swing = parseHand(a.hand ?? a.handedness ?? a.throws ?? a.batting ?? a.hitting);
     if (swing) result.swing = swing;
 
-    // If college field is explicitly present but null/empty, note it's confirmed absent
-    if ('college' in a && !result.college) result.collegeConfirmedAbsent = true;
+    // If the ESPN athlete fetch succeeded and returned data but no college found,
+    // treat as confirmed absent (ESPN includes college for players who attended).
+    if (!result.college && result.dob) result.collegeConfirmedAbsent = true;
 
     // Career wins/earnings sometimes on the athlete profile
     const wins = (a.wins ?? a.careerWins ?? a.totalWins) as unknown;
@@ -338,7 +339,7 @@ async function fetchEspnCoreAthlete(espnId: string): Promise<Partial<PlayerBio>>
       }
     }
 
-    if ('college' in a && !result.college) result.collegeConfirmedAbsent = true;
+    if (!result.college && result.dob) result.collegeConfirmedAbsent = true;
   } catch { /* ignore */ }
   return result;
 }
@@ -532,7 +533,7 @@ export async function GET(req: Request) {
   const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v11:${name}`;
+  const cacheKey = `player-bio:v12:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
