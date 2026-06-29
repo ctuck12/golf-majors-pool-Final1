@@ -12,53 +12,57 @@ export async function GET(request: Request) {
 
   const results: Record<string, unknown> = {};
 
-  // 1. Introspect PlayerProfileMajors type to find real field names
-  try {
-    const q = `{ __type(name: "PlayerProfileMajors") { fields { name type { name kind } } } }`;
-    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q }), signal: AbortSignal.timeout(6000) });
-    const j = await r.json() as { data?: { __type?: { fields?: Array<{ name: string }> } } };
-    results['PlayerProfileMajors_fields'] = j?.data?.__type?.fields?.map(f => f.name);
-  } catch (e) { results['majors_schema_error'] = String(e); }
+  // 1. Introspect nested types in PlayerProfileMajors
+  for (const typeName of ['PlayerProfileMajorsTournament', 'PlayerProfileMajorsTimeline', 'PlayerProfileMajorsTimelineTournament']) {
+    try {
+      const q = `{ __type(name: "${typeName}") { fields { name type { name kind } } } }`;
+      const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q }), signal: AbortSignal.timeout(6000) });
+      const j = await r.json() as { data?: { __type?: { fields?: Array<{ name: string }> } | null } };
+      results[`${typeName}_fields`] = j?.data?.__type?.fields?.map(f => f.name) ?? null;
+    } catch (e) { results[`${typeName}_error`] = String(e); }
+  }
 
-  // 2. Try playerProfileMajorResults with String! variable and introspected fields
+  // 2. Try querying playerProfileMajorResults with only known valid fields
   try {
-    const q = `query Q($id: String!) { playerProfileMajorResults(playerId: $id) { tournamentId displayYear finish } }`;
+    const q = `query Q($id: String!) { playerProfileMajorResults(playerId: $id) { playerId tournaments timelineHeaders timelineTournaments } }`;
     const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q, variables: { id: pgaId } }), signal: AbortSignal.timeout(6000) });
     const j = await r.json();
-    results['pga_majorResults_v2'] = j;
-  } catch (e) { results['majorResults_v2_error'] = String(e); }
+    results['pga_majorResults_raw'] = j;
+  } catch (e) { results['majorResults_raw_error'] = String(e); }
 
-  // 3. Try playerProfileTournamentResults to understand its schema
+  // 3. ESPN career totals by summing season stats — fetch all seasons in parallel
   try {
-    const q = `{ __type(name: "PlayerProfileTournament") { fields { name type { name kind } } } }`;
-    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q }), signal: AbortSignal.timeout(6000) });
-    const j = await r.json() as { data?: { __type?: { fields?: Array<{ name: string }> } } };
-    results['PlayerProfileTournament_fields'] = j?.data?.__type?.fields?.map(f => f.name);
-  } catch (e) { results['tournament_schema_error'] = String(e); }
+    const logRes = await fetch(`${ESPN_CORE}/athletes/${espnId}/statisticslog`, { signal: AbortSignal.timeout(6000) });
+    const logData = await logRes.json() as { entries?: Array<{ statistics?: Array<{ statistics?: { $ref?: string } }> }> };
+    const urls = (logData.entries ?? [])
+      .flatMap(e => e.statistics ?? [])
+      .map(s => s.statistics?.$ref)
+      .filter((u): u is string => !!u);
 
-  // 4. Get full ESPN 2025 stats — all categories to find wins+earnings
-  try {
-    const r = await fetch(`${ESPN_CORE}/seasons/2025/types/2/athletes/${espnId}/statistics/0`, { signal: AbortSignal.timeout(6000) });
-    const j = await r.json() as { splits?: { categories?: Array<{ name: string; stats?: Array<{ name: string; value?: number; displayValue?: string }> }> } };
-    // Extract all stat names and values across all categories
-    const allStats: Record<string, unknown>[] = [];
-    for (const cat of j?.splits?.categories ?? []) {
-      for (const s of cat.stats ?? []) {
-        if (s.value != null || s.displayValue) {
-          allStats.push({ cat: cat.name, name: s.name, value: s.value, display: s.displayValue });
+    const seasonStats = await Promise.allSettled(
+      urls.map(async (url) => {
+        const r = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        const d = await r.json() as { splits?: { categories?: Array<{ stats?: Array<{ name: string; value?: number }> }> } };
+        const stats: Record<string, number> = {};
+        for (const cat of d.splits?.categories ?? []) {
+          for (const s of cat.stats ?? []) {
+            if (s.value != null) stats[s.name] = s.value;
+          }
         }
+        return stats;
+      })
+    );
+
+    let totalStarts = 0, totalWins = 0, totalEarnings = 0;
+    for (const r of seasonStats) {
+      if (r.status === 'fulfilled') {
+        totalStarts += r.value.tournamentsPlayed ?? 0;
+        totalWins += r.value.wins ?? 0;
+        totalEarnings += r.value.officialAmount ?? r.value.amount ?? 0;
       }
     }
-    results['espn_2025_all_stats'] = allStats;
-  } catch (e) { results['espn_2025_full_error'] = String(e); }
-
-  // 5. playerProfileStats schema — does it have career fields?
-  try {
-    const q = `{ __type(name: "PlayerProfileStat") { fields { name type { name kind } } } }`;
-    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q }), signal: AbortSignal.timeout(6000) });
-    const j = await r.json() as { data?: { __type?: { fields?: Array<{ name: string }> } } };
-    results['PlayerProfileStat_fields'] = j?.data?.__type?.fields?.map(f => f.name);
-  } catch (e) { results['profileStat_schema_error'] = String(e); }
+    results['career_totals'] = { totalStarts, totalWins, totalEarnings: Math.round(totalEarnings), seasons: urls.length };
+  } catch (e) { results['career_totals_error'] = String(e); }
 
   return Response.json(results);
 }
