@@ -19,6 +19,12 @@ type Stat = { name?: string; value?: number; displayValue?: string; average?: nu
 
 const LOWER_IS_BETTER = new Set(['scoringAverage', 'puttAverage']);
 
+// Accent-stripping name normalizer — MUST match the player-card lookup so the same player is
+// keyed identically. Used to dedupe the leaderboard (e.g. "Séamus Power" vs "Seamus Power", which
+// the ESPN supplement would otherwise add as a second row, shifting every rank below it).
+const normNm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase().trim();
+
 const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number }> = [
   { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
   { key: 'drivingDistance', espnName: 'yardsPerDrive', isPercent: false, decimals: 1 },
@@ -350,7 +356,7 @@ export async function GET(request: Request) {
         // Supplement statDetails with ESPN data for major-event players not in PGA Tour statDetails.
         // This catches active tour players (e.g. Rory McIlroy) who are temporarily absent from
         // statDetails due to minimum-rounds rules or API lag.
-        const pgaNames = new Set(gqlResult.players.map((p) => p.name.toLowerCase().trim()));
+        const pgaNames = new Set(gqlResult.players.map((p) => normNm(p.name)));
         try {
           const espnIds = await fetchPgaPlayerIds();
           const defsForKey = statDefs.filter((d) => d.key === statKey);
@@ -402,7 +408,7 @@ export async function GET(request: Request) {
 
           for (const entry of supplementBatch) {
             if (!entry) continue;
-            if (!pgaNames.has(entry.name.toLowerCase().trim())) {
+            if (!pgaNames.has(normNm(entry.name))) {
               missingPlayers.push(entry);
               console.log(`[stat-lb] supplemented from ESPN: ${entry.name} ${statKey}=${entry.value}`);
             }
@@ -416,12 +422,22 @@ export async function GET(request: Request) {
           }
         } catch { /* supplement is best-effort */ }
 
+        // Final safety dedupe by normalized name (keeps the first/best-ranked of any duplicate) so a
+        // player can never appear twice and inflate everyone else's rank below them.
+        const seenNm = new Set<string>();
+        const dedupedPlayers = gqlResult.players.filter((p) => {
+          const n = normNm(p.name);
+          if (seenNm.has(n)) return false;
+          seenNm.add(n);
+          return true;
+        });
+
         // Use official PGA Tour average if available; fall back to computed mean
         const avgNum = gqlResult.officialTourAvg !== null
           ? gqlResult.officialTourAvg
-          : gqlResult.players.reduce((s, r) => s + r.value, 0) / gqlResult.players.length;
+          : dedupedPlayers.reduce((s, r) => s + r.value, 0) / dedupedPlayers.length;
         const tourAvg = fmt(avgNum);
-        const entries: StatLeaderboardEntry[] = gqlResult.players.map((r, i) => ({ rank: i + 1, name: r.name, value: fmt(r.value) }));
+        const entries: StatLeaderboardEntry[] = dedupedPlayers.map((r, i) => ({ rank: i + 1, name: r.name, value: fmt(r.value) }));
         // Long TTL (4h): player-card ranks read this exact cache, so it must stay warm. The cron
         // proactively rebuilds each key ~1h before it expires, so rebuilds are infrequent and the
         // upstream APIs aren't hammered (which would return empty builds and leave caches cold).
