@@ -1198,7 +1198,7 @@ export default function Page() {
     statRanks: Record<string, string>;
     seasonStatRanks: Record<string, string>;
     fieldDistributions: Record<string, number[]>;
-    playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; college: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null } | null;
+    playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null } | null;
     playerBioLoading: boolean;
     espnPhotoUrl: string | null;
   } | null>(null);
