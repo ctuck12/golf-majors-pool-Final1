@@ -97,7 +97,7 @@ export async function fetchStatLeaderboardValueByRank(statId: string, targetRank
 }
 
 // Fetch a player's rank AND value for a specific stat from statDetails leaderboard
-async function fetchStatLeaderboardEntry(statId: string, _pgaTourId: string, playerName?: string): Promise<{ rank: string | null; value: string | null }> {
+async function fetchStatLeaderboardEntry(statId: string, pgaTourId: string, playerName?: string): Promise<{ rank: string | null; value: string | null }> {
   try {
     const query = `
       query StatDetails($statId: String!) {
@@ -124,11 +124,10 @@ async function fetchStatLeaderboardEntry(statId: string, _pgaTourId: string, pla
     const rows = data?.data?.statDetails?.rows;
     if (!Array.isArray(rows)) return { rank: null, value: null };
     const targetName = playerName?.toLowerCase().trim();
-    const row = rows.find((r) => {
-      if (!r.playerName) return false;
-      if (targetName) return r.playerName.toLowerCase().trim() === targetName;
-      return false;
-    });
+    // Match by playerId first (avoids name-mismatch issues like "John" vs "Johnny"),
+    // then fall back to name match.
+    const row = rows.find((r) => pgaTourId && r.playerId && String(r.playerId) === String(pgaTourId))
+      ?? rows.find((r) => r.playerName && targetName && r.playerName.toLowerCase().trim() === targetName);
     if (!row) return { rank: null, value: null };
     const rankNum = parseInt(String(row.rank ?? ''));
     const rank = !isNaN(rankNum) && rankNum > 0 ? String(rankNum) : null;
