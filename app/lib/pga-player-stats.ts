@@ -224,10 +224,12 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
         const field = STAT_ID_TO_FIELD[id];
         return field && (!ranks[field] || !acc[field as keyof typeof acc]);
       }),
-      // SG stats: fall back to statDetails leaderboard when playerProfileStats didn't return them
+      // SG stats: fall back to statDetails leaderboard when playerProfileStats didn't return the
+      // value OR the rank. Some players have an SG value but a null rank from playerProfileStats;
+      // statDetails backfills the rank so SG cards always show "(Nth)".
       ...SG_STAT_IDS.filter((id) => {
         const field = STAT_ID_TO_FIELD[id];
-        return field && (!acc[field as keyof typeof acc]);
+        return field && (!acc[field as keyof typeof acc] || !ranks[field]);
       }),
     ];
 

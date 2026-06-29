@@ -6,6 +6,7 @@ import { fetchPgaTourPlayerStats } from '@/app/lib/pga-player-stats';
 import type { PlayerStatRanks } from '@/app/lib/pga-player-stats';
 import { fetchPgaScorecardStats, pgaTourTournId } from '@/app/lib/pga-scorecard-stats';
 import { getTournamentMetaByEspnId } from '@/app/lib/tournament-config';
+import { resolvePgaTourIdByName } from '@/app/lib/pga-id-resolver';
 
 export type { PlayerStats } from '@/app/lib/espn-player-stats';
 
@@ -31,18 +32,24 @@ export async function GET(request: Request) {
   const context = searchParams.get('context') ?? 'season';
   const eventId = searchParams.get('eventId') ?? '';
   const rawPgaTourId = searchParams.get('pgaTourId') ?? '';
-  const pgaTourId = (rawPgaTourId && rawPgaTourId !== '0') ? rawPgaTourId : (PGA_TOUR_ID_BY_NAME[name] ?? '');
+  let pgaTourId = (rawPgaTourId && rawPgaTourId !== '0') ? rawPgaTourId : (PGA_TOUR_ID_BY_NAME[name] ?? '');
 
   if (!name) return Response.json({ stats: null, ranks: null });
 
   const isTournament = context === 'tournament' && eventId;
+  // Season context: when the pool record has no PGA Tour ID (0), resolve it by name from the PGA
+  // Tour player directory so SG, scrambling, and their ranks still populate. ~37 pool players
+  // (Finau, Power, Eckroat, Hoge, etc.) ship with pgaTourId 0 and would otherwise lose these stats.
+  if (!isTournament && !pgaTourId) {
+    pgaTourId = (await resolvePgaTourIdByName(name)) ?? '';
+  }
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v81:season:${seasonYear}:${name}`;
+    : `player-stats:v82:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v81:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v82:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
