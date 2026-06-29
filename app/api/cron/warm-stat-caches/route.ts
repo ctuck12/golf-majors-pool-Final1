@@ -30,9 +30,12 @@ const STAT_KEYS = [
 ];
 
 const STAT_LB_PREFIX = 'stat-lb:v28:';
-const BATCH_SIZE = 2;       // keep concurrent upstream load low so builds don't get rate-limited
-const MAX_ATTEMPTS = 3;     // retry a build that comes back empty (transient upstream failure)
-const REFRESH_BELOW = 3600; // rebuild a cache when it has <1h left (TTL is 4h) — refresh before it goes cold
+const MAX_ATTEMPTS = 2;            // retry a build that comes back empty (transient upstream failure)
+const REFRESH_BELOW = 3600;        // rebuild a cache when it has <1h left (TTL is 4h) — refresh before it goes cold
+const MAX_REBUILDS_PER_RUN = 5;    // cap rebuilds per invocation so a cold start warms gradually, never bursts
+const REBUILD_GAP_MS = 400;        // small gap between builds to stay gentle on the upstream APIs
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export async function GET(request: Request) {
   // Vercel only injects the `Authorization: Bearer <CRON_SECRET>` header on scheduled invocations
@@ -53,39 +56,42 @@ export async function GET(request: Request) {
 
   const results: Record<string, string> = {};
 
-  for (let i = 0; i < STAT_KEYS.length; i += BATCH_SIZE) {
-    const batch = STAT_KEYS.slice(i, i + BATCH_SIZE);
-    await Promise.allSettled(
-      batch.map(async (key) => {
-        // Skip stats whose cache is still warm and not near expiry — no upstream call needed.
-        // redis.ttl: -2 = key missing (cold), -1 = no expiry, >=0 = seconds remaining.
-        let ttl = -2;
-        try { ttl = await redis.ttl(`${STAT_LB_PREFIX}${key}`); } catch { /* treat as cold */ }
-        if (ttl > REFRESH_BELOW) { results[key] = `warm(${ttl}s)`; return; }
+  // Build sequentially, one stat at a time. Each build hits PGA GQL plus ~216 ESPN calls, so even
+  // two concurrent builds overload the upstream APIs and return empty (the cron failure mode that
+  // left caches cold). One-at-a-time builds reliably succeed. A per-run cap means a fully-cold start
+  // warms gradually over a few cron cycles instead of bursting all 13 at once.
+  let rebuilds = 0;
+  for (const key of STAT_KEYS) {
+    // Skip stats whose cache is still warm and not near expiry — no upstream call needed.
+    // redis.ttl: -2 = key missing (cold), -1 = no expiry, >=0 = seconds remaining.
+    let ttl = -2;
+    try { ttl = await redis.ttl(`${STAT_LB_PREFIX}${key}`); } catch { /* treat as cold */ }
+    if (ttl > REFRESH_BELOW) { results[key] = `warm(${ttl}s)`; continue; }
+    if (rebuilds >= MAX_REBUILDS_PER_RUN) { results[key] = 'deferred'; continue; }
+    rebuilds++;
 
-        // Cold or near-expiry — rebuild (bust), retrying if the build returns empty.
-        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-          try {
-            const res = await fetch(`${baseUrl}/api/stat-leaderboard?statKey=${key}&bust=1`, {
-              cache: 'no-store',
-              headers: { 'x-cron-secret': process.env.CRON_SECRET ?? '' },
-            });
-            if (res.ok) {
-              const data = await res.json().catch(() => null) as { entries?: unknown[] } | null;
-              if (Array.isArray(data?.entries) && data!.entries.length > 0) {
-                results[key] = `rebuilt(${data!.entries.length})`;
-                return;
-              }
-              results[key] = `empty:attempt${attempt}`;
-            } else {
-              results[key] = `${res.status}:attempt${attempt}`;
-            }
-          } catch (e) {
-            results[key] = `err:attempt${attempt}:${String(e)}`;
+    // Cold or near-expiry — rebuild (bust), retrying if the build returns empty.
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      try {
+        const res = await fetch(`${baseUrl}/api/stat-leaderboard?statKey=${key}&bust=1`, {
+          cache: 'no-store',
+          headers: { 'x-cron-secret': process.env.CRON_SECRET ?? '' },
+        });
+        if (res.ok) {
+          const data = await res.json().catch(() => null) as { entries?: unknown[] } | null;
+          if (Array.isArray(data?.entries) && data!.entries.length > 0) {
+            results[key] = `rebuilt(${data!.entries.length})`;
+            break;
           }
+          results[key] = `empty:attempt${attempt}`;
+        } else {
+          results[key] = `${res.status}:attempt${attempt}`;
         }
-      })
-    );
+      } catch (e) {
+        results[key] = `err:attempt${attempt}:${String(e)}`;
+      }
+    }
+    await sleep(REBUILD_GAP_MS);
   }
 
   // Warm tour averages last (reads the now-warm stat-lb caches; no upstream load when warm).
