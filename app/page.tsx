@@ -8430,7 +8430,8 @@ export default function Page() {
                   }
                   const rows: React.ReactNode[] = [];
                   entries.forEach((entry, i) => {
-                    const isSelected = !!statLeaderboardModal.playerName && entry.name.toLowerCase() === statLeaderboardModal.playerName.toLowerCase();
+                    const normName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+                    const isSelected = !!statLeaderboardModal.playerName && normName(entry.name) === normName(statLeaderboardModal.playerName);
                     const rankColor = '#9ca3af';
                     if (i === dividerIdx) {
                       rows.push(
