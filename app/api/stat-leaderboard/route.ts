@@ -139,35 +139,6 @@ async function fetchCoreStats(espnId: string, league = 'pga'): Promise<Stat[] | 
   } catch { return null; }
 }
 
-// Fetch per-event competitor stats for a specific player — same endpoint used by tournament-stat-leaderboard.
-// This works for players like Rory whose season-level ESPN stats are empty (DP World Tour players).
-async function fetchCompetitorStatsForEvent(espnId: string, eventId: string): Promise<Stat[] | null> {
-  try {
-    const res = await fetch(
-      `${ESPN_CORE}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/statistics/0`,
-      { cache: 'no-store', signal: AbortSignal.timeout(6000) }
-    );
-    if (!res.ok) return null;
-    const data = await res.json() as { splits?: { categories?: Array<{ stats?: Stat[] }> } };
-    const stats = data?.splits?.categories?.[0]?.stats;
-    return Array.isArray(stats) && stats.length > 0 ? stats : null;
-  } catch { return null; }
-}
-
-// Fetch athlete overview stats from any ESPN league (pga, eur, liv)
-async function fetchAthleteOverviewStatsForLeague(espnId: string, league: string): Promise<OverviewData | null> {
-  try {
-    const leagueSlug = league === 'pga' ? 'pga' : league === 'eur' ? 'eur' : league;
-    const res = await fetch(
-      `https://site.api.espn.com/apis/common/v3/sports/golf/${leagueSlug}/athletes/${espnId}/overview`,
-      { cache: 'no-store', signal: AbortSignal.timeout(5000) }
-    );
-    if (!res.ok) return null;
-    const data = await res.json() as OverviewData;
-    const hasData = (data?.seasonRankings?.categories?.length ?? 0) > 0 || (data?.summaryStatistics?.length ?? 0) > 0;
-    return hasData ? data : null;
-  } catch { return null; }
-}
 
 // Fetch savePct (sand saves %) from ESPN Core types/2 — only reliable source for this stat
 async function fetchCoreSandSavesPct(espnId: string): Promise<number | null> {
@@ -325,21 +296,6 @@ const STAT_DETAILS_IDS: Record<string, string[]> = {
   sgPutting: ['02564'],
 };
 
-// Look up an ESPN athlete ID by player name — same search the player card uses
-async function fetchEspnIdByName(name: string): Promise<string | null> {
-  try {
-    const res = await fetch(
-      `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(name)}&limit=20&type=player`,
-      { cache: 'no-store', signal: AbortSignal.timeout(5000) }
-    );
-    if (!res.ok) return null;
-    const data = await res.json() as { results?: Array<{ contents?: Array<{ uid?: string }> }> };
-    const contents = data.results?.[0]?.contents ?? [];
-    const player = contents.find((c: { uid?: string }) => c.uid?.includes('s:110') && c.uid?.includes('~a:'));
-    const uid = player?.uid ?? '';
-    return uid.split('~a:')?.[1] ?? null;
-  } catch { return null; }
-}
 
 async function batchAll<T>(tasks: (() => Promise<T>)[], size: number): Promise<T[]> {
   const results: T[] = [];
@@ -454,112 +410,6 @@ export async function GET(request: Request) {
             gqlResult = { players: combined, officialTourAvg: gqlResult.officialTourAvg };
           }
         } catch { /* supplement is best-effort */ }
-
-        // Must-include players: hardcoded ESPN IDs with multi-league fallback.
-        // Rory McIlroy plays primarily on DP World Tour (ESPN 'eur' league) — his season
-        // stats return all-zeros from the PGA Tour (pga) ESPN endpoints, so we try 'eur' first.
-        const MUST_INCLUDE = [
-          { name: 'Rory McIlroy', espnId: '3470', leagues: ['eur', 'pga'] as const },
-        ];
-        for (const { name: mustName, espnId: mustEspnId, leagues: mustLeagues } of MUST_INCLUDE) {
-          const mustLower = mustName.toLowerCase().trim();
-          if (!gqlResult.players.some(p => p.name.toLowerCase().trim() === mustLower)) {
-            console.log(`[stat-lb] must-include: ${mustName} absent from statDetails, trying ESPN leagues=${mustLeagues.join(',')}`);
-            try {
-              let mustVal: number | null = null;
-
-              for (const league of mustLeagues) {
-                if (mustVal !== null && mustVal !== 0) break;
-
-                if (statKey === 'sandSaves') {
-                  const coreStats = await fetchCoreStats(mustEspnId, league);
-                  if (coreStats) {
-                    const s = coreStats.find((x) => x.name === 'savePct');
-                    if (s?.value && !isNaN(s.value) && s.value > 0) { mustVal = s.value; }
-                    else {
-                      const dv = parseFloat(s?.displayValue ?? '');
-                      if (!isNaN(dv) && dv > 0) mustVal = dv;
-                    }
-                  }
-                } else if (statKey === 'scrambling') {
-                  const coreStats = await fetchCoreStats(mustEspnId, league);
-                  if (coreStats) {
-                    const NAMES = ['scramblingPct','scrambling','scramblePct','scrmblPct','upAndDown','upAndDownPct','parSave','parSavePct','parSaves','conventionalScrambling','scrambles'];
-                    for (const name of NAMES) {
-                      const s = coreStats.find((x) => x.name === name);
-                      if (!s) continue;
-                      const raw = (s.value !== undefined && s.value !== null && s.value !== 0) ? s.value : parseFloat(s.averageDisplayValue ?? s.displayValue ?? '');
-                      if (!raw || isNaN(raw) || raw === 0) continue;
-                      mustVal = raw > 0 && raw < 1 ? raw * 100 : raw;
-                      break;
-                    }
-                  }
-                } else {
-                  // Try overview for this league first
-                  const overview = await fetchAthleteOverviewStatsForLeague(mustEspnId, league);
-                  if (overview) {
-                    const cats = overview.seasonRankings?.categories ?? [];
-                    const merged = [...cats, ...(overview.summaryStatistics ?? [])];
-                    if (statKey === 'gir') {
-                      mustVal = computeGirPct(cats);
-                    } else {
-                      for (const d of statDefs.filter(d => d.key === statKey)) {
-                        const raw = statNumeric(merged, d.espnName);
-                        if (raw !== null && raw !== 0) { mustVal = raw; break; }
-                      }
-                    }
-                  }
-                  // Fallback to core stats for this league
-                  if (mustVal === null || mustVal === 0) {
-                    const coreStats = await fetchCoreStats(mustEspnId, league);
-                    if (coreStats) {
-                      if (statKey === 'gir') {
-                        mustVal = computeGirPct(coreStats);
-                      } else {
-                        for (const d of statDefs.filter(d => d.key === statKey)) {
-                          const raw = statNumeric(coreStats, d.espnName);
-                          if (raw !== null && raw !== 0) { mustVal = raw; break; }
-                        }
-                      }
-                    }
-                  }
-                }
-                console.log(`[stat-lb] must-include ${mustName} league=${league} statKey=${statKey} val=${mustVal}`);
-              }
-
-              // Last resort: average stats from known major events.
-              // Event-level competitor stats are available even when season stats are not
-              // (DP World Tour players like Rory have empty season stats on ESPN PGA endpoints).
-              if (mustVal === null || mustVal === 0) {
-                const eventVals: number[] = [];
-                const defsForMust = statDefs.filter(d => d.key === statKey);
-                for (const eventId of PGA_EVENT_IDS) {
-                  const eventStats = await fetchCompetitorStatsForEvent(mustEspnId, eventId);
-                  if (!eventStats) continue;
-                  for (const d of defsForMust) {
-                    const raw = statNumeric(eventStats, d.espnName);
-                    if (raw !== null && raw !== 0) { eventVals.push(raw); break; }
-                  }
-                }
-                if (eventVals.length > 0) {
-                  mustVal = eventVals.reduce((a, b) => a + b, 0) / eventVals.length;
-                  console.log(`[stat-lb] must-include ${mustName} event-fallback statKey=${statKey} val=${mustVal} from ${eventVals.length} events`);
-                }
-              }
-
-              if (mustVal !== null && mustVal !== 0) {
-                const combined: Array<{ name: string; value: number }> = [...gqlResult.players, { name: mustName, value: mustVal }];
-                combined.sort((a, b) => LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value);
-                gqlResult = { players: combined, officialTourAvg: gqlResult.officialTourAvg };
-                console.log(`[stat-lb] must-include ADDED: ${mustName} ${statKey}=${mustVal}`);
-              } else {
-                console.log(`[stat-lb] must-include FAILED: ${mustName} ${statKey} no value from any league`);
-              }
-            } catch (e) {
-              console.log(`[stat-lb] must-include ERROR: ${mustName} ${statKey} ${String(e)}`);
-            }
-          }
-        }
 
         // Use official PGA Tour average if available; fall back to computed mean
         const avgNum = gqlResult.officialTourAvg !== null
