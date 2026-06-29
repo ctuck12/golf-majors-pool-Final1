@@ -8570,7 +8570,8 @@ export default function Page() {
                   const bio = pickHistoryPlayerPopup.playerBio;
                   const loading = pickHistoryPlayerPopup.playerBioLoading;
                   const espnPhotoSrc = pickHistoryPlayerPopup.espnPhotoUrl;
-                  const photoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
+                  const pgaPhotoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
+                  const photoSrc = espnPhotoSrc ?? pgaPhotoSrc;
                   const rows: { label: string; value: string | number | null }[] = bio ? [
                     { label: 'Date of Birth', value: bio.dob },
                     { label: 'Age', value: bio.age },
@@ -8595,7 +8596,7 @@ export default function Page() {
                           style={{ width: 110, height: 110, borderRadius: 12, objectFit: 'cover', border: '2px solid #e2e8ef', background: '#e8edf2' }}
                           onError={(e) => {
                             const img = e.target as HTMLImageElement;
-                            if (espnPhotoSrc && img.src !== espnPhotoSrc) { img.src = espnPhotoSrc; } else { img.style.display = 'none'; }
+                            if (espnPhotoSrc && img.src === espnPhotoSrc && pgaPhotoSrc !== espnPhotoSrc) { img.src = pgaPhotoSrc; } else { img.style.display = 'none'; }
                           }}
                         />
                       </div>
