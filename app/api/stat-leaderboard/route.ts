@@ -373,15 +373,30 @@ export async function GET(request: Request) {
                 val = await fetchCoreScrambling(id);
               } else {
                 const overview = await fetchAthleteOverviewStats(id);
-                if (!overview) return null;
-                const cats = overview.seasonRankings?.categories ?? [];
-                const merged = [...cats, ...(overview.summaryStatistics ?? [])];
-                if (statKey === 'gir') {
-                  val = computeGirPct(cats);
-                } else {
-                  for (const d of defsForKey) {
-                    const raw = statNumeric(merged, d.espnName);
-                    if (raw !== null) { val = raw; break; }
+                if (overview) {
+                  const cats = overview.seasonRankings?.categories ?? [];
+                  const merged = [...cats, ...(overview.summaryStatistics ?? [])];
+                  if (statKey === 'gir') {
+                    val = computeGirPct(cats);
+                  } else {
+                    for (const d of defsForKey) {
+                      const raw = statNumeric(merged, d.espnName);
+                      if (raw !== null) { val = raw; break; }
+                    }
+                  }
+                }
+                // Fallback to core stats if overview didn't yield a value
+                if (val === null || val === 0) {
+                  const coreStats = await fetchCoreStats(id);
+                  if (coreStats) {
+                    if (statKey === 'gir') {
+                      val = computeGirPct(coreStats);
+                    } else {
+                      for (const d of defsForKey) {
+                        const raw = statNumeric(coreStats, d.espnName);
+                        if (raw !== null && raw !== 0) { val = raw; break; }
+                      }
+                    }
                   }
                 }
               }
@@ -434,6 +449,20 @@ export async function GET(request: Request) {
                       for (const d of statDefs.filter(d => d.key === statKey)) {
                         const raw = statNumeric(merged, d.espnName);
                         if (raw !== null) { mustVal = raw; break; }
+                      }
+                    }
+                  }
+                }
+                // Fallback to core stats if overview didn't yield a value
+                if (mustVal === null || mustVal === 0) {
+                  const coreStats = await fetchCoreStats(espnId);
+                  if (coreStats) {
+                    if (statKey === 'gir') {
+                      mustVal = computeGirPct(coreStats);
+                    } else {
+                      for (const d of statDefs.filter(d => d.key === statKey)) {
+                        const raw = statNumeric(coreStats, d.espnName);
+                        if (raw !== null && raw !== 0) { mustVal = raw; break; }
                       }
                     }
                   }
