@@ -421,12 +421,48 @@ async function fetchCoreAthleteSeasonStats(espnId: string): Promise<Stat[] | nul
   return null;
 }
 
+// Fetch ESPN Core stats WITHOUT the types/2 qualifier — no minimum rounds filter.
+// Used as a parallel companion to fetchCoreAthleteSeasonStats to fill SG gaps for
+// players who don't meet the types/2 qualification threshold.
+async function fetchCoreAthleteSeasonStatsUnqualified(espnId: string): Promise<Stat[] | null> {
+  const year = new Date().getFullYear();
+  const urls = [
+    `${ESPN_CORE}/pga/seasons/${year}/athletes/${espnId}/statistics/0`,
+    `${ESPN_CORE}/pga/seasons/${year}/athletes/${espnId}/statistics`,
+    `${ESPN_CORE}/pga/seasons/${year - 1}/athletes/${espnId}/statistics/0`,
+  ];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(4000) });
+      if (!res.ok) continue;
+      const data = await res.json() as {
+        splits?: { categories?: Array<{ stats?: Stat[] }> } | Array<{ stats?: Stat[] }>;
+        categories?: Array<{ stats?: Stat[] }>;
+        stats?: Stat[];
+      };
+      if (data?.splits && !Array.isArray(data.splits)) {
+        const s = (data.splits as { categories?: Array<{ stats?: Stat[] }> }).categories?.[0]?.stats;
+        if (Array.isArray(s) && s.length > 0) return s;
+      }
+      if (Array.isArray(data?.splits)) {
+        for (const split of data.splits as Array<{ stats?: Stat[] }>) {
+          if (Array.isArray(split?.stats) && split.stats.length > 0) return split.stats;
+        }
+      }
+      if (Array.isArray(data?.categories) && data.categories![0]?.stats?.length) return data.categories![0].stats!;
+      if (Array.isArray(data?.stats) && data.stats!.length > 0) return data.stats!;
+    } catch { continue; }
+  }
+  return null;
+}
+
 export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats | null> {
   const espnId = await getEspnId(name);
   if (!espnId) return null;
-  const [overviewData, coreStats] = await Promise.all([
+  const [overviewData, coreStats, unqualStats] = await Promise.all([
     fetchOverview(espnId),
     fetchCoreAthleteSeasonStats(espnId),
+    fetchCoreAthleteSeasonStatsUnqualified(espnId),
   ]);
   if (!overviewData) return null;
   const stats = extractSeason(overviewData);
@@ -485,6 +521,8 @@ export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats 
     }
   }
   if (coreStats) applySgFromCoreStats(coreStats);
+  // Try unqualified (non-types/2) stats for any SG still missing — no minimum rounds filter
+  if (unqualStats) applySgFromCoreStats(unqualStats);
 
   // Scrambling: ESPN overview returns 0/null for this stat (internal formula mismatch).
   // Try ESPN Core types/2 which has the correct season value.
