@@ -39,7 +39,7 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v56:season:${seasonYear}:${name}`;
+    : `player-stats:v57:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
     : `player-stats:v56:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
@@ -131,6 +131,24 @@ export async function GET(request: Request) {
       if (isNaN(num) || num <= 0) continue;
       mergedSeasonRanks[field] = String(num);
     }
+    // Override SG ranks with leaderboard-derived ranks (more accurate than playerProfileStats).
+    // The leaderboard popup uses the same cache, so this makes player card ranks match exactly.
+    const SG_STAT_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
+    const lbRankResults = await Promise.allSettled(
+      SG_STAT_KEYS.map(k => redis.get(`stat-lb:v25:${k}`))
+    );
+    const nameLower = name.toLowerCase();
+    for (let i = 0; i < SG_STAT_KEYS.length; i++) {
+      const result = lbRankResults[i];
+      if (result.status !== 'fulfilled' || !result.value) continue;
+      try {
+        const parsed = JSON.parse(result.value as string);
+        const entries: { rank: number; name: string }[] = parsed.entries ?? parsed;
+        const entry = entries.find(e => e.name.toLowerCase() === nameLower);
+        if (entry) mergedSeasonRanks[SG_STAT_KEYS[i]] = String(entry.rank);
+      } catch { /* ignore */ }
+    }
+
     const ranks: PlayerStatRanks | null = Object.keys(mergedSeasonRanks).length > 0 ? mergedSeasonRanks : null;
 
     // ESPN wins the merge for most stats. For scrambling, espnStats now uses averageDisplayValue
