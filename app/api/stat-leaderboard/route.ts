@@ -310,7 +310,7 @@ export async function GET(request: Request) {
   const SG_STAT_KEYS = new Set(['sgTotal','sgTeeToGreen','sgOffTee','sgApproach','sgAroundGreen','sgPutting']);
   const isSg = SG_STAT_KEYS.has(statKey);
 
-  const cacheKey = `stat-lb:v26:${statKey}`;
+  const cacheKey = `stat-lb:v27:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -335,6 +335,61 @@ export async function GET(request: Request) {
         const isPercent = def?.isPercent ?? false;
         const decimals = def?.decimals ?? 1;
         const fmt = (v: number) => isPercent ? `${v.toFixed(decimals)}%` : v.toFixed(decimals);
+
+        // Supplement statDetails with ESPN data for major-event players not in PGA Tour statDetails.
+        // This catches active tour players (e.g. Rory McIlroy) who are temporarily absent from
+        // statDetails due to minimum-rounds rules or API lag.
+        const pgaNames = new Set(gqlResult.players.map((p) => p.name.toLowerCase().trim()));
+        try {
+          const espnIds = await fetchPgaPlayerIds();
+          const defsForKey = statDefs.filter((d) => d.key === statKey);
+          const missingPlayers: Array<{ name: string; value: number }> = [];
+
+          const supplementBatch = await batchAll(
+            espnIds.map((id) => async () => {
+              let val: number | null = null;
+              if (statKey === 'sandSaves') {
+                val = await fetchCoreSandSavesPct(id);
+              } else if (statKey === 'scrambling') {
+                val = await fetchCoreScrambling(id);
+              } else {
+                const overview = await fetchAthleteOverviewStats(id);
+                if (!overview) return null;
+                const cats = overview.seasonRankings?.categories ?? [];
+                const merged = [...cats, ...(overview.summaryStatistics ?? [])];
+                if (statKey === 'gir') {
+                  val = computeGirPct(cats);
+                } else {
+                  for (const d of defsForKey) {
+                    const raw = statNumeric(merged, d.espnName);
+                    if (raw !== null) { val = raw; break; }
+                  }
+                }
+              }
+              if (val === null || val === 0) return null;
+              const name = await fetchAthleteName(id);
+              if (!name) return null;
+              return { name, value: val };
+            }),
+            BATCH_SIZE,
+          );
+
+          for (const entry of supplementBatch) {
+            if (!entry) continue;
+            if (!pgaNames.has(entry.name.toLowerCase().trim())) {
+              missingPlayers.push(entry);
+              console.log(`[stat-lb] supplemented from ESPN: ${entry.name} ${statKey}=${entry.value}`);
+            }
+          }
+
+          if (missingPlayers.length > 0) {
+            // Merge, re-sort, re-rank
+            const combined = [...gqlResult.players, ...missingPlayers];
+            combined.sort((a, b) => LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value);
+            gqlResult = { players: combined, officialTourAvg: gqlResult.officialTourAvg };
+          }
+        } catch { /* supplement is best-effort */ }
+
         // Use official PGA Tour average if available; fall back to computed mean
         const avgNum = gqlResult.officialTourAvg !== null
           ? gqlResult.officialTourAvg

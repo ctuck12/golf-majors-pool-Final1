@@ -4,9 +4,9 @@ import redis from '@/app/lib/redis';
 
 // Tour averages are read directly from the stat-lb caches (the same source as the leaderboard
 // popups) so player stat cards and leaderboard popups always show identical Tour Avg values.
-// stat-lb:v26 is refreshed every 50 min by the warm-stat-caches cron.
+// stat-lb:v27 is refreshed every 50 min by the warm-stat-caches cron.
 
-const STAT_LB_PREFIX = 'stat-lb:v26:';
+const STAT_LB_PREFIX = 'stat-lb:v27:';
 const STAT_KEYS = [
   'drivingDistance',
   'drivingAccuracy',
