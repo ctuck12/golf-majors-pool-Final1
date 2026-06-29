@@ -213,7 +213,7 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
     // For course stats with missing ranks or values, try the statLeaderboard fallback.
     // Stat 103 (GIR): playerProfileStats returns an incorrect internal metric — always
     // override with statLeaderboard which matches the official PGA Tour leaderboard.
-    const COURSE_STAT_IDS = ['101', '102', '103', '108', '104', '111'];
+    const COURSE_STAT_IDS = ['101', '102', '103', '108', '104', '111', '130'];
     // playerProfileStats returns incorrect internal metrics for these stats — always
     // override with statDetails which matches the official PGA Tour leaderboard.
     const ALWAYS_USE_LB = new Set(['103', '111']);
