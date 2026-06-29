@@ -24,7 +24,11 @@ const STAT_KEYS = [
   'sgTeeToGreen',
 ];
 
-const BATCH_SIZE = 4;
+// Small batches: each stat-leaderboard build does ~216 ESPN supplement calls plus PGA GQL, so
+// running too many at once overloads the upstream APIs and some builds come back empty (HTTP 200
+// but zero entries) and never cache — leaving those stats cold. 2 at a time keeps builds reliable.
+const BATCH_SIZE = 2;
+const MAX_ATTEMPTS = 3;
 
 export async function GET(request: Request) {
   // Vercel only injects the `Authorization: Bearer <CRON_SECRET>` header on scheduled invocations
@@ -53,20 +57,33 @@ export async function GET(request: Request) {
     results['tour-averages'] = String(e);
   }
 
-  // Warm stat leaderboards in parallel batches — each batch runs concurrently,
-  // batches run sequentially so we don't hammer ESPN all at once.
+  // Warm stat leaderboards in small parallel batches. A build "succeeds" only if it returns a
+  // non-empty entries array — a 200 with zero entries means the upstream call failed under load and
+  // the cache was NOT written, so we retry. Without this check the cron reported "ok" while leaving
+  // stat-lb caches cold, which is why player-card ranks went missing.
   for (let i = 0; i < STAT_KEYS.length; i += BATCH_SIZE) {
     const batch = STAT_KEYS.slice(i, i + BATCH_SIZE);
     await Promise.allSettled(
       batch.map(async (key) => {
-        try {
-          const res = await fetch(`${baseUrl}/api/stat-leaderboard?statKey=${key}&bust=1`, {
-            cache: 'no-store',
-            headers: { 'x-cron-secret': process.env.CRON_SECRET ?? '' },
-          });
-          results[key] = res.ok ? 'ok' : `${res.status}`;
-        } catch (e) {
-          results[key] = String(e);
+        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+          try {
+            const res = await fetch(`${baseUrl}/api/stat-leaderboard?statKey=${key}&bust=1`, {
+              cache: 'no-store',
+              headers: { 'x-cron-secret': process.env.CRON_SECRET ?? '' },
+            });
+            if (res.ok) {
+              const data = await res.json().catch(() => null) as { entries?: unknown[] } | null;
+              if (Array.isArray(data?.entries) && data!.entries.length > 0) {
+                results[key] = `ok(${data!.entries.length})`;
+                return;
+              }
+              results[key] = `empty:attempt${attempt}`;
+            } else {
+              results[key] = `${res.status}:attempt${attempt}`;
+            }
+          } catch (e) {
+            results[key] = `err:attempt${attempt}:${String(e)}`;
+          }
         }
       })
     );
