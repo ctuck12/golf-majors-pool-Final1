@@ -80,7 +80,7 @@ export async function GET(request: Request) {
       const LB_WINS_KEYS_EARLY = new Set(['gir', 'puttAverage', 'scrambling', 'drivingAccuracy', 'drivingDistance', 'sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting']);
       const PERCENT_KEYS_EARLY = new Set(['gir', 'scrambling', 'drivingAccuracy']);
       const freshRanks: Record<string, string> = {};
-      const cachedStats = JSON.parse(cached);
+      const cachedStats = JSON.parse(cached as string);
       for (let i = 0; i < LB_STAT_KEYS_EARLY.length; i++) {
         const result = lbResultsEarly[i];
         const key = LB_STAT_KEYS_EARLY[i];
