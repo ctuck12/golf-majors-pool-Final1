@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v62:season:${seasonYear}:${name}`;
+    : `player-stats:v63:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v62:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v63:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -138,7 +138,8 @@ export async function GET(request: Request) {
     const lbRankResults = await Promise.allSettled(
       LB_STAT_KEYS.map(k => redis.get(`stat-lb:v25:${k}`))
     );
-    const nameLower = name.toLowerCase();
+    const normName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const nameLower = normName(name);
     let lbScrambling: { value: string; rank: string } | null = null;
     for (let i = 0; i < LB_STAT_KEYS.length; i++) {
       const result = lbRankResults[i];
@@ -146,7 +147,7 @@ export async function GET(request: Request) {
       try {
         const parsed = JSON.parse(result.value as string);
         const entries: { rank: number; name: string; value?: string | number }[] = parsed.entries ?? parsed;
-        const entry = entries.find(e => e.name.toLowerCase() === nameLower);
+        const entry = entries.find(e => normName(e.name) === nameLower);
         if (!entry) continue;
         const key = LB_STAT_KEYS[i];
         if (key === 'scrambling') {
