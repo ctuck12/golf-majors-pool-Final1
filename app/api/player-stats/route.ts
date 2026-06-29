@@ -46,10 +46,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v82:season:${seasonYear}:${name}`;
+    : `player-stats:v83:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v82:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v83:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -176,62 +176,53 @@ export async function GET(request: Request) {
     ]);
 
     const pgaStats = pgaResult?.stats ?? null;
-    const pgaRanks: PlayerStatRanks = pgaResult?.ranks ?? {};
 
-    // ESPN ranks win for driving stats (ESPN values are more reliable there).
-    // Scrambling rank is NOT included here — playerProfileStats rank for stat 106 is wrong,
-    // and ESPN overview rank is also based on their wrong formula. The rank will be absent
-    // until the stat-leaderboard route computes it from ESPN Core types/2.
-    const ESPN_LABEL_TO_FIELD: Record<string, string> = {
-      'Sand Saves%': 'sandSaves',
-      'GIR%': 'gir',
-      'Drive Dist': 'drivingDistance',
-      'Drive Acc': 'drivingAccuracy',
-      'Putts/Green': 'puttAverage',
-      'Birdies/Rd': 'birdiesPerRound',
-    };
-    const espnLabelRanks = espnStats?.statRanks ?? {};
-    const mergedSeasonRanks: PlayerStatRanks = { ...pgaRanks };
-    for (const [label, rankStr] of Object.entries(espnLabelRanks)) {
-      const field = ESPN_LABEL_TO_FIELD[label];
-      if (!field || !rankStr) continue;
-      const num = parseInt(rankStr);
-      if (isNaN(num) || num <= 0) continue;
-      mergedSeasonRanks[field] = String(num);
-    }
-    // Use stat-lb cache as the authoritative rank source for ALL stats so popup ranks always
-    // match leaderboard positions. stat-lb is the single source of truth for both.
+    // RANKS — single source of truth: the stat-leaderboard caches (stat-lb), which are the EXACT
+    // data the leaderboard popups render. The card always uses list position (findIndex+1) from
+    // that same data, so a card rank can never disagree with the popup. We deliberately do NOT use
+    // PGA Tour "official" ranks (pgaResult.ranks) or ESPN ranks here: they use a different field
+    // and denominator and were the recurring source of card-vs-popup mismatch (they only leaked in
+    // when a stat's stat-lb cache went cold). When a stat's stat-lb cache is momentarily cold we
+    // fall back to the last list-position rank we cached — the same ranking system — never to a
+    // foreign rank source.
     const LB_STAT_KEYS = [
       'drivingDistance', 'drivingAccuracy', 'gir', 'sandSaves', 'puttAverage', 'birdiesPerRound',
       'scrambling', 'sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting',
     ];
-    const lbRankResults = await Promise.allSettled(
-      LB_STAT_KEYS.map(k => redis.get(`stat-lb:v28:${k}`))
-    );
+    const [lbRankResults, ranksRaw] = await Promise.all([
+      Promise.allSettled(LB_STAT_KEYS.map(k => redis.get(`stat-lb:v28:${k}`))),
+      redis.get(ranksCacheKey).catch(() => null),
+    ]);
+    const cachedRanks: Record<string, string> = ranksRaw ? JSON.parse(ranksRaw as string) : {};
     const normName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();
     const nameLower = normName(name);
     let lbScrambling: { value: string; rank: string } | null = null;
     const lbStatValues: Record<string, string> = {};
+    const mergedSeasonRanks: PlayerStatRanks = {};
     for (let i = 0; i < LB_STAT_KEYS.length; i++) {
+      const key = LB_STAT_KEYS[i];
       const result = lbRankResults[i];
-      if (result.status !== 'fulfilled' || !result.value) continue;
+      if (result.status !== 'fulfilled' || !result.value) {
+        // stat-lb cold for this stat — keep the last list-position rank (same system as the popup)
+        if (cachedRanks[key]) mergedSeasonRanks[key] = cachedRanks[key];
+        continue;
+      }
       try {
         const parsed = JSON.parse(result.value as string);
         const entries: { rank: number; name: string; value?: string | number }[] = parsed.entries ?? parsed;
         const entryIdx = entries.findIndex(e => normName(e.name) === nameLower);
-        if (entryIdx === -1) continue;
+        if (entryIdx === -1) continue; // warm but player not on this leaderboard — popup wouldn't rank them either
         const entry = entries[entryIdx];
-        const listRank = String(entryIdx + 1); // use list position, matches popup display
-        const key = LB_STAT_KEYS[i];
+        const listRank = String(entryIdx + 1); // list position — exactly what the popup displays
         if (key === 'scrambling') {
           lbScrambling = { rank: listRank, value: entry.value ? String(entry.value) : '' };
+          mergedSeasonRanks[key] = listRank;
         } else {
           mergedSeasonRanks[key] = listRank;
           if (entry.value !== undefined && entry.value !== null) lbStatValues[key] = String(entry.value);
         }
       } catch { /* ignore */ }
     }
-    if (lbScrambling) mergedSeasonRanks['scrambling'] = lbScrambling.rank;
 
     const ranks: PlayerStatRanks | null = Object.keys(mergedSeasonRanks).length > 0 ? mergedSeasonRanks : null;
 

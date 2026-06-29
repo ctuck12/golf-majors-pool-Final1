@@ -417,7 +417,10 @@ export async function GET(request: Request) {
           : gqlResult.players.reduce((s, r) => s + r.value, 0) / gqlResult.players.length;
         const tourAvg = fmt(avgNum);
         const entries: StatLeaderboardEntry[] = gqlResult.players.map((r, i) => ({ rank: i + 1, name: r.name, value: fmt(r.value) }));
-        try { await redis.setex(cacheKey, 480, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
+        // TTL (1500s) MUST stay above the warm-stat-caches cron interval (*/10 = 600s) so this
+        // cache is never cold between refreshes. Player-card ranks read this exact cache; if it
+        // goes cold the card falls back to a different rank source and disagrees with the popup.
+        try { await redis.setex(cacheKey, 1500, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
         try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
         return Response.json({ entries, tourAvg: isSg ? null : tourAvg });
       }
@@ -483,7 +486,7 @@ export async function GET(request: Request) {
     }
 
     if (entries.length > 0) {
-      try { await redis.setex(cacheKey, 480, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
+      try { await redis.setex(cacheKey, 1500, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
     }
 
     return Response.json({ entries, tourAvg: isSg ? null : tourAvg });
