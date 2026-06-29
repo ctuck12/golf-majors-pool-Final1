@@ -8579,8 +8579,8 @@ export default function Page() {
                     { label: 'Age', value: bio?.age ?? null },
                     { label: 'Height', value: bio?.height ?? null },
                     { label: 'Weight', value: bio?.weight ?? null },
-                    { label: 'College', value: bio?.college ?? null, italic: !bio?.college && (bio?.collegeConfirmedAbsent ?? false) },
                     { label: 'Swing', value: bio?.swing ?? null },
+                    { label: 'College', value: bio?.college ?? null, italic: !bio?.college && (bio?.collegeConfirmedAbsent ?? false) },
                   ];
                   const bottomRows: { label: string; value: string | number | null }[] = [
                     { label: 'Turned Pro', value: bio?.turnedPro ?? null },
