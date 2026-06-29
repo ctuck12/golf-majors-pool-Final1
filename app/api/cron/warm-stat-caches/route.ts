@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 // Cron job: warm stat leaderboard caches so they're always fresh for users.
 // Runs every hour via vercel.json cron schedule.
@@ -26,8 +27,15 @@ const STAT_KEYS = [
 const BATCH_SIZE = 4;
 
 export async function GET(request: Request) {
+  // Vercel only injects the `Authorization: Bearer <CRON_SECRET>` header on scheduled invocations
+  // when CRON_SECRET is configured in the project env. If it is NOT set, the cron fires with no
+  // auth header — and a strict `!== Bearer undefined` check returns 401 every time, which was the
+  // bug that left every stat-lb cache cold (the cron never actually ran). So only enforce auth when
+  // a secret is configured; otherwise allow the invocation. This endpoint only warms public stat
+  // caches, so allowing it unauthenticated when no secret is set is low risk.
+  const cronSecret = process.env.CRON_SECRET;
   const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
     return new Response('Unauthorized', { status: 401 });
   }
 

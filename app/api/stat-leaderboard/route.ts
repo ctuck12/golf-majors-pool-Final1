@@ -314,7 +314,12 @@ export async function GET(request: Request) {
   const isSg = SG_STAT_KEYS.has(statKey);
 
   const cacheKey = `stat-lb:v28:${statKey}`;
-  const bust = searchParams.get('bust') === '1' && request.headers.get('x-cron-secret') === process.env.CRON_SECRET;
+  // The warm-stat-caches cron passes bust=1 to force a fresh rebuild. Authenticate it with the
+  // shared CRON_SECRET when one is configured; when it isn't set, accept bust=1 so the cron can
+  // still refresh caches (without this, a never-expiring warm cache would freeze stale data).
+  const cronSecret = process.env.CRON_SECRET;
+  const bust = searchParams.get('bust') === '1'
+    && (!cronSecret || request.headers.get('x-cron-secret') === cronSecret);
   if (!bust) {
     try {
       const cached = await redis.get(cacheKey);
