@@ -8573,27 +8573,26 @@ export default function Page() {
                   const espnPhotoSrc = pickHistoryPlayerPopup.espnPhotoUrl;
                   const pgaPhotoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
                   const photoSrc = espnPhotoSrc ?? pgaPhotoSrc;
-                  const topRows: { label: string; value: string | number | null }[] = bio ? [
-                    { label: 'Date of Birth', value: bio.dob },
-                    { label: 'Age', value: bio.age },
-                    { label: 'Height', value: bio.height },
-                    { label: 'Weight', value: bio.weight },
-                    { label: 'College', value: bio.college },
-                  ].filter(r => r.value != null) : [];
-                  const bottomRows: { label: string; value: string | number | null }[] = bio ? [
-                    { label: 'Turned Pro', value: bio.turnedPro },
-                    { label: 'PGA Tour Debut', value: bio.pgaTourDebut },
-                    { label: 'Career Starts', value: bio.careerStarts },
-                    { label: 'Career Wins', value: bio.careerWins },
-                    { label: 'Major Starts', value: bio.majorStarts },
-                    { label: 'Major Wins', value: bio.majorWins },
-                    { label: 'Career Earnings', value: bio.careerEarnings },
-                  ].filter(r => r.value != null) : [];
-                  const allRows = [...topRows, ...bottomRows];
+                  const topRows: { label: string; value: string | number | null }[] = [
+                    { label: 'Date of Birth', value: bio?.dob ?? null },
+                    { label: 'Age', value: bio?.age ?? null },
+                    { label: 'Height', value: bio?.height ?? null },
+                    { label: 'Weight', value: bio?.weight ?? null },
+                    { label: 'College', value: bio?.college ?? null },
+                  ];
+                  const bottomRows: { label: string; value: string | number | null }[] = [
+                    { label: 'Turned Pro', value: bio?.turnedPro ?? null },
+                    { label: 'PGA Tour Debut', value: bio?.pgaTourDebut ?? null },
+                    { label: 'Career Starts', value: bio?.careerStarts ?? null },
+                    { label: 'Career Wins', value: bio?.careerWins ?? null },
+                    { label: 'Major Starts', value: bio?.majorStarts ?? null },
+                    { label: 'Major Wins', value: bio?.majorWins ?? null },
+                    { label: 'Career Earnings', value: bio?.careerEarnings ?? null },
+                  ];
                   return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
                       {/* Top section: photo left, personal info right */}
-                      <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e2e8ef', marginBottom: bottomRows.length > 0 ? 10 : 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e2e8ef', marginBottom: 10 }}>
                         {/* Photo column */}
                         <div style={{ flexShrink: 0, width: 100, background: '#e8edf2', display: 'flex', alignItems: 'stretch' }}>
                           <img
@@ -8609,27 +8608,23 @@ export default function Page() {
                         {/* Personal info rows */}
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderLeft: '1.5px solid #e2e8ef' }}>
                           {loading && <div style={{ textAlign: 'center', padding: '16px 10px', color: '#7a8c99', fontSize: 13 }}>Loading...</div>}
-                          {!loading && topRows.length === 0 && <div style={{ textAlign: 'center', padding: '16px 10px', color: '#7a8c99', fontSize: 13 }}>Bio data not available.</div>}
-                          {topRows.map((row, i) => (
+                          {!loading && topRows.map((row, i) => (
                             <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < topRows.length - 1 ? '1px solid #e2e8ef' : 'none', flex: 1 }}>
                               <span style={{ fontSize: 12, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
-                              <span style={{ fontSize: 12, color: '#0f1720', fontWeight: 700, textAlign: 'right', marginLeft: 6 }}>{String(row.value)}</span>
+                              <span style={{ fontSize: 12, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700, textAlign: 'right', marginLeft: 6 }}>{row.value != null ? String(row.value) : '—'}</span>
                             </div>
                           ))}
                         </div>
                       </div>
                       {/* Bottom rows: full width */}
-                      {bottomRows.length > 0 && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e2e8ef' }}>
-                          {bottomRows.map((row, i) => (
-                            <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < bottomRows.length - 1 ? '1px solid #e2e8ef' : 'none' }}>
-                              <span style={{ fontSize: 13, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
-                              <span style={{ fontSize: 13, color: '#0f1720', fontWeight: 700 }}>{String(row.value)}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {!loading && allRows.length === 0 && <div style={{ textAlign: 'center', padding: '10px 0', color: '#7a8c99', fontSize: 13 }}>Bio data not available.</div>}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e2e8ef' }}>
+                        {bottomRows.map((row, i) => (
+                          <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < bottomRows.length - 1 ? '1px solid #e2e8ef' : 'none' }}>
+                            <span style={{ fontSize: 13, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
+                            <span style={{ fontSize: 13, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700 }}>{row.value != null ? String(row.value) : '—'}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   );
                 })()}
