@@ -119,10 +119,11 @@ async function fetchAthleteOverviewStats(espnId: string): Promise<OverviewData |
 }
 
 // Fetch stats from ESPN Core types/2 — returns the full stats array
-// Fetch stats array from ESPN Core types/2 — shared helper for sandSaves and scrambling
-async function fetchCoreStats(espnId: string): Promise<Stat[] | null> {
+// Accepts an optional league ('pga' default, 'eur' for DP World Tour players like Rory)
+async function fetchCoreStats(espnId: string, league = 'pga'): Promise<Stat[] | null> {
   try {
-    const url = `${ESPN_CORE}/seasons/${CURRENT_YEAR}/types/2/athletes/${espnId}/statistics/0`;
+    const base = league === 'pga' ? ESPN_CORE : `https://sports.core.api.espn.com/v2/sports/golf/leagues/${league}`;
+    const url = `${base}/seasons/${CURRENT_YEAR}/types/2/athletes/${espnId}/statistics/0`;
     const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
     if (!res.ok) return null;
     const data = await res.json() as {
@@ -135,6 +136,21 @@ async function fetchCoreStats(espnId: string): Promise<Stat[] | null> {
       return (data.splits as Array<{ stats?: Stat[] }>)[0]?.stats ?? null;
     }
     return null;
+  } catch { return null; }
+}
+
+// Fetch athlete overview stats from any ESPN league (pga, eur, liv)
+async function fetchAthleteOverviewStatsForLeague(espnId: string, league: string): Promise<OverviewData | null> {
+  try {
+    const leagueSlug = league === 'pga' ? 'pga' : league === 'eur' ? 'eur' : league;
+    const res = await fetch(
+      `https://site.api.espn.com/apis/common/v3/sports/golf/${leagueSlug}/athletes/${espnId}/overview`,
+      { cache: 'no-store', signal: AbortSignal.timeout(5000) }
+    );
+    if (!res.ok) return null;
+    const data = await res.json() as OverviewData;
+    const hasData = (data?.seasonRankings?.categories?.length ?? 0) > 0 || (data?.summaryStatistics?.length ?? 0) > 0;
+    return hasData ? data : null;
   } catch { return null; }
 }
 
@@ -424,22 +440,48 @@ export async function GET(request: Request) {
           }
         } catch { /* supplement is best-effort */ }
 
-        // Must-include players: look these up by ESPN name search if still absent after all above.
-        // Same lookup the player card uses — guarantees they appear even if statDetails excludes them.
-        const MUST_INCLUDE = ['Rory McIlroy'];
-        for (const mustName of MUST_INCLUDE) {
+        // Must-include players: hardcoded ESPN IDs with multi-league fallback.
+        // Rory McIlroy plays primarily on DP World Tour (ESPN 'eur' league) — his season
+        // stats return all-zeros from the PGA Tour (pga) ESPN endpoints, so we try 'eur' first.
+        const MUST_INCLUDE = [
+          { name: 'Rory McIlroy', espnId: '3470', leagues: ['eur', 'pga'] as const },
+        ];
+        for (const { name: mustName, espnId: mustEspnId, leagues: mustLeagues } of MUST_INCLUDE) {
           const mustLower = mustName.toLowerCase().trim();
           if (!gqlResult.players.some(p => p.name.toLowerCase().trim() === mustLower)) {
+            console.log(`[stat-lb] must-include: ${mustName} absent from statDetails, trying ESPN leagues=${mustLeagues.join(',')}`);
             try {
-              const espnId = await fetchEspnIdByName(mustName);
-              if (espnId) {
-                let mustVal: number | null = null;
+              let mustVal: number | null = null;
+
+              for (const league of mustLeagues) {
+                if (mustVal !== null && mustVal !== 0) break;
+
                 if (statKey === 'sandSaves') {
-                  mustVal = await fetchCoreSandSavesPct(espnId);
+                  const coreStats = await fetchCoreStats(mustEspnId, league);
+                  if (coreStats) {
+                    const s = coreStats.find((x) => x.name === 'savePct');
+                    if (s?.value && !isNaN(s.value) && s.value > 0) { mustVal = s.value; }
+                    else {
+                      const dv = parseFloat(s?.displayValue ?? '');
+                      if (!isNaN(dv) && dv > 0) mustVal = dv;
+                    }
+                  }
                 } else if (statKey === 'scrambling') {
-                  mustVal = await fetchCoreScrambling(espnId);
+                  const coreStats = await fetchCoreStats(mustEspnId, league);
+                  if (coreStats) {
+                    const NAMES = ['scramblingPct','scrambling','scramblePct','scrmblPct','upAndDown','upAndDownPct','parSave','parSavePct','parSaves','conventionalScrambling','scrambles'];
+                    for (const name of NAMES) {
+                      const s = coreStats.find((x) => x.name === name);
+                      if (!s) continue;
+                      const raw = (s.value !== undefined && s.value !== null && s.value !== 0) ? s.value : parseFloat(s.averageDisplayValue ?? s.displayValue ?? '');
+                      if (!raw || isNaN(raw) || raw === 0) continue;
+                      mustVal = raw > 0 && raw < 1 ? raw * 100 : raw;
+                      break;
+                    }
+                  }
                 } else {
-                  const overview = await fetchAthleteOverviewStats(espnId);
+                  // Try overview for this league first
+                  const overview = await fetchAthleteOverviewStatsForLeague(mustEspnId, league);
                   if (overview) {
                     const cats = overview.seasonRankings?.categories ?? [];
                     const merged = [...cats, ...(overview.summaryStatistics ?? [])];
@@ -448,33 +490,39 @@ export async function GET(request: Request) {
                     } else {
                       for (const d of statDefs.filter(d => d.key === statKey)) {
                         const raw = statNumeric(merged, d.espnName);
-                        if (raw !== null) { mustVal = raw; break; }
-                      }
-                    }
-                  }
-                }
-                // Fallback to core stats if overview didn't yield a value
-                if (mustVal === null || mustVal === 0) {
-                  const coreStats = await fetchCoreStats(espnId);
-                  if (coreStats) {
-                    if (statKey === 'gir') {
-                      mustVal = computeGirPct(coreStats);
-                    } else {
-                      for (const d of statDefs.filter(d => d.key === statKey)) {
-                        const raw = statNumeric(coreStats, d.espnName);
                         if (raw !== null && raw !== 0) { mustVal = raw; break; }
                       }
                     }
                   }
+                  // Fallback to core stats for this league
+                  if (mustVal === null || mustVal === 0) {
+                    const coreStats = await fetchCoreStats(mustEspnId, league);
+                    if (coreStats) {
+                      if (statKey === 'gir') {
+                        mustVal = computeGirPct(coreStats);
+                      } else {
+                        for (const d of statDefs.filter(d => d.key === statKey)) {
+                          const raw = statNumeric(coreStats, d.espnName);
+                          if (raw !== null && raw !== 0) { mustVal = raw; break; }
+                        }
+                      }
+                    }
+                  }
                 }
-                if (mustVal !== null && mustVal !== 0) {
-                  const combined: Array<{ name: string; value: number }> = [...gqlResult.players, { name: mustName, value: mustVal }];
-                  combined.sort((a, b) => LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value);
-                  gqlResult = { players: combined, officialTourAvg: gqlResult.officialTourAvg };
-                  console.log(`[stat-lb] must-include added: ${mustName} ${statKey}=${mustVal}`);
-                }
+                console.log(`[stat-lb] must-include ${mustName} league=${league} statKey=${statKey} val=${mustVal}`);
               }
-            } catch { /* best-effort */ }
+
+              if (mustVal !== null && mustVal !== 0) {
+                const combined: Array<{ name: string; value: number }> = [...gqlResult.players, { name: mustName, value: mustVal }];
+                combined.sort((a, b) => LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value);
+                gqlResult = { players: combined, officialTourAvg: gqlResult.officialTourAvg };
+                console.log(`[stat-lb] must-include ADDED: ${mustName} ${statKey}=${mustVal}`);
+              } else {
+                console.log(`[stat-lb] must-include FAILED: ${mustName} ${statKey} no value from any league`);
+              }
+            } catch (e) {
+              console.log(`[stat-lb] must-include ERROR: ${mustName} ${statKey} ${String(e)}`);
+            }
           }
         }
 
