@@ -2,6 +2,8 @@ export const dynamic = 'force-dynamic';
 import redis from '@/app/lib/redis';
 import { getEspnId } from '@/app/lib/espn-player-season';
 
+const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
+const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 const ESPN_ATHLETES = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 
@@ -68,7 +70,119 @@ function parseEarnings(val: unknown): string | null {
   return !isNaN(n) && n > 0 ? fmtEarnings(n) : null;
 }
 
-// ESPN athlete profile endpoint — has DOB, height, weight, college, proYear
+// ESPN sometimes returns college as { name: "Texas", id: "..." } object
+function parseCollege(val: unknown): string | null {
+  if (!val) return null;
+  if (typeof val === 'string') return val || null;
+  if (typeof val === 'object' && val !== null) {
+    const obj = val as Record<string, unknown>;
+    const name = obj.name ?? obj.shortName ?? obj.displayName;
+    return name ? String(name) : null;
+  }
+  return null;
+}
+
+function gqlHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'x-api-key': PGA_API_KEY,
+    'Referer': 'https://www.pgatour.com/',
+    'Origin': 'https://www.pgatour.com',
+  };
+}
+
+// PGA Tour GQL: try playerProfile with bio sub-fields (various schema guesses)
+async function fetchPgaProfileBio(pgaTourId: string): Promise<Partial<PlayerBio>> {
+  const result: Partial<PlayerBio> = {};
+  // Try nested playerProfile.playerBio schema
+  const queries = [
+    `query PlayerProfile($id: ID!) {
+      playerProfile(playerId: $id) {
+        playerBio {
+          birthDate dateOfBirth
+          height weight
+          college
+          turnedPro turnedProfessional
+          pgaTourWins wins careerWins
+          majorWins
+          pgaTourStarts careerStarts events
+          majorStarts
+          careerEarnings careerMoney
+          pgaTourDebutYear
+        }
+      }
+    }`,
+    `query PlayerBio($id: ID!) {
+      playerBio(playerId: $id) {
+        birthDate dateOfBirth
+        height weight
+        college
+        turnedPro
+        pgaTourWins wins
+        majorWins
+        pgaTourStarts careerStarts
+        majorStarts
+        careerEarnings
+        pgaTourDebutYear
+      }
+    }`,
+  ];
+
+  for (const query of queries) {
+    try {
+      const res = await fetch(PGA_GQL, {
+        method: 'POST',
+        headers: gqlHeaders(),
+        body: JSON.stringify({ query, variables: { id: pgaTourId } }),
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!res.ok) continue;
+      const json = await res.json() as { data?: Record<string, unknown>; errors?: unknown[] };
+      if (json.errors?.length) continue;
+      const d = json.data;
+      if (!d) continue;
+      const b = (d.playerProfile as Record<string, unknown>)?.playerBio
+              ?? d.playerBio as Record<string, unknown> | undefined;
+      if (!b) continue;
+
+      const dob = (b.birthDate ?? b.dateOfBirth) as string | undefined;
+      if (dob && !result.dob) { result.dob = fmtDob(dob); result.age = calcAge(dob); }
+
+      const h = b.height as number | string | undefined;
+      if (h != null && !result.height) {
+        const hNum = parseFloat(String(h));
+        result.height = !isNaN(hNum) && hNum > 48 ? fmtHeight(hNum) : (typeof h === 'string' ? h : null);
+      }
+      const w = b.weight as number | string | undefined;
+      if (w != null && !result.weight) {
+        const wNum = parseFloat(String(w).replace(/[^\d.]/g, ''));
+        result.weight = !isNaN(wNum) && wNum > 100 ? `${Math.round(wNum)} lbs` : null;
+      }
+
+      if (!result.college) result.college = parseCollege(b.college);
+      const tp = (b.turnedPro ?? b.turnedProfessional) as unknown;
+      if (tp != null && !result.turnedPro) result.turnedPro = parseYear(tp);
+      const debut = (b.pgaTourDebutYear ?? b.debutYear) as unknown;
+      if (debut != null && !result.pgaTourDebut) result.pgaTourDebut = parseYear(debut);
+      const wins = (b.pgaTourWins ?? b.wins ?? b.careerWins) as unknown;
+      if (wins != null && result.careerWins == null) result.careerWins = parseCount(wins);
+      const mw = b.majorWins as unknown;
+      if (mw != null && result.majorWins == null) result.majorWins = parseCount(mw);
+      const starts = (b.pgaTourStarts ?? b.careerStarts ?? b.events) as unknown;
+      if (starts != null && result.careerStarts == null) result.careerStarts = parseCount(starts);
+      const ms = b.majorStarts as unknown;
+      if (ms != null && result.majorStarts == null) result.majorStarts = parseCount(ms);
+      const earnings = (b.careerEarnings ?? b.careerMoney) as unknown;
+      if (earnings != null && !result.careerEarnings) result.careerEarnings = parseEarnings(earnings);
+
+      // If we got any data, stop trying more queries
+      if (Object.values(result).some(v => v != null)) break;
+    } catch { /* try next */ }
+  }
+  return result;
+}
+
+// ESPN athlete profile — DOB, height, weight, college, proYear
 async function fetchEspnProfile(espnId: string): Promise<Partial<PlayerBio>> {
   const result: Partial<PlayerBio> = {};
   try {
@@ -78,85 +192,86 @@ async function fetchEspnProfile(espnId: string): Promise<Partial<PlayerBio>> {
     });
     if (!res.ok) return result;
     const data = await res.json() as Record<string, unknown>;
-    // Response is { athlete: { id, displayName, height, weight, dateOfBirth, college, proYear, ... } }
     const a = (data?.athlete ?? data) as Record<string, unknown>;
     if (!a) return result;
 
-    // Height: ESPN returns total inches as a number (e.g. 73 = 6'1")
-    const h = a.height ?? a.displayHeight;
+    const h = (a.height ?? a.displayHeight) as number | string | undefined;
     if (h != null) {
       const hNum = parseFloat(String(h));
-      if (!isNaN(hNum) && hNum > 48 && hNum < 96) {
-        result.height = fmtHeight(hNum);
-      } else if (typeof h === 'string' && h.includes("'")) {
-        result.height = h; // already formatted like "6'1""
-      }
+      if (!isNaN(hNum) && hNum > 48 && hNum < 96) result.height = fmtHeight(hNum);
+      else if (typeof h === 'string' && h.includes("'")) result.height = h;
     }
 
-    // Weight: ESPN returns lbs as a number
-    const w = a.weight ?? a.displayWeight;
+    const w = (a.weight ?? a.displayWeight) as number | string | undefined;
     if (w != null) {
-      const wStr = String(w).replace(/[^\d.]/g, '');
-      const wNum = parseFloat(wStr);
+      const wNum = parseFloat(String(w).replace(/[^\d.]/g, ''));
       if (!isNaN(wNum) && wNum > 100 && wNum < 400) result.weight = `${Math.round(wNum)} lbs`;
       else if (typeof w === 'string' && w.toLowerCase().includes('lbs')) result.weight = w;
     }
 
-    // Date of birth
     const dob = (a.dateOfBirth ?? a.birthDate ?? a.dob) as string | undefined;
     if (dob) { result.dob = fmtDob(dob); result.age = calcAge(dob); }
 
-    // College
-    const college = a.college ?? a.collegeName;
-    if (college) result.college = String(college);
+    // College comes back as an object { name: "Texas", id: "..." } from ESPN
+    result.college = parseCollege(a.college ?? a.collegeName);
 
-    // Turned pro year
-    const proYear = a.proYear ?? a.turnedPro ?? a.debutYear;
+    const proYear = (a.proYear ?? a.turnedPro ?? a.debutYear) as unknown;
     if (proYear != null) result.turnedPro = parseYear(proYear);
 
-    // Career wins (sometimes in athlete profile)
-    const wins = a.wins ?? a.careerWins ?? a.totalWins;
+    // Career wins/earnings sometimes on the athlete profile
+    const wins = (a.wins ?? a.careerWins ?? a.totalWins) as unknown;
     if (wins != null) result.careerWins = parseCount(wins);
-
-    // Career earnings (sometimes in athlete profile)
-    const earnings = a.earnings ?? a.careerEarnings ?? a.totalEarnings;
+    const earnings = (a.earnings ?? a.careerEarnings ?? a.totalEarnings) as unknown;
     if (earnings != null) result.careerEarnings = parseEarnings(earnings);
   } catch { /* ignore */ }
   return result;
 }
 
-// ESPN Core athlete bio endpoint — alternative source for profile data
-async function fetchEspnCoreBio(espnId: string): Promise<Partial<PlayerBio>> {
+// ESPN Core athlete statistics (career-level, no season filter) — wins, starts, earnings
+async function fetchEspnCoreCareerStats(espnId: string): Promise<Partial<PlayerBio>> {
   const result: Partial<PlayerBio> = {};
-  try {
-    const res = await fetch(`${ESPN_CORE}/athletes/${espnId}`, {
-      cache: 'no-store',
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!res.ok) return result;
-    const data = await res.json() as Record<string, unknown>;
+  const year = new Date().getFullYear();
+  // Try career-level endpoints (no season) and current season for totals
+  const urls = [
+    `${ESPN_CORE}/athletes/${espnId}/statistics`,
+    `${ESPN_CORE}/athletes/${espnId}/statistics/0`,
+    `${ESPN_CORE}/seasons/${year}/athletes/${espnId}/statistics`,
+    `${ESPN_CORE}/seasons/${year}/types/2/athletes/${espnId}/statistics`,
+  ];
 
-    const h = data.height ?? data.displayHeight;
-    if (h != null) {
-      const hNum = parseFloat(String(h));
-      if (!isNaN(hNum) && hNum > 48 && hNum < 96) result.height = fmtHeight(hNum);
-    }
-    const w = data.weight ?? data.displayWeight;
-    if (w != null) {
-      const wNum = parseFloat(String(w).replace(/[^\d.]/g, ''));
-      if (!isNaN(wNum) && wNum > 100 && wNum < 400) result.weight = `${Math.round(wNum)} lbs`;
-    }
-    const dob = (data.dateOfBirth ?? data.birthDate) as string | undefined;
-    if (dob) { result.dob = fmtDob(dob); result.age = calcAge(dob); }
-    if (data.college) result.college = String(data.college);
-    const proYear = data.proYear ?? data.turnedPro;
-    if (proYear != null) result.turnedPro = parseYear(proYear);
-  } catch { /* ignore */ }
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+      if (!res.ok) continue;
+      const data = await res.json() as Record<string, unknown>;
+
+      // Look for career splits or top-level career fields
+      const splits = (data?.splits as Array<Record<string, unknown>>) ?? [];
+      for (const split of splits) {
+        const splitName = String(split.displayName ?? split.name ?? '').toLowerCase();
+        if (!splitName.includes('career')) continue;
+        const cats = (split.categories as Array<Record<string, unknown>>) ?? [];
+        for (const cat of cats) {
+          const stats = (cat.stats as Array<Record<string, unknown>>) ?? [];
+          for (const s of stats) {
+            const n = String(s.name ?? '').toLowerCase();
+            const dv = s.displayValue as string | undefined;
+            if (!dv || dv === '-' || dv === '--') continue;
+            if (n.includes('win') && result.careerWins == null) result.careerWins = parseCount(dv);
+            if ((n.includes('start') || n.includes('event') || n.includes('round')) && result.careerStarts == null) result.careerStarts = parseCount(dv);
+            if ((n.includes('earn') || n.includes('money') || n.includes('prize')) && result.careerEarnings == null) result.careerEarnings = parseEarnings(dv);
+          }
+        }
+      }
+
+      if (Object.values(result).some(v => v != null)) break;
+    } catch { /* try next */ }
+  }
   return result;
 }
 
-// ESPN athlete overview endpoint — has career splits with wins/starts/earnings
-async function fetchEspnOverviewStats(espnId: string): Promise<Partial<PlayerBio>> {
+// ESPN athlete overview — career splits for wins/starts/earnings
+async function fetchEspnOverviewCareer(espnId: string): Promise<Partial<PlayerBio>> {
   const result: Partial<PlayerBio> = {};
   try {
     const res = await fetch(`${ESPN_ATHLETES}/${espnId}/overview`, {
@@ -166,7 +281,6 @@ async function fetchEspnOverviewStats(espnId: string): Promise<Partial<PlayerBio
     if (!res.ok) return result;
     const data = await res.json() as Record<string, unknown>;
 
-    // Statistics can be at data.statistics or data.athlete.statistics
     const athleteNode = data?.athlete as Record<string, unknown> | undefined;
     const statistics = (data?.statistics ?? athleteNode?.statistics) as Record<string, unknown> | undefined;
     if (!statistics) return result;
@@ -174,11 +288,8 @@ async function fetchEspnOverviewStats(espnId: string): Promise<Partial<PlayerBio
     const names = (statistics.names as string[]) ?? [];
     const splits = (statistics.splits as Array<Record<string, unknown>>) ?? [];
 
-    // Find career split (may be named "Career" or similar)
-    const careerSplit = splits.find((s) =>
+    const careerSplit = splits.find(s =>
       String(s.displayName ?? s.name ?? '').toLowerCase().includes('career')
-    ) ?? splits.find((s) =>
-      String(s.type ?? '').toLowerCase().includes('career')
     );
 
     if (careerSplit && names.length > 0) {
@@ -187,34 +298,10 @@ async function fetchEspnOverviewStats(espnId: string): Promise<Partial<PlayerBio
         const val = stats[i];
         if (val == null || val === '' || val === '-' || val === '--') return;
         const n = statName.toLowerCase();
-        if ((n.includes('win') || n === 'w') && result.careerWins == null) {
-          result.careerWins = parseCount(val);
-        }
-        if ((n.includes('start') || n.includes('event') || n === 'g') && result.careerStarts == null) {
-          result.careerStarts = parseCount(val);
-        }
-        if ((n.includes('earn') || n.includes('money') || n.includes('prize')) && result.careerEarnings == null) {
-          result.careerEarnings = parseEarnings(val);
-        }
+        if ((n.includes('win') || n === 'w') && result.careerWins == null) result.careerWins = parseCount(val);
+        if ((n.includes('start') || n.includes('event') || n === 'g') && result.careerStarts == null) result.careerStarts = parseCount(val);
+        if ((n.includes('earn') || n.includes('money') || n.includes('prize')) && result.careerEarnings == null) result.careerEarnings = parseEarnings(val);
       });
-    }
-
-    // Also try seasonRankings.categories for career stats
-    const catNode = (data?.seasonRankings ?? athleteNode?.seasonRankings) as Record<string, unknown> | undefined;
-    const cats = (catNode?.categories as Array<Record<string, unknown>>) ?? [];
-    for (const cat of cats) {
-      const catName = String(cat.name ?? cat.displayName ?? '').toLowerCase();
-      const catStats = (cat.stats as Array<Record<string, unknown>>) ?? [];
-      for (const s of catStats) {
-        const sName = String(s.name ?? '').toLowerCase();
-        const dv = s.displayValue as string | undefined;
-        if (!dv || dv === '-' || dv === '--' || dv === '0') continue;
-        if (catName.includes('career') || sName.includes('career')) {
-          if (sName.includes('win') && result.careerWins == null) result.careerWins = parseCount(dv);
-          if ((sName.includes('start') || sName.includes('event')) && result.careerStarts == null) result.careerStarts = parseCount(dv);
-          if ((sName.includes('earn') || sName.includes('money')) && result.careerEarnings == null) result.careerEarnings = parseEarnings(dv);
-        }
-      }
     }
   } catch { /* ignore */ }
   return result;
@@ -223,9 +310,10 @@ async function fetchEspnOverviewStats(espnId: string): Promise<Partial<PlayerBio
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const name = url.searchParams.get('name') ?? '';
+  const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v4:${name}`;
+  const cacheKey = `player-bio:v5:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json({ bio: JSON.parse(cached as string) });
@@ -247,15 +335,18 @@ export async function GET(req: Request) {
   }
 
   const espnId = await getEspnId(name).catch(() => null);
+
+  const fetches: Promise<Partial<PlayerBio>>[] = [];
+  if (pgaTourId) fetches.push(fetchPgaProfileBio(pgaTourId));
   if (espnId) {
-    const [profile, core, overview] = await Promise.all([
-      fetchEspnProfile(espnId),
-      fetchEspnCoreBio(espnId),
-      fetchEspnOverviewStats(espnId),
-    ]);
-    merge(profile);
-    merge(core);
-    merge(overview);
+    fetches.push(fetchEspnProfile(espnId));
+    fetches.push(fetchEspnOverviewCareer(espnId));
+    fetches.push(fetchEspnCoreCareerStats(espnId));
+  }
+
+  const results = await Promise.allSettled(fetches);
+  for (const r of results) {
+    if (r.status === 'fulfilled') merge(r.value);
   }
 
   try { await redis.setex(cacheKey, 86400, JSON.stringify(bio)); } catch { /* ignore */ }
