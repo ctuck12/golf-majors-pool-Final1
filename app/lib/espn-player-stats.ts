@@ -463,13 +463,20 @@ export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats 
   // Scrambling: ESPN overview returns 0/null for this stat (internal formula mismatch).
   // Try ESPN Core types/2 which has the correct season value.
   if (!stats.scrambling && coreStats) {
-    const SCRAMBLE_NAMES = ['scramblingPct', 'scrambling', 'scramblePct', 'scrmblPct', 'upAndDown', 'upAndDownPct'];
-    const scrambCoreStat = coreStats.find((s) => SCRAMBLE_NAMES.some((n) => s.name?.toLowerCase() === n.toLowerCase()));
+    const SCRAMBLE_NAMES = [
+      'scramblingPct', 'scrambling', 'scramblePct', 'scrmblPct',
+      'upAndDown', 'upAndDownPct', 'upAndDownConventional',
+      'parSave', 'parSavePct', 'parSaves', 'conventionalScrambling',
+      'scrambles', 'scramblesTotal', 'scramblingConventional',
+    ];
+    const scrambCoreStat =
+      coreStats.find((s) => SCRAMBLE_NAMES.some((n) => s.name?.toLowerCase() === n.toLowerCase())) ??
+      coreStats.find((s) => /scrambl/i.test(s.name ?? ''));
     if (scrambCoreStat) {
       const raw = scrambCoreStat.value;
       if (raw && !isNaN(raw) && raw > 0) {
-        if (raw < 1) stats.scrambling = `${(raw * 100).toFixed(2)}%`;
-        else if (raw >= 30 && raw <= 100) stats.scrambling = `${raw.toFixed(2)}%`;
+        if (raw < 1) stats.scrambling = `${(raw * 100).toFixed(1)}%`;
+        else if (raw >= 30 && raw <= 100) stats.scrambling = `${raw.toFixed(1)}%`;
       }
     }
     if (!stats.scrambling) {
