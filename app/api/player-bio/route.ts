@@ -533,7 +533,7 @@ export async function GET(req: Request) {
   const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v12:${name}`;
+  const cacheKey = `player-bio:v13:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -578,6 +578,10 @@ export async function GET(req: Request) {
   for (const r of results) {
     if (r.status === 'fulfilled') merge(r.value);
   }
+
+  // Set after all merges: if we got profile data (DOB) but still no college, it's confirmed absent.
+  // Can't do this inside merge() because collegeConfirmedAbsent starts as false (not null).
+  if (!bio.college && bio.dob) bio.collegeConfirmedAbsent = true;
 
   try { await redis.setex(cacheKey, 86400, JSON.stringify(bio)); } catch { /* ignore */ }
   const espnPhotoUrl = espnId
