@@ -378,7 +378,11 @@ export async function GET(req: Request) {
   const cacheKey = `player-bio:v6:${name}`;
   try {
     const cached = await redis.get(cacheKey);
-    if (cached) return Response.json({ bio: JSON.parse(cached as string) });
+    if (cached) {
+      const espnId = await getEspnId(name).catch(() => null);
+      const espnPhotoUrl = espnId ? `https://a.espncdn.com/i/headshots/golf/players/full/${espnId}.png` : null;
+      return Response.json({ bio: JSON.parse(cached as string), espnPhotoUrl });
+    }
   } catch { /* ignore */ }
 
   const bio: PlayerBio = {
