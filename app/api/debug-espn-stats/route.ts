@@ -2,31 +2,50 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const pgaId = searchParams.get('pgaId') ?? '46046'; // Scheffler default
+  const name = searchParams.get('name') ?? 'Scottie Scheffler';
+  const eventId = searchParams.get('eventId') ?? '';
 
-  const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
-  const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
-  const headers = { 'Content-Type': 'application/json', 'x-api-key': PGA_API_KEY, 'Referer': 'https://www.pgatour.com/', 'Origin': 'https://www.pgatour.com' };
-  const post = (q: string, v?: Record<string, unknown>) =>
-    fetch(PGA_GQL, { method: 'POST', headers, body: JSON.stringify({ query: q, variables: v }), signal: AbortSignal.timeout(8000) }).then(r => r.json());
+  const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
+  const ESPN_ATHLETES = 'https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes';
 
   const results: Record<string, unknown> = {};
 
-  // Fetch all position values to see the raw format
+  let espnId: string | null = null;
   try {
-    const d = await post(`query Q($id: String!) { playerProfileMajorResults(playerId: $id) { tournaments { year tournamentName position } } }`, { id: pgaId }) as { data?: { playerProfileMajorResults?: { tournaments?: Array<{ year?: unknown; tournamentName?: unknown; position?: unknown }> } }; errors?: unknown[] };
-    results['errors'] = d?.errors;
-    const tournaments = d?.data?.playerProfileMajorResults?.tournaments ?? [];
-    results['total'] = tournaments.length;
-    // Show all positions to see their format
-    results['allPositions'] = tournaments.map(t => ({ year: t.year, name: t.tournamentName, position: t.position }));
-    // Show just what unique position values look like
-    const posValues = [...new Set(tournaments.map(t => String(t.position ?? 'null')))];
-    results['uniquePositions'] = posValues;
-    results['wins_if_eq_1'] = tournaments.filter(t => String(t.position) === '1').length;
-    results['wins_if_eq_W'] = tournaments.filter(t => String(t.position) === 'W').length;
-    results['wins_starts_with_1_not_T'] = tournaments.filter(t => { const p = String(t.position ?? ''); return p === '1' || (p.startsWith('1') && !p.startsWith('T1')); }).length;
-  } catch (e) { results['err'] = String(e); }
+    const search = await fetch(`${ESPN_ATHLETES}?limit=50&active=true`, { signal: AbortSignal.timeout(5000) });
+    const sd = await search.json() as { athletes?: Array<{ id?: string; displayName?: string; fullName?: string }> };
+    const athletes = sd?.athletes ?? [];
+    const found = athletes.find(a =>
+      (a.displayName ?? a.fullName ?? '').toLowerCase().includes(name.toLowerCase().split(' ')[1] ?? name.toLowerCase())
+    );
+    espnId = found?.id ?? null;
+    results['espnId'] = espnId;
+    results['espnName'] = found?.displayName ?? found?.fullName ?? null;
+  } catch (e) { results['espnId_error'] = String(e); }
+
+  if (!espnId) return Response.json(results);
+
+  if (eventId) {
+    try {
+      const year = new Date().getFullYear();
+      const url = `${ESPN_CORE}/seasons/${year}/types/2/athletes/${espnId}/statistics/0`;
+      const r = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      const j = await r.json() as { splits?: { categories?: Array<{ displayName?: string; stats?: Array<{ name?: string; displayValue?: string }> }> } };
+      results['stats_categories'] = j?.splits?.categories?.map(c => ({
+        name: c.displayName,
+        stats: c.stats?.slice(0, 10)?.map(s => ({ name: s.name, value: s.displayValue })),
+      }));
+    } catch (e) { results['stats_error'] = String(e); }
+  }
+
+  try {
+    const r = await fetch(`${ESPN_ATHLETES}/${espnId}/overview`, { signal: AbortSignal.timeout(5000) });
+    const j = await r.json() as Record<string, unknown>;
+    const stats = (j?.statistics ?? (j?.athlete as Record<string, unknown> | undefined)?.statistics) as Record<string, unknown> | undefined;
+    results['overview_names'] = (stats?.names as string[] | undefined)?.slice(0, 20);
+    results['overview_splits'] = (stats?.splits as Array<{ displayName?: string; stats?: unknown[] }> | undefined)
+      ?.map(s => ({ name: s.displayName, stats: s.stats?.slice(0, 5) }));
+  } catch (e) { results['overview_error'] = String(e); }
 
   return Response.json(results);
 }
