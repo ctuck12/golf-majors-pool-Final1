@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v75:season:${seasonYear}:${name}`;
+    : `player-stats:v76:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v75:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v76:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -66,25 +66,37 @@ export async function GET(request: Request) {
         Promise.allSettled(LB_STAT_KEYS_EARLY.map(k => redis.get(`stat-lb:v28:${k}`))),
         redis.get(ranksCacheKey).catch(() => null),
       ]);
-      // Start with previously-cached ranks as baseline so no rank disappears when stat-lb is cold
+      // Cached ranks are the fallback — only used per-key when stat-lb is genuinely cold (null).
+      // When stat-lb is warm it is always authoritative; never let a stale cached rank win.
       const cachedRanks: Record<string, string> = ranksRaw ? JSON.parse(ranksRaw as string) : {};
       const LB_WINS_KEYS_EARLY = new Set(['gir', 'puttAverage', 'scrambling', 'drivingAccuracy', 'drivingDistance', 'sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting']);
-      const freshRanks: Record<string, string> = { ...cachedRanks };
+      const PERCENT_KEYS_EARLY = new Set(['gir', 'scrambling', 'drivingAccuracy']);
+      const freshRanks: Record<string, string> = {};
       const cachedStats = JSON.parse(cached);
       for (let i = 0; i < LB_STAT_KEYS_EARLY.length; i++) {
         const result = lbResultsEarly[i];
-        if (result.status !== 'fulfilled' || !result.value) continue;
+        const key = LB_STAT_KEYS_EARLY[i];
+        if (result.status !== 'fulfilled' || !result.value) {
+          // stat-lb cold — use last known rank as fallback so rank doesn't disappear
+          if (cachedRanks[key]) freshRanks[key] = cachedRanks[key];
+          continue;
+        }
+        // stat-lb warm — authoritative; never fall back to cached rank for this key
         try {
           const parsed = JSON.parse(result.value as string);
           const entries: { rank: number; name: string; value?: string | number }[] = parsed.entries ?? parsed;
           const entry = entries.find(e => normNameEarly(e.name) === nameLowerEarly);
           if (!entry) continue;
-          const key = LB_STAT_KEYS_EARLY[i];
           freshRanks[key] = String(entry.rank);
           if (LB_WINS_KEYS_EARLY.has(key) && entry.value != null) {
-            const v = String(entry.value);
-            const PERCENT_KEYS = new Set(['gir', 'scrambling', 'drivingAccuracy']);
-            cachedStats[key] = (PERCENT_KEYS.has(key) && !v.endsWith('%')) ? `${v}%` : v;
+            const raw = String(entry.value).replace('%', '');
+            if (PERCENT_KEYS_EARLY.has(key)) {
+              // Round to 1 decimal so player card matches leaderboard popup display
+              const num = parseFloat(raw);
+              cachedStats[key] = !isNaN(num) ? `${(Math.round(num * 10) / 10).toFixed(1)}%` : `${raw}%`;
+            } else {
+              cachedStats[key] = raw;
+            }
           }
         } catch { /* ignore */ }
       }
