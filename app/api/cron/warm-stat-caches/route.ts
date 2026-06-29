@@ -50,9 +50,12 @@ export async function GET(request: Request) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : 'http://localhost:3000';
+  // IMPORTANT: use the production alias (VERCEL_PROJECT_PRODUCTION_URL), NOT VERCEL_URL. VERCEL_URL
+  // is the deployment-specific URL, which is protected by Vercel deployment SSO — internal fetches
+  // to it return the login HTML page (HTTP 200, not JSON), so every leaderboard build parsed as
+  // "empty" and never cached. The production alias is public and serves the real API.
+  const prodUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  const baseUrl = prodUrl ? `https://${prodUrl}` : 'http://localhost:3000';
 
   const results: Record<string, string> = {};
 
