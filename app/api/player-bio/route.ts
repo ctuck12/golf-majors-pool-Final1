@@ -217,7 +217,7 @@ export async function GET(req: Request) {
   } catch { /* ignore */ }
 
   try {
-    await redis.set(cacheKey, JSON.stringify(bio), { ex: 86400 });
+    await redis.setex(cacheKey, 86400, JSON.stringify(bio));
   } catch { /* ignore */ }
 
   return Response.json({ bio });
