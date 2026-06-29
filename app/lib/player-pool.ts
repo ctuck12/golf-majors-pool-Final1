@@ -84,7 +84,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 126, name: 'Aaron Rai',                        pgaTourId: 46414, defaultOdds: '+20000',  worldRank:  44 },
   { id: 136, name: 'Billy Horschel',                   pgaTourId: 29420, defaultOdds: '+15000',  worldRank: 117 },
   { id: 146, name: 'David Puig',                       pgaTourId: 61193, defaultOdds: '+10000',  worldRank: 109, photoUrl: 'https://cdn.sanity.io/images/2guez6v8/prd/c46890fb030a902de7f235b2bddf32006b860199-2747x2622.png?bg=ffffff&fit=crop&w=280&h=350' },
-  { id: 150, name: 'John Keefer',                      pgaTourId: 63454, defaultOdds: '+15000',  worldRank:  74 },
+  { id: 150, name: 'John Keefer',                      pgaTourId: 63454, defaultOdds: '+15000',  worldRank:  74, photoUrl: '/headshots/keefer-63454.png' },
   { id: 151, name: 'Max McGreevy',                     pgaTourId: 51950, defaultOdds: '+15000',  worldRank:  99 },
   { id: 158, name: 'Keith Mitchell',                   pgaTourId: 39546, defaultOdds: '+15000',  worldRank: 100 },
   { id: 159, name: 'John Parry',                       pgaTourId: 28723, defaultOdds: '+15000',  worldRank: 102 },
