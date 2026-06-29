@@ -85,9 +85,11 @@ export async function GET(request: Request) {
         try {
           const parsed = JSON.parse(result.value as string);
           const entries: { rank: number; name: string; value?: string | number }[] = parsed.entries ?? parsed;
-          const entry = entries.find(e => normNameEarly(e.name) === nameLowerEarly);
-          if (!entry) continue;
-          freshRanks[key] = String(entry.rank);
+          const entryIndex = entries.findIndex(e => normNameEarly(e.name) === nameLowerEarly);
+          if (entryIndex === -1) continue;
+          const entry = entries[entryIndex];
+          // Use list position (not entry.rank) — popup renders by list order, so this always matches
+          freshRanks[key] = String(entryIndex + 1);
           if (LB_WINS_KEYS_EARLY.has(key) && entry.value != null) {
             const raw = String(entry.value).replace('%', '');
             if (PERCENT_KEYS_EARLY.has(key)) {
@@ -201,13 +203,15 @@ export async function GET(request: Request) {
       try {
         const parsed = JSON.parse(result.value as string);
         const entries: { rank: number; name: string; value?: string | number }[] = parsed.entries ?? parsed;
-        const entry = entries.find(e => normName(e.name) === nameLower);
-        if (!entry) continue;
+        const entryIdx = entries.findIndex(e => normName(e.name) === nameLower);
+        if (entryIdx === -1) continue;
+        const entry = entries[entryIdx];
+        const listRank = String(entryIdx + 1); // use list position, matches popup display
         const key = LB_STAT_KEYS[i];
         if (key === 'scrambling') {
-          lbScrambling = { rank: String(entry.rank), value: entry.value ? String(entry.value) : '' };
+          lbScrambling = { rank: listRank, value: entry.value ? String(entry.value) : '' };
         } else {
-          mergedSeasonRanks[key] = String(entry.rank);
+          mergedSeasonRanks[key] = listRank;
           if (entry.value !== undefined && entry.value !== null) lbStatValues[key] = String(entry.value);
         }
       } catch { /* ignore */ }
