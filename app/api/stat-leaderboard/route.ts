@@ -294,6 +294,22 @@ const STAT_DETAILS_IDS: Record<string, string[]> = {
   sgPutting: ['02564'],
 };
 
+// Look up an ESPN athlete ID by player name — same search the player card uses
+async function fetchEspnIdByName(name: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(name)}&limit=20&type=player`,
+      { cache: 'no-store', signal: AbortSignal.timeout(5000) }
+    );
+    if (!res.ok) return null;
+    const data = await res.json() as { results?: Array<{ contents?: Array<{ uid?: string }> }> };
+    const contents = data.results?.[0]?.contents ?? [];
+    const player = contents.find((c: { uid?: string }) => c.uid?.includes('s:110') && c.uid?.includes('~a:'));
+    const uid = player?.uid ?? '';
+    return uid.split('~a:')?.[1] ?? null;
+  } catch { return null; }
+}
+
 async function batchAll<T>(tasks: (() => Promise<T>)[], size: number): Promise<T[]> {
   const results: T[] = [];
   for (let i = 0; i < tasks.length; i += size) {
@@ -392,6 +408,46 @@ export async function GET(request: Request) {
             gqlResult = { players: combined, officialTourAvg: gqlResult.officialTourAvg };
           }
         } catch { /* supplement is best-effort */ }
+
+        // Must-include players: look these up by ESPN name search if still absent after all above.
+        // Same lookup the player card uses — guarantees they appear even if statDetails excludes them.
+        const MUST_INCLUDE = ['Rory McIlroy'];
+        for (const mustName of MUST_INCLUDE) {
+          const mustLower = mustName.toLowerCase().trim();
+          if (!gqlResult.players.some(p => p.name.toLowerCase().trim() === mustLower)) {
+            try {
+              const espnId = await fetchEspnIdByName(mustName);
+              if (espnId) {
+                let mustVal: number | null = null;
+                if (statKey === 'sandSaves') {
+                  mustVal = await fetchCoreSandSavesPct(espnId);
+                } else if (statKey === 'scrambling') {
+                  mustVal = await fetchCoreScrambling(espnId);
+                } else {
+                  const overview = await fetchAthleteOverviewStats(espnId);
+                  if (overview) {
+                    const cats = overview.seasonRankings?.categories ?? [];
+                    const merged = [...cats, ...(overview.summaryStatistics ?? [])];
+                    if (statKey === 'gir') {
+                      mustVal = computeGirPct(cats);
+                    } else {
+                      for (const d of statDefs.filter(d => d.key === statKey)) {
+                        const raw = statNumeric(merged, d.espnName);
+                        if (raw !== null) { mustVal = raw; break; }
+                      }
+                    }
+                  }
+                }
+                if (mustVal !== null && mustVal !== 0) {
+                  const combined = [...gqlResult.players, { name: mustName, value: mustVal }];
+                  combined.sort((a, b) => LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value);
+                  gqlResult = { players: combined, officialTourAvg: gqlResult.officialTourAvg };
+                  console.log(`[stat-lb] must-include added: ${mustName} ${statKey}=${mustVal}`);
+                }
+              }
+            } catch { /* best-effort */ }
+          }
+        }
 
         // Use official PGA Tour average if available; fall back to computed mean
         const avgNum = gqlResult.officialTourAvg !== null
