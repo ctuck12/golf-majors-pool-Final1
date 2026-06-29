@@ -141,8 +141,9 @@ async function fetchPgaProfileBio(pgaTourId: string): Promise<Partial<PlayerBio>
       if (json.errors?.length) continue;
       const d = json.data;
       if (!d) continue;
-      const b = (d.playerProfile as Record<string, unknown>)?.playerBio
-              ?? d.playerBio as Record<string, unknown> | undefined;
+      const b: Record<string, unknown> | undefined =
+        ((d.playerProfile as Record<string, unknown>)?.playerBio as Record<string, unknown> | undefined)
+        ?? (d.playerBio as Record<string, unknown> | undefined);
       if (!b) continue;
 
       const dob = (b.birthDate ?? b.dateOfBirth) as string | undefined;
