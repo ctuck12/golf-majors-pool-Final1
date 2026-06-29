@@ -7,6 +7,7 @@ export function normName(value: string) {
   return value
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
+    .replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae')
     .replace(/\./g, '')
     .replace(/\s+/g, ' ')
     .trim()

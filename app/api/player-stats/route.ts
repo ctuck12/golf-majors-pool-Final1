@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v63:season:${seasonYear}:${name}`;
+    : `player-stats:v64:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v63:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v64:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -138,7 +138,7 @@ export async function GET(request: Request) {
     const lbRankResults = await Promise.allSettled(
       LB_STAT_KEYS.map(k => redis.get(`stat-lb:v25:${k}`))
     );
-    const normName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const normName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();
     const nameLower = normName(name);
     let lbScrambling: { value: string; rank: string } | null = null;
     for (let i = 0; i < LB_STAT_KEYS.length; i++) {

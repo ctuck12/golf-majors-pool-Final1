@@ -6,7 +6,7 @@ const REGISTRY_KEY = 'player-photo-registry';
 export type PlayerPhotoRegistry = Record<string, number>; // normalized name → pgaTourId
 
 function normalizeName(name: string): string {
-  return name.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  return name.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae');
 }
 
 export function pgaPhotoUrl(pgaTourId: number): string {

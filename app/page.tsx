@@ -578,6 +578,7 @@ function normalizeName(value: string) {
   return value
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\u00f8/gi, 'o').replace(/\u00e5/gi, 'a').replace(/\u00e6/gi, 'ae')
     .replace(/\./g, '')
     .replace(/\s+/g, ' ')
     .trim()
@@ -8430,7 +8431,7 @@ export default function Page() {
                   }
                   const rows: React.ReactNode[] = [];
                   entries.forEach((entry, i) => {
-                    const normName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+                    const normName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();
                     const isSelected = !!statLeaderboardModal.playerName && normName(entry.name) === normName(statLeaderboardModal.playerName);
                     const rankColor = '#9ca3af';
                     if (i === dividerIdx) {
