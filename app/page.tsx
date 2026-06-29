@@ -8653,9 +8653,15 @@ export default function Page() {
                   const distributions = pickHistoryPlayerPopup.fieldDistributions ?? {};
                   const tournRanks = pickHistoryPlayerPopup.statRanks ?? {};
                   const rawSeasonStatRanks = pickHistoryPlayerPopup.seasonStatRanks ?? {};
+                  // Season view ranks come ONLY from the season fetch (rawSeasonStatRanks). We fall
+                  // back to tournRanks ONLY when the main fetch was itself season context
+                  // (!isTournCtx) — there tournRanks legitimately holds season ranks. In a live
+                  // tournament popup (isTournCtx), tournRanks holds TOURNAMENT ranks, so we must NOT
+                  // borrow them, or a player with no season ranks (LIV / non-qualified) would show
+                  // his tournament SG ranks in the season view.
                   const seasonRanks = isTournView
                     ? tournRanks
-                    : (Object.keys(rawSeasonStatRanks).length > 0 ? rawSeasonStatRanks : tournRanks);
+                    : (Object.keys(rawSeasonStatRanks).length > 0 ? rawSeasonStatRanks : (isTournCtx ? {} : tournRanks));
                   function ordinal(n: string | number): string {
                     const num = parseInt(String(n));
                     if (isNaN(num)) return String(n);
