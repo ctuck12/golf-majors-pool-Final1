@@ -93,6 +93,71 @@ function gqlHeaders() {
   };
 }
 
+// PGA Tour REST stats API — fallback for DOB, height, weight when GQL/ESPN come up empty
+async function fetchPgaTourRestBio(pgaTourId: string): Promise<Partial<PlayerBio>> {
+  const result: Partial<PlayerBio> = {};
+  try {
+    // Cache the full player list in Redis for 6 hours to avoid repeated large fetches
+    let raw: string | null = null;
+    try { raw = await redis.get('pga-rest-players:v1'); } catch { /* ignore */ }
+    if (!raw) {
+      const res = await fetch('https://statdata.pgatour.com/players/player.json', {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(8000),
+        headers: { 'Referer': 'https://www.pgatour.com/', 'Origin': 'https://www.pgatour.com' },
+      });
+      if (!res.ok) return result;
+      raw = await res.text();
+      try { await redis.setex('pga-rest-players:v1', 21600, raw); } catch { /* ignore */ }
+    }
+    const data = JSON.parse(raw) as { plrs?: Record<string, unknown>[] };
+    const players = data.plrs ?? [];
+    const player = players.find(p => String(p.pid ?? p.id ?? p.playerId ?? '') === pgaTourId);
+    if (!player) return result;
+
+    // DOB — field may be "dob", "birthDate", or "born"
+    const dob = (player.dob ?? player.birthDate ?? player.born) as string | undefined;
+    if (dob) { result.dob = fmtDob(dob); result.age = calcAge(dob); }
+
+    // Height — stored as total inches (e.g. 72) or string like "6-0"
+    const ht = player.ht ?? player.height;
+    if (ht != null) {
+      const htStr = String(ht);
+      if (htStr.includes('-')) {
+        const [ft, ins] = htStr.split('-').map(Number);
+        if (!isNaN(ft) && !isNaN(ins)) result.height = fmtHeight(ft * 12 + ins);
+      } else {
+        const htNum = parseFloat(htStr);
+        if (!isNaN(htNum) && htNum > 48 && htNum < 96) result.height = fmtHeight(htNum);
+      }
+    }
+
+    // Weight — stored as pounds number or string
+    const wt = player.wt ?? player.weight;
+    if (wt != null) {
+      const wtNum = parseFloat(String(wt).replace(/[^\d.]/g, ''));
+      if (!isNaN(wtNum) && wtNum > 100 && wtNum < 400) result.weight = `${Math.round(wtNum)} lbs`;
+    }
+
+    // College
+    const college = player.college ?? player.school ?? player.alma;
+    if (college) result.college = parseCollege(college);
+
+    // Turned pro
+    const tp = player.turnedPro ?? player.proYear ?? player.turned;
+    if (tp != null) result.turnedPro = parseYear(tp);
+
+    // Handedness
+    const hand = player.hand ?? player.hands ?? player.swing;
+    if (hand != null) {
+      const h = String(hand).toLowerCase();
+      if (h === 'r' || h === '1' || h.includes('right')) result.swing = 'Right';
+      else if (h === 'l' || h === '2' || h.includes('left')) result.swing = 'Left';
+    }
+  } catch { /* ignore */ }
+  return result;
+}
+
 // PGA Tour GQL: try multiple queries for career bio fields
 async function fetchPgaProfileBio(pgaTourId: string): Promise<Partial<PlayerBio>> {
   const result: Partial<PlayerBio> = {};
@@ -533,7 +598,7 @@ export async function GET(req: Request) {
   const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v13:${name}`;
+  const cacheKey = `player-bio:v14:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -565,6 +630,7 @@ export async function GET(req: Request) {
   if (pgaTourId) {
     fetches.push(fetchPgaProfileBio(pgaTourId));
     fetches.push(fetchPgaMajorResults(pgaTourId));
+    fetches.push(fetchPgaTourRestBio(pgaTourId));
   }
   if (espnId) {
     fetches.push(fetchEspnProfile(espnId));
