@@ -332,6 +332,119 @@ async function fetchEspnCoreCareerStats(espnId: string): Promise<Partial<PlayerB
   return result;
 }
 
+// ESPN statisticslog — sum all seasons to get true career totals
+async function fetchEspnCareerTotals(espnId: string): Promise<Partial<PlayerBio>> {
+  const result: Partial<PlayerBio> = {};
+  try {
+    const logRes = await fetch(
+      `${ESPN_CORE}/athletes/${espnId}/statisticslog`,
+      { cache: 'no-store', signal: AbortSignal.timeout(6000) }
+    );
+    if (!logRes.ok) return result;
+    const logData = await logRes.json() as { entries?: Array<{ statistics?: Array<{ statistics?: { $ref?: string } }> }> };
+    const entries = logData?.entries ?? [];
+
+    // Collect all season stat $refs (type 2 = stroke play)
+    const refs: string[] = [];
+    for (const entry of entries) {
+      for (const stat of entry.statistics ?? []) {
+        const ref = stat?.statistics?.$ref;
+        if (ref && ref.includes('/types/2/')) refs.push(ref);
+      }
+    }
+    if (refs.length === 0) return result;
+
+    // Fetch all season stat pages in parallel
+    const pages = await Promise.allSettled(
+      refs.map(ref => fetch(ref, { cache: 'no-store', signal: AbortSignal.timeout(5000) }).then(r => r.ok ? r.json() : null))
+    );
+
+    let totalStarts = 0, totalWins = 0, totalEarnings = 0;
+
+    for (const p of pages) {
+      if (p.status !== 'fulfilled' || !p.value) continue;
+      const data = p.value as { splits?: { categories?: Array<{ stats?: Array<{ name?: string; value?: number; displayValue?: string }> }> } };
+      const cats = data?.splits?.categories ?? [];
+      for (const cat of cats) {
+        for (const s of cat.stats ?? []) {
+          const n = (s.name ?? '').toLowerCase();
+          const v = s.value ?? 0;
+          if (n === 'tournamentsplayed' || n === 'eventsplayed') totalStarts += v;
+          else if (n === 'wins') totalWins += v;
+          else if (n === 'officialamount' || n === 'earnings') totalEarnings += v;
+        }
+      }
+    }
+
+    if (totalStarts > 0) result.careerStarts = totalStarts;
+    if (totalWins >= 0 && totalStarts > 0) result.careerWins = totalWins;
+    if (totalEarnings > 0) result.careerEarnings = fmtEarnings(totalEarnings);
+  } catch { /* ignore */ }
+  return result;
+}
+
+// PGA Tour GQL: playerProfileMajorResults — major starts and wins
+async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBio>> {
+  const result: Partial<PlayerBio> = {};
+  try {
+    // tournaments = per-appearance rows; timelineTournaments = one row per major (4)
+    const query = `
+      query MajorResults($id: String!) {
+        playerProfileMajorResults(playerId: $id) {
+          tournaments {
+            year
+            wins
+            starts
+          }
+          timelineTournaments {
+            wins
+            starts
+          }
+        }
+      }
+    `;
+    const res = await fetch(PGA_GQL, {
+      method: 'POST',
+      headers: gqlHeaders(),
+      body: JSON.stringify({ query, variables: { id: pgaTourId } }),
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return result;
+    const json = await res.json() as {
+      data?: {
+        playerProfileMajorResults?: {
+          tournaments?: Array<{ year?: unknown; wins?: unknown; starts?: unknown }>;
+          timelineTournaments?: Array<{ wins?: unknown; starts?: unknown }>;
+        };
+      };
+      errors?: unknown[];
+    };
+    if (json.errors?.length) return result;
+    const majors = json.data?.playerProfileMajorResults;
+    if (!majors) return result;
+
+    // Prefer timelineTournaments (4 major buckets) for aggregates
+    const timeline = majors.timelineTournaments ?? [];
+    if (timeline.length > 0) {
+      let mStarts = 0, mWins = 0;
+      for (const t of timeline) {
+        mStarts += parseInt(String(t.starts ?? 0)) || 0;
+        mWins += parseInt(String(t.wins ?? 0)) || 0;
+      }
+      if (mStarts > 0) result.majorStarts = mStarts;
+      if (mWins >= 0 && mStarts > 0) result.majorWins = mWins;
+    } else {
+      // Fall back to counting from tournaments array
+      const tournaments = majors.tournaments ?? [];
+      if (tournaments.length > 0) {
+        result.majorStarts = tournaments.length;
+        result.majorWins = tournaments.filter(t => parseInt(String(t.wins ?? 0)) > 0).length;
+      }
+    }
+  } catch { /* ignore */ }
+  return result;
+}
+
 // ESPN athlete overview — career splits for wins/starts/earnings
 async function fetchEspnOverviewCareer(espnId: string): Promise<Partial<PlayerBio>> {
   const result: Partial<PlayerBio> = {};
@@ -375,7 +488,7 @@ export async function GET(req: Request) {
   const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v6:${name}`;
+  const cacheKey = `player-bio:v7:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -403,12 +516,16 @@ export async function GET(req: Request) {
   const espnId = await getEspnId(name).catch(() => null);
 
   const fetches: Promise<Partial<PlayerBio>>[] = [];
-  if (pgaTourId) fetches.push(fetchPgaProfileBio(pgaTourId));
+  if (pgaTourId) {
+    fetches.push(fetchPgaProfileBio(pgaTourId));
+    fetches.push(fetchPgaMajorResults(pgaTourId));
+  }
   if (espnId) {
     fetches.push(fetchEspnProfile(espnId));
     fetches.push(fetchEspnCoreAthlete(espnId));
     fetches.push(fetchEspnOverviewCareer(espnId));
     fetches.push(fetchEspnCoreCareerStats(espnId));
+    fetches.push(fetchEspnCareerTotals(espnId));
   }
 
   const results = await Promise.allSettled(fetches);
