@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v80:season:${seasonYear}:${name}`;
+    : `player-stats:v81:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v80:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v81:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -52,7 +52,15 @@ export async function GET(request: Request) {
       const ranks = ranksRaw ? JSON.parse(ranksRaw) : null;
       return Response.json({ stats: JSON.parse(cached), ranks });
     }
-    if (cached && !isTournament) {
+    // A PGA Tour player (has pgaTourId) whose cached stats lack SG is a poisoned entry from a
+    // transient PGA GQL failure. Ignore it and fall through to a fresh fetch so it self-heals,
+    // rather than serving the incomplete blob (the cached path can't restore SG when stat-lb is cold).
+    const cachedSeasonUsable = (() => {
+      if (!cached || isTournament) return false;
+      if (!pgaTourId) return true; // non-PGA player: SG legitimately absent, cache is fine
+      try { return !!JSON.parse(cached).sgTotal; } catch { return false; }
+    })();
+    if (cachedSeasonUsable) {
       // For season context: recompute ranks from stat-lb so player card ranks match
       // popup leaderboard positions. For any stat where stat-lb is cold, fall back to
       // previously-cached ranks so a partial cron failure never leaves ranks blank.
@@ -241,11 +249,15 @@ export async function GET(request: Request) {
 
     const stats = merged;
 
-    // Guard: if stat-lb returned no SG values at all, the SG leaderboard caches are cold and
-    // any SG values in `merged` came from PGA Tour GQL (a different update schedule). Don't cache
-    // in that case — the next request will retry and hopefully find warm stat-lb caches.
-    const sgLbWarm = Object.keys(lbStatValues).some(k => LB_WINS_KEYS.has(k));
-    if (stats && sgLbWarm) {
+    // Only cache a COMPLETE result. SG and scrambling come from PGA Tour GQL (pgaStats) or from
+    // warm SG stat-lb caches. If a transient PGA GQL failure leaves them absent, caching the
+    // partial result would poison every subsequent read for a full hour (the cached path can't
+    // restore SG/scrambling when the SG stat-lb caches are cold). So only write when the result
+    // actually carries SG + scrambling. A player who genuinely has neither (e.g. LIV/DP World with
+    // no PGA Tour data) simply re-fetches each time, which is correct.
+    const pgaHadStats = !!pgaStats && Object.keys(pgaStats).length > 0;
+    const resultComplete = !!(stats && stats.sgTotal && stats.scrambling);
+    if (stats && (resultComplete || !pgaHadStats)) {
       await redis.setex(cacheKey, ttl, JSON.stringify(stats));
     }
     if (ranks && Object.keys(ranks).length > 0) {
