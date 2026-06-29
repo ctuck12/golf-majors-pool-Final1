@@ -393,47 +393,18 @@ async function fetchEspnCareerTotals(espnId: string): Promise<Partial<PlayerBio>
 }
 
 // PGA Tour GQL: playerProfileMajorResults — major starts and wins
-// Uses introspection to discover actual field names before querying
+// MajorResultsTournament fields confirmed: tournamentId, tournamentName, courseName,
+// date, year, position, roundScores, total, toPar, money, tourcastURI
 async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBio>> {
   const result: Partial<PlayerBio> = {};
   try {
-    // Step 1: introspect to find available fields on MajorResultsTournament and MajorTimeline
-    const introQuery = `{
-      t1: __type(name: "MajorResultsTournament") { fields { name } }
-      t2: __type(name: "MajorTimeline") { fields { name } }
-    }`;
-    const introRes = await fetch(PGA_GQL, {
-      method: 'POST',
-      headers: gqlHeaders(),
-      body: JSON.stringify({ query: introQuery }),
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!introRes.ok) return result;
-    const introJson = await introRes.json() as {
-      data?: {
-        t1?: { fields?: Array<{ name: string }> };
-        t2?: { fields?: Array<{ name: string }> };
-      };
-    };
-
-    const tournFields = introJson.data?.t1?.fields?.map(f => f.name) ?? [];
-    const timelineFields = introJson.data?.t2?.fields?.map(f => f.name) ?? [];
-
-    // Step 2: build query selecting only fields that actually exist
-    const wantTournFields = ['year', 'wins', 'starts', 'appearances', 'victories', 'finish', 'finishPosition'];
-    const wantTimelineFields = ['wins', 'starts', 'appearances', 'victories', 'totalStarts', 'totalWins'];
-    const selTourn = wantTournFields.filter(f => tournFields.includes(f));
-    const selTimeline = wantTimelineFields.filter(f => timelineFields.includes(f));
-
-    // Need at least one field in each selection or fall back to __typename only
-    const tournSel = selTourn.length > 0 ? selTourn.join('\n') : '__typename';
-    const timelineSel = selTimeline.length > 0 ? selTimeline.join('\n') : '__typename';
-
     const query = `
       query MajorResults($id: String!) {
         playerProfileMajorResults(playerId: $id) {
-          tournaments { ${tournSel} }
-          timelineTournaments { ${timelineSel} }
+          tournaments {
+            year
+            position
+          }
         }
       }
     `;
@@ -447,41 +418,21 @@ async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBi
     const json = await res.json() as {
       data?: {
         playerProfileMajorResults?: {
-          tournaments?: Array<Record<string, unknown>>;
-          timelineTournaments?: Array<Record<string, unknown>>;
+          tournaments?: Array<{ year?: unknown; position?: unknown }>;
         };
       };
       errors?: unknown[];
     };
     if (json.errors?.length) return result;
-    const majors = json.data?.playerProfileMajorResults;
-    if (!majors) return result;
+    const tournaments = json.data?.playerProfileMajorResults?.tournaments ?? [];
+    if (tournaments.length === 0) return result;
 
-    // Try timelineTournaments (4 major buckets) first
-    const timeline = majors.timelineTournaments ?? [];
-    if (timeline.length > 0 && selTimeline.length > 0) {
-      let mStarts = 0, mWins = 0;
-      for (const t of timeline) {
-        const s = parseInt(String(t.starts ?? t.appearances ?? t.totalStarts ?? 0)) || 0;
-        const w = parseInt(String(t.wins ?? t.victories ?? t.totalWins ?? 0)) || 0;
-        mStarts += s;
-        mWins += w;
-      }
-      if (mStarts > 0) result.majorStarts = mStarts;
-      if (mStarts > 0) result.majorWins = mWins;
-    }
-
-    // Fall back: count from tournaments array (each row = one major appearance)
-    if (result.majorStarts == null) {
-      const tournaments = majors.tournaments ?? [];
-      if (tournaments.length > 0) {
-        result.majorStarts = tournaments.length;
-        const winsField = selTourn.find(f => ['wins', 'victories'].includes(f));
-        result.majorWins = winsField
-          ? tournaments.filter(t => parseInt(String(t[winsField] ?? 0)) > 0).length
-          : 0;
-      }
-    }
+    // Each entry = one major appearance; position "1" = win
+    result.majorStarts = tournaments.length;
+    result.majorWins = tournaments.filter(t => {
+      const pos = String(t.position ?? '').trim();
+      return pos === '1' || pos === 'W';
+    }).length;
   } catch { /* ignore */ }
   return result;
 }
