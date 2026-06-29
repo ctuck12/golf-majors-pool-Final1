@@ -43,7 +43,10 @@ export async function GET(request: Request) {
   // Warm each stat leaderboard sequentially to avoid hammering ESPN
   for (const key of STAT_KEYS) {
     try {
-      const res = await fetch(`${baseUrl}/api/stat-leaderboard?statKey=${key}`, { cache: 'no-store' });
+      const res = await fetch(`${baseUrl}/api/stat-leaderboard?statKey=${key}&bust=1`, {
+        cache: 'no-store',
+        headers: { 'x-cron-secret': process.env.CRON_SECRET ?? '' },
+      });
       results[key] = res.ok ? 'ok' : `${res.status}`;
     } catch (e) {
       results[key] = String(e);

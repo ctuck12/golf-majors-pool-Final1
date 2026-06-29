@@ -310,16 +310,19 @@ export async function GET(request: Request) {
   const SG_STAT_KEYS = new Set(['sgTotal','sgTeeToGreen','sgOffTee','sgApproach','sgAroundGreen','sgPutting']);
   const isSg = SG_STAT_KEYS.has(statKey);
 
-  const cacheKey = `stat-lb:v27:${statKey}`;
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      const result = Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed;
-      if (isSg) result.tourAvg = null;
-      return Response.json(result);
-    }
-  } catch { /* ignore */ }
+  const cacheKey = `stat-lb:v28:${statKey}`;
+  const bust = searchParams.get('bust') === '1' && request.headers.get('x-cron-secret') === process.env.CRON_SECRET;
+  if (!bust) {
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const result = Array.isArray(parsed) ? { entries: parsed, tourAvg: null } : parsed;
+        if (isSg) result.tourAvg = null;
+        return Response.json(result);
+      }
+    } catch { /* ignore */ }
+  }
 
   try {
     // Try PGA Tour statDetails first — covers the full tour field (~155 players) for all stats
@@ -396,7 +399,7 @@ export async function GET(request: Request) {
           : gqlResult.players.reduce((s, r) => s + r.value, 0) / gqlResult.players.length;
         const tourAvg = fmt(avgNum);
         const entries: StatLeaderboardEntry[] = gqlResult.players.map((r, i) => ({ rank: i + 1, name: r.name, value: fmt(r.value) }));
-        try { await redis.setex(cacheKey, 3300, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
+        try { await redis.setex(cacheKey, 2700, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
         try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
         return Response.json({ entries, tourAvg: isSg ? null : tourAvg });
       }
@@ -462,7 +465,7 @@ export async function GET(request: Request) {
     }
 
     if (entries.length > 0) {
-      try { await redis.setex(cacheKey, 3300, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
+      try { await redis.setex(cacheKey, 2700, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
     }
 
     return Response.json({ entries, tourAvg: isSg ? null : tourAvg });
