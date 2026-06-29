@@ -413,5 +413,8 @@ export async function GET(req: Request) {
   }
 
   try { await redis.setex(cacheKey, 86400, JSON.stringify(bio)); } catch { /* ignore */ }
-  return Response.json({ bio });
+  const espnPhotoUrl = espnId
+    ? `https://a.espncdn.com/i/headshots/golf/players/full/${espnId}.png`
+    : null;
+  return Response.json({ bio, espnPhotoUrl });
 }

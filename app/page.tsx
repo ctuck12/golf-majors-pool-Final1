@@ -372,6 +372,10 @@ const TOURNAMENT_CARD_HEIGHT = 45;
 const pgaPhoto = (pgaId: number) =>
   `https://pga-tour-res.cloudinary.com/image/upload/c_fill,d_headshots_default.png,f_auto,g_face:center,h_350,q_auto,w_280/headshots_${pgaId}.png`;
 
+// No default fallback — 404s on missing headshots so onError fires
+const pgaPhotoNoDefault = (pgaId: number) =>
+  `https://pga-tour-res.cloudinary.com/image/upload/c_fill,f_auto,g_face:center,h_350,q_auto,w_280/headshots_${pgaId}.png`;
+
 const PLAYER_POOL = PLAYER_POOL_WITH_PGA_IDS;
 
 // Names too long to fit on one line in the mobile pick list — forced to wrap between first and last name
@@ -1199,6 +1203,7 @@ export default function Page() {
     fieldDistributions: Record<string, number[]>;
     playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; college: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null } | null;
     playerBioLoading: boolean;
+    espnPhotoUrl: string | null;
   } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career' | 'bio'>('stats');
   const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
@@ -2645,6 +2650,7 @@ export default function Page() {
       fieldDistributions: {},
       playerBio: null,
       playerBioLoading: false,
+      espnPhotoUrl: null,
     });
     const scorecardFetch = statsCtx === 'tournament'
       ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
@@ -8547,8 +8553,8 @@ export default function Page() {
                           try {
                             const bioParams = new URLSearchParams({ name: pickHistoryPlayerPopup.player.name });
                             if (pickHistoryPlayerPopup.player.pgaTourId) bioParams.set('pgaTourId', String(pickHistoryPlayerPopup.player.pgaTourId));
-                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; college: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null } }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
-                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false } : null);
+                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; college: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
+                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null } : null);
                           } catch {
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null);
                           }
@@ -8567,7 +8573,8 @@ export default function Page() {
                 {pickHistoryView === 'bio' && (() => {
                   const bio = pickHistoryPlayerPopup.playerBio;
                   const loading = pickHistoryPlayerPopup.playerBioLoading;
-                  const photoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
+                  const pgaPhotoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhotoNoDefault(pickHistoryPlayerPopup.player.pgaTourId);
+                  const espnPhotoSrc = pickHistoryPlayerPopup.espnPhotoUrl;
                   const rows: { label: string; value: string | number | null }[] = bio ? [
                     { label: 'Date of Birth', value: bio.dob },
                     { label: 'Age', value: bio.age },
@@ -8587,10 +8594,17 @@ export default function Page() {
                       {/* Profile photo */}
                       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 4 }}>
                         <img
-                          src={photoSrc}
+                          src={pgaPhotoSrc}
                           alt={pickHistoryPlayerPopup.player.name}
                           style={{ width: 110, height: 110, borderRadius: 12, objectFit: 'cover', border: '2px solid #e2e8ef', background: '#e8edf2' }}
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          onError={(e) => {
+                            const img = e.target as HTMLImageElement;
+                            if (espnPhotoSrc && img.src !== espnPhotoSrc) {
+                              img.src = espnPhotoSrc;
+                            } else {
+                              img.style.display = 'none';
+                            }
+                          }}
                         />
                       </div>
                       {/* Bio rows */}
