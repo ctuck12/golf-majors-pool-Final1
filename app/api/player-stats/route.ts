@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v68:season:${seasonYear}:${name}`;
+    : `player-stats:v69:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v68:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v69:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -176,9 +176,12 @@ export async function GET(request: Request) {
       } else if (pgaStats?.scrambling && !espnStats?.scrambling) {
         merged.scrambling = pgaStats.scrambling;
       }
-      // Apply SG values from stat-lb cache for players without pgaTourId (e.g. non-pool players)
+      // stat-lb (statDetails endpoint) is the canonical source for SG values — always override
+      // playerProfileStats GQL which updates on a different schedule. For non-SG stats, stat-lb
+      // only fills in values that ESPN/PGA Tour didn't provide (ESPN wins for those).
+      const SG_LB_KEYS = new Set(['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting']);
       for (const [key, value] of Object.entries(lbStatValues)) {
-        if (!merged[key]) merged[key] = value;
+        if (SG_LB_KEYS.has(key) || !merged[key]) merged[key] = value;
       }
     }
 
