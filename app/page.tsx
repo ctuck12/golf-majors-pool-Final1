@@ -8595,11 +8595,11 @@ export default function Page() {
                       {/* Top section: photo left, personal info right */}
                       <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e2e8ef', marginBottom: 10 }}>
                         {/* Photo column */}
-                        <div style={{ flexShrink: 0, width: 120, background: '#e8edf2', display: 'flex', alignItems: 'stretch' }}>
+                        <div style={{ flexShrink: 0, width: 125, background: '#e8edf2', display: 'flex', alignItems: 'stretch' }}>
                           <img
                             src={photoSrc}
                             alt={pickHistoryPlayerPopup.player.name}
-                            style={{ width: 120, objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+                            style={{ width: 125, objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
                             onError={(e) => {
                               const img = e.target as HTMLImageElement;
                               if (pgaPhotoSrc && img.src !== pgaPhotoSrc && img.src !== espnPhotoSrc) { img.src = pgaPhotoSrc; } else { img.style.display = 'none'; }
