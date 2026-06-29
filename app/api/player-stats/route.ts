@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v73:season:${seasonYear}:${name}`;
+    : `player-stats:v74:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v73:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v74:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -64,19 +64,27 @@ export async function GET(request: Request) {
       const lbResultsEarly = await Promise.allSettled(
         LB_STAT_KEYS_EARLY.map(k => redis.get(`stat-lb:v28:${k}`))
       );
+      const LB_WINS_KEYS_EARLY = new Set(['gir', 'puttAverage', 'sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting']);
       const freshRanks: Record<string, string> = {};
+      const cachedStats = JSON.parse(cached);
       for (let i = 0; i < LB_STAT_KEYS_EARLY.length; i++) {
         const result = lbResultsEarly[i];
         if (result.status !== 'fulfilled' || !result.value) continue;
         try {
           const parsed = JSON.parse(result.value as string);
-          const entries: { rank: number; name: string }[] = parsed.entries ?? parsed;
+          const entries: { rank: number; name: string; value?: string | number }[] = parsed.entries ?? parsed;
           const entry = entries.find(e => normNameEarly(e.name) === nameLowerEarly);
-          if (entry) freshRanks[LB_STAT_KEYS_EARLY[i]] = String(entry.rank);
+          if (!entry) continue;
+          const key = LB_STAT_KEYS_EARLY[i];
+          freshRanks[key] = String(entry.rank);
+          if (LB_WINS_KEYS_EARLY.has(key) && entry.value != null) {
+            const v = String(entry.value);
+            cachedStats[key] = (key === 'gir' && !v.endsWith('%')) ? `${v}%` : v;
+          }
         } catch { /* ignore */ }
       }
       const ranks = Object.keys(freshRanks).length > 0 ? freshRanks : null;
-      return Response.json({ stats: JSON.parse(cached), ranks });
+      return Response.json({ stats: cachedStats, ranks });
     }
 
     if (isTournament) {
@@ -194,7 +202,9 @@ export async function GET(request: Request) {
     // ESPN wins the merge for most stats. For scrambling, prefer the ESPN leaderboard cache value
     // (same source as the in-app scrambling leaderboard popup) over PGA Tour statDetails which
     // omits some players. Fall back to pgaStats scrambling only as last resort.
-    const SG_LB_KEYS = new Set(['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting']);
+    // Keys where stat-lb is always the canonical value source (same source as popup leaderboards).
+    // gir and puttAverage added so player card value+rank always matches the popup exactly.
+    const LB_WINS_KEYS = new Set(['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting', 'gir', 'puttAverage']);
     const merged = (espnStats || pgaStats) ? mergeStats(pgaStats, espnStats) : null;
     if (merged) {
       if (lbScrambling?.value) {
@@ -203,11 +213,8 @@ export async function GET(request: Request) {
       } else if (pgaStats?.scrambling && !espnStats?.scrambling) {
         merged.scrambling = pgaStats.scrambling;
       }
-      // stat-lb (statDetails endpoint) is the canonical source for SG values — always override
-      // playerProfileStats GQL which updates on a different schedule. For non-SG stats, stat-lb
-      // only fills in values that ESPN/PGA Tour didn't provide (ESPN wins for those).
       for (const [key, value] of Object.entries(lbStatValues)) {
-        if (SG_LB_KEYS.has(key) || !merged[key]) merged[key] = value;
+        if (LB_WINS_KEYS.has(key) || !merged[key]) merged[key] = value;
       }
     }
 
@@ -216,7 +223,7 @@ export async function GET(request: Request) {
     // Guard: if stat-lb returned no SG values at all, the SG leaderboard caches are cold and
     // any SG values in `merged` came from PGA Tour GQL (a different update schedule). Don't cache
     // in that case — the next request will retry and hopefully find warm stat-lb caches.
-    const sgLbWarm = Object.keys(lbStatValues).some(k => SG_LB_KEYS.has(k));
+    const sgLbWarm = Object.keys(lbStatValues).some(k => LB_WINS_KEYS.has(k));
     if (stats && sgLbWarm) {
       await redis.setex(cacheKey, ttl, JSON.stringify(stats));
     }
