@@ -341,7 +341,7 @@ export async function GET(request: Request) {
           : gqlResult.players.reduce((s, r) => s + r.value, 0) / gqlResult.players.length;
         const tourAvg = fmt(avgNum);
         const entries: StatLeaderboardEntry[] = gqlResult.players.map((r, i) => ({ rank: i + 1, name: r.name, value: fmt(r.value) }));
-        try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
+        try { await redis.setex(cacheKey, 3300, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
         try { await redis.setex(`${TOUR_AVG_LB_PREFIX}${statKey}`, 3600, tourAvg); } catch { /* ignore */ }
         return Response.json({ entries, tourAvg: isSg ? null : tourAvg });
       }
@@ -407,7 +407,7 @@ export async function GET(request: Request) {
     }
 
     if (entries.length > 0) {
-      try { await redis.setex(cacheKey, 3600, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
+      try { await redis.setex(cacheKey, 3300, JSON.stringify({ entries, tourAvg })); } catch { /* ignore */ }
     }
 
     return Response.json({ entries, tourAvg: isSg ? null : tourAvg });
