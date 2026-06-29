@@ -171,7 +171,7 @@ export const PLAYER_ARCHIVE = [
   { id: 117, name: 'Austin Smotherman',         pgaTourId: 50095, defaultOdds: '+20000',  worldRank:  84 },
   { id: 131, name: 'Christiaan Bezuidenhout',   pgaTourId: 45522, defaultOdds: '+20000',  worldRank:  92 },
   { id: 139, name: 'Stephan Jaeger',            pgaTourId: 36799, defaultOdds: '+20000',  worldRank: 100 },
-  { id: 143, name: 'Chandler Blanchet',         pgaTourId: 54788, defaultOdds: '+30000',  worldRank: 112 },
+  { id: 143, name: 'Chandler Blanchet',         pgaTourId: 54788, defaultOdds: '+30000',  worldRank: 112, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_54788' },
   { id: 144, name: 'Jason Dufner',              pgaTourId: 25686, defaultOdds: '+50000',  worldRank: 992 },
   { id: 145, name: 'Thomas Detry',              pgaTourId: 33653, defaultOdds: '+10000',  worldRank:  61 },
   { id: 148, name: 'Rasmus Neergaard-Petersen', pgaTourId: 52689, defaultOdds: '+10000',  worldRank: 999 },
