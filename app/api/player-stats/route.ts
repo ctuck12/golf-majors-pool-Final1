@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v67:season:${seasonYear}:${name}`;
+    : `player-stats:v68:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v67:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v68:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -131,10 +131,12 @@ export async function GET(request: Request) {
       if (isNaN(num) || num <= 0) continue;
       mergedSeasonRanks[field] = String(num);
     }
-    // Override SG ranks with leaderboard-derived ranks (more accurate than playerProfileStats).
-    // Also pull scrambling value+rank from the same ESPN-based leaderboard cache — PGA Tour
-    // statDetails (stat 130) omits some players that ESPN Core correctly includes.
-    const LB_STAT_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting', 'scrambling'];
+    // Use stat-lb cache as the authoritative rank source for ALL stats so popup ranks always
+    // match leaderboard positions. stat-lb is the single source of truth for both.
+    const LB_STAT_KEYS = [
+      'drivingDistance', 'drivingAccuracy', 'gir', 'sandSaves', 'puttAverage', 'birdiesPerRound',
+      'scrambling', 'sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting',
+    ];
     const lbRankResults = await Promise.allSettled(
       LB_STAT_KEYS.map(k => redis.get(`stat-lb:v26:${k}`))
     );
