@@ -485,43 +485,6 @@ export async function fetchPlayerSeasonStats(name: string): Promise<PlayerStats 
     }
   }
   if (coreStats) applySgFromCoreStats(coreStats);
-  // If any SG stats are still missing, try the non-types/2 Core endpoint which has no minimum rounds cutoff
-  const sgStillMissing = SG_PAIRS.some(([field]) => !stats[field]);
-  if (sgStillMissing && espnId) {
-    const year = new Date().getFullYear();
-    const noFilterUrls = [
-      `${ESPN_CORE}/pga/seasons/${year}/athletes/${espnId}/statistics/0`,
-      `${ESPN_CORE}/pga/seasons/${year}/athletes/${espnId}/statistics`,
-      `${ESPN_CORE}/pga/seasons/${year - 1}/athletes/${espnId}/statistics/0`,
-    ];
-    for (const url of noFilterUrls) {
-      try {
-        const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(4000) });
-        if (!res.ok) continue;
-        const data = await res.json() as {
-          splits?: { categories?: Array<{ stats?: Stat[] }> } | Array<{ stats?: Stat[] }>;
-          categories?: Array<{ stats?: Stat[] }>;
-          stats?: Stat[];
-        };
-        let noFilterStats: Stat[] | null = null;
-        if (data?.splits && !Array.isArray(data.splits)) {
-          noFilterStats = (data.splits as { categories?: Array<{ stats?: Stat[] }> }).categories?.[0]?.stats ?? null;
-        } else if (Array.isArray(data?.splits)) {
-          for (const split of data.splits as Array<{ stats?: Stat[] }>) {
-            if (Array.isArray(split?.stats) && split.stats.length > 0) { noFilterStats = split.stats; break; }
-          }
-        } else if (Array.isArray(data?.categories)) {
-          noFilterStats = data.categories![0]?.stats ?? null;
-        } else if (Array.isArray(data?.stats)) {
-          noFilterStats = data.stats!;
-        }
-        if (noFilterStats && noFilterStats.length > 0) {
-          applySgFromCoreStats(noFilterStats);
-          break;
-        }
-      } catch { continue; }
-    }
-  }
 
   // Scrambling: ESPN overview returns 0/null for this stat (internal formula mismatch).
   // Try ESPN Core types/2 which has the correct season value.
