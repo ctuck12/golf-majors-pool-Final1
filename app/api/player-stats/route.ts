@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v61:season:${seasonYear}:${name}`;
+    : `player-stats:v62:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v61:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v62:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -132,31 +132,45 @@ export async function GET(request: Request) {
       mergedSeasonRanks[field] = String(num);
     }
     // Override SG ranks with leaderboard-derived ranks (more accurate than playerProfileStats).
-    // The leaderboard popup uses the same cache, so this makes player card ranks match exactly.
-    const SG_STAT_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
+    // Also pull scrambling value+rank from the same ESPN-based leaderboard cache — PGA Tour
+    // statDetails (stat 130) omits some players that ESPN Core correctly includes.
+    const LB_STAT_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting', 'scrambling'];
     const lbRankResults = await Promise.allSettled(
-      SG_STAT_KEYS.map(k => redis.get(`stat-lb:v25:${k}`))
+      LB_STAT_KEYS.map(k => redis.get(`stat-lb:v25:${k}`))
     );
     const nameLower = name.toLowerCase();
-    for (let i = 0; i < SG_STAT_KEYS.length; i++) {
+    let lbScrambling: { value: string; rank: string } | null = null;
+    for (let i = 0; i < LB_STAT_KEYS.length; i++) {
       const result = lbRankResults[i];
       if (result.status !== 'fulfilled' || !result.value) continue;
       try {
         const parsed = JSON.parse(result.value as string);
-        const entries: { rank: number; name: string }[] = parsed.entries ?? parsed;
+        const entries: { rank: number; name: string; value?: string | number }[] = parsed.entries ?? parsed;
         const entry = entries.find(e => e.name.toLowerCase() === nameLower);
-        if (entry) mergedSeasonRanks[SG_STAT_KEYS[i]] = String(entry.rank);
+        if (!entry) continue;
+        const key = LB_STAT_KEYS[i];
+        if (key === 'scrambling') {
+          lbScrambling = { rank: String(entry.rank), value: entry.value ? String(entry.value) : '' };
+        } else {
+          mergedSeasonRanks[key] = String(entry.rank);
+        }
       } catch { /* ignore */ }
     }
+    if (lbScrambling) mergedSeasonRanks['scrambling'] = lbScrambling.rank;
 
     const ranks: PlayerStatRanks | null = Object.keys(mergedSeasonRanks).length > 0 ? mergedSeasonRanks : null;
 
-    // ESPN wins the merge for most stats. For scrambling, espnStats now uses averageDisplayValue
-    // which may contain the correct value; pgaStats is used only as a last-resort fallback
-    // (playerProfileStats stat 130 returns an internal metric that doesn't match pgatour.com).
+    // ESPN wins the merge for most stats. For scrambling, prefer the ESPN leaderboard cache value
+    // (same source as the in-app scrambling leaderboard popup) over PGA Tour statDetails which
+    // omits some players. Fall back to pgaStats scrambling only as last resort.
     const merged = (espnStats || pgaStats) ? mergeStats(pgaStats, espnStats) : null;
-    if (merged && pgaStats && !espnStats?.scrambling) {
-      if (pgaStats.scrambling) merged.scrambling = pgaStats.scrambling;
+    if (merged) {
+      if (lbScrambling?.value) {
+        const v = lbScrambling.value;
+        merged.scrambling = v.endsWith('%') ? v : `${v}%`;
+      } else if (pgaStats?.scrambling && !espnStats?.scrambling) {
+        merged.scrambling = pgaStats.scrambling;
+      }
     }
 
     const stats = merged;
