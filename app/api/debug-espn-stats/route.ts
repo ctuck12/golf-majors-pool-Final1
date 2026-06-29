@@ -12,56 +12,60 @@ export async function GET(request: Request) {
 
   const results: Record<string, unknown> = {};
 
-  // 1. PGA Tour GQL: introspect Query type to find available fields
+  // 1. PGA Tour: player query (may return bio with careerEarnings)
   try {
-    const query = `{ __type(name: "Query") { fields { name args { name type { name kind ofType { name } } } } } }`;
-    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query }), signal: AbortSignal.timeout(6000) });
+    const q = `query Q($id: ID!) { player(id: $id) { biography { overview careerEarnings } } }`;
+    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q, variables: { id: pgaId } }), signal: AbortSignal.timeout(6000) });
+    const j = await r.json();
+    results['pga_player'] = j;
+  } catch (e) { results['pga_player_error'] = String(e); }
+
+  // 2. PGA Tour: introspect player type to find all fields
+  try {
+    const q = `{ __type(name: "Player") { fields { name type { name kind } } } }`;
+    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q }), signal: AbortSignal.timeout(6000) });
     const j = await r.json() as { data?: { __type?: { fields?: Array<{ name: string }> } } };
-    results['pga_query_fields'] = j?.data?.__type?.fields?.map((f) => f.name);
-  } catch (e) { results['pga_query_error'] = String(e); }
+    results['pga_Player_fields'] = j?.data?.__type?.fields?.map(f => f.name);
+  } catch (e) { results['pga_player_schema_error'] = String(e); }
 
-  // 2. PGA Tour GQL: try playerBio as direct query (correct field name from schema)
+  // 3. PGA Tour: playerProfileMajorResults
   try {
-    const query = `query Q($id: ID!) { playerBio(playerId: $id) { careerEarnings school turnedPro born overview } }`;
-    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query, variables: { id: pgaId } }), signal: AbortSignal.timeout(6000) });
-    const j = await r.json();
-    results['pga_playerBio_direct'] = j;
-  } catch (e) { results['pga_playerBio_error'] = String(e); }
-
-  // 3. ESPN Core statisticslog
-  try {
-    const r = await fetch(`${ESPN_CORE}/athletes/${espnId}`, { signal: AbortSignal.timeout(6000) });
-    const j = await r.json() as Record<string, unknown>;
-    const statslog = j?.statisticslog as Record<string, unknown> | undefined;
-    results['statisticslog_ref'] = statslog;
-    if (statslog?.$ref) {
-      const r2 = await fetch(String(statslog.$ref), { signal: AbortSignal.timeout(6000) });
+    const q = `{ __type(name: "Query") { fields(includeDeprecated: true) { name } } }`;
+    const r = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q }), signal: AbortSignal.timeout(6000) });
+    const j = await r.json() as { data?: { __type?: { fields?: Array<{ name: string }> } } };
+    // Try playerProfileMajorResults
+    const hasField = j?.data?.__type?.fields?.some(f => f.name === 'playerProfileMajorResults');
+    results['has_majorResults_field'] = hasField;
+    if (hasField) {
+      const q2 = `query Q($id: ID!) { playerProfileMajorResults(playerId: $id) { year tournamentName position } }`;
+      const r2 = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q2, variables: { id: pgaId } }), signal: AbortSignal.timeout(6000) });
       const j2 = await r2.json();
-      results['statisticslog_data'] = JSON.stringify(j2).slice(0, 3000);
+      results['pga_majorResults'] = j2;
     }
-  } catch (e) { results['statisticslog_error'] = String(e); }
+  } catch (e) { results['pga_majorResults_error'] = String(e); }
 
-  // 4. ESPN Core seasons list for athlete
+  // 4. PGA Tour playerHub
   try {
-    const r = await fetch(`${ESPN_CORE}/athletes/${espnId}/statisticslog`, { signal: AbortSignal.timeout(6000) });
-    const j = await r.json();
-    results['statslog_direct'] = JSON.stringify(j).slice(0, 3000);
-  } catch (e) { results['statslog_direct_error'] = String(e); }
+    const q2 = `query Q($id: ID!) { playerHub(playerId: $id) { careerEarnings pgaTourWins majorWins pgaTourStarts majorStarts } }`;
+    const r2 = await fetch(PGA_GQL, { method: 'POST', headers: gqlHeaders, body: JSON.stringify({ query: q2, variables: { id: pgaId } }), signal: AbortSignal.timeout(6000) });
+    const j2 = await r2.json();
+    results['pga_playerHub'] = j2;
+  } catch (e) { results['pga_playerHub_error'] = String(e); }
 
-  // 5. Try ESPN Core seasons endpoint for career totals
+  // 5. ESPN: fetch one season's stats to understand structure (wins, events)
   try {
-    const r = await fetch(`${ESPN_CORE}/athletes/${espnId}/seasons`, { signal: AbortSignal.timeout(6000) });
-    const j = await r.json();
-    results['seasons_data'] = JSON.stringify(j).slice(0, 2000);
-  } catch (e) { results['seasons_error'] = String(e); }
-
-  // 6. ESPN Core gamelog (may have tournament-by-tournament including majors)
-  try {
-    const r = await fetch(`https://site.api.espn.com/apis/common/v3/sports/golf/pga/athletes/${espnId}/gamelog`, { signal: AbortSignal.timeout(6000) });
+    const r = await fetch(`${ESPN_CORE}/seasons/2025/types/2/athletes/${espnId}/statistics/0`, { signal: AbortSignal.timeout(6000) });
     const j = await r.json() as Record<string, unknown>;
-    results['gamelog_keys'] = Object.keys(j ?? {});
-    results['gamelog_partial'] = JSON.stringify(j).slice(0, 2000);
-  } catch (e) { results['gamelog_error'] = String(e); }
+    results['espn_2025_stats_keys'] = Object.keys(j ?? {});
+    results['espn_2025_stats_partial'] = JSON.stringify(j).slice(0, 3000);
+  } catch (e) { results['espn_2025_stats_error'] = String(e); }
+
+  // 6. ESPN: fetch 2024 stats
+  try {
+    const r = await fetch(`${ESPN_CORE}/seasons/2024/types/2/athletes/${espnId}/statistics/0`, { signal: AbortSignal.timeout(6000) });
+    const j = await r.json() as Record<string, unknown>;
+    results['espn_2024_stats_partial'] = JSON.stringify(j).slice(0, 2000);
+  } catch (e) { results['espn_2024_stats_error'] = String(e); }
 
   return Response.json(results);
 }
