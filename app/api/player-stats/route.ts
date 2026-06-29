@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v74:season:${seasonYear}:${name}`;
+    : `player-stats:v75:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v74:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v75:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -64,7 +64,7 @@ export async function GET(request: Request) {
       const lbResultsEarly = await Promise.allSettled(
         LB_STAT_KEYS_EARLY.map(k => redis.get(`stat-lb:v28:${k}`))
       );
-      const LB_WINS_KEYS_EARLY = new Set(['gir', 'puttAverage', 'sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting']);
+      const LB_WINS_KEYS_EARLY = new Set(['gir', 'puttAverage', 'scrambling', 'drivingAccuracy', 'drivingDistance', 'sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting']);
       const freshRanks: Record<string, string> = {};
       const cachedStats = JSON.parse(cached);
       for (let i = 0; i < LB_STAT_KEYS_EARLY.length; i++) {
@@ -79,7 +79,8 @@ export async function GET(request: Request) {
           freshRanks[key] = String(entry.rank);
           if (LB_WINS_KEYS_EARLY.has(key) && entry.value != null) {
             const v = String(entry.value);
-            cachedStats[key] = (key === 'gir' && !v.endsWith('%')) ? `${v}%` : v;
+            const PERCENT_KEYS = new Set(['gir', 'scrambling', 'drivingAccuracy']);
+            cachedStats[key] = (PERCENT_KEYS.has(key) && !v.endsWith('%')) ? `${v}%` : v;
           }
         } catch { /* ignore */ }
       }
@@ -204,7 +205,7 @@ export async function GET(request: Request) {
     // omits some players. Fall back to pgaStats scrambling only as last resort.
     // Keys where stat-lb is always the canonical value source (same source as popup leaderboards).
     // gir and puttAverage added so player card value+rank always matches the popup exactly.
-    const LB_WINS_KEYS = new Set(['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting', 'gir', 'puttAverage']);
+    const LB_WINS_KEYS = new Set(['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting', 'gir', 'puttAverage', 'scrambling', 'drivingAccuracy', 'drivingDistance']);
     const merged = (espnStats || pgaStats) ? mergeStats(pgaStats, espnStats) : null;
     if (merged) {
       if (lbScrambling?.value) {
