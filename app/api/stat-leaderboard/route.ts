@@ -310,7 +310,7 @@ export async function GET(request: Request) {
   const SG_STAT_KEYS = new Set(['sgTotal','sgTeeToGreen','sgOffTee','sgApproach','sgAroundGreen','sgPutting']);
   const isSg = SG_STAT_KEYS.has(statKey);
 
-  const cacheKey = `stat-lb:v25:${statKey}`;
+  const cacheKey = `stat-lb:v26:${statKey}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {

@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v66:season:${seasonYear}:${name}`;
+    : `player-stats:v67:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v66:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v67:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -136,7 +136,7 @@ export async function GET(request: Request) {
     // statDetails (stat 130) omits some players that ESPN Core correctly includes.
     const LB_STAT_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting', 'scrambling'];
     const lbRankResults = await Promise.allSettled(
-      LB_STAT_KEYS.map(k => redis.get(`stat-lb:v25:${k}`))
+      LB_STAT_KEYS.map(k => redis.get(`stat-lb:v26:${k}`))
     );
     const normName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();
     const nameLower = normName(name);
