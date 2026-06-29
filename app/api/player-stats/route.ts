@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v65:season:${seasonYear}:${name}`;
+    : `player-stats:v66:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v65:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v66:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -141,6 +141,7 @@ export async function GET(request: Request) {
     const normName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();
     const nameLower = normName(name);
     let lbScrambling: { value: string; rank: string } | null = null;
+    const lbStatValues: Record<string, string> = {};
     for (let i = 0; i < LB_STAT_KEYS.length; i++) {
       const result = lbRankResults[i];
       if (result.status !== 'fulfilled' || !result.value) continue;
@@ -154,6 +155,7 @@ export async function GET(request: Request) {
           lbScrambling = { rank: String(entry.rank), value: entry.value ? String(entry.value) : '' };
         } else {
           mergedSeasonRanks[key] = String(entry.rank);
+          if (entry.value !== undefined && entry.value !== null) lbStatValues[key] = String(entry.value);
         }
       } catch { /* ignore */ }
     }
@@ -171,6 +173,10 @@ export async function GET(request: Request) {
         merged.scrambling = v.endsWith('%') ? v : `${v}%`;
       } else if (pgaStats?.scrambling && !espnStats?.scrambling) {
         merged.scrambling = pgaStats.scrambling;
+      }
+      // Apply SG values from stat-lb cache for players without pgaTourId (e.g. non-pool players)
+      for (const [key, value] of Object.entries(lbStatValues)) {
+        if (!merged[key]) merged[key] = value;
       }
     }
 
