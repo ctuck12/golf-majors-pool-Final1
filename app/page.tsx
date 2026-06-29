@@ -1197,8 +1197,10 @@ export default function Page() {
     statRanks: Record<string, string>;
     seasonStatRanks: Record<string, string>;
     fieldDistributions: Record<string, number[]>;
+    playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; college: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null } | null;
+    playerBioLoading: boolean;
   } | null>(null);
-  const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career'>('stats');
+  const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career' | 'bio'>('stats');
   const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
   const [statLeaderboardModal, setStatLeaderboardModal] = useState<{ label: string; statKey: string; subtitle: string; tourAvg: string | null; playerName: string | null; entries: { rank: number; name: string; value: string }[] | null } | null>(null);
   const [statLbSearch, setStatLbSearch] = useState('');
@@ -2641,6 +2643,8 @@ export default function Page() {
       statRanks: {},
       seasonStatRanks: {},
       fieldDistributions: {},
+      playerBio: null,
+      playerBioLoading: false,
     });
     const scorecardFetch = statsCtx === 'tournament'
       ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
@@ -8511,7 +8515,7 @@ export default function Page() {
 
               {/* Tab bar */}
               <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #e2e8ef', flexShrink: 0 }}>
-                {(pickHistoryPlayerPopup.defaultTab === 'season' ? (['season', 'career', 'stats'] as const) : (['stats', 'season', 'career'] as const)).map((tab) => {
+                {(pickHistoryPlayerPopup.defaultTab === 'season' ? (['season', 'career', 'stats', 'bio'] as const) : (['stats', 'season', 'career', 'bio'] as const)).map((tab) => {
                   const careerTabLabel: Record<string, string> = {
                     players: 'Players Career',
                     masters: 'Masters Career',
@@ -8521,14 +8525,14 @@ export default function Page() {
                   };
                   const label = tab === 'stats'
                     ? (careerTournamentId === 'us-open' ? 'Season Stats' : 'Stats')
-                    : tab === 'season' ? 'Season Results' : (careerTabLabel[careerTournamentId] ?? 'Major Career');
+                    : tab === 'season' ? 'Season Results' : tab === 'bio' ? 'Bio' : (careerTabLabel[careerTournamentId] ?? 'Major Career');
                   const isActive = pickHistoryView === tab;
                   return (
                     <button
                       key={tab}
                       onClick={async (e) => {
                         e.stopPropagation();
-                        setPickHistoryView(tab as 'stats' | 'season' | 'career');
+                        setPickHistoryView(tab as 'stats' | 'season' | 'career' | 'bio');
                         if (tab === 'career' && pickHistoryPlayerPopup.careerResults === null && !pickHistoryPlayerPopup.careerResultsLoading) {
                           setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: true } : null);
                           try {
@@ -8536,6 +8540,17 @@ export default function Page() {
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResults: data.results, careerResultsLoading: false } : null);
                           } catch {
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, careerResultsLoading: false } : null);
+                          }
+                        }
+                        if (tab === 'bio' && pickHistoryPlayerPopup.playerBio === null && !pickHistoryPlayerPopup.playerBioLoading) {
+                          setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: true } : null);
+                          try {
+                            const bioParams = new URLSearchParams({ name: pickHistoryPlayerPopup.player.name });
+                            if (pickHistoryPlayerPopup.player.pgaTourId) bioParams.set('pgaTourId', String(pickHistoryPlayerPopup.player.pgaTourId));
+                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; college: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null } }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
+                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false } : null);
+                          } catch {
+                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null);
                           }
                         }
                       }}
@@ -8549,6 +8564,37 @@ export default function Page() {
 
               {/* Body */}
               <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '14px 18px 20px', background: '#f4f7fa', borderRadius: '0 0 20px 20px' }}>
+                {pickHistoryView === 'bio' && (() => {
+                  const bio = pickHistoryPlayerPopup.playerBio;
+                  const loading = pickHistoryPlayerPopup.playerBioLoading;
+                  if (loading) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#7a8c99', fontSize: 14 }}>Loading...</div>;
+                  if (!bio) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#7a8c99', fontSize: 14 }}>No bio available.</div>;
+                  const rows: { label: string; value: string | number | null }[] = [
+                    { label: 'Date of Birth', value: bio.dob },
+                    { label: 'Age', value: bio.age },
+                    { label: 'Height', value: bio.height },
+                    { label: 'Weight', value: bio.weight },
+                    { label: 'College', value: bio.college },
+                    { label: 'Turned Pro', value: bio.turnedPro },
+                    { label: 'PGA Tour Debut', value: bio.pgaTourDebut },
+                    { label: 'Career Starts', value: bio.careerStarts },
+                    { label: 'Career Wins', value: bio.careerWins },
+                    { label: 'Major Starts', value: bio.majorStarts },
+                    { label: 'Major Wins', value: bio.majorWins },
+                    { label: 'Career Earnings', value: bio.careerEarnings },
+                  ].filter(r => r.value != null);
+                  if (rows.length === 0) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#7a8c99', fontSize: 14 }}>No bio available.</div>;
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e2e8ef' }}>
+                      {rows.map((row, i) => (
+                        <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < rows.length - 1 ? '1px solid #e2e8ef' : 'none' }}>
+                          <span style={{ fontSize: 13, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
+                          <span style={{ fontSize: 13, color: '#0f1720', fontWeight: 700 }}>{String(row.value)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
                 {pickHistoryView === 'stats' && (() => {
                   const isTournCtx = pickHistoryPlayerPopup.statsContext === 'tournament';
                   const showSubToggle = isTournCtx && careerTournamentId !== 'us-open' && pickHistoryPlayerPopup.defaultTab === 'stats';
