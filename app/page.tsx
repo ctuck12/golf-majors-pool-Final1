@@ -8567,9 +8567,8 @@ export default function Page() {
                 {pickHistoryView === 'bio' && (() => {
                   const bio = pickHistoryPlayerPopup.playerBio;
                   const loading = pickHistoryPlayerPopup.playerBioLoading;
-                  if (loading) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#7a8c99', fontSize: 14 }}>Loading...</div>;
-                  if (!bio) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#7a8c99', fontSize: 14 }}>No bio available.</div>;
-                  const rows: { label: string; value: string | number | null }[] = [
+                  const photoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
+                  const rows: { label: string; value: string | number | null }[] = bio ? [
                     { label: 'Date of Birth', value: bio.dob },
                     { label: 'Age', value: bio.age },
                     { label: 'Height', value: bio.height },
@@ -8582,16 +8581,31 @@ export default function Page() {
                     { label: 'Major Starts', value: bio.majorStarts },
                     { label: 'Major Wins', value: bio.majorWins },
                     { label: 'Career Earnings', value: bio.careerEarnings },
-                  ].filter(r => r.value != null);
-                  if (rows.length === 0) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#7a8c99', fontSize: 14 }}>No bio available.</div>;
+                  ].filter(r => r.value != null) : [];
                   return (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e2e8ef' }}>
-                      {rows.map((row, i) => (
-                        <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < rows.length - 1 ? '1px solid #e2e8ef' : 'none' }}>
-                          <span style={{ fontSize: 13, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
-                          <span style={{ fontSize: 13, color: '#0f1720', fontWeight: 700 }}>{String(row.value)}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      {/* Profile photo */}
+                      <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 4 }}>
+                        <img
+                          src={photoSrc}
+                          alt={pickHistoryPlayerPopup.player.name}
+                          style={{ width: 110, height: 110, borderRadius: 12, objectFit: 'cover', border: '2px solid #e2e8ef', background: '#e8edf2' }}
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      </div>
+                      {/* Bio rows */}
+                      {loading && <div style={{ textAlign: 'center', padding: '10px 0', color: '#7a8c99', fontSize: 13 }}>Loading...</div>}
+                      {!loading && rows.length === 0 && <div style={{ textAlign: 'center', padding: '10px 0', color: '#7a8c99', fontSize: 13 }}>Bio data not available.</div>}
+                      {rows.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e2e8ef' }}>
+                          {rows.map((row, i) => (
+                            <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < rows.length - 1 ? '1px solid #e2e8ef' : 'none' }}>
+                              <span style={{ fontSize: 13, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
+                              <span style={{ fontSize: 13, color: '#0f1720', fontWeight: 700 }}>{String(row.value)}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      )}
                     </div>
                   );
                 })()}
