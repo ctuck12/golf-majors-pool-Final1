@@ -8570,10 +8570,7 @@ export default function Page() {
                   const bio = pickHistoryPlayerPopup.playerBio;
                   const loading = pickHistoryPlayerPopup.playerBioLoading;
                   const espnPhotoSrc = pickHistoryPlayerPopup.espnPhotoUrl;
-                  const pgaPhotoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
-                  // Prefer ESPN photo once bio loads (ESPN has headshots for all tour players);
-                  // fall back to PGA Cloudinary URL (may show grey silhouette for some players)
-                  const photoSrc = espnPhotoSrc ?? pgaPhotoSrc;
+                  const photoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
                   const rows: { label: string; value: string | number | null }[] = bio ? [
                     { label: 'Date of Birth', value: bio.dob },
                     { label: 'Age', value: bio.age },
@@ -8596,7 +8593,10 @@ export default function Page() {
                           src={photoSrc}
                           alt={pickHistoryPlayerPopup.player.name}
                           style={{ width: 110, height: 110, borderRadius: 12, objectFit: 'cover', border: '2px solid #e2e8ef', background: '#e8edf2' }}
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          onError={(e) => {
+                            const img = e.target as HTMLImageElement;
+                            if (espnPhotoSrc && img.src !== espnPhotoSrc) { img.src = espnPhotoSrc; } else { img.style.display = 'none'; }
+                          }}
                         />
                       </div>
                       {/* Bio rows */}
