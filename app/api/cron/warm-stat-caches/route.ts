@@ -3,6 +3,9 @@ export const dynamic = 'force-dynamic';
 // Cron job: warm stat leaderboard caches so they're always fresh for users.
 // Runs every hour via vercel.json cron schedule.
 // Hits /api/stat-leaderboard for each stat key and /api/tour-averages.
+//
+// Stats are fetched in parallel batches of 4 so a single slow stat can't
+// cause the function to time out before the others are warmed.
 
 const STAT_KEYS = [
   'drivingDistance',
@@ -20,6 +23,8 @@ const STAT_KEYS = [
   'sgTeeToGreen',
 ];
 
+const BATCH_SIZE = 4;
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -32,7 +37,7 @@ export async function GET(request: Request) {
 
   const results: Record<string, string> = {};
 
-  // Warm tour averages
+  // Warm tour averages first
   try {
     const res = await fetch(`${baseUrl}/api/tour-averages`, { cache: 'no-store' });
     results['tour-averages'] = res.ok ? 'ok' : `${res.status}`;
@@ -40,19 +45,23 @@ export async function GET(request: Request) {
     results['tour-averages'] = String(e);
   }
 
-  // Warm each stat leaderboard sequentially to avoid hammering ESPN
-  for (const key of STAT_KEYS) {
-    try {
-      const res = await fetch(`${baseUrl}/api/stat-leaderboard?statKey=${key}&bust=1`, {
-        cache: 'no-store',
-        headers: { 'x-cron-secret': process.env.CRON_SECRET ?? '' },
-      });
-      results[key] = res.ok ? 'ok' : `${res.status}`;
-    } catch (e) {
-      results[key] = String(e);
-    }
-    // Small delay between requests
-    await new Promise((r) => setTimeout(r, 500));
+  // Warm stat leaderboards in parallel batches — each batch runs concurrently,
+  // batches run sequentially so we don't hammer ESPN all at once.
+  for (let i = 0; i < STAT_KEYS.length; i += BATCH_SIZE) {
+    const batch = STAT_KEYS.slice(i, i + BATCH_SIZE);
+    await Promise.allSettled(
+      batch.map(async (key) => {
+        try {
+          const res = await fetch(`${baseUrl}/api/stat-leaderboard?statKey=${key}&bust=1`, {
+            cache: 'no-store',
+            headers: { 'x-cron-secret': process.env.CRON_SECRET ?? '' },
+          });
+          results[key] = res.ok ? 'ok' : `${res.status}`;
+        } catch (e) {
+          results[key] = String(e);
+        }
+      })
+    );
   }
 
   console.log('[warm-stat-caches] results:', results);

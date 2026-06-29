@@ -53,19 +53,23 @@ export async function GET(request: Request) {
       return Response.json({ stats: JSON.parse(cached), ranks });
     }
     if (cached && !isTournament) {
-      // For season context: always recompute ranks from stat-lb so player card ranks match
-      // popup leaderboard positions. Never return stale ESPN-sourced cached ranks.
+      // For season context: recompute ranks from stat-lb so player card ranks match
+      // popup leaderboard positions. For any stat where stat-lb is cold, fall back to
+      // previously-cached ranks so a partial cron failure never leaves ranks blank.
       const LB_STAT_KEYS_EARLY = [
         'drivingDistance', 'drivingAccuracy', 'gir', 'sandSaves', 'puttAverage', 'birdiesPerRound',
         'scrambling', 'sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting',
       ];
       const normNameEarly = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();
       const nameLowerEarly = normNameEarly(name);
-      const lbResultsEarly = await Promise.allSettled(
-        LB_STAT_KEYS_EARLY.map(k => redis.get(`stat-lb:v28:${k}`))
-      );
+      const [lbResultsEarly, ranksRaw] = await Promise.all([
+        Promise.allSettled(LB_STAT_KEYS_EARLY.map(k => redis.get(`stat-lb:v28:${k}`))),
+        redis.get(ranksCacheKey).catch(() => null),
+      ]);
+      // Start with previously-cached ranks as baseline so no rank disappears when stat-lb is cold
+      const cachedRanks: Record<string, string> = ranksRaw ? JSON.parse(ranksRaw as string) : {};
       const LB_WINS_KEYS_EARLY = new Set(['gir', 'puttAverage', 'scrambling', 'drivingAccuracy', 'drivingDistance', 'sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting']);
-      const freshRanks: Record<string, string> = {};
+      const freshRanks: Record<string, string> = { ...cachedRanks };
       const cachedStats = JSON.parse(cached);
       for (let i = 0; i < LB_STAT_KEYS_EARLY.length; i++) {
         const result = lbResultsEarly[i];
