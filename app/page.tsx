@@ -372,10 +372,6 @@ const TOURNAMENT_CARD_HEIGHT = 45;
 const pgaPhoto = (pgaId: number) =>
   `https://pga-tour-res.cloudinary.com/image/upload/c_fill,d_headshots_default.png,f_auto,g_face:center,h_350,q_auto,w_280/headshots_${pgaId}.png`;
 
-// No default fallback — 404s on missing headshots so onError fires
-const pgaPhotoNoDefault = (pgaId: number) =>
-  `https://pga-tour-res.cloudinary.com/image/upload/c_fill,f_auto,g_face:center,h_350,q_auto,w_280/headshots_${pgaId}.png`;
-
 const PLAYER_POOL = PLAYER_POOL_WITH_PGA_IDS;
 
 // Names too long to fit on one line in the mobile pick list — forced to wrap between first and last name
@@ -8573,8 +8569,11 @@ export default function Page() {
                 {pickHistoryView === 'bio' && (() => {
                   const bio = pickHistoryPlayerPopup.playerBio;
                   const loading = pickHistoryPlayerPopup.playerBioLoading;
-                  const pgaPhotoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhotoNoDefault(pickHistoryPlayerPopup.player.pgaTourId);
                   const espnPhotoSrc = pickHistoryPlayerPopup.espnPhotoUrl;
+                  const pgaPhotoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
+                  // Prefer ESPN photo once bio loads (ESPN has headshots for all tour players);
+                  // fall back to PGA Cloudinary URL (may show grey silhouette for some players)
+                  const photoSrc = espnPhotoSrc ?? pgaPhotoSrc;
                   const rows: { label: string; value: string | number | null }[] = bio ? [
                     { label: 'Date of Birth', value: bio.dob },
                     { label: 'Age', value: bio.age },
@@ -8594,17 +8593,10 @@ export default function Page() {
                       {/* Profile photo */}
                       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 4 }}>
                         <img
-                          src={pgaPhotoSrc}
+                          src={photoSrc}
                           alt={pickHistoryPlayerPopup.player.name}
                           style={{ width: 110, height: 110, borderRadius: 12, objectFit: 'cover', border: '2px solid #e2e8ef', background: '#e8edf2' }}
-                          onError={(e) => {
-                            const img = e.target as HTMLImageElement;
-                            if (espnPhotoSrc && img.src !== espnPhotoSrc) {
-                              img.src = espnPhotoSrc;
-                            } else {
-                              img.style.display = 'none';
-                            }
-                          }}
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                         />
                       </div>
                       {/* Bio rows */}

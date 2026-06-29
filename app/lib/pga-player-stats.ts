@@ -216,7 +216,8 @@ export async function fetchPgaTourPlayerStats(pgaTourId: string, playerName?: st
     const COURSE_STAT_IDS = ['101', '102', '103', '108', '104', '111', '130'];
     // playerProfileStats returns incorrect internal metrics for these stats — always
     // override with statDetails which matches the official PGA Tour leaderboard.
-    const ALWAYS_USE_LB = new Set(['103', '111']);
+    // 130 (scrambling) added: same issue as GIR/sand saves — internal metric doesn't match pgatour.com.
+    const ALWAYS_USE_LB = new Set(['103', '111', '130']);
     const missingStatIds = COURSE_STAT_IDS.filter((id) => {
       if (ALWAYS_USE_LB.has(id)) return true;
       const field = STAT_ID_TO_FIELD[id];
