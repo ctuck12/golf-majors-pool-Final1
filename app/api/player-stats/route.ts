@@ -39,10 +39,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v69:season:${seasonYear}:${name}`;
+    : `player-stats:v70:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v69:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v70:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -168,6 +168,7 @@ export async function GET(request: Request) {
     // ESPN wins the merge for most stats. For scrambling, prefer the ESPN leaderboard cache value
     // (same source as the in-app scrambling leaderboard popup) over PGA Tour statDetails which
     // omits some players. Fall back to pgaStats scrambling only as last resort.
+    const SG_LB_KEYS = new Set(['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting']);
     const merged = (espnStats || pgaStats) ? mergeStats(pgaStats, espnStats) : null;
     if (merged) {
       if (lbScrambling?.value) {
@@ -179,7 +180,6 @@ export async function GET(request: Request) {
       // stat-lb (statDetails endpoint) is the canonical source for SG values — always override
       // playerProfileStats GQL which updates on a different schedule. For non-SG stats, stat-lb
       // only fills in values that ESPN/PGA Tour didn't provide (ESPN wins for those).
-      const SG_LB_KEYS = new Set(['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting']);
       for (const [key, value] of Object.entries(lbStatValues)) {
         if (SG_LB_KEYS.has(key) || !merged[key]) merged[key] = value;
       }
@@ -187,7 +187,11 @@ export async function GET(request: Request) {
 
     const stats = merged;
 
-    if (stats) {
+    // Guard: if stat-lb returned no SG values at all, the SG leaderboard caches are cold and
+    // any SG values in `merged` came from PGA Tour GQL (a different update schedule). Don't cache
+    // in that case — the next request will retry and hopefully find warm stat-lb caches.
+    const sgLbWarm = Object.keys(lbStatValues).some(k => SG_LB_KEYS.has(k));
+    if (stats && sgLbWarm) {
       await redis.setex(cacheKey, ttl, JSON.stringify(stats));
     }
     if (ranks && Object.keys(ranks).length > 0) {
