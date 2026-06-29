@@ -47,9 +47,35 @@ export async function GET(request: Request) {
 
   try {
     const cached = await redis.get(cacheKey);
-    if (cached) {
+    if (cached && isTournament) {
       const ranksRaw = await redis.get(ranksCacheKey);
       const ranks = ranksRaw ? JSON.parse(ranksRaw) : null;
+      return Response.json({ stats: JSON.parse(cached), ranks });
+    }
+    if (cached && !isTournament) {
+      // For season context: always recompute ranks from stat-lb so player card ranks match
+      // popup leaderboard positions. Never return stale ESPN-sourced cached ranks.
+      const LB_STAT_KEYS_EARLY = [
+        'drivingDistance', 'drivingAccuracy', 'gir', 'sandSaves', 'puttAverage', 'birdiesPerRound',
+        'scrambling', 'sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting',
+      ];
+      const normNameEarly = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();
+      const nameLowerEarly = normNameEarly(name);
+      const lbResultsEarly = await Promise.allSettled(
+        LB_STAT_KEYS_EARLY.map(k => redis.get(`stat-lb:v28:${k}`))
+      );
+      const freshRanks: Record<string, string> = {};
+      for (let i = 0; i < LB_STAT_KEYS_EARLY.length; i++) {
+        const result = lbResultsEarly[i];
+        if (result.status !== 'fulfilled' || !result.value) continue;
+        try {
+          const parsed = JSON.parse(result.value as string);
+          const entries: { rank: number; name: string }[] = parsed.entries ?? parsed;
+          const entry = entries.find(e => normNameEarly(e.name) === nameLowerEarly);
+          if (entry) freshRanks[LB_STAT_KEYS_EARLY[i]] = String(entry.rank);
+        } catch { /* ignore */ }
+      }
+      const ranks = Object.keys(freshRanks).length > 0 ? freshRanks : null;
       return Response.json({ stats: JSON.parse(cached), ranks });
     }
 
