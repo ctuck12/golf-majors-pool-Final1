@@ -8551,7 +8551,7 @@ export default function Page() {
                           try {
                             const bioParams = new URLSearchParams({ name: pickHistoryPlayerPopup.player.name });
                             if (pickHistoryPlayerPopup.player.pgaTourId) bioParams.set('pgaTourId', String(pickHistoryPlayerPopup.player.pgaTourId));
-                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; college: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
+                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null } : null);
                           } catch {
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null);
@@ -8574,12 +8574,13 @@ export default function Page() {
                   const espnPhotoSrc = pickHistoryPlayerPopup.espnPhotoUrl;
                   const pgaPhotoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
                   const photoSrc = espnPhotoSrc ?? pgaPhotoSrc;
-                  const topRows: { label: string; value: string | number | null }[] = [
+                  const topRows: { label: string; value: string | number | null; italic?: boolean }[] = [
                     { label: 'Date of Birth', value: bio?.dob ?? null },
                     { label: 'Age', value: bio?.age ?? null },
                     { label: 'Height', value: bio?.height ?? null },
                     { label: 'Weight', value: bio?.weight ?? null },
-                    { label: 'College', value: bio?.college ?? null },
+                    { label: 'College', value: bio?.college ?? null, italic: !bio?.college && (bio?.collegeConfirmedAbsent ?? false) },
+                    { label: 'Swing', value: bio?.swing ?? null },
                   ];
                   const bottomRows: { label: string; value: string | number | null }[] = [
                     { label: 'Turned Pro', value: bio?.turnedPro ?? null },
@@ -8611,7 +8612,10 @@ export default function Page() {
                           {!loading && topRows.map((row, i) => (
                             <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < topRows.length - 1 ? '1px solid #e2e8ef' : 'none', flex: 1 }}>
                               <span style={{ fontSize: 12, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
-                              <span style={{ fontSize: 12, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700, textAlign: 'right', marginLeft: 6 }}>{row.value != null ? String(row.value) : '—'}</span>
+                              {row.italic
+                                ? <span style={{ fontSize: 11, color: '#9aabb8', fontStyle: 'italic', textAlign: 'right', marginLeft: 6 }}>*Did not attend college</span>
+                                : <span style={{ fontSize: 12, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700, textAlign: 'right', marginLeft: 6 }}>{row.value != null ? String(row.value) : '—'}</span>
+                              }
                             </div>
                           ))}
                         </div>

@@ -13,6 +13,8 @@ export type PlayerBio = {
   dob: string | null;
   age: number | null;
   college: string | null;
+  collegeConfirmedAbsent: boolean;
+  swing: string | null;
   turnedPro: number | null;
   pgaTourDebut: number | null;
   careerStarts: number | null;
@@ -240,6 +242,17 @@ async function fetchEspnProfile(espnId: string): Promise<Partial<PlayerBio>> {
     const proYear = (a.proYear ?? a.turnedPro ?? a.debutYear) as unknown;
     if (proYear != null) result.turnedPro = parseYear(proYear);
 
+    // Handedness / swing hand
+    const hand = (a.hand ?? a.handedness ?? a.throws) as string | undefined;
+    if (hand) {
+      const h = hand.toLowerCase();
+      if (h === 'r' || h.includes('right')) result.swing = 'Right';
+      else if (h === 'l' || h.includes('left')) result.swing = 'Left';
+    }
+
+    // If college field is explicitly present but null/empty, note it's confirmed absent
+    if ('college' in a && !result.college) result.collegeConfirmedAbsent = true;
+
     // Career wins/earnings sometimes on the athlete profile
     const wins = (a.wins ?? a.careerWins ?? a.totalWins) as unknown;
     if (wins != null) result.careerWins = parseCount(wins);
@@ -294,6 +307,15 @@ async function fetchEspnCoreAthlete(espnId: string): Promise<Partial<PlayerBio>>
 
     const proYear = (a.proYear ?? a.turnedPro) as unknown;
     if (proYear != null && !result.turnedPro) result.turnedPro = parseYear(proYear);
+
+    const hand2 = (a.hand ?? a.handedness) as string | undefined;
+    if (hand2 && !result.swing) {
+      const h = hand2.toLowerCase();
+      if (h === 'r' || h.includes('right')) result.swing = 'Right';
+      else if (h === 'l' || h.includes('left')) result.swing = 'Left';
+    }
+
+    if ('college' in a && !result.college) result.collegeConfirmedAbsent = true;
   } catch { /* ignore */ }
   return result;
 }
@@ -368,11 +390,13 @@ async function fetchEspnCareerTotals(espnId: string): Promise<Partial<PlayerBio>
       refs.map(ref => fetch(ref, { cache: 'no-store', signal: AbortSignal.timeout(5000) }).then(r => r.ok ? r.json() : null))
     );
 
-    let totalStarts = 0, totalWins = 0, totalEarnings = 0;
+    let totalStarts = 0, totalWins = 0, totalEarnings = 0, earliestYear = 9999;
 
     for (const p of pages) {
       if (p.status !== 'fulfilled' || !p.value) continue;
-      const data = p.value as { splits?: { categories?: Array<{ stats?: Array<{ name?: string; value?: number; displayValue?: string }> }> } };
+      const data = p.value as { season?: { year?: number }; splits?: { categories?: Array<{ stats?: Array<{ name?: string; value?: number; displayValue?: string }> }> } };
+      const seasonYear2 = data?.season?.year;
+      if (seasonYear2 && seasonYear2 > 1900 && seasonYear2 < earliestYear) earliestYear = seasonYear2;
       const cats = data?.splits?.categories ?? [];
       for (const cat of cats) {
         for (const s of cat.stats ?? []) {
@@ -388,6 +412,7 @@ async function fetchEspnCareerTotals(espnId: string): Promise<Partial<PlayerBio>
     if (totalStarts > 0) result.careerStarts = totalStarts;
     if (totalWins >= 0 && totalStarts > 0) result.careerWins = totalWins;
     if (totalEarnings > 0) result.careerEarnings = fmtEarnings(totalEarnings);
+    if (earliestYear < 9999) result.turnedPro = earliestYear;
   } catch { /* ignore */ }
   return result;
 }
@@ -480,7 +505,7 @@ export async function GET(req: Request) {
   const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v9:${name}`;
+  const cacheKey = `player-bio:v10:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -492,7 +517,8 @@ export async function GET(req: Request) {
 
   const bio: PlayerBio = {
     height: null, weight: null, dob: null, age: null,
-    college: null, turnedPro: null, pgaTourDebut: null,
+    college: null, collegeConfirmedAbsent: false, swing: null,
+    turnedPro: null, pgaTourDebut: null,
     careerStarts: null, careerWins: null, majorStarts: null,
     majorWins: null, careerEarnings: null,
   };
