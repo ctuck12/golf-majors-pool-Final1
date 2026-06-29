@@ -61,9 +61,3 @@ export async function resolvePgaTourIdByName(name: string): Promise<string | nul
   const map = await buildNameIdMap();
   return map[target] ?? null;
 }
-
-// Debug helper: expose directory size for verification.
-export async function debugDirectorySize(): Promise<number> {
-  const map = await buildNameIdMap();
-  return Object.keys(map).length;
-}
