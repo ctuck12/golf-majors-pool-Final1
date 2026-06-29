@@ -8583,7 +8583,6 @@ export default function Page() {
                   ];
                   const bottomRows: { label: string; value: string | number | null }[] = [
                     { label: 'Turned Pro', value: bio?.turnedPro ?? null },
-                    { label: 'PGA Tour Debut', value: bio?.pgaTourDebut ?? null },
                     { label: 'Career Starts', value: bio?.careerStarts ?? null },
                     { label: 'Career Wins', value: bio?.careerWins ?? null },
                     { label: 'Major Starts', value: bio?.majorStarts ?? null },
