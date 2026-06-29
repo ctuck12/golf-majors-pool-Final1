@@ -439,7 +439,7 @@ export async function GET(request: Request) {
                   }
                 }
                 if (mustVal !== null && mustVal !== 0) {
-                  const combined = [...gqlResult.players, { name: mustName, value: mustVal }];
+                  const combined: Array<{ name: string; value: number }> = [...gqlResult.players, { name: mustName, value: mustVal }];
                   combined.sort((a, b) => LOWER_IS_BETTER.has(statKey) ? a.value - b.value : b.value - a.value);
                   gqlResult = { players: combined, officialTourAvg: gqlResult.officialTourAvg };
                   console.log(`[stat-lb] must-include added: ${mustName} ${statKey}=${mustVal}`);
