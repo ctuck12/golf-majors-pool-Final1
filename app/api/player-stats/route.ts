@@ -46,10 +46,10 @@ export async function GET(request: Request) {
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}`
-    : `player-stats:v84:season:${seasonYear}:${name}`;
+    : `player-stats:v85:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
     ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
-    : `player-stats:v84:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+    : `player-stats:v85:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
   try {
@@ -101,13 +101,9 @@ export async function GET(request: Request) {
           const parsed = JSON.parse(result.value as string);
           const entries: { rank: number; name: string; value?: string | number }[] = parsed.entries ?? parsed;
           const entryIndex = entries.findIndex(e => normNameEarly(e.name) === nameLowerEarly);
-          if (entryIndex === -1) {
-            // Warm but player not on this leaderboard (LIV / non-PGA-Tour player). Keep the last
-            // known rank from the ranks cache — which holds their PGA Tour profile rank — so their
-            // SG ranks don't vanish on cached reads.
-            if (cachedRanks[key]) freshRanks[key] = cachedRanks[key];
-            continue;
-          }
+          // Warm but player not on this leaderboard (LIV / non-PGA-Tour player who hasn't qualified)
+          // — correctly left unranked. Their stat values still come from the cached stats blob.
+          if (entryIndex === -1) continue;
           const entry = entries[entryIndex];
           // Use list position (not entry.rank) — popup renders by list order, so this always matches
           freshRanks[key] = String(entryIndex + 1);
@@ -230,17 +226,11 @@ export async function GET(request: Request) {
       } catch { /* ignore */ }
     }
 
-    // Gap-fill from the PGA Tour profile rank (playerProfileStats) for any stat that stat-lb did
-    // NOT rank. This only ever fires for LIV / non-PGA-Tour players (Rahm, Cam Smith, Hatton, etc.):
-    // they don't play the PGA Tour, so they're absent from every stat-lb leaderboard and would
-    // otherwise show their SG values with no rank. PGA Tour players are in stat-lb, so the
-    // list-position rank already won above and still matches the popup exactly — this never
-    // overrides it. (For LIV players there is no popup to mismatch, so the profile rank is correct.)
-    const pgaRanks: PlayerStatRanks = pgaResult?.ranks ?? {};
-    for (const [key, rank] of Object.entries(pgaRanks)) {
-      if (rank && !mergedSeasonRanks[key]) mergedSeasonRanks[key] = rank;
-    }
-
+    // Ranks come ONLY from stat-lb list position (the PGA Tour field). LIV / non-PGA-Tour players
+    // have not played enough PGA Tour rounds to qualify for the leaderboards, so they are correctly
+    // left UNRANKED here — their stat values still show (from their PGA Tour rounds), just without a
+    // rank. We deliberately do not fall back to any PGA-profile rank, which would imply a ranking
+    // they haven't earned.
     const ranks: PlayerStatRanks | null = Object.keys(mergedSeasonRanks).length > 0 ? mergedSeasonRanks : null;
 
     // ESPN wins the merge for most stats. For scrambling, prefer the ESPN leaderboard cache value
