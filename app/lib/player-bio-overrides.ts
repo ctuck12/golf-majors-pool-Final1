@@ -14,9 +14,10 @@
 //               (it is reformatted for display and used to compute age automatically)
 //   birthPlace  e.g. 'Austin, Texas' or 'Tokyo, Japan'
 //   swing       'Right' or 'Left'
-//   college     e.g. 'Texas'  — ONLY fill if the player actually attended college.
-//               If they didn't attend, leave it blank: the UI already shows
-//               "*Did not attend college" automatically.
+//   college     e.g. 'Texas'  — fill if the player actually attended college.
+//   noCollege   true  — show "*Did not attend college". Use this for players whose
+//               DOB we set via override (so the API never confirmed it for us); without
+//               it their College shows a bare "—". Don't set both college and noCollege.
 
 export type BioOverride = Partial<{
   height: string;
@@ -25,6 +26,7 @@ export type BioOverride = Partial<{
   birthPlace: string;
   swing: string; // 'Right' | 'Left'
   college: string;
+  noCollege: boolean;
 }>;
 
 // Checklist of players with bio gaps as of the last audit, ordered by how much is missing.
@@ -37,7 +39,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
 
   // ---- Missing 4–5 fields ----
   'Zach Bauchou':               { birthPlace: 'Forest, Virginia', height: `5'11"`, weight: '170 lbs', swing: 'Right', college: 'Oklahoma State' },
-  'Sudarshan Yellamaraju':      { dob: 'July 9, 2001', birthPlace: 'Visakhapatnam, India', swing: 'Left', college: '' },
+  'Sudarshan Yellamaraju':      { dob: 'July 9, 2001', birthPlace: 'Visakhapatnam, India', swing: 'Left', noCollege: true },
   'Benjamin James':             { birthPlace: 'Milford, Connecticut', height: `6'0"`, weight: '172 lbs', swing: 'Right' },
   'Ryuichi Oiwa':               { birthPlace: 'Toyohashi, Japan', height: `5'11"`, weight: '202 lbs', college: '' },
   'Kevin Yu':                   { birthPlace: 'Taoyuan, Taiwan', height: `5'10"`, weight: '165 lbs', college: 'Arizona State' },

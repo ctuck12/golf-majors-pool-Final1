@@ -613,6 +613,7 @@ function applyBioOverrides(name: string, bio: PlayerBio): PlayerBio {
   if (ov.birthPlace) bio.birthPlace = ov.birthPlace;
   if (ov.swing) bio.swing = ov.swing;
   if (ov.college) { bio.college = ov.college; bio.collegeConfirmedAbsent = false; }
+  else if (ov.noCollege) { bio.college = null; bio.collegeConfirmedAbsent = true; }
   if (ov.dob) {
     const formatted = fmtDob(ov.dob);
     if (formatted) { bio.dob = formatted; bio.age = calcAge(ov.dob); }
