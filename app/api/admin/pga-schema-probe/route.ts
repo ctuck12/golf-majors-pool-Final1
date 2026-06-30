@@ -20,18 +20,12 @@ async function gql(query: string, variables?: Record<string, unknown>): Promise<
 }
 
 export async function GET() {
-  // 1) Introspect PlayerBioWrapper (what `player(id)` returns) and list all root queries.
+  // Introspect the nested PlayerBio object type (player(id){ playerBio }) where the
+  // real bio fields live, plus BioRank.
   const introspect = await gql(`{
-    bio: __type(name:"PlayerBioWrapper"){ fields { name type { name kind ofType { name kind } } } }
-    root: __type(name:"Query"){ fields { name } }
+    playerBio: __type(name:"PlayerBio"){ fields { name type { name kind ofType { name kind } } } }
+    bioRank: __type(name:"BioRank"){ fields { name } }
   }`);
 
-  // 2) Pull a real player record via player(id) using a broad set of plausible bio fields,
-  //    so even if introspection is blocked we learn which resolve. Scheffler control.
-  const playerProbe = await gql(
-    `query P($id: ID!){ player(id:$id){ id firstName lastName country countryFlag bornAccountedFor } }`,
-    { id: '46046' },
-  );
-
-  return Response.json({ introspect, playerProbe });
+  return Response.json({ introspect });
 }
