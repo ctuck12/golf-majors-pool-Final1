@@ -45,10 +45,10 @@ export async function GET(request: Request) {
   }
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
-    ? `player-stats:v35:tourn:${eventId}:${name}`
+    ? `player-stats:v36:tourn:${eventId}:${name}`
     : `player-stats:v85:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
-    ? `player-stats:v35:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
+    ? `player-stats:v36:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
     : `player-stats:v85:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
@@ -141,36 +141,40 @@ export async function GET(request: Request) {
         ? mergeStats(espnSeasonStats, pgaSeasonStats, espnStats, pgaScorecardStats)
         : null;
 
-      // Tournament view shows ONLY tournament-sourced ranks — no season ranks bleed in.
-      //  - SG ranks: scorecardStatsV3 (each player's official tournament rank).
-      //  - Course ranks + values: the per-event leaderboard (list position), computed just below.
-      const tournSgRanks = scorecardResult?.sgRanks ?? {};
-
-      // Tournament COURSE-stat ranks + values: read the per-event leaderboard caches (the EXACT data
-      // the popup renders) and use the player's list position + the leaderboard's value, so the card
-      // matches the popup — mirroring how season works. (SG ranks come from the scorecard above.)
+      // Tournament view shows ONLY tournament-sourced ranks — no season ranks bleed in. BOTH course
+      // and SG ranks+values come from the per-event leaderboard caches (the EXACT data the popup
+      // renders): the card uses the player's list position + the leaderboard's value, so the card can
+      // never disagree with the popup — mirroring how season works.
+      //
+      // SG is read from the same leaderboard as course (NOT the per-player scorecard) on purpose: the
+      // scorecard's SG rank/value (a per-round average) and the leaderboard's cumulative SG don't
+      // reconcile, which made the card show a different SG rank+value than the popup. Single source.
+      // sgTeeToGreen has no tournament SG leaderboard and isn't shown on the tournament card, so it is
+      // intentionally omitted here.
       const TOURN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'puttAverage'];
+      const TOURN_SG_KEYS = ['sgTotal', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
+      const TOURN_LB_KEYS = [...TOURN_COURSE_KEYS, ...TOURN_SG_KEYS];
       const normNameT = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();
       const nameLowerT = normNameT(name);
-      const tournCourseLb = await Promise.allSettled(
-        TOURN_COURSE_KEYS.map(k => redis.get(`tourn-stat-lb:v10:${eventId}:${k}`))
+      const tournLb = await Promise.allSettled(
+        TOURN_LB_KEYS.map(k => redis.get(`tourn-stat-lb:v11:${eventId}:${k}`))
       );
-      const tournCourseRanks: Record<string, string> = {};
-      for (let i = 0; i < TOURN_COURSE_KEYS.length; i++) {
-        const r = tournCourseLb[i];
+      const mergedRanks: Record<string, string> = {};
+      for (let i = 0; i < TOURN_LB_KEYS.length; i++) {
+        const r = tournLb[i];
         if (r.status !== 'fulfilled' || !r.value) continue;
         try {
           const parsed = JSON.parse(r.value as string);
-          const entries: Array<{ name: string; value?: string }> = parsed.entries ?? [];
+          const entries: Array<{ name: string; value?: string; rank?: number }> = parsed.entries ?? [];
           const idx = entries.findIndex(e => normNameT(e.name) === nameLowerT);
           if (idx === -1) continue;
-          const key = TOURN_COURSE_KEYS[i];
-          tournCourseRanks[key] = String(idx + 1); // list position — matches the popup exactly
+          const key = TOURN_LB_KEYS[i];
+          // Use the entry's rank field (the number the popup displays) so tied ranks (e.g. 2,2,4)
+          // match exactly; fall back to list position for course leaderboards built without ties.
+          mergedRanks[key] = String(entries[idx].rank ?? (idx + 1));
           if (stats && entries[idx].value != null) stats[key] = entries[idx].value; // leaderboard value (popup precision)
         } catch { /* ignore */ }
       }
-
-      const mergedRanks = { ...tournCourseRanks, ...tournSgRanks };
 
       if (stats) {
         await redis.setex(cacheKey, ttl, JSON.stringify(stats));

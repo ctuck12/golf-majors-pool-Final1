@@ -130,19 +130,10 @@ async function buildCourseLeaderboard(eventId: string, statKey: string): Promise
   return { entries, fieldAvg: fmtCourse(mean, statKey) };
 }
 
-// The cumulative-SG column to display per stat — chosen to MATCH the player card, whose tournament
-// SG value is the scorecard's cumulative total over the event (not the per-round average). The PGA
-// statDetails leaderboard exposes both an "Avg" (per-round) column and a "Total SG:*" (cumulative)
-// column; we pick the cumulative one by its statName. sgTeeToGreen has no cumulative column on its
-// leaderboard (only Avg + component averages) and isn't shown on the tournament card, so it falls
-// back to Avg × Measured Rounds.
-const SG_CUMULATIVE_COL: Record<string, string> = {
-  sgTotal: 'Total SG:T',
-  sgOffTee: 'Total SG:OTT',
-  sgApproach: 'Total SG:APP',
-  sgAroundGreen: 'Total SG:ARG',
-  sgPutting: 'Total SG:Putting',
-};
+// Every SG leaderboard exposes an "Avg" column (the per-round average) — that is the value the player
+// card displays for tournament SG (e.g. Smalley SG Total = 2.871, NOT the cumulative 11.482). So the
+// popup shows "Avg" too and the two always match. Ranks come from the leaderboard's own rank field.
+const SG_VALUE_COL = 'Avg';
 
 function parseSgNum(raw: string | undefined): number {
   return parseFloat(String(raw ?? '').replace(/\+/g, '').replace(/,/g, '').trim());
@@ -187,19 +178,10 @@ async function buildSgLeaderboard(eventId: string, statKey: string): Promise<{ e
   } catch { return { entries: [], fieldAvg: null }; }
   if (rows.length === 0) return { entries: [], fieldAvg: null };
 
-  const cumulativeCol = SG_CUMULATIVE_COL[statKey];
   const parsed = rows
     .map((r) => {
       const stats = Array.isArray(r.stats) ? r.stats : [];
-      let value: number;
-      if (cumulativeCol) {
-        value = parseSgNum(stats.find((s) => s.statName === cumulativeCol)?.statValue);
-      } else {
-        // sgTeeToGreen: no cumulative column — Avg × Measured Rounds.
-        const avg = parseSgNum(stats.find((s) => s.statName === 'Avg')?.statValue);
-        const rounds = parseSgNum(stats.find((s) => s.statName === 'Measured Rounds')?.statValue);
-        value = !isNaN(avg) && !isNaN(rounds) ? avg * rounds : NaN;
-      }
+      const value = parseSgNum(stats.find((s) => s.statName === SG_VALUE_COL)?.statValue);
       const rankNum = typeof r.rank === 'number' ? r.rank : parseInt(String(r.rank ?? '').replace(/^\s*T/i, '').trim());
       return { rank: rankNum, value, name: r.playerName ?? '' };
     })
