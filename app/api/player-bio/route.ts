@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 import redis from '@/app/lib/redis';
 import { getEspnId } from '@/app/lib/espn-player-season';
+import { PLAYER_BIO_OVERRIDES } from '@/app/lib/player-bio-overrides';
 
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
@@ -601,6 +602,24 @@ async function fetchEspnOverviewCareer(espnId: string): Promise<Partial<PlayerBi
   return result;
 }
 
+// Overlay manual overrides (app/lib/player-bio-overrides.ts) onto a bio. Override values
+// win over API data. Applied on every response (including cache hits) so edits take effect
+// immediately without a cache bump.
+function applyBioOverrides(name: string, bio: PlayerBio): PlayerBio {
+  const ov = PLAYER_BIO_OVERRIDES[name];
+  if (!ov) return bio;
+  if (ov.height) bio.height = ov.height;
+  if (ov.weight) bio.weight = ov.weight;
+  if (ov.birthPlace) bio.birthPlace = ov.birthPlace;
+  if (ov.swing) bio.swing = ov.swing;
+  if (ov.college) { bio.college = ov.college; bio.collegeConfirmedAbsent = false; }
+  if (ov.dob) {
+    const formatted = fmtDob(ov.dob);
+    if (formatted) { bio.dob = formatted; bio.age = calcAge(ov.dob); }
+  }
+  return bio;
+}
+
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const name = url.searchParams.get('name') ?? '';
@@ -613,7 +632,7 @@ export async function GET(req: Request) {
     if (cached) {
       const espnId = await getEspnId(name).catch(() => null);
       const espnPhotoUrl = espnId ? `https://a.espncdn.com/i/headshots/golf/players/full/${espnId}.png` : null;
-      return Response.json({ bio: JSON.parse(cached as string), espnPhotoUrl });
+      return Response.json({ bio: applyBioOverrides(name, JSON.parse(cached as string)), espnPhotoUrl });
     }
   } catch { /* ignore */ }
 
@@ -662,5 +681,5 @@ export async function GET(req: Request) {
   const espnPhotoUrl = espnId
     ? `https://a.espncdn.com/i/headshots/golf/players/full/${espnId}.png`
     : null;
-  return Response.json({ bio, espnPhotoUrl });
+  return Response.json({ bio: applyBioOverrides(name, bio), espnPhotoUrl });
 }
