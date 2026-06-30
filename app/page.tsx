@@ -281,6 +281,16 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Sudarshan Yellamaraju': 'in', 'Manav Shah': 'in',
   // Jamaica
   'A.J. Ewart': 'jm',
+  // Players the leaderboard showed without a flag — assigned by confirmed nationality. The Niemann
+  // and Välimäki entries are accented-name variants the exact-match lookup missed (unaccented keys
+  // already exist above).
+  'Joaquín Niemann': 'cl',
+  'Sami Välimäki': 'fi',
+  'Mikael Lindberg': 'se',
+  'Angel Ayora': 'es', 'Ángel Ayora': 'es',
+  'Paul McClure': 'us',
+  'Ian Holt': 'us',
+  'Chris Gabriele': 'us',
 };
 const getPlayerFlag = (name: string): string => PLAYER_FLAGS[name] ?? '';
 const getFlagSrc = (name: string): string => {
