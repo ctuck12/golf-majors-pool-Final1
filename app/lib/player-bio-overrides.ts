@@ -38,15 +38,15 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   // ---- Missing 4–5 fields ----
   'Zach Bauchou':               { birthPlace: 'Forest, Virginia', height: `5'11"`, weight: '170 lbs', swing: '', college: '' },
   'Sudarshan Yellamaraju':      { dob: 'July 9, 2001', birthPlace: 'Visakhapatnam, India', swing: '', college: '' },
-  'Benjamin James':             { birthPlace: 'Milford, Connecticut', height: `6'0"`, weight: '', swing: '' },
-  'Ryuichi Oiwa':               { birthPlace: 'Toyohashi, Japan', height: `5'11"`, weight: '', college: '' },
+  'Benjamin James':             { birthPlace: 'Milford, Connecticut', height: `6'0"`, weight: '172 lbs', swing: '' },
+  'Ryuichi Oiwa':               { birthPlace: 'Toyohashi, Japan', height: `5'11"`, weight: '202 lbs', college: '' },
   'Kevin Yu':                   { birthPlace: 'Taoyuan, Taiwan', height: `5'10"`, weight: '165 lbs', college: '' },
 
   // ---- Missing 3 fields ----
   'Caleb Surratt':              { dob: 'March 16, 2004', height: `6'3"`, weight: '190 lbs' },
   'Jake Peacock':               { dob: 'June 20, 2003', height: `6'2"`, weight: '180 lbs' },
   'Greyson Leach':              { dob: '', height: `6'2"`, weight: '180 lbs' },
-  'Robbie Higgins':             { dob: 'August 27, 2003', height: `5'10"`, weight: '' },
+  'Robbie Higgins':             { dob: 'August 27, 2003', height: `5'10"`, weight: '190 lbs' },
   'Jayden Trey Schaper':        { height: `6'1"`, weight: '176 lbs', college: '' },
   'Matthew Jordan':             { height: `6'0"`, weight: '170 lbs', college: '' },
   'Laurie Canter':              { height: `6'3"`, weight: '187 lbs', college: '' },
@@ -54,7 +54,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Angel Hidalgo Portillo':     { height: `5'10"`, weight: '165 lbs', college: '' },
   'Luke Clanton':               { height: `6'1"`, weight: '170 lbs', college: '' },
   'Jackson Van Paris':          { height: `6'3"`, weight: '190 lbs', swing: '' },
-  'Spencer Tibbits':            { height: `6'2"`, weight: '', swing: '' },
+  'Spencer Tibbits':            { height: `6'2"`, weight: '155 lbs', swing: '' },
   'Rocco Paolo Repetto Taylor': { height: `5'11"`, weight: '', swing: '' },
   'Jake Sollon':                { dob: 'February 18, 1998', birthPlace: 'Venetia, Pennsylvania', swing: '' },
 
