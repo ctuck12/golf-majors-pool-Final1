@@ -30,7 +30,7 @@ export type PlayerBio = {
   majorWinsList: WinEntry[] | null;
 };
 
-export type WinEntry = { tournament: string; year: string };
+export type WinEntry = { tournament: string; year: string; course: string | null; toPar: string | null };
 
 function fmtHeight(totalInches: number): string {
   const ft = Math.floor(totalInches / 12);
@@ -72,6 +72,19 @@ function parseCount(val: unknown): number | null {
   if (val == null) return null;
   const n = parseInt(String(val));
   return !isNaN(n) && n >= 0 ? n : null;
+}
+
+// Normalize a finishing score relative to par for display: 0 -> "E", negatives "-18",
+// positives "+2". Accepts numbers or strings like "-18", "E", "Even". Returns null if blank.
+function fmtToPar(val: unknown): string | null {
+  if (val == null) return null;
+  const s = String(val).trim();
+  if (!s) return null;
+  if (/^(e|even)$/i.test(s)) return 'E';
+  const n = parseInt(s.replace(/[^\d.+-]/g, ''), 10);
+  if (isNaN(n)) return null;
+  if (n === 0) return 'E';
+  return n > 0 ? `+${n}` : `${n}`;
 }
 
 function parseEarnings(val: unknown): string | null {
@@ -539,6 +552,8 @@ async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBi
             year
             position
             tournamentName
+            courseName
+            toPar
           }
         }
       }
@@ -553,7 +568,7 @@ async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBi
     const json = await res.json() as {
       data?: {
         playerProfileMajorResults?: {
-          tournaments?: Array<{ year?: unknown; position?: unknown; tournamentName?: unknown }>;
+          tournaments?: Array<{ year?: unknown; position?: unknown; tournamentName?: unknown; courseName?: unknown; toPar?: unknown }>;
         };
       };
       errors?: unknown[];
@@ -573,7 +588,12 @@ async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBi
     const majorWins = tournaments.filter(t => isWin(t.position));
     result.majorWins = majorWins.length;
     result.majorWinsList = majorWins
-      .map(t => ({ tournament: String(t.tournamentName ?? '').trim(), year: String(t.year ?? '').trim() }))
+      .map(t => ({
+        tournament: String(t.tournamentName ?? '').trim(),
+        year: String(t.year ?? '').trim(),
+        course: String(t.courseName ?? '').trim() || null,
+        toPar: fmtToPar(t.toPar),
+      }))
       .sort((a, b) => Number(b.year) - Number(a.year)); // newest first
   } catch { /* ignore */ }
   return result;
@@ -629,51 +649,69 @@ const NON_OFFICIAL_WIN_EVENTS = /ryder cup|presidents cup/i;
 // the click-through popup. Reads each tournament row's finishing position rather than the
 // aggregate overviewInfo.wins (which over-counts team events). A finish of "1" (outright) or
 // "P1" (playoff win) is a victory; Ryder/Presidents Cup team events are excluded.
+type RawWinRow = { position?: unknown; year?: unknown; tournamentName?: unknown; courseName?: unknown; toPar?: unknown };
+type RawWinGroup = { tournamentOverview?: { tournamentName?: unknown }; tournaments?: RawWinRow[] };
+
 async function fetchPgaTourWins(pgaTourId: string): Promise<Partial<PlayerBio>> {
   const result: Partial<PlayerBio> = {};
-  try {
+
+  // The per-row tournament type isn't introspected here, so we try an ENRICHED query
+  // (with courseName + toPar for the win popup) and fall back to the known-good MINIMAL
+  // query if those fields aren't valid — that way the win count never breaks.
+  const runQuery = async (innerFields: string): Promise<{ groups: RawWinGroup[]; errored: boolean }> => {
     const query = `query R($id: ID!) {
       playerProfileTournamentResults(playerId: $id, tourCode: R) {
         tournaments {
           tournamentOverview { tournamentName }
-          tournaments { position year tournamentName }
+          tournaments { ${innerFields} }
         }
       }
     }`;
-    const res = await fetch(PGA_GQL, {
-      method: 'POST',
-      headers: gqlHeaders(),
-      body: JSON.stringify({ query, variables: { id: pgaTourId } }),
-      signal: AbortSignal.timeout(6000),
-    });
-    if (!res.ok) return result;
-    const json = await res.json() as {
-      data?: { playerProfileTournamentResults?: { tournaments?: Array<{
-        tournamentOverview?: { tournamentName?: unknown };
-        tournaments?: Array<{ position?: unknown; year?: unknown; tournamentName?: unknown }>;
-      }> } };
-      errors?: unknown[];
-    };
-    if (json.errors?.length || !json.data) return result;
-    const groups = json.data.playerProfileTournamentResults?.tournaments ?? [];
-    // No per-row groups means we can't reliably count — leave wins null so other sources fill it.
-    if (groups.length === 0) return result;
-
-    const wins: WinEntry[] = [];
-    for (const g of groups) {
-      const groupName = String(g.tournamentOverview?.tournamentName ?? '').trim();
-      for (const row of g.tournaments ?? []) {
-        const pos = String(row.position ?? '').trim();
-        if (pos !== '1' && pos !== 'P1') continue;
-        const tournament = (String(row.tournamentName ?? '').trim() || groupName);
-        if (NON_OFFICIAL_WIN_EVENTS.test(tournament)) continue;
-        wins.push({ tournament, year: String(row.year ?? '').trim() });
-      }
+    try {
+      const res = await fetch(PGA_GQL, {
+        method: 'POST',
+        headers: gqlHeaders(),
+        body: JSON.stringify({ query, variables: { id: pgaTourId } }),
+        signal: AbortSignal.timeout(6000),
+      });
+      if (!res.ok) return { groups: [], errored: true };
+      const json = await res.json() as {
+        data?: { playerProfileTournamentResults?: { tournaments?: RawWinGroup[] } };
+        errors?: unknown[];
+      };
+      if (json.errors?.length || !json.data) return { groups: [], errored: true };
+      return { groups: json.data.playerProfileTournamentResults?.tournaments ?? [], errored: false };
+    } catch {
+      return { groups: [], errored: true };
     }
-    wins.sort((a, b) => Number(b.year) - Number(a.year)); // newest first
-    result.pgaTourWinsList = wins;
-    result.careerWins = wins.length; // authoritative — 0 is valid (no PGA Tour wins yet)
-  } catch { /* ignore */ }
+  };
+
+  let { groups, errored } = await runQuery('position year tournamentName courseName toPar');
+  if (errored) ({ groups, errored } = await runQuery('position year tournamentName'));
+  // Query failed entirely — leave wins null so other sources can fill the count.
+  if (errored) return result;
+  // No per-row groups means we can't reliably count — leave wins null.
+  if (groups.length === 0) return result;
+
+  const wins: WinEntry[] = [];
+  for (const g of groups) {
+    const groupName = String(g.tournamentOverview?.tournamentName ?? '').trim();
+    for (const row of g.tournaments ?? []) {
+      const pos = String(row.position ?? '').trim();
+      if (pos !== '1' && pos !== 'P1') continue;
+      const tournament = (String(row.tournamentName ?? '').trim() || groupName);
+      if (NON_OFFICIAL_WIN_EVENTS.test(tournament)) continue;
+      wins.push({
+        tournament,
+        year: String(row.year ?? '').trim(),
+        course: String(row.courseName ?? '').trim() || null,
+        toPar: fmtToPar(row.toPar),
+      });
+    }
+  }
+  wins.sort((a, b) => Number(b.year) - Number(a.year)); // newest first
+  result.pgaTourWinsList = wins;
+  result.careerWins = wins.length; // authoritative — 0 is valid (no PGA Tour wins yet)
   return result;
 }
 
@@ -778,7 +816,7 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v24:${name}`;
+  const cacheKey = `player-bio:v25:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {

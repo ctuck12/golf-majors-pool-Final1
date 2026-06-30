@@ -1320,12 +1320,12 @@ export default function Page() {
     statRanks: Record<string, string>;
     seasonStatRanks: Record<string, string>;
     fieldDistributions: Record<string, number[]>;
-    playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string }[] | null; majorWinsList: { tournament: string; year: string }[] | null } | null;
+    playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null } | null;
     playerBioLoading: boolean;
     espnPhotoUrl: string | null;
   } | null>(null);
   // Click-through popup listing each win (tournament + year) behind a player's Wins count.
-  const [winsListPopup, setWinsListPopup] = useState<{ title: string; playerName: string; wins: { tournament: string; year: string }[] } | null>(null);
+  const [winsListPopup, setWinsListPopup] = useState<{ title: string; playerName: string; wins: { tournament: string; year: string; course: string | null; toPar: string | null }[] } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career' | 'bio'>('stats');
   const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
   const [statLeaderboardModal, setStatLeaderboardModal] = useState<{ label: string; statKey: string; subtitle: string; tourAvg: string | null; avgLabel?: string; playerName: string | null; entries: { rank: number; name: string; value: string }[] | null } | null>(null);
@@ -2786,7 +2786,7 @@ export default function Page() {
     if (landingTab === 'bio') {
       const bioParams = new URLSearchParams({ name: player.name });
       if (player.pgaTourId) bioParams.set('pgaTourId', String(player.pgaTourId));
-      readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string }[] | null; majorWinsList: { tournament: string; year: string }[] | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' })
+      readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' })
         .then((data) => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null } : null))
         .catch(() => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null));
     }
@@ -8636,9 +8636,15 @@ export default function Page() {
               {/* Win list */}
               <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '6px 0' }}>
                 {winsListPopup.wins.map((w, i) => (
-                  <div key={`${w.tournament}-${w.year}-${i}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 18px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < winsListPopup.wins.length - 1 ? '1px solid #eef2f6' : 'none' }}>
-                    <span style={{ fontSize: 13.5, color: '#0f1720', fontWeight: 700 }}>{w.tournament || '—'}</span>
-                    <span style={{ flexShrink: 0, fontSize: 12.5, color: '#2563eb', fontWeight: 800 }}>{w.year || '—'}</span>
+                  <div key={`${w.tournament}-${w.year}-${i}`} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, padding: '11px 18px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < winsListPopup.wins.length - 1 ? '1px solid #eef2f6' : 'none' }}>
+                    <span style={{ minWidth: 0, flex: 1 }}>
+                      <span style={{ display: 'block', fontSize: 13.5, color: '#0f1720', fontWeight: 700 }}>{w.tournament || '—'}</span>
+                      {w.course && <span style={{ display: 'block', fontSize: 11, color: '#6b7c8c', fontWeight: 500, marginTop: 1 }}>{w.course}</span>}
+                    </span>
+                    <span style={{ flexShrink: 0, textAlign: 'right' }}>
+                      <span style={{ display: 'block', fontSize: 12.5, color: '#2563eb', fontWeight: 800 }}>{w.year || '—'}</span>
+                      {w.toPar && <span style={{ display: 'block', fontSize: 11, color: '#6b7c8c', fontWeight: 700, marginTop: 1 }}>{w.toPar}</span>}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -8731,7 +8737,7 @@ export default function Page() {
                           try {
                             const bioParams = new URLSearchParams({ name: pickHistoryPlayerPopup.player.name });
                             if (pickHistoryPlayerPopup.player.pgaTourId) bioParams.set('pgaTourId', String(pickHistoryPlayerPopup.player.pgaTourId));
-                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string }[] | null; majorWinsList: { tournament: string; year: string }[] | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
+                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null } : null);
                           } catch {
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null);
@@ -8767,7 +8773,7 @@ export default function Page() {
                     { label: 'Swing', value: bio?.swing ?? null },
                     { label: 'College', value: bio?.college ? formatCollege(bio.college) : null, italic: !bio?.college && (bio?.collegeConfirmedAbsent ?? false) },
                   ];
-                  const bottomRows: { label: string; value: string | number | null; wins?: { tournament: string; year: string }[] | null }[] = [
+                  const bottomRows: { label: string; value: string | number | null; wins?: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }[] = [
                     { label: 'Turned Pro', value: bio?.turnedPro ?? null },
                     { label: 'PGA Tour Starts', value: bio?.careerStarts ?? null },
                     { label: 'PGA Tour Wins', value: bio?.careerWins ?? null, wins: bio?.pgaTourWinsList ?? null },
@@ -8817,11 +8823,13 @@ export default function Page() {
                             style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < bottomRows.length - 1 ? '1px solid #e2e8ef' : 'none', cursor: clickable ? 'pointer' : 'default' }}
                           >
                             <span style={{ fontSize: 13, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span style={{ fontSize: 13, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700 }}>{row.value != null ? String(row.value) : '—'}</span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              {/* Eye/info icon (same affordance as the leaderboard popup triggers), to the
+                                  LEFT so the number stays right-aligned with the other rows. */}
                               {clickable && (
-                                <span style={{ fontSize: 11, color: '#2563eb', fontWeight: 700 }} aria-hidden>›</span>
+                                <span style={{ fontSize: isMobile ? 14 : 15, color: '#607282', lineHeight: 1 }} aria-label={`View ${row.label}`}>ⓘ</span>
                               )}
+                              <span style={{ fontSize: 13, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700 }}>{row.value != null ? String(row.value) : '—'}</span>
                             </span>
                           </div>
                           );
