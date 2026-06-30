@@ -712,7 +712,7 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v22:${name}`;
+  const cacheKey = `player-bio:v23:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -763,6 +763,10 @@ export async function GET(req: Request) {
   // Set after all merges: if we got profile data (DOB) but still no college, it's confirmed absent.
   // Can't do this inside merge() because collegeConfirmedAbsent starts as false (not null).
   if (!bio.college && bio.dob) bio.collegeConfirmedAbsent = true;
+
+  // If we know the player has career starts but earnings came back blank, that's a real $0
+  // (they've played but not earned), not unknown — show "$0" instead of a dash.
+  if (bio.careerStarts != null && bio.careerEarnings == null) bio.careerEarnings = fmtEarnings(0);
 
   try { await redis.setex(cacheKey, 86400, JSON.stringify(bio)); } catch { /* ignore */ }
   const espnPhotoUrl = espnId
