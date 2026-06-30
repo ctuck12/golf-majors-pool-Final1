@@ -308,16 +308,36 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Sergio García': 'es',
   'Ángel Cabrera': 'ar',
   'José María Olazábal': 'es',
+  // Leaderboard display-name variants the exact-match lookup missed (unaccented / full-name keys
+  // already exist above), plus David Ford (English amateur) who had no entry.
+  'Séamus Power': 'ie',
+  'Thorbjørn Olesen': 'dk',
+  'Cam Davis': 'au',
+  'David Ford': 'gb-eng',
 };
-const getPlayerFlag = (name: string): string => PLAYER_FLAGS[name] ?? '';
+// Accent-insensitive index of PLAYER_FLAGS, so leaderboard display names with diacritics
+// (e.g. "Séamus Power", "Thorbjørn Olesen") resolve to the same flag as their unaccented key
+// without needing a duplicate entry. Mirrors the normalizer in the stat-leaderboard route.
+const normFlagName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase().trim();
+const PLAYER_FLAGS_NORM: Record<string, string> = (() => {
+  const m: Record<string, string> = {};
+  for (const [name, code] of Object.entries(PLAYER_FLAGS)) {
+    const k = normFlagName(name);
+    if (!(k in m)) m[k] = code; // first (exact-key) wins
+  }
+  return m;
+})();
+const lookupFlagCode = (name: string): string => PLAYER_FLAGS[name] ?? PLAYER_FLAGS_NORM[normFlagName(name)] ?? '';
+const getPlayerFlag = (name: string): string => lookupFlagCode(name);
 const getFlagSrc = (name: string): string => {
-  const code = PLAYER_FLAGS[name];
+  const code = lookupFlagCode(name);
   if (!code) return '';
   const svgCodes = new Set(['us', 'au', 'ie', 'gb-sct', 'no', 'kr', 'jp', 'za', 'se', 'nz', 'dk', 'de', 'cl', 'co', 'ar', 've', 'be', 'at', 'fr', 'fi', 'cn', 'it', 'in', 'ph', 'fj', 'pr']);
   return `/flags/${svgCodes.has(code) ? code + '.svg' : code + '.png'}`;
 };
 const FLAG_LABELS: Record<string, string> = { 'us': 'USA', 'gb-eng': 'ENG', 'gb-nir': 'NIR', 'au': 'AUS', 'ie': 'IRL', 'gb-sct': 'SCT', 'no': 'NOR', 'es': 'ESP', 'kr': 'KOR', 'jp': 'JPN', 'za': 'RSA', 'se': 'SWE', 'ca': 'CAN', 'nz': 'NZL', 'dk': 'DEN', 'de': 'GER', 'cl': 'CHI', 'co': 'COL', 'mx': 'MEX', 'ar': 'ARG', 've': 'VEN', 'be': 'BEL', 'at': 'AUT', 'fr': 'FRA', 'gb-wls': 'WAL', 'fi': 'FIN', 'cn': 'CHN', 'it': 'ITA', 'in': 'IND', 'ph': 'PHI', 'fj': 'FIJ', 'pr': 'PRI', 'tw': 'TPE', 'jm': 'JAM', 'th': 'THA' };
-const getCountryLabel = (name: string): string => FLAG_LABELS[PLAYER_FLAGS[name] ?? ''] ?? '';
+const getCountryLabel = (name: string): string => FLAG_LABELS[lookupFlagCode(name)] ?? '';
 
 const TOURNAMENT_PICKS_HEADER: Record<string, string> = {
   players: 'The Players Picks',
