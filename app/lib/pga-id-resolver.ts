@@ -61,3 +61,43 @@ export async function resolvePgaTourIdByName(name: string): Promise<string | nul
   const map = await buildNameIdMap();
   return map[target] ?? null;
 }
+
+const ID_NAME_CACHE_KEY = 'pga-id-name-map:v1';
+
+// Returns a map of PGA Tour player id → display name ("First Last"). Used to label tournament
+// leaderboard rows, which carry player ids but not names.
+export async function pgaIdToNameMap(): Promise<Record<string, string>> {
+  try {
+    const cached = await redis.get(ID_NAME_CACHE_KEY);
+    if (cached) return JSON.parse(cached) as Record<string, string>;
+  } catch { /* ignore */ }
+
+  const query = `
+    query PlayerDirectory {
+      playerDirectory(tourCode: R) {
+        players { id firstName lastName displayName }
+      }
+    }
+  `;
+  const map: Record<string, string> = {};
+  try {
+    const res = await fetch(PGA_GQL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': PGA_API_KEY, 'Referer': 'https://www.pgatour.com/', 'Origin': 'https://www.pgatour.com' },
+      body: JSON.stringify({ query }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return map;
+    const data = await res.json() as { data?: { playerDirectory?: { players?: DirPlayer[] } } };
+    const players = data?.data?.playerDirectory?.players ?? [];
+    for (const p of players) {
+      if (!p.id) continue;
+      const full = (p.firstName && p.lastName) ? `${p.firstName} ${p.lastName}` : (p.displayName ?? '');
+      if (full) map[String(p.id)] = full;
+    }
+    if (Object.keys(map).length > 0) {
+      try { await redis.setex(ID_NAME_CACHE_KEY, 21600, JSON.stringify(map)); } catch { /* ignore */ }
+    }
+  } catch { /* ignore */ }
+  return map;
+}
