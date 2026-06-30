@@ -8534,8 +8534,8 @@ export default function Page() {
                 >✕</button>
               </div>
 
-              {/* Tab bar */}
-              <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #e2e8ef', flexShrink: 0 }}>
+              {/* Tab bar — segmented control so each tab reads as a clickable button */}
+              <div style={{ display: 'flex', gap: 5, background: '#fff', borderBottom: '1.5px solid #e2e8ef', padding: '8px 8px', flexShrink: 0 }}>
                 {(pickHistoryPlayerPopup.defaultTab === 'season' ? (['bio', 'season', 'career', 'stats'] as const) : (['bio', 'stats', 'season', 'career'] as const)).map((tab) => {
                   const careerTabLabel: Record<string, string> = {
                     players: 'Players Career',
@@ -8575,7 +8575,7 @@ export default function Page() {
                           }
                         }
                       }}
-                      style={{ flex: 1, border: 'none', borderBottom: isActive ? '2.5px solid #0f1720' : '2.5px solid transparent', background: 'none', padding: '11px 2px', fontSize: 'clamp(9px, 2.4vw, 11.5px)', whiteSpace: 'nowrap', overflow: 'hidden', fontWeight: isActive ? 800 : 600, color: isActive ? '#0f1720' : '#7a8c99', cursor: 'pointer', transition: 'color 0.15s, border-color 0.15s', letterSpacing: '0.01em' }}
+                      style={{ flex: 1, border: isActive ? '1px solid #0f1720' : '1px solid #d8e0e8', borderRadius: 8, background: isActive ? '#0f1720' : '#f4f7fa', padding: '8px 3px', fontSize: 'clamp(8.5px, 2.2vw, 11px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: isActive ? 800 : 600, color: isActive ? '#fff' : '#5a6a7a', cursor: 'pointer', transition: 'all 0.15s', letterSpacing: '0.01em', boxShadow: isActive ? '0 1px 4px rgba(15,23,32,0.28)' : 'none' }}
                     >
                       {label}
                     </button>
