@@ -464,34 +464,22 @@ const formatCollege = (college: string): string => {
   return COLLEGE_RENAMES[c] ?? c;
 };
 
-// --- Featured-tournament row theming (win-list popup) ------------------------------
-// The four majors (plus The Players) each carry the same base color used for their
-// leaderboard header. A win row for one of these is tinted with a LIGHT version of that
-// color (background) and a DARK version (tournament text).
-const hexToRgb = (h: string): [number, number, number] => {
-  const n = parseInt(h.slice(1), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+// --- Featured-tournament row tints --------------------------------------------------
+// Exact background/text colors for the majors + The Players. SHARED by the Season Results
+// cards and the win-list popup so both surfaces highlight these events identically.
+const MAJOR_TINTS: Record<string, { bg: string; text: string }> = {
+  'THE PLAYERS Championship': { bg: '#dce6f5', text: '#173b63' },
+  'Masters Tournament':       { bg: '#d5eade', text: '#2c6449' },
+  'U.S. Open':                { bg: '#fde8e8', text: '#BE3436' },
+  'PGA Championship':         { bg: '#f5edd8', text: '#7a6a3e' },
+  'The Open Championship':    { bg: '#f8eecb', text: '#8a6a14' },
 };
-const mixHex = (a: string, b: string, t: number): string => {
-  const A = hexToRgb(a), B = hexToRgb(b);
-  const c = (i: number) => Math.round(A[i] + (B[i] - A[i]) * t).toString(16).padStart(2, '0');
-  return `#${c(0)}${c(1)}${c(2)}`;
-};
-// Base color per featured event (matches the leaderboard header colors).
-const FEATURED_BASE_COLORS: { re: RegExp; base: string }[] = [
-  { re: /\bmasters\b/i, base: '#2c6449' },                          // The Masters — green
-  { re: /pga championship/i, base: '#B09963' },                     // PGA Championship — gold
-  { re: /u\.?\s?s\.?\s?open\b/i, base: '#BE3436' },                 // U.S. Open — red
-  { re: /(the\s+)?open championship|british open/i, base: '#C8941C' }, // The Open — gold/amber
-  { re: /(the\s+)?players championship|\bthe players\b/i, base: '#173b63' }, // The Players — navy
-];
-// Returns { bg, text } for a featured win (major or The Players), or null otherwise.
-const featuredRowTheme = (tournament: string): { bg: string; text: string } | null => {
-  for (const m of FEATURED_BASE_COLORS) {
-    if (m.re.test(tournament)) return { bg: mixHex(m.base, '#ffffff', 0.86), text: mixHex(m.base, '#000000', 0.4) };
-  }
-  return null;
-};
+// Normalized (case/space-insensitive) index so slightly different name strings still match.
+const MAJOR_TINTS_NORM: Record<string, { bg: string; text: string }> = {};
+for (const [k, v] of Object.entries(MAJOR_TINTS)) MAJOR_TINTS_NORM[k.toLowerCase().replace(/\s+/g, ' ').trim()] = v;
+// Returns { bg, text } for a major / The Players, or null for any other tournament.
+const majorTint = (tournament: string): { bg: string; text: string } | null =>
+  MAJOR_TINTS[tournament] ?? MAJOR_TINTS_NORM[tournament.toLowerCase().replace(/\s+/g, ' ').trim()] ?? null;
 
 // Photo priority:
 // 1) A manually-uploaded photoUrl ALWAYS wins. These were uploaded for players who had no photo
@@ -8677,12 +8665,12 @@ export default function Page() {
                       {/* Year header band */}
                       <div style={{ background: '#eef2f6', padding: '5px 18px', fontSize: 11.5, fontWeight: 800, color: '#56657a', letterSpacing: '0.04em', borderBottom: '1px solid #e2e8ef' }}>{g.year || '—'}</div>
                       {g.wins.map((w, i) => {
-                        const theme = featuredRowTheme(w.tournament);
+                        const theme = majorTint(w.tournament);
                         return (
                           <div key={`${w.tournament}-${i}`} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, padding: '11px 18px', background: theme ? theme.bg : '#fff', borderBottom: '1px solid #eef2f6' }}>
                             <span style={{ minWidth: 0, flex: 1 }}>
                               <span style={{ display: 'block', fontSize: 13.5, color: theme ? theme.text : '#0f1720', fontWeight: 700 }}>{w.tournament || '—'}</span>
-                              {w.course && <span style={{ display: 'block', fontSize: 11, color: theme ? theme.text : '#6b7c8c', opacity: theme ? 0.8 : 1, fontWeight: 500, marginTop: 1 }}>{w.course}</span>}
+                              {w.course && <span style={{ display: 'block', fontSize: 11, color: theme ? theme.text : '#6b7c8c', opacity: theme ? 0.75 : 1, fontWeight: 500, marginTop: 1 }}>{w.course}</span>}
                             </span>
                             {w.toPar && <span style={{ flexShrink: 0, fontSize: 13, color: theme ? theme.text : '#475569', fontWeight: 800 }}>{w.toPar}</span>}
                           </div>
@@ -9076,16 +9064,10 @@ export default function Page() {
                         const pgaResults = pickHistoryPlayerPopup.fullResults!.filter((r) => r.tour === 'pga' || !r.tour);
                         const livResults = pickHistoryPlayerPopup.fullResults!.filter((r) => r.tour === 'liv');
                         const eurResults = pickHistoryPlayerPopup.fullResults!.filter((r) => r.tour === 'eur');
-                        const EXACT_MAJORS: Record<string, { bg: string; text: string }> = {
-                          'THE PLAYERS Championship': { bg: '#dce6f5', text: '#173b63' },
-                          'Masters Tournament':       { bg: '#d5eade', text: '#2c6449' },
-                          'U.S. Open':               { bg: '#fde8e8', text: '#BE3436' },
-                          'PGA Championship':         { bg: '#f5edd8', text: '#7a6a3e' },
-                        };
                         type FullResult = { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' };
                         const renderCard = (r: FullResult, i: number) => {
                           const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
-                          const majorBadge = EXACT_MAJORS[r.tournament] ?? null;
+                          const majorBadge = majorTint(r.tournament);
                           return (
                             <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: majorBadge ? `1px solid ${majorBadge.bg}` : '1px solid #e2e8ef', background: majorBadge ? majorBadge.bg : '#fff', gap: 10 }}>
                               <div style={{ minWidth: 0, flex: 1 }}>
