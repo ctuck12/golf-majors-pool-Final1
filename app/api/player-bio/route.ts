@@ -1,7 +1,8 @@
 export const dynamic = 'force-dynamic';
 import redis from '@/app/lib/redis';
 import { getEspnId } from '@/app/lib/espn-player-season';
-import { PLAYER_BIO_OVERRIDES } from '@/app/lib/player-bio-overrides';
+import { PLAYER_BIO_OVERRIDES, type BioOverride } from '@/app/lib/player-bio-overrides';
+import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
 
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
@@ -602,11 +603,48 @@ async function fetchEspnOverviewCareer(espnId: string): Promise<Partial<PlayerBi
   return result;
 }
 
+// Name normalization shared by override + pgaTourId resolution, so name variants still
+// match (e.g. a leaderboard's "Jayden Schaper" vs the pool's "Jayden Trey Schaper").
+const normBioName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase().replace(/[^a-z ]/g, '').trim();
+const firstLastKey = (s: string) => {
+  const p = normBioName(s).split(/\s+/).filter(Boolean);
+  return p.length > 2 ? `${p[0]} ${p[p.length - 1]}` : normBioName(s);
+};
+
+// Index the override map by normalized full name and by first+last for tolerant lookup.
+const OVERRIDE_BY_NORM: Record<string, BioOverride> = {};
+const OVERRIDE_BY_FL: Record<string, BioOverride> = {};
+for (const [nm, ov] of Object.entries(PLAYER_BIO_OVERRIDES)) {
+  OVERRIDE_BY_NORM[normBioName(nm)] = ov;
+  const fl = firstLastKey(nm);
+  if (!(fl in OVERRIDE_BY_FL)) OVERRIDE_BY_FL[fl] = ov;
+}
+function lookupBioOverride(name: string): BioOverride | undefined {
+  return PLAYER_BIO_OVERRIDES[name] ?? OVERRIDE_BY_NORM[normBioName(name)] ?? OVERRIDE_BY_FL[firstLastKey(name)];
+}
+
+// Index the pool's pgaTourId by name, so a bio request arriving with a missing/0 pgaTourId
+// (e.g. opened from a live leaderboard) still gets PGA career/major data.
+const POOL_PGA_BY_NORM: Record<string, number> = {};
+const POOL_PGA_BY_FL: Record<string, number> = {};
+for (const p of PLAYER_POOL_WITH_PGA_IDS) {
+  if (!p.pgaTourId) continue;
+  POOL_PGA_BY_NORM[normBioName(p.name)] = p.pgaTourId;
+  const fl = firstLastKey(p.name);
+  if (!(fl in POOL_PGA_BY_FL)) POOL_PGA_BY_FL[fl] = p.pgaTourId;
+}
+function resolvePgaTourId(name: string, provided: string): string {
+  if (provided && provided !== '0') return provided;
+  const hit = POOL_PGA_BY_NORM[normBioName(name)] ?? POOL_PGA_BY_FL[firstLastKey(name)];
+  return hit ? String(hit) : provided;
+}
+
 // Overlay manual overrides (app/lib/player-bio-overrides.ts) onto a bio. Override values
 // win over API data. Applied on every response (including cache hits) so edits take effect
 // immediately without a cache bump.
 function applyBioOverrides(name: string, bio: PlayerBio): PlayerBio {
-  const ov = PLAYER_BIO_OVERRIDES[name];
+  const ov = lookupBioOverride(name);
   if (!ov) return bio;
   if (ov.height) bio.height = ov.height;
   if (ov.weight) bio.weight = ov.weight;
@@ -624,10 +662,11 @@ function applyBioOverrides(name: string, bio: PlayerBio): PlayerBio {
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const name = url.searchParams.get('name') ?? '';
-  const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
+  // Backfill a missing/0 pgaTourId from the pool by name so PGA career/major data still loads.
+  const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v18:${name}`;
+  const cacheKey = `player-bio:v19:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
