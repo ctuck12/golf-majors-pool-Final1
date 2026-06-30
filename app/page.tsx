@@ -8733,8 +8733,8 @@ export default function Page() {
                   ];
                   const bottomRows: { label: string; value: string | number | null }[] = [
                     { label: 'Turned Pro', value: bio?.turnedPro ?? null },
-                    { label: 'Career Starts', value: bio?.careerStarts ?? null },
-                    { label: 'Career Wins', value: bio?.careerWins ?? null },
+                    { label: 'PGA Tour Starts', value: bio?.careerStarts ?? null },
+                    { label: 'PGA Tour Wins', value: bio?.careerWins ?? null },
                     { label: 'Major Starts', value: bio?.majorStarts ?? null },
                     { label: 'Major Wins', value: bio?.majorWins ?? null },
                     { label: 'Career Earnings', value: bio?.careerEarnings ?? null },
