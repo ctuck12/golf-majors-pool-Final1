@@ -3,7 +3,6 @@ export const dynamic = 'force-dynamic';
 import redis from '@/app/lib/redis';
 import { getTournamentMetaByEspnId } from '@/app/lib/tournament-config';
 import { pgaTourTournId } from '@/app/lib/pga-scorecard-stats';
-import { pgaIdToNameMap } from '@/app/lib/pga-id-resolver';
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 const ESPN_CORE_ATHLETES = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/athletes';
@@ -131,49 +130,84 @@ async function buildCourseLeaderboard(eventId: string, statKey: string): Promise
   return { entries, fieldAvg: fmtCourse(mean, statKey) };
 }
 
-// Build the full-field tournament leaderboard for an SG stat from PGA Tour statLeaderboard.
+// The cumulative-SG column to display per stat — chosen to MATCH the player card, whose tournament
+// SG value is the scorecard's cumulative total over the event (not the per-round average). The PGA
+// statDetails leaderboard exposes both an "Avg" (per-round) column and a "Total SG:*" (cumulative)
+// column; we pick the cumulative one by its statName. sgTeeToGreen has no cumulative column on its
+// leaderboard (only Avg + component averages) and isn't shown on the tournament card, so it falls
+// back to Avg × Measured Rounds.
+const SG_CUMULATIVE_COL: Record<string, string> = {
+  sgTotal: 'Total SG:T',
+  sgOffTee: 'Total SG:OTT',
+  sgApproach: 'Total SG:APP',
+  sgAroundGreen: 'Total SG:ARG',
+  sgPutting: 'Total SG:Putting',
+};
+
+function parseSgNum(raw: string | undefined): number {
+  return parseFloat(String(raw ?? '').replace(/\+/g, '').replace(/,/g, '').trim());
+}
+
+// Build the full-field tournament leaderboard for an SG stat from PGA Tour statDetails (EVENT_ONLY).
+// The dead statLeaderboard(statId, tournamentId) query returned FieldUndefined; statDetails with an
+// eventQuery is the working path and its ranks match the scorecard ranks on the card.
 async function buildSgLeaderboard(eventId: string, statKey: string): Promise<{ entries: Entry[]; fieldAvg: string | null }> {
   const statId = SG_STAT_IDS[statKey];
   if (!statId) return { entries: [], fieldAvg: null };
   const meta = getTournamentMetaByEspnId(eventId);
   if (!meta) return { entries: [], fieldAvg: null };
   const pgaTournId = pgaTourTournId(meta.slashGolfTournId, meta.year);
+  const year = parseInt(meta.year, 10);
 
   const query = `
-    query TournStatLeaderboard($statId: ID!, $tournamentId: ID!) {
-      statLeaderboard(statId: $statId, tournamentId: $tournamentId) {
-        rows { rank displayValue player { id } }
+    query TournSgLeaderboard($statId: String!, $tournamentId: String!, $year: Int!) {
+      statDetails(tourCode: R, statId: $statId, year: $year, eventQuery: { tournamentId: $tournamentId, queryType: EVENT_ONLY }) {
+        rows {
+          ... on StatDetailsPlayer {
+            playerName
+            rank
+            stats { ... on CategoryPlayerStat { statName statValue } }
+          }
+        }
       }
     }
   `;
-  let rows: Array<{ rank?: string | number; displayValue?: string; player?: { id?: string } }> = [];
+  type Row = { playerName?: string; rank?: number; stats?: Array<{ statName?: string; statValue?: string }> };
+  let rows: Row[] = [];
   try {
     const res = await fetch(PGA_GQL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': PGA_API_KEY, 'Referer': 'https://www.pgatour.com/', 'Origin': 'https://www.pgatour.com' },
-      body: JSON.stringify({ query, variables: { statId, tournamentId: pgaTournId } }),
+      body: JSON.stringify({ query, variables: { statId, tournamentId: pgaTournId, year } }),
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) return { entries: [], fieldAvg: null };
-    const data = await res.json() as { data?: { statLeaderboard?: { rows?: typeof rows } } };
-    rows = data?.data?.statLeaderboard?.rows ?? [];
+    const data = await res.json() as { data?: { statDetails?: { rows?: Row[] } } };
+    rows = data?.data?.statDetails?.rows ?? [];
   } catch { return { entries: [], fieldAvg: null }; }
   if (rows.length === 0) return { entries: [], fieldAvg: null };
 
-  const idToName = await pgaIdToNameMap();
+  const cumulativeCol = SG_CUMULATIVE_COL[statKey];
   const parsed = rows
     .map((r) => {
-      const rankNum = parseInt(String(r.rank ?? '').replace(/^\s*T/i, '').trim());
-      const val = parseFloat(String(r.displayValue ?? '').replace('+', ''));
-      const name = idToName[String(r.player?.id ?? '')] ?? '';
-      return { rank: rankNum, value: val, raw: r.displayValue ?? '', name };
+      const stats = Array.isArray(r.stats) ? r.stats : [];
+      let value: number;
+      if (cumulativeCol) {
+        value = parseSgNum(stats.find((s) => s.statName === cumulativeCol)?.statValue);
+      } else {
+        // sgTeeToGreen: no cumulative column — Avg × Measured Rounds.
+        const avg = parseSgNum(stats.find((s) => s.statName === 'Avg')?.statValue);
+        const rounds = parseSgNum(stats.find((s) => s.statName === 'Measured Rounds')?.statValue);
+        value = !isNaN(avg) && !isNaN(rounds) ? avg * rounds : NaN;
+      }
+      const rankNum = typeof r.rank === 'number' ? r.rank : parseInt(String(r.rank ?? '').replace(/^\s*T/i, '').trim());
+      return { rank: rankNum, value, name: r.playerName ?? '' };
     })
-    .filter((r) => !isNaN(r.rank) && r.rank > 0 && r.name && r.raw !== '');
+    .filter((r) => !isNaN(r.rank) && r.rank > 0 && r.name && !isNaN(r.value));
   if (parsed.length === 0) return { entries: [], fieldAvg: null };
   parsed.sort((a, b) => a.rank - b.rank);
-  const entries: Entry[] = parsed.map((r) => ({ rank: r.rank, name: r.name, value: r.raw }));
-  const valid = parsed.filter((r) => !isNaN(r.value));
-  const mean = valid.length > 0 ? valid.reduce((s, r) => s + r.value, 0) / valid.length : NaN;
+  const entries: Entry[] = parsed.map((r) => ({ rank: r.rank, name: r.name, value: r.value.toFixed(SG_DECIMALS) }));
+  const mean = parsed.reduce((s, r) => s + r.value, 0) / parsed.length;
   const fieldAvg = !isNaN(mean) ? mean.toFixed(SG_DECIMALS) : null;
   return { entries, fieldAvg };
 }
@@ -184,7 +218,7 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!statKey || !eventId) return Response.json({ entries: [], fieldAvg: null });
 
-  const cacheKey = `tourn-stat-lb:v10:${eventId}:${statKey}`;
+  const cacheKey = `tourn-stat-lb:v11:${eventId}:${statKey}`;
   const bust = searchParams.get('bust') === '1';
   if (!bust) {
     try {
