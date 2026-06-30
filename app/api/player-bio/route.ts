@@ -25,7 +25,12 @@ export type PlayerBio = {
   majorStarts: number | null;
   majorWins: number | null;
   careerEarnings: string | null;
+  // Per-win detail powering the click-through popups on the Wins rows.
+  pgaTourWinsList: WinEntry[] | null;
+  majorWinsList: WinEntry[] | null;
 };
+
+export type WinEntry = { tournament: string; year: string };
 
 function fmtHeight(totalInches: number): string {
   const ft = Math.floor(totalInches / 12);
@@ -533,6 +538,7 @@ async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBi
           tournaments {
             year
             position
+            tournamentName
           }
         }
       }
@@ -547,7 +553,7 @@ async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBi
     const json = await res.json() as {
       data?: {
         playerProfileMajorResults?: {
-          tournaments?: Array<{ year?: unknown; position?: unknown }>;
+          tournaments?: Array<{ year?: unknown; position?: unknown; tournamentName?: unknown }>;
         };
       };
       errors?: unknown[];
@@ -558,26 +564,34 @@ async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBi
     if (json.errors?.length || !json.data) return result;
     const tournaments = json.data.playerProfileMajorResults?.tournaments ?? [];
 
+    const isWin = (pos: unknown) => {
+      const p = String(pos ?? '').trim();
+      return p === '1' || p === 'W' || p === 'P1';
+    };
     // Each entry = one major appearance; position "1" = win
     result.majorStarts = tournaments.length;
-    result.majorWins = tournaments.filter(t => {
-      const pos = String(t.position ?? '').trim();
-      return pos === '1' || pos === 'W' || pos === 'P1';
-    }).length;
+    const majorWins = tournaments.filter(t => isWin(t.position));
+    result.majorWins = majorWins.length;
+    result.majorWinsList = majorWins
+      .map(t => ({ tournament: String(t.tournamentName ?? '').trim(), year: String(t.year ?? '').trim() }))
+      .sort((a, b) => Number(b.year) - Number(a.year)); // newest first
   } catch { /* ignore */ }
   return result;
 }
 
-// PGA Tour GQL: career starts/wins/earnings, summed from playerProfileTournamentResults
+// PGA Tour GQL: career starts/earnings, summed from playerProfileTournamentResults
 // (tourCode R = PGA Tour). Each group carries an overviewInfo summary; summing across
 // groups yields official PGA Tour career totals. Works for any player with a PGA Tour ID,
 // including DP-World-primary players ESPN's PGA career endpoints don't cover.
+// NOTE: overviewInfo.wins is NOT summed here — it over-counts (it credits team events like
+// the Ryder/Presidents Cup as wins). The accurate win count comes from fetchPgaTourWins,
+// which inspects each tournament's finishing position directly.
 async function fetchPgaCareerResults(pgaTourId: string): Promise<Partial<PlayerBio>> {
   const result: Partial<PlayerBio> = {};
   try {
     const query = `query R($id: ID!) {
       playerProfileTournamentResults(playerId: $id, tourCode: R) {
-        tournaments { overviewInfo { events wins money } }
+        tournaments { overviewInfo { events money } }
       }
     }`;
     const res = await fetch(PGA_GQL, {
@@ -588,25 +602,77 @@ async function fetchPgaCareerResults(pgaTourId: string): Promise<Partial<PlayerB
     });
     if (!res.ok) return result;
     const json = await res.json() as {
-      data?: { playerProfileTournamentResults?: { tournaments?: Array<{ overviewInfo?: { events?: number; wins?: number; money?: number } }> } };
+      data?: { playerProfileTournamentResults?: { tournaments?: Array<{ overviewInfo?: { events?: number; money?: number } }> } };
       errors?: unknown[];
     };
     if (json.errors?.length) return result;
     const groups = json.data?.playerProfileTournamentResults?.tournaments ?? [];
     if (groups.length === 0) return result;
-    let events = 0, wins = 0, money = 0;
+    let events = 0, money = 0;
     for (const g of groups) {
       const o = g.overviewInfo;
       if (!o) continue;
       events += o.events ?? 0;
-      wins += o.wins ?? 0;
       money += o.money ?? 0;
     }
-    if (events > 0) {
-      result.careerStarts = events;
-      result.careerWins = wins; // 0 is a valid value (no PGA Tour wins yet)
-    }
+    if (events > 0) result.careerStarts = events;
     if (money > 0) result.careerEarnings = fmtEarnings(money);
+  } catch { /* ignore */ }
+  return result;
+}
+
+// Team/exhibition events the PGA Tour lists in a player's results but that do NOT count as
+// official PGA Tour victories (no official-win credit). Excluded from the win count + list.
+const NON_OFFICIAL_WIN_EVENTS = /ryder cup|presidents cup/i;
+
+// PGA Tour GQL: accurate career win count + the per-win detail (tournament + year) shown in
+// the click-through popup. Reads each tournament row's finishing position rather than the
+// aggregate overviewInfo.wins (which over-counts team events). A finish of "1" (outright) or
+// "P1" (playoff win) is a victory; Ryder/Presidents Cup team events are excluded.
+async function fetchPgaTourWins(pgaTourId: string): Promise<Partial<PlayerBio>> {
+  const result: Partial<PlayerBio> = {};
+  try {
+    const query = `query R($id: ID!) {
+      playerProfileTournamentResults(playerId: $id, tourCode: R) {
+        tournaments {
+          tournamentOverview { tournamentName }
+          tournaments { position year tournamentName }
+        }
+      }
+    }`;
+    const res = await fetch(PGA_GQL, {
+      method: 'POST',
+      headers: gqlHeaders(),
+      body: JSON.stringify({ query, variables: { id: pgaTourId } }),
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return result;
+    const json = await res.json() as {
+      data?: { playerProfileTournamentResults?: { tournaments?: Array<{
+        tournamentOverview?: { tournamentName?: unknown };
+        tournaments?: Array<{ position?: unknown; year?: unknown; tournamentName?: unknown }>;
+      }> } };
+      errors?: unknown[];
+    };
+    if (json.errors?.length || !json.data) return result;
+    const groups = json.data.playerProfileTournamentResults?.tournaments ?? [];
+    // No per-row groups means we can't reliably count — leave wins null so other sources fill it.
+    if (groups.length === 0) return result;
+
+    const wins: WinEntry[] = [];
+    for (const g of groups) {
+      const groupName = String(g.tournamentOverview?.tournamentName ?? '').trim();
+      for (const row of g.tournaments ?? []) {
+        const pos = String(row.position ?? '').trim();
+        if (pos !== '1' && pos !== 'P1') continue;
+        const tournament = (String(row.tournamentName ?? '').trim() || groupName);
+        if (NON_OFFICIAL_WIN_EVENTS.test(tournament)) continue;
+        wins.push({ tournament, year: String(row.year ?? '').trim() });
+      }
+    }
+    wins.sort((a, b) => Number(b.year) - Number(a.year)); // newest first
+    result.pgaTourWinsList = wins;
+    result.careerWins = wins.length; // authoritative — 0 is valid (no PGA Tour wins yet)
   } catch { /* ignore */ }
   return result;
 }
@@ -712,7 +778,7 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v23:${name}`;
+  const cacheKey = `player-bio:v24:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -728,6 +794,7 @@ export async function GET(req: Request) {
     turnedPro: null, pgaTourDebut: null,
     careerStarts: null, careerWins: null, majorStarts: null,
     majorWins: null, careerEarnings: null,
+    pgaTourWinsList: null, majorWinsList: null,
   };
 
   function merge(partial: Partial<PlayerBio>) {
@@ -743,6 +810,7 @@ export async function GET(req: Request) {
   const fetches: Promise<Partial<PlayerBio>>[] = [];
   if (pgaTourId) {
     fetches.push(fetchPgaCareerResults(pgaTourId)); // first: authoritative PGA Tour career totals
+    fetches.push(fetchPgaTourWins(pgaTourId));      // accurate win count + per-win list
     fetches.push(fetchPgaProfileBio(pgaTourId));
     fetches.push(fetchPgaMajorResults(pgaTourId));
     fetches.push(fetchPgaTourRestBio(pgaTourId));

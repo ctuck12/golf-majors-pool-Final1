@@ -1320,10 +1320,12 @@ export default function Page() {
     statRanks: Record<string, string>;
     seasonStatRanks: Record<string, string>;
     fieldDistributions: Record<string, number[]>;
-    playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null } | null;
+    playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string }[] | null; majorWinsList: { tournament: string; year: string }[] | null } | null;
     playerBioLoading: boolean;
     espnPhotoUrl: string | null;
   } | null>(null);
+  // Click-through popup listing each win (tournament + year) behind a player's Wins count.
+  const [winsListPopup, setWinsListPopup] = useState<{ title: string; playerName: string; wins: { tournament: string; year: string }[] } | null>(null);
   const [pickHistoryView, setPickHistoryView] = useState<'stats' | 'season' | 'career' | 'bio'>('stats');
   const [statsSubView, setStatsSubView] = useState<'tournament' | 'season'>('tournament');
   const [statLeaderboardModal, setStatLeaderboardModal] = useState<{ label: string; statKey: string; subtitle: string; tourAvg: string | null; avgLabel?: string; playerName: string | null; entries: { rank: number; name: string; value: string }[] | null } | null>(null);
@@ -2784,7 +2786,7 @@ export default function Page() {
     if (landingTab === 'bio') {
       const bioParams = new URLSearchParams({ name: player.name });
       if (player.pgaTourId) bioParams.set('pgaTourId', String(player.pgaTourId));
-      readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' })
+      readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string }[] | null; majorWinsList: { tournament: string; year: string }[] | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' })
         .then((data) => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null } : null))
         .catch(() => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null));
     }
@@ -8610,6 +8612,40 @@ export default function Page() {
           );
         })()}
 
+        {winsListPopup !== null && (
+          <div
+            onClick={() => setWinsListPopup(null)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 300 }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: '100%', maxWidth: 360, maxHeight: '80vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.35)' }}
+            >
+              {/* Header */}
+              <div style={{ background: 'linear-gradient(135deg, #0f1720, #1f2d3a)', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1.2 }}>{winsListPopup.title}</div>
+                  <div style={{ fontSize: 11, fontWeight: 500, color: '#8fa3b1', marginTop: 2 }}>{winsListPopup.playerName} · {winsListPopup.wins.length} {winsListPopup.wins.length === 1 ? 'win' : 'wins'}</div>
+                </div>
+                <button
+                  onClick={() => setWinsListPopup(null)}
+                  style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 8, border: 'none', background: 'rgba(255,255,255,0.12)', color: '#fff', fontSize: 16, fontWeight: 700, cursor: 'pointer', lineHeight: 1 }}
+                  aria-label="Close"
+                >×</button>
+              </div>
+              {/* Win list */}
+              <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '6px 0' }}>
+                {winsListPopup.wins.map((w, i) => (
+                  <div key={`${w.tournament}-${w.year}-${i}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 18px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < winsListPopup.wins.length - 1 ? '1px solid #eef2f6' : 'none' }}>
+                    <span style={{ fontSize: 13.5, color: '#0f1720', fontWeight: 700 }}>{w.tournament || '—'}</span>
+                    <span style={{ flexShrink: 0, fontSize: 12.5, color: '#2563eb', fontWeight: 800 }}>{w.year || '—'}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {pickHistoryPlayerPopup !== null && (
           <div
             onClick={() => setPickHistoryPlayerPopup(null)}
@@ -8695,7 +8731,7 @@ export default function Page() {
                           try {
                             const bioParams = new URLSearchParams({ name: pickHistoryPlayerPopup.player.name });
                             if (pickHistoryPlayerPopup.player.pgaTourId) bioParams.set('pgaTourId', String(pickHistoryPlayerPopup.player.pgaTourId));
-                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
+                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string }[] | null; majorWinsList: { tournament: string; year: string }[] | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null } : null);
                           } catch {
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null);
@@ -8731,12 +8767,12 @@ export default function Page() {
                     { label: 'Swing', value: bio?.swing ?? null },
                     { label: 'College', value: bio?.college ? formatCollege(bio.college) : null, italic: !bio?.college && (bio?.collegeConfirmedAbsent ?? false) },
                   ];
-                  const bottomRows: { label: string; value: string | number | null }[] = [
+                  const bottomRows: { label: string; value: string | number | null; wins?: { tournament: string; year: string }[] | null }[] = [
                     { label: 'Turned Pro', value: bio?.turnedPro ?? null },
                     { label: 'PGA Tour Starts', value: bio?.careerStarts ?? null },
-                    { label: 'PGA Tour Wins', value: bio?.careerWins ?? null },
+                    { label: 'PGA Tour Wins', value: bio?.careerWins ?? null, wins: bio?.pgaTourWinsList ?? null },
                     { label: 'Major Starts', value: bio?.majorStarts ?? null },
-                    { label: 'Major Wins', value: bio?.majorWins ?? null },
+                    { label: 'Major Wins', value: bio?.majorWins ?? null, wins: bio?.majorWinsList ?? null },
                     { label: 'Career Earnings', value: bio?.careerEarnings ?? null },
                   ];
                   return (
@@ -8770,12 +8806,26 @@ export default function Page() {
                       </div>
                       {/* Bottom rows: full width */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e2e8ef' }}>
-                        {bottomRows.map((row, i) => (
-                          <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < bottomRows.length - 1 ? '1px solid #e2e8ef' : 'none' }}>
+                        {bottomRows.map((row, i) => {
+                          // A Wins row is tappable when we have the per-win detail (count > 0).
+                          const clickable = !loading && !!row.wins && row.wins.length > 0;
+                          return (
+                          <div
+                            key={row.label}
+                            onClick={clickable ? () => setWinsListPopup({ title: row.label, playerName: photoPlayer.name, wins: row.wins! }) : undefined}
+                            role={clickable ? 'button' : undefined}
+                            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < bottomRows.length - 1 ? '1px solid #e2e8ef' : 'none', cursor: clickable ? 'pointer' : 'default' }}
+                          >
                             <span style={{ fontSize: 13, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
-                            <span style={{ fontSize: 13, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700 }}>{row.value != null ? String(row.value) : '—'}</span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: 13, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700 }}>{row.value != null ? String(row.value) : '—'}</span>
+                              {clickable && (
+                                <span style={{ fontSize: 11, color: '#2563eb', fontWeight: 700 }} aria-hidden>›</span>
+                              )}
+                            </span>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   );

@@ -89,6 +89,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Carl Yuan':                  { swing: 'Right' },
   'Patrick Fishburn':           { swing: 'Right' },
   'Mac Meissner':               { swing: 'Right' },
+  'Christiaan Bezuidenhout':    { swing: 'Right' },
 
   // ---- College (players who DID attend — clears the auto "Did not attend college" note) ----
   'Takumi Kanaya':              { college: 'Tohoku Fukushi University' },
