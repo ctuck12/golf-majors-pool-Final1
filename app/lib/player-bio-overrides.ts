@@ -44,9 +44,9 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
 
   // ---- Missing 3 fields ----
   'Caleb Surratt':              { dob: 'March 16, 2004', height: '', weight: '' },
-  'Jake Peacock':               { dob: '', height: '', weight: '' },
+  'Jake Peacock':               { dob: 'June 20, 2003', height: '', weight: '' },
   'Greyson Leach':              { dob: '', height: '', weight: '' },
-  'Robbie Higgins':             { dob: '', height: '', weight: '' },
+  'Robbie Higgins':             { dob: 'August 27, 2003', height: '', weight: '' },
   'Jayden Trey Schaper':        { height: '', weight: '', college: '' },
   'Matthew Jordan':             { height: '', weight: '', college: '' },
   'Laurie Canter':              { height: '', weight: '', college: '' },
@@ -74,7 +74,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Pontus Nyholm':              { birthPlace: '', swing: '' },
 
   // ---- Missing 1 field ----
-  'Jackson Suber':              { dob: '' },
+  'Jackson Suber':              { dob: 'October 18, 1999' },
   'Robert MacIntyre':           { weight: '' },
   'Michael Brennan':            { weight: '' },
   'Neal Shipley':               { weight: '' },
