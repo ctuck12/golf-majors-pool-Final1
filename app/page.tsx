@@ -2605,6 +2605,13 @@ export default function Page() {
     selectedTournamentStatus === null;
   const showLivePayoutStrip =
     selectedTournamentStatus?.label === 'IN PROGRESS' || selectedTournamentStatus?.label === 'LOCKED';
+  // Tournament stats (and the Season/Tournament toggle) only unlock once the SECOND round is underway.
+  // After a single round the per-event data is too thin to be meaningful, so until round 2 is in
+  // progress we show Season stats only and hide the toggle. Completed events (LOCKED) always show
+  // tournament stats; a live event uses the feed's current round (>= 2 means round 2 has begun).
+  const tournamentStatsUnlocked =
+    selectedTournamentStatus?.label === 'LOCKED' ||
+    (selectedTournamentStatus?.label === 'IN PROGRESS' && (feed?.currentRound ?? 1) >= 2);
   const displayTournamentWindow = getDisplayTournamentWindow(tournament, new Date(nowTick));
   const currentRoundLabel = selectedTournamentStatus?.label === 'LOCKED'
     ? 'Round 4'
@@ -2616,9 +2623,9 @@ export default function Page() {
 
   const openPlayerPopup = (player: { id: number; name: string; pgaTourId: number; photoUrl?: string; worldRank?: number }, defaultTab: 'stats' | 'season' = 'stats') => {
     const espnEventId = TOURNAMENT_ESPN_EVENT_IDS[selectedTournament];
-    const statsCtx: 'season' | 'tournament' = showFutureTournamentView ? 'season' : 'tournament';
+    const statsCtx: 'season' | 'tournament' = tournamentStatsUnlocked ? 'tournament' : 'season';
     const params = new URLSearchParams({ name: player.name, context: statsCtx });
-    if (espnEventId && !showFutureTournamentView) params.set('eventId', espnEventId);
+    if (espnEventId && tournamentStatsUnlocked) params.set('eventId', espnEventId);
     params.set('pgaTourId', String(player.pgaTourId));
     const showSubToggle = statsCtx === 'tournament' && selectedTournament !== 'us-open' && defaultTab === 'stats';
     setStatsSubView('tournament');
