@@ -32,15 +32,15 @@ export type BioOverride = Partial<{
 // on ESPN or PGA Tour, so everything must be entered manually.
 export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   // ---- Missing all six (no record on either API) ----
-  'A.J. Ewart':                 { dob: 'May 7, 1999', birthPlace: '', height: '', weight: '', swing: '', college: '' },
-  'Davis Chatfield':            { dob: 'May 28, 1999', birthPlace: '', height: '', weight: '', swing: '', college: '' },
+  'A.J. Ewart':                 { dob: 'May 7, 1999', birthPlace: 'Coquitlam, Canada', height: '', weight: '', swing: '', college: '' },
+  'Davis Chatfield':            { dob: 'May 28, 1999', birthPlace: 'Attleboro, Massachusetts', height: '', weight: '', swing: '', college: '' },
 
   // ---- Missing 4–5 fields ----
-  'Zach Bauchou':               { birthPlace: '', height: '', weight: '', swing: '', college: '' },
-  'Sudarshan Yellamaraju':      { dob: 'July 9, 2001', birthPlace: '', swing: '', college: '' },
-  'Benjamin James':             { birthPlace: '', height: '', weight: '', swing: '' },
-  'Ryuichi Oiwa':               { birthPlace: '', height: '', weight: '', college: '' },
-  'Kevin Yu':                   { birthPlace: '', height: '', weight: '', college: '' },
+  'Zach Bauchou':               { birthPlace: 'Forest, Virginia', height: '', weight: '', swing: '', college: '' },
+  'Sudarshan Yellamaraju':      { dob: 'July 9, 2001', birthPlace: 'Visakhapatnam, India', swing: '', college: '' },
+  'Benjamin James':             { birthPlace: 'Milford, Connecticut', height: '', weight: '', swing: '' },
+  'Ryuichi Oiwa':               { birthPlace: 'Toyohashi, Japan', height: '', weight: '', college: '' },
+  'Kevin Yu':                   { birthPlace: 'Taoyuan, Taiwan', height: '', weight: '', college: '' },
 
   // ---- Missing 3 fields ----
   'Caleb Surratt':              { dob: 'March 16, 2004', height: '', weight: '' },
@@ -56,22 +56,22 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Jackson Van Paris':          { height: '', weight: '', swing: '' },
   'Spencer Tibbits':            { height: '', weight: '', swing: '' },
   'Rocco Paolo Repetto Taylor': { height: '', weight: '', swing: '' },
-  'Jake Sollon':                { dob: 'February 18, 1998', birthPlace: '', swing: '' },
+  'Jake Sollon':                { dob: 'February 18, 1998', birthPlace: 'Venetia, Pennsylvania', swing: '' },
 
   // ---- Missing 2 fields ----
   'Johnny Keefer':              { dob: 'January 11, 2001', weight: '' },
   'Cooper Dossey':              { dob: 'March 24, 1998', swing: '' },
-  'Manav Shah':                 { dob: 'April 13, 1992', birthPlace: '' },
+  'Manav Shah':                 { dob: 'April 13, 1992', birthPlace: 'Bakersfield, California' },
   'Tom Kim':                    { weight: '', college: '' },
   'Matthieu Pavon':             { weight: '', college: '' },
   'Chandler Phillips':          { weight: '', swing: '' },
   'Cole Hammer':                { height: '', weight: '' },
   'Austin Eckroat':             { height: '', weight: '' },
   'Karl Vilips':                { height: '', weight: '' },
-  'Danny Walker':               { birthPlace: '', swing: '' },
-  'John VanDerLaan':            { birthPlace: '', swing: '' },
-  'Jeffrey Kang':               { birthPlace: '', swing: '' },
-  'Pontus Nyholm':              { birthPlace: '', swing: '' },
+  'Danny Walker':               { birthPlace: 'Bradenton, Florida', swing: '' },
+  'John VanDerLaan':            { birthPlace: 'Southbury, Connecticut', swing: '' },
+  'Jeffrey Kang':               { birthPlace: 'Los Angeles, California', swing: '' },
+  'Pontus Nyholm':              { birthPlace: 'Gävle, Sweden', swing: '' },
 
   // ---- Missing 1 field ----
   'Jackson Suber':              { dob: 'October 18, 1999' },
@@ -79,7 +79,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Michael Brennan':            { weight: '' },
   'Neal Shipley':               { weight: '' },
   'Filippo Celli':              { weight: '' },
-  'Marcelo Rozo':               { birthPlace: '' },
+  'Marcelo Rozo':               { birthPlace: 'Bogotá, Colombia' },
   'Nico Echavarria':            { swing: '' },
   'Pierceson Coody':            { swing: '' },
   'Davis Thompson':             { swing: '' },
