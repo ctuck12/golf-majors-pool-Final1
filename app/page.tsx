@@ -135,6 +135,14 @@ const TOURNAMENT_LEADERBOARD_HEADER: Record<string, string> = {
   open: 'The Open Leaderboard',
 };
 
+const TOURNAMENT_CAREER_RESULTS_HEADER: Record<string, string> = {
+  players: 'The Players Championship Career Results',
+  masters: 'The Masters Career Results',
+  pga: 'PGA Championship Career Results',
+  'us-open': 'U.S. Open Career Results',
+  open: 'The Open Championship Career Results',
+};
+
 const PLAYER_FLAGS: Record<string, string> = {
   // USA
   'Scottie Scheffler': 'us', 'Xander Schauffele': 'us', 'Collin Morikawa': 'us',
@@ -8911,6 +8919,11 @@ export default function Page() {
                       })()}
                     </div>
                   )
+                )}
+                {pickHistoryView === 'career' && (
+                  <div style={{ background: '#eef2f6', color: '#0f1720', fontWeight: 800, fontSize: 13, textAlign: 'center', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8ef', marginBottom: 8 }}>
+                    {TOURNAMENT_CAREER_RESULTS_HEADER[careerTournamentId] ?? 'Career Results'}
+                  </div>
                 )}
                 {pickHistoryView === 'career' && (
                   pickHistoryPlayerPopup.careerResultsLoading ? (
