@@ -7,7 +7,7 @@ import type { PlayerStatRanks } from '@/app/lib/pga-player-stats';
 import { fetchPgaScorecardStats, pgaTourTournId } from '@/app/lib/pga-scorecard-stats';
 import { getTournamentMetaByEspnId } from '@/app/lib/tournament-config';
 import { resolvePgaTourIdByName } from '@/app/lib/pga-id-resolver';
-import { getOrBuildSgLeaderboard, tournLbCacheKey } from '@/app/lib/tournament-sg-leaderboard';
+import { getOrBuildPgaLeaderboard, tournLbCacheKey } from '@/app/lib/tournament-sg-leaderboard';
 
 export type { PlayerStats } from '@/app/lib/espn-player-stats';
 
@@ -46,10 +46,10 @@ export async function GET(request: Request) {
   }
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
-    ? `player-stats:v38:tourn:${eventId}:${name}`
+    ? `player-stats:v39:tourn:${eventId}:${name}`
     : `player-stats:v85:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
-    ? `player-stats:v38:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
+    ? `player-stats:v39:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
     : `player-stats:v85:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 300 : 3600;
 
@@ -150,8 +150,10 @@ export async function GET(request: Request) {
       // SG is read from the same leaderboard as course (NOT the per-player scorecard) on purpose: the
       // scorecard's SG figure and the leaderboard's per-round "Avg" don't reconcile, which made the
       // card show a different SG rank+value than the popup. Single source = guaranteed match.
-      const TOURN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'puttAverage'];
-      const TOURN_SG_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
+      // ESPN-sourced course stats (cache-only read). Scrambling is NOT here — ESPN has no scrambling
+      // field, so it comes from the PGA feed on demand alongside SG (see TOURN_PGA_KEYS below).
+      const TOURN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'sandSaves', 'puttAverage'];
+      const TOURN_PGA_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting', 'scrambling'];
       const normNameT = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();
       const nameLowerT = normNameT(name);
       const mergedRanks: Record<string, string> = {};
@@ -176,12 +178,12 @@ export async function GET(request: Request) {
         try { applyLb(TOURN_COURSE_KEYS[i], JSON.parse(r.value as string).entries ?? []); } catch { /* ignore */ }
       }
 
-      // SG: build on demand when cold (one cheap GraphQL call each). The card's SG MUST come from this
-      // leaderboard — the per-player scorecard's SG is a different figure that doesn't match the popup.
-      const sgLbs = await Promise.all(TOURN_SG_KEYS.map(k => getOrBuildSgLeaderboard(eventId, k).catch(() => null)));
-      for (let i = 0; i < TOURN_SG_KEYS.length; i++) {
-        const lb = sgLbs[i];
-        if (lb?.entries?.length) applyLb(TOURN_SG_KEYS[i], lb.entries);
+      // PGA-sourced stats (SG + scrambling): build on demand when cold (one cheap GraphQL call each).
+      // The card MUST come from this leaderboard — the per-player scorecard figures don't match the popup.
+      const pgaLbs = await Promise.all(TOURN_PGA_KEYS.map(k => getOrBuildPgaLeaderboard(eventId, k).catch(() => null)));
+      for (let i = 0; i < TOURN_PGA_KEYS.length; i++) {
+        const lb = pgaLbs[i];
+        if (lb?.entries?.length) applyLb(TOURN_PGA_KEYS[i], lb.entries);
       }
 
       if (stats) {

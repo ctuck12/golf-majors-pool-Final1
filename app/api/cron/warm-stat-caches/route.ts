@@ -102,10 +102,11 @@ export async function GET(request: Request) {
   // data is static, so these cache for 7 days and rarely rebuild. Shares the per-run rebuild cap with
   // season stats, so a cold start warms gradually across runs.
   const TOURN_EVENT_IDS = ['401811937', '401811941', '401811947', '401811952', '401811957']; // PLAYERS, Masters, PGA, US Open, The Open
-  const TOURN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'puttAverage'];
-  const TOURN_SG_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
-  // The Masters PGA feed carries no tournament SG (the Masters view hides SG accordingly), so warming
-  // its SG keys would retry empty builds every run forever and waste the rebuild budget — course only.
+  // ESPN-sourced course stats (every event). Scrambling and SG come from the PGA feed instead.
+  const ESPN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'sandSaves', 'puttAverage'];
+  const PGA_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting', 'scrambling'];
+  // The Masters PGA feed carries no tournament SG or scrambling (the Masters view hides SG accordingly),
+  // so warming its PGA keys would retry empty builds every run forever and waste the rebuild budget.
   const MASTERS_EVENT_ID = '401811941';
   for (const eventId of TOURN_EVENT_IDS) {
     // Skip events that haven't started — they have no leaderboard data yet, so building would just
@@ -113,7 +114,7 @@ export async function GET(request: Request) {
     const meta = getTournamentMetaByEspnId(eventId);
     const lockMs = meta?.lockAtUtc ? Date.parse(meta.lockAtUtc) : NaN;
     if (!isNaN(lockMs) && Date.now() < lockMs) { results[`t:${eventId}`] = 'notStarted'; continue; }
-    const keysForEvent = eventId === MASTERS_EVENT_ID ? TOURN_COURSE_KEYS : [...TOURN_COURSE_KEYS, ...TOURN_SG_KEYS];
+    const keysForEvent = eventId === MASTERS_EVENT_ID ? ESPN_COURSE_KEYS : [...ESPN_COURSE_KEYS, ...PGA_KEYS];
     for (const key of keysForEvent) {
       const label = `t:${eventId}:${key}`;
       let ttl = -2;

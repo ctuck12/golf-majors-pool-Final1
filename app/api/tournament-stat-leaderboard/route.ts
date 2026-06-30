@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
-import { SG_STAT_IDS, buildSgLeaderboard, tournLbCacheKey, tournLbTtl } from '@/app/lib/tournament-sg-leaderboard';
+import { isPgaStatKey, buildPgaLeaderboard, tournLbCacheKey, tournLbTtl } from '@/app/lib/tournament-sg-leaderboard';
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 const ESPN_CORE_ATHLETES = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/athletes';
@@ -16,9 +16,8 @@ const courseStatDefs: Array<{ key: string; espnName: string; isPercent?: boolean
   { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
   { key: 'drivingAccuracy', espnName: 'driveAccuracyPct', isPercent: true, decimals: 1 },
   { key: 'gir', espnName: 'gir', isPercent: true, decimals: 1 },
-  { key: 'scrambling', espnName: 'scramblingPct', isPercent: true, decimals: 1 },
-  { key: 'scrambling', espnName: 'scrambling', isPercent: true, decimals: 1 },
-  { key: 'scrambling', espnName: 'scrambPct', isPercent: true, decimals: 1 },
+  // NOTE: scrambling is NOT here — ESPN per-event stats carry no scrambling field, so it is sourced
+  // from the PGA feed (statId 130) via buildPgaLeaderboard, like SG.
   { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1 },
   { key: 'sandSaves', espnName: 'sandSavePct', isPercent: true, decimals: 1 },
   { key: 'sandSaves', espnName: 'sandSave', isPercent: true, decimals: 1 },
@@ -131,8 +130,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const result = statKey in SG_STAT_IDS
-      ? await buildSgLeaderboard(eventId, statKey)
+    const result = isPgaStatKey(statKey)
+      ? await buildPgaLeaderboard(eventId, statKey)
       : await buildCourseLeaderboard(eventId, statKey);
 
     if (result.entries.length > 0) {
