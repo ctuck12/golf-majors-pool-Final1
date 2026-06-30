@@ -96,6 +96,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Kristoffer Reitan':          { college: 'Texas' },
   'Austin Hurt':                { college: 'Washington State' },
   'Kota Kaneko':                { noCollege: true },
+  'Kurt Kitayama':              { college: 'UNLV' },
 
   // ---- College-only gaps (NOT stubbed) ----
   // These already display "*Did not attend college" automatically because the APIs
