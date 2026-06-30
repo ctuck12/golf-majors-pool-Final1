@@ -56,11 +56,11 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Jackson Van Paris':          { height: '', weight: '', swing: '' },
   'Spencer Tibbits':            { height: '', weight: '', swing: '' },
   'Rocco Paolo Repetto Taylor': { height: '', weight: '', swing: '' },
-  'Jake Sollon':                { dob: '', birthPlace: '', swing: '' },
+  'Jake Sollon':                { dob: 'February 18, 1998', birthPlace: '', swing: '' },
 
   // ---- Missing 2 fields ----
   'Johnny Keefer':              { dob: 'January 11, 2001', weight: '' },
-  'Cooper Dossey':              { dob: '', swing: '' },
+  'Cooper Dossey':              { dob: 'March 24, 1998', swing: '' },
   'Manav Shah':                 { dob: 'April 13, 1992', birthPlace: '' },
   'Tom Kim':                    { weight: '', college: '' },
   'Matthieu Pavon':             { weight: '', college: '' },
