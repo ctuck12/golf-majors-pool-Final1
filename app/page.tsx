@@ -2,6 +2,7 @@
 
 import { Fragment, startTransition, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
+import { PLAYER_ESPN_IDS } from '@/app/lib/player-espn-ids';
 import {
   AlertCircle,
   ArrowLeft,
@@ -436,6 +437,23 @@ const TOURNAMENT_CARD_HEIGHT = 45;
 
 const pgaPhoto = (pgaId: number) =>
   `https://pga-tour-res.cloudinary.com/image/upload/c_fill,d_headshots_default.png,f_auto,g_face:center,h_350,q_auto,w_280/headshots_${pgaId}.png`;
+
+// Prefer the ESPN headshot (matches the bio popup) when we have an ESPN id; otherwise fall back
+// to the player's photoUrl / PGA Tour headshot. Matt Fitzpatrick is intentionally absent from the
+// ESPN id map so he keeps the PGA photo.
+const playerPhotoSrc = (name: string, pgaTourId: number, photoUrl?: string) => {
+  const espnId = PLAYER_ESPN_IDS[name];
+  return espnId
+    ? `https://a.espncdn.com/i/headshots/golf/players/full/${espnId}.png`
+    : (photoUrl ?? pgaPhoto(pgaTourId));
+};
+// onError fallback: if the ESPN headshot fails to load, swap to the PGA photo (data-fb), once.
+const photoOnError = (e: { currentTarget: HTMLImageElement }) => {
+  const img = e.currentTarget;
+  if (img.dataset.fellback) return;
+  const fb = img.dataset.fb;
+  if (fb) { img.dataset.fellback = '1'; img.src = fb; }
+};
 
 const PLAYER_POOL = PLAYER_POOL_WITH_PGA_IDS;
 
@@ -3075,7 +3093,7 @@ export default function Page() {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 10 }}>
             <img
-              src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
+              src={playerPhotoSrc(player.name, player.pgaTourId, player.photoUrl)} data-fb={player.photoUrl ?? pgaPhoto(player.pgaTourId)} onError={photoOnError}
               alt={player.name}
               className="roster-card-photo" style={{ width: isMobile ? 58 : 58, height: isMobile ? 58 : 58, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#fff' }}
             />
@@ -5110,7 +5128,7 @@ export default function Page() {
                                 }}
                               >
                                 <img
-                                  src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
+                                  src={playerPhotoSrc(player.name, player.pgaTourId, player.photoUrl)} data-fb={player.photoUrl ?? pgaPhoto(player.pgaTourId)} onError={photoOnError}
                                   alt={player.name}
                                   style={{
                                     width: isMobile ? 40 : 44,
@@ -5365,7 +5383,7 @@ export default function Page() {
                                       }}
                                     >
                                       <img
-                                        src={player.photoUrl ?? pgaPhoto(player.pgaTourId)}
+                                        src={playerPhotoSrc(player.name, player.pgaTourId, player.photoUrl)} data-fb={player.photoUrl ?? pgaPhoto(player.pgaTourId)} onError={photoOnError}
                                         alt={player.name}
                                         style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#fff' }}
                                       />
@@ -5806,7 +5824,7 @@ export default function Page() {
                                 <>
                                   <div style={{ width: isMobile ? 90 : 88, flexShrink: 0, alignSelf: 'stretch', background: '#fff', overflow: 'hidden', position: 'relative' }}>
                                     <img
-                                      src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
+                                      src={playerPhotoSrc(golfer.name, golfer.pgaTourId, golfer.photoUrl)} data-fb={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)} onError={photoOnError}
                                       alt={golfer.name}
                                       className="roster-card-photo"
                                       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
@@ -7032,7 +7050,7 @@ export default function Page() {
                               <>
                                 <div style={{ width: isMobile ? 90 : 88, flexShrink: 0, alignSelf: 'stretch', background: '#fff', overflow: 'hidden', position: 'relative' }}>
                                   <img
-                                    src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
+                                    src={playerPhotoSrc(golfer.name, golfer.pgaTourId, golfer.photoUrl)} data-fb={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)} onError={photoOnError}
                                     alt={golfer.name}
                                     className="roster-card-photo"
                                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
@@ -7469,7 +7487,7 @@ export default function Page() {
                         <>
                           <div onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: golfer.id, name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl, worldRank: golfer.worldRank }); }} style={{ width: 86, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: selectedTournament === 'open' ? '#F4BC41' : '#fff', cursor: 'pointer' }}>
                             <img
-                              src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
+                              src={playerPhotoSrc(golfer.name, golfer.pgaTourId, golfer.photoUrl)} data-fb={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)} onError={photoOnError}
                               alt={golfer.name}
                               className="breakdown-golfer-photo"
                               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', ...(selectedTournament === 'open' ? { mixBlendMode: 'normal' as const } : {}) }}
@@ -7530,7 +7548,7 @@ export default function Page() {
                         <>
                           <div onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: golfer.id, name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl, worldRank: golfer.worldRank }); }} style={{ width: 76, flexShrink: 0, alignSelf: 'stretch', position: 'relative', background: selectedTournament === 'open' ? '#F4BC41' : '#fff', cursor: 'pointer' }}>
                             <img
-                              src={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)}
+                              src={playerPhotoSrc(golfer.name, golfer.pgaTourId, golfer.photoUrl)} data-fb={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)} onError={photoOnError}
                               alt={golfer.name}
                               className="breakdown-golfer-photo"
                               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', ...(selectedTournament === 'open' ? { mixBlendMode: 'normal' as const } : {}) }}
