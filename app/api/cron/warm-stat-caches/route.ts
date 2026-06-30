@@ -108,7 +108,7 @@ export async function GET(request: Request) {
     for (const key of TOURN_ALL_KEYS) {
       const label = `t:${eventId}:${key}`;
       let ttl = -2;
-      try { ttl = await redis.ttl(`tourn-stat-lb:v11:${eventId}:${key}`); } catch { /* cold */ }
+      try { ttl = await redis.ttl(`tourn-stat-lb:v12:${eventId}:${key}`); } catch { /* cold */ }
       if (ttl > REFRESH_BELOW) { results[label] = `warm(${ttl}s)`; continue; }
       if (rebuilds >= MAX_REBUILDS_PER_RUN) { results[label] = 'deferred'; continue; }
       rebuilds++;

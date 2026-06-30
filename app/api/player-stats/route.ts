@@ -46,10 +46,10 @@ export async function GET(request: Request) {
   }
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
-    ? `player-stats:v37:tourn:${eventId}:${name}`
+    ? `player-stats:v38:tourn:${eventId}:${name}`
     : `player-stats:v85:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
-    ? `player-stats:v37:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
+    ? `player-stats:v38:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
     : `player-stats:v85:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
@@ -148,10 +148,8 @@ export async function GET(request: Request) {
       // never disagree with the popup — mirroring how season works.
       //
       // SG is read from the same leaderboard as course (NOT the per-player scorecard) on purpose: the
-      // scorecard's SG rank/value (a per-round average) and the leaderboard's cumulative SG don't
-      // reconcile, which made the card show a different SG rank+value than the popup. Single source.
-      // sgTeeToGreen has no tournament SG leaderboard and isn't shown on the tournament card, so it is
-      // intentionally omitted here.
+      // scorecard's SG figure and the leaderboard's per-round "Avg" don't reconcile, which made the
+      // card show a different SG rank+value than the popup. Single source = guaranteed match.
       const TOURN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'puttAverage'];
       const TOURN_SG_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
       const normNameT = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();

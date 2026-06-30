@@ -25,7 +25,7 @@ export type TournLbEntry = { rank: number; name: string; value: string };
 export type TournLbResult = { entries: TournLbEntry[]; fieldAvg: string | null };
 
 export function tournLbCacheKey(eventId: string, statKey: string): string {
-  return `tourn-stat-lb:v11:${eventId}:${statKey}`;
+  return `tourn-stat-lb:v12:${eventId}:${statKey}`;
 }
 
 function parseSgNum(raw: string | undefined): number {
