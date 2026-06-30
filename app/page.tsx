@@ -451,9 +451,6 @@ const isManualPhoto = (photoUrl?: string): photoUrl is string =>
 const PGA_PHOTO_ONLY = new Set<string>([
   'Matt Fitzpatrick',
   'Ludvig Aberg',
-  'Matt McCarty',
-  'Hideki Matsuyama',
-  'Keegan Bradley',
 ]);
 const playerPhotoSrc = (name: string, pgaTourId: number, photoUrl?: string) => {
   if (PGA_PHOTO_ONLY.has(name)) return pgaPhoto(pgaTourId);
