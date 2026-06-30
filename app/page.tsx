@@ -319,11 +319,11 @@ const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
 // Per-tournament logo height (px) for the player-popup Career tab — each logo has a different aspect
 // ratio, so they're tuned individually so they read at a consistent visual size.
 const CAREER_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
-  players: 36,
+  players: 39,
   masters: 29,
-  pga: 36,
+  pga: 39,
   'us-open': 29,
-  open: 32,
+  open: 30,
 };
 
 const TOURNAMENT_HEADING_LOGOS: Partial<Record<TournamentId, string>> = {
