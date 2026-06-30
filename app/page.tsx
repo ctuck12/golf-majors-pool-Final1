@@ -2628,7 +2628,10 @@ export default function Page() {
     params.set('pgaTourId', String(player.pgaTourId));
     const showSubToggle = statsCtx === 'tournament' && selectedTournament !== 'us-open' && defaultTab === 'stats';
     setStatsSubView('tournament');
-    setPickHistoryView(defaultTab);
+    // Bio is the default landing tab for the standard popup; explicit "season" deep-links (e.g. roster
+    // name taps that open straight to Season Results) still land on Season.
+    const landingTab: 'stats' | 'season' | 'bio' = defaultTab === 'season' ? 'season' : 'bio';
+    setPickHistoryView(landingTab);
     setPickHistoryPlayerPopup({
       player,
       results: {},
@@ -2652,9 +2655,17 @@ export default function Page() {
       seasonStatRanks: {},
       fieldDistributions: {},
       playerBio: null,
-      playerBioLoading: false,
+      playerBioLoading: landingTab === 'bio',
       espnPhotoUrl: null,
     });
+    // Bio is the default tab, so fetch it eagerly on open (it's otherwise lazy-loaded on tab click).
+    if (landingTab === 'bio') {
+      const bioParams = new URLSearchParams({ name: player.name });
+      if (player.pgaTourId) bioParams.set('pgaTourId', String(player.pgaTourId));
+      readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' })
+        .then((data) => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null } : null))
+        .catch(() => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null));
+    }
     const scorecardFetch = statsCtx === 'tournament'
       ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
       : Promise.resolve({ rounds: null });
@@ -8525,7 +8536,7 @@ export default function Page() {
 
               {/* Tab bar */}
               <div style={{ display: 'flex', background: '#fff', borderBottom: '1.5px solid #e2e8ef', flexShrink: 0 }}>
-                {(pickHistoryPlayerPopup.defaultTab === 'season' ? (['season', 'career', 'stats', 'bio'] as const) : (['stats', 'season', 'career', 'bio'] as const)).map((tab) => {
+                {(pickHistoryPlayerPopup.defaultTab === 'season' ? (['bio', 'season', 'career', 'stats'] as const) : (['bio', 'stats', 'season', 'career'] as const)).map((tab) => {
                   const careerTabLabel: Record<string, string> = {
                     players: 'Players Career',
                     masters: 'Masters Career',
