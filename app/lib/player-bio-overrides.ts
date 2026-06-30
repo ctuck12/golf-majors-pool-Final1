@@ -47,7 +47,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   // ---- Missing 3 fields ----
   'Caleb Surratt':              { dob: 'March 16, 2004', height: `6'3"`, weight: '190 lbs' },
   'Jake Peacock':               { dob: 'June 20, 2003', height: `6'2"`, weight: '180 lbs' },
-  'Greyson Leach':              { dob: '', height: `6'2"`, weight: '180 lbs' },
+  'Greyson Leach':              { dob: 'August 28, 2002', height: `6'2"`, weight: '180 lbs' },
   'Robbie Higgins':             { dob: 'August 27, 2003', height: `5'10"`, weight: '190 lbs' },
   'Jayden Trey Schaper':        { height: `6'1"`, weight: '176 lbs', college: '' },
   'Matthew Jordan':             { height: `6'0"`, weight: '170 lbs', college: '' },
