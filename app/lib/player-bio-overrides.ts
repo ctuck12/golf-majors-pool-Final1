@@ -37,7 +37,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
 
   // ---- Missing 4–5 fields ----
   'Zach Bauchou':               { birthPlace: 'Forest, Virginia', height: `5'11"`, weight: '170 lbs', swing: 'Right', college: '' },
-  'Sudarshan Yellamaraju':      { dob: 'July 9, 2001', birthPlace: 'Visakhapatnam, India', swing: 'Right', college: '' },
+  'Sudarshan Yellamaraju':      { dob: 'July 9, 2001', birthPlace: 'Visakhapatnam, India', swing: 'Left', college: '' },
   'Benjamin James':             { birthPlace: 'Milford, Connecticut', height: `6'0"`, weight: '172 lbs', swing: 'Right' },
   'Ryuichi Oiwa':               { birthPlace: 'Toyohashi, Japan', height: `5'11"`, weight: '202 lbs', college: '' },
   'Kevin Yu':                   { birthPlace: 'Taoyuan, Taiwan', height: `5'10"`, weight: '165 lbs', college: '' },
