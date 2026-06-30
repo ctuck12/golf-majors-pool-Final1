@@ -57,7 +57,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Luke Clanton':               { height: `6'1"`, weight: '170 lbs', college: 'Florida State' },
   'Jackson Van Paris':          { height: `6'3"`, weight: '190 lbs', swing: 'Right' },
   'Spencer Tibbits':            { height: `6'2"`, weight: '155 lbs', swing: 'Right' },
-  'Rocco Paolo Repetto Taylor': { height: `5'11"`, weight: '', swing: 'Right' },
+  'Rocco Paolo Repetto Taylor': { height: `5'11"`, weight: '180 lbs', swing: 'Right' },
   'Jake Sollon':                { dob: 'February 18, 1998', birthPlace: 'Venetia, Pennsylvania', swing: 'Right' },
 
   // ---- Missing 2 fields ----
