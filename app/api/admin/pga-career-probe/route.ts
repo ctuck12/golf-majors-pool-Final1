@@ -20,18 +20,10 @@ async function gql(query: string, variables?: Record<string, unknown>): Promise<
 }
 
 export async function GET() {
-  // Introspect the tournament-results types to find where starts/position/money live.
+  // Introspect the TournamentResults element type (position, money, season, etc.).
   const types = await gql(`{
-    results: __type(name:"PlayerProfileTournamentResults"){ fields { name type { kind name ofType { kind name ofType { kind name } } } } }
-    tournament: __type(name:"PlayerProfileTournament"){ fields { name type { kind name ofType { name } } } }
-    tournamentResult: __type(name:"TournamentResult"){ fields { name type { kind name ofType { name } } } }
+    tr: __type(name:"TournamentResults"){ fields { name type { kind name ofType { kind name } } } }
   }`);
 
-  // And a real sample for Jayden Schaper (57737) — try the shape used by major-results.
-  const sample = await gql(
-    `query R($id: ID!){ playerProfileTournamentResults(playerId: $id, tourCode: R){ tourCode tournaments { tournamentName year } } }`,
-    { id: '57737' },
-  );
-
-  return Response.json({ types, sample });
+  return Response.json({ types });
 }
