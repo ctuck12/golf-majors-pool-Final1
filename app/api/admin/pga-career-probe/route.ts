@@ -20,16 +20,23 @@ async function gql(query: string, variables?: Record<string, unknown>): Promise<
 }
 
 export async function GET() {
-  const types = await gql(`{
-    overview: __type(name:"TournamentResultOverview"){ fields { name type { kind name ofType { kind name } } } }
-    info: __type(name:"TournamentOverviewInfo"){ fields { name type { kind name ofType { kind name } } } }
-  }`);
+  const q = `query R($id: ID!){ playerProfileTournamentResults(playerId: $id, tourCode: R){ tournaments { overviewInfo { events wins money cutsMade top10 } } } }`;
 
-  // Sample the season-overview shape for Jayden Schaper (57737).
-  const sample = await gql(
-    `query R($id: ID!){ playerProfileTournamentResults(playerId: $id, tourCode: R){ tournaments { tournamentNum cupEyebrowText } } }`,
-    { id: '57737' },
-  );
+  async function summed(id: string) {
+    const r = await gql(q, { id }) as { data?: { playerProfileTournamentResults?: { tournaments?: Array<{ overviewInfo?: { events?: number; wins?: number; money?: number; cutsMade?: number; top10?: number } }> } }; errors?: unknown[] };
+    if (r?.errors?.length) return { errors: r.errors };
+    const groups = r?.data?.playerProfileTournamentResults?.tournaments ?? [];
+    let events = 0, wins = 0, money = 0, cutsMade = 0, top10 = 0;
+    for (const g of groups) {
+      const o = g.overviewInfo; if (!o) continue;
+      events += o.events ?? 0; wins += o.wins ?? 0; money += o.money ?? 0;
+      cutsMade += o.cutsMade ?? 0; top10 += o.top10 ?? 0;
+    }
+    return { groupCount: groups.length, events, wins, money, cutsMade, top10 };
+  }
 
-  return Response.json({ types, sample });
+  return Response.json({
+    jaydenSchaper_57737: await summed('57737'),
+    scottieScheffler_46046: await summed('46046'),
+  });
 }
