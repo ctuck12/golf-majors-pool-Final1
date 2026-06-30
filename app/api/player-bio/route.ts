@@ -22,7 +22,6 @@ export type PlayerBio = {
   pgaTourDebut: number | null;
   careerStarts: number | null;
   careerWins: number | null;
-  dpWorldWins: number | null;
   majorStarts: number | null;
   majorWins: number | null;
   careerEarnings: string | null;
@@ -540,52 +539,6 @@ async function fetchEspnCareerTotals(espnId: string): Promise<Partial<PlayerBio>
   return result;
 }
 
-// ESPN DP World Tour (European Tour, league code "eur") career wins — summed from the player's
-// per-season statisticslog, mirroring fetchEspnCareerTotals but against the eur league. The same
-// ESPN athlete id works across leagues. Returns dpWorldWins (0 is valid: has eur stats, no wins);
-// leaves it null when the player has no DP World Tour record at all.
-async function fetchEspnEuroCareerWins(espnId: string): Promise<Partial<PlayerBio>> {
-  const ESPN_CORE_EUR = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/eur';
-  const result: Partial<PlayerBio> = {};
-  try {
-    const logRes = await fetch(
-      `${ESPN_CORE_EUR}/athletes/${espnId}/statisticslog`,
-      { cache: 'no-store', signal: AbortSignal.timeout(6000) }
-    );
-    if (!logRes.ok) return result;
-    const logData = await logRes.json() as { entries?: Array<{ statistics?: Array<{ statistics?: { $ref?: string } }> }> };
-    const entries = logData?.entries ?? [];
-
-    const refs: string[] = [];
-    for (const entry of entries) {
-      for (const stat of entry.statistics ?? []) {
-        const ref = stat?.statistics?.$ref;
-        if (ref && ref.includes('/types/2/')) refs.push(ref);
-      }
-    }
-    if (refs.length === 0) return result;
-
-    const pages = await Promise.allSettled(
-      refs.map(r => fetch(r, { cache: 'no-store', signal: AbortSignal.timeout(5000) }).then(res => res.ok ? res.json() : null))
-    );
-
-    let totalWins = 0;
-    let sawWins = false;
-    for (const p of pages) {
-      if (p.status !== 'fulfilled' || !p.value) continue;
-      const data = p.value as { splits?: { categories?: Array<{ stats?: Array<{ name?: string; value?: number }> }> } };
-      const cats = data?.splits?.categories ?? [];
-      for (const cat of cats) {
-        for (const s of cat.stats ?? []) {
-          if ((s.name ?? '').toLowerCase() === 'wins') { totalWins += s.value ?? 0; sawWins = true; }
-        }
-      }
-    }
-    if (sawWins) result.dpWorldWins = totalWins;
-  } catch { /* ignore */ }
-  return result;
-}
-
 // PGA Tour GQL: playerProfileMajorResults — major starts and wins
 // MajorResultsTournament fields confirmed: tournamentId, tournamentName, courseName,
 // date, year, position, roundScores, total, toPar, money, tourcastURI
@@ -877,7 +830,7 @@ export async function GET(req: Request) {
     height: null, weight: null, dob: null, age: null, birthPlace: null,
     college: null, collegeConfirmedAbsent: false, swing: null,
     turnedPro: null, pgaTourDebut: null,
-    careerStarts: null, careerWins: null, dpWorldWins: null, majorStarts: null,
+    careerStarts: null, careerWins: null, majorStarts: null,
     majorWins: null, careerEarnings: null,
     pgaTourWinsList: null, majorWinsList: null,
   };
@@ -906,7 +859,6 @@ export async function GET(req: Request) {
     fetches.push(fetchEspnOverviewCareer(espnId));
     fetches.push(fetchEspnCoreCareerStats(espnId));
     fetches.push(fetchEspnCareerTotals(espnId));
-    fetches.push(fetchEspnEuroCareerWins(espnId)); // DP World Tour career wins
   }
 
   const results = await Promise.allSettled(fetches);
