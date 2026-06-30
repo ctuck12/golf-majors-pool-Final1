@@ -472,7 +472,7 @@ const MAJOR_TINTS: Record<string, { bg: string; text: string }> = {
   'Masters Tournament':       { bg: '#d5eade', text: '#2c6449' },
   'U.S. Open':                { bg: '#fde8e8', text: '#BE3436' },
   'PGA Championship':         { bg: '#f5edd8', text: '#7a6a3e' },
-  'The Open Championship':    { bg: '#f8eecb', text: '#8a6a14' },
+  'The Open Championship':    { bg: '#dce6f5', text: '#173b63' },
 };
 // Normalized (case/space-insensitive) index so slightly different name strings still match.
 const MAJOR_TINTS_NORM: Record<string, { bg: string; text: string }> = {};
