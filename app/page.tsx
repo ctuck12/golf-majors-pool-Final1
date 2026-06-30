@@ -8598,10 +8598,10 @@ export default function Page() {
                           }
                         }
                       }}
-                      style={{ flex: 1, border: isActive ? '1px solid #0f1720' : '1px solid #d8e0e8', borderRadius: 8, background: isActive ? '#fff' : '#f4f7fa', padding: careerLogo ? '1px 4px' : '8px 3px', fontSize: 'clamp(8.5px, 2.2vw, 11px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: isActive ? 800 : 600, color: isActive ? '#0f1720' : '#5a6a7a', cursor: 'pointer', transition: 'all 0.15s', letterSpacing: '0.01em', boxShadow: isActive ? '0 1px 4px rgba(15,23,32,0.28)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      style={{ flex: 1, height: 33, boxSizing: 'border-box', border: isActive ? '1px solid #0f1720' : '1px solid #d8e0e8', borderRadius: 8, background: isActive ? '#fff' : '#f4f7fa', padding: careerLogo ? '0 4px' : '0 3px', fontSize: 'clamp(8.5px, 2.2vw, 11px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: isActive ? 800 : 600, color: isActive ? '#0f1720' : '#5a6a7a', cursor: 'pointer', transition: 'all 0.15s', letterSpacing: '0.01em', boxShadow: isActive ? '0 1px 4px rgba(15,23,32,0.28)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                       {careerLogo
-                        ? <img src={careerLogo} alt={label} style={{ height: careerLogoHeight, maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+                        ? <img src={careerLogo} alt={label} style={{ height: careerLogoHeight, maxHeight: '100%', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
                         : label}
                     </button>
                   );
