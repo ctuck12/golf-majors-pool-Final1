@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
+import { getOrBuildPgaLeaderboard } from '@/app/lib/tournament-sg-leaderboard';
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues';
 const FIELD_AVG_TTL = 1800; // 30 minutes
@@ -99,7 +100,7 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!eventId) return Response.json({ averages: {}, distributions: {} });
 
-  const cacheKey = `field-averages:v7:${eventId}`;
+  const cacheKey = `field-averages:v8:${eventId}`;
 
   try {
     const cached = await redis.get(cacheKey);
@@ -140,6 +141,18 @@ export async function GET(request: Request) {
         ? [...values].sort((a, b) => a - b)
         : [...values].sort((a, b) => b - a);
     }
+
+    // Scrambling isn't in ESPN's per-event stats, so its field average comes from the PGA leaderboard
+    // (the same source the scrambling popup uses) — otherwise the card cell would fall back to the
+    // SEASON average mislabeled "Field Avg" and disagree with the popup.
+    try {
+      const scrLb = await getOrBuildPgaLeaderboard(eventId, 'scrambling');
+      if (scrLb?.fieldAvg) {
+        averages['scrambling'] = scrLb.fieldAvg;
+        const vals = scrLb.entries.map((e) => parseFloat(e.value)).filter((v) => !isNaN(v)).sort((a, b) => b - a);
+        if (vals.length >= 5) distributions['scrambling'] = vals;
+      }
+    } catch { /* leave scrambling absent if the PGA feed is unavailable */ }
 
     const result: FieldData = { averages, distributions };
 
