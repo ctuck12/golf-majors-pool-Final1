@@ -438,10 +438,17 @@ const TOURNAMENT_CARD_HEIGHT = 45;
 const pgaPhoto = (pgaId: number) =>
   `https://pga-tour-res.cloudinary.com/image/upload/c_fill,d_headshots_default.png,f_auto,g_face:center,h_350,q_auto,w_280/headshots_${pgaId}.png`;
 
-// Prefer the ESPN headshot (matches the bio popup) when we have an ESPN id; otherwise fall back
-// to the player's photoUrl / PGA Tour headshot. Matt Fitzpatrick is intentionally absent from the
-// ESPN id map so he keeps the PGA photo.
+// Photo priority:
+// 1) A manually-uploaded photoUrl ALWAYS wins. These were uploaded for players who had no photo
+//    anywhere, so they must never be overridden by an ESPN headshot (which can be a blank
+//    silhouette). Manual uploads live on our own storage, never on PGA Tour's cloudinary domain.
+// 2) Otherwise prefer the ESPN headshot (matches the bio popup). Matt Fitzpatrick is intentionally
+//    absent from the ESPN id map so he keeps the PGA photo.
+// 3) Otherwise the PGA Tour headshot (incl. a PGA-cloudinary photoUrl).
+const isManualPhoto = (photoUrl?: string): photoUrl is string =>
+  !!photoUrl && !photoUrl.includes('pga-tour-res.cloudinary.com');
 const playerPhotoSrc = (name: string, pgaTourId: number, photoUrl?: string) => {
+  if (isManualPhoto(photoUrl)) return photoUrl;
   const espnId = PLAYER_ESPN_IDS[name];
   return espnId
     ? `https://a.espncdn.com/i/headshots/golf/players/full/${espnId}.png`
@@ -8678,7 +8685,8 @@ export default function Page() {
                 {pickHistoryView === 'bio' && (() => {
                   const bio = pickHistoryPlayerPopup.playerBio;
                   const loading = pickHistoryPlayerPopup.playerBioLoading;
-                  const espnPhotoSrc = pickHistoryPlayerPopup.espnPhotoUrl;
+                  // A manually-uploaded photo always wins (never overridden by an ESPN headshot).
+                  const espnPhotoSrc = isManualPhoto(pickHistoryPlayerPopup.player.photoUrl) ? null : pickHistoryPlayerPopup.espnPhotoUrl;
                   const pgaPhotoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
                   const photoSrc = espnPhotoSrc ?? pgaPhotoSrc;
                   const topRows: { label: string; value: string | number | null; italic?: boolean }[] = [
