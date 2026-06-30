@@ -642,7 +642,7 @@ export async function GET(req: Request) {
   const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v16:${name}`;
+  const cacheKey = `player-bio:v17:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {

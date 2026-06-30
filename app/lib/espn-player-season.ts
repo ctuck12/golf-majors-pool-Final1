@@ -8,6 +8,36 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Justin Thomas': '4848',
   'John Keefer': '5217048',
   'Tom Kim': '4602673',
+  // Discovered + verified via /api/admin/espn-id-discovery — players ESPN's name search
+  // wouldn't resolve. Each ID was confirmed to return a golf athlete with bio data.
+  'Ugo Coussaud': '4418567',
+  'Chandler Phillips': '4587989',
+  'Matthew Jordan': '4390719',
+  'Nathan Kimsey': '10914',
+  'Dylan Wu': '4423323',
+  'Carl Yuan': '9951',
+  'Taihei Sato': '4691550',
+  'Ben Silverman': '8910',
+  'Greyson Leach': '5327840',
+  'Brandon Wu': '4355673',
+  'Ryuichi Oiwa': '4699297',
+  'Marcelo Rozo': '7120',
+  'Kaito Onishi': '4894340',
+  'Filippo Celli': '4884239',
+  'Jake Peacock': '5326067',
+  'Karl Vilips': '5147097',
+  'Matthieu Pavon': '10596',
+  'Taylor Moore': '10664',
+  'Christo Lamprecht': '11395',
+  'Manav Shah': '10994', // correct athlete, but ESPN currently has no bio fields for him
+  'Robbie Higgins': '5277550',
+  'Takumi Kanaya': '4410612',
+  'John VanDerLaan': '4361934',
+  'Kensei Hirata': '5075548',
+  'Danny Walker': '4408319',
+  'Zecheng Dou': '8889',
+  'Jeffrey Kang': '4408318',
+  'Brice Garnett': '2283',
 };
 
 // Maps pool names to the name ESPN uses for that player
@@ -57,6 +87,11 @@ async function searchEspnByName(searchName: string): Promise<string | null> {
   if (parts.length > 2) {
     const firstLast = `${parts[0]} ${parts[parts.length - 1]}`;
     id = pickGolfId(await rawEspnSearch(firstLast), firstLast);
+    if (id) return id;
+    // 3) First + second token — for compound surnames ESPN keeps under the middle word
+    // (e.g. "Angel Hidalgo Portillo" → "Angel Hidalgo", "Niklas Norgaard Moller" → "Niklas Norgaard").
+    const firstSecond = `${parts[0]} ${parts[1]}`;
+    id = pickGolfId(await rawEspnSearch(firstSecond), firstSecond);
     if (id) return id;
   }
   return null;
