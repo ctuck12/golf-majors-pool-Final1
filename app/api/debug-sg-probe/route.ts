@@ -11,35 +11,36 @@ async function gql(query: string, variables: Record<string, unknown>) {
       body: JSON.stringify({ query, variables }),
       signal: AbortSignal.timeout(8000),
     });
-    return { httpOk: res.ok, status: res.status, body: await res.json() };
+    return await res.json();
   } catch (e) { return { __error: String(e) }; }
 }
 
 export async function GET(request: Request) {
-  const tournamentId = new URL(request.url).searchParams.get('tournamentId') ?? 'R2026033'; // Masters 2026
-  const statId = new URL(request.url).searchParams.get('statId') ?? '02675'; // SG Total (tournament)
+  const tournamentId = new URL(request.url).searchParams.get('tournamentId') ?? 'R2026033';
+  const statId = new URL(request.url).searchParams.get('statId') ?? '02675';
   const out: Record<string, unknown> = { tournamentId, statId };
 
-  // 1. Introspect Query fields whose name mentions stat/tournament
-  const introspect = `query { __schema { queryType { fields { name args { name type { name kind ofType { name } } } } } } }`;
-  const intro = await gql(introspect, {});
-  const fields = (intro as { body?: { data?: { __schema?: { queryType?: { fields?: Array<{ name: string; args: Array<{ name: string }> }> } } } } })
-    .body?.data?.__schema?.queryType?.fields ?? [];
-  out.statishQueries = fields
-    .filter((f) => /stat|leaderboard|tourn/i.test(f.name))
-    .map((f) => `${f.name}(${f.args.map((a) => a.name).join(', ')})`);
+  // Introspect the eventQuery input + the queryType enum values
+  const introQ = `query { a: __type(name: "StatDetailEventQuery") { inputFields { name type { kind name ofType { kind name enumValues { name } } } } } b: __type(name: "StatDetailQueryType") { enumValues { name } } c: __type(name: "TournamentPastEventQueryType") { enumValues { name } } }`;
+  out.introspect = await gql(introQ, {});
 
-  // 2. Candidate A: statLeaderboard(statId, tournamentId) with richer fields
-  out.candidateA = await gql(
-    `query($statId: ID!, $tournamentId: ID!) { statLeaderboard(statId: $statId, tournamentId: $tournamentId) { rows { rank displayValue player { id firstName lastName } } } }`,
-    { statId, tournamentId }
-  );
+  // Try statDetails scoped to the tournament with several plausible queryType enum literals.
+  const tryQueryType = async (qt: string) => {
+    const q = `query($statId: String!, $tournamentId: String!) {
+      statDetails(tourCode: R, statId: $statId, year: 2026, eventQuery: { tournamentId: $tournamentId, queryType: ${qt} }) {
+        tournamentPills { tournamentId }
+        rows { ... on StatDetailsPlayer { playerName rank stats { ... on CategoryPlayerStat { statValue } } } }
+      }
+    }`;
+    const r = await gql(q, { statId, tournamentId }) as { data?: { statDetails?: { rows?: unknown[] } }; errors?: Array<{ message: string }> };
+    const rows = r?.data?.statDetails?.rows;
+    return { qt, ok: Array.isArray(rows) && rows.length > 0, rowCount: Array.isArray(rows) ? rows.length : 0, sample: Array.isArray(rows) ? rows.slice(0, 3) : null, error: r?.errors?.[0]?.message };
+  };
 
-  // 3. Candidate B: tournamentStatDetails / statDetails with tournament arg
-  out.candidateB = await gql(
-    `query($statId: String!, $tournamentId: String!) { statDetails(tourCode: R, statId: $statId, eventQuery: { tournamentPubId: $tournamentId, year: 2026 }) { rows { ... on StatDetailsPlayer { playerName rank stats { ... on CategoryPlayerStat { statValue } } } } } }`,
-    { statId, tournamentId }
-  );
+  out.attempts = [];
+  for (const qt of ['EVENT_ONLY', 'TOURNAMENT_ONLY', 'PLAYER_TOURNAMENT', 'EVENT', 'TOURNAMENT']) {
+    (out.attempts as unknown[]).push(await tryQueryType(qt));
+  }
 
   return Response.json(out);
 }
