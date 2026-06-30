@@ -8921,7 +8921,7 @@ export default function Page() {
                   )
                 )}
                 {pickHistoryView === 'career' && (
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 2 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#7a8c99', textTransform: 'uppercase', letterSpacing: '0.08em', paddingBottom: 10 }}>
                     {TOURNAMENT_CAREER_RESULTS_HEADER[careerTournamentId] ?? 'Career Results'}
                   </div>
                 )}
