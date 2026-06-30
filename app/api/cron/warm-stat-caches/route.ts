@@ -97,6 +97,33 @@ export async function GET(request: Request) {
     await sleep(REBUILD_GAP_MS);
   }
 
+  // Warm tournament COURSE leaderboards for the played 2026 events. Completed-event data is static,
+  // so these cache for 7 days and rarely rebuild. Shares the per-run rebuild cap with season stats,
+  // so a cold start warms gradually across runs. (Tournament SG leaderboards are a separate pass.)
+  const TOURN_EVENT_IDS = ['401811937', '401811941', '401811947', '401811952']; // PLAYERS, Masters, PGA, US Open
+  const TOURN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'puttAverage'];
+  for (const eventId of TOURN_EVENT_IDS) {
+    for (const key of TOURN_COURSE_KEYS) {
+      const label = `t:${eventId}:${key}`;
+      let ttl = -2;
+      try { ttl = await redis.ttl(`tourn-stat-lb:v10:${eventId}:${key}`); } catch { /* cold */ }
+      if (ttl > REFRESH_BELOW) { results[label] = `warm(${ttl}s)`; continue; }
+      if (rebuilds >= MAX_REBUILDS_PER_RUN) { results[label] = 'deferred'; continue; }
+      rebuilds++;
+      for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        try {
+          const res = await fetch(`${baseUrl}/api/tournament-stat-leaderboard?statKey=${key}&eventId=${eventId}&bust=1`, { cache: 'no-store' });
+          if (res.ok) {
+            const data = await res.json().catch(() => null) as { entries?: unknown[] } | null;
+            if (Array.isArray(data?.entries) && data!.entries.length > 0) { results[label] = `rebuilt(${data!.entries.length})`; break; }
+            results[label] = `empty:attempt${attempt}`;
+          } else { results[label] = `${res.status}:attempt${attempt}`; }
+        } catch (e) { results[label] = `err:attempt${attempt}:${String(e)}`; }
+      }
+      await sleep(REBUILD_GAP_MS);
+    }
+  }
+
   // Warm tour averages last (reads the now-warm stat-lb caches; no upstream load when warm).
   try {
     const res = await fetch(`${baseUrl}/api/tour-averages`, { cache: 'no-store' });
