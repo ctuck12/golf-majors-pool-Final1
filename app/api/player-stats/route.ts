@@ -7,6 +7,7 @@ import type { PlayerStatRanks } from '@/app/lib/pga-player-stats';
 import { fetchPgaScorecardStats, pgaTourTournId } from '@/app/lib/pga-scorecard-stats';
 import { getTournamentMetaByEspnId } from '@/app/lib/tournament-config';
 import { resolvePgaTourIdByName } from '@/app/lib/pga-id-resolver';
+import { getOrBuildSgLeaderboard, tournLbCacheKey } from '@/app/lib/tournament-sg-leaderboard';
 
 export type { PlayerStats } from '@/app/lib/espn-player-stats';
 
@@ -45,10 +46,10 @@ export async function GET(request: Request) {
   }
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
-    ? `player-stats:v36:tourn:${eventId}:${name}`
+    ? `player-stats:v37:tourn:${eventId}:${name}`
     : `player-stats:v85:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
-    ? `player-stats:v36:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
+    ? `player-stats:v37:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
     : `player-stats:v85:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
@@ -152,28 +153,37 @@ export async function GET(request: Request) {
       // sgTeeToGreen has no tournament SG leaderboard and isn't shown on the tournament card, so it is
       // intentionally omitted here.
       const TOURN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'puttAverage'];
-      const TOURN_SG_KEYS = ['sgTotal', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
-      const TOURN_LB_KEYS = [...TOURN_COURSE_KEYS, ...TOURN_SG_KEYS];
+      const TOURN_SG_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
       const normNameT = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();
       const nameLowerT = normNameT(name);
-      const tournLb = await Promise.allSettled(
-        TOURN_LB_KEYS.map(k => redis.get(`tourn-stat-lb:v11:${eventId}:${k}`))
-      );
       const mergedRanks: Record<string, string> = {};
-      for (let i = 0; i < TOURN_LB_KEYS.length; i++) {
-        const r = tournLb[i];
+
+      const applyLb = (key: string, entries: Array<{ name: string; value?: string; rank?: number }>) => {
+        const idx = entries.findIndex(e => normNameT(e.name) === nameLowerT);
+        if (idx === -1) return;
+        // Use the entry's rank field (the number the popup displays) so tied ranks (e.g. 2,2,4) match
+        // exactly; fall back to list position for course leaderboards built without ties.
+        mergedRanks[key] = String(entries[idx].rank ?? (idx + 1));
+        if (stats && entries[idx].value != null) stats[key] = entries[idx].value; // leaderboard value (popup precision)
+      };
+
+      // COURSE: read the per-event leaderboard caches (warmed by the cron; same source as the card's
+      // ESPN stats, so values agree even when momentarily cold).
+      const tournCourseLb = await Promise.allSettled(
+        TOURN_COURSE_KEYS.map(k => redis.get(tournLbCacheKey(eventId, k)))
+      );
+      for (let i = 0; i < TOURN_COURSE_KEYS.length; i++) {
+        const r = tournCourseLb[i];
         if (r.status !== 'fulfilled' || !r.value) continue;
-        try {
-          const parsed = JSON.parse(r.value as string);
-          const entries: Array<{ name: string; value?: string; rank?: number }> = parsed.entries ?? [];
-          const idx = entries.findIndex(e => normNameT(e.name) === nameLowerT);
-          if (idx === -1) continue;
-          const key = TOURN_LB_KEYS[i];
-          // Use the entry's rank field (the number the popup displays) so tied ranks (e.g. 2,2,4)
-          // match exactly; fall back to list position for course leaderboards built without ties.
-          mergedRanks[key] = String(entries[idx].rank ?? (idx + 1));
-          if (stats && entries[idx].value != null) stats[key] = entries[idx].value; // leaderboard value (popup precision)
-        } catch { /* ignore */ }
+        try { applyLb(TOURN_COURSE_KEYS[i], JSON.parse(r.value as string).entries ?? []); } catch { /* ignore */ }
+      }
+
+      // SG: build on demand when cold (one cheap GraphQL call each). The card's SG MUST come from this
+      // leaderboard — the per-player scorecard's SG is a different figure that doesn't match the popup.
+      const sgLbs = await Promise.all(TOURN_SG_KEYS.map(k => getOrBuildSgLeaderboard(eventId, k).catch(() => null)));
+      for (let i = 0; i < TOURN_SG_KEYS.length; i++) {
+        const lb = sgLbs[i];
+        if (lb?.entries?.length) applyLb(TOURN_SG_KEYS[i], lb.entries);
       }
 
       if (stats) {

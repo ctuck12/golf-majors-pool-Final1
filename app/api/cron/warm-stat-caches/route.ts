@@ -102,7 +102,7 @@ export async function GET(request: Request) {
   // season stats, so a cold start warms gradually across runs.
   const TOURN_EVENT_IDS = ['401811937', '401811941', '401811947', '401811952']; // PLAYERS, Masters, PGA, US Open
   const TOURN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'puttAverage'];
-  const TOURN_SG_KEYS = ['sgTotal', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
+  const TOURN_SG_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
   const TOURN_ALL_KEYS = [...TOURN_COURSE_KEYS, ...TOURN_SG_KEYS];
   for (const eventId of TOURN_EVENT_IDS) {
     for (const key of TOURN_ALL_KEYS) {
