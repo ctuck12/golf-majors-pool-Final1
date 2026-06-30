@@ -32,15 +32,15 @@ export type BioOverride = Partial<{
 // on ESPN or PGA Tour, so everything must be entered manually.
 export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   // ---- Missing all six (no record on either API) ----
-  'A.J. Ewart':                 { dob: 'May 7, 1999', birthPlace: 'Coquitlam, Canada', height: `6'1"`, weight: '175 lbs', swing: 'Right', college: '' },
-  'Davis Chatfield':            { dob: 'May 28, 1999', birthPlace: 'Attleboro, Massachusetts', height: `6'0"`, weight: '180 lbs', swing: 'Right', college: '' },
+  'A.J. Ewart':                 { dob: 'May 7, 1999', birthPlace: 'Coquitlam, Canada', height: `6'1"`, weight: '175 lbs', swing: 'Right', college: 'Barry University' },
+  'Davis Chatfield':            { dob: 'May 28, 1999', birthPlace: 'Attleboro, Massachusetts', height: `6'0"`, weight: '180 lbs', swing: 'Right', college: 'Notre Dame' },
 
   // ---- Missing 4–5 fields ----
-  'Zach Bauchou':               { birthPlace: 'Forest, Virginia', height: `5'11"`, weight: '170 lbs', swing: 'Right', college: '' },
+  'Zach Bauchou':               { birthPlace: 'Forest, Virginia', height: `5'11"`, weight: '170 lbs', swing: 'Right', college: 'Oklahoma State' },
   'Sudarshan Yellamaraju':      { dob: 'July 9, 2001', birthPlace: 'Visakhapatnam, India', swing: 'Left', college: '' },
   'Benjamin James':             { birthPlace: 'Milford, Connecticut', height: `6'0"`, weight: '172 lbs', swing: 'Right' },
   'Ryuichi Oiwa':               { birthPlace: 'Toyohashi, Japan', height: `5'11"`, weight: '202 lbs', college: '' },
-  'Kevin Yu':                   { birthPlace: 'Taoyuan, Taiwan', height: `5'10"`, weight: '165 lbs', college: '' },
+  'Kevin Yu':                   { birthPlace: 'Taoyuan, Taiwan', height: `5'10"`, weight: '165 lbs', college: 'Arizona State' },
 
   // ---- Missing 3 fields ----
   'Caleb Surratt':              { dob: 'March 16, 2004', height: `6'3"`, weight: '190 lbs' },
@@ -50,9 +50,9 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Jayden Trey Schaper':        { height: `6'1"`, weight: '176 lbs', college: '' },
   'Matthew Jordan':             { height: `6'0"`, weight: '170 lbs', college: '' },
   'Laurie Canter':              { height: `6'3"`, weight: '187 lbs', college: '' },
-  'Ugo Coussaud':               { height: `6'2"`, weight: '187 lbs', college: '' },
+  'Ugo Coussaud':               { height: `6'2"`, weight: '187 lbs', college: 'Laval University' },
   'Angel Hidalgo Portillo':     { height: `5'10"`, weight: '165 lbs', college: '' },
-  'Luke Clanton':               { height: `6'1"`, weight: '170 lbs', college: '' },
+  'Luke Clanton':               { height: `6'1"`, weight: '170 lbs', college: 'Florida State' },
   'Jackson Van Paris':          { height: `6'3"`, weight: '190 lbs', swing: 'Right' },
   'Spencer Tibbits':            { height: `6'2"`, weight: '155 lbs', swing: 'Right' },
   'Rocco Paolo Repetto Taylor': { height: `5'11"`, weight: '', swing: 'Right' },
@@ -88,14 +88,18 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Patrick Fishburn':           { swing: 'Right' },
   'Mac Meissner':               { swing: 'Right' },
 
+  // ---- College (players who DID attend — clears the auto "Did not attend college" note) ----
+  'Takumi Kanaya':              { college: 'Tohoku Fukushi University' },
+  'Ryan Fox':                   { college: 'University of Waikato' },
+  'Kristoffer Reitan':          { college: 'Texas' },
+
   // ---- College-only gaps (NOT stubbed) ----
   // These already display "*Did not attend college" automatically because the APIs
   // confirm no college. Only add a 'college' entry here if one of them ACTUALLY attended
   // college and is showing the note incorrectly:
   //   Rory McIlroy, Tommy Fleetwood, Akshay Bhatia, Min Woo Lee, Tyrrell Hatton,
-  //   Joaquin Niemann, Jason Day, Cameron Smith, Nicolai Hojgaard, Ryan Fox,
-  //   Emiliano Grillo, Ryo Hisatsune, Justin Rose, Aaron Rai, Kristoffer Reitan,
-  //   John Parry, Adrien Saddier, Lucas Herbert, Nathan Kimsey, Hennie Du Plessis,
-  //   Niklas Norgaard Moller, Taihei Sato, Tony Finau, Zecheng Dou, Kensei Hirata,
-  //   Takumi Kanaya
+  //   Joaquin Niemann, Jason Day, Cameron Smith, Nicolai Hojgaard, Emiliano Grillo,
+  //   Ryo Hisatsune, Justin Rose, Aaron Rai, John Parry, Adrien Saddier,
+  //   Lucas Herbert, Nathan Kimsey, Hennie Du Plessis, Niklas Norgaard Moller,
+  //   Taihei Sato, Tony Finau, Zecheng Dou, Kensei Hirata
 };
