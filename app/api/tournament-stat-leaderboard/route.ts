@@ -200,7 +200,7 @@ export async function GET(request: Request) {
 
     if (result.entries.length > 0) {
       // Completed-event data is static; cache long so the field list endpoint flakiness doesn't matter.
-      try { await redis.setex(cacheKey, 21600, JSON.stringify(result)); } catch { /* ignore */ }
+      try { await redis.setex(cacheKey, 604800, JSON.stringify(result)); } catch { /* ignore */ }
     }
     return Response.json(result);
   } catch {

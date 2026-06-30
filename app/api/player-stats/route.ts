@@ -45,10 +45,10 @@ export async function GET(request: Request) {
   }
   const seasonYear = new Date().getFullYear();
   const cacheKey = isTournament
-    ? `player-stats:v34:tourn:${eventId}:${name}`
+    ? `player-stats:v35:tourn:${eventId}:${name}`
     : `player-stats:v85:season:${seasonYear}:${name}`;
   const ranksCacheKey = isTournament
-    ? `player-stats:v34:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
+    ? `player-stats:v35:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
     : `player-stats:v85:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
   const ttl = isTournament ? 900 : 3600;
 
@@ -141,25 +141,36 @@ export async function GET(request: Request) {
         ? mergeStats(espnSeasonStats, pgaSeasonStats, espnStats, pgaScorecardStats)
         : null;
 
-      // Tournament SG ranks come from scorecardStatsV3 strokesGained.rank (tournament-specific)
-      // Season course stat ranks come from playerProfileStats (PGA Tour season)
-      const seasonRanks = pgaResult?.ranks ?? {};
+      // Tournament view shows ONLY tournament-sourced ranks — no season ranks bleed in.
+      //  - SG ranks: scorecardStatsV3 (each player's official tournament rank).
+      //  - Course ranks + values: the per-event leaderboard (list position), computed just below.
       const tournSgRanks = scorecardResult?.sgRanks ?? {};
-      // Strip ALL SG ranks from season in tournament context — tournament SG ranks must only
-      // come from scorecardStatsV3 (tournSgRanks). Season SG ranks must never bleed into
-      // tournament view even if the scorecard returned no ranks for a particular category.
-      const { sgTotal: _i1, sgOffTee: _i2, sgApproach: _i3, sgAroundGreen: _i4, sgPutting: _i5, ...seasonNonSgRanks } = seasonRanks;
-      // ESPN season ranks as base fallback for players without PGA Tour GQL data (LIV/DP World)
-      const ESPN_LABEL_TO_FIELD_TOURN: Record<string, string> = {
-        'Scrambling%': 'scrambling', 'Sand Saves%': 'sandSaves', 'GIR%': 'gir',
-        'Drive Dist': 'drivingDistance', 'Drive Acc': 'drivingAccuracy', 'Putts/Green': 'puttAverage',
-      };
-      const espnSeasonRanks: Record<string, string> = {};
-      for (const [label, field] of Object.entries(ESPN_LABEL_TO_FIELD_TOURN)) {
-        const rankStr = (espnSeasonStats?.statRanks as Record<string, string> | null)?.[label];
-        if (rankStr) { const num = parseInt(rankStr); if (!isNaN(num) && num > 0) espnSeasonRanks[field] = String(num); }
+
+      // Tournament COURSE-stat ranks + values: read the per-event leaderboard caches (the EXACT data
+      // the popup renders) and use the player's list position + the leaderboard's value, so the card
+      // matches the popup — mirroring how season works. (SG ranks come from the scorecard above.)
+      const TOURN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'puttAverage'];
+      const normNameT = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase();
+      const nameLowerT = normNameT(name);
+      const tournCourseLb = await Promise.allSettled(
+        TOURN_COURSE_KEYS.map(k => redis.get(`tourn-stat-lb:v10:${eventId}:${k}`))
+      );
+      const tournCourseRanks: Record<string, string> = {};
+      for (let i = 0; i < TOURN_COURSE_KEYS.length; i++) {
+        const r = tournCourseLb[i];
+        if (r.status !== 'fulfilled' || !r.value) continue;
+        try {
+          const parsed = JSON.parse(r.value as string);
+          const entries: Array<{ name: string; value?: string }> = parsed.entries ?? [];
+          const idx = entries.findIndex(e => normNameT(e.name) === nameLowerT);
+          if (idx === -1) continue;
+          const key = TOURN_COURSE_KEYS[i];
+          tournCourseRanks[key] = String(idx + 1); // list position — matches the popup exactly
+          if (stats && entries[idx].value != null) stats[key] = entries[idx].value; // leaderboard value (popup precision)
+        } catch { /* ignore */ }
       }
-      const mergedRanks = { ...espnSeasonRanks, ...seasonNonSgRanks, ...tournSgRanks };
+
+      const mergedRanks = { ...tournCourseRanks, ...tournSgRanks };
 
       if (stats) {
         await redis.setex(cacheKey, ttl, JSON.stringify(stats));
