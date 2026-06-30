@@ -449,14 +449,19 @@ const NON_US_COLLEGES = new Set<string>([
   'University College Dublin',
   'Dublin Business College',
 ]);
+// Display renames applied AFTER the University strip (keyed by the stripped value).
+const COLLEGE_RENAMES: Record<string, string> = {
+  'North Carolina-Chapel Hill': 'North Carolina',
+};
 // For US colleges, drop a leading "University of " or trailing " University"
 // (e.g. "University of Arkansas" -> "Arkansas", "McNeese State University" -> "McNeese State").
 // Non-US colleges are left exactly as-is.
 const formatCollege = (college: string): string => {
   if (NON_US_COLLEGES.has(college)) return college;
-  if (college.endsWith(' University')) return college.slice(0, -' University'.length);
-  if (college.startsWith('University of ')) return college.slice('University of '.length);
-  return college;
+  let c = college;
+  if (c.endsWith(' University')) c = c.slice(0, -' University'.length);
+  else if (c.startsWith('University of ')) c = c.slice('University of '.length);
+  return COLLEGE_RENAMES[c] ?? c;
 };
 
 // Photo priority:
