@@ -36,7 +36,7 @@ async function fetchDirectory(): Promise<{ players: Array<{ id: string; displayN
 }
 
 export async function GET() {
-  const unresolved = PLAYER_POOL_WITH_PGA_IDS.filter((p) => p.pgaTourId === 0);
+  const unresolved = PLAYER_POOL_WITH_PGA_IDS.filter((p) => (p.pgaTourId as number) === 0);
   if (unresolved.length === 0) return Response.json({ message: 'All players have pgaTourId resolved.' });
 
   const dir = await fetchDirectory();
