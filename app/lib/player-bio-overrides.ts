@@ -32,18 +32,18 @@ export type BioOverride = Partial<{
 // on ESPN or PGA Tour, so everything must be entered manually.
 export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   // ---- Missing all six (no record on either API) ----
-  'A.J. Ewart':                 { dob: '', birthPlace: '', height: '', weight: '', swing: '', college: '' },
-  'Davis Chatfield':            { dob: '', birthPlace: '', height: '', weight: '', swing: '', college: '' },
+  'A.J. Ewart':                 { dob: 'May 7, 1999', birthPlace: '', height: '', weight: '', swing: '', college: '' },
+  'Davis Chatfield':            { dob: 'May 28, 1999', birthPlace: '', height: '', weight: '', swing: '', college: '' },
 
   // ---- Missing 4–5 fields ----
   'Zach Bauchou':               { birthPlace: '', height: '', weight: '', swing: '', college: '' },
-  'Sudarshan Yellamaraju':      { dob: '', birthPlace: '', swing: '', college: '' },
+  'Sudarshan Yellamaraju':      { dob: 'July 9, 2001', birthPlace: '', swing: '', college: '' },
   'Benjamin James':             { birthPlace: '', height: '', weight: '', swing: '' },
   'Ryuichi Oiwa':               { birthPlace: '', height: '', weight: '', college: '' },
   'Kevin Yu':                   { birthPlace: '', height: '', weight: '', college: '' },
 
   // ---- Missing 3 fields ----
-  'Caleb Surratt':              { dob: '', height: '', weight: '' },
+  'Caleb Surratt':              { dob: 'March 16, 2004', height: '', weight: '' },
   'Jake Peacock':               { dob: '', height: '', weight: '' },
   'Greyson Leach':              { dob: '', height: '', weight: '' },
   'Robbie Higgins':             { dob: '', height: '', weight: '' },
@@ -59,9 +59,9 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Jake Sollon':                { dob: '', birthPlace: '', swing: '' },
 
   // ---- Missing 2 fields ----
-  'Johnny Keefer':              { dob: '', weight: '' },
+  'Johnny Keefer':              { dob: 'January 11, 2001', weight: '' },
   'Cooper Dossey':              { dob: '', swing: '' },
-  'Manav Shah':                 { dob: '', birthPlace: '' },
+  'Manav Shah':                 { dob: 'April 13, 1992', birthPlace: '' },
   'Tom Kim':                    { weight: '', college: '' },
   'Matthieu Pavon':             { weight: '', college: '' },
   'Chandler Phillips':          { weight: '', swing: '' },
