@@ -438,6 +438,27 @@ const TOURNAMENT_CARD_HEIGHT = 45;
 const pgaPhoto = (pgaId: number) =>
   `https://pga-tour-res.cloudinary.com/image/upload/c_fill,d_headshots_default.png,f_auto,g_face:center,h_350,q_auto,w_280/headshots_${pgaId}.png`;
 
+// Colleges OUTSIDE the United States — displayed verbatim (no abbreviation).
+const NON_US_COLLEGES = new Set<string>([
+  'University of Waikato',
+  'Laval University',
+  'Tohoku Fukushi University',
+  'Osaka Gakuin University',
+  'Korea National Sport University',
+  'Yonsei University',
+  'University College Dublin',
+  'Dublin Business College',
+]);
+// For US colleges, drop a leading "University of " or trailing " University"
+// (e.g. "University of Arkansas" -> "Arkansas", "McNeese State University" -> "McNeese State").
+// Non-US colleges are left exactly as-is.
+const formatCollege = (college: string): string => {
+  if (NON_US_COLLEGES.has(college)) return college;
+  if (college.endsWith(' University')) return college.slice(0, -' University'.length);
+  if (college.startsWith('University of ')) return college.slice('University of '.length);
+  return college;
+};
+
 // Photo priority:
 // 1) A manually-uploaded photoUrl ALWAYS wins. These were uploaded for players who had no photo
 //    anywhere, so they must never be overridden by an ESPN headshot (which can be a blank
@@ -8703,7 +8724,7 @@ export default function Page() {
                     { label: 'Height', value: bio?.height ?? null },
                     { label: 'Weight', value: bio?.weight ?? null },
                     { label: 'Swing', value: bio?.swing ?? null },
-                    { label: 'College', value: bio?.college ?? null, italic: !bio?.college && (bio?.collegeConfirmedAbsent ?? false) },
+                    { label: 'College', value: bio?.college ? formatCollege(bio.college) : null, italic: !bio?.college && (bio?.collegeConfirmedAbsent ?? false) },
                   ];
                   const bottomRows: { label: string; value: string | number | null }[] = [
                     { label: 'Turned Pro', value: bio?.turnedPro ?? null },
