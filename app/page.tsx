@@ -316,6 +316,16 @@ const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
   open: '/open-tab-logo.png',
 };
 
+// Per-tournament logo height (px) for the player-popup Career tab — each logo has a different aspect
+// ratio, so they're tuned individually so they read at a consistent visual size.
+const CAREER_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
+  players: 36,
+  masters: 29,
+  pga: 36,
+  'us-open': 29,
+  open: 32,
+};
+
 const TOURNAMENT_HEADING_LOGOS: Partial<Record<TournamentId, string>> = {
   masters: '/masters-heading-logo.png',
 };
@@ -8552,6 +8562,7 @@ export default function Page() {
                   // tournament tabs) instead of text. Keep it on a white chip so the colored logo stays
                   // legible; selection is shown via the border + shadow rather than a dark fill.
                   const careerLogo = tab === 'career' ? TOURNAMENT_TAB_LOGOS[careerTournamentId] : undefined;
+                  const careerLogoHeight = CAREER_TAB_LOGO_HEIGHTS[careerTournamentId] ?? 32;
                   return (
                     <button
                       key={tab}
@@ -8582,7 +8593,7 @@ export default function Page() {
                       style={{ flex: 1, border: isActive ? '1px solid #0f1720' : '1px solid #d8e0e8', borderRadius: 8, background: isActive ? '#fff' : '#f4f7fa', padding: careerLogo ? '1px 4px' : '8px 3px', fontSize: 'clamp(8.5px, 2.2vw, 11px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: isActive ? 800 : 600, color: isActive ? '#0f1720' : '#5a6a7a', cursor: 'pointer', transition: 'all 0.15s', letterSpacing: '0.01em', boxShadow: isActive ? '0 1px 4px rgba(15,23,32,0.28)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                       {careerLogo
-                        ? <img src={careerLogo} alt={label} style={{ height: 32, maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+                        ? <img src={careerLogo} alt={label} style={{ height: careerLogoHeight, maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
                         : label}
                     </button>
                   );
