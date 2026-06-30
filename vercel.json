@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/warm-stat-caches",
-      "schedule": "*/10 * * * *"
+      "schedule": "*/5 * * * *"
     }
   ]
 }

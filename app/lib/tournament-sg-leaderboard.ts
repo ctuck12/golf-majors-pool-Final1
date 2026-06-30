@@ -39,7 +39,7 @@ export function tournLbTtl(eventId: string): number {
   if (isNaN(lock)) return 604800;
   const now = Date.now();
   const dayMs = 86400000;
-  if (now >= lock - dayMs && now <= lock + 5 * dayMs) return 1800; // live → refresh frequently
+  if (now >= lock - dayMs && now <= lock + 5 * dayMs) return 600; // live → refresh every ~10 min
   return 604800; // static (completed or future) → long cache
 }
 

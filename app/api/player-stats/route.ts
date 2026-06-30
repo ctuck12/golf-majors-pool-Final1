@@ -51,7 +51,7 @@ export async function GET(request: Request) {
   const ranksCacheKey = isTournament
     ? `player-stats:v38:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
     : `player-stats:v85:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
-  const ttl = isTournament ? 900 : 3600;
+  const ttl = isTournament ? 300 : 3600;
 
   try {
     const cached = await redis.get(cacheKey);
