@@ -566,6 +566,49 @@ async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBi
   return result;
 }
 
+// PGA Tour GQL: career starts/wins/earnings, summed from playerProfileTournamentResults
+// (tourCode R = PGA Tour). Each group carries an overviewInfo summary; summing across
+// groups yields official PGA Tour career totals. Works for any player with a PGA Tour ID,
+// including DP-World-primary players ESPN's PGA career endpoints don't cover.
+async function fetchPgaCareerResults(pgaTourId: string): Promise<Partial<PlayerBio>> {
+  const result: Partial<PlayerBio> = {};
+  try {
+    const query = `query R($id: ID!) {
+      playerProfileTournamentResults(playerId: $id, tourCode: R) {
+        tournaments { overviewInfo { events wins money } }
+      }
+    }`;
+    const res = await fetch(PGA_GQL, {
+      method: 'POST',
+      headers: gqlHeaders(),
+      body: JSON.stringify({ query, variables: { id: pgaTourId } }),
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return result;
+    const json = await res.json() as {
+      data?: { playerProfileTournamentResults?: { tournaments?: Array<{ overviewInfo?: { events?: number; wins?: number; money?: number } }> } };
+      errors?: unknown[];
+    };
+    if (json.errors?.length) return result;
+    const groups = json.data?.playerProfileTournamentResults?.tournaments ?? [];
+    if (groups.length === 0) return result;
+    let events = 0, wins = 0, money = 0;
+    for (const g of groups) {
+      const o = g.overviewInfo;
+      if (!o) continue;
+      events += o.events ?? 0;
+      wins += o.wins ?? 0;
+      money += o.money ?? 0;
+    }
+    if (events > 0) {
+      result.careerStarts = events;
+      result.careerWins = wins; // 0 is a valid value (no PGA Tour wins yet)
+    }
+    if (money > 0) result.careerEarnings = fmtEarnings(money);
+  } catch { /* ignore */ }
+  return result;
+}
+
 // ESPN athlete overview — career splits for wins/starts/earnings
 async function fetchEspnOverviewCareer(espnId: string): Promise<Partial<PlayerBio>> {
   const result: Partial<PlayerBio> = {};
@@ -666,7 +709,7 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v19:${name}`;
+  const cacheKey = `player-bio:v20:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -696,6 +739,7 @@ export async function GET(req: Request) {
 
   const fetches: Promise<Partial<PlayerBio>>[] = [];
   if (pgaTourId) {
+    fetches.push(fetchPgaCareerResults(pgaTourId)); // first: authoritative PGA Tour career totals
     fetches.push(fetchPgaProfileBio(pgaTourId));
     fetches.push(fetchPgaMajorResults(pgaTourId));
     fetches.push(fetchPgaTourRestBio(pgaTourId));
