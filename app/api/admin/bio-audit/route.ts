@@ -17,6 +17,7 @@ export async function GET(request: Request) {
 
   type Row = { name: string; blanks: Field[]; collegeDash: boolean; majorStartsDash: boolean } | { name: string; error: string };
   const rows: Row[] = [];
+  const colleges = new Set<string>();
 
   for (let i = 0; i < players.length; i += BATCH_SIZE) {
     const batch = players.slice(i, i + BATCH_SIZE);
@@ -40,6 +41,7 @@ export async function GET(request: Request) {
           // Major Starts renders "—" when majorStarts is null (the PGA major query failed) —
           // distinct from a real 0 (player has never started a major).
           const majorStartsDash = bio.majorStarts == null;
+          if (typeof bio.college === 'string' && bio.college) colleges.add(bio.college);
           rows.push({ name: p.name, blanks, collegeDash, majorStartsDash });
         } catch (e) {
           rows.push({ name: p.name, error: String(e).slice(0, 80) });
@@ -83,6 +85,7 @@ export async function GET(request: Request) {
     perFieldBlankCounts: fieldCounts,
     collegeDashCount: collegeDashPlayers.length,
     collegeDashPlayers,
+    distinctColleges: [...colleges].sort(),
     majorStartsDashCount: majorStartsDashPlayers.length,
     majorStartsDashPlayers,
     playersMissingAtLeastOne: missingAtLeastOne
