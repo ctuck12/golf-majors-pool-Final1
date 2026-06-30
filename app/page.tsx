@@ -464,6 +464,33 @@ const formatCollege = (college: string): string => {
   return COLLEGE_RENAMES[c] ?? c;
 };
 
+// --- Major-tournament row theming (win-list popup) ---------------------------------
+// Each major carries the same base color used for its leaderboard header. A major win row is
+// tinted with a LIGHT version of that color (background) and a DARK version (tournament text).
+const hexToRgb = (h: string): [number, number, number] => {
+  const n = parseInt(h.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+const mixHex = (a: string, b: string, t: number): string => {
+  const A = hexToRgb(a), B = hexToRgb(b);
+  const c = (i: number) => Math.round(A[i] + (B[i] - A[i]) * t).toString(16).padStart(2, '0');
+  return `#${c(0)}${c(1)}${c(2)}`;
+};
+// Base color per major (matches the leaderboard header colors).
+const MAJOR_BASE_COLORS: { re: RegExp; base: string }[] = [
+  { re: /\bmasters\b/i, base: '#2c6449' },                          // The Masters — green
+  { re: /pga championship/i, base: '#B09963' },                     // PGA Championship — gold
+  { re: /u\.?\s?s\.?\s?open\b/i, base: '#BE3436' },                 // U.S. Open — red
+  { re: /(the\s+)?open championship|british open/i, base: '#C8941C' }, // The Open — gold/amber
+];
+// Returns { bg, text } for a major win, or null for a non-major tournament.
+const majorRowTheme = (tournament: string): { bg: string; text: string } | null => {
+  for (const m of MAJOR_BASE_COLORS) {
+    if (m.re.test(tournament)) return { bg: mixHex(m.base, '#ffffff', 0.86), text: mixHex(m.base, '#000000', 0.4) };
+  }
+  return null;
+};
+
 // Photo priority:
 // 1) A manually-uploaded photoUrl ALWAYS wins. These were uploaded for players who had no photo
 //    anywhere, so they must never be overridden by an ESPN headshot (which can be a blank
@@ -8633,20 +8660,35 @@ export default function Page() {
                   aria-label="Close"
                 >×</button>
               </div>
-              {/* Win list */}
-              <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '6px 0' }}>
-                {winsListPopup.wins.map((w, i) => (
-                  <div key={`${w.tournament}-${w.year}-${i}`} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, padding: '11px 18px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < winsListPopup.wins.length - 1 ? '1px solid #eef2f6' : 'none' }}>
-                    <span style={{ minWidth: 0, flex: 1 }}>
-                      <span style={{ display: 'block', fontSize: 13.5, color: '#0f1720', fontWeight: 700 }}>{w.tournament || '—'}</span>
-                      {w.course && <span style={{ display: 'block', fontSize: 11, color: '#6b7c8c', fontWeight: 500, marginTop: 1 }}>{w.course}</span>}
-                    </span>
-                    <span style={{ flexShrink: 0, textAlign: 'right' }}>
-                      <span style={{ display: 'block', fontSize: 12.5, color: '#2563eb', fontWeight: 800 }}>{w.year || '—'}</span>
-                      {w.toPar && <span style={{ display: 'block', fontSize: 11, color: '#6b7c8c', fontWeight: 700, marginTop: 1 }}>{w.toPar}</span>}
-                    </span>
-                  </div>
-                ))}
+              {/* Win list — grouped by year, with major wins tinted in their tournament color */}
+              <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                {(() => {
+                  // Group consecutive wins by year (the list is already sorted newest-first).
+                  const groups: { year: string; wins: typeof winsListPopup.wins }[] = [];
+                  for (const w of winsListPopup.wins) {
+                    const last = groups[groups.length - 1];
+                    if (last && last.year === w.year) last.wins.push(w);
+                    else groups.push({ year: w.year, wins: [w] });
+                  }
+                  return groups.map((g) => (
+                    <div key={g.year}>
+                      {/* Year header band */}
+                      <div style={{ background: '#eef2f6', padding: '5px 18px', fontSize: 11.5, fontWeight: 800, color: '#56657a', letterSpacing: '0.04em', borderBottom: '1px solid #e2e8ef' }}>{g.year || '—'}</div>
+                      {g.wins.map((w, i) => {
+                        const theme = majorRowTheme(w.tournament);
+                        return (
+                          <div key={`${w.tournament}-${i}`} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, padding: '11px 18px', background: theme ? theme.bg : '#fff', borderBottom: '1px solid #eef2f6' }}>
+                            <span style={{ minWidth: 0, flex: 1 }}>
+                              <span style={{ display: 'block', fontSize: 13.5, color: theme ? theme.text : '#0f1720', fontWeight: 700 }}>{w.tournament || '—'}</span>
+                              {w.course && <span style={{ display: 'block', fontSize: 11, color: theme ? theme.text : '#6b7c8c', opacity: theme ? 0.8 : 1, fontWeight: 500, marginTop: 1 }}>{w.course}</span>}
+                            </span>
+                            {w.toPar && <span style={{ flexShrink: 0, fontSize: 13, color: theme ? theme.text : '#475569', fontWeight: 800 }}>{w.toPar}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ));
+                })()}
               </div>
             </div>
           </div>
