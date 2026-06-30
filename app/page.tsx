@@ -464,9 +464,10 @@ const formatCollege = (college: string): string => {
   return COLLEGE_RENAMES[c] ?? c;
 };
 
-// --- Major-tournament row theming (win-list popup) ---------------------------------
-// Each major carries the same base color used for its leaderboard header. A major win row is
-// tinted with a LIGHT version of that color (background) and a DARK version (tournament text).
+// --- Featured-tournament row theming (win-list popup) ------------------------------
+// The four majors (plus The Players) each carry the same base color used for their
+// leaderboard header. A win row for one of these is tinted with a LIGHT version of that
+// color (background) and a DARK version (tournament text).
 const hexToRgb = (h: string): [number, number, number] => {
   const n = parseInt(h.slice(1), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -476,16 +477,17 @@ const mixHex = (a: string, b: string, t: number): string => {
   const c = (i: number) => Math.round(A[i] + (B[i] - A[i]) * t).toString(16).padStart(2, '0');
   return `#${c(0)}${c(1)}${c(2)}`;
 };
-// Base color per major (matches the leaderboard header colors).
-const MAJOR_BASE_COLORS: { re: RegExp; base: string }[] = [
+// Base color per featured event (matches the leaderboard header colors).
+const FEATURED_BASE_COLORS: { re: RegExp; base: string }[] = [
   { re: /\bmasters\b/i, base: '#2c6449' },                          // The Masters — green
   { re: /pga championship/i, base: '#B09963' },                     // PGA Championship — gold
   { re: /u\.?\s?s\.?\s?open\b/i, base: '#BE3436' },                 // U.S. Open — red
   { re: /(the\s+)?open championship|british open/i, base: '#C8941C' }, // The Open — gold/amber
+  { re: /(the\s+)?players championship|\bthe players\b/i, base: '#173b63' }, // The Players — navy
 ];
-// Returns { bg, text } for a major win, or null for a non-major tournament.
-const majorRowTheme = (tournament: string): { bg: string; text: string } | null => {
-  for (const m of MAJOR_BASE_COLORS) {
+// Returns { bg, text } for a featured win (major or The Players), or null otherwise.
+const featuredRowTheme = (tournament: string): { bg: string; text: string } | null => {
+  for (const m of FEATURED_BASE_COLORS) {
     if (m.re.test(tournament)) return { bg: mixHex(m.base, '#ffffff', 0.86), text: mixHex(m.base, '#000000', 0.4) };
   }
   return null;
@@ -8675,7 +8677,7 @@ export default function Page() {
                       {/* Year header band */}
                       <div style={{ background: '#eef2f6', padding: '5px 18px', fontSize: 11.5, fontWeight: 800, color: '#56657a', letterSpacing: '0.04em', borderBottom: '1px solid #e2e8ef' }}>{g.year || '—'}</div>
                       {g.wins.map((w, i) => {
-                        const theme = majorRowTheme(w.tournament);
+                        const theme = featuredRowTheme(w.tournament);
                         return (
                           <div key={`${w.tournament}-${i}`} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, padding: '11px 18px', background: theme ? theme.bg : '#fff', borderBottom: '1px solid #eef2f6' }}>
                             <span style={{ minWidth: 0, flex: 1 }}>
