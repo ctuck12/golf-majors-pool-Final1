@@ -8548,6 +8548,10 @@ export default function Page() {
                     ? (careerTournamentId === 'us-open' ? 'Season Stats' : 'Stats')
                     : tab === 'season' ? 'Season Results' : tab === 'bio' ? 'Bio' : (careerTabLabel[careerTournamentId] ?? 'Major Career');
                   const isActive = pickHistoryView === tab;
+                  // The far-right "Career" tab shows the tournament's logo (same as the main standings
+                  // tournament tabs) instead of text. Keep it on a white chip so the colored logo stays
+                  // legible; selection is shown via the border + shadow rather than a dark fill.
+                  const careerLogo = tab === 'career' ? TOURNAMENT_TAB_LOGOS[careerTournamentId] : undefined;
                   return (
                     <button
                       key={tab}
@@ -8575,9 +8579,11 @@ export default function Page() {
                           }
                         }
                       }}
-                      style={{ flex: 1, border: isActive ? '1px solid #0f1720' : '1px solid #d8e0e8', borderRadius: 8, background: isActive ? '#0f1720' : '#f4f7fa', padding: '8px 3px', fontSize: 'clamp(8.5px, 2.2vw, 11px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: isActive ? 800 : 600, color: isActive ? '#fff' : '#5a6a7a', cursor: 'pointer', transition: 'all 0.15s', letterSpacing: '0.01em', boxShadow: isActive ? '0 1px 4px rgba(15,23,32,0.28)' : 'none' }}
+                      style={{ flex: 1, border: isActive ? '1px solid #0f1720' : '1px solid #d8e0e8', borderRadius: 8, background: careerLogo ? '#fff' : (isActive ? '#0f1720' : '#f4f7fa'), padding: careerLogo ? '4px 3px' : '8px 3px', fontSize: 'clamp(8.5px, 2.2vw, 11px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: isActive ? 800 : 600, color: isActive ? '#fff' : '#5a6a7a', cursor: 'pointer', transition: 'all 0.15s', letterSpacing: '0.01em', boxShadow: isActive ? '0 1px 4px rgba(15,23,32,0.28)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
-                      {label}
+                      {careerLogo
+                        ? <img src={careerLogo} alt={label} style={{ height: 26, maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+                        : label}
                     </button>
                   );
                 })}
