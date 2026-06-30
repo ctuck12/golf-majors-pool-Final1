@@ -2605,13 +2605,12 @@ export default function Page() {
     selectedTournamentStatus === null;
   const showLivePayoutStrip =
     selectedTournamentStatus?.label === 'IN PROGRESS' || selectedTournamentStatus?.label === 'LOCKED';
-  // Tournament stats (and the Season/Tournament toggle) only unlock once the SECOND round is underway.
-  // After a single round the per-event data is too thin to be meaningful, so until round 2 is in
-  // progress we show Season stats only and hide the toggle. Completed events (LOCKED) always show
-  // tournament stats; a live event uses the feed's current round (>= 2 means round 2 has begun).
+  // Tournament stats (and the Season/Tournament toggle) appear, and default to Tournament, as soon as
+  // the event is underway (Round 1) — i.e. whenever it's IN PROGRESS — and stay for completed (LOCKED)
+  // events. Before play begins (UP NEXT / ACTIVE / future) the popup shows Season stats only.
   const tournamentStatsUnlocked =
     selectedTournamentStatus?.label === 'LOCKED' ||
-    (selectedTournamentStatus?.label === 'IN PROGRESS' && (feed?.currentRound ?? 1) >= 2);
+    selectedTournamentStatus?.label === 'IN PROGRESS';
   const displayTournamentWindow = getDisplayTournamentWindow(tournament, new Date(nowTick));
   const currentRoundLabel = selectedTournamentStatus?.label === 'LOCKED'
     ? 'Round 4'
