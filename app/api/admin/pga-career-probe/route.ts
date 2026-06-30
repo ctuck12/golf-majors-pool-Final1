@@ -20,14 +20,18 @@ async function gql(query: string, variables?: Record<string, unknown>): Promise<
 }
 
 export async function GET() {
-  // 1) Query-field definitions (args + return type) for the player-profile queries.
-  const q = await gql(`{ __type(name:"Query"){ fields {
-    name
-    args { name type { kind name ofType { kind name } } }
-    type { kind name ofType { kind name ofType { kind name } } }
-  } } }`) as { data?: { __type?: { fields?: Array<{ name: string }> } } };
-  const allFields = q?.data?.__type?.fields ?? [];
-  const profileFields = allFields.filter((f) => /^playerProfile|^player$|^playerHub/.test(f.name));
+  // Introspect the tournament-results types to find where starts/position/money live.
+  const types = await gql(`{
+    results: __type(name:"PlayerProfileTournamentResults"){ fields { name type { kind name ofType { kind name ofType { kind name } } } } }
+    tournament: __type(name:"PlayerProfileTournament"){ fields { name type { kind name ofType { name } } } }
+    tournamentResult: __type(name:"TournamentResult"){ fields { name type { kind name ofType { name } } } }
+  }`);
 
-  return Response.json({ profileFields });
+  // And a real sample for Jayden Schaper (57737) — try the shape used by major-results.
+  const sample = await gql(
+    `query R($id: ID!){ playerProfileTournamentResults(playerId: $id, tourCode: R){ tourCode tournaments { tournamentName year } } }`,
+    { id: '57737' },
+  );
+
+  return Response.json({ types, sample });
 }
