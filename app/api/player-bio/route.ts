@@ -552,9 +552,11 @@ async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBi
       };
       errors?: unknown[];
     };
-    if (json.errors?.length) return result;
-    const tournaments = json.data?.playerProfileMajorResults?.tournaments ?? [];
-    if (tournaments.length === 0) return result;
+    // Only bail when the query itself failed (errors, or no data object). A SUCCESSFUL query
+    // with an empty tournaments list means the player has genuinely never started a major —
+    // that's a real 0, not unknown, so it should render "0" rather than a dash.
+    if (json.errors?.length || !json.data) return result;
+    const tournaments = json.data.playerProfileMajorResults?.tournaments ?? [];
 
     // Each entry = one major appearance; position "1" = win
     result.majorStarts = tournaments.length;
@@ -709,7 +711,7 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v20:${name}`;
+  const cacheKey = `player-bio:v21:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {

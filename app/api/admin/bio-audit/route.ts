@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 min — iterates the full active pool through /api/player-bio
 
-import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
+import { PLAYER_POOL_WITH_PGA_IDS, PLAYER_ARCHIVE } from '@/app/lib/player-pool';
 
 // The six personal-bio fields shown in the top block of the player Bio tab:
 // DOB, Birthplace, Height, Weight, Swing, College.
@@ -12,9 +12,10 @@ const BATCH_SIZE = 8;
 
 export async function GET(request: Request) {
   const origin = new URL(request.url).origin;
-  const players = PLAYER_POOL_WITH_PGA_IDS;
+  // Cover the whole database — active pool AND archived players (both can open a bio popup).
+  const players = [...PLAYER_POOL_WITH_PGA_IDS, ...PLAYER_ARCHIVE];
 
-  type Row = { name: string; blanks: Field[]; collegeDash: boolean } | { name: string; error: string };
+  type Row = { name: string; blanks: Field[]; collegeDash: boolean; majorStartsDash: boolean } | { name: string; error: string };
   const rows: Row[] = [];
 
   for (let i = 0; i < players.length; i += BATCH_SIZE) {
@@ -36,7 +37,10 @@ export async function GET(request: Request) {
           // College shows a bare "—" when it's null AND not confirmed-absent (the
           // "*Did not attend college" note only shows when collegeConfirmedAbsent is true).
           const collegeDash = bio.college == null && !bio.collegeConfirmedAbsent;
-          rows.push({ name: p.name, blanks, collegeDash });
+          // Major Starts renders "—" when majorStarts is null (the PGA major query failed) —
+          // distinct from a real 0 (player has never started a major).
+          const majorStartsDash = bio.majorStarts == null;
+          rows.push({ name: p.name, blanks, collegeDash, majorStartsDash });
         } catch (e) {
           rows.push({ name: p.name, error: String(e).slice(0, 80) });
         }
@@ -44,13 +48,16 @@ export async function GET(request: Request) {
     );
   }
 
-  const resolved = rows.filter((r): r is { name: string; blanks: Field[]; collegeDash: boolean } => 'blanks' in r);
+  const resolved = rows.filter((r): r is { name: string; blanks: Field[]; collegeDash: boolean; majorStartsDash: boolean } => 'blanks' in r);
   const errors = rows.filter((r): r is { name: string; error: string } => 'error' in r);
 
   // Players whose College field renders a bare "—" (neither a college nor the
   // "*Did not attend college" note). These either attended (need a college value) or
   // didn't (need noCollege: true) in the override map.
   const collegeDashPlayers = resolved.filter((r) => r.collegeDash).map((r) => r.name);
+
+  // Players whose Major Starts renders "—" (majorStarts null = PGA major query failed for them).
+  const majorStartsDashPlayers = resolved.filter((r) => r.majorStartsDash).map((r) => r.name);
 
   const fieldCounts = Object.fromEntries(FIELDS.map((f) => [f, 0])) as Record<Field, number>;
   for (const r of resolved) for (const f of r.blanks) fieldCounts[f]++;
@@ -76,6 +83,8 @@ export async function GET(request: Request) {
     perFieldBlankCounts: fieldCounts,
     collegeDashCount: collegeDashPlayers.length,
     collegeDashPlayers,
+    majorStartsDashCount: majorStartsDashPlayers.length,
+    majorStartsDashPlayers,
     playersMissingAtLeastOne: missingAtLeastOne
       .sort((a, b) => b.blanks.length - a.blanks.length)
       .map((r) => ({ name: r.name, missing: r.blanks })),
