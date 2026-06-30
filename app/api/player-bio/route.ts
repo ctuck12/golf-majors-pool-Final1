@@ -187,102 +187,67 @@ async function fetchPgaTourRestBio(pgaTourId: string): Promise<Partial<PlayerBio
   return result;
 }
 
-// PGA Tour GQL: try multiple queries for career bio fields
+// PGA Tour GQL: the real bio lives at player(id){ playerBio { ... } } (type PlayerBio).
+// Field names confirmed via schema introspection (/api/admin/pga-schema-probe):
+// heightImperial, weightImperial, born (DOB), age, turnedPro, school (college), careerEarnings.
+// This is the fallback that fills height/weight/DOB/college for players ESPN lacks.
 async function fetchPgaProfileBio(pgaTourId: string): Promise<Partial<PlayerBio>> {
   const result: Partial<PlayerBio> = {};
-  // Use the `player` root query (known-working on PGA Tour GQL) for bio/personal data
-  const queries = [
-    `query Player($id: ID!) {
-      player(id: $id) {
-        birthDate dateOfBirth height weight college
-        turnedPro pgaTourDebutYear
-        careerWins careerStarts careerEarnings majorWins majorStarts
+  const query = `query Player($id: ID!) {
+    player(id: $id) {
+      playerBio {
+        heightImperial weightImperial born age turnedPro school careerEarnings
       }
-    }`,
-    `query PlayerHub($id: ID!) {
-      playerHub(playerId: $id) {
-        player {
-          birthDate height weight college turnedPro
-          careerWins careerStarts careerEarnings majorWins majorStarts
-          pgaTourDebutYear
-        }
-      }
-    }`,
-    `query PlayerProfile($id: ID!) {
-      playerProfile(playerId: $id) {
-        playerBio {
-          birthDate dateOfBirth height weight college
-          turnedPro turnedProfessional pgaTourDebutYear
-          pgaTourWins wins careerWins majorWins
-          pgaTourStarts careerStarts majorStarts
-          careerEarnings careerMoney
-        }
-      }
-    }`,
-    `query PlayerBio($id: ID!) {
-      playerBio(playerId: $id) {
-        birthDate dateOfBirth height weight college
-        turnedPro pgaTourDebutYear
-        pgaTourWins wins majorWins
-        pgaTourStarts careerStarts majorStarts
-        careerEarnings
-      }
-    }`,
-  ];
+    }
+  }`;
+  try {
+    const res = await fetch(PGA_GQL, {
+      method: 'POST',
+      headers: gqlHeaders(),
+      body: JSON.stringify({ query, variables: { id: pgaTourId } }),
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return result;
+    const json = await res.json() as {
+      data?: { player?: { playerBio?: Record<string, unknown> } };
+      errors?: unknown[];
+    };
+    if (json.errors?.length) return result;
+    const b = json.data?.player?.playerBio;
+    if (!b) return result;
 
-  for (const query of queries) {
-    try {
-      const res = await fetch(PGA_GQL, {
-        method: 'POST',
-        headers: gqlHeaders(),
-        body: JSON.stringify({ query, variables: { id: pgaTourId } }),
-        signal: AbortSignal.timeout(5000),
-      });
-      if (!res.ok) continue;
-      const json = await res.json() as { data?: Record<string, unknown>; errors?: unknown[] };
-      if (json.errors?.length) continue;
-      const d = json.data;
-      if (!d) continue;
-      const b: Record<string, unknown> | undefined =
-        ((d.playerProfile as Record<string, unknown>)?.playerBio as Record<string, unknown> | undefined)
-        ?? (d.playerBio as Record<string, unknown> | undefined)
-        ?? (d.playerProfile as Record<string, unknown> | undefined);
-      if (!b) continue;
-
-      const dob = (b.birthDate ?? b.dateOfBirth) as string | undefined;
-      if (dob && !result.dob) { result.dob = fmtDob(dob); result.age = calcAge(dob); }
-
-      const h = b.height as number | string | undefined;
-      if (h != null && !result.height) {
-        const hNum = parseFloat(String(h));
-        result.height = !isNaN(hNum) && hNum > 48 ? fmtHeight(hNum) : (typeof h === 'string' ? h : null);
+    // height: PGA returns e.g. "6' 3\"" — keep the imperial string (normalize spacing), else parse inches.
+    if (typeof b.heightImperial === 'string' && b.heightImperial.trim()) {
+      const hs = b.heightImperial.trim();
+      if (/['"]/.test(hs)) {
+        result.height = hs.replace(/\s+/g, '');
+      } else {
+        const hNum = parseFloat(hs);
+        if (!isNaN(hNum) && hNum > 48 && hNum < 96) result.height = fmtHeight(hNum);
       }
-      const w = b.weight as number | string | undefined;
-      if (w != null && !result.weight) {
-        const wNum = parseFloat(String(w).replace(/[^\d.]/g, ''));
-        result.weight = !isNaN(wNum) && wNum > 100 ? `${Math.round(wNum)} lbs` : null;
-      }
-
-      if (!result.college) result.college = parseCollege(b.college);
-      const tp = (b.turnedPro ?? b.turnedProfessional) as unknown;
-      if (tp != null && !result.turnedPro) result.turnedPro = parseYear(tp);
-      const debut = (b.pgaTourDebutYear ?? b.debutYear) as unknown;
-      if (debut != null && !result.pgaTourDebut) result.pgaTourDebut = parseYear(debut);
-      const wins = (b.pgaTourWins ?? b.wins ?? b.careerWins) as unknown;
-      if (wins != null && result.careerWins == null) result.careerWins = parseCount(wins);
-      const mw = b.majorWins as unknown;
-      if (mw != null && result.majorWins == null) result.majorWins = parseCount(mw);
-      const starts = (b.pgaTourStarts ?? b.careerStarts ?? b.events) as unknown;
-      if (starts != null && result.careerStarts == null) result.careerStarts = parseCount(starts);
-      const ms = b.majorStarts as unknown;
-      if (ms != null && result.majorStarts == null) result.majorStarts = parseCount(ms);
-      const earnings = (b.careerEarnings ?? b.careerMoney) as unknown;
-      if (earnings != null && !result.careerEarnings) result.careerEarnings = parseEarnings(earnings);
-
-      // If we got any data, stop trying more queries
-      if (Object.values(result).some(v => v != null)) break;
-    } catch { /* try next */ }
-  }
+    }
+    // weight: e.g. "200" or "200 lbs"
+    if (b.weightImperial != null) {
+      const wNum = parseFloat(String(b.weightImperial).replace(/[^\d.]/g, ''));
+      if (!isNaN(wNum) && wNum > 100 && wNum < 400) result.weight = `${Math.round(wNum)} lbs`;
+    }
+    // dob: `born` is a date string
+    if (b.born) {
+      const formatted = fmtDob(String(b.born));
+      if (formatted) { result.dob = formatted; result.age = calcAge(String(b.born)); }
+    }
+    if (result.age == null && b.age != null) {
+      const ageNum = parseInt(String(b.age));
+      if (!isNaN(ageNum) && ageNum > 0 && ageNum < 120) result.age = ageNum;
+    }
+    // college: `school`
+    const school = parseCollege(b.school);
+    if (school) result.college = school;
+    const tp = parseYear(b.turnedPro);
+    if (tp != null) result.turnedPro = tp;
+    const earnings = parseEarnings(b.careerEarnings);
+    if (earnings) result.careerEarnings = earnings;
+  } catch { /* ignore */ }
   return result;
 }
 
@@ -642,7 +607,7 @@ export async function GET(req: Request) {
   const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v17:${name}`;
+  const cacheKey = `player-bio:v18:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
