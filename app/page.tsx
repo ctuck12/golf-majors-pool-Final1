@@ -1337,7 +1337,7 @@ export default function Page() {
     statRanks: Record<string, string>;
     seasonStatRanks: Record<string, string>;
     fieldDistributions: Record<string, number[]>;
-    playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null } | null;
+    playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; dpWorldWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null } | null;
     playerBioLoading: boolean;
     espnPhotoUrl: string | null;
   } | null>(null);
@@ -2803,7 +2803,7 @@ export default function Page() {
     if (landingTab === 'bio') {
       const bioParams = new URLSearchParams({ name: player.name });
       if (player.pgaTourId) bioParams.set('pgaTourId', String(player.pgaTourId));
-      readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' })
+      readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; dpWorldWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' })
         .then((data) => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null } : null))
         .catch(() => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null));
     }
@@ -8769,7 +8769,7 @@ export default function Page() {
                           try {
                             const bioParams = new URLSearchParams({ name: pickHistoryPlayerPopup.player.name });
                             if (pickHistoryPlayerPopup.player.pgaTourId) bioParams.set('pgaTourId', String(pickHistoryPlayerPopup.player.pgaTourId));
-                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
+                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; dpWorldWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null } : null);
                           } catch {
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null);
@@ -8809,6 +8809,8 @@ export default function Page() {
                     { label: 'Turned Pro', value: bio?.turnedPro ?? null },
                     { label: 'PGA Tour Starts', value: bio?.careerStarts ?? null },
                     { label: 'PGA Tour Wins', value: bio?.careerWins ?? null, wins: bio?.pgaTourWinsList ?? null },
+                    // DP World Tour Wins — only shown when the player has at least one.
+                    ...((bio?.dpWorldWins ?? 0) > 0 ? [{ label: 'DP World Tour Wins', value: bio!.dpWorldWins }] : []),
                     { label: 'Major Starts', value: bio?.majorStarts ?? null },
                     { label: 'Major Wins', value: bio?.majorWins ?? null, wins: bio?.majorWinsList ?? null },
                     { label: 'Career Earnings', value: bio?.careerEarnings ?? null },
