@@ -13,18 +13,53 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
 // Maps pool names to the name ESPN uses for that player
 const ESPN_NAME_ALIASES: Record<string, string> = {};
 
-async function searchEspnByName(searchName: string): Promise<string | null> {
-  const res = await fetch(
-    `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(searchName)}&limit=20&type=player`,
-    { next: { revalidate: 86400 } },
-  );
-  if (!res.ok) return null;
-  const data = await res.json();
-  const contents: Array<{ uid?: string }> = data.results?.[0]?.contents ?? [];
+// Accent/diacritic-insensitive normalizer for matching ESPN displayNames to pool names.
+const normName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase().replace(/[^a-z ]/g, '').trim();
+
+type EspnSearchHit = { uid?: string; displayName?: string };
+
+// One raw ESPN search query — returns ALL player contents across every result group
+// (the previous code only looked at results[0], which often isn't the player group).
+async function rawEspnSearch(query: string): Promise<EspnSearchHit[]> {
+  try {
+    const res = await fetch(
+      `https://site.api.espn.com/apis/search/v2?lang=en&region=us&query=${encodeURIComponent(query)}&limit=20&type=player`,
+      { next: { revalidate: 86400 } },
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    const groups: Array<{ contents?: EspnSearchHit[] }> = Array.isArray(data.results) ? data.results : [];
+    return groups.flatMap((g) => g.contents ?? []);
+  } catch {
+    return [];
+  }
+}
+
+// Pick a golf athlete id from search hits, preferring an exact (accent-insensitive)
+// name match, then falling back to the first golf hit for a name-specific query.
+function pickGolfId(hits: EspnSearchHit[], wantName: string): string | null {
   // Accept any golf sport code (s:1100=PGA, s:1109=DP World, etc.)
-  const player = contents.find((c) => c.uid?.includes('s:110') && c.uid?.includes('~a:'));
-  const uid: string = player?.uid ?? '';
-  return uid.split('~a:')?.[1] ?? null;
+  const golf = hits.filter((c) => c.uid?.includes('s:110') && c.uid?.includes('~a:'));
+  if (golf.length === 0) return null;
+  const want = normName(wantName);
+  const exact = golf.find((c) => normName(c.displayName ?? '') === want);
+  const chosen = exact ?? golf[0];
+  return chosen.uid?.split('~a:')?.[1] ?? null;
+}
+
+async function searchEspnByName(searchName: string): Promise<string | null> {
+  // 1) Full name as given.
+  let id = pickGolfId(await rawEspnSearch(searchName), searchName);
+  if (id) return id;
+  // 2) First + last only — drops middle names ESPN omits (e.g. "Jayden Trey Schaper" → "Jayden Schaper").
+  const parts = searchName.split(/\s+/);
+  if (parts.length > 2) {
+    const firstLast = `${parts[0]} ${parts[parts.length - 1]}`;
+    id = pickGolfId(await rawEspnSearch(firstLast), firstLast);
+    if (id) return id;
+  }
+  return null;
 }
 
 export async function getEspnId(name: string): Promise<string | null> {

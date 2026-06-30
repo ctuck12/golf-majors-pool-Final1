@@ -313,8 +313,19 @@ async function fetchEspnProfile(espnId: string): Promise<Partial<PlayerBio>> {
       else if (typeof w === 'string' && w.toLowerCase().includes('lbs')) result.weight = w;
     }
 
-    const dob = (a.dateOfBirth ?? a.birthDate ?? a.dob) as string | undefined;
-    if (dob) { result.dob = fmtDob(dob); result.age = calcAge(dob); }
+    // ESPN's site athlete endpoint exposes the birthdate as `displayDOB` (e.g. "9/16/1990"),
+    // NOT dateOfBirth — include it so DOB populates from this (fast, reliable) endpoint instead
+    // of depending solely on the flakier core endpoint.
+    const dob = (a.dateOfBirth ?? a.birthDate ?? a.dob ?? a.displayDOB) as string | undefined;
+    if (dob) {
+      const formatted = fmtDob(String(dob));
+      if (formatted) { result.dob = formatted; result.age = calcAge(String(dob)); }
+    }
+    // Fallback: site endpoint also returns a precomputed `age` integer.
+    if (result.age == null && a.age != null) {
+      const ageNum = parseInt(String(a.age));
+      if (!isNaN(ageNum) && ageNum > 0 && ageNum < 120) result.age = ageNum;
+    }
 
     if (!result.birthPlace) result.birthPlace = parseBirthPlace(a.birthPlace);
 
@@ -631,7 +642,7 @@ export async function GET(req: Request) {
   const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v15:${name}`;
+  const cacheKey = `player-bio:v16:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
