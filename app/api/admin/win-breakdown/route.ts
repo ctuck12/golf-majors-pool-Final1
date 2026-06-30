@@ -16,33 +16,23 @@ async function gql(query: string, variables?: Record<string, unknown>): Promise<
   } catch (e) { return { error: String(e).slice(0, 150) }; }
 }
 
-// Lists the PGA Tour winning events behind our career-wins sum, for a given playerId
-// (default Matt Fitzpatrick 40098). ?id=NNN to check another player.
+// Discover the per-year result fields inside playerProfileTournamentResults so we can list
+// individual victories (tournament + year). Introspects the inner element type + samples Fitz.
 export async function GET(request: Request) {
   const id = new URL(request.url).searchParams.get('id') ?? '40098';
-  const q = `query R($id: ID!){
-    playerProfileTournamentResults(playerId: $id, tourCode: R){
-      tournaments { tournamentOverview { tournamentName displaySeason } overviewInfo { events wins money } }
+
+  // 1) What is the inner `tournaments` element type, and what fields does it have?
+  const typeName = await gql(`query R($id: ID!){ playerProfileTournamentResults(playerId:$id, tourCode:R){ tournaments { tournaments { __typename } } } }`, { id });
+
+  // 2) Try a set of plausible per-result fields; errors will reveal the valid ones.
+  const sample = await gql(`query R($id: ID!){
+    playerProfileTournamentResults(playerId:$id, tourCode:R){
+      tournaments {
+        tournamentOverview { tournamentName displaySeason }
+        tournaments { position finishPosition year season displaySeason date tournamentName }
+      }
     }
-  }`;
-  const r = await gql(q, { id }) as {
-    data?: { playerProfileTournamentResults?: { tournaments?: Array<{ tournamentOverview?: { tournamentName?: string; displaySeason?: string }; overviewInfo?: { events?: number; wins?: number; money?: number } }> } };
-    errors?: Array<{ message?: string }>;
-  };
-  if (r?.errors?.length) return Response.json({ error: r.errors[0]?.message });
-  const groups = r?.data?.playerProfileTournamentResults?.tournaments ?? [];
-  let totalEvents = 0, totalWins = 0;
-  const winningEvents: Array<{ tournament: string; season: string; wins: number; events: number }> = [];
-  for (const g of groups) {
-    const w = g.overviewInfo?.wins ?? 0;
-    totalEvents += g.overviewInfo?.events ?? 0;
-    totalWins += w;
-    if (w > 0) winningEvents.push({
-      tournament: g.tournamentOverview?.tournamentName ?? '(unknown)',
-      season: g.tournamentOverview?.displaySeason ?? '',
-      wins: w,
-      events: g.overviewInfo?.events ?? 0,
-    });
-  }
-  return Response.json({ id, totalEvents, totalWins, distinctWinningEventsCount: winningEvents.length, winningEvents });
+  }`, { id });
+
+  return Response.json({ id, typeName, sample });
 }
