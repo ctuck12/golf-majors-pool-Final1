@@ -51,9 +51,8 @@ export async function GET(request: Request) {
   const missingAllSix = resolved.filter((r) => r.blanks.length === FIELDS.length);
   // College is frequently legitimately absent (player never attended), so also report the count
   // when college is ignored — i.e. missing DOB/Birthplace/Height/Weight/Swing.
-  const NON_COLLEGE = FIELDS.filter((f) => f !== 'college');
   const missingAtLeastOneExclCollege = resolved.filter((r) =>
-    r.blanks.some((b) => NON_COLLEGE.includes(b)),
+    r.blanks.some((b) => b !== 'college'),
   );
 
   return Response.json({
