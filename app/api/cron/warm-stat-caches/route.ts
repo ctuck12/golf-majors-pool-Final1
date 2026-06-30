@@ -104,14 +104,17 @@ export async function GET(request: Request) {
   const TOURN_EVENT_IDS = ['401811937', '401811941', '401811947', '401811952', '401811957']; // PLAYERS, Masters, PGA, US Open, The Open
   const TOURN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'puttAverage'];
   const TOURN_SG_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
-  const TOURN_ALL_KEYS = [...TOURN_COURSE_KEYS, ...TOURN_SG_KEYS];
+  // The Masters PGA feed carries no tournament SG (the Masters view hides SG accordingly), so warming
+  // its SG keys would retry empty builds every run forever and waste the rebuild budget — course only.
+  const MASTERS_EVENT_ID = '401811941';
   for (const eventId of TOURN_EVENT_IDS) {
     // Skip events that haven't started — they have no leaderboard data yet, so building would just
     // hammer the upstream APIs with empty results every run. They warm automatically once underway.
     const meta = getTournamentMetaByEspnId(eventId);
     const lockMs = meta?.lockAtUtc ? Date.parse(meta.lockAtUtc) : NaN;
     if (!isNaN(lockMs) && Date.now() < lockMs) { results[`t:${eventId}`] = 'notStarted'; continue; }
-    for (const key of TOURN_ALL_KEYS) {
+    const keysForEvent = eventId === MASTERS_EVENT_ID ? TOURN_COURSE_KEYS : [...TOURN_COURSE_KEYS, ...TOURN_SG_KEYS];
+    for (const key of keysForEvent) {
       const label = `t:${eventId}:${key}`;
       let ttl = -2;
       try { ttl = await redis.ttl(`tourn-stat-lb:v12:${eventId}:${key}`); } catch { /* cold */ }
