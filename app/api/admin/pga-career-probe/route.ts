@@ -20,10 +20,16 @@ async function gql(query: string, variables?: Record<string, unknown>): Promise<
 }
 
 export async function GET() {
-  // Introspect the TournamentResults element type (position, money, season, etc.).
   const types = await gql(`{
-    tr: __type(name:"TournamentResults"){ fields { name type { kind name ofType { kind name } } } }
+    overview: __type(name:"TournamentResultOverview"){ fields { name type { kind name ofType { kind name } } } }
+    info: __type(name:"TournamentOverviewInfo"){ fields { name type { kind name ofType { kind name } } } }
   }`);
 
-  return Response.json({ types });
+  // Sample the season-overview shape for Jayden Schaper (57737).
+  const sample = await gql(
+    `query R($id: ID!){ playerProfileTournamentResults(playerId: $id, tourCode: R){ tournaments { tournamentNum cupEyebrowText } } }`,
+    { id: '57737' },
+  );
+
+  return Response.json({ types, sample });
 }
