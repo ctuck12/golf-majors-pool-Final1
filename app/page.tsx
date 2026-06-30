@@ -1198,7 +1198,7 @@ export default function Page() {
     statRanks: Record<string, string>;
     seasonStatRanks: Record<string, string>;
     fieldDistributions: Record<string, number[]>;
-    playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null } | null;
+    playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null } | null;
     playerBioLoading: boolean;
     espnPhotoUrl: string | null;
   } | null>(null);
@@ -8557,7 +8557,7 @@ export default function Page() {
                           try {
                             const bioParams = new URLSearchParams({ name: pickHistoryPlayerPopup.player.name });
                             if (pickHistoryPlayerPopup.player.pgaTourId) bioParams.set('pgaTourId', String(pickHistoryPlayerPopup.player.pgaTourId));
-                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
+                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null }; espnPhotoUrl?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null } : null);
                           } catch {
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null);
@@ -8581,8 +8581,8 @@ export default function Page() {
                   const pgaPhotoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
                   const photoSrc = espnPhotoSrc ?? pgaPhotoSrc;
                   const topRows: { label: string; value: string | number | null; italic?: boolean }[] = [
-                    { label: 'Date of Birth', value: bio?.dob ?? null },
-                    { label: 'Age', value: bio?.age ?? null },
+                    { label: 'DOB', value: bio?.dob ? `${bio.dob}${bio.age != null ? ` (${bio.age})` : ''}` : null },
+                    { label: 'Birthplace', value: bio?.birthPlace ?? null },
                     { label: 'Height', value: bio?.height ?? null },
                     { label: 'Weight', value: bio?.weight ?? null },
                     { label: 'Swing', value: bio?.swing ?? null },

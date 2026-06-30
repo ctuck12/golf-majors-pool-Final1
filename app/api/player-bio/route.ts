@@ -12,6 +12,7 @@ export type PlayerBio = {
   weight: string | null;
   dob: string | null;
   age: number | null;
+  birthPlace: string | null;
   college: string | null;
   collegeConfirmedAbsent: boolean;
   swing: string | null;
@@ -70,6 +71,34 @@ function parseEarnings(val: unknown): string | null {
   if (!val) return null;
   const n = parseFloat(String(val).replace(/[$,]/g, ''));
   return !isNaN(n) && n > 0 ? fmtEarnings(n) : null;
+}
+
+const US_STATES: Record<string, string> = {
+  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado',
+  CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia', HI: 'Hawaii', ID: 'Idaho',
+  IL: 'Illinois', IN: 'Indiana', IA: 'Iowa', KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana',
+  ME: 'Maine', MD: 'Maryland', MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota',
+  MS: 'Mississippi', MO: 'Missouri', MT: 'Montana', NE: 'Nebraska', NV: 'Nevada',
+  NH: 'New Hampshire', NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York', NC: 'North Carolina',
+  ND: 'North Dakota', OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania',
+  RI: 'Rhode Island', SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas',
+  UT: 'Utah', VT: 'Vermont', VA: 'Virginia', WA: 'Washington', WV: 'West Virginia',
+  WI: 'Wisconsin', WY: 'Wyoming', DC: 'Washington, D.C.',
+};
+
+// ESPN returns birthPlace as { city, state, country }. Show "City, State" for US players (expanding
+// the 2-letter state to its full name, e.g. GA -> Georgia), otherwise "City, Country".
+function parseBirthPlace(val: unknown): string | null {
+  if (!val || typeof val !== 'object') return null;
+  const o = val as Record<string, unknown>;
+  const city = o.city ? String(o.city).trim() : '';
+  let state = o.state ? String(o.state).trim() : '';
+  const country = o.country ? String(o.country).trim() : '';
+  const isUs = !country || /^(usa?|united states)$/i.test(country);
+  if (state && US_STATES[state.toUpperCase()]) state = US_STATES[state.toUpperCase()];
+  const region = state || (isUs ? '' : country);
+  if (city && region) return `${city}, ${region}`;
+  return city || region || null;
 }
 
 // ESPN sometimes returns college as { name: "Texas", id: "..." } object
@@ -287,6 +316,8 @@ async function fetchEspnProfile(espnId: string): Promise<Partial<PlayerBio>> {
     const dob = (a.dateOfBirth ?? a.birthDate ?? a.dob) as string | undefined;
     if (dob) { result.dob = fmtDob(dob); result.age = calcAge(dob); }
 
+    if (!result.birthPlace) result.birthPlace = parseBirthPlace(a.birthPlace);
+
     // College comes back as an object { name: "Texas", id: "..." } from ESPN,
     // or as a $ref-only object { "$ref": "https://sports.core.api.espn.com/v2/colleges/123" }
     const collegeRaw = a.college ?? a.collegeName;
@@ -371,6 +402,8 @@ async function fetchEspnCoreAthlete(espnId: string): Promise<Partial<PlayerBio>>
 
     const dob = (a.dateOfBirth ?? a.birthDate) as string | undefined;
     if (dob && !result.dob) { result.dob = fmtDob(dob); result.age = calcAge(dob); }
+
+    if (!result.birthPlace) result.birthPlace = parseBirthPlace(a.birthPlace);
 
     const h = (a.height ?? a.displayHeight) as number | string | undefined;
     if (h != null && !result.height) {
@@ -598,7 +631,7 @@ export async function GET(req: Request) {
   const pgaTourId = url.searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v14:${name}`;
+  const cacheKey = `player-bio:v15:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -609,7 +642,7 @@ export async function GET(req: Request) {
   } catch { /* ignore */ }
 
   const bio: PlayerBio = {
-    height: null, weight: null, dob: null, age: null,
+    height: null, weight: null, dob: null, age: null, birthPlace: null,
     college: null, collegeConfirmedAbsent: false, swing: null,
     turnedPro: null, pgaTourDebut: null,
     careerStarts: null, careerWins: null, majorStarts: null,
