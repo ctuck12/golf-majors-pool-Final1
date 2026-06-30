@@ -28,6 +28,21 @@ export function tournLbCacheKey(eventId: string, statKey: string): string {
   return `tourn-stat-lb:v12:${eventId}:${statKey}`;
 }
 
+// Cache TTL for a tournament leaderboard. Completed (or not-yet-started) events are static, so cache
+// long (7 days). While an event is LIVE its stats change every round, so cache briefly (30 min) and
+// let the cron keep it fresh — otherwise the first warm of round 1 would freeze the card all weekend.
+// Live window: from ~1 day before lock through ~5 days after (covers Thu–Sun play + Monday finalize).
+export function tournLbTtl(eventId: string): number {
+  const meta = getTournamentMetaByEspnId(eventId);
+  if (!meta?.lockAtUtc) return 604800;
+  const lock = Date.parse(meta.lockAtUtc);
+  if (isNaN(lock)) return 604800;
+  const now = Date.now();
+  const dayMs = 86400000;
+  if (now >= lock - dayMs && now <= lock + 5 * dayMs) return 1800; // live → refresh frequently
+  return 604800; // static (completed or future) → long cache
+}
+
 function parseSgNum(raw: string | undefined): number {
   return parseFloat(String(raw ?? '').replace(/\+/g, '').replace(/,/g, '').trim());
 }
@@ -96,7 +111,7 @@ export async function getOrBuildSgLeaderboard(eventId: string, statKey: string):
   } catch { /* fall through to build */ }
   const result = await buildSgLeaderboard(eventId, statKey);
   if (result.entries.length > 0) {
-    try { await redis.setex(cacheKey, 604800, JSON.stringify(result)); } catch { /* ignore */ }
+    try { await redis.setex(cacheKey, tournLbTtl(eventId), JSON.stringify(result)); } catch { /* ignore */ }
     return result;
   }
   return null;

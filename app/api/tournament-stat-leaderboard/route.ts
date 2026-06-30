@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
-import { SG_STAT_IDS, buildSgLeaderboard, tournLbCacheKey } from '@/app/lib/tournament-sg-leaderboard';
+import { SG_STAT_IDS, buildSgLeaderboard, tournLbCacheKey, tournLbTtl } from '@/app/lib/tournament-sg-leaderboard';
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
 const ESPN_CORE_ATHLETES = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/athletes';
@@ -136,8 +136,9 @@ export async function GET(request: Request) {
       : await buildCourseLeaderboard(eventId, statKey);
 
     if (result.entries.length > 0) {
-      // Completed-event data is static; cache long so the field list endpoint flakiness doesn't matter.
-      try { await redis.setex(cacheKey, 604800, JSON.stringify(result)); } catch { /* ignore */ }
+      // Static (completed/future) events cache long; a LIVE event caches briefly so the card tracks
+      // each round instead of freezing on the first warm. (Empty builds are never cached.)
+      try { await redis.setex(cacheKey, tournLbTtl(eventId), JSON.stringify(result)); } catch { /* ignore */ }
     }
     return Response.json(result);
   } catch {

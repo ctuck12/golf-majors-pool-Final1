@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 import redis from '@/app/lib/redis';
+import { getTournamentMetaByEspnId } from '@/app/lib/tournament-config';
 
 // Cron job: keep the stat-leaderboard caches warm WITHOUT hammering the upstream PGA/ESPN APIs.
 //
@@ -100,11 +101,16 @@ export async function GET(request: Request) {
   // Warm tournament COURSE + STROKES GAINED leaderboards for the played 2026 events. Completed-event
   // data is static, so these cache for 7 days and rarely rebuild. Shares the per-run rebuild cap with
   // season stats, so a cold start warms gradually across runs.
-  const TOURN_EVENT_IDS = ['401811937', '401811941', '401811947', '401811952']; // PLAYERS, Masters, PGA, US Open
+  const TOURN_EVENT_IDS = ['401811937', '401811941', '401811947', '401811952', '401811957']; // PLAYERS, Masters, PGA, US Open, The Open
   const TOURN_COURSE_KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'scrambling', 'sandSaves', 'puttAverage'];
   const TOURN_SG_KEYS = ['sgTotal', 'sgTeeToGreen', 'sgOffTee', 'sgApproach', 'sgAroundGreen', 'sgPutting'];
   const TOURN_ALL_KEYS = [...TOURN_COURSE_KEYS, ...TOURN_SG_KEYS];
   for (const eventId of TOURN_EVENT_IDS) {
+    // Skip events that haven't started — they have no leaderboard data yet, so building would just
+    // hammer the upstream APIs with empty results every run. They warm automatically once underway.
+    const meta = getTournamentMetaByEspnId(eventId);
+    const lockMs = meta?.lockAtUtc ? Date.parse(meta.lockAtUtc) : NaN;
+    if (!isNaN(lockMs) && Date.now() < lockMs) { results[`t:${eventId}`] = 'notStarted'; continue; }
     for (const key of TOURN_ALL_KEYS) {
       const label = `t:${eventId}:${key}`;
       let ttl = -2;
