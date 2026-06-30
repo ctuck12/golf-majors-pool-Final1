@@ -8691,14 +8691,12 @@ export default function Page() {
                 {pickHistoryView === 'bio' && (() => {
                   const bio = pickHistoryPlayerPopup.playerBio;
                   const loading = pickHistoryPlayerPopup.playerBioLoading;
-                  // Photo priority: PGA-only pins force the PGA Tour photo; otherwise a manual
-                  // upload wins; otherwise the ESPN headshot; otherwise the PGA Tour photo.
-                  const forcePga = PGA_PHOTO_ONLY.has(pickHistoryPlayerPopup.player.name);
-                  const espnPhotoSrc = (forcePga || isManualPhoto(pickHistoryPlayerPopup.player.photoUrl)) ? null : pickHistoryPlayerPopup.espnPhotoUrl;
-                  const pgaPhotoSrc = forcePga
-                    ? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId)
-                    : (pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId));
-                  const photoSrc = espnPhotoSrc ?? pgaPhotoSrc;
+                  // Photo: use the same synchronous source as the lists (PGA-only pins -> PGA;
+                  // manual upload wins; else ESPN headshot; else PGA). Available on first paint, so
+                  // the photo is correct immediately and never swaps after the bio loads.
+                  const photoPlayer = pickHistoryPlayerPopup.player;
+                  const photoSrc = playerPhotoSrc(photoPlayer.name, photoPlayer.pgaTourId, photoPlayer.photoUrl);
+                  const photoFallback = photoPlayer.photoUrl ?? pgaPhoto(photoPlayer.pgaTourId);
                   const topRows: { label: string; value: string | number | null; italic?: boolean }[] = [
                     { label: 'DOB', value: bio?.dob ? `${bio.dob}${bio.age != null ? ` (${bio.age})` : ''}` : null },
                     { label: 'Birthplace', value: bio?.birthPlace ?? null },
@@ -8723,23 +8721,22 @@ export default function Page() {
                         <div style={{ flexShrink: 0, width: 125, background: '#e8edf2', display: 'flex', alignItems: 'stretch' }}>
                           <img
                             src={photoSrc}
-                            alt={pickHistoryPlayerPopup.player.name}
+                            data-fb={photoFallback}
+                            alt={photoPlayer.name}
                             style={{ width: 125, objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
-                            onError={(e) => {
-                              const img = e.target as HTMLImageElement;
-                              if (pgaPhotoSrc && img.src !== pgaPhotoSrc && img.src !== espnPhotoSrc) { img.src = pgaPhotoSrc; } else { img.style.display = 'none'; }
-                            }}
+                            onError={photoOnError}
                           />
                         </div>
                         {/* Personal info rows */}
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderLeft: '1.5px solid #e2e8ef' }}>
-                          {loading && <div style={{ textAlign: 'center', padding: '16px 10px', color: '#7a8c99', fontSize: 13 }}>Loading...</div>}
-                          {!loading && topRows.map((row, i) => (
+                          {topRows.map((row, i) => (
                             <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < topRows.length - 1 ? '1px solid #e2e8ef' : 'none', flex: 1 }}>
                               <span style={{ fontSize: 12, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
-                              {row.italic
-                                ? <span style={{ fontSize: 11, color: '#9aabb8', fontStyle: 'italic', textAlign: 'right', marginLeft: 6 }}>*Did not attend college</span>
-                                : <span style={{ fontSize: 12, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700, textAlign: 'right', marginLeft: 6 }}>{row.value != null ? String(row.value) : '—'}</span>
+                              {loading
+                                ? <span style={{ width: 90, height: 11, borderRadius: 4, background: '#e2e8ef', marginLeft: 6, display: 'inline-block' }} />
+                                : row.italic
+                                  ? <span style={{ fontSize: 11, color: '#9aabb8', fontStyle: 'italic', textAlign: 'right', marginLeft: 6 }}>*Did not attend college</span>
+                                  : <span style={{ fontSize: 12, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700, textAlign: 'right', marginLeft: 6 }}>{row.value != null ? String(row.value) : '—'}</span>
                               }
                             </div>
                           ))}
