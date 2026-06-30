@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 import redis from '@/app/lib/redis';
 import { getEspnId } from '@/app/lib/espn-player-season';
 import { PLAYER_BIO_OVERRIDES, type BioOverride } from '@/app/lib/player-bio-overrides';
-import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
+import { PLAYER_POOL_WITH_PGA_IDS, PLAYER_ARCHIVE } from '@/app/lib/player-pool';
 
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
@@ -673,9 +673,10 @@ function lookupBioOverride(name: string): BioOverride | undefined {
 // (e.g. opened from a live leaderboard) still gets PGA career/major data.
 const POOL_PGA_BY_NORM: Record<string, number> = {};
 const POOL_PGA_BY_FL: Record<string, number> = {};
-for (const p of PLAYER_POOL_WITH_PGA_IDS) {
+for (const p of [...PLAYER_POOL_WITH_PGA_IDS, ...PLAYER_ARCHIVE]) {
   if (!p.pgaTourId) continue;
-  POOL_PGA_BY_NORM[normBioName(p.name)] = p.pgaTourId;
+  const n = normBioName(p.name);
+  if (!(n in POOL_PGA_BY_NORM)) POOL_PGA_BY_NORM[n] = p.pgaTourId; // active pool wins on collision
   const fl = firstLastKey(p.name);
   if (!(fl in POOL_PGA_BY_FL)) POOL_PGA_BY_FL[fl] = p.pgaTourId;
 }
