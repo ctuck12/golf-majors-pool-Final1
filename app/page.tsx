@@ -447,7 +447,16 @@ const pgaPhoto = (pgaId: number) =>
 // 3) Otherwise the PGA Tour headshot (incl. a PGA-cloudinary photoUrl).
 const isManualPhoto = (photoUrl?: string): photoUrl is string =>
   !!photoUrl && !photoUrl.includes('pga-tour-res.cloudinary.com');
+// Players pinned to the PGA Tour photo everywhere (overrides ESPN and any manual photo).
+const PGA_PHOTO_ONLY = new Set<string>([
+  'Matt Fitzpatrick',
+  'Ludvig Aberg',
+  'Matt McCarty',
+  'Hideki Matsuyama',
+  'Keegan Bradley',
+]);
 const playerPhotoSrc = (name: string, pgaTourId: number, photoUrl?: string) => {
+  if (PGA_PHOTO_ONLY.has(name)) return pgaPhoto(pgaTourId);
   if (isManualPhoto(photoUrl)) return photoUrl;
   const espnId = PLAYER_ESPN_IDS[name];
   return espnId
@@ -8685,9 +8694,13 @@ export default function Page() {
                 {pickHistoryView === 'bio' && (() => {
                   const bio = pickHistoryPlayerPopup.playerBio;
                   const loading = pickHistoryPlayerPopup.playerBioLoading;
-                  // A manually-uploaded photo always wins (never overridden by an ESPN headshot).
-                  const espnPhotoSrc = isManualPhoto(pickHistoryPlayerPopup.player.photoUrl) ? null : pickHistoryPlayerPopup.espnPhotoUrl;
-                  const pgaPhotoSrc = pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId);
+                  // Photo priority: PGA-only pins force the PGA Tour photo; otherwise a manual
+                  // upload wins; otherwise the ESPN headshot; otherwise the PGA Tour photo.
+                  const forcePga = PGA_PHOTO_ONLY.has(pickHistoryPlayerPopup.player.name);
+                  const espnPhotoSrc = (forcePga || isManualPhoto(pickHistoryPlayerPopup.player.photoUrl)) ? null : pickHistoryPlayerPopup.espnPhotoUrl;
+                  const pgaPhotoSrc = forcePga
+                    ? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId)
+                    : (pickHistoryPlayerPopup.player.photoUrl ?? pgaPhoto(pickHistoryPlayerPopup.player.pgaTourId));
                   const photoSrc = espnPhotoSrc ?? pgaPhotoSrc;
                   const topRows: { label: string; value: string | number | null; italic?: boolean }[] = [
                     { label: 'DOB', value: bio?.dob ? `${bio.dob}${bio.age != null ? ` (${bio.age})` : ''}` : null },
