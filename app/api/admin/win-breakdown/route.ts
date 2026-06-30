@@ -16,23 +16,33 @@ async function gql(query: string, variables?: Record<string, unknown>): Promise<
   } catch (e) { return { error: String(e).slice(0, 150) }; }
 }
 
-// Discover the per-year result fields inside playerProfileTournamentResults so we can list
-// individual victories (tournament + year). Introspects the inner element type + samples Fitz.
+// Lists every winning row (position === '1') from the per-year PlayerProfileTournamentRow data.
 export async function GET(request: Request) {
   const id = new URL(request.url).searchParams.get('id') ?? '40098';
-
-  // 1) What is the inner `tournaments` element type, and what fields does it have?
-  const typeName = await gql(`query R($id: ID!){ playerProfileTournamentResults(playerId:$id, tourCode:R){ tournaments { tournaments { __typename } } } }`, { id });
-
-  // 2) Try a set of plausible per-result fields; errors will reveal the valid ones.
-  const sample = await gql(`query R($id: ID!){
+  const r = await gql(`query R($id: ID!){
     playerProfileTournamentResults(playerId:$id, tourCode:R){
       tournaments {
-        tournamentOverview { tournamentName displaySeason }
-        tournaments { position finishPosition year season displaySeason date tournamentName }
+        tournamentOverview { tournamentName }
+        tournaments { position year tournamentName date }
       }
     }
-  }`, { id });
-
-  return Response.json({ id, typeName, sample });
+  }`, { id }) as {
+    data?: { playerProfileTournamentResults?: { tournaments?: Array<{ tournamentOverview?: { tournamentName?: string }; tournaments?: Array<{ position?: string; year?: string; tournamentName?: string; date?: string }> }> } };
+    errors?: Array<{ message?: string }>;
+  };
+  if (r?.errors?.length) return Response.json({ error: r.errors[0]?.message });
+  const groups = r?.data?.playerProfileTournamentResults?.tournaments ?? [];
+  const positions = new Set<string>();
+  const wins: Array<{ tournament: string; year: string; position: string }> = [];
+  for (const g of groups) {
+    const groupName = g.tournamentOverview?.tournamentName ?? '';
+    for (const row of g.tournaments ?? []) {
+      if (row.position != null) positions.add(String(row.position));
+      if (String(row.position) === '1') {
+        wins.push({ tournament: row.tournamentName || groupName, year: String(row.year ?? ''), position: String(row.position) });
+      }
+    }
+  }
+  wins.sort((a, b) => a.year.localeCompare(b.year));
+  return Response.json({ id, winCount: wins.length, wins, distinctPositions: [...positions].sort() });
 }
