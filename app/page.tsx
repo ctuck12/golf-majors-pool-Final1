@@ -291,6 +291,12 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Paul McClure': 'us',
   'Ian Holt': 'us',
   'Chris Gabriele': 'us',
+  'Jayden Schaper': 'za',
+  'Francisco Bidé': 'ar', 'Francisco Bide': 'ar',
+  'Zach Haynes': 'us',
+  'Garrett Sapp': 'us',
+  'Derek Berg': 'us',
+  'Bryce Fisher': 'us',
 };
 const getPlayerFlag = (name: string): string => PLAYER_FLAGS[name] ?? '';
 const getFlagSrc = (name: string): string => {
