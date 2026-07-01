@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { parseSpreadsheetFile, rowsToText } from '@/app/lib/spreadsheet-client';
 
 type Status = {
   active: boolean;
@@ -22,6 +23,20 @@ export default function CommissionerDpWorldPage() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
   const [lastPreview, setLastPreview] = useState<{ rank: number; name: string }[] | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const onFile = async (file: File) => {
+    setMsg(null);
+    try {
+      const rows = await parseSpreadsheetFile(file);
+      const asText = rowsToText(rows);
+      if (!asText) { setMsg({ kind: 'err', text: 'Couldn’t read any rows from that file.' }); return; }
+      setText(asText);
+      setMsg({ kind: 'ok', text: `Loaded ${rows.length} rows from ${file.name}. Review below, then Save & Apply.` });
+    } catch (e) {
+      setMsg({ kind: 'err', text: e instanceof Error ? e.message : 'Could not read that file.' });
+    }
+  };
 
   const loadStatus = async () => {
     try {
@@ -50,6 +65,7 @@ export default function CommissionerDpWorldPage() {
         setMsg({ kind: 'ok', text: `Saved ${data.count} players.${data.skippedCount ? ` ${data.skippedCount} line(s) skipped.` : ''} The DP World bubble now uses this list.` });
         setLastPreview(data.preview ?? null);
         setText('');
+        if (fileRef.current) fileRef.current.value = '';
         loadStatus();
       }
     } catch { setMsg({ kind: 'err', text: 'Network error while saving.' }); }
@@ -90,11 +106,21 @@ export default function CommissionerDpWorldPage() {
 
             {/* Instructions */}
             <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
-              Paste the Race to Dubai standings — one player per line, each line starting with the rank number.
-              Example:<br />
-              <code style={{ background: '#f1f5f9', padding: '1px 5px', borderRadius: 4 }}>1 Rory McIlroy</code>{' '}
-              <code style={{ background: '#f1f5f9', padding: '1px 5px', borderRadius: 4 }}>2 Tyrrell Hatton</code><br />
-              Trailing points columns are ignored, so pasting straight from the rankings table works too.
+              Columns: <b>Rank</b>, <b>Player Name</b> (a header row is fine — it&apos;s skipped). Upload the
+              <b> .xlsx</b>/<b>.csv</b> file, or paste the rows. Each line starts with the rank; names in
+              <code style={{ background: '#f1f5f9', padding: '1px 5px', borderRadius: 4 }}>LASTNAME, First</code>{' '}
+              form are reordered automatically, and trailing points columns are ignored.
+            </div>
+
+            {/* File upload */}
+            <div>
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".xlsx,.csv"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); }}
+                style={{ fontSize: 13 }}
+              />
             </div>
 
             <textarea

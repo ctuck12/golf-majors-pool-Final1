@@ -34,15 +34,29 @@ export function parseDpWorldPaste(text: string): DpwParseResult {
     const m = line.match(/^[T=]?\s*(\d{1,3})[.):]?\s+(.+)$/);
     if (!m) { skipped.push(line); continue; }
     const rank = parseInt(m[1], 10);
-    let rest = m[2].trim().replace(/\([^)]*\)\s*$/, '').trim(); // strip trailing "(RSA)" country
-    // Name = leading run of non-numeric tokens (stop at the first points/events number column).
-    const tokens = rest.split(/[\s\t]+/);
-    const nameTokens: string[] = [];
-    for (const t of tokens) {
-      if (/^[+\-]?[\d.,]+%?$/.test(t)) break; // numeric column reached
-      nameTokens.push(t);
+    const rest = m[2].trim().replace(/\([^)]*\)\s*$/, '').trim(); // strip trailing "(RSA)" country
+    const isNum = (t: string) => /^[+\-]?[\d.,]+%?$/.test(t);
+    let name: string;
+    const comma = rest.indexOf(',');
+    if (comma > 0) {
+      // "LASTNAME, Firstname [points]" (e.g. "REED, Patrick") -> "Firstname Lastname" so it matches
+      // pool player names. Everything before the comma is the (possibly multi-word) last name.
+      const last = rest.slice(0, comma).trim();
+      const firstTokens: string[] = [];
+      for (const t of rest.slice(comma + 1).trim().split(/[\s\t]+/)) {
+        if (isNum(t)) break; // trailing points column reached
+        firstTokens.push(t);
+      }
+      name = `${firstTokens.join(' ')} ${last}`.trim();
+    } else {
+      // "Rank Firstname Lastname [points]" — name is the leading run of non-numeric tokens.
+      const nameTokens: string[] = [];
+      for (const t of rest.split(/[\s\t]+/)) {
+        if (isNum(t)) break;
+        nameTokens.push(t);
+      }
+      name = nameTokens.join(' ').trim();
     }
-    const name = nameTokens.join(' ').trim();
     if (name && rank > 0) {
       if (!(name in map)) map[name] = rank; // first occurrence wins
     } else {
