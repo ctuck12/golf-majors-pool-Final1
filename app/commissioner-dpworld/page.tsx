@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { parseSpreadsheetFile, rowsToText } from '@/app/lib/spreadsheet-client';
+import { getHeaderTournament } from '@/app/lib/tournament-logo';
 
 type Status = {
   active: boolean;
@@ -25,6 +26,7 @@ export default function CommissionerDpWorldPage() {
   const [lastPreview, setLastPreview] = useState<{ rank: number; name: string }[] | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const headerTournament = getHeaderTournament();
 
   const onFile = async (file: File) => {
     setMsg(null);
@@ -87,15 +89,18 @@ export default function CommissionerDpWorldPage() {
   return (
     <div style={wrap}>
       <div style={card}>
-        <div style={header}>
-          <button
-            onClick={() => { window.location.href = '/?tab=commissioner'; }}
-            style={{ display: 'inline-block', background: 'transparent', border: '1px solid #6b7b88', borderRadius: 10, color: '#8fa3b1', fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: '6px 14px', marginBottom: 10 }}
-          >
-            ← Back to Commissioner Hub
-          </button>
-          <div style={{ color: '#fff', fontSize: 18, fontWeight: 900 }}>DP World Rankings</div>
-          <div style={{ color: '#8fa3b1', fontSize: 12, fontWeight: 500, marginTop: 2 }}>Commissioner tool · Race to Dubai</div>
+        <div style={{ ...header, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 }}>
+          <div>
+            <button
+              onClick={() => { window.location.href = '/?tab=commissioner'; }}
+              style={{ display: 'inline-block', background: 'transparent', border: '1px solid #6b7b88', borderRadius: 10, color: '#8fa3b1', fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: '6px 14px', marginBottom: 10 }}
+            >
+              ← Back to Commissioner Hub
+            </button>
+            <div style={{ color: '#fff', fontSize: 18, fontWeight: 900 }}>DP World Rankings</div>
+            <div style={{ color: '#8fa3b1', fontSize: 12, fontWeight: 500, marginTop: 2 }}>Commissioner tool · Race to Dubai</div>
+          </div>
+          <img src={headerTournament.logo} alt={headerTournament.name} style={{ height: 52, maxWidth: 120, objectFit: 'contain', flexShrink: 0 }} />
         </div>
 
         {gateError ? (
@@ -124,11 +129,11 @@ export default function CommissionerDpWorldPage() {
               <style>{`
                 .cf-file-input::file-selector-button,
                 .cf-file-input::-webkit-file-upload-button {
-                  font-size: 14px;
+                  font-size: 13px;
                   font-weight: 700;
-                  padding: 11px 20px;
+                  padding: 9px 16px;
                   margin-right: 14px;
-                  border-radius: 10px;
+                  border-radius: 9px;
                   border: 1px solid #cbd5e1;
                   background: #f8fafc;
                   color: #0f1720;

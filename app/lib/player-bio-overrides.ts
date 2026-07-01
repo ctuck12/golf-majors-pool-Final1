@@ -68,6 +68,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Matthieu Pavon':             { weight: '176 lbs', college: '' },
   'Chandler Phillips':          { weight: '175 lbs', swing: 'Right' },
   'Cole Hammer':                { height: `6'0"`, weight: '170 lbs' },
+  'Daniel Hillier':             { height: `6'1"`, weight: '170 lbs' },
   'Austin Eckroat':             { height: `5'11"`, weight: '165 lbs' },
   'Karl Vilips':                { height: `6'0"`, weight: '170 lbs' },
   'Danny Walker':               { birthPlace: 'Bradenton, Florida', swing: 'Right' },
