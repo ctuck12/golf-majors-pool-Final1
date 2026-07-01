@@ -6327,8 +6327,8 @@ export default function Page() {
                     disabled={!canManagePool}
                     style={{ textAlign: 'left', border: '1px solid #e6edf1', borderRadius: 16, padding: isMobile ? '12px 14px' : '16px 18px', background: 'linear-gradient(180deg, #ffffff 0%, #f7fafc 100%)', boxShadow: '0 6px 18px rgba(9, 34, 51, 0.06)', cursor: canManagePool ? 'pointer' : 'not-allowed', opacity: canManagePool ? 1 : 0.5, display: 'flex', alignItems: 'center', gap: isMobile ? 11 : 13 }}
                   >
-                    <div style={{ width: isMobile ? 38 : 44, height: isMobile ? 38 : 44, borderRadius: 12, background: entriesTournamentBg, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 10px rgba(9, 34, 51, 0.18)' }}>
-                      <Icon size={isMobile ? 19 : 22} />
+                    <div style={{ width: isMobile ? 34 : 40, height: isMobile ? 34 : 40, borderRadius: 10, background: entriesTournamentBg, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Icon size={isMobile ? 18 : 22} />
                     </div>
                     <div>
                       <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>{t.title}</div>
