@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // a cold tournament scrambling leaderboard build can supplement ~74 cut players
 
 import redis from '@/app/lib/redis';
 import { fetchPlayerSeasonStats, fetchPlayerTournamentStats } from '@/app/lib/espn-player-stats';

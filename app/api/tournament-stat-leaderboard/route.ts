@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // full-field scrambling build supplements ~74 cut players from scorecards
 
 import redis from '@/app/lib/redis';
 import { isPgaStatKey, buildPgaLeaderboard, tournLbCacheKey, tournLbTtl } from '@/app/lib/tournament-sg-leaderboard';
