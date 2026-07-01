@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { getManualDpWorldRankings } from '@/app/lib/dpworld-rankings-store';
+import { canonicalNameKey } from '@/app/lib/name-match';
 
 // DP World Tour rankings.
 //
@@ -256,15 +257,19 @@ export async function GET(request: Request) {
   if (!name) return Response.json({ rank: null });
 
   const key = normalize(name);
+  const canonKey = canonicalNameKey(name); // order-independent: matches "Last, First" or "First Last"
 
-  // Commissioner's pasted list wins when present; fall back to the built-in snapshot per player.
+  // Commissioner's uploaded list wins when present; fall back to the built-in snapshot per player.
   let manualRank: number | null = null;
   try {
     const manual = await getManualDpWorldRankings();
     if (manual) {
-      for (const [rawName, rank] of Object.entries(manual.map)) {
-        if (normalize(rawName) === key) { manualRank = rank; break; }
-      }
+      const entries = Object.entries(manual.map);
+      // Exact (same order) match first, then an order-independent canonical match so the uploaded
+      // names resolve whether they're "Rory McIlroy" or "MCILROY, Rory".
+      const exact = entries.find(([rawName]) => normalize(rawName) === key);
+      const canon = exact ?? entries.find(([rawName]) => canonicalNameKey(rawName) === canonKey);
+      if (canon) manualRank = canon[1];
     }
   } catch { /* fall back to built-in */ }
 
