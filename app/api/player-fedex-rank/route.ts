@@ -124,12 +124,18 @@ async function getRankFromLeaders(
     (c) => c.name === categoryName,
   );
   if (!cat) return null;
-  const leaders = cat.leaders as Array<{ athlete: Record<string, string> }>;
+  const leaders = cat.leaders as Array<{ value?: number; athlete: Record<string, string> }>;
   const idx = leaders.findIndex((l) => {
     const ref = Object.values(l.athlete)[0] ?? '';
     return ref.match(/athletes\/(\d+)/)?.[1] === espnId;
   });
-  return idx === -1 ? null : idx + 1;
+  if (idx === -1) return null;
+  // A player with 0 FedEx Cup points has no meaningful ranking — e.g. a past champion who played
+  // one event (the Masters) and missed the cut still appears in the tail of ESPN's leaders list,
+  // producing a bogus "rank". Only report a rank when the player has actually earned points.
+  const value = leaders[idx].value;
+  if (typeof value === 'number' && value <= 0) return null;
+  return idx + 1;
 }
 
 export async function GET(request: Request) {

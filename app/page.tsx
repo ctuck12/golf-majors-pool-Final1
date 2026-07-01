@@ -8740,11 +8740,13 @@ export default function Page() {
                         <span style={{ color: '#0f1720', fontWeight: 800, fontSize: 11 }}>World Rank: {pickHistoryPlayerPopup.owgrRank ?? pickHistoryPlayerPopup.player.worldRank}</span>
                       </div>
                     )}
-                    <div style={{ background: '#7c3aed', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
-                      <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>Fed</span>
-                      <span style={{ color: '#fb923c', fontWeight: 800, fontSize: 11 }}>Ex</span>
-                      <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>: {pickHistoryPlayerPopup.fedexRank != null ? `${pickHistoryPlayerPopup.fedexRank}` : '--'}</span>
-                    </div>
+                    {pickHistoryPlayerPopup.fedexRank != null && (
+                      <div style={{ background: '#7c3aed', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
+                        <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>Fed</span>
+                        <span style={{ color: '#fb923c', fontWeight: 800, fontSize: 11 }}>Ex</span>
+                        <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>: {pickHistoryPlayerPopup.fedexRank}</span>
+                      </div>
+                    )}
                     {pickHistoryPlayerPopup.dpWorldRank != null && (
                       <div style={{ background: '#6EB487', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                         <span style={{ color: '#fff', fontWeight: 800, fontSize: 11 }}>DP World:</span>
