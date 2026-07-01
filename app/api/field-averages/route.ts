@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import redis from '@/app/lib/redis';
-import { getOrBuildPgaLeaderboard } from '@/app/lib/tournament-sg-leaderboard';
+import { getOrBuildPgaLeaderboard, tournLbCacheKey } from '@/app/lib/tournament-sg-leaderboard';
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues';
 const FIELD_AVG_TTL = 1800; // 30 minutes
@@ -64,7 +64,7 @@ function formatAvg(avg: number, isPercent: boolean, decimals: number): string {
 }
 
 // Stats where lower is better (for rank computation: rank 1 = lowest value)
-const LOWER_IS_BETTER = new Set(['scoringAverage', 'avgPuttsPerRound']);
+const LOWER_IS_BETTER = new Set(['scoringAverage', 'avgPuttsPerRound', 'puttAverage']);
 
 const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; decimals?: number; altMultiplier?: number }> = [
   { key: 'drivingDistance', espnName: 'driveDistAvg', isPercent: false, decimals: 1 },
@@ -76,6 +76,10 @@ const statDefs: Array<{ key: string; espnName: string; isPercent?: boolean; deci
   { key: 'sandSaves', espnName: 'sandSaves', isPercent: true, decimals: 1 },
   { key: 'avgPuttsPerRound', espnName: 'puttsPerRound', isPercent: false, decimals: 1 },
   { key: 'avgPuttsPerRound', espnName: 'puttsGirAvg', isPercent: false, decimals: 1, altMultiplier: 18 },
+  // Putts/Green (putts per GIR) — the metric the card + rankings popup show. Sourced from the same
+  // ESPN field the tournament-stat-leaderboard popup uses; overridden below by that popup's cached
+  // leaderboard so the card's "Field Avg" and rank match the popup exactly.
+  { key: 'puttAverage', espnName: 'puttsGirAvg', isPercent: false, decimals: 3 },
   // SG stats — ESPN Core may provide these; populated when available
   { key: 'sgTotal', espnName: 'strokesGainedTotal', isPercent: false, decimals: 3 },
   { key: 'sgTotal', espnName: 'sgTotal', isPercent: false, decimals: 3 },
@@ -100,7 +104,7 @@ export async function GET(request: Request) {
   const eventId = searchParams.get('eventId') ?? '';
   if (!eventId) return Response.json({ averages: {}, distributions: {} });
 
-  const cacheKey = `field-averages:v8:${eventId}`;
+  const cacheKey = `field-averages:v9:${eventId}`;
 
   try {
     const cached = await redis.get(cacheKey);
@@ -153,6 +157,20 @@ export async function GET(request: Request) {
         if (vals.length >= 5) distributions['scrambling'] = vals;
       }
     } catch { /* leave scrambling absent if the PGA feed is unavailable */ }
+
+    // Putts/Green: prefer the cached tournament-stat-leaderboard (the EXACT data the Putts/Green
+    // rankings popup renders) so the card's "Field Avg" and field-rank fallback match the popup to
+    // the decimal. The ESPN statDef above is the cold-cache fallback. (Card RANK comes from the same
+    // leaderboard via player-stats; this keeps everything consistent.)
+    try {
+      const cached = await redis.get(tournLbCacheKey(eventId, 'puttAverage'));
+      if (cached) {
+        const puttLb = JSON.parse(cached as string) as { entries?: Array<{ value?: string }>; fieldAvg?: string | null };
+        if (puttLb.fieldAvg) averages['puttAverage'] = puttLb.fieldAvg;
+        const vals = (puttLb.entries ?? []).map((e) => parseFloat(String(e.value))).filter((v) => !isNaN(v)).sort((a, b) => a - b);
+        if (vals.length >= 5) distributions['puttAverage'] = vals;
+      }
+    } catch { /* fall back to the ESPN-computed puttAverage above */ }
 
     const result: FieldData = { averages, distributions };
 
