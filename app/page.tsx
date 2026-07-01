@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Eye,
   EyeOff,
+  Globe,
   History,
   Lock,
   LogIn,
@@ -6238,10 +6239,21 @@ export default function Page() {
                 </a>
                 <a
                   href="/commissioner-dpworld"
-                  style={{ textDecoration: 'none', border: '1px solid #cdd9e1', borderRadius: 12, padding: isMobile ? '12px 14px' : '14px 16px', background: '#fff', color: '#0f1720' }}
+                  style={{ textDecoration: 'none', border: '1px solid #cdd9e1', borderRadius: 12, padding: isMobile ? '12px 14px' : '14px 16px', background: '#fff', color: '#0f1720', display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 12 }}
                 >
-                  <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>DP World Rankings &rarr;</div>
-                  <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Update Race to Dubai list</div>
+                  <div style={{ width: isMobile ? 34 : 40, height: isMobile ? 34 : 40, borderRadius: 10, background: '#fff', border: '1px solid #e6edf1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', position: 'relative' }}>
+                    <Globe size={isMobile ? 18 : 22} color="#5b6b79" />
+                    <img
+                      src="/dp-world-tour-logo.png"
+                      alt="DP World Tour"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: 3, background: '#fff' }}
+                    />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>DP World Rankings &rarr;</div>
+                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Update Race to Dubai list</div>
+                  </div>
                 </a>
                 <button
                   onClick={() => setCommissionerConsoleView('members')}
