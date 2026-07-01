@@ -51,39 +51,7 @@ const TOURNAMENT_ESPN_EVENT_IDS: Partial<Record<string, string>> = {
   open: '401811957',
 };
 
-// Exact salaries for the 2026 US Open field (overrides the computed odds-based salary)
-const PGA_SALARY_OVERRIDES: Record<number, number> = {
-    1: 11900,   2: 10200,  16:  9900,   3:  9100,  23:  9100,
-   20:  9100,   6:  9000,   5:  8900,  15:  8600,   9:  8300,
-   29:  8200,  25:  8100,  24:  8100,  21:  8100,   4:  8100,
-   37:  8000,  18:  7900,  61:  7900,  90:  7900,  50:  7900,
-   17:  7900,   7:  7900,  53:  7700,   8:  7600,  19:  7600,
-   22:  7500,  10:  7500,  12:  7500,  40:  7500,  30:  7500,
-   45:  7500,  49:  7400,  94:  7400,  55:  7300, 126:  7300,
-   58:  7300, 116:  7200, 114:  7200,  78:  7200,  54:  7200,
-   31:  7200,  38:  7200,  72:  7200, 146:  7200,  66:  7100,
-   14:  7100,  28:  7100,  47:  7100,  35:  7100,  48:  7100,
-   36:  7000,  60:  7000,  27:  7000,  43:  7000, 158:  6900,
-  102:  6900,  57:  6900, 121:  6800,  33:  6800,  13:  6800,
-   98:  6800, 193:  6800,  42:  6800, 198:  6700,  32:  6700,
-  197:  6700, 119:  6600, 199:  6600,  44:  6600, 200:  6600,
-   51:  6600,  74:  6500,  75:  6500,  59:  6500,  68:  6500,
-  201:  6500, 202:  6500,  93:  6500,  62:  6500, 203:  6500,
-  150:  6400,  64:  6400,  69:  6400, 136:  6400, 151:  6400,
-   41:  6400,  63:  6400,  79:  6400,  56:  6400, 159:  6400,
-  204:  6400, 205:  6400, 206:  6300, 207:  6300, 208:  6200,
-  209:  6200, 210:  6200, 211:  6200, 212:  6200, 213:  6200,
-  214:  6200, 215:  6200, 216:  6200, 169:  6200, 217:  6100,
-   87:  6100, 218:  6100, 219:  6100, 220:  6100, 221:  6100,
-  222:  6100, 223:  6100, 224:  6100, 225:  6100, 226:  6100,
-  227:  6100, 228:  6000, 229:  6000, 230:  6000, 231:  6000,
-  232:  6000, 233:  6000, 234:  6000, 235:  6000, 236:  6000,
-  237:  6000, 238:  6000, 239:  6000, 240:  6000, 241:  6000,
-  242:  6000, 243:  5900, 244:  5900, 245:  5900, 246:  5900,
-};
 const STORAGE_PREFIX = 'golf-pool-live';
-const SALARY_MIN = 5000;
-const SALARY_MAX = 10800;
 const DEFAULT_JOIN_CODE = 'MAJORS2026';
 const COMMISSIONER_EMAIL = 'ctuck12@gmail.com';
 const COMMISSIONER_DISPLAY_NAME = 'Clayton Tucker';
@@ -690,28 +658,6 @@ type LocalStoredAccount = {
   session: SessionPayload;
 };
 
-function parseAmericanOdds(odds: string) {
-  const numeric = Number(odds.replace('+', ''));
-
-  if (Number.isNaN(numeric) || numeric === 0) {
-    return 0;
-  }
-
-  if (numeric > 0) {
-    return 100 / (numeric + 100);
-  }
-
-  return Math.abs(numeric) / (Math.abs(numeric) + 100);
-}
-
-function normalizeValue(value: number, min: number, max: number) {
-  if (max === min) {
-    return 1;
-  }
-
-  return (value - min) / (max - min);
-}
-
 function buildPricedPlayers(
   playerPool: ReadonlyArray<{
     id: number;
@@ -725,29 +671,18 @@ function buildPricedPlayers(
   salaryOverrides?: Record<number, number>,
   worldRankOverrides?: Record<number, number>,
 ) {
-  const playersWithOdds = playerPool.map((player) => ({
-    ...player,
+  // Salaries come ONLY from the commissioner's uploaded list (/commissioner-salary). There is no
+  // automated pricing: a player not on the uploaded list gets salary 0 and is filtered out of the
+  // pickable list, so the uploaded file is the single source of the pick list.
+  return playerPool.map((player) => ({
+    id: player.id,
+    name: player.name,
+    worldRank: worldRankOverrides?.[player.id] ?? player.worldRank,
     odds: liveOddsMap[normalizeName(player.name)] ?? player.defaultOdds,
+    salary: salaryOverrides?.[player.id] ?? 0,
+    pgaTourId: player.pgaTourId,
+    photoUrl: player.photoUrl,
   }));
-  const impliedProbabilities = playersWithOdds.map((player) => parseAmericanOdds(player.odds));
-  const minProbability = Math.min(...impliedProbabilities);
-  const maxProbability = Math.max(...impliedProbabilities);
-
-  return playersWithOdds.map((player) => {
-    const oddsScore = normalizeValue(parseAmericanOdds(player.odds), minProbability, maxProbability);
-    const salary = salaryOverrides?.[player.id] ??
-      Math.round((SALARY_MIN + oddsScore * (SALARY_MAX - SALARY_MIN)) / 100) * 100;
-
-    return {
-      id: player.id,
-      name: player.name,
-      worldRank: worldRankOverrides?.[player.id] ?? player.worldRank,
-      odds: player.odds,
-      salary,
-      pgaTourId: player.pgaTourId,
-      photoUrl: player.photoUrl,
-    };
-  });
 }
 
 function normalizeName(value: string) {
@@ -2648,9 +2583,10 @@ export default function Page() {
     >;
   }, [feed]);
 
-  // Salary + world-rank overrides: default to the built-in salary map and static world ranks; if the
-  // commissioner has uploaded a list (/commissioner-salary), fetch and use it. Falls back on any failure.
-  const [salaryOverrides, setSalaryOverrides] = useState<Record<number, number>>(PGA_SALARY_OVERRIDES);
+  // Salaries come ONLY from the commissioner's uploaded list (/commissioner-salary). No baked-in
+  // salaries and no odds-based auto-pricing — until a list is uploaded there is no pick list. World
+  // ranks on the pick sheet likewise come from the upload (falling back to the static pool rank).
+  const [salaryOverrides, setSalaryOverrides] = useState<Record<number, number>>({});
   const [worldRankOverrides, setWorldRankOverrides] = useState<Record<number, number>>({});
   useEffect(() => {
     let cancelled = false;
@@ -2730,6 +2666,7 @@ export default function Page() {
     commissionerMembers.find((member) => member.id === commissionerRosterMemberId) ?? null;
   const filteredEntriesPlayers = players
     .filter((player) => {
+      if (player.salary <= 0) return false; // not on the uploaded list → not pickable
       if (selectedRoster.includes(player.id)) return false;
       const query = entriesPlayerSearch.trim().toLowerCase();
       if (!query) return true;
@@ -2738,6 +2675,7 @@ export default function Page() {
     .sort((a, b) => b.salary - a.salary);
   const filteredCommissionerPlayers = players
     .filter((player) => {
+      if (player.salary <= 0) return false; // not on the uploaded list → not pickable
       if (commissionerRosterSelection.includes(player.id)) return false;
       const query = commissionerPlayerSearch.trim().toLowerCase();
       if (!query) return true;
