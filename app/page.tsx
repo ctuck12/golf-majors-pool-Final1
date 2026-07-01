@@ -1416,7 +1416,9 @@ export default function Page() {
   const [winnerScoreInput, setWinnerScoreInput] = useState('');
   const [clearLeaderBusy, setClearLeaderBusy] = useState(false);
   const [clearLeaderMsg, setClearLeaderMsg] = useState<string | null>(null);
-  const [confirmClearRound, setConfirmClearRound] = useState<number | null>(null);
+  // Pool management tools: which tool modal is open, and a generic confirm/cancel modal on top of it.
+  const [poolToolModal, setPoolToolModal] = useState<null | 'tiebreak' | 'roundLeader' | 'markStatus'>(null);
+  const [poolToolConfirm, setPoolToolConfirm] = useState<null | { title: string; message: string; confirmLabel: string; danger?: boolean; onConfirm: () => void }>(null);
   const [playerStatusInput, setPlayerStatusInput] = useState('');
   const [playerStatusBusy, setPlayerStatusBusy] = useState(false);
   const [playerStatusMsg, setPlayerStatusMsg] = useState<string | null>(null);
@@ -2300,8 +2302,6 @@ export default function Page() {
   const handleMarkPlayerStatus = async (status: 'WD' | 'DQ' | 'MDF') => {
     const playerName = playerStatusInput.trim();
     if (!playerName) return;
-    const label = status === 'MDF' ? 'MDF (Made Cut, Did Not Finish)' : status;
-    if (!window.confirm(`Mark "${playerName}" as ${label} for the ${entriesTournamentId.toUpperCase()} tournament?\n\nThis will override the ESPN data immediately.`)) return;
     setPlayerStatusBusy(true);
     setPlayerStatusMsg(null);
     try {
@@ -6353,98 +6353,7 @@ export default function Page() {
               </div>
             </section>
 
-            <section
-              style={{
-                background: '#fff',
-                borderRadius: 24,
-                padding: isMobile ? 14 : 22,
-                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
-                display: 'grid',
-                gap: isMobile ? 8 : 14,
-              }}
-            >
-              <div>
-                <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                  Tiebreak winner&apos;s score
-                </div>
-                <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800, color: '#0f1720' }}>
-                  {commissionerTournamentLabel}
-                </div>
-                {/* Status badge */}
-                {(() => {
-                  if (!isTournamentFinal) {
-                    return (
-                      <div style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 7, background: '#f0f4f8', borderRadius: 8, padding: '7px 12px' }}>
-                        <span style={{ fontSize: 13, color: '#5b6b79', fontWeight: 700 }}>Tiebreak resolves automatically once the tournament ends. Use the override below if the winner isn&apos;t in the player pool.</span>
-                      </div>
-                    );
-                  }
-                  if (commissionerAutoDetected != null) {
-                    return (
-                      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#dcfce7', borderRadius: 8, padding: '7px 12px' }}>
-                          <span style={{ fontSize: 15 }}>✓</span>
-                          <span style={{ fontSize: 13, color: '#166534', fontWeight: 700 }}>Auto-detected: <strong>{commissionerAutoDetected} strokes</strong>{commissionerAutoWinner?.canonicalName ? ` (${commissionerAutoWinner.canonicalName})` : ''}</span>
-                        </div>
-                        {commissionerTournamentWinnerScore != null && (
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#dbeafe', borderRadius: 8, padding: '7px 12px' }}>
-                            <span style={{ fontSize: 13, color: '#1e40af', fontWeight: 700 }}>Manual override also saved: {commissionerTournamentWinnerScore} — auto-detected value takes priority</span>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }
-                  if (commissionerTournamentWinnerScore != null) {
-                    return (
-                      <div style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 7, background: '#dbeafe', borderRadius: 8, padding: '7px 12px' }}>
-                        <span style={{ fontSize: 15 }}>✓</span>
-                        <span style={{ fontSize: 13, color: '#1e40af', fontWeight: 700 }}>Manual override active: <strong>{commissionerTournamentWinnerScore} strokes</strong></span>
-                      </div>
-                    );
-                  }
-                  return (
-                    <div style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fef3c7', borderRadius: 8, padding: '7px 12px', border: '1px solid #f59e0b' }}>
-                      <span style={{ fontSize: 15 }}>⚠</span>
-                      <span style={{ fontSize: 13, color: '#92400e', fontWeight: 700 }}>Winner&apos;s score not found — enter manually below</span>
-                    </div>
-                  );
-                })()}
-              </div>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
-                <label style={{ display: 'grid', gap: 6, flex: 1, maxWidth: 180 }}>
-                  <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                    {tiebreakResolved != null ? 'Override score' : 'Total strokes (e.g. 274)'}
-                  </span>
-                  <input
-                    type="number"
-                    min="200"
-                    max="400"
-                    step="1"
-                    value={winnerScoreInput}
-                    onChange={(e) => setWinnerScoreInput(e.target.value)}
-                    placeholder="e.g. 274"
-                    style={fieldStyle()}
-                  />
-                </label>
-                <button
-                  onClick={handleSaveWinnerScore}
-                  disabled={!canManagePool || commissionerBusy}
-                  style={{
-                    border: 'none',
-                    borderRadius: 14,
-                    padding: '12px 16px',
-                    background: entriesTournamentSolid,
-                    color: '#fff',
-                    fontWeight: 900,
-                    cursor: !canManagePool || commissionerBusy ? 'not-allowed' : 'pointer',
-                    minHeight: 52,
-                  }}
-                >
-                  Save score
-                </button>
-              </div>
-            </section>
-
+            {/* Pool management tools — each opens a centered modal; actions confirm before applying */}
             <section
               style={{
                 background: '#fff',
@@ -6453,97 +6362,131 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <h3 style={{ margin: '0 0 10px', fontSize: 15, fontWeight: 800, color: '#0f1720' }}>Round Leader Tools</h3>
-              <p style={{ margin: '0 0 12px', fontSize: 12, color: '#5b6b79' }}>If a round leader was incorrectly captured (e.g. during a suspension), clear it here. It will be re-captured automatically when the round officially ends.</p>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {[1, 2, 3].map((rnd) => (
+              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', marginBottom: 4 }}>Pool Management Tools</div>
+              <div style={{ fontSize: isMobile ? 12 : 13, color: '#5b6b79', marginBottom: 14 }}>Tiebreak score, round-leader fixes, and player-status overrides. Each opens a window and asks you to confirm before it applies.</div>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? 8 : 12 }}>
+                {[
+                  { key: 'tiebreak' as const, title: "Tiebreak Winner's Score", sub: 'Enter / override total strokes' },
+                  { key: 'roundLeader' as const, title: 'Round Leader Tools', sub: 'Clear a mis-captured round leader' },
+                  { key: 'markStatus' as const, title: 'Mark WD / DQ / MDF', sub: "Override a player's status" },
+                ].map((t) => (
                   <button
-                    key={rnd}
-                    onClick={() => { setClearLeaderMsg(null); setConfirmClearRound(rnd); }}
-                    disabled={!canManagePool || clearLeaderBusy}
-                    style={{ border: '1.5px solid #dc2626', borderRadius: 10, padding: '8px 14px', background: '#fff', color: '#dc2626', fontWeight: 800, fontSize: 13, cursor: !canManagePool || clearLeaderBusy ? 'not-allowed' : 'pointer', opacity: !canManagePool || clearLeaderBusy ? 0.5 : 1 }}
+                    key={t.key}
+                    onClick={() => { setPoolToolConfirm(null); setPoolToolModal(t.key); }}
+                    disabled={!canManagePool}
+                    style={{ textAlign: 'left', border: '1px solid #cdd9e1', borderRadius: 12, padding: isMobile ? '12px 14px' : '14px 16px', background: '#fff', cursor: canManagePool ? 'pointer' : 'not-allowed', opacity: canManagePool ? 1 : 0.5 }}
                   >
-                    Clear Rnd {rnd} Leader
+                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>{t.title} &rarr;</div>
+                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>{t.sub}</div>
                   </button>
                 ))}
               </div>
-              {clearLeaderMsg && (
-                <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: clearLeaderMsg.includes('cleared') ? '#16a34a' : '#dc2626' }}>{clearLeaderMsg}</div>
-              )}
-              {confirmClearRound !== null && (
-                <>
-                  <div onClick={() => setConfirmClearRound(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1000 }} />
-                  <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: '#fff', borderRadius: 18, padding: '28px 24px', zIndex: 1001, width: 'min(320px, 90vw)', boxShadow: '0 24px 60px rgba(0,0,0,0.22)', textAlign: 'center' }}>
-                    <div style={{ fontSize: 17, fontWeight: 800, color: '#0f1720', marginBottom: 10 }}>Clear Round {confirmClearRound} Leader?</div>
-                    <div style={{ fontSize: 13, color: '#5b6b79', marginBottom: 22 }}>This will remove the Round {confirmClearRound} leader bonus for whoever currently holds it. It will be re-captured automatically when the round officially ends.</div>
-                    <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-                      <button onClick={() => setConfirmClearRound(null)} style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: '1.5px solid #d1dae3', background: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', color: '#374151' }}>Cancel</button>
-                      <button
-                        onClick={async () => { const rnd = confirmClearRound; setConfirmClearRound(null); await handleClearRoundLeader(rnd); }}
-                        disabled={clearLeaderBusy}
-                        style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: 'none', background: '#dc2626', color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}
-                      >
-                        Yes, Clear
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
             </section>
 
-            <section
-              style={{
-                background: '#fff',
-                borderRadius: 24,
-                padding: isMobile ? 14 : 22,
-                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
-                display: 'grid',
-                gap: isMobile ? 8 : 14,
-              }}
-            >
-              <div>
-                <h3 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 800, color: '#0f1720' }}>Mark Player as WD / DQ / MDF</h3>
-                <p style={{ margin: 0, fontSize: 12, color: '#5b6b79' }}>Override the API when ESPN hasn&apos;t updated a player&apos;s status. Enter the exact player name as it appears in the pool (e.g. &quot;Jason Day&quot;).</p>
-              </div>
-              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                <label style={{ display: 'grid', gap: 6, flex: 1, minWidth: 160 }}>
-                  <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>Player name</span>
-                  <input
-                    type="text"
-                    value={playerStatusInput}
-                    onChange={(e) => setPlayerStatusInput(e.target.value)}
-                    placeholder="e.g. Jason Day"
-                    style={fieldStyle()}
-                  />
-                </label>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  {(['WD', 'DQ', 'MDF'] as const).map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => handleMarkPlayerStatus(status)}
-                      disabled={!canManagePool || playerStatusBusy || !playerStatusInput.trim()}
-                      style={{
-                        padding: '10px 14px',
-                        borderRadius: 10,
-                        border: 'none',
-                        background: '#dc2626',
-                        color: '#fff',
-                        fontWeight: 800,
-                        fontSize: 13,
-                        cursor: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 'not-allowed' : 'pointer',
-                        opacity: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 0.5 : 1,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {status}
-                    </button>
-                  ))}
+            {/* ── Tool modal (centered) ─────────────────────────────────── */}
+            {poolToolModal !== null && (
+              <div
+                onClick={() => { setPoolToolModal(null); setPoolToolConfirm(null); }}
+                style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 900 }}
+              >
+                <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(460px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)' }}>
+                  <div style={{ background: '#0f1720', borderRadius: '18px 18px 0 0', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ color: '#fff', fontSize: 16, fontWeight: 900 }}>
+                      {poolToolModal === 'tiebreak' ? "Tiebreak Winner's Score" : poolToolModal === 'roundLeader' ? 'Round Leader Tools' : 'Mark Player as WD / DQ / MDF'}
+                    </div>
+                    <button onClick={() => { setPoolToolModal(null); setPoolToolConfirm(null); }} style={{ background: '#33414d', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15 }}>&#10005;</button>
+                  </div>
+                  <div style={{ padding: 20, display: 'grid', gap: 14 }}>
+
+                    {poolToolModal === 'tiebreak' && (
+                      <>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{commissionerTournamentLabel}</div>
+                        <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.5 }}>Tiebreak resolves automatically once the tournament ends. Use this override only if the winner isn&apos;t in the player pool.</div>
+                        {commissionerAutoDetected != null ? (
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#166534', background: '#dcfce7', borderRadius: 8, padding: '8px 12px' }}>Auto-detected: {commissionerAutoDetected} strokes</div>
+                        ) : commissionerTournamentWinnerScore != null ? (
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', background: '#dbeafe', borderRadius: 8, padding: '8px 12px' }}>Manual override active: {commissionerTournamentWinnerScore} strokes</div>
+                        ) : null}
+                        <label style={{ display: 'grid', gap: 6 }}>
+                          <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>{tiebreakResolved != null ? 'Override score' : 'Total strokes (e.g. 274)'}</span>
+                          <input type="number" min="200" max="400" step="1" value={winnerScoreInput} onChange={(e) => setWinnerScoreInput(e.target.value)} placeholder="e.g. 274" style={fieldStyle()} />
+                        </label>
+                        <button
+                          onClick={() => {
+                            const score = Number(winnerScoreInput);
+                            if (!Number.isFinite(score) || score < 200 || score > 400) { setCommissionerError('Enter a valid total stroke count (200–400).'); return; }
+                            setPoolToolConfirm({ title: 'Save winner’s score?', message: `Set the ${commissionerTournamentLabel} tiebreak winner’s score to ${score} strokes?`, confirmLabel: 'Save score', onConfirm: () => { void handleSaveWinnerScore(); setPoolToolModal(null); setPoolToolConfirm(null); } });
+                          }}
+                          disabled={!canManagePool || commissionerBusy || !winnerScoreInput.trim()}
+                          style={{ border: 'none', borderRadius: 12, padding: '12px 16px', background: entriesTournamentSolid, color: '#fff', fontWeight: 900, cursor: (!canManagePool || commissionerBusy || !winnerScoreInput.trim()) ? 'not-allowed' : 'pointer', opacity: (!canManagePool || commissionerBusy || !winnerScoreInput.trim()) ? 0.5 : 1 }}
+                        >
+                          Save score
+                        </button>
+                        {(commissionerError || commissionerSuccess) && (
+                          <div style={{ fontSize: 13, fontWeight: 600, color: commissionerError ? '#dc2626' : '#16a34a' }}>{commissionerError || commissionerSuccess}</div>
+                        )}
+                      </>
+                    )}
+
+                    {poolToolModal === 'roundLeader' && (
+                      <>
+                        <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.5 }}>If a round leader was incorrectly captured (e.g. during a suspension), clear it here. It will be re-captured automatically when the round officially ends.</div>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          {[1, 2, 3].map((rnd) => (
+                            <button
+                              key={rnd}
+                              onClick={() => setPoolToolConfirm({ title: `Clear Round ${rnd} Leader?`, message: `This removes the Round ${rnd} leader bonus for whoever currently holds it. It will be re-captured automatically when the round officially ends.`, confirmLabel: 'Yes, clear', danger: true, onConfirm: () => { void handleClearRoundLeader(rnd); setPoolToolModal(null); setPoolToolConfirm(null); } })}
+                              disabled={!canManagePool || clearLeaderBusy}
+                              style={{ border: '1.5px solid #dc2626', borderRadius: 10, padding: '10px 14px', background: '#fff', color: '#dc2626', fontWeight: 800, fontSize: 13, cursor: (!canManagePool || clearLeaderBusy) ? 'not-allowed' : 'pointer', opacity: (!canManagePool || clearLeaderBusy) ? 0.5 : 1 }}
+                            >
+                              Clear Rnd {rnd} Leader
+                            </button>
+                          ))}
+                        </div>
+                        {clearLeaderMsg && (<div style={{ fontSize: 13, fontWeight: 600, color: clearLeaderMsg.includes('cleared') ? '#16a34a' : '#dc2626' }}>{clearLeaderMsg}</div>)}
+                      </>
+                    )}
+
+                    {poolToolModal === 'markStatus' && (
+                      <>
+                        <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.5 }}>Override the API when ESPN hasn&apos;t updated a player&apos;s status. Enter the player name as it appears in the pool (e.g. &quot;Jason Day&quot;). Accents are ignored.</div>
+                        <label style={{ display: 'grid', gap: 6 }}>
+                          <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>Player name</span>
+                          <input type="text" value={playerStatusInput} onChange={(e) => setPlayerStatusInput(e.target.value)} placeholder="e.g. Jason Day" style={fieldStyle()} />
+                        </label>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          {(['WD', 'DQ', 'MDF'] as const).map((status) => (
+                            <button
+                              key={status}
+                              onClick={() => { const nm = playerStatusInput.trim(); if (!nm) return; const label = status === 'MDF' ? 'MDF (Made Cut, Did Not Finish)' : status; setPoolToolConfirm({ title: `Mark ${status}?`, message: `Mark "${nm}" as ${label} for ${commissionerTournamentLabel}? This overrides the ESPN data immediately.`, confirmLabel: `Mark ${status}`, danger: true, onConfirm: () => { void handleMarkPlayerStatus(status); setPoolToolModal(null); setPoolToolConfirm(null); } }); }}
+                              disabled={!canManagePool || playerStatusBusy || !playerStatusInput.trim()}
+                              style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: '#dc2626', color: '#fff', fontWeight: 800, fontSize: 14, cursor: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 'not-allowed' : 'pointer', opacity: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 0.5 : 1 }}
+                            >
+                              {status}
+                            </button>
+                          ))}
+                        </div>
+                        {playerStatusMsg && (<div style={{ fontSize: 13, fontWeight: 600, color: playerStatusMsg.includes('marked') ? '#16a34a' : '#dc2626' }}>{playerStatusMsg}</div>)}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-              {playerStatusMsg && (
-                <div style={{ fontSize: 13, fontWeight: 600, color: playerStatusMsg.includes('marked') ? '#16a34a' : '#dc2626' }}>{playerStatusMsg}</div>
-              )}
-            </section>
+            )}
+
+            {/* ── Confirmation modal (on top of the tool modal) ───────────── */}
+            {poolToolConfirm !== null && (
+              <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1100 }} onClick={() => setPoolToolConfirm(null)}>
+                <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(360px, calc(100vw - 32px))', background: '#fff', borderRadius: 18, padding: '26px 24px', boxShadow: '0 24px 60px rgba(0,0,0,0.28)', textAlign: 'center' }}>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: '#0f1720', marginBottom: 10 }}>{poolToolConfirm.title}</div>
+                  <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.55, marginBottom: 22 }}>{poolToolConfirm.message}</div>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button onClick={() => setPoolToolConfirm(null)} style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: '1.5px solid #d1dae3', background: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', color: '#374151' }}>Cancel</button>
+                    <button onClick={() => poolToolConfirm.onConfirm()} style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: 'none', background: poolToolConfirm.danger ? '#dc2626' : entriesTournamentSolid, color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>{poolToolConfirm.confirmLabel}</button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <section
               style={{
