@@ -249,6 +249,8 @@ export const PLAYER_ARCHIVE = [
   { id: 196, name: 'Zach Johnson',              pgaTourId: 24024, defaultOdds: '+100000', worldRank: 999 },
   { id: 300, name: 'Danny Willett',             pgaTourId: 32139, defaultOdds: '+100000', worldRank: 999 },
   { id: 301, name: 'Mike Weir',                 pgaTourId: 10423, defaultOdds: '+100000', worldRank: 999 },
+  { id: 302, name: 'Sergio Garcia',             pgaTourId: 21209, defaultOdds: '+100000', worldRank: 999 },
+  { id: 303, name: 'Charl Schwartzel',          pgaTourId: 26331, defaultOdds: '+100000', worldRank: 999 },
 ] as const;
 
 export type PlayerPoolEntry = (typeof PLAYER_POOL_WITH_PGA_IDS)[number];
