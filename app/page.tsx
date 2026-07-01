@@ -486,8 +486,14 @@ const MAJOR_TINTS: Record<string, { bg: string; text: string }> = {
 const MAJOR_TINTS_NORM: Record<string, { bg: string; text: string }> = {};
 for (const [k, v] of Object.entries(MAJOR_TINTS)) MAJOR_TINTS_NORM[k.toLowerCase().replace(/\s+/g, ' ').trim()] = v;
 // Returns { bg, text } for a major / The Players, or null for any other tournament.
-const majorTint = (tournament: string): { bg: string; text: string } | null =>
-  MAJOR_TINTS[tournament] ?? MAJOR_TINTS_NORM[tournament.toLowerCase().replace(/\s+/g, ' ').trim()] ?? null;
+// Some win-list entries carry a trailing year (e.g. "Masters Tournament (2021)") to disambiguate
+// repeat wins; strip it before matching so those rows still highlight (the year band already shows it).
+const majorTint = (tournament: string): { bg: string; text: string } | null => {
+  const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+  const cleaned = tournament.replace(/\s*\(\d{4}\)\s*$/, '').trim();
+  return MAJOR_TINTS[tournament] ?? MAJOR_TINTS[cleaned]
+    ?? MAJOR_TINTS_NORM[norm(tournament)] ?? MAJOR_TINTS_NORM[norm(cleaned)] ?? null;
+};
 
 // Photo priority:
 // 1) A manually-uploaded photoUrl ALWAYS wins. These were uploaded for players who had no photo
