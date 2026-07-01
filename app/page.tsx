@@ -6249,6 +6249,18 @@ export default function Page() {
                   <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>DP World Rankings &rarr;</div>
                   <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Update Race to Dubai list</div>
                 </a>
+                <button
+                  onClick={() => setCommissionerConsoleView('members')}
+                  style={{ textAlign: 'left', border: '1px solid #cdd9e1', borderRadius: 12, padding: isMobile ? '12px 14px' : '14px 16px', background: '#fff', color: '#0f1720', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 12 }}
+                >
+                  <div style={{ width: isMobile ? 34 : 40, height: isMobile ? 34 : 40, borderRadius: 10, background: entriesTournamentBg, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Users size={isMobile ? 18 : 22} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>Member Management &rarr;</div>
+                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Full member listing &amp; participation</div>
+                  </div>
+                </button>
               </div>
             </section>
 
@@ -6412,53 +6424,6 @@ export default function Page() {
                 </div>
               </div>
             )}
-
-            <section
-              style={{
-                background: '#fff',
-                borderRadius: 24,
-                padding: isMobile ? 14 : 22,
-                boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
-              }}
-            >
-              <button
-                onClick={() => setCommissionerConsoleView('members')}
-                style={{
-                  width: '100%',
-                  border: '1px solid #d7e0e8',
-                  borderRadius: isMobile ? 14 : 22,
-                  background: '#fff',
-                  padding: isMobile ? 12 : 22,
-                  display: 'grid',
-                  gridTemplateColumns: isMobile ? '52px minmax(0, 1fr)' : '100px minmax(0, 1fr)',
-                  gap: isMobile ? 12 : 22,
-                  alignItems: 'center',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                }}
-              >
-                <div
-                  style={{
-                    width: isMobile ? 52 : 82,
-                    height: isMobile ? 52 : 82,
-                    borderRadius: isMobile ? 12 : 18,
-                    background: entriesTournamentBg,
-                    color: '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Users size={isMobile ? 28 : 46} />
-                </div>
-                <div>
-                  <div style={{ fontSize: isMobile ? 18 : 32, fontWeight: 900, color: '#0f1720' }}>Member Management</div>
-                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 12 : 18, lineHeight: 1.45, color: '#31424f' }}>
-                    A full member listing showing participation for this year.
-                  </div>
-                </div>
-              </button>
-            </section>
 
             <section
               style={{
