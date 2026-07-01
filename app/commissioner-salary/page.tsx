@@ -197,12 +197,29 @@ export default function CommissionerSalaryPage() {
 
             {/* File upload */}
             <div>
+              <style>{`
+                .cf-file-input::file-selector-button,
+                .cf-file-input::-webkit-file-upload-button {
+                  font-size: 14px;
+                  font-weight: 700;
+                  padding: 11px 20px;
+                  margin-right: 14px;
+                  border-radius: 10px;
+                  border: 1px solid #cbd5e1;
+                  background: #f8fafc;
+                  color: #0f1720;
+                  cursor: pointer;
+                }
+                .cf-file-input::file-selector-button:hover,
+                .cf-file-input::-webkit-file-upload-button:hover { background: #eef2f7; }
+              `}</style>
               <input
                 ref={fileRef}
+                className="cf-file-input"
                 type="file"
                 accept=".xlsx,.csv"
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); }}
-                style={{ fontSize: 13 }}
+                style={{ fontSize: 14 }}
               />
             </div>
 
