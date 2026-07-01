@@ -21,8 +21,10 @@ export type PlayerBio = {
   turnedPro: number | null;
   pgaTourDebut: number | null;
   careerStarts: number | null;
+  cutsMade: number | null;
   careerWins: number | null;
   majorStarts: number | null;
+  majorCutsMade: number | null;
   majorWins: number | null;
   careerEarnings: string | null;
   // Per-win detail powering the click-through popups on the Wins rows.
@@ -585,6 +587,9 @@ async function fetchPgaMajorResults(pgaTourId: string): Promise<Partial<PlayerBi
     };
     // Each entry = one major appearance; position "1" = win
     result.majorStarts = tournaments.length;
+    // A made cut = a real weekend finishing position (numeric or T-numeric, e.g. "1", "T10", "22").
+    // A missed cut shows as "CUT" (and WD/DQ are likewise not a made cut).
+    result.majorCutsMade = tournaments.filter(t => /^T?\d+$/.test(String(t.position ?? '').trim())).length;
     const majorWins = tournaments.filter(t => isWin(t.position));
     result.majorWins = majorWins.length;
     result.majorWinsList = majorWins
@@ -611,7 +616,7 @@ async function fetchPgaCareerResults(pgaTourId: string): Promise<Partial<PlayerB
   try {
     const query = `query R($id: ID!) {
       playerProfileTournamentResults(playerId: $id, tourCode: R) {
-        tournaments { overviewInfo { events money } }
+        tournaments { overviewInfo { events cutsMade money } }
       }
     }`;
     const res = await fetch(PGA_GQL, {
@@ -622,20 +627,24 @@ async function fetchPgaCareerResults(pgaTourId: string): Promise<Partial<PlayerB
     });
     if (!res.ok) return result;
     const json = await res.json() as {
-      data?: { playerProfileTournamentResults?: { tournaments?: Array<{ overviewInfo?: { events?: number; money?: number } }> } };
+      data?: { playerProfileTournamentResults?: { tournaments?: Array<{ overviewInfo?: { events?: number; cutsMade?: number; money?: number } }> } };
       errors?: unknown[];
     };
     if (json.errors?.length) return result;
     const groups = json.data?.playerProfileTournamentResults?.tournaments ?? [];
     if (groups.length === 0) return result;
-    let events = 0, money = 0;
+    let events = 0, cutsMade = 0, money = 0;
     for (const g of groups) {
       const o = g.overviewInfo;
       if (!o) continue;
       events += o.events ?? 0;
+      cutsMade += o.cutsMade ?? 0;
       money += o.money ?? 0;
     }
-    if (events > 0) result.careerStarts = events;
+    if (events > 0) {
+      result.careerStarts = events;
+      result.cutsMade = cutsMade; // 0 is valid
+    }
     if (money > 0) result.careerEarnings = fmtEarnings(money);
   } catch { /* ignore */ }
   return result;
@@ -816,7 +825,7 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v26:${name}`;
+  const cacheKey = `player-bio:v27:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -830,8 +839,8 @@ export async function GET(req: Request) {
     height: null, weight: null, dob: null, age: null, birthPlace: null,
     college: null, collegeConfirmedAbsent: false, swing: null,
     turnedPro: null, pgaTourDebut: null,
-    careerStarts: null, careerWins: null, majorStarts: null,
-    majorWins: null, careerEarnings: null,
+    careerStarts: null, cutsMade: null, careerWins: null, majorStarts: null,
+    majorCutsMade: null, majorWins: null, careerEarnings: null,
     pgaTourWinsList: null, majorWinsList: null,
   };
 
