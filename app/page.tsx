@@ -6184,7 +6184,7 @@ export default function Page() {
               >
                 <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 12 : 18, padding: isMobile ? 10 : 16, background: '#f8fbfd' }}>
                   <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                    Source
+                    Data source
                   </div>
                   <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800 }}>ESPN</div>
                 </div>
@@ -6227,7 +6227,7 @@ export default function Page() {
                   }}
                 >
                   <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                    Picks
+                    Player picks
                   </div>
                   <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800 }}>
                     {pool?.picksOpen?.[selectedTournament] ? 'Open' : 'Closed'}
@@ -6317,7 +6317,7 @@ export default function Page() {
                   { key: 'payouts' as const, title: 'Tournament Payouts', sub: 'Set 1st / 2nd / 3rd place amounts', Icon: Trophy },
                   { key: 'markStatus' as const, title: 'Mark WD / DQ / MDF', sub: "Override a player's status", Icon: AlertCircle },
                   { key: 'roundLeader' as const, title: 'Round Leader Tools', sub: 'Clear a mis-captured round leader', Icon: RefreshCw },
-                  { key: 'tiebreak' as const, title: "Tiebreak Winner's Score", sub: 'Enter / override total strokes', Icon: Save },
+                  { key: 'tiebreak' as const, title: 'Tiebreak Score', sub: 'Enter / override total strokes', Icon: Save },
                 ].map((t) => {
                   const Icon = t.Icon;
                   return (
@@ -6349,7 +6349,7 @@ export default function Page() {
                 <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(460px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)' }}>
                   <div style={{ background: entriesTournamentSolid, borderRadius: '18px 18px 0 0', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ color: '#fff', fontSize: 16, fontWeight: 900 }}>
-                      {poolToolModal === 'payouts' ? 'Tournament Payouts' : poolToolModal === 'tiebreak' ? "Tiebreak Winner's Score" : poolToolModal === 'roundLeader' ? 'Round Leader Tools' : 'Mark Player as WD / DQ / MDF'}
+                      {poolToolModal === 'payouts' ? 'Tournament Payouts' : poolToolModal === 'tiebreak' ? 'Tiebreak Score' : poolToolModal === 'roundLeader' ? 'Round Leader Tools' : 'Mark Player as WD / DQ / MDF'}
                     </div>
                     <button onClick={() => { setPoolToolModal(null); setPoolToolConfirm(null); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15 }}>&#10005;</button>
                   </div>
