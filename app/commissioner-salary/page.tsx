@@ -96,6 +96,7 @@ export default function CommissionerSalaryPage() {
   const [busy, setBusy] = useState(false);
   const [resp, setResp] = useState<SaveResp | null>(null);
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const loadStatus = async () => {
@@ -232,7 +233,7 @@ export default function CommissionerSalaryPage() {
             />
 
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <button onClick={save} disabled={busy || !text.trim()} style={{ ...btn('#2c6449'), opacity: busy || !text.trim() ? 0.5 : 1 }}>{busy ? 'Saving…' : 'Save & Apply'}</button>
+              <button onClick={() => setConfirmOpen(true)} disabled={busy || !text.trim()} style={{ ...btn('#2c6449'), opacity: busy || !text.trim() ? 0.5 : 1 }}>{busy ? 'Saving…' : 'Save & Apply'}</button>
               {status?.active && <button onClick={clear} disabled={busy} style={{ ...btn('#64748b'), opacity: busy ? 0.5 : 1 }}>Clear (use built-in list)</button>}
             </div>
 
@@ -251,20 +252,38 @@ export default function CommissionerSalaryPage() {
 
             {resp?.preview && resp.preview.length > 0 && (
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#607282', marginBottom: 6 }}>TOP SALARIES SAVED</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#607282', marginBottom: 6 }}>SALARIES SAVED ({resp.preview.length}) · SCROLL TO SEE ALL</div>
                 <div style={{ border: '1px solid #e2e8ef', borderRadius: 8, overflow: 'hidden' }}>
-                  {resp.preview.map((p, i) => (
-                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '6px 12px', fontSize: 13, background: i % 2 ? '#f8fafc' : '#fff', borderBottom: '1px solid #eef2f6' }}>
-                      <span style={{ color: '#0f1720', fontWeight: 600 }}>{p.worldRank != null && <span style={{ color: '#94a3b8', fontWeight: 700, marginRight: 8 }}>#{p.worldRank}</span>}{p.name}</span>
-                      <span style={{ color: '#2c6449', fontWeight: 800 }}>${p.salary.toLocaleString()}</span>
-                    </div>
-                  ))}
+                  <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+                    {resp.preview.map((p, i) => (
+                      <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '6px 12px', fontSize: 13, background: i % 2 ? '#f8fafc' : '#fff', borderBottom: '1px solid #eef2f6' }}>
+                        <span style={{ color: '#0f1720', fontWeight: 600 }}>{p.worldRank != null && <span style={{ color: '#94a3b8', fontWeight: 700, marginRight: 8 }}>#{p.worldRank}</span>}{p.name}</span>
+                        <span style={{ color: '#2c6449', fontWeight: 800 }}>${p.salary.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
           </div>
         )}
       </div>
+
+      {confirmOpen && (
+        <div
+          onClick={() => setConfirmOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}
+        >
+          <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(380px, calc(100vw - 32px))', background: '#fff', borderRadius: 16, padding: '24px 22px', boxShadow: '0 24px 60px rgba(9,34,51,0.3)', textAlign: 'center' }}>
+            <div style={{ fontSize: 17, fontWeight: 800, color: '#0f1720', marginBottom: 10 }}>Save &amp; apply this list?</div>
+            <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.55, marginBottom: 22 }}>This overrides the salary pick list (and any world ranks) the pool uses with the list above.</div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setConfirmOpen(false)} style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: '1px solid #d1dae3', background: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', color: '#374151' }}>Cancel</button>
+              <button onClick={() => { setConfirmOpen(false); void save(); }} style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: 'none', background: '#2c6449', color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>Save &amp; Apply</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

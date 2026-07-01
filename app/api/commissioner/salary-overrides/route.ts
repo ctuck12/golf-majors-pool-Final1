@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     unmatchedCount: parsed.unmatched.length,
     unmatched: parsed.unmatched.slice(0, 25), // surface names that didn't map so the commissioner can fix spelling
     skipped: parsed.skipped.slice(0, 10),
-    preview: parsed.matched.slice().sort((a, b) => b.salary - a.salary).slice(0, 15),
+    preview: parsed.matched.slice().sort((a, b) => b.salary - a.salary),
   });
 }
 

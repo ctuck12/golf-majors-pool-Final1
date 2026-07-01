@@ -30,7 +30,6 @@ async function requireCommissioner() {
 function preview(map: Record<string, number>) {
   return Object.entries(map)
     .sort((a, b) => a[1] - b[1])
-    .slice(0, 15)
     .map(([name, rank]) => ({ rank, name }));
 }
 
