@@ -88,7 +88,7 @@ export default function CommissionerDpWorldPage() {
       <div style={card}>
         <div style={header}>
           <button
-            onClick={() => { if (typeof window !== 'undefined' && window.history.length > 1) window.history.back(); else window.location.href = '/'; }}
+            onClick={() => { window.location.href = '/?tab=commissioner'; }}
             style={{ background: 'transparent', border: 'none', color: '#8fa3b1', fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: 0, marginBottom: 10 }}
           >
             ← Back to Commissioner Hub

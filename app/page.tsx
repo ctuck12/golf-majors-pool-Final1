@@ -1266,6 +1266,11 @@ function formatCurrentRoundScore(value: string | undefined, fallback: string) {
 export default function Page() {
   const initialTournament = getDefaultTournamentId(getTournamentCardStatuses(), new Date());
   const [mainTab, setMainTab] = useState<MainTab>('Standings');
+  // When returning from a commissioner tool page (?tab=commissioner), reopen the
+  // Commissioner Hub tab once the session confirms the user can manage the pool.
+  const [pendingCommissionerTab, setPendingCommissionerTab] = useState<boolean>(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('tab') === 'commissioner',
+  );
   const [selectedTournament, setSelectedTournament] = useState<TournamentId>(initialTournament);
   const [selectedRoster, setSelectedRoster] = useState<number[]>(DEFAULT_ROSTERS[initialTournament]);
   const [activeStandingEntryId, setActiveStandingEntryId] = useState<string | null>(null);
@@ -1784,6 +1789,22 @@ export default function Page() {
       setMainTab('Standings');
     }
   }, [canManagePool, mainTab]);
+
+  useEffect(() => {
+    if (!pendingCommissionerTab || sessionLoading) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPendingCommissionerTab(false);
+    if (canManagePool) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMainTab('Commissioner Hub');
+      setCommissionerConsoleView('dashboard');
+    }
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('tab');
+      window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+    }
+  }, [pendingCommissionerTab, sessionLoading, canManagePool]);
 
   useEffect(() => {
     // Mirror the selected tournament payout into the editable form.
