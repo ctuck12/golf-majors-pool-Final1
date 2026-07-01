@@ -6460,7 +6460,7 @@ export default function Page() {
                               key={status}
                               onClick={() => { const nm = playerStatusInput.trim(); if (!nm) return; const label = status === 'MDF' ? 'MDF (Made Cut, Did Not Finish)' : status; setPoolToolConfirm({ title: `Mark ${status}?`, message: `Mark "${nm}" as ${label} for ${commissionerTournamentLabel}? This overrides the ESPN data immediately.`, confirmLabel: `Mark ${status}`, danger: true, onConfirm: () => { void handleMarkPlayerStatus(status); setPoolToolModal(null); setPoolToolConfirm(null); } }); }}
                               disabled={!canManagePool || playerStatusBusy || !playerStatusInput.trim()}
-                              style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: '#dc2626', color: '#fff', fontWeight: 800, fontSize: 14, cursor: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 'not-allowed' : 'pointer', opacity: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 0.5 : 1 }}
+                              style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: entriesTournamentSolid, color: '#fff', fontWeight: 800, fontSize: 14, cursor: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 'not-allowed' : 'pointer', opacity: (!canManagePool || playerStatusBusy || !playerStatusInput.trim()) ? 0.5 : 1 }}
                             >
                               {status}
                             </button>
