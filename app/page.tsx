@@ -6390,11 +6390,11 @@ export default function Page() {
                 style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 900 }}
               >
                 <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(460px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)' }}>
-                  <div style={{ background: '#0f1720', borderRadius: '18px 18px 0 0', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ background: entriesTournamentSolid, borderRadius: '18px 18px 0 0', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ color: '#fff', fontSize: 16, fontWeight: 900 }}>
                       {poolToolModal === 'tiebreak' ? "Tiebreak Winner's Score" : poolToolModal === 'roundLeader' ? 'Round Leader Tools' : 'Mark Player as WD / DQ / MDF'}
                     </div>
-                    <button onClick={() => { setPoolToolModal(null); setPoolToolConfirm(null); }} style={{ background: '#33414d', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15 }}>&#10005;</button>
+                    <button onClick={() => { setPoolToolModal(null); setPoolToolConfirm(null); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15 }}>&#10005;</button>
                   </div>
                   <div style={{ padding: 20, display: 'grid', gap: 14 }}>
 
@@ -6482,7 +6482,7 @@ export default function Page() {
                   <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.55, marginBottom: 22 }}>{poolToolConfirm.message}</div>
                   <div style={{ display: 'flex', gap: 10 }}>
                     <button onClick={() => setPoolToolConfirm(null)} style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: '1.5px solid #d1dae3', background: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', color: '#374151' }}>Cancel</button>
-                    <button onClick={() => poolToolConfirm.onConfirm()} style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: 'none', background: poolToolConfirm.danger ? '#dc2626' : entriesTournamentSolid, color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>{poolToolConfirm.confirmLabel}</button>
+                    <button onClick={() => poolToolConfirm.onConfirm()} style={{ flex: 1, padding: '11px 0', borderRadius: 10, border: 'none', background: entriesTournamentSolid, color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>{poolToolConfirm.confirmLabel}</button>
                   </div>
                 </div>
               </div>
