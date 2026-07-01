@@ -6244,9 +6244,9 @@ export default function Page() {
                   <div style={{ width: isMobile ? 34 : 40, height: isMobile ? 34 : 40, borderRadius: 10, background: '#3a1a5f', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', position: 'relative' }}>
                     <Globe size={isMobile ? 18 : 22} color="#fff" />
                     <img
-                      src="/dp-world-tour-logo.svg"
+                      src="/dp-world-tour-logo.png"
                       alt="DP World Tour"
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      onError={(e) => { const img = e.currentTarget; if (img.dataset.fell !== '1') { img.dataset.fell = '1'; img.src = '/dp-world-tour-logo.svg'; } else { img.style.display = 'none'; } }}
                       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   </div>
