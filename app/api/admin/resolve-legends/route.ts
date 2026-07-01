@@ -37,21 +37,23 @@ async function majorCount(id: string): Promise<number | string> {
   return j?.data?.playerProfileMajorResults?.tournaments?.length ?? 0;
 }
 
-// Confirm a candidate PGA id belongs to the expected player by reading player(id){ displayName }.
-async function nameForId(id: string): Promise<string | null> {
-  const j = await gql(`query P($id: ID!){ player(id: $id){ id displayName } }`, { id });
-  return j?.data?.player?.displayName ?? null;
-}
-
 export async function GET() {
-  // Candidate historical PGA ids for the LIV players not in any current directory.
-  const CANDIDATES: Record<string, string[]> = {
-    'Sergio Garcia': ['25198', '25184', '24024'],
-    'Charl Schwartzel': ['29454', '29268', '30786'],
-  };
-  const candidateChecks: Record<string, Array<{ id: string; name: string | null; majors: number | string }>> = {};
-  for (const [nm, ids] of Object.entries(CANDIDATES)) {
-    candidateChecks[nm] = await Promise.all(ids.map(async (id) => ({ id, name: await nameForId(id), majors: await majorCount(id) })));
+  const targets = ['sergio garcia', 'charl schwartzel'];
+  const TOUR_CODES = ['R', 'H', 'M', 'S', 'C', 'I', 'Y', 'U', 'E'];
+  const found: Record<string, Array<{ tour: string; id: string; name: string }>> = { 'sergio garcia': [], 'charl schwartzel': [] };
+  const sizes: Record<string, number> = {};
+  for (const tc of TOUR_CODES) {
+    const players = await directory(tc);
+    sizes[tc] = players.length;
+    for (const p of players) {
+      const n = norm(p.displayName);
+      if (targets.includes(n)) found[n].push({ tour: tc, id: p.id, name: p.displayName });
+    }
   }
-  return Response.json({ candidateChecks });
+  // Also probe for a name-search query on the Query root.
+  const introspect = await gql(`{ __type(name: "Query"){ fields { name args { name } } } }`);
+  const queryFields = (introspect?.data?.__type?.fields ?? [])
+    .map((f: any) => f.name)
+    .filter((n: string) => /player|search|profile/i.test(n));
+  return Response.json({ sizes, found, queryFields });
 }
