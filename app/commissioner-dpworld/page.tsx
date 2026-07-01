@@ -100,7 +100,9 @@ export default function CommissionerDpWorldPage() {
             <div style={{ color: '#fff', fontSize: 18, fontWeight: 900 }}>DP World Rankings</div>
             <div style={{ color: '#8fa3b1', fontSize: 12, fontWeight: 500, marginTop: 2 }}>Commissioner tool · Race to Dubai</div>
           </div>
-          <img src={headerTournament.logo} alt={headerTournament.name} style={{ height: 52, maxWidth: 120, objectFit: 'contain', flexShrink: 0 }} />
+          <div style={{ background: '#fff', borderRadius: 12, padding: '6px 12px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            <img src={headerTournament.logo} alt={headerTournament.name} style={{ height: 44, maxWidth: 110, objectFit: 'contain', display: 'block' }} />
+          </div>
         </div>
 
         {gateError ? (
