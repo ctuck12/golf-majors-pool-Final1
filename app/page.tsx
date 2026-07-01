@@ -6246,8 +6246,8 @@ export default function Page() {
                     <img
                       src="/dp-world-tour-logo.png"
                       alt="DP World Tour"
-                      onError={(e) => { const img = e.currentTarget; if (img.dataset.fell !== '1') { img.dataset.fell = '1'; img.src = '/dp-world-tour-logo.svg'; } else { img.style.display = 'none'; } }}
-                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }}
                     />
                   </div>
                   <div>
