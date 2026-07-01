@@ -1,9 +1,8 @@
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-// Throwaway probe (round 4): discover where the DP World Tour (tourCode E) cup data lives —
-// list tourCups across years, and sanity-check defaultTourCup on the PGA tour (R). Separate calls so
-// a null on one doesn't blank the others. GET /api/admin/dpw-orchestrator-probe
+// Throwaway probe (round 5): pull the actual "Race to Dubai Rankings" cup (id R-2700-2026, on tour R)
+// and confirm it's the full ranked standings. GET /api/admin/dpw-orchestrator-probe?id=R-2700-2026
 
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
@@ -17,30 +16,54 @@ async function gql(query: string, variables?: Record<string, unknown>): Promise<
   } catch (e) { return { __error: String(e).slice(0, 160) }; }
 }
 
-const tourCupsQ = `query($tour: TourCode!, $year: Int!){ tourCups(tour:$tour, year:$year){ id title } }`;
-const defaultQ = `query($tour: TourCode!, $year: Int!){ defaultTourCup(tour:$tour, year:$year){ id title } }`;
+export async function GET(request: Request) {
+  const sp = new URL(request.url).searchParams;
+  const id = sp.get('id') ?? 'R-2700-2026';
+  const type = sp.get('type') ?? 'OFFICIAL';
 
-function summarize(r: unknown): unknown {
-  const rr = r as { data?: Record<string, unknown>; errors?: Array<{ message?: string }> };
-  return { data: rr?.data ?? null, error: rr?.errors?.map((e) => e.message).slice(0, 2) ?? null };
-}
+  const query = `
+    query Cup($id: ID!, $type: TourCupType) {
+      tourCup(id: $id, type: $type) {
+        id
+        title
+        rankings {
+          __typename
+          ... on CupRankingPlayer { position id name playerCountry total }
+        }
+        standings {
+          __typename
+          ... on StandardCupRanking { rankings { position id name playerCountry total } }
+        }
+      }
+    }
+  `;
+  const resp = await gql(query, { id, type }) as {
+    data?: { tourCup?: {
+      id?: string; title?: string;
+      rankings?: Array<{ __typename?: string; position?: string; name?: string; playerCountry?: string; total?: string }>;
+      standings?: { __typename?: string; rankings?: Array<{ position?: string; name?: string; playerCountry?: string; total?: string }> };
+    } };
+    errors?: Array<{ message?: string }>;
+  };
 
-export async function GET() {
-  const [cupsE2026, cupsE2025, cupsE2024, defR2026, defE2025, cupsR2026] = await Promise.all([
-    gql(tourCupsQ, { tour: 'E', year: 2026 }),
-    gql(tourCupsQ, { tour: 'E', year: 2025 }),
-    gql(tourCupsQ, { tour: 'E', year: 2024 }),
-    gql(defaultQ, { tour: 'R', year: 2026 }),
-    gql(defaultQ, { tour: 'E', year: 2025 }),
-    gql(tourCupsQ, { tour: 'R', year: 2026 }),
-  ]);
+  const cup = resp?.data?.tourCup;
+  const rk = (cup?.rankings ?? []).filter((r) => r.__typename === 'CupRankingPlayer');
+  const stRk = cup?.standings?.rankings ?? [];
+  const chosen = rk.length ? rk : stRk;
+
+  // Also surface where key players land, to sanity-check against the known manual list.
+  const findRank = (needle: string) => {
+    const hit = chosen.find((r) => (r.name ?? '').toLowerCase().includes(needle));
+    return hit ? { name: hit.name, position: hit.position } : null;
+  };
 
   return Response.json({
-    tourCups_E_2026: summarize(cupsE2026),
-    tourCups_E_2025: summarize(cupsE2025),
-    tourCups_E_2024: summarize(cupsE2024),
-    tourCups_R_2026: summarize(cupsR2026),
-    defaultTourCup_R_2026: summarize(defR2026),
-    defaultTourCup_E_2025: summarize(defE2025),
+    id, type,
+    errors: resp?.errors?.map((e) => e.message) ?? null,
+    title: cup?.title ?? null,
+    source: rk.length ? 'rankings' : (stRk.length ? 'standings' : 'none'),
+    count: chosen.length,
+    top10: chosen.slice(0, 10).map((r) => ({ position: r.position, name: r.name, total: r.total })),
+    spotChecks: { mcilroy: findRank('mcilroy'), fitzpatrick: findRank('fitzpatrick'), rahm: findRank('rahm'), fleetwood: findRank('fleetwood') },
   });
 }
