@@ -2588,6 +2588,7 @@ export default function Page() {
   // ranks on the pick sheet likewise come from the upload (falling back to the static pool rank).
   const [salaryOverrides, setSalaryOverrides] = useState<Record<number, number>>({});
   const [worldRankOverrides, setWorldRankOverrides] = useState<Record<number, number>>({});
+  const [salaryListLoaded, setSalaryListLoaded] = useState(false); // false until the fetch resolves
   useEffect(() => {
     let cancelled = false;
     fetch('/api/salary-overrides', { cache: 'no-store' })
@@ -2607,9 +2608,12 @@ export default function Page() {
           setWorldRankOverrides(parsedR);
         }
       })
-      .catch(() => { /* keep built-in values */ });
+      .catch(() => { /* keep built-in values */ })
+      .finally(() => { if (!cancelled) setSalaryListLoaded(true); });
     return () => { cancelled = true; };
   }, []);
+  // No salary list has been uploaded for this tournament yet (salaries come only from the upload).
+  const salaryListMissing = salaryListLoaded && Object.keys(salaryOverrides).length === 0;
 
   const players = useMemo(
     () =>
@@ -5812,6 +5816,14 @@ export default function Page() {
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Salary</div>
                           <div></div>
                         </div>
+                        {salaryListMissing && (
+                          <div style={{ padding: isMobile ? '28px 18px' : '40px 24px', textAlign: 'center' }}>
+                            <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 800, color: '#0f1720', marginBottom: 8 }}>The player list isn’t posted yet</div>
+                            <div style={{ fontSize: isMobile ? 13 : 14, color: '#5b6b79', lineHeight: 1.6, maxWidth: 460, margin: '0 auto' }}>
+                              The commissioner hasn’t uploaded this tournament’s salary / pick list yet. It’s usually posted a few days before the tournament, once the field is finalized — check back then to build your roster.
+                            </div>
+                          </div>
+                        )}
                         {filteredEntriesPlayers.map((player) => {
                           const disabled = entriesLocked || selectedRoster.length >= REQUIRED_GOLFERS || player.salary > salaryRemaining;
 
@@ -7072,6 +7084,14 @@ export default function Page() {
                         <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Salary</div>
                         <div></div>
                       </div>
+                      {salaryListMissing && (
+                        <div style={{ padding: isMobile ? '28px 18px' : '40px 24px', textAlign: 'center' }}>
+                          <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 800, color: '#0f1720', marginBottom: 8 }}>The player list isn’t posted yet</div>
+                          <div style={{ fontSize: isMobile ? 13 : 14, color: '#5b6b79', lineHeight: 1.6, maxWidth: 460, margin: '0 auto' }}>
+                            No salary / pick list has been uploaded for this tournament yet. Upload it from the Commissioner Hub → Pool data tools → Salary Pick List, and players will appear here.
+                          </div>
+                        </div>
+                      )}
                       {filteredCommissionerPlayers.map((player) => {
                         const isDisabled = commissionerRosterSelection.length >= REQUIRED_GOLFERS || player.salary > commissionerSalaryRemaining;
 
