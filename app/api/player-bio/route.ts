@@ -650,9 +650,11 @@ async function fetchPgaCareerResults(pgaTourId: string): Promise<Partial<PlayerB
   return result;
 }
 
-// Team/exhibition events the PGA Tour lists in a player's results but that do NOT count as
-// official PGA Tour victories (no official-win credit). Excluded from the win count + list.
-const NON_OFFICIAL_WIN_EVENTS = /ryder cup|presidents cup/i;
+// Team/exhibition/"silly season" events the PGA Tour lists in a player's results but that do NOT
+// count as official PGA Tour victories (no official-win credit). Excluded from the win count +
+// list. NOTE: legitimate official team events (e.g. the Zurich Classic of New Orleans) are NOT
+// matched here, so they still count.
+const NON_OFFICIAL_WIN_EVENTS = /ryder cup|presidents cup|skins|team matches|diners club|kapalua international|\brmcc\b|jcpenney|sazale|shootout|world challenge|grand slam|world cup|wendy'?s|three-?tour|3-?tour/i;
 
 // PGA Tour GQL: accurate career win count + the per-win detail (tournament + year) shown in
 // the click-through popup. Reads each tournament row's finishing position rather than the
@@ -836,7 +838,7 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v29:${name}`;
+  const cacheKey = `player-bio:v30:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
