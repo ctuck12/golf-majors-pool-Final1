@@ -1417,7 +1417,7 @@ export default function Page() {
   const [clearLeaderBusy, setClearLeaderBusy] = useState(false);
   const [clearLeaderMsg, setClearLeaderMsg] = useState<string | null>(null);
   // Pool management tools: which tool modal is open, and a generic confirm/cancel modal on top of it.
-  const [poolToolModal, setPoolToolModal] = useState<null | 'tiebreak' | 'roundLeader' | 'markStatus'>(null);
+  const [poolToolModal, setPoolToolModal] = useState<null | 'payouts' | 'tiebreak' | 'roundLeader' | 'markStatus'>(null);
   const [poolToolConfirm, setPoolToolConfirm] = useState<null | { title: string; message: string; confirmLabel: string; danger?: boolean; onConfirm: () => void }>(null);
   const [playerStatusInput, setPlayerStatusInput] = useState('');
   const [playerStatusBusy, setPlayerStatusBusy] = useState(false);
@@ -6259,98 +6259,6 @@ export default function Page() {
                   </a>
                 </div>
               </div>
-
-              <div
-                style={{
-                  marginTop: isMobile ? 8 : 16,
-                  border: '1px solid #e6edf1',
-                  borderRadius: isMobile ? 12 : 18,
-                  padding: isMobile ? 10 : 16,
-                  background: '#f8fbfd',
-                  display: 'grid',
-                  gap: isMobile ? 8 : 14,
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                    Tournament payouts
-                  </div>
-                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800, color: '#0f1720' }}>
-                    {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
-                  </div>
-                  <div style={{ marginTop: isMobile ? 4 : 6, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
-                    Set the 1st, 2nd, and 3rd place payout amounts for the upcoming or active tournament.
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                    gap: 12,
-                    alignItems: 'end',
-                  }}
-                >
-                  <label style={{ display: 'grid', gap: 6 }}>
-                    <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                      1st place
-                    </span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={payoutForm.first}
-                      onChange={(event) => setPayoutForm((current) => ({ ...current, first: event.target.value }))}
-                      placeholder="0"
-                      style={fieldStyle()}
-                    />
-                  </label>
-                  <label style={{ display: 'grid', gap: 6 }}>
-                    <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                      2nd place
-                    </span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={payoutForm.second}
-                      onChange={(event) => setPayoutForm((current) => ({ ...current, second: event.target.value }))}
-                      placeholder="0"
-                      style={fieldStyle()}
-                    />
-                  </label>
-                  <label style={{ display: 'grid', gap: 6 }}>
-                    <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                      3rd place
-                    </span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={payoutForm.third}
-                      onChange={(event) => setPayoutForm((current) => ({ ...current, third: event.target.value }))}
-                      placeholder="0"
-                      style={fieldStyle()}
-                    />
-                  </label>
-                  <button
-                    onClick={handleSavePayouts}
-                    disabled={!canManagePool || commissionerBusy}
-                    style={{
-                      border: 'none',
-                      borderRadius: 14,
-                      padding: '12px 16px',
-                      background: entriesTournamentSolid,
-                      color: '#fff',
-                      fontWeight: 900,
-                      cursor: !canManagePool || commissionerBusy ? 'not-allowed' : 'pointer',
-                      minHeight: 52,
-                    }}
-                  >
-                    Save payouts
-                  </button>
-                </div>
-              </div>
             </section>
 
             {/* Pool management tools — each opens a centered modal; actions confirm before applying */}
@@ -6366,9 +6274,10 @@ export default function Page() {
               <div style={{ fontSize: isMobile ? 12 : 13, color: '#5b6b79', marginBottom: 14 }}>Tiebreak score, round-leader fixes, and player-status overrides. Each opens a window and asks you to confirm before it applies.</div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? 8 : 12 }}>
                 {[
-                  { key: 'tiebreak' as const, title: "Tiebreak Winner's Score", sub: 'Enter / override total strokes' },
-                  { key: 'roundLeader' as const, title: 'Round Leader Tools', sub: 'Clear a mis-captured round leader' },
+                  { key: 'payouts' as const, title: 'Tournament Payouts', sub: 'Set 1st / 2nd / 3rd place amounts' },
                   { key: 'markStatus' as const, title: 'Mark WD / DQ / MDF', sub: "Override a player's status" },
+                  { key: 'roundLeader' as const, title: 'Round Leader Tools', sub: 'Clear a mis-captured round leader' },
+                  { key: 'tiebreak' as const, title: "Tiebreak Winner's Score", sub: 'Enter / override total strokes' },
                 ].map((t) => (
                   <button
                     key={t.key}
@@ -6392,11 +6301,36 @@ export default function Page() {
                 <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(460px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)' }}>
                   <div style={{ background: entriesTournamentSolid, borderRadius: '18px 18px 0 0', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ color: '#fff', fontSize: 16, fontWeight: 900 }}>
-                      {poolToolModal === 'tiebreak' ? "Tiebreak Winner's Score" : poolToolModal === 'roundLeader' ? 'Round Leader Tools' : 'Mark Player as WD / DQ / MDF'}
+                      {poolToolModal === 'payouts' ? 'Tournament Payouts' : poolToolModal === 'tiebreak' ? "Tiebreak Winner's Score" : poolToolModal === 'roundLeader' ? 'Round Leader Tools' : 'Mark Player as WD / DQ / MDF'}
                     </div>
                     <button onClick={() => { setPoolToolModal(null); setPoolToolConfirm(null); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15 }}>&#10005;</button>
                   </div>
                   <div style={{ padding: 20, display: 'grid', gap: 14 }}>
+
+                    {poolToolModal === 'payouts' && (
+                      <>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}</div>
+                        <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.5 }}>Set the 1st, 2nd, and 3rd place payout amounts for the upcoming or active tournament.</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                          {([['1st place', 'first'], ['2nd place', 'second'], ['3rd place', 'third']] as const).map(([label, key]) => (
+                            <label key={key} style={{ display: 'grid', gap: 6 }}>
+                              <span style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>{label}</span>
+                              <input type="number" min="0" step="1" value={payoutForm[key]} onChange={(e) => setPayoutForm((c) => ({ ...c, [key]: e.target.value }))} placeholder="0" style={fieldStyle()} />
+                            </label>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => setPoolToolConfirm({ title: 'Save payouts?', message: `Save payouts for ${entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name} — 1st: ${payoutForm.first || 0}, 2nd: ${payoutForm.second || 0}, 3rd: ${payoutForm.third || 0}?`, confirmLabel: 'Save payouts', onConfirm: () => { void handleSavePayouts(); setPoolToolModal(null); setPoolToolConfirm(null); } })}
+                          disabled={!canManagePool || commissionerBusy}
+                          style={{ border: 'none', borderRadius: 12, padding: '12px 16px', background: entriesTournamentSolid, color: '#fff', fontWeight: 900, cursor: (!canManagePool || commissionerBusy) ? 'not-allowed' : 'pointer', opacity: (!canManagePool || commissionerBusy) ? 0.5 : 1 }}
+                        >
+                          Save payouts
+                        </button>
+                        {(commissionerError || commissionerSuccess) && (
+                          <div style={{ fontSize: 13, fontWeight: 600, color: commissionerError ? '#dc2626' : '#16a34a' }}>{commissionerError || commissionerSuccess}</div>
+                        )}
+                      </>
+                    )}
 
                     {poolToolModal === 'tiebreak' && (
                       <>
