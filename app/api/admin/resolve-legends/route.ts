@@ -37,20 +37,21 @@ async function majorCount(id: string): Promise<number | string> {
   return j?.data?.playerProfileMajorResults?.tournaments?.length ?? 0;
 }
 
-export async function GET() {
-  const [r, s] = await Promise.all([directory('R'), directory('S')]);
-  const byNorm = new Map<string, string>();
-  for (const p of [...r, ...s]) { const n = norm(p.displayName); if (!byNorm.has(n)) byNorm.set(n, p.id); }
+// Confirm a candidate PGA id belongs to the expected player by reading player(id){ displayName }.
+async function nameForId(id: string): Promise<string | null> {
+  const j = await gql(`query P($id: ID!){ player(id: $id){ id displayName } }`, { id });
+  return j?.data?.player?.displayName ?? null;
+}
 
-  const out: Record<string, unknown> = {};
-  for (const name of NAMES) {
-    const pgaId = byNorm.get(norm(name)) ?? null;
-    const espnId = await getEspnId(name).catch(() => null);
-    out[name] = {
-      pgaTourId: pgaId,
-      espnId,
-      majorResults: pgaId ? await majorCount(pgaId) : 'no-pga-id',
-    };
+export async function GET() {
+  // Candidate historical PGA ids for the LIV players not in any current directory.
+  const CANDIDATES: Record<string, string[]> = {
+    'Sergio Garcia': ['25198', '25184', '24024'],
+    'Charl Schwartzel': ['29454', '29268', '30786'],
+  };
+  const candidateChecks: Record<string, Array<{ id: string; name: string | null; majors: number | string }>> = {};
+  for (const [nm, ids] of Object.entries(CANDIDATES)) {
+    candidateChecks[nm] = await Promise.all(ids.map(async (id) => ({ id, name: await nameForId(id), majors: await majorCount(id) })));
   }
-  return Response.json({ directorySizes: { R: r.length, S: s.length }, resolved: out });
+  return Response.json({ candidateChecks });
 }
