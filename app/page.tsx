@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   CircleUserRound,
   CheckCircle2,
+  DollarSign,
   Eye,
   EyeOff,
   Globe,
@@ -6232,10 +6233,21 @@ export default function Page() {
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? 8 : 12 }}>
                 <a
                   href="/commissioner-salary"
-                  style={{ textDecoration: 'none', border: '1px solid #cdd9e1', borderRadius: 12, padding: isMobile ? '12px 14px' : '14px 16px', background: '#fff', color: '#0f1720' }}
+                  style={{ textDecoration: 'none', border: '1px solid #cdd9e1', borderRadius: 12, padding: isMobile ? '12px 14px' : '14px 16px', background: '#fff', color: '#0f1720', display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 12 }}
                 >
-                  <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>Salary Pick List &rarr;</div>
-                  <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Upload salaries + world ranks</div>
+                  <div style={{ width: isMobile ? 34 : 40, height: isMobile ? 34 : 40, borderRadius: 10, background: '#0f7a3d', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', position: 'relative' }}>
+                    <DollarSign size={isMobile ? 18 : 22} color="#fff" />
+                    <img
+                      src="/dollar-sign.png"
+                      alt="Salary pick list"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>Salary Pick List</div>
+                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Upload salaries + world ranks</div>
+                  </div>
                 </a>
                 <a
                   href="/commissioner-dpworld"
@@ -6251,7 +6263,7 @@ export default function Page() {
                     />
                   </div>
                   <div>
-                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>DP World Rankings &rarr;</div>
+                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>DP World Rankings</div>
                     <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Update Race to Dubai list</div>
                   </div>
                 </a>
@@ -6263,7 +6275,7 @@ export default function Page() {
                     <Users size={isMobile ? 18 : 22} />
                   </div>
                   <div>
-                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>Member Management &rarr;</div>
+                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>Member Management</div>
                     <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Full member listing &amp; participation</div>
                   </div>
                 </button>
