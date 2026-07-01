@@ -2643,9 +2643,28 @@ export default function Page() {
     >;
   }, [feed]);
 
+  // Salary overrides: default to the built-in map; if the commissioner has uploaded a list
+  // (/commissioner-salary), fetch and use it instead. Falls back to built-in on any failure.
+  const [salaryOverrides, setSalaryOverrides] = useState<Record<number, number>>(PGA_SALARY_OVERRIDES);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/salary-overrides', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d: { map?: Record<string, number> }) => {
+        if (cancelled || !d?.map) return;
+        const entries = Object.entries(d.map);
+        if (entries.length === 0) return; // nothing uploaded — keep built-in salaries
+        const parsed: Record<number, number> = {};
+        for (const [k, v] of entries) parsed[Number(k)] = Number(v);
+        setSalaryOverrides(parsed);
+      })
+      .catch(() => { /* keep built-in salaries */ });
+    return () => { cancelled = true; };
+  }, []);
+
   const players = useMemo(
     () =>
-      buildPricedPlayers(PLAYER_POOL, liveOddsMap, PGA_SALARY_OVERRIDES).map((player) => {
+      buildPricedPlayers(PLAYER_POOL, liveOddsMap, salaryOverrides).map((player) => {
         const live = feedMap[normalizeName(player.name)];
         const score = live?.score ?? '--';
         const position = live?.position ?? '--';
@@ -2670,7 +2689,7 @@ export default function Page() {
           originalScore: live?.originalScore,
         };
       }),
-    [feedMap, liveOddsMap],
+    [feedMap, liveOddsMap, salaryOverrides],
   );
 
   const playersById = Object.fromEntries(players.map((player) => [player.id, player]));
