@@ -59,36 +59,36 @@ export async function GET(req: Request) {
   if (!espnId && name) espnId = (await getEspnId(name).catch(() => null)) ?? '';
   if (!espnId) return Response.json({ wins: 0, winsList: [] as DpwWin[] });
 
-  const cacheKey = `dpworld-wins:v2:${espnId}`;
+  const cacheKey = `dpworld-wins:v3:${espnId}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json(JSON.parse(cached as string));
   } catch { /* ignore */ }
 
-  // 1) Fetch every season's eventlog concurrently and collect the unique played event ids.
-  const eventLogs = await mapLimit(seasonRange(), 12, (season) =>
-    jf(`${EUR}/seasons/${season}/athletes/${espnId}/eventlog`, 6000) as Promise<{
+  // Scan seasons SEQUENTIALLY (fetching all season eventlogs at once throttles ESPN and drops
+  // recent high-volume seasons). Within each season, check the played events' finishing positions
+  // concurrently. Position "1" = a win. De-dup event ids across seasons.
+  const winEventIds = new Set<string>();
+  const seenEvents = new Set<string>();
+  for (const season of seasonRange()) {
+    const elog = await jf(`${EUR}/seasons/${season}/athletes/${espnId}/eventlog`, 7000) as {
       events?: { items?: Array<{ played?: boolean; event?: Record<string, string> }> };
-    } | null>,
-  );
-  const playedEventIds = new Set<string>();
-  for (const elog of eventLogs) {
+    } | null;
+    const ids: string[] = [];
     for (const it of elog?.events?.items ?? []) {
       if (!it.played) continue;
       const ref = Object.values(it.event ?? {})[0] ?? '';
       const eventId = String(ref).match(/events\/(\d+)/)?.[1];
-      if (eventId) playedEventIds.add(eventId);
+      if (eventId && !seenEvents.has(eventId)) { seenEvents.add(eventId); ids.push(eventId); }
     }
+    if (ids.length === 0) continue;
+    await mapLimit(ids, 12, async (eventId) => {
+      const status = await jf(`${EUR}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/status`, 5000) as {
+        position?: { displayName?: string };
+      } | null;
+      if (status?.position?.displayName === '1') winEventIds.add(eventId);
+    });
   }
-
-  // 2) Check each played event's finishing position (bounded concurrency); position "1" = a win.
-  const statuses = await mapLimit([...playedEventIds], 16, async (eventId) => {
-    const status = await jf(`${EUR}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/status`, 4000) as {
-      position?: { displayName?: string };
-    } | null;
-    return { eventId, win: status?.position?.displayName === '1' };
-  });
-  const winEventIds = new Set(statuses.filter((s) => s.win).map((s) => s.eventId));
 
   // For each win, resolve the tournament name, year, course and winning score to par.
   const winsList: DpwWin[] = (await Promise.all([...winEventIds].map(async (eventId) => {
