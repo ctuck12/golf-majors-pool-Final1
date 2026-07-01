@@ -28,20 +28,27 @@ function fmtToPar(val: unknown): string | null {
   return n > 0 ? `+${n}` : `${n}`;
 }
 
-// The seasons a player has a DP World Tour record, read from their eur statisticslog
-// (the entries list the seasons even though it carries no usable win stat).
-async function seasonsForAthlete(espnId: string): Promise<number[]> {
-  const log = await jf(`${EUR}/athletes/${espnId}/statisticslog`, 6000) as { entries?: Array<{ season?: { $ref?: string } }> } | null;
-  const years = new Set<number>();
-  for (const e of log?.entries ?? []) {
-    const y = String(e?.season?.$ref ?? '').match(/seasons\/(\d{4})/)?.[1];
-    if (y) years.add(parseInt(y, 10));
-  }
-  if (years.size > 0) return [...years].sort((a, b) => b - a);
-  // Fallback: scan a broad recent range if the statisticslog gave us nothing.
-  const now = new Date().getFullYear();
+// Run async tasks with bounded concurrency (keeps the total ESPN fetch fan-out in check).
+async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const out: R[] = new Array(items.length);
+  let i = 0;
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (i < items.length) {
+      const idx = i++;
+      out[idx] = await fn(items[idx]);
+    }
+  }));
+  return out;
+}
+
+// Scan a fixed span of seasons rather than the statisticslog's season list — the statisticslog
+// only covers seasons where the player was a European Tour member, so it misses PGA-era seasons
+// that still carry co-sanctioned DP World Tour events (e.g. the U.S. Open). 2000..now covers any
+// active pool player's career; empty seasons return fast.
+function seasonRange(): number[] {
+  const now = new Date().getUTCFullYear();
   const out: number[] = [];
-  for (let y = now; y >= now - 20; y--) out.push(y);
+  for (let y = now + 1; y >= 2000; y--) out.push(y);
   return out;
 }
 
@@ -52,31 +59,36 @@ export async function GET(req: Request) {
   if (!espnId && name) espnId = (await getEspnId(name).catch(() => null)) ?? '';
   if (!espnId) return Response.json({ wins: 0, winsList: [] as DpwWin[] });
 
-  const cacheKey = `dpworld-wins:v1:${espnId}`;
+  const cacheKey = `dpworld-wins:v2:${espnId}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json(JSON.parse(cached as string));
   } catch { /* ignore */ }
 
-  const seasons = await seasonsForAthlete(espnId);
-
-  // Collect winning event ids (position "1"), de-duplicated across season logs.
-  const winEventIds = new Set<string>();
-  for (const season of seasons) {
-    const elog = await jf(`${EUR}/seasons/${season}/athletes/${espnId}/eventlog`, 6000) as {
+  // 1) Fetch every season's eventlog concurrently and collect the unique played event ids.
+  const eventLogs = await mapLimit(seasonRange(), 12, (season) =>
+    jf(`${EUR}/seasons/${season}/athletes/${espnId}/eventlog`, 6000) as Promise<{
       events?: { items?: Array<{ played?: boolean; event?: Record<string, string> }> };
-    } | null;
-    const played = (elog?.events?.items ?? []).filter((i) => i.played);
-    await Promise.all(played.map(async (it) => {
+    } | null>,
+  );
+  const playedEventIds = new Set<string>();
+  for (const elog of eventLogs) {
+    for (const it of elog?.events?.items ?? []) {
+      if (!it.played) continue;
       const ref = Object.values(it.event ?? {})[0] ?? '';
       const eventId = String(ref).match(/events\/(\d+)/)?.[1];
-      if (!eventId) return;
-      const status = await jf(`${EUR}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/status`, 4000) as {
-        position?: { displayName?: string };
-      } | null;
-      if (status?.position?.displayName === '1') winEventIds.add(eventId);
-    }));
+      if (eventId) playedEventIds.add(eventId);
+    }
   }
+
+  // 2) Check each played event's finishing position (bounded concurrency); position "1" = a win.
+  const statuses = await mapLimit([...playedEventIds], 16, async (eventId) => {
+    const status = await jf(`${EUR}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/status`, 4000) as {
+      position?: { displayName?: string };
+    } | null;
+    return { eventId, win: status?.position?.displayName === '1' };
+  });
+  const winEventIds = new Set(statuses.filter((s) => s.win).map((s) => s.eventId));
 
   // For each win, resolve the tournament name, year, course and winning score to par.
   const winsList: DpwWin[] = (await Promise.all([...winEventIds].map(async (eventId) => {
