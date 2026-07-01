@@ -495,7 +495,25 @@ const PGA_PHOTO_ONLY = new Set<string>([
   'Matt Fitzpatrick',
   'Ludvig Aberg',
 ]);
+// Hand-uploaded photos (public/player-photos/) for players PGA/ESPN have no usable headshot for
+// (mostly Masters legends). Keyed by name; these ALWAYS win (highest priority) since they were
+// chosen deliberately. Matched on a normalized name so accent/spelling variants still resolve.
+const MANUAL_PHOTO_FILES: Record<string, string> = {
+  'Ernie Els': '/player-photos/ernie-els.jpg',
+  'Fred Couples': '/player-photos/fred-couples.jpg',
+  'John Daly': '/player-photos/john-daly.jpg',
+  'José María Olazábal': '/player-photos/jose-maria-olazabal.jpg',
+  'Phil Mickelson': '/player-photos/phil-mickelson.jpg',
+  'Rory McIlroy': '/player-photos/rory-mcilroy.jpg',
+  'Tiger Woods': '/player-photos/tiger-woods.jpg',
+  'Vijay Singh': '/player-photos/vijay-singh.jpg',
+};
+const normPhotoName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, '').trim();
+const MANUAL_PHOTO_BY_NORM: Record<string, string> = {};
+for (const [k, v] of Object.entries(MANUAL_PHOTO_FILES)) MANUAL_PHOTO_BY_NORM[normPhotoName(k)] = v;
 const playerPhotoSrc = (name: string, pgaTourId: number, photoUrl?: string) => {
+  const manualFile = MANUAL_PHOTO_BY_NORM[normPhotoName(name)];
+  if (manualFile) return manualFile;
   if (PGA_PHOTO_ONLY.has(name)) return pgaPhoto(pgaTourId);
   if (isManualPhoto(photoUrl)) return photoUrl;
   const espnId = PLAYER_ESPN_IDS[name];
