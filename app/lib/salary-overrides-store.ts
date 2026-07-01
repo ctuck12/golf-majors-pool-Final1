@@ -1,18 +1,20 @@
 import redis from './redis';
 import { PLAYER_POOL_WITH_PGA_IDS } from './player-pool';
 
-// Commissioner-editable salary pick list.
+// Commissioner-editable salary + world-rank pick list.
 //
-// Pick-sheet salaries are normally computed from odds, with a hand-tuned override map per field. That
-// map used to be hardcoded (PGA_SALARY_OVERRIDES in page.tsx), so updating it meant a code change +
-// deploy. This store lets the commissioner PASTE a "name  salary" list and have it apply instantly:
-// names are resolved to pool player IDs here, the id->salary map is stored in Redis, and the pick sheet
-// reads it via /api/salary-overrides. When nothing is stored, the built-in map is used (unchanged).
+// Pick-sheet salaries are normally computed from odds (with a hand-tuned override map) and world ranks
+// come from the static pool list. Updating either used to mean a code change + deploy. This store lets
+// the commissioner PASTE or UPLOAD a "Rank  Name  Salary" list and have it apply instantly: names are
+// resolved to pool player IDs here, the id -> {salary, worldRank} map is stored in Redis, and the pick
+// sheet reads it via /api/salary-overrides. When nothing is stored, the built-in values are used.
 
-const STORE_KEY = 'salary-overrides:v1';
+const STORE_KEY = 'salary-overrides:v2'; // v2: now also carries world rank
+
+export type OverrideEntry = { salary: number; worldRank: number | null };
 
 export type ManualSalaries = {
-  map: Record<number, number>; // pool player id -> salary
+  map: Record<number, OverrideEntry>; // pool player id -> { salary, worldRank }
   updatedAt: string;
   count: number;
 };
@@ -41,20 +43,21 @@ function resolveId(name: string): number | null {
 }
 
 export type SalaryParseResult = {
-  map: Record<number, number>;
-  matched: { id: number; name: string; salary: number }[];
+  map: Record<number, OverrideEntry>;
+  matched: { id: number; name: string; salary: number; worldRank: number | null }[];
   unmatched: { name: string; salary: number }[]; // names not found in the pool (commissioner reviews)
-  skipped: string[];                              // lines with no readable salary
+  skipped: string[];                              // lines with no readable salary (incl. any header row)
 };
 
-// Parse a pasted "Name  Salary" block. Salary is the trailing number on each line ($ and commas ok);
-// an optional leading rank/order number is ignored. e.g. "Scottie Scheffler  $11,900" or
-// "1  Rory McIlroy  10200".
+// Parse a pasted/uploaded block. Each line: an optional leading World-Rank number, the player name, and
+// a trailing Salary number ("$"/commas ok). e.g. "1  Scottie Scheffler  11900" or "Rory McIlroy 10200".
+// A header row like "World Golf Rank  Player Name  Salary" has no trailing number, so it's skipped.
 export function parseSalaryPaste(text: string): SalaryParseResult {
-  const map: Record<number, number> = {};
-  const matched: { id: number; name: string; salary: number }[] = [];
+  const map: Record<number, OverrideEntry> = {};
+  const matched: { id: number; name: string; salary: number; worldRank: number | null }[] = [];
   const unmatched: { name: string; salary: number }[] = [];
   const skipped: string[] = [];
+  const isNum = (t: string) => /^[$]?[+\-]?[\d,]+(?:\.\d+)?$/.test(t);
 
   for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.trim();
@@ -62,15 +65,22 @@ export function parseSalaryPaste(text: string): SalaryParseResult {
     const tokens = line.split(/[\s\t]+/);
     const salaryTok = tokens[tokens.length - 1];
     const salary = parseInt(salaryTok.replace(/[$,]/g, ''), 10);
-    if (isNaN(salary) || salary <= 0) { skipped.push(line); continue; }
+    if (!isNum(salaryTok) || isNaN(salary) || salary <= 0) { skipped.push(line); continue; }
+
     let nameTokens = tokens.slice(0, -1);
-    // Drop a leading rank/order column if present (purely numeric first token).
-    if (nameTokens.length > 1 && /^[\d.]+$/.test(nameTokens[0])) nameTokens = nameTokens.slice(1);
-    const name = nameTokens.join(' ').replace(/[,]/g, '').trim();
+    let worldRank: number | null = null;
+    // A leading numeric token is the World Golf Rank column.
+    if (nameTokens.length > 1 && isNum(nameTokens[0])) {
+      const r = parseInt(nameTokens[0].replace(/[,]/g, ''), 10);
+      if (!isNaN(r) && r > 0) worldRank = r;
+      nameTokens = nameTokens.slice(1);
+    }
+    const name = nameTokens.join(' ').replace(/,/g, '').trim();
     if (!name) { skipped.push(line); continue; }
+
     const id = resolveId(name);
     if (id == null) { unmatched.push({ name, salary }); continue; }
-    if (!(id in map)) { map[id] = salary; matched.push({ id, name, salary }); }
+    if (!(id in map)) { map[id] = { salary, worldRank }; matched.push({ id, name, salary, worldRank }); }
   }
   return { map, matched, unmatched, skipped };
 }
@@ -86,7 +96,7 @@ export async function getManualSalaries(): Promise<ManualSalaries | null> {
   }
 }
 
-export async function saveManualSalaries(map: Record<number, number>, updatedAt: string): Promise<ManualSalaries> {
+export async function saveManualSalaries(map: Record<number, OverrideEntry>, updatedAt: string): Promise<ManualSalaries> {
   const payload: ManualSalaries = { map, updatedAt, count: Object.keys(map).length };
   await redis.set(STORE_KEY, JSON.stringify(payload));
   return payload;

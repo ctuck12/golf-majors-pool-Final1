@@ -51,11 +51,13 @@ export async function POST(request: Request) {
     }, { status: 400 });
   }
   const saved = await saveManualSalaries(parsed.map, new Date().toISOString());
+  const withRank = parsed.matched.filter((m) => m.worldRank != null).length;
   return NextResponse.json({
     ok: true,
     count: saved.count,
     updatedAt: saved.updatedAt,
     matchedCount: parsed.matched.length,
+    worldRankCount: withRank, // how many rows also carried a world rank
     unmatchedCount: parsed.unmatched.length,
     unmatched: parsed.unmatched.slice(0, 25), // surface names that didn't map so the commissioner can fix spelling
     skipped: parsed.skipped.slice(0, 10),

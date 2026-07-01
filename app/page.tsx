@@ -544,6 +544,10 @@ const photoOnError = (e: { currentTarget: HTMLImageElement }) => {
 };
 
 const PLAYER_POOL = PLAYER_POOL_WITH_PGA_IDS;
+// Original static world ranks by pool id. The info popup uses THIS as its world-rank fallback so the
+// commissioner's uploaded pick-list ranks (which override worldRank on the pick sheet) never change
+// what the player info popup shows.
+const ORIGINAL_WORLD_RANK_BY_ID = new Map<number, number>(PLAYER_POOL.map((p) => [p.id, p.worldRank]));
 
 // Names too long to fit on one line in the mobile pick list — forced to wrap between first and last name
 const MOBILE_TWO_LINE_NAMES = new Set(['Bryson DeChambeau', 'Michael Thorbjornsen', 'Sudarshan Yellamaraju', 'Rasmus Neergaard-Petersen']);
@@ -719,6 +723,7 @@ function buildPricedPlayers(
   }>,
   liveOddsMap: Record<string, string>,
   salaryOverrides?: Record<number, number>,
+  worldRankOverrides?: Record<number, number>,
 ) {
   const playersWithOdds = playerPool.map((player) => ({
     ...player,
@@ -736,7 +741,7 @@ function buildPricedPlayers(
     return {
       id: player.id,
       name: player.name,
-      worldRank: player.worldRank,
+      worldRank: worldRankOverrides?.[player.id] ?? player.worldRank,
       odds: player.odds,
       salary,
       pgaTourId: player.pgaTourId,
@@ -2643,28 +2648,36 @@ export default function Page() {
     >;
   }, [feed]);
 
-  // Salary overrides: default to the built-in map; if the commissioner has uploaded a list
-  // (/commissioner-salary), fetch and use it instead. Falls back to built-in on any failure.
+  // Salary + world-rank overrides: default to the built-in salary map and static world ranks; if the
+  // commissioner has uploaded a list (/commissioner-salary), fetch and use it. Falls back on any failure.
   const [salaryOverrides, setSalaryOverrides] = useState<Record<number, number>>(PGA_SALARY_OVERRIDES);
+  const [worldRankOverrides, setWorldRankOverrides] = useState<Record<number, number>>({});
   useEffect(() => {
     let cancelled = false;
     fetch('/api/salary-overrides', { cache: 'no-store' })
       .then((r) => r.json())
-      .then((d: { map?: Record<string, number> }) => {
-        if (cancelled || !d?.map) return;
-        const entries = Object.entries(d.map);
-        if (entries.length === 0) return; // nothing uploaded — keep built-in salaries
-        const parsed: Record<number, number> = {};
-        for (const [k, v] of entries) parsed[Number(k)] = Number(v);
-        setSalaryOverrides(parsed);
+      .then((d: { salaries?: Record<string, number>; worldRanks?: Record<string, number> }) => {
+        if (cancelled || !d) return;
+        const salaries = Object.entries(d.salaries ?? {});
+        if (salaries.length > 0) {
+          const parsed: Record<number, number> = {};
+          for (const [k, v] of salaries) parsed[Number(k)] = Number(v);
+          setSalaryOverrides(parsed);
+        }
+        const ranks = Object.entries(d.worldRanks ?? {});
+        if (ranks.length > 0) {
+          const parsedR: Record<number, number> = {};
+          for (const [k, v] of ranks) parsedR[Number(k)] = Number(v);
+          setWorldRankOverrides(parsedR);
+        }
       })
-      .catch(() => { /* keep built-in salaries */ });
+      .catch(() => { /* keep built-in values */ });
     return () => { cancelled = true; };
   }, []);
 
   const players = useMemo(
     () =>
-      buildPricedPlayers(PLAYER_POOL, liveOddsMap, salaryOverrides).map((player) => {
+      buildPricedPlayers(PLAYER_POOL, liveOddsMap, salaryOverrides, worldRankOverrides).map((player) => {
         const live = feedMap[normalizeName(player.name)];
         const score = live?.score ?? '--';
         const position = live?.position ?? '--';
@@ -2689,7 +2702,7 @@ export default function Page() {
           originalScore: live?.originalScore,
         };
       }),
-    [feedMap, liveOddsMap, salaryOverrides],
+    [feedMap, liveOddsMap, salaryOverrides, worldRankOverrides],
   );
 
   const playersById = Object.fromEntries(players.map((player) => [player.id, player]));
@@ -2814,8 +2827,13 @@ export default function Page() {
 
   const openPlayerPopup = (rawPlayer: { id: number; name: string; pgaTourId: number; photoUrl?: string; worldRank?: number }, defaultTab: 'stats' | 'season' = 'stats') => {
     // Canonicalize feed-name variants (e.g. "Samuel Stevens" -> "Sam Stevens") so the bio,
-    // ranks, photo and flag all resolve to the same pool player.
-    const player = { ...rawPlayer, name: canonicalName(rawPlayer.name) };
+    // ranks, photo and flag all resolve to the same pool player. worldRank is pinned to the ORIGINAL
+    // static rank (never the commissioner's uploaded pick-list rank) so the info popup is unaffected.
+    const player = {
+      ...rawPlayer,
+      name: canonicalName(rawPlayer.name),
+      worldRank: ORIGINAL_WORLD_RANK_BY_ID.get(rawPlayer.id) ?? rawPlayer.worldRank,
+    };
     const espnEventId = TOURNAMENT_ESPN_EVENT_IDS[selectedTournament];
     const statsCtx: 'season' | 'tournament' = tournamentStatsUnlocked ? 'tournament' : 'season';
     const params = new URLSearchParams({ name: player.name, context: statsCtx });
