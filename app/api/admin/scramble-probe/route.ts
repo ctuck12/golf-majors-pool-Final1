@@ -18,37 +18,14 @@ export async function GET(request: Request) {
 
   const out: Record<string, unknown> = { id };
 
-  // Probe leaderboardV2 for the field with player ids + status
-  const lbQuery = `
-    query LB($id: ID!) {
-      leaderboardV2(id: $id) {
-        players {
-          ... on PlayerRowV2 {
-            id
-            scoringData { position total playerState }
-            player { id displayName }
-          }
-        }
-      }
-    }
-  `;
+  // Introspect PlayerRowV2 to learn its real field names
+  const introspect = `query { __type(name: "PlayerRowV2") { fields { name type { name kind ofType { name kind } } } } }`;
   try {
-    const res = await fetch(PGA_GQL, { method: 'POST', headers: headers(), body: JSON.stringify({ query: lbQuery, variables: { id } }), signal: AbortSignal.timeout(15000) });
+    const res = await fetch(PGA_GQL, { method: 'POST', headers: headers(), body: JSON.stringify({ query: introspect }), signal: AbortSignal.timeout(15000) });
     const json = await res.json();
-    if (json.errors) out.lbErrors = json.errors;
-    const players = json?.data?.leaderboardV2?.players ?? [];
-    out.lbCount = players.length;
-    out.lbSample = players.slice(0, 5);
-    // Tally distinct playerState values
-    const states: Record<string, number> = {};
-    for (const p of players) {
-      const st = p?.scoringData?.playerState ?? p?.scoringData?.position ?? 'unknown';
-      states[String(st)] = (states[String(st)] ?? 0) + 1;
-    }
-    out.stateTally = states;
-  } catch (e) {
-    out.lbError = String(e);
-  }
+    out.playerRowV2Fields = json?.data?.__type?.fields?.map((f: { name: string; type: { name?: string; kind?: string; ofType?: { name?: string; kind?: string } } }) => ({ name: f.name, type: f.type?.name ?? f.type?.ofType?.name ?? f.type?.kind }));
+    if (json.errors) out.introspectErrors = json.errors;
+  } catch (e) { out.introspectError = String(e); }
 
   return Response.json(out);
 }
