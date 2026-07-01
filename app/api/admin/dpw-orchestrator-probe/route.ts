@@ -29,27 +29,33 @@ export async function GET(request: Request) {
     // Introspect one or more comma-separated types, expanding referenced object types one level deep
     // so a single request reveals the full nested shape (e.g. the player-row type inside the standings).
     const introspectOne = async (n: string) => {
-      const d = await gql(`query($n:String!){ __type(name:$n){ name kind enumValues{name} fields{ name type{ name kind ofType{ name kind ofType{ name kind ofType{ name } } } } } } }`, { n }) as {
-        data?: { __type?: { name?: string; kind?: string; enumValues?: Array<{ name: string }>; fields?: Array<{ name: string; type?: TypeRef }> } };
+      const d = await gql(`query($n:String!){ __type(name:$n){ name kind enumValues{name} possibleTypes{ name } fields{ name type{ name kind ofType{ name kind ofType{ name kind ofType{ name } } } } } } }`, { n }) as {
+        data?: { __type?: { name?: string; kind?: string; enumValues?: Array<{ name: string }>; possibleTypes?: Array<{ name: string }>; fields?: Array<{ name: string; type?: TypeRef }> } };
       };
       const t = d?.data?.__type;
       if (!t) return { name: n, missing: true };
       return {
         name: t.name, kind: t.kind,
         enumValues: t.enumValues?.map((e) => e.name),
+        possibleTypes: t.possibleTypes?.map((p) => p.name),
         fields: t.fields?.map((f) => ({ name: f.name, type: unwrap(f.type) })),
       };
     };
     const seed = typeName.split(',').map((s) => s.trim()).filter(Boolean);
     const first = await Promise.all(seed.map(introspectOne));
-    // Collect referenced non-scalar type names from the first pass and expand them once.
+    // Collect referenced non-scalar type names (from fields AND union possibleTypes) and expand once.
     const scalars = new Set(['String', 'Int', 'Float', 'Boolean', 'ID', '?']);
     const seen = new Set(seed);
     const nested = new Set<string>();
-    for (const t of first) for (const f of (t as { fields?: Array<{ type: string }> }).fields ?? []) {
-      if (!scalars.has(f.type) && !seen.has(f.type)) nested.add(f.type);
+    for (const t of first) {
+      for (const f of (t as { fields?: Array<{ type: string }> }).fields ?? []) {
+        if (!scalars.has(f.type) && !seen.has(f.type)) nested.add(f.type);
+      }
+      for (const p of (t as { possibleTypes?: string[] }).possibleTypes ?? []) {
+        if (!seen.has(p)) nested.add(p);
+      }
     }
-    const nestedResults = await Promise.all([...nested].slice(0, 20).map(introspectOne));
+    const nestedResults = await Promise.all([...nested].slice(0, 24).map(introspectOne));
     return Response.json({ types: [...first, ...nestedResults] });
   }
 
