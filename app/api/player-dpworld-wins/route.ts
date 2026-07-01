@@ -59,7 +59,7 @@ export async function GET(req: Request) {
   if (!espnId && name) espnId = (await getEspnId(name).catch(() => null)) ?? '';
   if (!espnId) return Response.json({ wins: 0, winsList: [] as DpwWin[] });
 
-  const cacheKey = `dpworld-wins:v3:${espnId}`;
+  const cacheKey = `dpworld-wins:v4:${espnId}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return Response.json(JSON.parse(cached as string));
@@ -70,6 +70,10 @@ export async function GET(req: Request) {
   // concurrently. Position "1" = a win. De-dup event ids across seasons.
   const winEventIds = new Set<string>();
   const seenEvents = new Set<string>();
+  // The eventlog ref already points to the event under its CORRECT league — for co-sanctioned
+  // events that league is "pga", not "eur", so the eur event-detail endpoint 404s. Keep the ref
+  // URL so we can resolve the tournament name/year/course from the right league.
+  const eventRef = new Map<string, string>();
   for (const season of seasonRange()) {
     const elog = await jf(`${EUR}/seasons/${season}/athletes/${espnId}/eventlog`, 7000) as {
       events?: { items?: Array<{ played?: boolean; event?: Record<string, string> }> };
@@ -77,9 +81,9 @@ export async function GET(req: Request) {
     const ids: string[] = [];
     for (const it of elog?.events?.items ?? []) {
       if (!it.played) continue;
-      const ref = Object.values(it.event ?? {})[0] ?? '';
-      const eventId = String(ref).match(/events\/(\d+)/)?.[1];
-      if (eventId && !seenEvents.has(eventId)) { seenEvents.add(eventId); ids.push(eventId); }
+      const ref = String(Object.values(it.event ?? {})[0] ?? '');
+      const eventId = ref.match(/events\/(\d+)/)?.[1];
+      if (eventId && !seenEvents.has(eventId)) { seenEvents.add(eventId); ids.push(eventId); eventRef.set(eventId, ref.split('?')[0]); }
     }
     if (ids.length === 0) continue;
     await mapLimit(ids, 12, async (eventId) => {
@@ -90,23 +94,27 @@ export async function GET(req: Request) {
     });
   }
 
-  // For each win, resolve the tournament name, year, course and winning score to par.
-  const winsList: DpwWin[] = (await Promise.all([...winEventIds].map(async (eventId) => {
+  // The count is the number of position-1 finishes (reliable). Enrich each with tournament name,
+  // year, course and winning score to par — best-effort, resolved from the event's own ref URL so
+  // co-sanctioned events resolve under their real league. Never drop a win if its detail 404s.
+  const wins = winEventIds.size;
+  const winsList: DpwWin[] = await mapLimit([...winEventIds], 8, async (eventId) => {
+    const detailUrl = eventRef.get(eventId) ?? `${EUR}/events/${eventId}`;
     const [ev, score] = await Promise.all([
-      jf(`${EUR}/events/${eventId}`, 5000) as Promise<{ name?: string; date?: string; courses?: Array<{ name?: string }> } | null>,
+      jf(detailUrl, 5000) as Promise<{ name?: string; shortName?: string; date?: string; courses?: Array<{ name?: string }> } | null>,
       jf(`${EUR}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/score`, 4000) as Promise<{ displayValue?: string; value?: number } | null>,
     ]);
     const year = ev?.date ? String(new Date(ev.date).getUTCFullYear()) : '';
     return {
-      tournament: String(ev?.name ?? '').trim(),
+      tournament: String(ev?.name ?? ev?.shortName ?? '').trim(),
       year,
       course: (ev?.courses?.[0]?.name ?? '').trim() || null,
       toPar: fmtToPar(score?.displayValue ?? score?.value),
     } as DpwWin;
-  }))).filter((w) => w.tournament || w.year);
+  });
 
   winsList.sort((a, b) => Number(b.year) - Number(a.year));
-  const payload = { wins: winsList.length, winsList };
+  const payload = { wins, winsList };
 
   try { await redis.setex(cacheKey, 604800, JSON.stringify(payload)); } catch { /* ignore */ } // 7 days
   return Response.json(payload);
