@@ -89,7 +89,7 @@ export default function CommissionerDpWorldPage() {
   return (
     <div style={wrap}>
       <div style={card}>
-        <div style={{ ...header, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 }}>
+        <div style={{ ...header, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
           <div>
             <button
               onClick={() => { window.location.href = '/?tab=commissioner'; }}
@@ -98,7 +98,6 @@ export default function CommissionerDpWorldPage() {
               ← Back to Commissioner Hub
             </button>
             <div style={{ color: '#fff', fontSize: 18, fontWeight: 900 }}>DP World Rankings</div>
-            <div style={{ color: '#8fa3b1', fontSize: 12, fontWeight: 500, marginTop: 2 }}>Commissioner tool · Race to Dubai</div>
           </div>
           <div style={{ background: '#fff', borderRadius: 12, padding: '6px 12px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
             <img src={headerTournament.logo} alt={headerTournament.name} style={{ height: 44, maxWidth: 110, objectFit: 'contain', display: 'block' }} />
@@ -111,13 +110,6 @@ export default function CommissionerDpWorldPage() {
           </div>
         ) : (
           <div style={body}>
-            {/* Current status */}
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8ef', borderRadius: 8, padding: '12px 14px', fontSize: 13, color: '#334155' }}>
-              {status?.active
-                ? <>Currently using a <b>pasted list</b> of <b>{status.count}</b> players{status.updatedAt ? <> · updated {new Date(status.updatedAt).toLocaleString()}</> : null}.</>
-                : <>Currently using the <b>built-in snapshot</b>. Paste the latest standings below to override it.</>}
-            </div>
-
             {/* Instructions */}
             <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
               Columns: <b>Rank</b>, <b>Player Name</b> (a header row is fine — it&apos;s skipped). Upload the

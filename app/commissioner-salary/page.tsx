@@ -168,7 +168,7 @@ export default function CommissionerSalaryPage() {
   return (
     <div style={wrap}>
       <div style={card}>
-        <div style={{ ...header, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 }}>
+        <div style={{ ...header, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
           <div>
             <button
               onClick={() => { window.location.href = '/?tab=commissioner'; }}
@@ -177,7 +177,6 @@ export default function CommissionerSalaryPage() {
               ← Back to Commissioner Hub
             </button>
             <div style={{ color: '#fff', fontSize: 18, fontWeight: 900 }}>Salary Pick List</div>
-            <div style={{ color: '#8fa3b1', fontSize: 12, fontWeight: 500, marginTop: 2 }}>Commissioner tool · salaries + world ranks</div>
           </div>
           <div style={{ background: '#fff', borderRadius: 12, padding: '6px 12px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
             <img src={headerTournament.logo} alt={headerTournament.name} style={{ height: 44, maxWidth: 110, objectFit: 'contain', display: 'block' }} />
@@ -190,12 +189,6 @@ export default function CommissionerSalaryPage() {
           </div>
         ) : (
           <div style={body}>
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8ef', borderRadius: 8, padding: '12px 14px', fontSize: 13, color: '#334155' }}>
-              {status?.active
-                ? <>Currently using an <b>uploaded list</b> of <b>{status.count}</b> players{status.updatedAt ? <> · updated {new Date(status.updatedAt).toLocaleString()}</> : null}.</>
-                : <>Currently using the <b>built-in salaries + world ranks</b>. Upload or paste a new list to override them.</>}
-            </div>
-
             <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
               Columns: <b>World Golf Rank</b>, <b>Player Name</b>, <b>Salary</b> (a header row is fine — it&apos;s skipped).
               Upload the <b>.xlsx</b>/<b>.csv</b> file, or paste the rows. Salary is the trailing number
