@@ -6,6 +6,11 @@
 // Players with no ESPN id (e.g. Benjamin James, Dan Brown) are absent and fall back to PGA.
 
 export const PLAYER_ESPN_IDS: Record<string, string> = {
+  // Masters-legend field players (not in the pool) — ESPN ids for their headshots.
+  "Danny Willett": '4304',
+  "Mike Weir": '453',
+  "Charl Schwartzel": '1097',
+  "Sergio Garcia": '158',
   "A.J. Ewart": '5075652',
   "Aaron Rai": '10906',
   "Adam Schenk": '10372',

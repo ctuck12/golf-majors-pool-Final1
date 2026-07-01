@@ -319,6 +319,14 @@ const PLAYER_FLAGS: Record<string, string> = {
 // Accent-insensitive index of PLAYER_FLAGS, so leaderboard display names with diacritics
 // (e.g. "Séamus Power", "Thorbjørn Olesen") resolve to the same flag as their unaccented key
 // without needing a duplicate entry. Mirrors the normalizer in the stat-leaderboard route.
+// Some feeds label a player differently than our pool (e.g. the Masters field lists
+// "Samuel Stevens" for our "Sam Stevens"). Canonicalize to the pool name so flags, photos,
+// stats and ranks all resolve to the same player.
+const NAME_ALIASES: Record<string, string> = {
+  'Samuel Stevens': 'Sam Stevens',
+};
+const canonicalName = (name: string): string => NAME_ALIASES[name] ?? name;
+
 const normFlagName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '')
   .replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase().trim();
 const PLAYER_FLAGS_NORM: Record<string, string> = (() => {
@@ -329,7 +337,7 @@ const PLAYER_FLAGS_NORM: Record<string, string> = (() => {
   }
   return m;
 })();
-const lookupFlagCode = (name: string): string => PLAYER_FLAGS[name] ?? PLAYER_FLAGS_NORM[normFlagName(name)] ?? '';
+const lookupFlagCode = (rawName: string): string => { const name = canonicalName(rawName); return PLAYER_FLAGS[name] ?? PLAYER_FLAGS_NORM[normFlagName(name)] ?? ''; };
 const getPlayerFlag = (name: string): string => lookupFlagCode(name);
 const getFlagSrc = (name: string): string => {
   const code = lookupFlagCode(name);
@@ -511,7 +519,8 @@ const MANUAL_PHOTO_FILES: Record<string, string> = {
 const normPhotoName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, '').trim();
 const MANUAL_PHOTO_BY_NORM: Record<string, string> = {};
 for (const [k, v] of Object.entries(MANUAL_PHOTO_FILES)) MANUAL_PHOTO_BY_NORM[normPhotoName(k)] = v;
-const playerPhotoSrc = (name: string, pgaTourId: number, photoUrl?: string) => {
+const playerPhotoSrc = (rawName: string, pgaTourId: number, photoUrl?: string) => {
+  const name = canonicalName(rawName);
   const manualFile = MANUAL_PHOTO_BY_NORM[normPhotoName(name)];
   if (manualFile) return manualFile;
   if (PGA_PHOTO_ONLY.has(name)) return pgaPhoto(pgaTourId);
@@ -2779,7 +2788,10 @@ export default function Page() {
 
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
 
-  const openPlayerPopup = (player: { id: number; name: string; pgaTourId: number; photoUrl?: string; worldRank?: number }, defaultTab: 'stats' | 'season' = 'stats') => {
+  const openPlayerPopup = (rawPlayer: { id: number; name: string; pgaTourId: number; photoUrl?: string; worldRank?: number }, defaultTab: 'stats' | 'season' = 'stats') => {
+    // Canonicalize feed-name variants (e.g. "Samuel Stevens" -> "Sam Stevens") so the bio,
+    // ranks, photo and flag all resolve to the same pool player.
+    const player = { ...rawPlayer, name: canonicalName(rawPlayer.name) };
     const espnEventId = TOURNAMENT_ESPN_EVENT_IDS[selectedTournament];
     const statsCtx: 'season' | 'tournament' = tournamentStatsUnlocked ? 'tournament' : 'season';
     const params = new URLSearchParams({ name: player.name, context: statsCtx });
