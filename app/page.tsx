@@ -1783,12 +1783,37 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    if (mainTab === 'Commissioner Hub' && !canManagePool) {
+    // Don't bounce during the initial session load — the layout effect below may
+    // legitimately open the hub before the session has finished confirming access.
+    if (mainTab === 'Commissioner Hub' && !canManagePool && !sessionLoading) {
       // Push unauthorized users back to the public standings tab.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setMainTab('Standings');
     }
-  }, [canManagePool, mainTab]);
+  }, [canManagePool, mainTab, sessionLoading]);
+
+  useLayoutEffect(() => {
+    // Returning from a commissioner tool page (?tab=commissioner): if the stored
+    // session already shows a commissioner, switch to the hub *before* the browser
+    // paints so the Standings tab never flashes.
+    if (!pendingCommissionerTab) return;
+    let isCommish = false;
+    try {
+      const snap = readStoredSession();
+      isCommish = !!snap?.user && canAccessCommissionerConsole(snap.user);
+    } catch { isCommish = false; }
+    if (!isCommish) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMainTab('Commissioner Hub');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPendingCommissionerTab(false);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('tab');
+      window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!pendingCommissionerTab || sessionLoading) return;
