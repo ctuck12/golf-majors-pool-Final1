@@ -43,13 +43,20 @@ export function parseDpWorldStandings(data: EspnStandings): Record<string, numbe
     const e = c.standings?.entries ?? [];
     if (e.length > (entries?.length ?? 0)) entries = e;
   }
+  // Match ONLY an exact rank/position stat — not a fuzzy /rank/ (which would also match
+  // "rankChange" / "previousRank" and yield a wrong number). If none exists we fall back to the
+  // entry's ordered position, since ESPN returns standings entries in rank order.
+  const RANK_FIELDS = new Set(['rank', 'position', 'pos', 'current', 'rankvalue']);
+  const isRankStat = (s: { name?: string; type?: string; abbreviation?: string }) => {
+    const cand = [s.type, s.name, s.abbreviation].map((x) => (x ?? '').toLowerCase());
+    return cand.some((c) => RANK_FIELDS.has(c));
+  };
+
   const map: Record<string, number> = {};
   (entries ?? []).forEach((e, i) => {
     const name = e.athlete?.displayName ?? e.athlete?.fullName ?? e.athlete?.shortName;
     if (!name) return;
-    const rankStat = (e.stats ?? []).find((s) =>
-      /rank/i.test(s.type ?? '') || /rank/i.test(s.name ?? '') || /rank/i.test(s.abbreviation ?? ''),
-    );
+    const rankStat = (e.stats ?? []).find(isRankStat);
     const rankFromStat = rankStat && typeof rankStat.value === 'number' && rankStat.value > 0
       ? Math.round(rankStat.value)
       : null;
