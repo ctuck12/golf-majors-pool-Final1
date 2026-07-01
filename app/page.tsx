@@ -3320,6 +3320,12 @@ export default function Page() {
     entriesTournamentId === 'pga' ? '#B09963' :
     '#173b63';
 
+  // Full display name for the pick-sheet header (The Open → The Open Championship).
+  const entriesTournamentDisplayName =
+    entriesTournamentId === 'pga' ? 'PGA Championship' :
+    entriesTournamentId === 'open' ? 'The Open Championship' :
+    entriesTournament.name;
+
   // Shaded fill + text tint that matches the Pick History entry bubbles, keyed to
   // the current tournament. Used for the "picks not open yet" warning message.
   const entriesWarningPalette: { bg: string; text: string } =
@@ -5623,7 +5629,7 @@ export default function Page() {
                       >
                         <div>
                           <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
-                            {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
+                            {entriesTournamentDisplayName}
                           </div>
                           <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
                             Tournament Field
@@ -5689,7 +5695,7 @@ export default function Page() {
                           <div></div>
                         </div>
                         <div style={{ padding: isMobile ? '20px 16px' : '32px 24px' }}>
-                          <div style={{ border: `2px solid ${entriesWarningPalette.text}`, background: entriesWarningPalette.bg, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesWarningPalette.text, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
+                          <div style={{ background: entriesWarningPalette.bg, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'left', color: entriesWarningPalette.text, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6 }}>
                             Picks cannot be entered until the tournament field has been finalized and world golf rankings/player odds have been updated for the week (usually by late Monday morning, the week of the tournament).
                           </div>
                         </div>
@@ -5816,7 +5822,7 @@ export default function Page() {
                       >
                         <div>
                           <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
-                            {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
+                            {entriesTournamentDisplayName}
                           </div>
                           <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
                             Tournament Field
@@ -5883,8 +5889,8 @@ export default function Page() {
                         </div>
                         {salaryListMissing && (
                           <div style={{ padding: isMobile ? '20px 16px' : '32px 24px' }}>
-                            <div style={{ border: `2px solid ${entriesWarningPalette.text}`, background: entriesWarningPalette.bg, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesWarningPalette.text, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
-                              Picks cannot be entered until the tournament field has been finalized and world golf rankings/player odds have been updated for the week (usually by late Monday morning, the week of the tournament).
+                            <div style={{ background: entriesWarningPalette.bg, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'left', color: entriesWarningPalette.text, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6 }}>
+                              *Picks cannot be entered until the tournament field has been finalized and world golf rankings/player odds have been updated for the week (usually by late Monday morning, the week of the tournament).
                             </div>
                           </div>
                         )}
@@ -6939,7 +6945,7 @@ export default function Page() {
                     >
                       <div>
                         <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
-                          {commissionerTournamentLabel}
+                          {entriesTournamentDisplayName}
                         </div>
                         <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
                           Tournament Field
@@ -7006,7 +7012,7 @@ export default function Page() {
                       </div>
                       {salaryListMissing && (
                         <div style={{ padding: isMobile ? '20px 16px' : '32px 24px' }}>
-                          <div style={{ border: `2px solid ${entriesWarningPalette.text}`, background: entriesWarningPalette.bg, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesWarningPalette.text, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
+                          <div style={{ background: entriesWarningPalette.bg, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'left', color: entriesWarningPalette.text, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6 }}>
                             Picks cannot be entered until the tournament field has been finalized and world golf rankings/player odds have been updated for the week (usually by late Monday morning, the week of the tournament).
                           </div>
                         </div>
