@@ -1340,9 +1340,6 @@ export default function Page() {
     playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; careerWins: number | null; majorStarts: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null } | null;
     playerBioLoading: boolean;
     espnPhotoUrl: string | null;
-    // DP World Tour wins come from a separate (slower) endpoint, loaded lazily after the bio.
-    dpWorldWins: number | null;
-    dpWorldWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null;
   } | null>(null);
   // Click-through popup listing each win (tournament + year) behind a player's Wins count.
   const [winsListPopup, setWinsListPopup] = useState<{ title: string; playerName: string; wins: { tournament: string; year: string; course: string | null; toPar: string | null }[] } | null>(null);
@@ -2801,13 +2798,7 @@ export default function Page() {
       playerBio: null,
       playerBioLoading: landingTab === 'bio',
       espnPhotoUrl: null,
-      dpWorldWins: null,
-      dpWorldWinsList: null,
     });
-    // DP World Tour wins load from their own (slower) endpoint; fire it on open regardless of tab.
-    readJson<{ wins: number; winsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] }>(`/api/player-dpworld-wins?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' })
-      .then((data) => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, dpWorldWins: data.wins ?? 0, dpWorldWinsList: data.winsList ?? [] } : null))
-      .catch(() => { /* leave dpWorldWins null -> row hidden */ });
     // Bio is the default tab, so fetch it eagerly on open (it's otherwise lazy-loaded on tab click).
     if (landingTab === 'bio') {
       const bioParams = new URLSearchParams({ name: player.name });
@@ -8818,8 +8809,6 @@ export default function Page() {
                     { label: 'Turned Pro', value: bio?.turnedPro ?? null },
                     { label: 'PGA Tour Starts', value: bio?.careerStarts ?? null },
                     { label: 'PGA Tour Wins', value: bio?.careerWins ?? null, wins: bio?.pgaTourWinsList ?? null },
-                    // DP World Tour Wins (loaded separately) — only shown when the player has at least one.
-                    ...((pickHistoryPlayerPopup.dpWorldWins ?? 0) > 0 ? [{ label: 'DP World Tour Wins', value: pickHistoryPlayerPopup.dpWorldWins, wins: pickHistoryPlayerPopup.dpWorldWinsList ?? null }] : []),
                     { label: 'Major Starts', value: bio?.majorStarts ?? null },
                     { label: 'Major Wins', value: bio?.majorWins ?? null, wins: bio?.majorWinsList ?? null },
                     { label: 'Career Earnings', value: bio?.careerEarnings ?? null },
