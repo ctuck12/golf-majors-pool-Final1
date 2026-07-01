@@ -199,6 +199,9 @@ export async function buildFullFieldScramblingLeaderboard(eventId: string): Prom
 
   // made-cut values (percent numbers keyed by normalized name)
   const madeCut = await buildStatDetailsLeaderboard(eventId, 'scrambling');
+  // No statDetails scrambling for this event (e.g. the Masters feed, or an event that hasn't produced
+  // scrambling data yet) — return empty cheaply instead of firing a scorecard fetch for every player.
+  if (madeCut.entries.length === 0) return madeCut;
   const valueByName = new Map<string, number>();
   const displayByName = new Map<string, string>();
   for (const e of madeCut.entries) {
