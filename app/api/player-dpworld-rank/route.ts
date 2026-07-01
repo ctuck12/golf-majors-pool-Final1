@@ -1,14 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { getDpWorldStandings, normalizeDpwName } from '@/app/lib/dpworld-standings';
-
-// DP World Tour "Race to Dubai" rankings.
-//
-// PRIMARY source is now the LIVE ESPN European Tour (`eur`) standings feed (see
-// app/lib/dpworld-standings.ts) — one cached bulk call, auto-updating like the OWGR/FedEx bubbles.
-// The map below is the manual snapshot the commissioner used to maintain; it is kept as a FALLBACK
-// for any player the live feed doesn't list, so the bubble can never regress if ESPN is missing
-// someone or is temporarily unavailable.
+// DP World Tour rankings (static snapshot provided by pool commissioner)
 const DP_WORLD_RANKINGS: Record<string, number> = {
   'Patrick Reed': 1,
   'Rory McIlroy': 2,
@@ -255,25 +247,8 @@ const NORMALIZED_RANKINGS: Map<string, number> = new Map(
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const name = searchParams.get('name') ?? '';
-  const debug = searchParams.get('debug') === '1';
-  if (!name && !debug) return Response.json({ rank: null });
+  if (!name) return Response.json({ rank: null });
 
-  // LIVE first (auto-updating), then the manual snapshot as a safety net.
-  let live: Record<string, number> = {};
-  try { live = await getDpWorldStandings(); } catch { live = {}; }
-
-  const liveRank = name ? (live[normalizeDpwName(name)] ?? null) : null;
-  const staticRank = name ? (NORMALIZED_RANKINGS.get(normalize(name)) ?? null) : null;
-  const rank = liveRank ?? staticRank;
-
-  if (debug) {
-    const keys = Object.keys(live);
-    return Response.json({
-      name: name || null,
-      rank, liveRank, staticRank, source: liveRank != null ? 'live' : (staticRank != null ? 'static' : 'none'),
-      liveCount: keys.length,
-      liveSample: keys.slice(0, 8).map((k) => ({ name: k, rank: live[k] })),
-    });
-  }
+  const rank = NORMALIZED_RANKINGS.get(normalize(name)) ?? null;
   return Response.json({ rank });
 }
