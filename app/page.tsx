@@ -8852,15 +8852,27 @@ export default function Page() {
                     { label: 'Swing', value: bio?.swing ?? null },
                     { label: 'College', value: bio?.college ? formatCollege(bio.college) : null, italic: !bio?.college && (bio?.collegeConfirmedAbsent ?? false) },
                   ];
-                  const bottomRows: { label: string; value: string | number | null; wins?: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }[] = [
-                    { label: 'Turned Pro', value: bio?.turnedPro ?? null },
-                    { label: 'PGA Tour Starts', value: bio?.careerStarts ?? null },
-                    { label: 'PGA Tour Cuts Made', value: bio?.cutsMade ?? null },
-                    { label: 'PGA Tour Wins', value: bio?.careerWins ?? null, wins: bio?.pgaTourWinsList ?? null },
-                    { label: 'Major Starts', value: bio?.majorStarts ?? null },
-                    { label: 'Major Cuts Made', value: bio?.majorCutsMade ?? null },
-                    { label: 'Major Wins', value: bio?.majorWins ?? null, wins: bio?.majorWinsList ?? null },
-                    { label: 'Career Earnings', value: bio?.careerEarnings ?? null },
+                  // Career rows are split into logically grouped cards so the PGA Tour trio and the
+                  // Major trio each read as their own unit (Turned Pro / Career Earnings are the
+                  // standalone bookends). Each group renders as its own outlined card with a small gap.
+                  type BioBottomRow = { label: string; value: string | number | null; wins?: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null };
+                  const bottomGroups: BioBottomRow[][] = [
+                    [
+                      { label: 'Turned Pro', value: bio?.turnedPro ?? null },
+                    ],
+                    [
+                      { label: 'PGA Tour Starts', value: bio?.careerStarts ?? null },
+                      { label: 'PGA Tour Cuts Made', value: bio?.cutsMade ?? null },
+                      { label: 'PGA Tour Wins', value: bio?.careerWins ?? null, wins: bio?.pgaTourWinsList ?? null },
+                    ],
+                    [
+                      { label: 'Major Starts', value: bio?.majorStarts ?? null },
+                      { label: 'Major Cuts Made', value: bio?.majorCutsMade ?? null },
+                      { label: 'Major Wins', value: bio?.majorWins ?? null, wins: bio?.majorWinsList ?? null },
+                    ],
+                    [
+                      { label: 'Career Earnings', value: bio?.careerEarnings ?? null },
+                    ],
                   ];
                   return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -8891,30 +8903,34 @@ export default function Page() {
                           ))}
                         </div>
                       </div>
-                      {/* Bottom rows: full width */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e2e8ef' }}>
-                        {bottomRows.map((row, i) => {
-                          // A Wins row is tappable when we have the per-win detail (count > 0).
-                          const clickable = !loading && !!row.wins && row.wins.length > 0;
-                          return (
-                          <div
-                            key={row.label}
-                            onClick={clickable ? () => setWinsListPopup({ title: row.label, playerName: photoPlayer.name, wins: row.wins! }) : undefined}
-                            role={clickable ? 'button' : undefined}
-                            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < bottomRows.length - 1 ? '1px solid #e2e8ef' : 'none', cursor: clickable ? 'pointer' : 'default' }}
-                          >
-                            <span style={{ fontSize: 13, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              {/* Eye/info icon (same affordance as the leaderboard popup triggers), to the
-                                  LEFT so the number stays right-aligned with the other rows. */}
-                              {clickable && (
-                                <span style={{ fontSize: isMobile ? 14 : 15, color: '#607282', lineHeight: 1 }} aria-label={`View ${row.label}`}>ⓘ</span>
-                              )}
-                              <span style={{ fontSize: 13, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700 }}>{row.value != null ? String(row.value) : '—'}</span>
-                            </span>
+                      {/* Bottom rows: full width, split into grouped cards (PGA Tour vs Majors vs bookends) */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {bottomGroups.map((group, gi) => (
+                          <div key={gi} style={{ display: 'flex', flexDirection: 'column', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1.5px solid #e2e8ef' }}>
+                            {group.map((row, i) => {
+                              // A Wins row is tappable when we have the per-win detail (count > 0).
+                              const clickable = !loading && !!row.wins && row.wins.length > 0;
+                              return (
+                              <div
+                                key={row.label}
+                                onClick={clickable ? () => setWinsListPopup({ title: row.label, playerName: photoPlayer.name, wins: row.wins! }) : undefined}
+                                role={clickable ? 'button' : undefined}
+                                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: i % 2 === 0 ? '#fff' : '#f8fafc', borderBottom: i < group.length - 1 ? '1px solid #e2e8ef' : 'none', cursor: clickable ? 'pointer' : 'default' }}
+                              >
+                                <span style={{ fontSize: 13, color: '#5a6a7a', fontWeight: 600 }}>{row.label}</span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                  {/* Eye/info icon (same affordance as the leaderboard popup triggers), to the
+                                      LEFT so the number stays right-aligned with the other rows. */}
+                                  {clickable && (
+                                    <span style={{ fontSize: isMobile ? 14 : 15, color: '#607282', lineHeight: 1 }} aria-label={`View ${row.label}`}>ⓘ</span>
+                                  )}
+                                  <span style={{ fontSize: 13, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700 }}>{row.value != null ? String(row.value) : '—'}</span>
+                                </span>
+                              </div>
+                              );
+                            })}
                           </div>
-                          );
-                        })}
+                        ))}
                       </div>
                     </div>
                   );
