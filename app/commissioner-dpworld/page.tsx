@@ -93,7 +93,7 @@ export default function CommissionerDpWorldPage() {
           <div>
             <button
               onClick={() => { window.location.href = '/?tab=commissioner'; }}
-              style={{ display: 'inline-block', background: 'transparent', border: '1px solid #6b7b88', borderRadius: 10, color: '#8fa3b1', fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: '6px 14px', marginBottom: 10 }}
+              style={{ display: 'inline-block', background: 'transparent', border: '1px solid #6b7b88', borderRadius: 9, color: '#8fa3b1', fontSize: 12, fontWeight: 700, cursor: 'pointer', padding: '5px 12px', marginBottom: 10 }}
             >
               ← Back to Commissioner Hub
             </button>

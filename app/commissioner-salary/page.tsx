@@ -172,7 +172,7 @@ export default function CommissionerSalaryPage() {
           <div>
             <button
               onClick={() => { window.location.href = '/?tab=commissioner'; }}
-              style={{ display: 'inline-block', background: 'transparent', border: '1px solid #6b7b88', borderRadius: 10, color: '#8fa3b1', fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: '6px 14px', marginBottom: 10 }}
+              style={{ display: 'inline-block', background: 'transparent', border: '1px solid #6b7b88', borderRadius: 9, color: '#8fa3b1', fontSize: 12, fontWeight: 700, cursor: 'pointer', padding: '5px 12px', marginBottom: 10 }}
             >
               ← Back to Commissioner Hub
             </button>
@@ -191,9 +191,7 @@ export default function CommissionerSalaryPage() {
           <div style={body}>
             <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
               Columns: <b>World Golf Rank</b>, <b>Player Name</b>, <b>Salary</b> (a header row is fine — it&apos;s skipped).
-              Upload the <b>.xlsx</b>/<b>.csv</b> file, or paste the rows. Salary is the trailing number
-              (<code style={{ background: '#f1f5f9', padding: '1px 5px', borderRadius: 4 }}>$</code>/commas ok);
-              the leading number is the world rank. Unmatched names are listed back so you can fix spelling.
+              Upload the <b>.xlsx</b>/<b>.csv</b> file, or paste the rows. Unmatched names are listed back so you can fix spelling.
             </div>
 
             {/* File upload */}
