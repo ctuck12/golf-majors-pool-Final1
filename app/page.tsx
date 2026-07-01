@@ -507,14 +507,13 @@ const PGA_PHOTO_ONLY = new Set<string>([
 // (mostly Masters legends). Keyed by name; these ALWAYS win (highest priority) since they were
 // chosen deliberately. Matched on a normalized name so accent/spelling variants still resolve.
 const MANUAL_PHOTO_FILES: Record<string, string> = {
+  // Fred Couples, José María Olazábal and Vijay Singh were switched to their (higher-quality)
+  // ESPN headshots (see PLAYER_ESPN_IDS), so they're intentionally not listed here anymore.
   'Ernie Els': '/player-photos/ernie-els.jpg',
-  'Fred Couples': '/player-photos/fred-couples.jpg',
   'John Daly': '/player-photos/john-daly.jpg',
-  'José María Olazábal': '/player-photos/jose-maria-olazabal.jpg',
   'Phil Mickelson': '/player-photos/phil-mickelson.jpg',
   'Rory McIlroy': '/player-photos/rory-mcilroy.jpg',
   'Tiger Woods': '/player-photos/tiger-woods.jpg',
-  'Vijay Singh': '/player-photos/vijay-singh.jpg',
 };
 const normPhotoName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, '').trim();
 const MANUAL_PHOTO_BY_NORM: Record<string, string> = {};

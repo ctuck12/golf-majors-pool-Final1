@@ -793,8 +793,19 @@ for (const p of [...PLAYER_POOL_WITH_PGA_IDS, ...PLAYER_ARCHIVE]) {
   const fl = firstLastKey(p.name);
   if (!(fl in POOL_PGA_BY_FL)) POOL_PGA_BY_FL[fl] = p.pgaTourId;
 }
+// Non-pool Masters-legend field players whose PGA Tour ids carry LEADING ZEROS (older players),
+// so they can't be number literals in the pool. Keyed by normalized name. These give the bio
+// their real PGA Tour cuts + major starts/cuts/wins and FedEx rank.
+const LEGEND_PGA_IDS: Record<string, string> = {
+  'vijay singh': '06567',
+  'jose maria olazabal': '06373',
+  'fred couples': '01226',
+  'angel cabrera': '20848',
+};
 function resolvePgaTourId(name: string, provided: string): string {
   if (provided && provided !== '0') return provided;
+  const legend = LEGEND_PGA_IDS[normBioName(name)] ?? LEGEND_PGA_IDS[firstLastKey(name)];
+  if (legend) return legend;
   const hit = POOL_PGA_BY_NORM[normBioName(name)] ?? POOL_PGA_BY_FL[firstLastKey(name)];
   return hit ? String(hit) : provided;
 }
@@ -825,7 +836,7 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v28:${name}`;
+  const cacheKey = `player-bio:v29:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
