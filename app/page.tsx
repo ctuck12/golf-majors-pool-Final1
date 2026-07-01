@@ -5578,7 +5578,16 @@ export default function Page() {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
-                  <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 14 }}>
+                    <button
+                      onClick={closeMyEntriesEditor}
+                      aria-label="Back"
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+                    >
+                      <ArrowLeft size={isMobile ? 14 : 20} />
+                    </button>
+                    <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
+                  </div>
                 </div>
 
                 <div
@@ -5762,7 +5771,14 @@ export default function Page() {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
-                  <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 14 }}>
+                    <button
+                      onClick={closeMyEntriesEditor}
+                      aria-label="Back"
+                      style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+                    >
+                      <ArrowLeft size={isMobile ? 14 : 20} />
+                    </button>
                     <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
                   </div>
                 </div>
