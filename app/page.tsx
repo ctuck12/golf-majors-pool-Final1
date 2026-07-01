@@ -6210,6 +6210,44 @@ export default function Page() {
                 </div>
               </div>
 
+              {/* Pool data tools — commissioner-only pages for the pick list + DP World ranks */}
+              <div
+                style={{
+                  marginTop: isMobile ? 8 : 16,
+                  border: '1px solid #e6edf1',
+                  borderRadius: isMobile ? 12 : 18,
+                  padding: isMobile ? 10 : 16,
+                  background: '#f8fbfd',
+                  display: 'grid',
+                  gap: isMobile ? 8 : 12,
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                    Pool data tools
+                  </div>
+                  <div style={{ marginTop: isMobile ? 4 : 6, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
+                    Upload the salary pick list, or update the DP World (Race to Dubai) rankings.
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: isMobile ? 8 : 12, flexWrap: 'wrap' }}>
+                  <a
+                    href="/commissioner-salary"
+                    style={{ textDecoration: 'none', flex: '1 1 200px', border: '1px solid #cdd9e1', borderRadius: 12, padding: isMobile ? '10px 12px' : '12px 14px', background: '#fff', color: '#0f1720' }}
+                  >
+                    <div style={{ fontSize: isMobile ? 13 : 15, fontWeight: 800 }}>Salary Pick List →</div>
+                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Upload salaries + world ranks</div>
+                  </a>
+                  <a
+                    href="/commissioner-dpworld"
+                    style={{ textDecoration: 'none', flex: '1 1 200px', border: '1px solid #cdd9e1', borderRadius: 12, padding: isMobile ? '10px 12px' : '12px 14px', background: '#fff', color: '#0f1720' }}
+                  >
+                    <div style={{ fontSize: isMobile ? 13 : 15, fontWeight: 800 }}>DP World Rankings →</div>
+                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Update Race to Dubai list</div>
+                  </a>
+                </div>
+              </div>
+
               <div
                 style={{
                   marginTop: isMobile ? 8 : 16,
