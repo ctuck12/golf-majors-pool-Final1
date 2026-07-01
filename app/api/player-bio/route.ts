@@ -805,9 +805,12 @@ const LEGEND_PGA_IDS: Record<string, string> = {
   'angel cabrera': '20848',
 };
 function resolvePgaTourId(name: string, provided: string): string {
-  if (provided && provided !== '0') return provided;
+  // LEGEND_PGA_IDS wins even over a provided id: these ids have LEADING ZEROS that a numeric
+  // pool entry would drop (e.g. adding Couples to the draft pool as pgaTourId 1226 instead of
+  // 01226), so the correct string id must always take priority for these players.
   const legend = LEGEND_PGA_IDS[normBioName(name)] ?? LEGEND_PGA_IDS[firstLastKey(name)];
   if (legend) return legend;
+  if (provided && provided !== '0') return provided;
   const hit = POOL_PGA_BY_NORM[normBioName(name)] ?? POOL_PGA_BY_FL[firstLastKey(name)];
   return hit ? String(hit) : provided;
 }
