@@ -89,9 +89,9 @@ export default function CommissionerDpWorldPage() {
         <div style={header}>
           <button
             onClick={() => { window.location.href = '/?tab=commissioner'; }}
-            style={{ background: 'transparent', border: 'none', color: '#8fa3b1', fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: 0, marginBottom: 10 }}
+            style={{ display: 'inline-block', background: 'transparent', border: '1px solid #6b7b88', borderRadius: 999, color: '#8fa3b1', fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: '6px 14px', marginBottom: 10 }}
           >
-            ← Back to Commissioner Hub
+            Back to Commissioner Hub
           </button>
           <div style={{ color: '#fff', fontSize: 18, fontWeight: 900 }}>DP World Rankings</div>
           <div style={{ color: '#8fa3b1', fontSize: 12, fontWeight: 500, marginTop: 2 }}>Commissioner tool · Race to Dubai</div>
