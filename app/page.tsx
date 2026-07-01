@@ -8722,8 +8722,13 @@ export default function Page() {
               onClick={(e) => e.stopPropagation()}
               style={{ width: 'min(440px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', background: '#fff', borderRadius: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
             >
-              {/* Header */}
-              <div style={{ background: '#0f1720', borderRadius: '20px 20px 0 0', padding: '14px 16px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
+              {/* Header — vertically center the name/flag when the player has no rank bubbles */}
+              {(() => {
+                const hasBubbles = (pickHistoryPlayerPopup.owgrRank ?? pickHistoryPlayerPopup.player.worldRank) != null
+                  || pickHistoryPlayerPopup.fedexRank != null
+                  || pickHistoryPlayerPopup.dpWorldRank != null;
+                return (
+              <div style={{ background: '#0f1720', borderRadius: '20px 20px 0 0', padding: '14px 16px 12px', display: 'flex', justifyContent: 'space-between', alignItems: hasBubbles ? 'flex-start' : 'center', gap: 12, flexShrink: 0 }}>
                 <div style={{ minWidth: 0, flex: 1 }}>
                   {/* Name + flag */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
@@ -8734,6 +8739,7 @@ export default function Page() {
                     </>}
                   </div>
                   {/* Ranking bubbles */}
+                  {hasBubbles && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 7, flexWrap: 'wrap' }}>
                     {(pickHistoryPlayerPopup.owgrRank ?? pickHistoryPlayerPopup.player.worldRank) != null && (
                       <div style={{ background: '#fff', borderRadius: 999, padding: '3px 9px', display: 'inline-flex', alignItems: 'center' }}>
@@ -8754,12 +8760,15 @@ export default function Page() {
                       </div>
                     )}
                   </div>
+                  )}
                 </div>
                 <button
                   onClick={() => setPickHistoryPlayerPopup(null)}
                   style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}
                 >✕</button>
               </div>
+                );
+              })()}
 
               {/* Tab bar — segmented control so each tab reads as a clickable button */}
               <div style={{ display: 'flex', gap: 5, background: '#fff', borderBottom: '1.5px solid #e2e8ef', padding: '8px 8px', flexShrink: 0 }}>
