@@ -2,14 +2,15 @@
 // tab logo — used by the commissioner tool pages, which don't have the main app's
 // tournament state. Mirrors the schedule + tab-logo mapping in app/page.tsx.
 
-export type HeaderTournament = { id: string; name: string; logo: string };
+export type HeaderTournament = { id: string; name: string; logo: string; color: string };
 
+// `color` matches entriesTournamentSolid (the tournament header color) in app/page.tsx.
 const SCHEDULE: HeaderTournament[] = [
-  { id: 'players', name: 'The Players', logo: '/players-tab-logo.webp' },
-  { id: 'masters', name: 'The Masters', logo: '/masters-tab-logo.png' },
-  { id: 'pga', name: 'PGA Championship', logo: '/pga-tab-logo.png' },
-  { id: 'us-open', name: 'U.S. Open', logo: '/us-open-tab-logo.png' },
-  { id: 'open', name: 'The Open', logo: '/open-tab-logo.png' },
+  { id: 'players', name: 'The Players', logo: '/players-tab-logo.webp', color: '#173b63' },
+  { id: 'masters', name: 'The Masters', logo: '/masters-tab-logo.png', color: '#2c6449' },
+  { id: 'pga', name: 'PGA Championship', logo: '/pga-tab-logo.png', color: '#B09963' },
+  { id: 'us-open', name: 'U.S. Open', logo: '/us-open-tab-logo.png', color: '#BE3436' },
+  { id: 'open', name: 'The Open', logo: '/open-tab-logo.png', color: '#173b63' },
 ];
 
 // First-tee times (UTC) match app/page.tsx TOURNAMENTS.

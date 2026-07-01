@@ -168,7 +168,7 @@ export default function CommissionerSalaryPage() {
   return (
     <div style={wrap}>
       <div style={card}>
-        <div style={{ ...header, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
+        <div style={{ ...header, background: headerTournament.color, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
           <div>
             <button
               onClick={() => { window.location.href = '/?tab=commissioner'; }}
