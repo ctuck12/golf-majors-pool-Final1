@@ -38,22 +38,16 @@ async function majorCount(id: string): Promise<number | string> {
 }
 
 export async function GET() {
-  const targets = ['sergio garcia', 'charl schwartzel'];
-  const TOUR_CODES = ['R', 'H', 'M', 'S', 'C', 'I', 'Y', 'U', 'E'];
-  const found: Record<string, Array<{ tour: string; id: string; name: string }>> = { 'sergio garcia': [], 'charl schwartzel': [] };
-  const sizes: Record<string, number> = {};
-  for (const tc of TOUR_CODES) {
-    const players = await directory(tc);
-    sizes[tc] = players.length;
-    for (const p of players) {
-      const n = norm(p.displayName);
-      if (targets.includes(n)) found[n].push({ tour: tc, id: p.id, name: p.displayName });
-    }
-  }
-  // Also probe for a name-search query on the Query root.
-  const introspect = await gql(`{ __type(name: "Query"){ fields { name args { name } } } }`);
-  const queryFields = (introspect?.data?.__type?.fields ?? [])
-    .map((f: any) => f.name)
-    .filter((n: string) => /player|search|profile/i.test(n));
-  return Response.json({ sizes, found, queryFields });
+  // Introspect the args/shape of the candidate search queries.
+  const introspect = await gql(`{ __type(name: "Query"){ fields { name args { name type { name kind ofType { name } } } type { name kind ofType { name kind ofType { name } } } } } }`);
+  const fields = (introspect?.data?.__type?.fields ?? []).filter((f: any) => ['players', 'searchBarFeatures', 'playerHub'].includes(f.name));
+  const shapes = fields.map((f: any) => ({
+    name: f.name,
+    args: (f.args ?? []).map((a: any) => `${a.name}:${a.type?.name ?? a.type?.ofType?.name ?? a.type?.kind}`),
+    returns: f.type?.name ?? f.type?.ofType?.name ?? f.type?.ofType?.ofType?.name ?? f.type?.kind,
+  }));
+
+  // Try the C (Korn Ferry?) not helpful; instead try `players` with an ids arg is unlikely.
+  // Attempt a broad search via `searchBarFeatures` with a guessed arg once shapes known — skipped here.
+  return Response.json({ shapes });
 }
