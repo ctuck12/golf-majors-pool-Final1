@@ -20,6 +20,7 @@ import {
   getStatOverrides,
   TOURNAMENT_IDS,
   type TournamentId,
+  type StatOverrideEntry,
 } from '@/app/lib/pool-store';
 import redis from '@/app/lib/redis';
 
@@ -323,6 +324,15 @@ export async function GET(request: Request) {
   const poolByName = new Map(PLAYER_POOL_WITH_PGA_IDS.map((p) => [normName(p.name), p]));
   const watchedPlayerNames = PLAYER_POOL_WITH_PGA_IDS.map((p) => p.name);
 
+  // Accent-insensitive index of this tournament's WD/DQ/MDF overrides: normName strips accents/case
+  // (and periods), so a commissioner entry of "Ludvig Aberg" matches the pool's "Ludvig Åberg" etc.
+  const overridesByNormName = new Map<string, StatOverrideEntry>();
+  for (const [key, ov] of Object.entries(statOverrides)) {
+    const prefix = `${tournamentId}:`;
+    if (key.startsWith(prefix)) overridesByNormName.set(normName(key.slice(prefix.length)), ov);
+  }
+  const getOverrideFor = (playerName: string) => overridesByNormName.get(normName(playerName));
+
   const players = rows
     .map((row) => {
       const fullName = `${row.firstName} ${row.lastName}`;
@@ -358,8 +368,7 @@ export async function GET(request: Request) {
 
       const roundLeadersAwarded = getRoundLeadersAwarded(tournamentId, fullName, roundLeaderStore);
 
-      const overrideKey = `${tournamentId}:${poolPlayer.name}`;
-      const override = statOverrides[overrideKey];
+      const override = getOverrideFor(poolPlayer.name);
 
       let scoreBreakdown;
       let scoringRounds: import('@/app/lib/scoring').ScorecardRound[] = [];
@@ -411,14 +420,15 @@ export async function GET(request: Request) {
 
   // ── 3b. Inject stat-override players absent from API rows ─────────────
   {
-    const playersInApi = new Set<string>(players.map((p) => p!.canonicalName));
+    const playersInApi = new Set<string>(players.map((p) => normName(p!.canonicalName)));
     const CUT_STATUSES = new Set(['CUT', 'WD', 'DQ', 'MDF']);
     for (const [key, override] of Object.entries(statOverrides)) {
       const prefix = `${tournamentId}:`;
       if (!key.startsWith(prefix)) continue;
       const playerName = key.slice(prefix.length);
-      if (playersInApi.has(playerName)) continue;
-      const poolPlayer = PLAYER_POOL_WITH_PGA_IDS.find((p) => p.name === playerName);
+      // Accent/case-insensitive match so "Ludvig Aberg" resolves to the pool's "Ludvig Åberg".
+      if (playersInApi.has(normName(playerName))) continue;
+      const poolPlayer = PLAYER_POOL_WITH_PGA_IDS.find((p) => normName(p.name) === normName(playerName));
       if (!poolPlayer) continue;
       const inferredScore = CUT_STATUSES.has(override.position.toUpperCase())
         ? override.position.toUpperCase()
@@ -459,8 +469,7 @@ export async function GET(request: Request) {
           ? storedRound.holes[0].holeNumber >= 10
           : false;
         const baseScore = normalizeScore(row);
-        const overrideKey = poolPlayer ? `${tournamentId}:${poolPlayer.name}` : null;
-        const override = overrideKey ? statOverrides[overrideKey] : undefined;
+        const override = poolPlayer ? getOverrideFor(poolPlayer.name) : undefined;
         const effectiveScore = override?.position && CUT_STATUSES_FULL.has(override.position.toUpperCase())
           ? override.position.toUpperCase()
           : baseScore;
