@@ -5817,10 +5817,9 @@ export default function Page() {
                           <div></div>
                         </div>
                         {salaryListMissing && (
-                          <div style={{ padding: isMobile ? '28px 18px' : '40px 24px', textAlign: 'center' }}>
-                            <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 800, color: '#0f1720', marginBottom: 8 }}>The player list isn’t posted yet</div>
-                            <div style={{ fontSize: isMobile ? 13 : 14, color: '#5b6b79', lineHeight: 1.6, maxWidth: 460, margin: '0 auto' }}>
-                              The commissioner hasn’t uploaded this tournament’s salary / pick list yet. It’s usually posted a few days before the tournament, once the field is finalized — check back then to build your roster.
+                          <div style={{ padding: isMobile ? '20px 16px' : '32px 24px' }}>
+                            <div style={{ border: `2px solid ${entriesTournamentSolid}`, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesTournamentSolid, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
+                              Picks cannot be entered until the tournament field has been finalized and world golf rankings/player odds have been updated for the week (usually by late Monday morning, the week of the tournament).
                             </div>
                           </div>
                         )}
@@ -6962,10 +6961,9 @@ export default function Page() {
                         <div></div>
                       </div>
                       {salaryListMissing && (
-                        <div style={{ padding: isMobile ? '28px 18px' : '40px 24px', textAlign: 'center' }}>
-                          <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 800, color: '#0f1720', marginBottom: 8 }}>The player list isn’t posted yet</div>
-                          <div style={{ fontSize: isMobile ? 13 : 14, color: '#5b6b79', lineHeight: 1.6, maxWidth: 460, margin: '0 auto' }}>
-                            No salary / pick list has been uploaded for this tournament yet. Upload it from the Commissioner Hub → Pool data tools → Salary Pick List, and players will appear here.
+                        <div style={{ padding: isMobile ? '20px 16px' : '32px 24px' }}>
+                          <div style={{ border: `2px solid ${entriesTournamentSolid}`, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesTournamentSolid, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
+                            Picks cannot be entered until the tournament field has been finalized and world golf rankings/player odds have been updated for the week (usually by late Monday morning, the week of the tournament).
                           </div>
                         </div>
                       )}
