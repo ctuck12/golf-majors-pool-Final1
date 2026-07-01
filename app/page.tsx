@@ -5591,28 +5591,25 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'grid', gap: 20 }}>
-                    <section
-                      style={{
-                        borderRadius: 18,
-                        border: '1px solid #dce6ee',
-                        overflow: 'hidden',
-                        background: '#fff',
-                      }}
-                    >
+                    <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
                       <div
                         style={{
                           padding: isMobile ? 12 : 22,
-                          background: '#f3f6fa',
-                          borderBottom: '1px solid #dce6ee',
+                          background: '#f7f9fb',
                           display: 'flex',
                           justifyContent: 'space-between',
-                          gap: 16,
-                          alignItems: 'flex-start',
+                          gap: 12,
+                          alignItems: isMobile ? 'flex-start' : 'center',
+                          flexWrap: 'wrap',
+                          borderBottom: '1px solid #d7e0e8',
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: isMobile ? 16 : 26, lineHeight: 1.25, fontWeight: 900, color: '#0f1720' }}>
+                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
                             {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}
+                          </div>
+                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>
+                            Tournament Field
                           </div>
                           <div
                             style={{
@@ -5624,24 +5621,23 @@ export default function Page() {
                               color: '#5b6b79',
                             }}
                           >
-                            <span style={{ fontSize: isMobile ? 13 : 18, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
-                            <span style={{ fontSize: isMobile ? 12 : 16, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
+                            <span style={{ fontSize: isMobile ? 13 : 16, fontWeight: 500 }}>{entriesTournamentCourseName}</span>
+                            <span style={{ fontSize: isMobile ? 12 : 14, fontStyle: 'italic' }}>Par: {entriesTournamentPar}</span>
                           </div>
                         </div>
                         <label
                           style={{
-                            width: 340,
-                            maxWidth: '100%',
-                            borderRadius: 12,
-                            border: '1px solid #d7e0e8',
-                            background: '#fff',
-                            padding: '0 18px',
+                            minWidth: isMobile ? 140 : 280,
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 12,
+                            gap: 10,
+                            border: '1px solid #d7e0e8',
+                            borderRadius: 14,
+                            background: '#fff',
+                            padding: '0 14px',
                           }}
                         >
-                          <Search size={18} color="#8a98a6" />
+                          <Search size={18} color="#6b7b88" />
                           <input
                             value={entriesPlayerSearch}
                             onChange={(event) => setEntriesPlayerSearch(event.target.value)}
@@ -5650,10 +5646,10 @@ export default function Page() {
                               border: 'none',
                               outline: 'none',
                               width: '100%',
+                              padding: isMobile ? '10px 0' : '12px 0',
                               fontSize: isMobile ? 16 : 15,
-                              color: '#0f1720',
-                              padding: '14px 0',
                               background: 'transparent',
+                              color: '#0f1720',
                             }}
                           />
                           {entriesPlayerSearch && (
@@ -5668,23 +5664,20 @@ export default function Page() {
                         </label>
                       </div>
 
-                      <div style={{ padding: 20, minHeight: 430 }}>
-                        <div
-                          style={{
-                            borderRadius: 14,
-                            background: '#f7f0da',
-                            color: '#7a5a00',
-                            padding: '18px 20px',
-                            fontSize: isMobile ? 12 : 15,
-                            lineHeight: 1.5,
-                          }}
-                        >
-                          Picks can not be entered until the tournament field has been finalized and world golf
-                          rankings have been updated for the week (usually by Monday morning, the week of the
-                          tournament).
+                      <div style={{ minHeight: 430 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', background: '#f7f9fb' }}>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>OWGR</div>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Salary</div>
+                          <div></div>
+                        </div>
+                        <div style={{ padding: isMobile ? '20px 16px' : '32px 24px' }}>
+                          <div style={{ border: `2px solid ${entriesTournamentSolid}`, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesTournamentSolid, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
+                            Picks cannot be entered until the tournament field has been finalized and world golf rankings/player odds have been updated for the week (usually by late Monday morning, the week of the tournament).
+                          </div>
                         </div>
                       </div>
-                    </section>
+                    </div>
                   </div>
 
                   <aside style={{ display: 'grid', gap: 18 }}>
