@@ -3320,6 +3320,14 @@ export default function Page() {
     entriesTournamentId === 'pga' ? '#B09963' :
     '#173b63';
 
+  // Shaded fill + text tint that matches the Pick History entry bubbles, keyed to
+  // the current tournament. Used for the "picks not open yet" warning message.
+  const entriesWarningPalette: { bg: string; text: string } =
+    entriesTournamentId === 'us-open' ? { bg: '#fde8e8', text: '#BE3436' } :
+    entriesTournamentId === 'masters' ? { bg: '#d5eade', text: '#2c6449' } :
+    entriesTournamentId === 'pga' ? { bg: '#f5edd8', text: '#7a6a3e' } :
+    { bg: '#dce6f5', text: '#173b63' };
+
   const salaryColor = entriesTournamentId === 'masters' ? '#2c6449' : '#3f73ad';
 
   const headerTabActiveColor = '#63d9ea';
@@ -5681,7 +5689,7 @@ export default function Page() {
                           <div></div>
                         </div>
                         <div style={{ padding: isMobile ? '20px 16px' : '32px 24px' }}>
-                          <div style={{ border: `2px solid ${entriesTournamentSolid}`, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesTournamentSolid, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
+                          <div style={{ border: `2px solid ${entriesWarningPalette.text}`, background: entriesWarningPalette.bg, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesWarningPalette.text, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
                             Picks cannot be entered until the tournament field has been finalized and world golf rankings/player odds have been updated for the week (usually by late Monday morning, the week of the tournament).
                           </div>
                         </div>
@@ -5875,7 +5883,7 @@ export default function Page() {
                         </div>
                         {salaryListMissing && (
                           <div style={{ padding: isMobile ? '20px 16px' : '32px 24px' }}>
-                            <div style={{ border: `2px solid ${entriesTournamentSolid}`, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesTournamentSolid, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
+                            <div style={{ border: `2px solid ${entriesWarningPalette.text}`, background: entriesWarningPalette.bg, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesWarningPalette.text, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
                               Picks cannot be entered until the tournament field has been finalized and world golf rankings/player odds have been updated for the week (usually by late Monday morning, the week of the tournament).
                             </div>
                           </div>
@@ -6998,7 +7006,7 @@ export default function Page() {
                       </div>
                       {salaryListMissing && (
                         <div style={{ padding: isMobile ? '20px 16px' : '32px 24px' }}>
-                          <div style={{ border: `2px solid ${entriesTournamentSolid}`, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesTournamentSolid, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
+                          <div style={{ border: `2px solid ${entriesWarningPalette.text}`, background: entriesWarningPalette.bg, borderRadius: 14, padding: isMobile ? '16px 16px' : '22px 24px', textAlign: 'center', color: entriesWarningPalette.text, fontSize: isMobile ? 13.5 : 15, fontWeight: 700, lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
                             Picks cannot be entered until the tournament field has been finalized and world golf rankings/player odds have been updated for the week (usually by late Monday morning, the week of the tournament).
                           </div>
                         </div>
