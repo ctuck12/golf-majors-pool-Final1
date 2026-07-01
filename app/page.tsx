@@ -8825,8 +8825,15 @@ export default function Page() {
                   // manual upload wins; else ESPN headshot; else PGA). Available on first paint, so
                   // the photo is correct immediately and never swaps after the bio loads.
                   const photoPlayer = pickHistoryPlayerPopup.player;
-                  const photoSrc = playerPhotoSrc(photoPlayer.name, photoPlayer.pgaTourId, photoPlayer.photoUrl);
-                  const photoFallback = photoPlayer.photoUrl ?? pgaPhoto(photoPlayer.pgaTourId);
+                  const pgaDefault = pgaPhoto(photoPlayer.pgaTourId);
+                  const syncPhoto = playerPhotoSrc(photoPlayer.name, photoPlayer.pgaTourId, photoPlayer.photoUrl);
+                  // When the synchronous source has no real photo for this player (it falls back to
+                  // the blank PGA silhouette) and they aren't intentionally pinned to the PGA photo,
+                  // use the live ESPN-by-name headshot the bio API resolved. This restores photos for
+                  // non-pool players (e.g. Masters legends) without a flash for everyone else.
+                  const noRealSyncPhoto = syncPhoto === pgaDefault && !PGA_PHOTO_ONLY.has(photoPlayer.name);
+                  const photoSrc = (noRealSyncPhoto && pickHistoryPlayerPopup.espnPhotoUrl) ? pickHistoryPlayerPopup.espnPhotoUrl : syncPhoto;
+                  const photoFallback = photoPlayer.photoUrl ?? pgaDefault;
                   const topRows: { label: string; value: string | number | null; italic?: boolean }[] = [
                     { label: 'DOB', value: bio?.dob ? `${bio.dob}${bio.age != null ? ` (${bio.age})` : ''}` : null },
                     { label: 'Birthplace', value: bio?.birthPlace ?? null },
