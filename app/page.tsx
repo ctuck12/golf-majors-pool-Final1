@@ -8862,12 +8862,12 @@ export default function Page() {
                     ],
                     [
                       { label: 'PGA Tour Starts', value: bio?.careerStarts ?? null },
-                      { label: 'PGA Tour Cuts Made', value: bio?.cutsMade ?? null },
+                      { label: 'Cuts Made', value: bio?.cutsMade ?? null },
                       { label: 'PGA Tour Wins', value: bio?.careerWins ?? null, wins: bio?.pgaTourWinsList ?? null },
                     ],
                     [
                       { label: 'Major Starts', value: bio?.majorStarts ?? null },
-                      { label: 'Major Cuts Made', value: bio?.majorCutsMade ?? null },
+                      { label: 'Cuts Made', value: bio?.majorCutsMade ?? null },
                       { label: 'Major Wins', value: bio?.majorWins ?? null, wins: bio?.majorWinsList ?? null },
                     ],
                     [
