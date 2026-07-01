@@ -6249,8 +6249,7 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', marginBottom: 4 }}>Pool Data Tools</div>
-              <div style={{ fontSize: isMobile ? 12 : 13, color: '#5b6b79', marginBottom: 14 }}>Upload the salary pick list, or update the DP World (Race to Dubai) rankings.</div>
+              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', marginBottom: 14 }}>Pool Data Tools</div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? 8 : 12 }}>
                 <a
                   href="/commissioner-salary"
@@ -6312,25 +6311,32 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', marginBottom: 4 }}>Pool Management Tools</div>
-              <div style={{ fontSize: isMobile ? 12 : 13, color: '#5b6b79', marginBottom: 14 }}>Tiebreak score, round-leader fixes, and player-status overrides. Each opens a window and asks you to confirm before it applies.</div>
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? 8 : 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79', marginBottom: 14 }}>Pool Management Tools</div>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? 10 : 14 }}>
                 {[
-                  { key: 'payouts' as const, title: 'Tournament Payouts', sub: 'Set 1st / 2nd / 3rd place amounts' },
-                  { key: 'markStatus' as const, title: 'Mark WD / DQ / MDF', sub: "Override a player's status" },
-                  { key: 'roundLeader' as const, title: 'Round Leader Tools', sub: 'Clear a mis-captured round leader' },
-                  { key: 'tiebreak' as const, title: "Tiebreak Winner's Score", sub: 'Enter / override total strokes' },
-                ].map((t) => (
+                  { key: 'payouts' as const, title: 'Tournament Payouts', sub: 'Set 1st / 2nd / 3rd place amounts', Icon: Trophy },
+                  { key: 'markStatus' as const, title: 'Mark WD / DQ / MDF', sub: "Override a player's status", Icon: AlertCircle },
+                  { key: 'roundLeader' as const, title: 'Round Leader Tools', sub: 'Clear a mis-captured round leader', Icon: RefreshCw },
+                  { key: 'tiebreak' as const, title: "Tiebreak Winner's Score", sub: 'Enter / override total strokes', Icon: Save },
+                ].map((t) => {
+                  const Icon = t.Icon;
+                  return (
                   <button
                     key={t.key}
                     onClick={() => { setPoolToolConfirm(null); setPoolToolModal(t.key); }}
                     disabled={!canManagePool}
-                    style={{ textAlign: 'left', border: '1px solid #cdd9e1', borderRadius: 12, padding: isMobile ? '12px 14px' : '14px 16px', background: '#fff', cursor: canManagePool ? 'pointer' : 'not-allowed', opacity: canManagePool ? 1 : 0.5 }}
+                    style={{ textAlign: 'left', border: '1px solid #e6edf1', borderRadius: 16, padding: isMobile ? '12px 14px' : '16px 18px', background: 'linear-gradient(180deg, #ffffff 0%, #f7fafc 100%)', boxShadow: '0 6px 18px rgba(9, 34, 51, 0.06)', cursor: canManagePool ? 'pointer' : 'not-allowed', opacity: canManagePool ? 1 : 0.5, display: 'flex', alignItems: 'center', gap: isMobile ? 11 : 13 }}
                   >
-                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>{t.title} &rarr;</div>
-                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>{t.sub}</div>
+                    <div style={{ width: isMobile ? 38 : 44, height: isMobile ? 38 : 44, borderRadius: 12, background: entriesTournamentBg, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 10px rgba(9, 34, 51, 0.18)' }}>
+                      <Icon size={isMobile ? 19 : 22} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>{t.title}</div>
+                      <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>{t.sub}</div>
+                    </div>
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </section>
 
