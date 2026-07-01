@@ -1,6 +1,12 @@
 export const dynamic = 'force-dynamic';
 
-// DP World Tour rankings (static snapshot provided by pool commissioner)
+import { getManualDpWorldRankings } from '@/app/lib/dpworld-rankings-store';
+
+// DP World Tour rankings.
+//
+// PRIMARY source is the commissioner's pasted list (managed at /commissioner-dpworld, stored in Redis) —
+// updatable instantly with no code change or deploy. The map below is the built-in snapshot, used as a
+// FALLBACK for any player the pasted list doesn't include (and whenever no list has been pasted yet).
 const DP_WORLD_RANKINGS: Record<string, number> = {
   'Patrick Reed': 1,
   'Rory McIlroy': 2,
@@ -249,6 +255,19 @@ export async function GET(request: Request) {
   const name = searchParams.get('name') ?? '';
   if (!name) return Response.json({ rank: null });
 
-  const rank = NORMALIZED_RANKINGS.get(normalize(name)) ?? null;
+  const key = normalize(name);
+
+  // Commissioner's pasted list wins when present; fall back to the built-in snapshot per player.
+  let manualRank: number | null = null;
+  try {
+    const manual = await getManualDpWorldRankings();
+    if (manual) {
+      for (const [rawName, rank] of Object.entries(manual.map)) {
+        if (normalize(rawName) === key) { manualRank = rank; break; }
+      }
+    }
+  } catch { /* fall back to built-in */ }
+
+  const rank = manualRank ?? NORMALIZED_RANKINGS.get(key) ?? null;
   return Response.json({ rank });
 }

@@ -1,0 +1,135 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
+type Status = {
+  active: boolean;
+  count: number;
+  updatedAt: string | null;
+  preview: { rank: number; name: string }[];
+};
+
+const wrap: React.CSSProperties = { minHeight: '100vh', background: '#eef2f6', padding: '24px 16px', fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif' };
+const card: React.CSSProperties = { maxWidth: 640, margin: '0 auto', background: '#fff', borderRadius: 16, border: '1px solid #e2e8ef', overflow: 'hidden', boxShadow: '0 8px 30px rgba(9,34,51,0.08)' };
+const header: React.CSSProperties = { background: '#0f1720', padding: '18px 20px' };
+const body: React.CSSProperties = { padding: 20, display: 'grid', gap: 16 };
+const btn = (bg: string): React.CSSProperties => ({ background: bg, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 16px', fontSize: 14, fontWeight: 700, cursor: 'pointer' });
+
+export default function CommissionerDpWorldPage() {
+  const [status, setStatus] = useState<Status | null>(null);
+  const [gateError, setGateError] = useState<string | null>(null);
+  const [text, setText] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+  const [lastPreview, setLastPreview] = useState<{ rank: number; name: string }[] | null>(null);
+
+  const loadStatus = async () => {
+    try {
+      const res = await fetch('/api/commissioner/dpworld-rankings', { cache: 'no-store' });
+      if (res.status === 401) { setGateError('Sign in to the pool as the commissioner (in the main app), then reload this page.'); return; }
+      if (res.status === 403) { setGateError('This account is not the commissioner.'); return; }
+      if (!res.ok) { setGateError('Could not load current rankings.'); return; }
+      setGateError(null);
+      setStatus(await res.json());
+    } catch { setGateError('Network error loading current rankings.'); }
+  };
+
+  useEffect(() => { loadStatus(); }, []);
+
+  const save = async () => {
+    setBusy(true); setMsg(null); setLastPreview(null);
+    try {
+      const res = await fetch('/api/commissioner/dpworld-rankings', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMsg({ kind: 'err', text: data.error ?? 'Save failed.' });
+        if (Array.isArray(data.skipped) && data.skipped.length) setMsg({ kind: 'err', text: `${data.error ?? 'Save failed.'} Unparsed lines: ${data.skipped.join(' | ')}` });
+      } else {
+        setMsg({ kind: 'ok', text: `Saved ${data.count} players.${data.skippedCount ? ` ${data.skippedCount} line(s) skipped.` : ''} The DP World bubble now uses this list.` });
+        setLastPreview(data.preview ?? null);
+        setText('');
+        loadStatus();
+      }
+    } catch { setMsg({ kind: 'err', text: 'Network error while saving.' }); }
+    setBusy(false);
+  };
+
+  const clear = async () => {
+    if (!confirm('Clear the pasted list and revert to the built-in snapshot?')) return;
+    setBusy(true); setMsg(null); setLastPreview(null);
+    try {
+      const res = await fetch('/api/commissioner/dpworld-rankings', { method: 'DELETE' });
+      if (!res.ok) { const d = await res.json().catch(() => ({})); setMsg({ kind: 'err', text: d.error ?? 'Clear failed.' }); }
+      else { setMsg({ kind: 'ok', text: 'Reverted to the built-in list.' }); loadStatus(); }
+    } catch { setMsg({ kind: 'err', text: 'Network error while clearing.' }); }
+    setBusy(false);
+  };
+
+  return (
+    <div style={wrap}>
+      <div style={card}>
+        <div style={header}>
+          <div style={{ color: '#fff', fontSize: 18, fontWeight: 900 }}>DP World Rankings</div>
+          <div style={{ color: '#8fa3b1', fontSize: 12, fontWeight: 500, marginTop: 2 }}>Commissioner tool · Race to Dubai</div>
+        </div>
+
+        {gateError ? (
+          <div style={{ ...body }}>
+            <div style={{ background: '#fef2f2', color: '#b42318', border: '1px solid #fecdca', borderRadius: 8, padding: '12px 14px', fontSize: 14 }}>{gateError}</div>
+          </div>
+        ) : (
+          <div style={body}>
+            {/* Current status */}
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8ef', borderRadius: 8, padding: '12px 14px', fontSize: 13, color: '#334155' }}>
+              {status?.active
+                ? <>Currently using a <b>pasted list</b> of <b>{status.count}</b> players{status.updatedAt ? <> · updated {new Date(status.updatedAt).toLocaleString()}</> : null}.</>
+                : <>Currently using the <b>built-in snapshot</b>. Paste the latest standings below to override it.</>}
+            </div>
+
+            {/* Instructions */}
+            <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
+              Paste the Race to Dubai standings — one player per line, each line starting with the rank number.
+              Example:<br />
+              <code style={{ background: '#f1f5f9', padding: '1px 5px', borderRadius: 4 }}>1 Rory McIlroy</code>{' '}
+              <code style={{ background: '#f1f5f9', padding: '1px 5px', borderRadius: 4 }}>2 Tyrrell Hatton</code><br />
+              Trailing points columns are ignored, so pasting straight from the rankings table works too.
+            </div>
+
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={'1 Rory McIlroy\n2 Tyrrell Hatton\n3 Aaron Rai\n...'}
+              rows={12}
+              style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #cbd5e1', borderRadius: 8, padding: 12, fontSize: 13, fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', resize: 'vertical' }}
+            />
+
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <button onClick={save} disabled={busy || !text.trim()} style={{ ...btn('#2c6449'), opacity: busy || !text.trim() ? 0.5 : 1 }}>{busy ? 'Saving…' : 'Save & Apply'}</button>
+              {status?.active && <button onClick={clear} disabled={busy} style={{ ...btn('#64748b'), opacity: busy ? 0.5 : 1 }}>Clear (use built-in list)</button>}
+            </div>
+
+            {msg && (
+              <div style={{ background: msg.kind === 'ok' ? '#ecfdf3' : '#fef2f2', color: msg.kind === 'ok' ? '#027a48' : '#b42318', border: `1px solid ${msg.kind === 'ok' ? '#a6f4c5' : '#fecdca'}`, borderRadius: 8, padding: '10px 14px', fontSize: 13 }}>{msg.text}</div>
+            )}
+
+            {(lastPreview ?? status?.preview ?? []).length > 0 && (
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#607282', marginBottom: 6 }}>TOP OF CURRENT LIST</div>
+                <div style={{ border: '1px solid #e2e8ef', borderRadius: 8, overflow: 'hidden' }}>
+                  {(lastPreview ?? status?.preview ?? []).map((p, i) => (
+                    <div key={`${p.rank}-${p.name}`} style={{ display: 'flex', gap: 10, padding: '6px 12px', fontSize: 13, background: i % 2 ? '#f8fafc' : '#fff', borderBottom: '1px solid #eef2f6' }}>
+                      <span style={{ width: 28, color: '#94a3b8', fontWeight: 700 }}>{p.rank}</span>
+                      <span style={{ color: '#0f1720', fontWeight: 600 }}>{p.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
