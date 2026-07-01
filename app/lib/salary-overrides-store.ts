@@ -1,5 +1,6 @@
 import redis from './redis';
 import { PLAYER_POOL_WITH_PGA_IDS } from './player-pool';
+import { canonicalNameKey } from './name-match';
 
 // Commissioner-editable salary + world-rank pick list.
 //
@@ -32,14 +33,17 @@ const firstLast = (s: string) => {
 // Build normalized-name -> pool id lookups once (module scope).
 const BY_NORM = new Map<string, number>();
 const BY_FL = new Map<string, number>();
+const BY_CANON = new Map<string, number>(); // order-independent (Last,First or First Last both match)
 for (const p of PLAYER_POOL_WITH_PGA_IDS) {
   const n = norm(p.name);
   if (!BY_NORM.has(n)) BY_NORM.set(n, p.id);
   const fl = firstLast(p.name);
   if (!BY_FL.has(fl)) BY_FL.set(fl, p.id);
+  const ck = canonicalNameKey(p.name);
+  if (!BY_CANON.has(ck)) BY_CANON.set(ck, p.id);
 }
 function resolveId(name: string): number | null {
-  return BY_NORM.get(norm(name)) ?? BY_FL.get(firstLast(name)) ?? null;
+  return BY_NORM.get(norm(name)) ?? BY_FL.get(firstLast(name)) ?? BY_CANON.get(canonicalNameKey(name)) ?? null;
 }
 
 export type SalaryParseResult = {
