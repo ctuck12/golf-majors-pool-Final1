@@ -91,6 +91,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Steven Fisk':                { birthPlace: 'Atlanta, Georgia', swing: 'Right' },
   'Ryan Vermeer':               { birthPlace: 'Spencer, Iowa' },
   'Michael Thorbjornsen':       { height: `6'0"`, weight: '176 lbs', swing: 'Right' },
+  'Travis Smyth':               { birthPlace: 'Shellharbour, New South Wales', height: `5'10"`, weight: '165 lbs', swing: 'Right' },
   'Michael Brennan':            { weight: '175 lbs' },
   'Neal Shipley':               { weight: '205 lbs' },
   'Filippo Celli':              { weight: '170 lbs' },
