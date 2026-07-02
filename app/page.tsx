@@ -502,6 +502,9 @@ const isManualPhoto = (photoUrl?: string): photoUrl is string =>
 const PGA_PHOTO_ONLY = new Set<string>([
   'Matt Fitzpatrick',
   'Ludvig Aberg',
+  // ESPN has no headshot for these two (blank silhouette); both have real PGA Tour headshots.
+  'Andy Sullivan',
+  'Jordan Gumberg',
 ]);
 // Hand-uploaded photos (public/player-photos/) for players PGA/ESPN have no usable headshot for
 // (mostly Masters legends). Keyed by name; these ALWAYS win (highest priority) since they were
