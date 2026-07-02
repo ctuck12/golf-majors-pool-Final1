@@ -25,6 +25,7 @@ export default function CommissionerDpWorldPage() {
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
   const [lastPreview, setLastPreview] = useState<{ rank: number; name: string }[] | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [fileName, setFileName] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
   const headerTournament = getHeaderTournament();
 
@@ -69,6 +70,7 @@ export default function CommissionerDpWorldPage() {
         setLastPreview(data.preview ?? null);
         setText('');
         if (fileRef.current) fileRef.current.value = '';
+        setFileName('');
         loadStatus();
       }
     } catch { setMsg({ kind: 'err', text: 'Network error while saving.' }); }
@@ -118,32 +120,23 @@ export default function CommissionerDpWorldPage() {
               form are reordered automatically, and trailing points columns are ignored.
             </div>
 
+            {status?.active && status.updatedAt && (
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#475569' }}>
+                Last updated: {new Date(status.updatedAt).toLocaleString()}{status.count ? ` · ${status.count} players` : ''}
+              </div>
+            )}
+
             {/* File upload */}
-            <div>
-              <style>{`
-                .cf-file-input::file-selector-button,
-                .cf-file-input::-webkit-file-upload-button {
-                  font-size: 13px;
-                  font-weight: 700;
-                  padding: 9px 16px;
-                  margin-right: 14px;
-                  border-radius: 9px;
-                  border: 1px solid #cbd5e1;
-                  background: #f8fafc;
-                  color: #0f1720;
-                  cursor: pointer;
-                }
-                .cf-file-input::file-selector-button:hover,
-                .cf-file-input::-webkit-file-upload-button:hover { background: #eef2f7; }
-              `}</style>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <input
                 ref={fileRef}
-                className="cf-file-input"
                 type="file"
                 accept=".xlsx,.csv"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); }}
-                style={{ fontSize: 14 }}
+                onChange={(e) => { const f = e.target.files?.[0]; setFileName(f ? f.name : ''); if (f) onFile(f); }}
+                style={{ display: 'none' }}
               />
+              <button type="button" onClick={() => fileRef.current?.click()} style={{ fontSize: 13, fontWeight: 700, padding: '9px 16px', borderRadius: 9, border: '1px solid #cbd5e1', background: '#f8fafc', color: '#0f1720', cursor: 'pointer' }}>Choose File</button>
+              <span style={{ fontSize: 14, color: '#64748b' }}>{fileName || 'No file selected'}</span>
             </div>
 
             <textarea
