@@ -42,7 +42,7 @@ const TOURNAMENT_TOTAL_PAR: Partial<Record<string, number>> = {
   masters: 288,   // Augusta National, par 72
   pga: 280,       // Aronimink Golf Club, par 70 (2026)
   'us-open': 280, // Oakmont Country Club, par 70 (2026)
-  open: 284,      // Royal Portrush, par 71 (2026)
+  open: 280,      // Royal Birkdale, par 70 (2026)
 };
 
 const TOURNAMENT_ESPN_EVENT_IDS: Partial<Record<string, string>> = {
