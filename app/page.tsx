@@ -6222,7 +6222,7 @@ export default function Page() {
                     Pool Status
                   </div>
                   {TOURNAMENT_TAB_LOGOS[tournament.id] && (
-                    <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: isMobile ? 24 : 34, maxWidth: isMobile ? 90 : 140, objectFit: 'contain' }} />
+                    <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: isMobile ? 40 : 56, maxWidth: isMobile ? 150 : 220, objectFit: 'contain' }} />
                   )}
                 </div>
                 <button
