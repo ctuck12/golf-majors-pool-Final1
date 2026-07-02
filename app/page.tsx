@@ -6422,8 +6422,8 @@ export default function Page() {
                         {poolToolModal === 'payouts' ? 'Tournament Payouts' : poolToolModal === 'tiebreak' ? 'Tiebreak Score' : poolToolModal === 'roundLeader' ? 'Round Leader Tools' : 'Mark WD / DQ / MDF'}
                       </div>
                       {TOURNAMENT_TAB_LOGOS[tournament.id] && (
-                        <div style={{ background: '#fff', borderRadius: 8, padding: '4px 8px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                          <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: 26, maxWidth: 84, objectFit: 'contain', display: 'block' }} />
+                        <div style={{ background: '#fff', borderRadius: 8, padding: '5px 10px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                          <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: 32, maxWidth: 100, objectFit: 'contain', display: 'block' }} />
                         </div>
                       )}
                     </div>
@@ -6433,7 +6433,6 @@ export default function Page() {
 
                     {poolToolModal === 'payouts' && (
                       <>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{commissionerTournamentLabel}</div>
                         <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.5 }}>Set the 1st, 2nd, and 3rd place payout amounts for the upcoming or active tournament.</div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                           {([['1st place', 'first'], ['2nd place', 'second'], ['3rd place', 'third']] as const).map(([label, key]) => (
@@ -6458,7 +6457,6 @@ export default function Page() {
 
                     {poolToolModal === 'tiebreak' && (
                       <>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{commissionerTournamentLabel}</div>
                         <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.5 }}>Tiebreak resolves automatically once the tournament ends. Use this override only if the winner isn&apos;t in the player pool.</div>
                         {commissionerAutoDetected != null ? (
                           <div style={{ fontSize: 13, fontWeight: 700, color: '#166534', background: '#dcfce7', borderRadius: 8, padding: '8px 12px' }}>Auto-detected: {commissionerAutoDetected} strokes</div>
