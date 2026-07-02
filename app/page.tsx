@@ -6229,10 +6229,10 @@ export default function Page() {
                   onClick={() => void handleLogout()}
                   disabled={authBusy}
                   style={{
-                    padding: isMobile ? '9px 18px' : '11px 22px',
-                    fontSize: isMobile ? 14 : 15,
+                    padding: isMobile ? '7px 15px' : '9px 18px',
+                    fontSize: isMobile ? 13 : 14,
                     fontWeight: 800,
-                    borderRadius: 10,
+                    borderRadius: 9,
                     border: '1px solid #e2e8ef',
                     background: '#fff',
                     color: '#5b6b79',
