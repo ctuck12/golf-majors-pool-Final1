@@ -95,6 +95,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Angel Ayora':                { birthPlace: 'Málaga, Spain', dob: 'October 3, 2004', height: `6'0"`, weight: '172 lbs' },
   'Tyler Collet':               { dob: 'August 23, 1995', height: `5'9"`, weight: '150 lbs', swing: 'Right' },
   'Garrett Sapp':               { birthPlace: 'Cerritos, California' },
+  'Jared Jones':                { swing: 'Right' },
   'Michael Brennan':            { weight: '175 lbs' },
   'Neal Shipley':               { weight: '205 lbs' },
   'Filippo Celli':              { weight: '170 lbs' },
