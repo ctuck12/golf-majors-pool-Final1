@@ -5645,7 +5645,7 @@ export default function Page() {
                           borderBottom: '1px solid #d7e0e8',
                         }}
                       >
-                        <div style={{ flex: 1, minWidth: 0 }}>
+                        <div>
                           <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, flexWrap: 'wrap', justifyContent: 'space-between', width: '100%' }}>
                             <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
@@ -5839,7 +5839,7 @@ export default function Page() {
                           borderBottom: '1px solid #d7e0e8',
                         }}
                       >
-                        <div style={{ flex: 1, minWidth: 0 }}>
+                        <div>
                           <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, flexWrap: 'wrap', justifyContent: 'space-between', width: '100%' }}>
                             <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
@@ -6973,7 +6973,7 @@ export default function Page() {
                         borderBottom: '1px solid #d7e0e8',
                       }}
                     >
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      <div>
                         <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, flexWrap: 'wrap', justifyContent: 'space-between', width: '100%' }}>
                           <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
