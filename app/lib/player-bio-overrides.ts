@@ -97,6 +97,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Garrett Sapp':               { birthPlace: 'Cerritos, California' },
   'Jared Jones':                { swing: 'Right' },
   'Ian Holt':                   { college: 'Kent State' },
+  'Timothy Wiseman':            { birthPlace: 'Corydon, Indiana', height: `6'0"`, weight: '190 lbs' },
   'Michael Brennan':            { weight: '175 lbs' },
   'Neal Shipley':               { weight: '205 lbs' },
   'Filippo Celli':              { weight: '170 lbs' },
