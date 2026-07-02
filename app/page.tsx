@@ -367,6 +367,7 @@ const PGA_CLUB_PROFESSIONALS = new Set<string>([
   'Garrett Sapp',
   'Paul McClure',
   'Zach Haynes',
+  'Ben Kern',
 ]);
 
 // Event/venue logos shown in the pick-sheet header (transparent PNGs on file).
