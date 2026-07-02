@@ -5676,7 +5676,7 @@ export default function Page() {
                           </div>
                         </div>
                         {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : 92, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
+                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
                         )}
                         <label
                           style={{
@@ -5873,7 +5873,7 @@ export default function Page() {
                           </div>
                         </div>
                         {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : 92, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
+                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
                         )}
                         <label
                           style={{
@@ -7010,7 +7010,7 @@ export default function Page() {
                         </div>
                       </div>
                       {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                        <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : 92, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
+                        <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
                       )}
                       <label
                         style={{
