@@ -6128,7 +6128,7 @@ export default function Page() {
               <div style={{ display: 'contents' }}>
 
                 {/* ── Card 1: How It Works ── */}
-                <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '2', order: 2 }}>
+                <section style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '2', order: 2 }}>
                   <div style={{ padding: isMobile ? 14 : 22 }}>
                     <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 10 : 14 }}>How It Works</div>
                     <div style={{ display: 'grid', gap: 0 }}>
@@ -6148,7 +6148,7 @@ export default function Page() {
                 </section>
 
                 {/* ── Card 2: Entry & Contact ── */}
-                <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '1', order: 1 }}>
+                <section style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '1', order: 1 }}>
                   <div style={{ padding: isMobile ? '12px 14px 0' : '16px 22px 0' }}>
                     <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 10 : 14 }}>Join the Pool</div>
                   </div>
