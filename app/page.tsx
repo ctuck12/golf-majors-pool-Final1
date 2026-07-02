@@ -6216,9 +6216,14 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                  Commissioner Hub
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: isMobile ? 10 : 18 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 12, flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                    Pool Status
+                  </div>
+                  {TOURNAMENT_TAB_LOGOS[tournament.id] && (
+                    <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: isMobile ? 24 : 34, maxWidth: isMobile ? 90 : 140, objectFit: 'contain' }} />
+                  )}
                 </div>
                 <button
                   onClick={() => void handleLogout()}
@@ -6233,19 +6238,12 @@ export default function Page() {
                     color: '#5b6b79',
                     cursor: authBusy ? 'not-allowed' : 'pointer',
                     opacity: authBusy ? 0.6 : 1,
+                    flexShrink: 0,
                   }}
                 >
                   Sign Out
                 </button>
               </div>
-              <h2 style={{ margin: isMobile ? '4px 0 10px' : '6px 0 18px', fontSize: isMobile ? 16 : 26, color: '#0f1720', display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, flexWrap: 'wrap' }}>
-                Live feed and pool status for
-                {TOURNAMENT_TAB_LOGOS[tournament.id] ? (
-                  <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: isMobile ? 26 : 40, maxWidth: isMobile ? 96 : 150, objectFit: 'contain', verticalAlign: 'middle' }} />
-                ) : (
-                  <span>{tournament.name}</span>
-                )}
-              </h2>
               <div
                 style={{
                   display: 'grid',
