@@ -5676,7 +5676,7 @@ export default function Page() {
                           </div>
                         </div>
                         {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? -10 : isLandscapePhone ? 12 : undefined, right: isMobile ? 28 : isLandscapePhone ? 72 : undefined, height: isMobile ? 132 : isLandscapePhone ? 206 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone ? undefined : 'auto' }} />
+                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? -10 : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? 72 : undefined, height: isMobile ? 132 : isLandscapePhone ? 206 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone ? undefined : 'auto' }} />
                         )}
                         <label
                           style={{
@@ -5873,7 +5873,7 @@ export default function Page() {
                           </div>
                         </div>
                         {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? -10 : isLandscapePhone ? 12 : undefined, right: isMobile ? 28 : isLandscapePhone ? 72 : undefined, height: isMobile ? 132 : isLandscapePhone ? 206 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone ? undefined : 'auto' }} />
+                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? -10 : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? 72 : undefined, height: isMobile ? 132 : isLandscapePhone ? 206 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone ? undefined : 'auto' }} />
                         )}
                         <label
                           style={{
@@ -7010,7 +7010,7 @@ export default function Page() {
                         </div>
                       </div>
                       {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                        <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? -10 : isLandscapePhone ? 12 : undefined, right: isMobile ? 28 : isLandscapePhone ? 72 : undefined, height: isMobile ? 132 : isLandscapePhone ? 206 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone ? undefined : 'auto' }} />
+                        <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? -10 : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? 72 : undefined, height: isMobile ? 132 : isLandscapePhone ? 206 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone ? undefined : 'auto' }} />
                       )}
                       <label
                         style={{
