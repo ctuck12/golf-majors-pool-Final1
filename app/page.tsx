@@ -364,6 +364,9 @@ const PGA_CLUB_PROFESSIONALS = new Set<string>([
   'Jesse Droemer',
   'Mark Geddes',
   'Bryce Fisher',
+  'Garrett Sapp',
+  'Paul McClure',
+  'Zach Haynes',
 ]);
 
 // Event/venue logos shown in the pick-sheet header (transparent PNGs on file).
