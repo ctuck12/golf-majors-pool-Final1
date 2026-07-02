@@ -350,6 +350,12 @@ const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
   open: '/open-tab-logo.png',
 };
 
+// PGA club professionals (not touring pros) — their bio popup header shows the PGA Championship
+// logo + "Club Professional" under the name instead of ranking bubbles.
+const PGA_CLUB_PROFESSIONALS = new Set<string>([
+  'Austin Hurt',
+]);
+
 // Event/venue logos shown in the pick-sheet header (transparent PNGs on file).
 const TOURNAMENT_EVENT_LOGOS: Partial<Record<string, string>> = {
   open: '/the-open-royal-birkdale-logo.png',
@@ -8752,6 +8758,13 @@ export default function Page() {
                       <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 700, fontSize: 12 }}>{getCountryLabel(pickHistoryPlayerPopup.player.name)}</span>
                     </>}
                   </div>
+                  {/* Club professional badge — PGA Championship logo + label for PGA club pros (not touring pros) */}
+                  {PGA_CLUB_PROFESSIONALS.has(pickHistoryPlayerPopup.player.name) && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 7 }}>
+                      <img src={TOURNAMENT_TAB_LOGOS.pga} alt="PGA" style={{ height: 22, objectFit: 'contain', flexShrink: 0 }} />
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Club Professional</span>
+                    </div>
+                  )}
                   {/* Ranking bubbles */}
                   {hasBubbles && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 7, flexWrap: 'wrap' }}>
