@@ -5644,6 +5644,7 @@ export default function Page() {
                       <div
                         style={{
                           padding: isMobile ? 12 : 22,
+                          position: 'relative',
                           background: '#f7f9fb',
                           display: 'flex',
                           justifyContent: 'space-between',
@@ -5660,7 +5661,7 @@ export default function Page() {
                               <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                             </div>
                             {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 50 : 70, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
+                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: 'absolute', top: isMobile ? 14 : 22, right: isMobile ? 12 : 22, height: isMobile ? 92 : 104, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
                             )}
                           </div>
                           <div
@@ -5840,6 +5841,7 @@ export default function Page() {
                       <div
                         style={{
                           padding: isMobile ? 12 : 22,
+                          position: 'relative',
                           background: '#f7f9fb',
                           display: 'flex',
                           justifyContent: 'space-between',
@@ -5856,7 +5858,7 @@ export default function Page() {
                               <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                             </div>
                             {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 50 : 70, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
+                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: 'absolute', top: isMobile ? 14 : 22, right: isMobile ? 12 : 22, height: isMobile ? 92 : 104, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
                             )}
                           </div>
                           <div
@@ -6976,6 +6978,7 @@ export default function Page() {
                     <div
                       style={{
                         padding: isMobile ? 12 : 22,
+                        position: 'relative',
                         background: '#f7f9fb',
                         display: 'flex',
                         justifyContent: 'space-between',
@@ -6992,7 +6995,7 @@ export default function Page() {
                             <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                           </div>
                           {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                            <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 50 : 70, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
+                            <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: 'absolute', top: isMobile ? 14 : 22, right: isMobile ? 12 : 22, height: isMobile ? 92 : 104, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
                           )}
                         </div>
                         <div
