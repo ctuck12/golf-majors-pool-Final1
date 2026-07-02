@@ -5375,12 +5375,12 @@ export default function Page() {
                     <button
                       onClick={() => setMyEntriesMenuOpen((current) => !current)}
                       style={{
-                        border: '1px solid #d7e0e8',
+                        border: entriesTournamentId === 'open' ? `1px solid ${entriesTournamentSolid}` : '1px solid #d7e0e8',
                         borderRadius: 10,
                         width: isMobile ? 34 : 48,
                         height: isMobile ? 34 : 48,
-                        background: '#fff',
-                        color: '#0f1720',
+                        background: entriesTournamentId === 'open' ? entriesTournamentSolid : '#fff',
+                        color: entriesTournamentId === 'open' ? '#fff' : '#0f1720',
                         cursor: 'pointer',
                       }}
                     >
