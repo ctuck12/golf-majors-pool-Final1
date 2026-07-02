@@ -80,6 +80,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Jackson Suber':              { dob: 'October 18, 1999' },
   'Robert MacIntyre':           { weight: '163 lbs' },
   'Mikael Lindberg':            { weight: '198 lbs' },
+  'Daniel Brown':               { height: `6'3"` },
   'Michael Brennan':            { weight: '175 lbs' },
   'Neal Shipley':               { weight: '205 lbs' },
   'Filippo Celli':              { weight: '170 lbs' },
