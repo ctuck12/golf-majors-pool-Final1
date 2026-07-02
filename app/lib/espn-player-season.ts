@@ -11,6 +11,7 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Ben James': '5077389',
   'Mikael Lindberg': '4699290',
   'Daniel Brown': '10221',
+  'Angel Ayora': '5105333',
   // Discovered + verified via /api/admin/espn-id-discovery — players ESPN's name search
   // wouldn't resolve. Each ID was confirmed to return a golf athlete with bio data.
   'Ugo Coussaud': '4418567',
