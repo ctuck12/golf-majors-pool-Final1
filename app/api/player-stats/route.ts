@@ -9,6 +9,7 @@ import { fetchPgaScorecardStats, pgaTourTournId } from '@/app/lib/pga-scorecard-
 import { getTournamentMetaByEspnId } from '@/app/lib/tournament-config';
 import { resolvePgaTourIdByName } from '@/app/lib/pga-id-resolver';
 import { getOrBuildPgaLeaderboard, tournLbCacheKey } from '@/app/lib/tournament-sg-leaderboard';
+import { resolveChangedAt } from '@/app/lib/changed-at';
 
 export type { PlayerStats } from '@/app/lib/espn-player-stats';
 
@@ -52,17 +53,17 @@ export async function GET(request: Request) {
   const ranksCacheKey = isTournament
     ? `player-stats:v39:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
     : `player-stats:v85:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
-  const tsCacheKey = `${cacheKey}:ts`; // when this stats blob was last refreshed
+  const sigCacheKey = `${cacheKey}:sig`; // change-detection: when the displayed stats last changed
   const ttl = isTournament ? 300 : 3600;
-  const now = new Date().toISOString();
 
   try {
     const cached = await redis.get(cacheKey);
     if (cached && isTournament) {
       const ranksRaw = await redis.get(ranksCacheKey);
       const ranks = ranksRaw ? JSON.parse(ranksRaw) : null;
-      const ts = await redis.get(tsCacheKey);
-      return Response.json({ stats: JSON.parse(cached), ranks, updatedAt: ts ?? null });
+      const statsObj = JSON.parse(cached);
+      const updatedAt = await resolveChangedAt(sigCacheKey, JSON.stringify({ s: statsObj, r: ranks }));
+      return Response.json({ stats: statsObj, ranks, updatedAt });
     }
     // A PGA Tour player (has pgaTourId) whose cached stats lack SG is a poisoned entry from a
     // transient PGA GQL failure. Ignore it and fall through to a fresh fetch so it self-heals,
@@ -125,8 +126,8 @@ export async function GET(request: Request) {
         } catch { /* ignore */ }
       }
       const ranks = Object.keys(freshRanks).length > 0 ? freshRanks : null;
-      const ts = await redis.get(tsCacheKey);
-      return Response.json({ stats: cachedStats, ranks, updatedAt: ts ?? null });
+      const updatedAt = await resolveChangedAt(sigCacheKey, JSON.stringify({ s: cachedStats, r: ranks }));
+      return Response.json({ stats: cachedStats, ranks, updatedAt });
     }
 
     if (isTournament) {
@@ -193,13 +194,13 @@ export async function GET(request: Request) {
 
       if (stats) {
         await redis.setex(cacheKey, ttl, JSON.stringify(stats));
-        await redis.setex(tsCacheKey, ttl, now);
       }
       const tournRanksToCache = Object.keys(mergedRanks).length > 0 ? mergedRanks : null;
       if (tournRanksToCache) {
         await redis.setex(ranksCacheKey, ttl, JSON.stringify(tournRanksToCache));
       }
-      return Response.json({ stats, ranks: tournRanksToCache, updatedAt: now });
+      const updatedAt = await resolveChangedAt(sigCacheKey, JSON.stringify({ s: stats, r: tournRanksToCache }));
+      return Response.json({ stats, ranks: tournRanksToCache, updatedAt });
     }
 
     // Season context
@@ -295,12 +296,12 @@ export async function GET(request: Request) {
     const resultComplete = !!(stats && stats.sgTotal && stats.scrambling);
     if (stats && (resultComplete || !pgaHadStats)) {
       await redis.setex(cacheKey, ttl, JSON.stringify(stats));
-      await redis.setex(tsCacheKey, ttl, now);
     }
     if (ranks && Object.keys(ranks).length > 0) {
       await redis.setex(ranksCacheKey, ttl, JSON.stringify(ranks));
     }
-    return Response.json({ stats, ranks, updatedAt: now });
+    const updatedAt = await resolveChangedAt(sigCacheKey, JSON.stringify({ s: stats, r: ranks }));
+    return Response.json({ stats, ranks, updatedAt });
   } catch {
     return Response.json({ stats: null, ranks: null });
   }

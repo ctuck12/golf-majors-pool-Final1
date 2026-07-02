@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { getEspnId } from '@/app/lib/espn-player-season';
 import { getActiveSeason } from '@/app/lib/tournament-config';
+import { resolveChangedAt } from '@/app/lib/changed-at';
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues';
 
@@ -158,7 +159,8 @@ export async function GET(request: Request) {
     const fedexRank = await getRankFromLeaders(fedexRes, espnId, 'cupPoints');
     const dpWorldRank = DP_WORLD_RANKINGS[name] ?? null;
 
-    return Response.json({ rank: fedexRank, dpWorldRank });
+    const updatedAt = await resolveChangedAt(`rank-changed:fedex:${name}`, String(fedexRank ?? ''));
+    return Response.json({ rank: fedexRank, dpWorldRank, updatedAt });
   } catch {
     return Response.json({ rank: null, dpWorldRank: DP_WORLD_RANKINGS[name] ?? null });
   }

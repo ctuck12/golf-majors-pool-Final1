@@ -1322,6 +1322,7 @@ export default function Page() {
     tournamentStatsFetchedAt: string | null;
     seasonStatsFetchedAt: string | null;
     bioFetchedAt: string | null;
+    rankingsChangedAt: string | null;
   } | null>(null);
   // Click-through popup listing each win (tournament + year) behind a player's Wins count.
   const [winsListPopup, setWinsListPopup] = useState<{ title: string; playerName: string; wins: { tournament: string; year: string; course: string | null; toPar: string | null }[] } | null>(null);
@@ -2866,6 +2867,7 @@ export default function Page() {
       tournamentStatsFetchedAt: null,
       seasonStatsFetchedAt: null,
       bioFetchedAt: null,
+      rankingsChangedAt: null,
     });
     // Bio is the default tab, so fetch it eagerly on open (it's otherwise lazy-loaded on tab click).
     if (landingTab === 'bio') {
@@ -2883,9 +2885,9 @@ export default function Page() {
       : Promise.resolve({ stats: null, ranks: null, updatedAt: null });
     Promise.all([
       readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
-      readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
-      readJson<{ rank: number | null }>(`/api/player-dpworld-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
-      readJson<{ rank: number | null }>(`/api/player-owgr-rank?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
+      readJson<{ rank: number | null; updatedAt?: string | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null, updatedAt: null })),
+      readJson<{ rank: number | null; updatedAt?: string | null }>(`/api/player-dpworld-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null, updatedAt: null })),
+      readJson<{ rank: number | null; updatedAt?: string | null }>(`/api/player-owgr-rank?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null, updatedAt: null })),
       readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; sandSaves: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; sgTeeToGreen: string | null; rounds: string[] | null } | null; ranks: Record<string, string> | null; updatedAt?: string | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null, ranks: null, updatedAt: null })),
       scorecardFetch,
       seasonStatsFetch,
@@ -2897,7 +2899,9 @@ export default function Page() {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
       const tournamentStatsFetchedAt = statsCtx === 'tournament' ? (statsData.updatedAt ?? null) : null;
       const seasonStatsFetchedAt = statsCtx === 'season' ? (statsData.updatedAt ?? null) : (seasonData.updatedAt ?? null);
-      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {}, statRanks: statsData.ranks ?? {}, seasonStatRanks: seasonData.ranks ?? {}, fieldDistributions: fieldAvgData.distributions ?? {}, tournamentStatsFetchedAt, seasonStatsFetchedAt } : null);
+      const rankingUpdates = [fedexData.updatedAt, dpWorldData.updatedAt, owgrData.updatedAt].filter(Boolean) as string[];
+      const rankingsChangedAt = rankingUpdates.length ? rankingUpdates.slice().sort()[rankingUpdates.length - 1] : null;
+      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {}, statRanks: statsData.ranks ?? {}, seasonStatRanks: seasonData.ranks ?? {}, fieldDistributions: fieldAvgData.distributions ?? {}, tournamentStatsFetchedAt, seasonStatsFetchedAt, rankingsChangedAt } : null);
     });
   };
 
@@ -8904,11 +8908,15 @@ export default function Page() {
                           </div>
                         ))}
                       </div>
-                      {pickHistoryPlayerPopup.bioFetchedAt && !loading && (
-                        <div style={{ fontSize: 10, color: '#a0adb8', textAlign: 'center', marginTop: 8 }}>
-                          Last updated: {new Date(pickHistoryPlayerPopup.bioFetchedAt).toLocaleString()}
-                        </div>
-                      )}
+                      {(() => {
+                        const times = [pickHistoryPlayerPopup.bioFetchedAt, pickHistoryPlayerPopup.rankingsChangedAt].filter(Boolean) as string[];
+                        const ts = times.length ? times.slice().sort()[times.length - 1] : null;
+                        return ts && !loading ? (
+                          <div style={{ fontSize: 10, color: '#a0adb8', textAlign: 'center', marginTop: 8 }}>
+                            Last updated: {new Date(ts).toLocaleString()}
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
                   );
                 })()}

@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { getManualDpWorldRankings } from '@/app/lib/dpworld-rankings-store';
 import { canonicalNameKey } from '@/app/lib/name-match';
+import { resolveChangedAt } from '@/app/lib/changed-at';
 
 // DP World Tour rankings.
 //
@@ -274,5 +275,6 @@ export async function GET(request: Request) {
   } catch { /* fall back to built-in */ }
 
   const rank = manualRank ?? NORMALIZED_RANKINGS.get(key) ?? null;
-  return Response.json({ rank });
+  const updatedAt = await resolveChangedAt(`rank-changed:dpworld:${name}`, String(rank ?? ''));
+  return Response.json({ rank, updatedAt });
 }

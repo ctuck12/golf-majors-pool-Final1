@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { getEspnId } from '@/app/lib/espn-player-season';
+import { resolveChangedAt } from '@/app/lib/changed-at';
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/all/seasons/2026';
 
@@ -59,8 +60,9 @@ export async function GET(request: Request) {
           : '';
       const id = ref.match(/athletes\/(\d+)/)?.[1];
       if (id === espnId) {
-        const explicitRank = entry.current;
-        return Response.json({ rank: typeof explicitRank === 'number' ? explicitRank : i + 1 });
+        const explicitRank = typeof entry.current === 'number' ? entry.current : i + 1;
+        const updatedAt = await resolveChangedAt(`rank-changed:owgr:${name}`, String(explicitRank));
+        return Response.json({ rank: explicitRank, updatedAt });
       }
     }
 
