@@ -96,7 +96,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Tyler Collet':               { dob: 'August 23, 1995', height: `5'9"`, weight: '150 lbs', swing: 'Right' },
   'Garrett Sapp':               { birthPlace: 'Cerritos, California' },
   'Jared Jones':                { swing: 'Right' },
-  'Ian Holt':                   { college: 'Kent State' },
+  'Ian Holt':                   { college: 'Kent State', birthPlace: 'Stow, Ohio', swing: 'Right' },
   'Timothy Wiseman':            { birthPlace: 'Corydon, Indiana', height: `6'0"`, weight: '190 lbs' },
   'Michael Brennan':            { weight: '175 lbs' },
   'Neal Shipley':               { weight: '205 lbs' },
