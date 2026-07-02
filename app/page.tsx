@@ -5643,13 +5643,13 @@ export default function Page() {
                     <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
                       <div
                         style={{
-                          padding: isMobile ? 12 : 22,
+                          padding: isMobile ? 12 : isLandscapePhone ? '12px 22px 22px' : 22,
                           position: 'relative',
                           background: '#f7f9fb',
                           display: 'flex',
                           justifyContent: 'space-between',
                           gap: 12,
-                          alignItems: isMobile ? 'flex-start' : 'center',
+                          alignItems: isMobile || isLandscapePhone ? 'flex-start' : 'center',
                           flexWrap: 'wrap',
                           borderBottom: '1px solid #d7e0e8',
                         }}
@@ -5676,7 +5676,7 @@ export default function Page() {
                           </div>
                         </div>
                         {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
+                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : isLandscapePhone ? 188 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
                         )}
                         <label
                           style={{
@@ -5840,13 +5840,13 @@ export default function Page() {
                     <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
                       <div
                         style={{
-                          padding: isMobile ? 12 : 22,
+                          padding: isMobile ? 12 : isLandscapePhone ? '12px 22px 22px' : 22,
                           position: 'relative',
                           background: '#f7f9fb',
                           display: 'flex',
                           justifyContent: 'space-between',
                           gap: 12,
-                          alignItems: isMobile ? 'flex-start' : 'center',
+                          alignItems: isMobile || isLandscapePhone ? 'flex-start' : 'center',
                           flexWrap: 'wrap',
                           borderBottom: '1px solid #d7e0e8',
                         }}
@@ -5873,7 +5873,7 @@ export default function Page() {
                           </div>
                         </div>
                         {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
+                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : isLandscapePhone ? 188 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
                         )}
                         <label
                           style={{
@@ -6977,13 +6977,13 @@ export default function Page() {
                   <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
                     <div
                       style={{
-                        padding: isMobile ? 12 : 22,
+                        padding: isMobile ? 12 : isLandscapePhone ? '12px 22px 22px' : 22,
                         position: 'relative',
                         background: '#f7f9fb',
                         display: 'flex',
                         justifyContent: 'space-between',
                         gap: 12,
-                        alignItems: isMobile ? 'flex-start' : 'center',
+                        alignItems: isMobile || isLandscapePhone ? 'flex-start' : 'center',
                         flexWrap: 'wrap',
                         borderBottom: '1px solid #d7e0e8',
                       }}
@@ -7010,7 +7010,7 @@ export default function Page() {
                         </div>
                       </div>
                       {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                        <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
+                        <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile ? 'absolute' : 'static', top: isMobile ? -10 : undefined, right: isMobile ? 28 : undefined, height: isMobile ? 132 : isLandscapePhone ? 188 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile ? undefined : 'auto' }} />
                       )}
                       <label
                         style={{
