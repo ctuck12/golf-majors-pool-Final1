@@ -6238,8 +6238,13 @@ export default function Page() {
                   Sign Out
                 </button>
               </div>
-              <h2 style={{ margin: isMobile ? '4px 0 10px' : '6px 0 18px', fontSize: isMobile ? 16 : 26, color: '#0f1720' }}>
-                Live feed and pool status for {tournament.name}
+              <h2 style={{ margin: isMobile ? '4px 0 10px' : '6px 0 18px', fontSize: isMobile ? 16 : 26, color: '#0f1720', display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, flexWrap: 'wrap' }}>
+                Live feed and pool status for
+                {TOURNAMENT_TAB_LOGOS[tournament.id] ? (
+                  <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: isMobile ? 26 : 40, maxWidth: isMobile ? 96 : 150, objectFit: 'contain', verticalAlign: 'middle' }} />
+                ) : (
+                  <span>{tournament.name}</span>
+                )}
               </h2>
               <div
                 style={{
