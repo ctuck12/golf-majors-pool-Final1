@@ -88,7 +88,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Thomas Detry':               { weight: '155 lbs' },
   'Ricky Castillo':             { birthPlace: 'Yorba Linda, California', swing: 'Right' },
   'Steven Fisk':                { birthPlace: 'Atlanta, Georgia', swing: 'Right' },
-  'Garrett Sapp':               { birthPlace: 'Spencer, Iowa' },
+  'Ryan Vermeer':               { birthPlace: 'Spencer, Iowa' },
   'Michael Brennan':            { weight: '175 lbs' },
   'Neal Shipley':               { weight: '205 lbs' },
   'Filippo Celli':              { weight: '170 lbs' },
