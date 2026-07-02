@@ -1319,7 +1319,8 @@ export default function Page() {
     playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; cutsMade: number | null; careerWins: number | null; majorStarts: number | null; majorCutsMade: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null } | null;
     playerBioLoading: boolean;
     espnPhotoUrl: string | null;
-    statsFetchedAt: string | null;
+    tournamentStatsFetchedAt: string | null;
+    seasonStatsFetchedAt: string | null;
   } | null>(null);
   // Click-through popup listing each win (tournament + year) behind a player's Wins count.
   const [winsListPopup, setWinsListPopup] = useState<{ title: string; playerName: string; wins: { tournament: string; year: string; course: string | null; toPar: string | null }[] } | null>(null);
@@ -2861,7 +2862,8 @@ export default function Page() {
       playerBio: null,
       playerBioLoading: landingTab === 'bio',
       espnPhotoUrl: null,
-      statsFetchedAt: null,
+      tournamentStatsFetchedAt: null,
+      seasonStatsFetchedAt: null,
     });
     // Bio is the default tab, so fetch it eagerly on open (it's otherwise lazy-loaded on tab click).
     if (landingTab === 'bio') {
@@ -2875,14 +2877,14 @@ export default function Page() {
       ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
       : Promise.resolve({ rounds: null });
     const seasonStatsFetch = showSubToggle || selectedTournament === 'us-open'
-      ? readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; sandSaves: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; sgTeeToGreen: string | null; rounds: string[] | null } | null; ranks: Record<string, string> | null }>(`/api/player-stats?name=${encodeURIComponent(player.name)}&context=season&pgaTourId=${player.pgaTourId}`, { cache: 'no-store' }).catch(() => ({ stats: null, ranks: null }))
-      : Promise.resolve({ stats: null, ranks: null });
+      ? readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; sandSaves: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; sgTeeToGreen: string | null; rounds: string[] | null } | null; ranks: Record<string, string> | null; updatedAt?: string | null }>(`/api/player-stats?name=${encodeURIComponent(player.name)}&context=season&pgaTourId=${player.pgaTourId}`, { cache: 'no-store' }).catch(() => ({ stats: null, ranks: null, updatedAt: null }))
+      : Promise.resolve({ stats: null, ranks: null, updatedAt: null });
     Promise.all([
       readJson<{ results: { tournament: string; date: string; course: string; position: string; tour: 'pga' | 'liv' | 'eur' }[] | null }>(`/api/player-season?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ results: null })),
       readJson<{ rank: number | null }>(`/api/player-fedex-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
       readJson<{ rank: number | null }>(`/api/player-dpworld-rank?pgaTourId=${player.pgaTourId}&name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
       readJson<{ rank: number | null }>(`/api/player-owgr-rank?name=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rank: null })),
-      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; sandSaves: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; sgTeeToGreen: string | null; rounds: string[] | null } | null; ranks: Record<string, string> | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null, ranks: null })),
+      readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; sandSaves: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; sgTeeToGreen: string | null; rounds: string[] | null } | null; ranks: Record<string, string> | null; updatedAt?: string | null }>(`/api/player-stats?${params}`, { cache: 'no-store' }).catch(() => ({ stats: null, ranks: null, updatedAt: null })),
       scorecardFetch,
       seasonStatsFetch,
       readJson<{ averages: Record<string, string> }>('/api/tour-averages', { cache: 'no-store' }).catch(() => ({ averages: {} })),
@@ -2891,7 +2893,9 @@ export default function Page() {
         : Promise.resolve({ averages: {}, distributions: {} }),
     ]).then(([fullData, fedexData, dpWorldData, owgrData, statsData, scData, seasonData, avgData, fieldAvgData]) => {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
-      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {}, statRanks: statsData.ranks ?? {}, seasonStatRanks: seasonData.ranks ?? {}, fieldDistributions: fieldAvgData.distributions ?? {}, statsFetchedAt: new Date().toISOString() } : null);
+      const tournamentStatsFetchedAt = statsCtx === 'tournament' ? (statsData.updatedAt ?? null) : null;
+      const seasonStatsFetchedAt = statsCtx === 'season' ? (statsData.updatedAt ?? null) : (seasonData.updatedAt ?? null);
+      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {}, statRanks: statsData.ranks ?? {}, seasonStatRanks: seasonData.ranks ?? {}, fieldDistributions: fieldAvgData.distributions ?? {}, tournamentStatsFetchedAt, seasonStatsFetchedAt } : null);
     });
   };
 
@@ -9070,11 +9074,14 @@ export default function Page() {
                           </div>
                         </div>
                       )}
-                      {pickHistoryPlayerPopup.statsFetchedAt && (
-                        <div style={{ fontSize: 10, color: '#a0adb8', textAlign: 'center', marginTop: 4 }}>
-                          Last updated: {new Date(pickHistoryPlayerPopup.statsFetchedAt).toLocaleString()}
-                        </div>
-                      )}
+                      {(() => {
+                        const ts = isTournView ? pickHistoryPlayerPopup.tournamentStatsFetchedAt : pickHistoryPlayerPopup.seasonStatsFetchedAt;
+                        return ts ? (
+                          <div style={{ fontSize: 10, color: '#a0adb8', textAlign: 'center', marginTop: 4 }}>
+                            Last updated: {new Date(ts).toLocaleString()}
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
                   );
                 })()}

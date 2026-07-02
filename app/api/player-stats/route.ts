@@ -52,14 +52,17 @@ export async function GET(request: Request) {
   const ranksCacheKey = isTournament
     ? `player-stats:v39:tourn:${eventId}:${name}${RANKS_CACHE_SUFFIX}`
     : `player-stats:v85:season:${seasonYear}:${name}${RANKS_CACHE_SUFFIX}`;
+  const tsCacheKey = `${cacheKey}:ts`; // when this stats blob was last refreshed
   const ttl = isTournament ? 300 : 3600;
+  const now = new Date().toISOString();
 
   try {
     const cached = await redis.get(cacheKey);
     if (cached && isTournament) {
       const ranksRaw = await redis.get(ranksCacheKey);
       const ranks = ranksRaw ? JSON.parse(ranksRaw) : null;
-      return Response.json({ stats: JSON.parse(cached), ranks });
+      const ts = await redis.get(tsCacheKey);
+      return Response.json({ stats: JSON.parse(cached), ranks, updatedAt: ts ?? null });
     }
     // A PGA Tour player (has pgaTourId) whose cached stats lack SG is a poisoned entry from a
     // transient PGA GQL failure. Ignore it and fall through to a fresh fetch so it self-heals,
@@ -122,7 +125,8 @@ export async function GET(request: Request) {
         } catch { /* ignore */ }
       }
       const ranks = Object.keys(freshRanks).length > 0 ? freshRanks : null;
-      return Response.json({ stats: cachedStats, ranks });
+      const ts = await redis.get(tsCacheKey);
+      return Response.json({ stats: cachedStats, ranks, updatedAt: ts ?? null });
     }
 
     if (isTournament) {
@@ -189,12 +193,13 @@ export async function GET(request: Request) {
 
       if (stats) {
         await redis.setex(cacheKey, ttl, JSON.stringify(stats));
+        await redis.setex(tsCacheKey, ttl, now);
       }
       const tournRanksToCache = Object.keys(mergedRanks).length > 0 ? mergedRanks : null;
       if (tournRanksToCache) {
         await redis.setex(ranksCacheKey, ttl, JSON.stringify(tournRanksToCache));
       }
-      return Response.json({ stats, ranks: tournRanksToCache });
+      return Response.json({ stats, ranks: tournRanksToCache, updatedAt: now });
     }
 
     // Season context
@@ -290,11 +295,12 @@ export async function GET(request: Request) {
     const resultComplete = !!(stats && stats.sgTotal && stats.scrambling);
     if (stats && (resultComplete || !pgaHadStats)) {
       await redis.setex(cacheKey, ttl, JSON.stringify(stats));
+      await redis.setex(tsCacheKey, ttl, now);
     }
     if (ranks && Object.keys(ranks).length > 0) {
       await redis.setex(ranksCacheKey, ttl, JSON.stringify(ranks));
     }
-    return Response.json({ stats, ranks });
+    return Response.json({ stats, ranks, updatedAt: now });
   } catch {
     return Response.json({ stats: null, ranks: null });
   }
