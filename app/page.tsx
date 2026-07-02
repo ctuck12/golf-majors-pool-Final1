@@ -1512,7 +1512,13 @@ export default function Page() {
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
   const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
   const commissionerTournamentWinnerScore = pool?.winnerScores?.[entriesTournamentId] ?? null;
-  const commissionerTournamentLabel = entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name;
+  const commissionerTournamentLabel =
+    entriesTournamentId === 'players' ? 'The Players Championship' :
+    entriesTournamentId === 'masters' ? 'The Masters Tournament' :
+    entriesTournamentId === 'pga' ? 'The PGA Championship' :
+    entriesTournamentId === 'us-open' ? 'U.S. Open Championship' :
+    entriesTournamentId === 'open' ? 'The Open Championship' :
+    entriesTournament.name;
   const commissionerAutoWinner = feed?.tournamentComplete === true ? (feed?.players ?? []).find((p) => p.position === '1' && p.thru === 'F') : null;
   const commissionerAutoWinnerTotal = commissionerAutoWinner?.total && commissionerAutoWinner.total !== '--' ? parseInt(commissionerAutoWinner.total, 10) : NaN;
   const commissionerAutoDetected = !isNaN(commissionerAutoWinnerTotal) ? commissionerAutoWinnerTotal : null;
@@ -2324,7 +2330,7 @@ export default function Page() {
 
       setPool(payload.pool);
       setCommissionerSuccess(
-        `${entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name} payouts saved.`,
+        `${commissionerTournamentLabel} payouts saved.`,
       );
     } catch (err) {
       setCommissionerError(err instanceof Error ? err.message : 'Unable to update payouts.');
@@ -6417,7 +6423,7 @@ export default function Page() {
 
                     {poolToolModal === 'payouts' && (
                       <>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name}</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720' }}>{commissionerTournamentLabel}</div>
                         <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.5 }}>Set the 1st, 2nd, and 3rd place payout amounts for the upcoming or active tournament.</div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                           {([['1st place', 'first'], ['2nd place', 'second'], ['3rd place', 'third']] as const).map(([label, key]) => (
@@ -6428,7 +6434,7 @@ export default function Page() {
                           ))}
                         </div>
                         <button
-                          onClick={() => setPoolToolConfirm({ title: 'Save payouts?', message: `Save payouts for ${entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name} — 1st: ${payoutForm.first || 0}, 2nd: ${payoutForm.second || 0}, 3rd: ${payoutForm.third || 0}?`, confirmLabel: 'Save payouts', onConfirm: () => { void handleSavePayouts(); setPoolToolModal(null); setPoolToolConfirm(null); } })}
+                          onClick={() => setPoolToolConfirm({ title: 'Save payouts?', message: `Save payouts for ${commissionerTournamentLabel} — 1st: ${payoutForm.first || 0}, 2nd: ${payoutForm.second || 0}, 3rd: ${payoutForm.third || 0}?`, confirmLabel: 'Save payouts', onConfirm: () => { void handleSavePayouts(); setPoolToolModal(null); setPoolToolConfirm(null); } })}
                           disabled={!canManagePool || commissionerBusy}
                           style={{ border: 'none', borderRadius: 12, padding: '12px 16px', background: entriesTournamentSolid, color: '#fff', fontWeight: 900, cursor: (!canManagePool || commissionerBusy) ? 'not-allowed' : 'pointer', opacity: (!canManagePool || commissionerBusy) ? 0.5 : 1 }}
                         >
@@ -6542,7 +6548,7 @@ export default function Page() {
                 Submission status
               </div>
               <h2 style={{ margin: isMobile ? '4px 0 10px' : '6px 0 18px', fontSize: isMobile ? 16 : 26, color: '#0f1720' }}>
-                {entriesTournamentId === 'pga' ? 'PGA Championship' : entriesTournament.name} pick submissions
+                {commissionerTournamentLabel} pick submissions
               </h2>
               <div
                 style={{
