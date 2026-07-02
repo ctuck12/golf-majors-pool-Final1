@@ -834,6 +834,37 @@ function applyBioOverrides(name: string, bio: PlayerBio): PlayerBio {
   return bio;
 }
 
+// A stable signature of the *displayed* bio values. Age is excluded (it's derived from DOB and
+// would tick over on a birthday without any real data change).
+function stableBioSig(bio: PlayerBio): string {
+  return JSON.stringify({
+    h: bio.height, w: bio.weight, dob: bio.dob, bp: bio.birthPlace,
+    col: bio.college, colAbs: bio.collegeConfirmedAbsent, sw: bio.swing, tp: bio.turnedPro,
+    cs: bio.careerStarts, cm: bio.cutsMade, cw: bio.careerWins,
+    ms: bio.majorStarts, mcm: bio.majorCutsMade, mw: bio.majorWins, ce: bio.careerEarnings,
+  });
+}
+
+// Returns when the bio last CHANGED (not when it was last fetched): compares the current values
+// to a persisted signature and only advances the timestamp when something actually differs. The
+// signature/timestamp live far longer than the 24h bio cache so the "changed" time survives normal
+// refetch cycles.
+const BIO_SIG_TTL = 60 * 24 * 60 * 60; // 60 days
+async function resolveBioChangedAt(name: string, bio: PlayerBio): Promise<string> {
+  const key = `player-bio-sig:v1:${name}`;
+  const sig = stableBioSig(bio);
+  try {
+    const raw = await redis.get(key);
+    if (raw) {
+      const prev = JSON.parse(raw as string) as { sig?: string; changedAt?: string };
+      if (prev.sig === sig && prev.changedAt) return prev.changedAt;
+    }
+  } catch { /* ignore */ }
+  const changedAt = new Date().toISOString();
+  try { await redis.setex(key, BIO_SIG_TTL, JSON.stringify({ sig, changedAt })); } catch { /* ignore */ }
+  return changedAt;
+}
+
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const name = url.searchParams.get('name') ?? '';
@@ -847,7 +878,9 @@ export async function GET(req: Request) {
     if (cached) {
       const espnId = await getEspnId(name).catch(() => null);
       const espnPhotoUrl = espnId ? `https://a.espncdn.com/i/headshots/golf/players/full/${espnId}.png` : null;
-      return Response.json({ bio: applyBioOverrides(name, JSON.parse(cached as string)), espnPhotoUrl });
+      const finalBio = applyBioOverrides(name, JSON.parse(cached as string));
+      const updatedAt = await resolveBioChangedAt(name, finalBio);
+      return Response.json({ bio: finalBio, espnPhotoUrl, updatedAt });
     }
   } catch { /* ignore */ }
 
@@ -903,5 +936,7 @@ export async function GET(req: Request) {
   const espnPhotoUrl = espnId
     ? `https://a.espncdn.com/i/headshots/golf/players/full/${espnId}.png`
     : null;
-  return Response.json({ bio: applyBioOverrides(name, bio), espnPhotoUrl });
+  const finalBio = applyBioOverrides(name, bio);
+  const updatedAt = await resolveBioChangedAt(name, finalBio);
+  return Response.json({ bio: finalBio, espnPhotoUrl, updatedAt });
 }
