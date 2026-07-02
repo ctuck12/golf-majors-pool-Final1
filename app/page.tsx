@@ -5653,14 +5653,14 @@ export default function Page() {
                           borderBottom: '1px solid #d7e0e8',
                         }}
                       >
-                        <div>
+                        <div style={{ flex: isMobile ? 1 : undefined, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 18 }}>
                             <div>
                               <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
                               <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                             </div>
                             {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 50 : 70, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
+                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 78 : 104, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
                             )}
                           </div>
                           <div
@@ -5849,14 +5849,14 @@ export default function Page() {
                           borderBottom: '1px solid #d7e0e8',
                         }}
                       >
-                        <div>
+                        <div style={{ flex: isMobile ? 1 : undefined, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 18 }}>
                             <div>
                               <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
                               <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                             </div>
                             {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 50 : 70, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
+                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 78 : 104, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
                             )}
                           </div>
                           <div
@@ -6985,14 +6985,14 @@ export default function Page() {
                         borderBottom: '1px solid #d7e0e8',
                       }}
                     >
-                      <div>
+                      <div style={{ flex: isMobile ? 1 : undefined, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 18 }}>
                           <div>
                             <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
                             <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                           </div>
                           {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                            <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 50 : 70, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
+                            <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 78 : 104, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
                           )}
                         </div>
                         <div
