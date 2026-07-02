@@ -5646,9 +5646,9 @@ export default function Page() {
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720', lineHeight: 1.05 }}>{entriesTournamentDisplayName}</div>
+                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, flexWrap: 'wrap' }}>
-                            <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720', lineHeight: 1.05 }}>Tournament Field</div>
+                            <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                           </div>
                           <div
                             style={{
@@ -5656,7 +5656,7 @@ export default function Page() {
                               alignItems: 'baseline',
                               gap: 8,
                               flexWrap: 'wrap',
-                              marginTop: 2,
+                              marginTop: 8,
                               color: '#5b6b79',
                             }}
                           >
@@ -5837,9 +5837,9 @@ export default function Page() {
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720', lineHeight: 1.05 }}>{entriesTournamentDisplayName}</div>
+                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, flexWrap: 'wrap' }}>
-                            <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720', lineHeight: 1.05 }}>Tournament Field</div>
+                            <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                           </div>
                           <div
                             style={{
@@ -5847,7 +5847,7 @@ export default function Page() {
                               alignItems: 'baseline',
                               gap: 8,
                               flexWrap: 'wrap',
-                              marginTop: 2,
+                              marginTop: 8,
                               color: '#5b6b79',
                             }}
                           >
@@ -6968,9 +6968,9 @@ export default function Page() {
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720', lineHeight: 1.05 }}>{entriesTournamentDisplayName}</div>
+                        <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, flexWrap: 'wrap' }}>
-                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720', lineHeight: 1.05 }}>Tournament Field</div>
+                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                         </div>
                         <div
                           style={{
@@ -6978,7 +6978,7 @@ export default function Page() {
                             alignItems: 'baseline',
                             gap: 8,
                             flexWrap: 'wrap',
-                            marginTop: 2,
+                            marginTop: 8,
                             color: '#5b6b79',
                           }}
                         >
