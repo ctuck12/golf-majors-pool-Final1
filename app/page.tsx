@@ -6547,12 +6547,14 @@ export default function Page() {
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
-                Submission status
+              <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 12, flexWrap: 'wrap', marginBottom: isMobile ? 10 : 18 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
+                  Pick Submissions
+                </div>
+                {TOURNAMENT_TAB_LOGOS[tournament.id] && (
+                  <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: isMobile ? 40 : 56, maxWidth: isMobile ? 150 : 220, objectFit: 'contain' }} />
+                )}
               </div>
-              <h2 style={{ margin: isMobile ? '4px 0 10px' : '6px 0 18px', fontSize: isMobile ? 16 : 26, color: '#0f1720' }}>
-                {commissionerTournamentLabel} pick submissions
-              </h2>
               <div
                 style={{
                   display: 'flex',
