@@ -5661,7 +5661,7 @@ export default function Page() {
                               <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                             </div>
                             {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: 'absolute', top: isMobile ? 10 : 18, right: isMobile ? 28 : 44, height: isMobile ? 116 : 132, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
+                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: 'absolute', top: isMobile ? 4 : 18, right: isMobile ? 28 : 44, height: isMobile ? 34 : 132, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
                             )}
                           </div>
                           <div
@@ -5858,7 +5858,7 @@ export default function Page() {
                               <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                             </div>
                             {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: 'absolute', top: isMobile ? 10 : 18, right: isMobile ? 28 : 44, height: isMobile ? 116 : 132, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
+                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: 'absolute', top: isMobile ? 4 : 18, right: isMobile ? 28 : 44, height: isMobile ? 34 : 132, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
                             )}
                           </div>
                           <div
@@ -6995,7 +6995,7 @@ export default function Page() {
                             <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
                           </div>
                           {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                            <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: 'absolute', top: isMobile ? 10 : 18, right: isMobile ? 28 : 44, height: isMobile ? 116 : 132, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
+                            <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: 'absolute', top: isMobile ? 4 : 18, right: isMobile ? 28 : 44, height: isMobile ? 34 : 132, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
                           )}
                         </div>
                         <div
