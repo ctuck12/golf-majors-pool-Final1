@@ -227,8 +227,8 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Camilo Villegas': 'co', 'Sebastian Munoz': 'co', 'Nicolas Echavarria': 'co', 'Nico Echavarria': 'co', 'Marcelo Rozo': 'co',
   // Mexico
   'Carlos Ortiz': 'mx',
-  // Puerto Rico
-  'Ricky Castillo': 'pr',
+  // USA
+  'Ricky Castillo': 'us',
   // Venezuela
   'Jhonattan Vegas': 've',
   // Germany
