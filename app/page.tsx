@@ -8757,14 +8757,11 @@ export default function Page() {
                       <img src={getFlagSrc(pickHistoryPlayerPopup.player.name)} alt="" style={{ height: 16, borderRadius: 2, flexShrink: 0 }} />
                       <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 700, fontSize: 12 }}>{getCountryLabel(pickHistoryPlayerPopup.player.name)}</span>
                     </>}
+                    {/* PGA club professionals (not touring pros): PGA seal directly right of the country code */}
+                    {PGA_CLUB_PROFESSIONALS.has(pickHistoryPlayerPopup.player.name) && (
+                      <img src="/pga-seal-gold.png" alt="PGA" style={{ height: 22, objectFit: 'contain', flexShrink: 0 }} />
+                    )}
                   </div>
-                  {/* Club professional badge — PGA Championship logo + label for PGA club pros (not touring pros) */}
-                  {PGA_CLUB_PROFESSIONALS.has(pickHistoryPlayerPopup.player.name) && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 7 }}>
-                      <img src="/pga-seal-gold.png" alt="PGA" style={{ height: 26, objectFit: 'contain', flexShrink: 0 }} />
-                      <span style={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Club Professional</span>
-                    </div>
-                  )}
                   {/* Ranking bubbles */}
                   {hasBubbles && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 7, flexWrap: 'wrap' }}>
