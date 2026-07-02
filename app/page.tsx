@@ -6357,7 +6357,7 @@ export default function Page() {
                   </div>
                 </a>
                 <button
-                  onClick={() => setCommissionerConsoleView('members')}
+                  onClick={() => { setCommissionerRosterMemberId(null); setCommissionerMemberSearch(''); setShowAddMemberForm(false); setCommissionerConsoleView('members'); }}
                   style={{ textAlign: 'left', border: '1px solid #cdd9e1', borderRadius: 12, padding: isMobile ? '12px 14px' : '14px 16px', background: '#fff', color: '#0f1720', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 12 }}
                 >
                   <div style={{ width: isMobile ? 34 : 40, height: isMobile ? 34 : 40, borderRadius: 10, background: entriesTournamentBg, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
