@@ -350,6 +350,11 @@ const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
   open: '/open-tab-logo.png',
 };
 
+// Event/venue logos shown in the pick-sheet header (transparent PNGs on file).
+const TOURNAMENT_EVENT_LOGOS: Partial<Record<string, string>> = {
+  open: '/the-open-royal-birkdale-logo.png',
+};
+
 // Per-tournament logo height (px) for the player-popup Career tab — each logo has a different aspect
 // ratio, so they're tuned individually so they read at a consistent visual size.
 const CAREER_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
@@ -5649,9 +5654,14 @@ export default function Page() {
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, flexWrap: 'wrap' }}>
-                            <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 18 }}>
+                            <div>
+                              <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
+                              <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
+                            </div>
+                            {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
+                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 50 : 70, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
+                            )}
                           </div>
                           <div
                             style={{
@@ -5840,9 +5850,14 @@ export default function Page() {
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, flexWrap: 'wrap' }}>
-                            <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 18 }}>
+                            <div>
+                              <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
+                              <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
+                            </div>
+                            {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
+                              <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 50 : 70, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
+                            )}
                           </div>
                           <div
                             style={{
@@ -6971,9 +6986,14 @@ export default function Page() {
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, flexWrap: 'wrap' }}>
-                          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 18 }}>
+                          <div>
+                            <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>{entriesTournamentDisplayName}</div>
+                            <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 900, color: '#0f1720' }}>Tournament Field</div>
+                          </div>
+                          {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
+                            <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: isMobile ? 50 : 70, width: 'auto', objectFit: 'contain', flexShrink: 0, marginLeft: 'auto' }} />
+                          )}
                         </div>
                         <div
                           style={{
