@@ -1319,6 +1319,7 @@ export default function Page() {
     playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; cutsMade: number | null; careerWins: number | null; majorStarts: number | null; majorCutsMade: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null } | null;
     playerBioLoading: boolean;
     espnPhotoUrl: string | null;
+    statsFetchedAt: string | null;
   } | null>(null);
   // Click-through popup listing each win (tournament + year) behind a player's Wins count.
   const [winsListPopup, setWinsListPopup] = useState<{ title: string; playerName: string; wins: { tournament: string; year: string; course: string | null; toPar: string | null }[] } | null>(null);
@@ -2860,6 +2861,7 @@ export default function Page() {
       playerBio: null,
       playerBioLoading: landingTab === 'bio',
       espnPhotoUrl: null,
+      statsFetchedAt: null,
     });
     // Bio is the default tab, so fetch it eagerly on open (it's otherwise lazy-loaded on tab click).
     if (landingTab === 'bio') {
@@ -2889,7 +2891,7 @@ export default function Page() {
         : Promise.resolve({ averages: {}, distributions: {} }),
     ]).then(([fullData, fedexData, dpWorldData, owgrData, statsData, scData, seasonData, avgData, fieldAvgData]) => {
       const rounds = (scData.rounds ?? []).filter((r) => r.score && r.score !== '--');
-      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {}, statRanks: statsData.ranks ?? {}, seasonStatRanks: seasonData.ranks ?? {}, fieldDistributions: fieldAvgData.distributions ?? {} } : null);
+      setPickHistoryPlayerPopup((prev) => prev ? { ...prev, fullResults: fullData.results, fullResultsLoading: false, fedexRank: fedexData.rank, dpWorldRank: dpWorldData.rank, owgrRank: owgrData.rank, playerStats: statsData.stats, playerSeasonStats: seasonData.stats, playerStatsLoading: false, playerRounds: rounds.length > 0 ? rounds : null, statAverages: avgData.averages ?? {}, fieldAverages: fieldAvgData.averages ?? {}, statRanks: statsData.ranks ?? {}, seasonStatRanks: seasonData.ranks ?? {}, fieldDistributions: fieldAvgData.distributions ?? {}, statsFetchedAt: new Date().toISOString() } : null);
     });
   };
 
@@ -9066,6 +9068,11 @@ export default function Page() {
                               );
                             })}
                           </div>
+                        </div>
+                      )}
+                      {pickHistoryPlayerPopup.statsFetchedAt && (
+                        <div style={{ fontSize: 10, color: '#a0adb8', textAlign: 'center', marginTop: 4 }}>
+                          Last updated: {new Date(pickHistoryPlayerPopup.statsFetchedAt).toLocaleString()}
                         </div>
                       )}
                     </div>
