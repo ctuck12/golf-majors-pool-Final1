@@ -5190,7 +5190,7 @@ export default function Page() {
             ) : sessionUser && !myEntriesEditorOpen ? (
               <section
                 style={{
-                  background: '#fff',
+                  background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff',
                   borderRadius: 20,
                   padding: isMobile ? 14 : 22,
                   boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
