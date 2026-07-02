@@ -804,6 +804,13 @@ const LEGEND_PGA_IDS: Record<string, string> = {
   'fred couples': '01226',
   'angel cabrera': '20848',
 };
+// Non-pool field players (DP World / international) who ARE on the PGA Tour but aren't in the
+// draft pool, so resolvePgaTourId can't find their id by name. Keyed by normalized name; supplies
+// their PGA Tour id so the bio pulls PGA Tour career + major starts/cuts/wins and a real headshot.
+const NON_POOL_PGA_IDS: Record<string, string> = {
+  'mikael lindberg': '48293',
+  'daniel brown': '57259',
+};
 function resolvePgaTourId(name: string, provided: string): string {
   // LEGEND_PGA_IDS wins even over a provided id: these ids have LEADING ZEROS that a numeric
   // pool entry would drop (e.g. adding Couples to the draft pool as pgaTourId 1226 instead of
@@ -812,7 +819,16 @@ function resolvePgaTourId(name: string, provided: string): string {
   if (legend) return legend;
   if (provided && provided !== '0') return provided;
   const hit = POOL_PGA_BY_NORM[normBioName(name)] ?? POOL_PGA_BY_FL[firstLastKey(name)];
-  return hit ? String(hit) : provided;
+  if (hit) return String(hit);
+  return NON_POOL_PGA_IDS[normBioName(name)] ?? NON_POOL_PGA_IDS[firstLastKey(name)] ?? provided;
+}
+
+// PGA Tour cloudinary headshot for a given PGA Tour id — used as a photo fallback for players
+// ESPN has no headshot for (their ESPN silhouette 404s). `d_headshots_default.png` yields a
+// neutral default if the player has no PGA headshot either.
+function pgaHeadshotUrl(pgaTourId: string): string | null {
+  if (!pgaTourId || pgaTourId === '0') return null;
+  return `https://pga-tour-res.cloudinary.com/image/upload/c_fill,d_headshots_default.png,f_auto,g_face:center,h_350,q_auto,w_280/headshots_${pgaTourId}.png`;
 }
 
 // Overlay manual overrides (app/lib/player-bio-overrides.ts) onto a bio. Override values
@@ -872,15 +888,16 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v31:${name}`;
+  const cacheKey = `player-bio:v32:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
       const espnId = await getEspnId(name).catch(() => null);
       const espnPhotoUrl = espnId ? `https://a.espncdn.com/i/headshots/golf/players/full/${espnId}.png` : null;
+      const pgaPhotoUrl = pgaHeadshotUrl(pgaTourId);
       const finalBio = applyBioOverrides(name, JSON.parse(cached as string));
       const updatedAt = await resolveBioChangedAt(name, finalBio);
-      return Response.json({ bio: finalBio, espnPhotoUrl, updatedAt });
+      return Response.json({ bio: finalBio, espnPhotoUrl, pgaPhotoUrl, updatedAt });
     }
   } catch { /* ignore */ }
 
@@ -936,7 +953,8 @@ export async function GET(req: Request) {
   const espnPhotoUrl = espnId
     ? `https://a.espncdn.com/i/headshots/golf/players/full/${espnId}.png`
     : null;
+  const pgaPhotoUrl = pgaHeadshotUrl(pgaTourId);
   const finalBio = applyBioOverrides(name, bio);
   const updatedAt = await resolveBioChangedAt(name, finalBio);
-  return Response.json({ bio: finalBio, espnPhotoUrl, updatedAt });
+  return Response.json({ bio: finalBio, espnPhotoUrl, pgaPhotoUrl, updatedAt });
 }

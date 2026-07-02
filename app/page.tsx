@@ -1324,6 +1324,7 @@ export default function Page() {
     playerBio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; cutsMade: number | null; careerWins: number | null; majorStarts: number | null; majorCutsMade: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null } | null;
     playerBioLoading: boolean;
     espnPhotoUrl: string | null;
+    pgaPhotoUrl: string | null;
     tournamentStatsFetchedAt: string | null;
     seasonStatsFetchedAt: string | null;
     bioFetchedAt: string | null;
@@ -2875,6 +2876,7 @@ export default function Page() {
       playerBio: null,
       playerBioLoading: landingTab === 'bio',
       espnPhotoUrl: null,
+      pgaPhotoUrl: null,
       tournamentStatsFetchedAt: null,
       seasonStatsFetchedAt: null,
       bioFetchedAt: null,
@@ -2884,8 +2886,8 @@ export default function Page() {
     if (landingTab === 'bio') {
       const bioParams = new URLSearchParams({ name: player.name });
       if (player.pgaTourId) bioParams.set('pgaTourId', String(player.pgaTourId));
-      readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; cutsMade: number | null; careerWins: number | null; majorStarts: number | null; majorCutsMade: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }; espnPhotoUrl?: string | null; updatedAt?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' })
-        .then((data) => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null, bioFetchedAt: data.updatedAt ?? null } : null))
+      readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; cutsMade: number | null; careerWins: number | null; majorStarts: number | null; majorCutsMade: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }; espnPhotoUrl?: string | null; pgaPhotoUrl?: string | null; updatedAt?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' })
+        .then((data) => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null, pgaPhotoUrl: data.pgaPhotoUrl ?? null, bioFetchedAt: data.updatedAt ?? null } : null))
         .catch(() => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null));
     }
     const scorecardFetch = statsCtx === 'tournament'
@@ -8821,8 +8823,8 @@ export default function Page() {
                           try {
                             const bioParams = new URLSearchParams({ name: pickHistoryPlayerPopup.player.name });
                             if (pickHistoryPlayerPopup.player.pgaTourId) bioParams.set('pgaTourId', String(pickHistoryPlayerPopup.player.pgaTourId));
-                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; cutsMade: number | null; careerWins: number | null; majorStarts: number | null; majorCutsMade: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }; espnPhotoUrl?: string | null; updatedAt?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
-                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null, bioFetchedAt: data.updatedAt ?? null } : null);
+                            const data = await readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; cutsMade: number | null; careerWins: number | null; majorStarts: number | null; majorCutsMade: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }; espnPhotoUrl?: string | null; pgaPhotoUrl?: string | null; updatedAt?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' });
+                            setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBio: data.bio, playerBioLoading: false, espnPhotoUrl: data.espnPhotoUrl ?? null, pgaPhotoUrl: data.pgaPhotoUrl ?? null, bioFetchedAt: data.updatedAt ?? null } : null);
                           } catch {
                             setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null);
                           }
@@ -8854,8 +8856,14 @@ export default function Page() {
                   // use the live ESPN-by-name headshot the bio API resolved. This restores photos for
                   // non-pool players (e.g. Masters legends) without a flash for everyone else.
                   const noRealSyncPhoto = syncPhoto === pgaDefault && !PGA_PHOTO_ONLY.has(photoPlayer.name);
-                  const photoSrc = (noRealSyncPhoto && pickHistoryPlayerPopup.espnPhotoUrl) ? pickHistoryPlayerPopup.espnPhotoUrl : syncPhoto;
-                  const photoFallback = photoPlayer.photoUrl ?? pgaDefault;
+                  // For non-pool players (pgaTourId 0) the bio API resolves a real PGA Tour headshot
+                  // (pgaPhotoUrl) from its own id map — use it when the synchronous source is the blank
+                  // silhouette, and as the on-error fallback when the ESPN headshot 404s.
+                  const bioPgaPhoto = pickHistoryPlayerPopup.pgaPhotoUrl;
+                  const photoSrc = noRealSyncPhoto
+                    ? (pickHistoryPlayerPopup.espnPhotoUrl ?? bioPgaPhoto ?? syncPhoto)
+                    : syncPhoto;
+                  const photoFallback = (noRealSyncPhoto ? bioPgaPhoto : null) ?? photoPlayer.photoUrl ?? pgaDefault;
                   const topRows: { label: string; value: string | number | null; italic?: boolean }[] = [
                     { label: 'DOB', value: bio?.dob ? `${bio.dob}${bio.age != null ? ` (${bio.age})` : ''}` : null },
                     { label: 'Birthplace', value: bio?.birthPlace ?? null },
