@@ -502,9 +502,6 @@ const isManualPhoto = (photoUrl?: string): photoUrl is string =>
 const PGA_PHOTO_ONLY = new Set<string>([
   'Matt Fitzpatrick',
   'Ludvig Aberg',
-  // ESPN has no headshot for these two (blank silhouette); both have real PGA Tour headshots.
-  'Andy Sullivan',
-  'Jordan Gumberg',
 ]);
 // Hand-uploaded photos (public/player-photos/) for players PGA/ESPN have no usable headshot for
 // (mostly Masters legends). Keyed by name; these ALWAYS win (highest priority) since they were
@@ -517,6 +514,9 @@ const MANUAL_PHOTO_FILES: Record<string, string> = {
   'Phil Mickelson': '/player-photos/phil-mickelson.jpg',
   'Rory McIlroy': '/player-photos/rory-mcilroy.jpg',
   'Tiger Woods': '/player-photos/tiger-woods.jpg',
+  // Neither ESPN nor PGA Tour has a headshot for these two — supplied manually.
+  'Andy Sullivan': '/player-photos/andy-sullivan.png',
+  'Jordan Gumberg': '/player-photos/jordan-gumberg.png',
 };
 const normPhotoName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, '').trim();
 const MANUAL_PHOTO_BY_NORM: Record<string, string> = {};

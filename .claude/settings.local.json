@@ -26,7 +26,10 @@
       "mcp__Vercel__list_projects",
       "mcp__Vercel__get_runtime_logs",
       "mcp__Vercel__get_deployment_build_logs",
-      "mcp__Vercel__get_project"
+      "mcp__Vercel__get_project",
+      "Bash(mkdir -p /home/user/golf-majors-pool-Final1/public/player-photos)",
+      "Bash(cp /root/.claude/uploads/e02e4145-cc1c-5246-b58f-b40a5b42bbc5/aa2b3c39-IMG_4196.png /home/user/golf-majors-pool-Final1/public/player-photos/andy-sullivan.png)",
+      "Bash(python3 -c \"from PIL import Image; im=Image.open\\('/home/user/golf-majors-pool-Final1/public/player-photos/andy-sullivan.png'\\); print\\('saved', im.size, im.mode\\)\")"
     ]
   }
 }
