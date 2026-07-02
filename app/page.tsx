@@ -8759,7 +8759,9 @@ export default function Page() {
                     </>}
                     {/* PGA club professionals (not touring pros): PGA seal directly right of the country code */}
                     {PGA_CLUB_PROFESSIONALS.has(pickHistoryPlayerPopup.player.name) && (
-                      <img src="/pga-seal-gold.png" alt="PGA" style={{ height: 22, objectFit: 'contain', flexShrink: 0 }} />
+                      // Rendered larger than the name row, but negative vertical margins keep its layout
+                      // footprint at ~22px so the header height doesn't grow (overflow sits in the padding).
+                      <img src="/pga-seal-gold.png" alt="PGA" style={{ height: 38, objectFit: 'contain', flexShrink: 0, marginTop: -8, marginBottom: -8 }} />
                     )}
                   </div>
                   {/* Ranking bubbles */}
