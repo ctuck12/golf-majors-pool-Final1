@@ -3340,7 +3340,10 @@ export default function Page() {
 
   // Full display name for the pick-sheet header (The Open → The Open Championship).
   const entriesTournamentDisplayName =
+    entriesTournamentId === 'players' ? 'The Players' :
+    entriesTournamentId === 'masters' ? 'The Masters' :
     entriesTournamentId === 'pga' ? 'PGA Championship' :
+    entriesTournamentId === 'us-open' ? 'U.S. Open' :
     entriesTournamentId === 'open' ? 'The Open' :
     entriesTournament.name;
 
