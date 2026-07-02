@@ -8761,7 +8761,7 @@ export default function Page() {
                   {/* Club professional badge — PGA Championship logo + label for PGA club pros (not touring pros) */}
                   {PGA_CLUB_PROFESSIONALS.has(pickHistoryPlayerPopup.player.name) && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 7 }}>
-                      <img src="/pga-of-america-logo.png" alt="PGA" style={{ height: 26, objectFit: 'contain', flexShrink: 0 }} />
+                      <img src={TOURNAMENT_TAB_LOGOS.pga} alt="PGA" style={{ height: 26, objectFit: 'contain', flexShrink: 0 }} />
                       <span style={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Club Professional</span>
                     </div>
                   )}
