@@ -354,6 +354,16 @@ const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
 // logo + "Club Professional" under the name instead of ranking bubbles.
 const PGA_CLUB_PROFESSIONALS = new Set<string>([
   'Austin Hurt',
+  'Michael Block',
+  'Jared Jones',
+  'Timothy Wiseman',
+  'Ryan Lenahan',
+  'Braden Shattuck',
+  'Derek Berg',
+  'Michael Kartrude',
+  'Jesse Droemer',
+  'Mark Geddes',
+  'Bryce Fisher',
 ]);
 
 // Event/venue logos shown in the pick-sheet header (transparent PNGs on file).
