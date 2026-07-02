@@ -81,6 +81,8 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Robert MacIntyre':           { weight: '163 lbs' },
   'Mikael Lindberg':            { weight: '198 lbs' },
   'Daniel Brown':               { height: `6'3"` },
+  'Elvis Smylie':               { height: `6'0"`, weight: '157 lbs' },
+  'Casey Jarvis':               { weight: '181 lbs' },
   'Michael Brennan':            { weight: '175 lbs' },
   'Neal Shipley':               { weight: '205 lbs' },
   'Filippo Celli':              { weight: '170 lbs' },
