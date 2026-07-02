@@ -27,6 +27,7 @@ export type BioOverride = Partial<{
   swing: string; // 'Right' | 'Left'
   college: string;
   noCollege: boolean;
+  turnedPro: number; // year, e.g. 2012
 }>;
 
 // Checklist of players with bio gaps as of the last audit, ordered by how much is missing.
@@ -107,7 +108,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Takumi Kanaya':              { college: 'Tohoku Fukushi University' },
   'Ryan Fox':                   { college: 'University of Waikato' },
   'Kristoffer Reitan':          { college: 'Texas' },
-  'Austin Hurt':                { college: 'Washington State' },
+  'Austin Hurt':                { dob: 'February 21, 1989', birthPlace: 'Seattle, Washington', height: `5'8"`, weight: '155 lbs', swing: 'Right', college: 'Washington State', turnedPro: 2012 },
   'Kota Kaneko':                { noCollege: true },
   'Kurt Kitayama':              { college: 'UNLV' },
   'Adam Scott':                 { college: 'UNLV' },

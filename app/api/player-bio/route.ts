@@ -847,6 +847,7 @@ function applyBioOverrides(name: string, bio: PlayerBio): PlayerBio {
     const formatted = fmtDob(ov.dob);
     if (formatted) { bio.dob = formatted; bio.age = calcAge(ov.dob); }
   }
+  if (ov.turnedPro != null) bio.turnedPro = ov.turnedPro;
   return bio;
 }
 
