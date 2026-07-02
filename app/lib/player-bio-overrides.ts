@@ -92,7 +92,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Ryan Vermeer':               { birthPlace: 'Spencer, Iowa' },
   'Michael Thorbjornsen':       { height: `6'0"`, weight: '176 lbs', swing: 'Right' },
   'Travis Smyth':               { birthPlace: 'Shellharbour, New South Wales', height: `5'10"`, weight: '165 lbs', swing: 'Right' },
-  'Angel Ayora':                { birthPlace: 'Málaga, Spain', dob: 'October 3, 2004' },
+  'Angel Ayora':                { birthPlace: 'Málaga, Spain', dob: 'October 3, 2004', height: `6'0"`, weight: '172 lbs' },
   'Tyler Collet':               { dob: 'August 23, 1995', height: `5'9"`, weight: '150 lbs', swing: 'Right' },
   'Michael Brennan':            { weight: '175 lbs' },
   'Neal Shipley':               { weight: '205 lbs' },
