@@ -6340,8 +6340,8 @@ export default function Page() {
                   <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Data source
                   </div>
-                  <div style={{ marginTop: isMobile ? 4 : 8, flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: isMobile ? 10 : 14 }}>
-                    {/* ESPN pinned left, PGA Tour pushed right and sized bigger (near-square badge vs wide ESPN).
+                  <div style={{ marginTop: isMobile ? 4 : 8, flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: isMobile ? 12 : 16 }}>
+                    {/* ESPN then PGA Tour just to its right, PGA sized bigger (near-square badge vs wide ESPN).
                         Heights kept modest so this box doesn't drive the equal-height grid taller. */}
                     <img src="/espn-logo.png" alt="ESPN" style={{ height: isMobile ? 26 : 34, maxHeight: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
                     <img src="/pga-tour-logo.png" alt="PGA Tour" style={{ height: isMobile ? 38 : 46, maxHeight: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
