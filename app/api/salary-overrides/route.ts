@@ -20,13 +20,30 @@ export async function GET() {
     getDynamicPlayers(),
   ]);
 
+  // Repair map: a prior upload (before name aliases existed) may have saved salaries under a DYNAMIC
+  // duplicate id (e.g. "Benjamin James") instead of the real pool player ("Ben James"). Remap those
+  // salaries to the pool id on read, so existing lists show correctly without a re-upload.
+  const poolIdByCanon = new Map(PLAYER_POOL_WITH_PGA_IDS.map((p) => [canonicalNameKey(p.name), p.id]));
+  const idRemap = new Map<number, number>(); // dynamic id -> pool id
+  for (const dp of dynamicRaw) {
+    const poolId = poolIdByCanon.get(canonicalNameKey(applyNameAlias(dp.name)));
+    if (poolId != null && poolId !== dp.id) idRemap.set(dp.id, poolId);
+  }
+
   const byTournament: Record<string, { salaries: Record<number, number>; worldRanks: Record<number, number>; updatedAt: string | null }> = {};
   for (const [tid, list] of Object.entries(byTid)) {
     const salaries: Record<number, number> = {};
     const worldRanks: Record<number, number> = {};
     for (const [id, entry] of Object.entries(list.map)) {
-      salaries[Number(id)] = entry.salary;
-      if (typeof entry.worldRank === 'number' && entry.worldRank > 0) worldRanks[Number(id)] = entry.worldRank;
+      const numId = Number(id);
+      let realId = numId;
+      if (idRemap.has(numId)) {
+        const poolId = idRemap.get(numId)!;
+        if (String(poolId) in list.map) continue; // pool id already has its own entry — keep that, skip the dup
+        realId = poolId;
+      }
+      salaries[realId] = entry.salary;
+      if (typeof entry.worldRank === 'number' && entry.worldRank > 0) worldRanks[realId] = entry.worldRank;
     }
     byTournament[tid] = { salaries, worldRanks, updatedAt: list.updatedAt };
   }
