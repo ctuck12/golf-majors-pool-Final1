@@ -371,6 +371,7 @@ const PGA_CLUB_PROFESSIONALS = new Set<string>([
   'Francisco Bide',
   'Francisco Bidé',
   'Tyler Collet',
+  'Chris Gabriele',
 ]);
 
 // Event/venue logos shown in the pick-sheet header (transparent PNGs on file).
