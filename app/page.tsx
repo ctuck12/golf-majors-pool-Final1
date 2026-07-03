@@ -9399,7 +9399,7 @@ export default function Page() {
                 {/* Explanation for the Submit & Pay flow */}
                 {!hasSubmittedRoster && (
                   <div style={{ fontSize: 11.5, color: '#5b6b79', lineHeight: 1.5, marginBottom: 10 }}>
-                    *Hitting <b>Submit &amp; Pay</b>{' '}submits your roster and automatically opens Venmo to @claytont743 to pay the pool entry fee. The amount and what it&apos;s for are auto-populated for you.
+                    *Hitting <b>Submit &amp; Pay</b>{' '}submits your roster and automatically opens Venmo to @claytont743 to pay the pool entry fee. The $30 amount and what it&apos;s for are auto-populated for you.
                   </div>
                 )}
 
