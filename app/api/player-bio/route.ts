@@ -827,6 +827,7 @@ const NON_POOL_PGA_IDS: Record<string, string> = {
   'miles russell': '66290',
   'eric lee': '70734',
   'jackson herrington': '70148',
+  'thorbjorn olesen': '33968',
 };
 function resolvePgaTourId(name: string, provided: string): string {
   // LEGEND_PGA_IDS wins even over a provided id: these ids have LEADING ZEROS that a numeric
@@ -940,7 +941,7 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v42:${name}`;
+  const cacheKey = `player-bio:v43:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
