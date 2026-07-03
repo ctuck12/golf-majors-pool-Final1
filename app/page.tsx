@@ -6341,10 +6341,10 @@ export default function Page() {
                     Data source
                   </div>
                   <div style={{ marginTop: isMobile ? 4 : 8, flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: isMobile ? 10 : 14 }}>
-                    {/* ESPN pinned left, PGA Tour pushed right and sized bigger (near-square badge vs wide ESPN);
-                        maxHeight caps both to the row so the box never grows. */}
-                    <img src="/espn-logo.png" alt="ESPN" style={{ height: isMobile ? 28 : 38, maxHeight: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
-                    <img src="/pga-tour-logo.png" alt="PGA Tour" style={{ height: isMobile ? 58 : 78, maxHeight: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
+                    {/* ESPN pinned left, PGA Tour pushed right and sized bigger (near-square badge vs wide ESPN).
+                        Heights kept modest so this box doesn't drive the equal-height grid taller. */}
+                    <img src="/espn-logo.png" alt="ESPN" style={{ height: isMobile ? 26 : 34, maxHeight: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
+                    <img src="/pga-tour-logo.png" alt="PGA Tour" style={{ height: isMobile ? 38 : 46, maxHeight: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
                   </div>
                 </div>
                 <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 12 : 18, padding: isMobile ? 10 : 16, background: '#f8fbfd' }}>
