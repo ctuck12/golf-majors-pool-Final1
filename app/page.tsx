@@ -2697,12 +2697,14 @@ export default function Page() {
   // Players the commissioner's salary upload auto-added because they weren't in the static pool.
   const [dynamicPlayers, setDynamicPlayers] = useState<Array<{ id: number; name: string; pgaTourId: number; worldRank: number; defaultOdds: string }>>([]);
   const [salaryListLoaded, setSalaryListLoaded] = useState(false); // false until the fetch resolves
-  useEffect(() => {
-    let cancelled = false;
+  // Re-fetchable so a fresh commissioner upload shows up without a hard reload (mobile back/bfcache
+  // otherwise restores the pre-upload page without re-running the mount fetch).
+  const loadSalaryOverrides = useRef<() => void>(() => {});
+  loadSalaryOverrides.current = () => {
     fetch('/api/salary-overrides', { cache: 'no-store' })
       .then((r) => r.json())
       .then((d: { byTournament?: Record<string, { salaries?: Record<string, number>; worldRanks?: Record<string, number> }>; dynamicPlayers?: Array<{ id: number; name: string; pgaTourId: number; worldRank: number; defaultOdds: string }> }) => {
-        if (cancelled || !d) return;
+        if (!d) return;
         const byT: Record<string, SalaryMaps> = {};
         for (const [tid, m] of Object.entries(d.byTournament ?? {})) {
           const salaries: Record<number, number> = {};
@@ -2715,8 +2717,19 @@ export default function Page() {
         if (Array.isArray(d.dynamicPlayers) && d.dynamicPlayers.length > 0) setDynamicPlayers(d.dynamicPlayers);
       })
       .catch(() => { /* keep built-in values */ })
-      .finally(() => { if (!cancelled) setSalaryListLoaded(true); });
-    return () => { cancelled = true; };
+      .finally(() => { setSalaryListLoaded(true); });
+  };
+  useEffect(() => {
+    loadSalaryOverrides.current();
+    // Re-fetch when the tab/app regains focus (e.g. returning from the commissioner upload page).
+    const onShow = () => loadSalaryOverrides.current();
+    window.addEventListener('focus', onShow);
+    window.addEventListener('pageshow', onShow);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) loadSalaryOverrides.current(); });
+    return () => {
+      window.removeEventListener('focus', onShow);
+      window.removeEventListener('pageshow', onShow);
+    };
   }, []);
   // The pick sheet is built from the CURRENT tournament's salaries/world ranks.
   const salaryOverrides = useMemo(() => salaryByTournament[entriesTournamentId]?.salaries ?? {}, [salaryByTournament, entriesTournamentId]);
@@ -3276,6 +3289,7 @@ export default function Page() {
   };
 
   const openMyEntriesEditor = () => {
+    loadSalaryOverrides.current(); // pull the latest uploaded salary list before showing the pick sheet
     setSaveMessage('');
     setMyEntriesMenuOpen(false);
     setMyEntriesDetailView('none');
