@@ -102,6 +102,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Mark Geddes':                { birthPlace: 'Moreton, England', college: 'Grand Canyon' },
   'Jesse Droemer':              { swing: 'Right' },
   'Braden Shattuck':            { swing: 'Right' },
+  'Ryan Lenahan':               { birthPlace: 'Grosse Pointe Shores, Michigan', swing: 'Right', college: 'Nebraska' },
   'Michael Brennan':            { weight: '175 lbs' },
   'Neal Shipley':               { weight: '205 lbs' },
   'Filippo Celli':              { weight: '170 lbs' },
