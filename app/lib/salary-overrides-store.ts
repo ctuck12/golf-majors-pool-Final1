@@ -10,7 +10,10 @@ import { canonicalNameKey, detectPlayerTags } from './name-match';
 // resolved to pool player IDs here, the id -> {salary, worldRank} map is stored in Redis, and the pick
 // sheet reads it via /api/salary-overrides. When nothing is stored, the built-in values are used.
 
-const STORE_KEY = 'salary-overrides:v2'; // v2: now also carries world rank
+// Salary lists are stored PER TOURNAMENT (v3) so uploading a new tournament's list no longer
+// overwrites a previous one — historical standings keep the salaries each golfer had at that event.
+// (v2 was a single global key; it's abandoned, so the current tournament's list is re-uploaded once.)
+const salaryKey = (tournamentId: string) => `salary-overrides:v3:${tournamentId}`;
 
 export type OverrideEntry = { salary: number; worldRank: number | null };
 
@@ -113,9 +116,9 @@ export function parseSalaryPaste(text: string, extra?: Array<{ id: number; name:
   return { map, matched, unmatched, skipped, amateurs, clubPros };
 }
 
-export async function getManualSalaries(): Promise<ManualSalaries | null> {
+export async function getManualSalaries(tournamentId: string): Promise<ManualSalaries | null> {
   try {
-    const raw = await redis.get(STORE_KEY);
+    const raw = await redis.get(salaryKey(tournamentId));
     if (!raw) return null;
     const parsed = JSON.parse(raw as string) as ManualSalaries;
     return parsed && parsed.map && Object.keys(parsed.map).length > 0 ? parsed : null;
@@ -124,12 +127,25 @@ export async function getManualSalaries(): Promise<ManualSalaries | null> {
   }
 }
 
-export async function saveManualSalaries(map: Record<number, OverrideEntry>, updatedAt: string): Promise<ManualSalaries> {
+// Read every tournament's saved salary list at once (for the public pick-sheet read, which needs to
+// show the right salaries whichever tournament the user is viewing).
+export async function getAllManualSalaries(tournamentIds: readonly string[]): Promise<Record<string, ManualSalaries>> {
+  const out: Record<string, ManualSalaries> = {};
+  await Promise.all(
+    tournamentIds.map(async (tid) => {
+      const s = await getManualSalaries(tid);
+      if (s) out[tid] = s;
+    }),
+  );
+  return out;
+}
+
+export async function saveManualSalaries(tournamentId: string, map: Record<number, OverrideEntry>, updatedAt: string): Promise<ManualSalaries> {
   const payload: ManualSalaries = { map, updatedAt, count: Object.keys(map).length };
-  await redis.set(STORE_KEY, JSON.stringify(payload));
+  await redis.set(salaryKey(tournamentId), JSON.stringify(payload));
   return payload;
 }
 
-export async function clearManualSalaries(): Promise<void> {
-  await redis.del(STORE_KEY);
+export async function clearManualSalaries(tournamentId: string): Promise<void> {
+  await redis.del(salaryKey(tournamentId));
 }

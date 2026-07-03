@@ -2691,8 +2691,11 @@ export default function Page() {
   // Salaries come ONLY from the commissioner's uploaded list (/commissioner-salary). No baked-in
   // salaries and no odds-based auto-pricing — until a list is uploaded there is no pick list. World
   // ranks on the pick sheet likewise come from the upload (falling back to the static pool rank).
-  const [salaryOverrides, setSalaryOverrides] = useState<Record<number, number>>({});
-  const [worldRankOverrides, setWorldRankOverrides] = useState<Record<number, number>>({});
+  // Salary lists are stored PER TOURNAMENT, so we keep every tournament's map. The pick sheet uses the
+  // current tournament's (entriesTournamentId); the standings use whichever tournament is being viewed
+  // (selectedTournament), so a past event's entry shows the salaries each golfer had at THAT event.
+  type SalaryMaps = { salaries: Record<number, number>; worldRanks: Record<number, number> };
+  const [salaryByTournament, setSalaryByTournament] = useState<Record<string, SalaryMaps>>({});
   // Players the commissioner's salary upload auto-added because they weren't in the static pool.
   const [dynamicPlayers, setDynamicPlayers] = useState<Array<{ id: number; name: string; pgaTourId: number; worldRank: number; defaultOdds: string }>>([]);
   const [salaryListLoaded, setSalaryListLoaded] = useState(false); // false until the fetch resolves
@@ -2700,26 +2703,26 @@ export default function Page() {
     let cancelled = false;
     fetch('/api/salary-overrides', { cache: 'no-store' })
       .then((r) => r.json())
-      .then((d: { salaries?: Record<string, number>; worldRanks?: Record<string, number>; dynamicPlayers?: Array<{ id: number; name: string; pgaTourId: number; worldRank: number; defaultOdds: string }> }) => {
+      .then((d: { byTournament?: Record<string, { salaries?: Record<string, number>; worldRanks?: Record<string, number> }>; dynamicPlayers?: Array<{ id: number; name: string; pgaTourId: number; worldRank: number; defaultOdds: string }> }) => {
         if (cancelled || !d) return;
-        const salaries = Object.entries(d.salaries ?? {});
-        if (salaries.length > 0) {
-          const parsed: Record<number, number> = {};
-          for (const [k, v] of salaries) parsed[Number(k)] = Number(v);
-          setSalaryOverrides(parsed);
+        const byT: Record<string, SalaryMaps> = {};
+        for (const [tid, m] of Object.entries(d.byTournament ?? {})) {
+          const salaries: Record<number, number> = {};
+          const worldRanks: Record<number, number> = {};
+          for (const [k, v] of Object.entries(m.salaries ?? {})) salaries[Number(k)] = Number(v);
+          for (const [k, v] of Object.entries(m.worldRanks ?? {})) worldRanks[Number(k)] = Number(v);
+          byT[tid] = { salaries, worldRanks };
         }
-        const ranks = Object.entries(d.worldRanks ?? {});
-        if (ranks.length > 0) {
-          const parsedR: Record<number, number> = {};
-          for (const [k, v] of ranks) parsedR[Number(k)] = Number(v);
-          setWorldRankOverrides(parsedR);
-        }
+        setSalaryByTournament(byT);
         if (Array.isArray(d.dynamicPlayers) && d.dynamicPlayers.length > 0) setDynamicPlayers(d.dynamicPlayers);
       })
       .catch(() => { /* keep built-in values */ })
       .finally(() => { if (!cancelled) setSalaryListLoaded(true); });
     return () => { cancelled = true; };
   }, []);
+  // The pick sheet is built from the CURRENT tournament's salaries/world ranks.
+  const salaryOverrides = useMemo(() => salaryByTournament[entriesTournamentId]?.salaries ?? {}, [salaryByTournament, entriesTournamentId]);
+  const worldRankOverrides = useMemo(() => salaryByTournament[entriesTournamentId]?.worldRanks ?? {}, [salaryByTournament, entriesTournamentId]);
   // No salary list has been uploaded for this tournament yet (salaries come only from the upload).
   const salaryListMissing = salaryListLoaded && Object.keys(salaryOverrides).length === 0;
 
@@ -3021,7 +3024,17 @@ export default function Page() {
           : isCommissioner
             ? DEFAULT_ROSTERS[selectedTournament]
             : [];
-      const golfers = picks.map((id) => playersById[id]).filter(Boolean);
+      // Salary is stored per tournament, so override each golfer's salary with the one they carried in
+      // the tournament being viewed (selectedTournament) — otherwise a past event would show the
+      // current tournament's salaries (or $0). Falls back to $0 when that event has no uploaded list.
+      const viewedSalaries = salaryByTournament[selectedTournament]?.salaries;
+      const golfers = picks
+        .map((id) => {
+          const p = playersById[id];
+          if (!p) return p;
+          return { ...p, salary: viewedSalaries?.[id] ?? 0 };
+        })
+        .filter(Boolean);
       const rosterPoints = golfers.reduce((sum, golfer) => sum + golfer.points, 0);
       const holesRemaining = golfers.reduce((sum, golfer) => sum + golfer.holesRemaining, 0);
       const tieBreakValue = entry.tieBreaks?.[selectedTournament] ?? (picks.reduce((sum, id) => sum + id, 0) + 270);

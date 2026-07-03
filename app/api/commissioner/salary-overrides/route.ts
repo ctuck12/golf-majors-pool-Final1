@@ -12,11 +12,20 @@ import { getPgaDirectoryResolver } from '../../../lib/pga-directory';
 import { getEspnId } from '../../../lib/espn-player-season';
 import { canonicalNameKey } from '../../../lib/name-match';
 import { mergePlayerTags } from '../../../lib/player-tags-store';
+import { ALL_TOURNAMENT_IDS, getHeaderTournament } from '../../../lib/tournament-logo';
 
 export const dynamic = 'force-dynamic';
 
 const COMMISSIONER_EMAIL = 'ctuck12@gmail.com';
 const COMMISSIONER_DISPLAY_NAME = 'Clayton Tucker';
+
+// The tournament a salary upload applies to. Prefer an explicit id from the client (it knows which
+// tournament card is active), else fall back to the current tournament. Guards against bad values.
+function resolveTournamentId(raw: string | null | undefined): string {
+  const v = (raw ?? '').trim();
+  if (v && (ALL_TOURNAMENT_IDS as readonly string[]).includes(v)) return v;
+  return getHeaderTournament().id;
+}
 
 async function requireCommissioner() {
   const cookieStore = await cookies();
@@ -32,20 +41,22 @@ async function requireCommissioner() {
   return { session };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const auth = await requireCommissioner();
   if (auth.error) return auth.error;
-  const current = await getManualSalaries();
-  return NextResponse.json({ active: !!current, count: current?.count ?? 0, updatedAt: current?.updatedAt ?? null });
+  const tournamentId = resolveTournamentId(new URL(request.url).searchParams.get('tournamentId'));
+  const current = await getManualSalaries(tournamentId);
+  return NextResponse.json({ active: !!current, count: current?.count ?? 0, updatedAt: current?.updatedAt ?? null, tournamentId });
 }
 
 export async function POST(request: Request) {
   const auth = await requireCommissioner();
   if (auth.error) return auth.error;
-  let body: { text?: string };
-  try { body = (await request.json()) as { text?: string }; } catch { return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 }); }
+  let body: { text?: string; tournamentId?: string };
+  try { body = (await request.json()) as { text?: string; tournamentId?: string }; } catch { return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 }); }
   const text = (body.text ?? '').trim();
   if (!text) return NextResponse.json({ error: 'Paste the salary list first.' }, { status: 400 });
+  const tournamentId = resolveTournamentId(body.tournamentId);
 
   // Match against the static pool AND any players auto-added on prior uploads, so re-uploads reuse
   // their existing dynamic ID instead of creating duplicates.
@@ -87,12 +98,13 @@ export async function POST(request: Request) {
   // Persist any amateur / club-pro markers found in the salary list so the bio header updates automatically.
   const tags = await mergePlayerTags(parsed.amateurs, parsed.clubPros);
 
-  const saved = await saveManualSalaries(parsed.map, new Date().toISOString());
+  const saved = await saveManualSalaries(tournamentId, parsed.map, new Date().toISOString());
   const withRank = parsed.matched.filter((m) => m.worldRank != null).length;
   return NextResponse.json({
     ok: true,
     count: saved.count,
     updatedAt: saved.updatedAt,
+    tournamentId, // which tournament this list was saved under
     matchedCount: parsed.matched.length,
     worldRankCount: withRank, // how many rows also carried a world rank
     autoAddedCount, // names not previously in the pool that were priced into the pick sheet
@@ -107,9 +119,10 @@ export async function POST(request: Request) {
   });
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   const auth = await requireCommissioner();
   if (auth.error) return auth.error;
-  await clearManualSalaries();
+  const tournamentId = resolveTournamentId(new URL(request.url).searchParams.get('tournamentId'));
+  await clearManualSalaries(tournamentId);
   return NextResponse.json({ ok: true, active: false });
 }

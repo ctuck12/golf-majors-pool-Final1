@@ -125,7 +125,7 @@ export default function CommissionerSalaryPage() {
 
   const loadStatus = async () => {
     try {
-      const res = await fetch('/api/commissioner/salary-overrides', { cache: 'no-store' });
+      const res = await fetch(`/api/commissioner/salary-overrides?tournamentId=${headerTournament.id}`, { cache: 'no-store' });
       if (res.status === 401) { setGateError('Sign in to the pool as the commissioner (in the main app), then reload this page.'); return; }
       if (res.status === 403) { setGateError('This account is not the commissioner.'); return; }
       if (!res.ok) { setGateError('Could not load current salaries.'); return; }
@@ -264,7 +264,7 @@ export default function CommissionerSalaryPage() {
     setBusy(true); setMsg(null); setResp(null);
     try {
       const res = await fetch('/api/commissioner/salary-overrides', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, tournamentId: headerTournament.id }),
       });
       const data = (await res.json()) as SaveResp;
       setResp(data);
@@ -284,7 +284,7 @@ export default function CommissionerSalaryPage() {
     if (!confirm('Clear the uploaded list and revert to the built-in salaries + world ranks?')) return;
     setBusy(true); setMsg(null); setResp(null);
     try {
-      const res = await fetch('/api/commissioner/salary-overrides', { method: 'DELETE' });
+      const res = await fetch(`/api/commissioner/salary-overrides?tournamentId=${headerTournament.id}`, { method: 'DELETE' });
       if (!res.ok) { const d = await res.json().catch(() => ({})); setMsg({ kind: 'err', text: d.error ?? 'Clear failed.' }); }
       else { setMsg({ kind: 'ok', text: 'Reverted to the built-in list.' }); loadStatus(); }
     } catch { setMsg({ kind: 'err', text: 'Network error while clearing.' }); }
@@ -416,9 +416,10 @@ export default function CommissionerSalaryPage() {
             )}
 
             {/* ── Salary Pick List ── */}
-            <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', marginTop: 4 }}>Salary Pick List</div>
+            <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', marginTop: 4 }}>Salary Pick List — {headerTournament.name}</div>
             <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
-              Columns: <b>World Golf Rank</b>, <b>Player Name</b>, <b>Salary</b> (a header row is fine — it&apos;s skipped).
+              This list is saved for <b>{headerTournament.name}</b> only — it no longer overwrites other tournaments&apos; salaries, so past events keep the salaries golfers had at the time.
+              {' '}Columns: <b>World Golf Rank</b>, <b>Player Name</b>, <b>Salary</b> (a header row is fine — it&apos;s skipped).
               Upload the <b>.xlsx</b>/<b>.csv</b> file, or paste the rows. Any name not already in the pool is auto-added.
               {' '}<b>Amateurs are flagged automatically</b> from the standard <b>(a)</b> marker most salary lists already include — they get a red “AMATEUR” in their bio, no action needed.
             </div>

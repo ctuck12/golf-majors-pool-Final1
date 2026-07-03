@@ -14,6 +14,9 @@ const SCHEDULE: HeaderTournament[] = [
 ];
 
 // First-tee times (UTC) match app/page.tsx TOURNAMENTS.
+// All tournament ids, in schedule order — used to store/read salary lists per tournament.
+export const ALL_TOURNAMENT_IDS = ['players', 'masters', 'pga', 'us-open', 'open'] as const;
+
 const FIRST_TEE_UTC: Record<string, string> = {
   players: '2026-03-12T11:40:00Z',
   masters: '2026-04-09T11:30:00Z',
