@@ -107,7 +107,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Bryce Fisher':               { college: 'Scottsdale Community College' },
   'Derek Berg':                 { college: 'Washington' },
   'Chris Gabriele':             { college: 'Clemson', turnedPro: 2019, swing: 'Right' },
-  'Paul McClure':               { college: 'North Alabama' },
+  'Paul McClure':               { college: 'North Alabama', dob: 'November 1, 1991', height: `5'11"`, swing: 'Right' },
   'Zach Haynes':                { college: 'UT Martin', birthPlace: 'Smyrna, Tennessee', swing: 'Left', dob: 'November 9, 1995', turnedPro: 2018 },
   'Matthew Robles':             { height: `5'7"` },
   'Arni Sveinsson':             { height: `6'0"` },
