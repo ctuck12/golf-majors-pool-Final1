@@ -3,6 +3,7 @@
 import { Fragment, startTransition, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
 import { PLAYER_ESPN_IDS } from '@/app/lib/player-espn-ids';
+import { canonicalNameKey } from '@/app/lib/name-match';
 import {
   AlertCircle,
   ArrowLeft,
@@ -2719,6 +2720,23 @@ export default function Page() {
   }, []);
   // No salary list has been uploaded for this tournament yet (salaries come only from the upload).
   const salaryListMissing = salaryListLoaded && Object.keys(salaryOverrides).length === 0;
+
+  // Amateur / club-pro flags detected from the commissioner's field & salary uploads (canonical name
+  // keys). Amateurs show a red "AMATEUR" in the bio's Turned Pro field; club pros get the PGA seal.
+  const [amateurKeys, setAmateurKeys] = useState<Set<string>>(new Set());
+  const [clubProKeys, setClubProKeys] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/player-tags', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d: { amateur?: string[]; clubPro?: string[] }) => {
+        if (cancelled || !d) return;
+        if (Array.isArray(d.amateur)) setAmateurKeys(new Set(d.amateur));
+        if (Array.isArray(d.clubPro)) setClubProKeys(new Set(d.clubPro));
+      })
+      .catch(() => { /* no tags yet */ });
+    return () => { cancelled = true; };
+  }, []);
 
   const players = useMemo(
     () =>
@@ -8792,8 +8810,9 @@ export default function Page() {
                       <img src={getFlagSrc(pickHistoryPlayerPopup.player.name)} alt="" style={{ height: 16, borderRadius: 2, flexShrink: 0 }} />
                       <span style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 700, fontSize: 12 }}>{getCountryLabel(pickHistoryPlayerPopup.player.name)}</span>
                     </>}
-                    {/* PGA club professionals (not touring pros): PGA seal directly right of the country code */}
-                    {PGA_CLUB_PROFESSIONALS.has(pickHistoryPlayerPopup.player.name) && (
+                    {/* PGA club professionals (not touring pros): PGA seal directly right of the country code.
+                        Flagged either by the static set or automatically from the commissioner's upload. */}
+                    {(PGA_CLUB_PROFESSIONALS.has(pickHistoryPlayerPopup.player.name) || clubProKeys.has(canonicalNameKey(pickHistoryPlayerPopup.player.name))) && (
                       // Rendered larger than the name row, but negative vertical margins keep its layout
                       // footprint at ~22px so the header height doesn't grow (overflow sits in the padding).
                       <img src="/pga-seal-gold.png" alt="PGA" style={{ height: 38, objectFit: 'contain', flexShrink: 0, marginTop: -8, marginBottom: -8 }} />
@@ -8922,10 +8941,15 @@ export default function Page() {
                   // Career rows are split into logically grouped cards so the PGA Tour trio and the
                   // Major trio each read as their own unit (Turned Pro / Career Earnings are the
                   // standalone bookends). Each group renders as its own outlined card with a small gap.
-                  type BioBottomRow = { label: string; value: string | number | null; wins?: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null };
+                  type BioBottomRow = { label: string; value: string | number | null; wins?: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; amateur?: boolean };
+                  // Amateurs (flagged from the commissioner's "(a)" upload markers) show a red "AMATEUR"
+                  // in place of a Turned Pro year.
+                  const isAmateur = amateurKeys.has(canonicalNameKey(pickHistoryPlayerPopup.player.name));
                   const bottomGroups: BioBottomRow[][] = [
                     [
-                      { label: 'Turned Pro', value: bio?.turnedPro ?? null },
+                      isAmateur
+                        ? { label: 'Turned Pro', value: 'AMATEUR', amateur: true }
+                        : { label: 'Turned Pro', value: bio?.turnedPro ?? null },
                     ],
                     [
                       { label: 'PGA Tour Starts', value: bio?.careerStarts ?? null },
@@ -8991,7 +9015,7 @@ export default function Page() {
                                   {clickable && (
                                     <span style={{ fontSize: isMobile ? 14 : 15, color: '#607282', lineHeight: 1 }} aria-label={`View ${row.label}`}>ⓘ</span>
                                   )}
-                                  <span style={{ fontSize: 13, color: row.value != null ? '#0f1720' : '#b0bec5', fontWeight: 700 }}>{row.value != null ? String(row.value) : '—'}</span>
+                                  <span style={{ fontSize: 13, color: row.amateur ? '#d32f2f' : row.value != null ? '#0f1720' : '#b0bec5', fontWeight: row.amateur ? 800 : 700, letterSpacing: row.amateur ? 0.5 : undefined }}>{row.value != null ? String(row.value) : '—'}</span>
                                 </span>
                               </div>
                               );

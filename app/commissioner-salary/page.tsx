@@ -8,6 +8,7 @@ type SaveResp = {
   ok?: boolean; error?: string; count?: number; updatedAt?: string;
   matchedCount?: number; worldRankCount?: number; unmatchedCount?: number;
   autoAddedCount?: number; newlyAddedCount?: number; newlyAdded?: string[];
+  amateurCount?: number; clubProCount?: number;
   unmatched?: { name: string; salary: number }[];
   skipped?: string[];
   preview?: { id: number; name: string; salary: number; worldRank: number | null }[];
@@ -164,7 +165,7 @@ export default function CommissionerSalaryPage() {
       const data = await res.json();
       if (!res.ok) setFieldMsg({ kind: 'err', text: data.error ?? 'Register failed.' });
       else {
-        setFieldMsg({ kind: 'ok', text: `Field: ${data.fieldCount} players — ${data.alreadyInPool} already in the pool, ${data.newlyAdded} newly added${typeof data.newlyAddedWithStats === 'number' ? ` (${data.newlyAddedWithStats} auto-linked to full PGA Tour stats)` : ''}. This does not affect the pick list.` });
+        setFieldMsg({ kind: 'ok', text: `Field: ${data.fieldCount} players — ${data.alreadyInPool} already in the pool, ${data.newlyAdded} newly added${typeof data.newlyAddedWithStats === 'number' ? ` (${data.newlyAddedWithStats} auto-linked to full PGA Tour stats)` : ''}.${data.amateurCount ? ` ${data.amateurCount} amateur(s) flagged.` : ''}${data.clubProCount ? ` ${data.clubProCount} club pro(s) flagged.` : ''} This does not affect the pick list.` });
         setFieldAdded(Array.isArray(data.addedNames) ? data.addedNames : []);
         setFieldText('');
         if (fieldFileRef.current) fieldFileRef.current.value = '';
@@ -205,7 +206,7 @@ export default function CommissionerSalaryPage() {
       setResp(data);
       if (!res.ok) setMsg({ kind: 'err', text: data.error ?? 'Save failed.' });
       else {
-        setMsg({ kind: 'ok', text: `Saved ${data.count} players — salaries${data.worldRankCount ? ` and ${data.worldRankCount} world ranks` : ''} applied to the pick sheet.${data.autoAddedCount ? ` ${data.autoAddedCount} new name(s) were auto-added to the pool.` : ''}` });
+        setMsg({ kind: 'ok', text: `Saved ${data.count} players — salaries${data.worldRankCount ? ` and ${data.worldRankCount} world ranks` : ''} applied to the pick sheet.${data.autoAddedCount ? ` ${data.autoAddedCount} new name(s) were auto-added to the pool.` : ''}${data.amateurCount ? ` ${data.amateurCount} amateur(s) flagged.` : ''}${data.clubProCount ? ` ${data.clubProCount} club pro(s) flagged.` : ''}` });
         setText('');
         if (fileRef.current) fileRef.current.value = '';
         setFileName('');
@@ -257,6 +258,7 @@ export default function CommissionerSalaryPage() {
               <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>Full Tournament Field</div>
               <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
                 Upload the <b>entire field</b> — one player name per line (a leading rank number is fine). This registers everyone in the pool so their photo/bio resolve, <b>without</b> giving them a salary, so it does <b>not</b> change the pick sheet.
+                {' '}Mark amateurs with <b>(a)</b> and PGA Championship club pros with <b>(c)</b> after the name (e.g. <code>Miles Russell (a)</code>, <code>Michael Block (c)</code>) — amateurs get a red “AMATEUR” in their bio and club pros get the PGA seal, automatically.
                 {fieldRegistered != null && fieldRegistered > 0 && <span> Currently <b>{fieldRegistered}</b> extra player(s) registered.</span>}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>

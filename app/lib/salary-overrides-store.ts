@@ -1,6 +1,6 @@
 import redis from './redis';
 import { PLAYER_POOL_WITH_PGA_IDS } from './player-pool';
-import { canonicalNameKey } from './name-match';
+import { canonicalNameKey, detectPlayerTags } from './name-match';
 
 // Commissioner-editable salary + world-rank pick list.
 //
@@ -51,6 +51,8 @@ export type SalaryParseResult = {
   matched: { id: number; name: string; salary: number; worldRank: number | null }[];
   unmatched: { name: string; salary: number; worldRank: number | null }[]; // names not in the pool
   skipped: string[];                              // lines with no readable salary (incl. any header row)
+  amateurs: string[];                             // clean names carrying an amateur "(a)" marker
+  clubPros: string[];                             // clean names carrying a club-pro "(c)" marker
 };
 
 // Parse a pasted/uploaded block. Each line: an optional leading World-Rank number, the player name, and
@@ -63,6 +65,8 @@ export function parseSalaryPaste(text: string, extra?: Array<{ id: number; name:
   const matched: { id: number; name: string; salary: number; worldRank: number | null }[] = [];
   const unmatched: { name: string; salary: number; worldRank: number | null }[] = [];
   const skipped: string[] = [];
+  const amateurs: string[] = [];
+  const clubPros: string[] = [];
   const extraByNorm = new Map<string, number>();
   const extraByFL = new Map<string, number>();
   const extraByCanon = new Map<string, number>();
@@ -94,14 +98,19 @@ export function parseSalaryPaste(text: string, extra?: Array<{ id: number; name:
       if (!isNaN(r) && r > 0) worldRank = r;
       nameTokens = nameTokens.slice(1);
     }
-    const name = nameTokens.join(' ').replace(/,/g, '').trim();
+    const rawName = nameTokens.join(' ').replace(/,/g, '').trim();
+    if (!rawName) { skipped.push(line); continue; }
+    // Strip amateur "(a)" / club-pro "(c)" markers so the clean name matches the pool, and collect flags.
+    const { name, amateur, clubPro } = detectPlayerTags(rawName);
     if (!name) { skipped.push(line); continue; }
+    if (amateur) amateurs.push(name);
+    if (clubPro) clubPros.push(name);
 
     const id = resolveWithExtra(name);
     if (id == null) { unmatched.push({ name, salary, worldRank }); continue; }
     if (!(id in map)) { map[id] = { salary, worldRank }; matched.push({ id, name, salary, worldRank }); }
   }
-  return { map, matched, unmatched, skipped };
+  return { map, matched, unmatched, skipped, amateurs, clubPros };
 }
 
 export async function getManualSalaries(): Promise<ManualSalaries | null> {

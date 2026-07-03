@@ -12,3 +12,17 @@ export function canonicalNameKey(name: string): string {
     .sort()
     .join(' ');
 }
+
+// Detect amateur / PGA-club-professional markers on a name as they appear in field & leaderboard lists,
+// and return the CLEAN name (markers removed) so name matching still works. Conventions:
+//   Amateur  → "(a)", "(am)", "(amateur)"   (universal golf convention)
+//   Club pro → "(c)", "(cp)", "(club pro)"  (mark PGA Championship club pros with one of these)
+export function detectPlayerTags(rawName: string): { name: string; amateur: boolean; clubPro: boolean } {
+  const amateur = /\(\s*am?(?:ateur)?\s*\)/i.test(rawName);
+  const clubPro = /\(\s*(?:cp?|club\s*pro?)\s*\)/i.test(rawName);
+  const name = rawName
+    .replace(/\(\s*(?:am?(?:ateur)?|cp?|club\s*pro?)\s*\)/ig, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  return { name, amateur, clubPro };
+}

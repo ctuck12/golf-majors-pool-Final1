@@ -11,6 +11,7 @@ import { getDynamicPlayers, ensureDynamicPlayers, backfillDynamicPgaIds } from '
 import { getPgaDirectoryResolver } from '../../../lib/pga-directory';
 import { getEspnId } from '../../../lib/espn-player-season';
 import { canonicalNameKey } from '../../../lib/name-match';
+import { mergePlayerTags } from '../../../lib/player-tags-store';
 
 export const dynamic = 'force-dynamic';
 
@@ -83,6 +84,9 @@ export async function POST(request: Request) {
     }
   }
 
+  // Persist any amateur / club-pro markers found in the salary list so the bio header updates automatically.
+  const tags = await mergePlayerTags(parsed.amateurs, parsed.clubPros);
+
   const saved = await saveManualSalaries(parsed.map, new Date().toISOString());
   const withRank = parsed.matched.filter((m) => m.worldRank != null).length;
   return NextResponse.json({
@@ -97,6 +101,8 @@ export async function POST(request: Request) {
     unmatchedCount: 0, // all previously-unmatched names are now auto-added to the pool
     unmatched: [],
     skipped: parsed.skipped.slice(0, 10),
+    amateurCount: tags.amateur.length, // total flagged amateurs after this upload
+    clubProCount: tags.clubPro.length, // total flagged club pros after this upload
     preview: parsed.matched.slice().sort((a, b) => b.salary - a.salary),
   });
 }
