@@ -13,6 +13,10 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Daniel Brown': '10221',
   'Angel Ayora': '5105333',
   'Ian Holt': '4408324',
+  'Derek Berg': '5350614',
+  'Chris Gabriele': '5350613',
+  'Zach Haynes': '5350616',
+  'Paul McClure': '5350615',
   // Discovered + verified via /api/admin/espn-id-discovery — players ESPN's name search
   // wouldn't resolve. Each ID was confirmed to return a golf athlete with bio data.
   'Ugo Coussaud': '4418567',
