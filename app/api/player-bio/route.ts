@@ -646,8 +646,15 @@ async function fetchPgaCareerResults(pgaTourId: string): Promise<Partial<PlayerB
     if (events > 0) {
       result.careerStarts = events;
       result.cutsMade = cutsMade; // 0 is valid
+      // Scope Career Earnings to the SAME PGA Tour feed as starts/cuts so the numbers stay
+      // consistent. On the PGA Tour you only earn by making the cut, so a player with 0 cuts has
+      // genuinely $0 in PGA Tour earnings — pin that (even though it's 0) so a broader ESPN
+      // all-tours figure can't override it and contradict "Cuts Made: 0". If they DID make cuts
+      // but money came back 0 (a data gap), leave it unset so ESPN can fill it in.
+      if (money > 0 || cutsMade === 0) result.careerEarnings = fmtEarnings(money);
+    } else if (money > 0) {
+      result.careerEarnings = fmtEarnings(money);
     }
-    if (money > 0) result.careerEarnings = fmtEarnings(money);
   } catch { /* ignore */ }
   return result;
 }
@@ -961,7 +968,7 @@ export async function GET(req: Request) {
   }
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v48:${name}`;
+  const cacheKey = `player-bio:v49:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
