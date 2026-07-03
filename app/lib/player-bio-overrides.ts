@@ -111,7 +111,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Zach Haynes':                { college: 'UT Martin', birthPlace: 'Smyrna, Tennessee', swing: 'Left', dob: 'November 9, 1995', turnedPro: 2018 },
   'Matthew Robles':             { height: `5'7"` },
   'Arni Sveinsson':             { height: `6'0"` },
-  'Jackson Ormond':             { college: 'Florida' },
+  'Jackson Ormond':             { college: 'Florida', height: `5'11"`, weight: '155 lbs' },
   'Vaughn Harber':              { height: `6'3"` },
   'Ethan Fang':                 { height: `6'0"`, weight: '145 lbs' },
   'Jack Schoenberger':          { height: `5'10"`, turnedPro: 2026, dob: 'May 27, 2003', swing: 'Right' },
