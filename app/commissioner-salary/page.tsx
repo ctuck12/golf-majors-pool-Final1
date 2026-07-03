@@ -7,7 +7,7 @@ type Status = { active: boolean; count: number; updatedAt: string | null };
 type SaveResp = {
   ok?: boolean; error?: string; count?: number; updatedAt?: string;
   matchedCount?: number; worldRankCount?: number; unmatchedCount?: number;
-  autoAddedCount?: number; autoAdded?: string[];
+  autoAddedCount?: number; newlyAddedCount?: number; newlyAdded?: string[];
   unmatched?: { name: string; salary: number }[];
   skipped?: string[];
   preview?: { id: number; name: string; salary: number; worldRank: number | null }[];
@@ -108,6 +108,7 @@ export default function CommissionerSalaryPage() {
   const [fieldMsg, setFieldMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
   const [fieldFileName, setFieldFileName] = useState('');
   const [fieldRegistered, setFieldRegistered] = useState<number | null>(null);
+  const [fieldAdded, setFieldAdded] = useState<string[]>([]); // brand-new names from the last field upload
   const fieldFileRef = useRef<HTMLInputElement>(null);
   const headerTournament = getHeaderTournament();
 
@@ -155,7 +156,7 @@ export default function CommissionerSalaryPage() {
   };
 
   const saveField = async () => {
-    setFieldBusy(true); setFieldMsg(null);
+    setFieldBusy(true); setFieldMsg(null); setFieldAdded([]);
     try {
       const res = await fetch('/api/commissioner/tournament-field', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: fieldText }),
@@ -163,7 +164,8 @@ export default function CommissionerSalaryPage() {
       const data = await res.json();
       if (!res.ok) setFieldMsg({ kind: 'err', text: data.error ?? 'Register failed.' });
       else {
-        setFieldMsg({ kind: 'ok', text: `Field registered: ${data.fieldCount} players (${data.alreadyInPool} already in the pool, ${data.registered} added). This does not affect the pick list.` });
+        setFieldMsg({ kind: 'ok', text: `Field: ${data.fieldCount} players — ${data.alreadyInPool} already in the pool, ${data.newlyAdded} newly added. This does not affect the pick list.` });
+        setFieldAdded(Array.isArray(data.addedNames) ? data.addedNames : []);
         setFieldText('');
         if (fieldFileRef.current) fieldFileRef.current.value = '';
         setFieldFileName('');
@@ -224,7 +226,7 @@ export default function CommissionerSalaryPage() {
     setBusy(false);
   };
 
-  const unmatched = resp?.unmatched ?? [];
+  const salaryNewlyAdded = resp?.newlyAdded ?? [];
 
   return (
     <div style={wrap}>
@@ -281,6 +283,16 @@ export default function CommissionerSalaryPage() {
               {fieldMsg && (
                 <div style={{ background: fieldMsg.kind === 'ok' ? '#ecfdf3' : '#fef2f2', color: fieldMsg.kind === 'ok' ? '#027a48' : '#b42318', border: `1px solid ${fieldMsg.kind === 'ok' ? '#a6f4c5' : '#fecdca'}`, borderRadius: 8, padding: '10px 14px', fontSize: 13 }}>{fieldMsg.text}</div>
               )}
+              {fieldAdded.length > 0 && (
+                <div style={{ border: '1px solid #dbe3ec', borderRadius: 8, overflow: 'hidden' }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: '#173b63', padding: '8px 12px', background: '#eef4fb' }}>NEWLY ADDED TO THE POOL ({fieldAdded.length})</div>
+                  <div style={{ maxHeight: 220, overflowY: 'auto' }}>
+                    {fieldAdded.map((n, i) => (
+                      <div key={n} style={{ padding: '5px 12px', fontSize: 13, color: '#0f1720', background: i % 2 ? '#f8fafc' : '#fff', borderBottom: '1px solid #eef2f6' }}>{n}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* ── Salary Pick List ── */}
@@ -326,11 +338,13 @@ export default function CommissionerSalaryPage() {
               <div style={{ background: msg.kind === 'ok' ? '#ecfdf3' : '#fef2f2', color: msg.kind === 'ok' ? '#027a48' : '#b42318', border: `1px solid ${msg.kind === 'ok' ? '#a6f4c5' : '#fecdca'}`, borderRadius: 8, padding: '10px 14px', fontSize: 13 }}>{msg.text}</div>
             )}
 
-            {unmatched.length > 0 && (
-              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#92400e' }}>
-                <b>{resp?.unmatchedCount ?? unmatched.length} name(s) didn&apos;t match the pool</b> and were skipped — check spelling and re-save:
-                <div style={{ marginTop: 6, fontFamily: 'ui-monospace,monospace', fontSize: 12 }}>
-                  {unmatched.map((u) => `${u.name} (${u.salary})`).join(', ')}
+            {salaryNewlyAdded.length > 0 && (
+              <div style={{ border: '1px solid #dbe3ec', borderRadius: 8, overflow: 'hidden' }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#173b63', padding: '8px 12px', background: '#eef4fb' }}>NEWLY ADDED TO THE POOL ({salaryNewlyAdded.length}) — review for spelling</div>
+                <div style={{ maxHeight: 220, overflowY: 'auto' }}>
+                  {salaryNewlyAdded.map((n, i) => (
+                    <div key={n} style={{ padding: '5px 12px', fontSize: 13, color: '#0f1720', background: i % 2 ? '#f8fafc' : '#fff', borderBottom: '1px solid #eef2f6' }}>{n}</div>
+                  ))}
                 </div>
               </div>
             )}

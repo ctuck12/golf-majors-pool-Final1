@@ -67,16 +67,15 @@ export async function POST(request: Request) {
   // Only register names that aren't already in the static pool (those already resolve). The dynamic
   // store dedups by canonical name, so re-uploading the same field is safe (no duplicates, no salaries).
   const toRegister = names.filter((n) => !STATIC_CANON.has(canonicalNameKey(n)));
-  const before = (await getDynamicPlayers()).length;
-  const { all } = await ensureDynamicPlayers(toRegister.map((name) => ({ name, worldRank: null })));
-  const added = all.length - before;
+  const { all, added } = await ensureDynamicPlayers(toRegister.map((name) => ({ name, worldRank: null })));
 
   return NextResponse.json({
     ok: true,
     fieldCount: names.length,
     alreadyInPool: names.length - toRegister.length,
     registered: toRegister.length,
-    newlyAdded: added,
+    newlyAdded: added.length,
+    addedNames: added.map((p) => p.name).sort(),
     totalDynamic: all.length,
   });
 }

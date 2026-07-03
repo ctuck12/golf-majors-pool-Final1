@@ -60,6 +60,7 @@ export async function POST(request: Request) {
   // Auto-add any still-unmatched names to the dynamic pool so they appear on the pick sheet with the
   // uploaded salary/rank. Resolve each one's ESPN id by name (best-effort) for their headshot.
   let autoAddedCount = 0;
+  let newlyAddedNames: string[] = [];
   if (parsed.unmatched.length > 0) {
     const withEspn = await Promise.all(
       parsed.unmatched.map(async (u) => ({
@@ -68,7 +69,8 @@ export async function POST(request: Request) {
         espnId: (await getEspnId(u.name).catch(() => null)) ?? undefined,
       })),
     );
-    const { idByCanon } = await ensureDynamicPlayers(withEspn);
+    const { idByCanon, added } = await ensureDynamicPlayers(withEspn);
+    newlyAddedNames = added.map((p) => p.name).sort();
     for (const u of parsed.unmatched) {
       const id = idByCanon[canonicalNameKey(u.name)];
       if (id != null && !(id in parsed.map)) {
@@ -86,8 +88,9 @@ export async function POST(request: Request) {
     updatedAt: saved.updatedAt,
     matchedCount: parsed.matched.length,
     worldRankCount: withRank, // how many rows also carried a world rank
-    autoAddedCount, // names not previously in the pool that were auto-added so they now appear
-    autoAdded: parsed.unmatched.slice(0, 25).map((u) => u.name),
+    autoAddedCount, // names not previously in the pool that were priced into the pick sheet
+    newlyAddedCount: newlyAddedNames.length, // brand-new names added to the pool database
+    newlyAdded: newlyAddedNames, // the actual new names, for the commissioner to review
     unmatchedCount: 0, // all previously-unmatched names are now auto-added to the pool
     unmatched: [],
     skipped: parsed.skipped.slice(0, 10),

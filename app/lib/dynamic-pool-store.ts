@@ -44,11 +44,12 @@ async function saveDynamicPlayers(players: DynamicPlayer[]): Promise<void> {
 // the full list plus a canonicalNameKey -> id map covering every ensured entry.
 export async function ensureDynamicPlayers(
   entries: Array<{ name: string; worldRank: number | null; espnId?: string }>,
-): Promise<{ all: DynamicPlayer[]; idByCanon: Record<string, number> }> {
+): Promise<{ all: DynamicPlayer[]; idByCanon: Record<string, number>; added: DynamicPlayer[] }> {
   const all = await getDynamicPlayers();
   const byCanon = new Map(all.map((p) => [canonicalNameKey(p.name), p]));
   let nextId = all.reduce((m, p) => Math.max(m, p.id), ID_BASE - 1) + 1;
   const idByCanon: Record<string, number> = {};
+  const added: DynamicPlayer[] = [];
   let changed = false;
   for (const e of entries) {
     const ck = canonicalNameKey(e.name);
@@ -70,8 +71,9 @@ export async function ensureDynamicPlayers(
     all.push(player);
     byCanon.set(ck, player);
     idByCanon[ck] = player.id;
+    added.push(player);
     changed = true;
   }
   if (changed) await saveDynamicPlayers(all);
-  return { all, idByCanon };
+  return { all, idByCanon, added };
 }
