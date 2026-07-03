@@ -105,7 +105,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Ryan Lenahan':               { birthPlace: 'Grosse Pointe Shores, Michigan', swing: 'Right', college: 'Nebraska' },
   'Francisco Bide':             { birthPlace: 'Buenos Aires, Argentina', height: `6'3"`, swing: 'Right', college: 'Georgia College' },
   'Bryce Fisher':               { college: 'Scottsdale Community College' },
-  'Derek Berg':                 { college: 'Washington' },
+  'Derek Berg':                 { college: 'Washington', height: `5'10"`, weight: '170 lbs', swing: 'Right' },
   'Chris Gabriele':             { college: 'Clemson', turnedPro: 2019, swing: 'Right' },
   'Paul McClure':               { college: 'North Alabama', dob: 'November 1, 1991', height: `5'11"`, swing: 'Right' },
   'Zach Haynes':                { college: 'UT Martin', birthPlace: 'Smyrna, Tennessee', swing: 'Left', dob: 'November 9, 1995', turnedPro: 2018 },
