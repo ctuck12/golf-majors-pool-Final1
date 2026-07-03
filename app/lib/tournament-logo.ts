@@ -13,6 +13,10 @@ const SCHEDULE: HeaderTournament[] = [
   { id: 'open', name: 'The Open', logo: '/open-tab-logo.png', color: '#173b63' },
 ];
 
+// id + display name for every tournament, in schedule order — for the commissioner tool's
+// per-tournament salary selector (lets past events be backfilled).
+export const TOURNAMENT_OPTIONS = SCHEDULE.map((t) => ({ id: t.id, name: t.name, color: t.color }));
+
 // First-tee times (UTC) match app/page.tsx TOURNAMENTS.
 // All tournament ids, in schedule order — used to store/read salary lists per tournament.
 export const ALL_TOURNAMENT_IDS = ['players', 'masters', 'pga', 'us-open', 'open'] as const;

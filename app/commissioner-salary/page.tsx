@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { getHeaderTournament } from '@/app/lib/tournament-logo';
+import { getHeaderTournament, TOURNAMENT_OPTIONS } from '@/app/lib/tournament-logo';
 
 type Status = { active: boolean; count: number; updatedAt: string | null };
 type SaveResp = {
@@ -122,10 +122,15 @@ export default function CommissionerSalaryPage() {
   const proFileRef = useRef<HTMLInputElement>(null);
   const headerTournament = getHeaderTournament();
   const isPgaChampionship = headerTournament.id === 'pga';
+  // Which tournament the Salary Pick List upload targets. Defaults to the current event, but the
+  // commissioner can switch it to backfill a past tournament's salaries (each event is stored
+  // separately now, so uploading one no longer wipes another).
+  const [salaryTid, setSalaryTid] = useState(headerTournament.id);
+  const salaryTournamentName = TOURNAMENT_OPTIONS.find((t) => t.id === salaryTid)?.name ?? headerTournament.name;
 
   const loadStatus = async () => {
     try {
-      const res = await fetch(`/api/commissioner/salary-overrides?tournamentId=${headerTournament.id}`, { cache: 'no-store' });
+      const res = await fetch(`/api/commissioner/salary-overrides?tournamentId=${salaryTid}`, { cache: 'no-store' });
       if (res.status === 401) { setGateError('Sign in to the pool as the commissioner (in the main app), then reload this page.'); return; }
       if (res.status === 403) { setGateError('This account is not the commissioner.'); return; }
       if (!res.ok) { setGateError('Could not load current salaries.'); return; }
@@ -150,6 +155,9 @@ export default function CommissionerSalaryPage() {
     } catch { /* ignore */ }
   };
   useEffect(() => { loadStatus(); loadFieldStatus(); loadProStatus(); }, []);
+  // Reload the salary status whenever the target tournament changes (so "Last updated" reflects it).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadStatus(); }, [salaryTid]);
 
   const readFileToText = async (file: File): Promise<string | null> => {
     let rows: string[][];
@@ -264,7 +272,7 @@ export default function CommissionerSalaryPage() {
     setBusy(true); setMsg(null); setResp(null);
     try {
       const res = await fetch('/api/commissioner/salary-overrides', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, tournamentId: headerTournament.id }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, tournamentId: salaryTid }),
       });
       const data = (await res.json()) as SaveResp;
       setResp(data);
@@ -284,7 +292,7 @@ export default function CommissionerSalaryPage() {
     if (!confirm('Clear the uploaded list and revert to the built-in salaries + world ranks?')) return;
     setBusy(true); setMsg(null); setResp(null);
     try {
-      const res = await fetch(`/api/commissioner/salary-overrides?tournamentId=${headerTournament.id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/commissioner/salary-overrides?tournamentId=${salaryTid}`, { method: 'DELETE' });
       if (!res.ok) { const d = await res.json().catch(() => ({})); setMsg({ kind: 'err', text: d.error ?? 'Clear failed.' }); }
       else { setMsg({ kind: 'ok', text: 'Reverted to the built-in list.' }); loadStatus(); }
     } catch { setMsg({ kind: 'err', text: 'Network error while clearing.' }); }
@@ -416,9 +424,22 @@ export default function CommissionerSalaryPage() {
             )}
 
             {/* ── Salary Pick List ── */}
-            <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', marginTop: 4 }}>Salary Pick List — {headerTournament.name}</div>
+            <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', marginTop: 4 }}>Salary Pick List — {salaryTournamentName}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <label htmlFor="salary-tid" style={{ fontSize: 12.5, fontWeight: 700, color: '#0f1720' }}>Tournament:</label>
+              <select
+                id="salary-tid"
+                value={salaryTid}
+                onChange={(e) => setSalaryTid(e.target.value)}
+                style={{ fontSize: 13, fontWeight: 700, padding: '7px 10px', borderRadius: 8, border: '1px solid #cbd5e1', background: '#fff', color: '#0f1720', cursor: 'pointer' }}
+              >
+                {TOURNAMENT_OPTIONS.map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}{t.id === headerTournament.id ? ' (current)' : ''}</option>
+                ))}
+              </select>
+            </div>
             <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
-              This list is saved for <b>{headerTournament.name}</b> only — it no longer overwrites other tournaments&apos; salaries, so past events keep the salaries golfers had at the time.
+              This list is saved for <b>{salaryTournamentName}</b> only — each tournament is stored separately, so uploading one never overwrites another and past events keep the salaries golfers had at the time. To backfill a past tournament, pick it above and upload its list.
               {' '}Columns: <b>World Golf Rank</b>, <b>Player Name</b>, <b>Salary</b> (a header row is fine — it&apos;s skipped).
               Upload the <b>.xlsx</b>/<b>.csv</b> file, or paste the rows. Any name not already in the pool is auto-added.
               {' '}<b>Amateurs are flagged automatically</b> from the standard <b>(a)</b> marker most salary lists already include — they get a red “AMATEUR” in their bio, no action needed.

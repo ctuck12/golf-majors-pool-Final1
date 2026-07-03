@@ -3027,12 +3027,14 @@ export default function Page() {
       // Salary is stored per tournament, so override each golfer's salary with the one they carried in
       // the tournament being viewed (selectedTournament) — otherwise a past event would show the
       // current tournament's salaries (or $0). Falls back to $0 when that event has no uploaded list.
+      // World rank, by contrast, stays on the global/static source everywhere except the salary pick
+      // list — so pin it to the original rank here (matching the info popup), never the uploaded rank.
       const viewedSalaries = salaryByTournament[selectedTournament]?.salaries;
       const golfers = picks
         .map((id) => {
           const p = playersById[id];
           if (!p) return p;
-          return { ...p, salary: viewedSalaries?.[id] ?? 0 };
+          return { ...p, salary: viewedSalaries?.[id] ?? 0, worldRank: ORIGINAL_WORLD_RANK_BY_ID.get(id) ?? p.worldRank };
         })
         .filter(Boolean);
       const rosterPoints = golfers.reduce((sum, golfer) => sum + golfer.points, 0);
