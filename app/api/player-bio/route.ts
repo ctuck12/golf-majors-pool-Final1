@@ -822,6 +822,8 @@ const NON_POOL_PGA_IDS: Record<string, string> = {
   'ethan fang': '68932',
   'mateo pulcini': '70145',
   'jack schoenberger': '69864',
+  'jackson koivun': '66701',
+  'ryder cowan': '70695',
 };
 function resolvePgaTourId(name: string, provided: string): string {
   // LEGEND_PGA_IDS wins even over a provided id: these ids have LEADING ZEROS that a numeric
@@ -935,7 +937,7 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v38:${name}`;
+  const cacheKey = `player-bio:v39:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {

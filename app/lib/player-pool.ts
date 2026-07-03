@@ -125,7 +125,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 227, name: 'Carl Yuan',                        pgaTourId: 55454, defaultOdds: '+100000', worldRank: 999, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_55454' },
   { id: 228, name: 'Graeme McDowell',                  pgaTourId: 26476, defaultOdds: '+100000', worldRank: 950 },
   { id: 229, name: 'James Nicholas',                   pgaTourId: 58188, defaultOdds: '+30000',  worldRank: 286, photoUrl: 'https://pga-tour-res.cloudinary.com/image/upload/c_fill,g_face:center,q_auto,f_auto,dpr_2.0,h_220,w_200,d_stub:default_avatar_light.webp/headshots_58188' },
-  { id: 230, name: 'Harry Higgs',                      pgaTourId: 40108, defaultOdds: '+30000',  worldRank: 356 },
+  { id: 230, name: 'Harry Higgs',                      pgaTourId: 33597, defaultOdds: '+30000',  worldRank: 356 },
   { id: 231, name: 'Taihei Sato',                      pgaTourId: 33908, defaultOdds: '+30000',  worldRank: 403 },
   { id: 232, name: 'Angel Hidalgo Portillo',           pgaTourId: 64594, defaultOdds: '+30000',  worldRank: 325 },
   { id: 233, name: 'Greyson Leach',                    pgaTourId: 67358, defaultOdds: '+100000', worldRank: 999 },

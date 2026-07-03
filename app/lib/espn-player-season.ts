@@ -22,6 +22,8 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Ethan Fang': '5293232',
   'Mateo Pulcini': '5344763',
   'Jack Schoenberger': '5362526',
+  'Jackson Koivun': '5215013',
+  'Ryder Cowan': '5362517',
   // Discovered + verified via /api/admin/espn-id-discovery — players ESPN's name search
   // wouldn't resolve. Each ID was confirmed to return a golf athlete with bio data.
   'Ugo Coussaud': '4418567',
