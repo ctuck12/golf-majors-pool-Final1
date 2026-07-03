@@ -1550,9 +1550,15 @@ export default function Page() {
   const careerTournamentId = selectedTournament;
   const entriesTournament = TOURNAMENTS.find((item) => item.id === entriesTournamentId) ?? TOURNAMENTS[0];
   const entriesTournamentStatus = tournamentCardStatuses[entriesTournamentId];
-  const entriesPicksOpenForTournament = entriesTournamentStatus?.label === 'ACTIVE' && pool?.picksOpen?.[entriesTournamentId] === true;
-  const entriesPreFieldView =
-    entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus === null || !entriesPicksOpenForTournament;
+  // Picks are open when the commissioner's toggle is on AND the event is in the pre-tournament/live
+  // window (UP NEXT once the field is finalized, ACTIVE, or an unknown/null status) — the toggle is the
+  // control, not the auto-computed status, so opening picks during UP NEXT works as intended.
+  const entriesPicksOpenForTournament =
+    (entriesTournamentStatus?.label === 'ACTIVE' || entriesTournamentStatus?.label === 'UP NEXT' || entriesTournamentStatus == null) &&
+    pool?.picksOpen?.[entriesTournamentId] === true;
+  // Show the "field being finalized" pre-view whenever picks aren't open; once the commissioner opens
+  // them, show the actual pick sheet.
+  const entriesPreFieldView = !entriesPicksOpenForTournament;
   const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? entriesTournamentStatus?.label === 'IN PROGRESS';
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
   const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
@@ -2901,7 +2907,9 @@ export default function Page() {
   const currentRoundLabel = selectedTournamentStatus?.label === 'LOCKED'
     ? 'Round 4'
     : getCurrentRoundLabel(displayTournamentWindow.startDate, new Date(nowTick));
-  const picksOpenForTournament = selectedTournamentStatus?.label === 'ACTIVE' && pool?.picksOpen?.[selectedTournament] === true;
+  // Same rule for the standings card's Make Picks / Edit Picks button: the commissioner's toggle opens
+  // picks during the pre-tournament (UP NEXT) window, not only once the event is ACTIVE.
+  const picksOpenForTournament = showFutureTournamentView && pool?.picksOpen?.[selectedTournament] === true;
   const tournamentStartLabel = formatTournamentStartDate(displayTournamentWindow.inProgressAt);
 
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
