@@ -49,18 +49,33 @@ function resolveId(name: string): number | null {
 export type SalaryParseResult = {
   map: Record<number, OverrideEntry>;
   matched: { id: number; name: string; salary: number; worldRank: number | null }[];
-  unmatched: { name: string; salary: number }[]; // names not found in the pool (commissioner reviews)
+  unmatched: { name: string; salary: number; worldRank: number | null }[]; // names not in the pool
   skipped: string[];                              // lines with no readable salary (incl. any header row)
 };
 
 // Parse a pasted/uploaded block. Each line: an optional leading World-Rank number, the player name, and
 // a trailing Salary number ("$"/commas ok). e.g. "1  Scottie Scheffler  11900" or "Rory McIlroy 10200".
 // A header row like "World Golf Rank  Player Name  Salary" has no trailing number, so it's skipped.
-export function parseSalaryPaste(text: string): SalaryParseResult {
+// `extra` lets already-auto-added dynamic players (see dynamic-pool-store.ts) also match, so re-uploads
+// reuse their existing ID instead of reporting them as unmatched again.
+export function parseSalaryPaste(text: string, extra?: Array<{ id: number; name: string }>): SalaryParseResult {
   const map: Record<number, OverrideEntry> = {};
   const matched: { id: number; name: string; salary: number; worldRank: number | null }[] = [];
-  const unmatched: { name: string; salary: number }[] = [];
+  const unmatched: { name: string; salary: number; worldRank: number | null }[] = [];
   const skipped: string[] = [];
+  const extraByNorm = new Map<string, number>();
+  const extraByFL = new Map<string, number>();
+  const extraByCanon = new Map<string, number>();
+  for (const p of extra ?? []) {
+    const n = norm(p.name);
+    if (!extraByNorm.has(n)) extraByNorm.set(n, p.id);
+    const fl = firstLast(p.name);
+    if (!extraByFL.has(fl)) extraByFL.set(fl, p.id);
+    const ck = canonicalNameKey(p.name);
+    if (!extraByCanon.has(ck)) extraByCanon.set(ck, p.id);
+  }
+  const resolveWithExtra = (name: string): number | null =>
+    resolveId(name) ?? extraByNorm.get(norm(name)) ?? extraByFL.get(firstLast(name)) ?? extraByCanon.get(canonicalNameKey(name)) ?? null;
   const isNum = (t: string) => /^[$]?[+\-]?[\d,]+(?:\.\d+)?$/.test(t);
 
   for (const rawLine of text.split(/\r?\n/)) {
@@ -82,8 +97,8 @@ export function parseSalaryPaste(text: string): SalaryParseResult {
     const name = nameTokens.join(' ').replace(/,/g, '').trim();
     if (!name) { skipped.push(line); continue; }
 
-    const id = resolveId(name);
-    if (id == null) { unmatched.push({ name, salary }); continue; }
+    const id = resolveWithExtra(name);
+    if (id == null) { unmatched.push({ name, salary, worldRank }); continue; }
     if (!(id in map)) { map[id] = { salary, worldRank }; matched.push({ id, name, salary, worldRank }); }
   }
   return { map, matched, unmatched, skipped };

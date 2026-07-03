@@ -2690,12 +2690,14 @@ export default function Page() {
   // ranks on the pick sheet likewise come from the upload (falling back to the static pool rank).
   const [salaryOverrides, setSalaryOverrides] = useState<Record<number, number>>({});
   const [worldRankOverrides, setWorldRankOverrides] = useState<Record<number, number>>({});
+  // Players the commissioner's salary upload auto-added because they weren't in the static pool.
+  const [dynamicPlayers, setDynamicPlayers] = useState<Array<{ id: number; name: string; pgaTourId: number; worldRank: number; defaultOdds: string }>>([]);
   const [salaryListLoaded, setSalaryListLoaded] = useState(false); // false until the fetch resolves
   useEffect(() => {
     let cancelled = false;
     fetch('/api/salary-overrides', { cache: 'no-store' })
       .then((r) => r.json())
-      .then((d: { salaries?: Record<string, number>; worldRanks?: Record<string, number> }) => {
+      .then((d: { salaries?: Record<string, number>; worldRanks?: Record<string, number>; dynamicPlayers?: Array<{ id: number; name: string; pgaTourId: number; worldRank: number; defaultOdds: string }> }) => {
         if (cancelled || !d) return;
         const salaries = Object.entries(d.salaries ?? {});
         if (salaries.length > 0) {
@@ -2709,6 +2711,7 @@ export default function Page() {
           for (const [k, v] of ranks) parsedR[Number(k)] = Number(v);
           setWorldRankOverrides(parsedR);
         }
+        if (Array.isArray(d.dynamicPlayers) && d.dynamicPlayers.length > 0) setDynamicPlayers(d.dynamicPlayers);
       })
       .catch(() => { /* keep built-in values */ })
       .finally(() => { if (!cancelled) setSalaryListLoaded(true); });
@@ -2719,7 +2722,7 @@ export default function Page() {
 
   const players = useMemo(
     () =>
-      buildPricedPlayers(PLAYER_POOL, liveOddsMap, salaryOverrides, worldRankOverrides).map((player) => {
+      buildPricedPlayers([...PLAYER_POOL, ...dynamicPlayers], liveOddsMap, salaryOverrides, worldRankOverrides).map((player) => {
         const live = feedMap[normalizeName(player.name)];
         const score = live?.score ?? '--';
         const position = live?.position ?? '--';
@@ -2744,7 +2747,7 @@ export default function Page() {
           originalScore: live?.originalScore,
         };
       }),
-    [feedMap, liveOddsMap, salaryOverrides, worldRankOverrides],
+    [feedMap, liveOddsMap, salaryOverrides, worldRankOverrides, dynamicPlayers],
   );
 
   const playersById = Object.fromEntries(players.map((player) => [player.id, player]));
