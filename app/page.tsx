@@ -9380,10 +9380,17 @@ export default function Page() {
               style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 380, boxShadow: '0 18px 48px rgba(9,34,51,0.25)', overflow: 'hidden', maxHeight: 'calc(100vh - 40px)', display: 'flex', flexDirection: 'column' }}
             >
               {/* Coloured header */}
-              <div style={{ background: entriesTournamentBg, padding: '16px 20px 14px', flexShrink: 0 }}>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>Confirm Your Roster</div>
-                {!hasSubmittedRoster && (
-                  <div style={{ marginTop: 5, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.88)', letterSpacing: '0.01em' }}>Pool Entry Fee: $30</div>
+              <div style={{ background: entriesTournamentBg, padding: '16px 20px 14px', flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>Confirm Your Roster</div>
+                  {!hasSubmittedRoster && (
+                    <div style={{ marginTop: 5, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.88)', letterSpacing: '0.01em' }}>Pool Entry Fee: $30</div>
+                  )}
+                </div>
+                {TOURNAMENT_TAB_LOGOS[entriesTournamentId] && (
+                  <div style={{ background: '#fff', borderRadius: 10, padding: '6px 10px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img src={TOURNAMENT_TAB_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: 34, width: 'auto', objectFit: 'contain', display: 'block' }} />
+                  </div>
                 )}
               </div>
 
@@ -9404,7 +9411,7 @@ export default function Page() {
                 {/* Salary summary */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 5 }}>
                   <span style={{ color: '#5b6b79' }}>Salary used</span>
-                  <span style={{ fontWeight: 700, color: '#0f1720' }}>${salaryUsed.toLocaleString()} <span style={{ fontWeight: 400, color: '#8a99a6' }}>/ $50,000</span></span>
+                  <span style={{ fontWeight: 700, color: '#0f1720' }}>${salaryUsed.toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 12 }}>
                   <span style={{ color: '#5b6b79' }}>Remaining</span>
@@ -9419,6 +9426,13 @@ export default function Page() {
                   <span style={{ fontWeight: 700, color: '#0f1720' }}>{tieBreakInput} <span style={{ fontWeight: 400, color: '#8a99a6' }}>(par {TOURNAMENT_TOTAL_PAR[entriesTournamentId] ?? '—'})</span></span>
                 </div>
 
+                {/* Explanation for the Submit & Pay flow */}
+                {!hasSubmittedRoster && (
+                  <div style={{ fontSize: 11.5, color: '#5b6b79', lineHeight: 1.5, marginBottom: 10 }}>
+                    *Hitting <b>Submit &amp; Pay</b> submits your roster and automatically opens Venmo to pay the pool entry fee. The amount and what it&apos;s for are auto-populated for you.
+                  </div>
+                )}
+
                 {/* Buttons */}
                 <div style={{ display: 'flex', gap: 10 }}>
                   {!hasSubmittedRoster ? (
@@ -9431,7 +9445,7 @@ export default function Page() {
                         }}
                         style={{ flex: 1, border: 'none', borderRadius: 12, padding: '13px 0', background: entriesTournamentBg, color: '#fff', fontSize: 15, fontWeight: 900, cursor: 'pointer' }}
                       >
-                        Pay Entry Fee
+                        Submit &amp; Pay
                       </button>
                       <button
                         onClick={() => setShowRosterConfirm(false)}
