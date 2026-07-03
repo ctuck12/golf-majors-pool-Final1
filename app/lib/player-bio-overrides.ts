@@ -114,6 +114,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Jackson Ormond':             { college: 'Florida' },
   'Vaughn Harber':              { height: `6'3"` },
   'Ethan Fang':                 { height: `6'0"`, weight: '145 lbs' },
+  'Jack Schoenberger':          { height: `5'10"`, turnedPro: 2026 },
   'Michael Brennan':            { weight: '175 lbs' },
   'Neal Shipley':               { weight: '205 lbs' },
   'Filippo Celli':              { weight: '170 lbs' },
