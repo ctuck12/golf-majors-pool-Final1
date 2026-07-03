@@ -7,6 +7,7 @@ type Status = { active: boolean; count: number; updatedAt: string | null };
 type SaveResp = {
   ok?: boolean; error?: string; count?: number; updatedAt?: string;
   matchedCount?: number; worldRankCount?: number; unmatchedCount?: number;
+  autoAddedCount?: number; autoAdded?: string[];
   unmatched?: { name: string; salary: number }[];
   skipped?: string[];
   preview?: { id: number; name: string; salary: number; worldRank: number | null }[];
@@ -100,6 +101,14 @@ export default function CommissionerSalaryPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [fileName, setFileName] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
+  // Full Tournament Field upload — registers every field player in the pool without giving them a
+  // salary, so they exist in the pool DB but don't appear on the pick sheet.
+  const [fieldText, setFieldText] = useState('');
+  const [fieldBusy, setFieldBusy] = useState(false);
+  const [fieldMsg, setFieldMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+  const [fieldFileName, setFieldFileName] = useState('');
+  const [fieldRegistered, setFieldRegistered] = useState<number | null>(null);
+  const fieldFileRef = useRef<HTMLInputElement>(null);
   const headerTournament = getHeaderTournament();
 
   const loadStatus = async () => {
@@ -112,7 +121,57 @@ export default function CommissionerSalaryPage() {
       setStatus(await res.json());
     } catch { setGateError('Network error loading current salaries.'); }
   };
-  useEffect(() => { loadStatus(); }, []);
+  const loadFieldStatus = async () => {
+    try {
+      const res = await fetch('/api/commissioner/tournament-field', { cache: 'no-store' });
+      if (res.ok) { const d = await res.json(); setFieldRegistered(typeof d.registered === 'number' ? d.registered : null); }
+    } catch { /* ignore */ }
+  };
+  useEffect(() => { loadStatus(); loadFieldStatus(); }, []);
+
+  const readFileToText = async (file: File): Promise<string | null> => {
+    let rows: string[][];
+    if (/\.csv$/i.test(file.name)) {
+      rows = (await file.text()).split(/\r?\n/).map((l) => l.split(','));
+    } else if (/\.xlsx$/i.test(file.name)) {
+      rows = await parseXlsx(await file.arrayBuffer());
+    } else {
+      return null;
+    }
+    return rowsToText(rows);
+  };
+
+  const onFieldFile = async (file: File) => {
+    setFieldMsg(null);
+    try {
+      const asText = await readFileToText(file);
+      if (asText === null) { setFieldMsg({ kind: 'err', text: 'Please choose a .xlsx or .csv file (or paste below).' }); return; }
+      if (!asText) { setFieldMsg({ kind: 'err', text: 'Couldn’t read any rows from that file.' }); return; }
+      setFieldText(asText);
+      setFieldMsg({ kind: 'ok', text: `Loaded field from ${file.name}. Review below, then Register Field.` });
+    } catch (e) {
+      setFieldMsg({ kind: 'err', text: e instanceof Error ? e.message : 'Could not read that file.' });
+    }
+  };
+
+  const saveField = async () => {
+    setFieldBusy(true); setFieldMsg(null);
+    try {
+      const res = await fetch('/api/commissioner/tournament-field', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: fieldText }),
+      });
+      const data = await res.json();
+      if (!res.ok) setFieldMsg({ kind: 'err', text: data.error ?? 'Register failed.' });
+      else {
+        setFieldMsg({ kind: 'ok', text: `Field registered: ${data.fieldCount} players (${data.alreadyInPool} already in the pool, ${data.registered} added). This does not affect the pick list.` });
+        setFieldText('');
+        if (fieldFileRef.current) fieldFileRef.current.value = '';
+        setFieldFileName('');
+        loadFieldStatus();
+      }
+    } catch { setFieldMsg({ kind: 'err', text: 'Network error while registering the field.' }); }
+    setFieldBusy(false);
+  };
 
   const onFile = async (file: File) => {
     setMsg(null); setResp(null);
@@ -144,7 +203,7 @@ export default function CommissionerSalaryPage() {
       setResp(data);
       if (!res.ok) setMsg({ kind: 'err', text: data.error ?? 'Save failed.' });
       else {
-        setMsg({ kind: 'ok', text: `Saved ${data.count} players — salaries${data.worldRankCount ? ` and ${data.worldRankCount} world ranks` : ''} applied to the pick sheet.` });
+        setMsg({ kind: 'ok', text: `Saved ${data.count} players — salaries${data.worldRankCount ? ` and ${data.worldRankCount} world ranks` : ''} applied to the pick sheet.${data.autoAddedCount ? ` ${data.autoAddedCount} new name(s) were auto-added to the pool.` : ''}` });
         setText('');
         if (fileRef.current) fileRef.current.value = '';
         setFileName('');
@@ -191,9 +250,44 @@ export default function CommissionerSalaryPage() {
           </div>
         ) : (
           <div style={body}>
+            {/* ── Full Tournament Field (registers everyone in the pool, no salaries) ── */}
+            <div style={{ border: '1px solid #dbe3ec', borderRadius: 12, padding: 14, display: 'grid', gap: 10, background: '#f8fafc' }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>Full Tournament Field</div>
+              <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
+                Upload the <b>entire field</b> — one player name per line (a leading rank number is fine). This registers everyone in the pool so their photo/bio resolve, <b>without</b> giving them a salary, so it does <b>not</b> change the pick sheet.
+                {fieldRegistered != null && fieldRegistered > 0 && <span> Currently <b>{fieldRegistered}</b> extra player(s) registered.</span>}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <input
+                  ref={fieldFileRef}
+                  type="file"
+                  accept=".xlsx,.csv"
+                  onChange={(e) => { const f = e.target.files?.[0]; setFieldFileName(f ? f.name : ''); if (f) onFieldFile(f); }}
+                  style={{ display: 'none' }}
+                />
+                <button type="button" onClick={() => fieldFileRef.current?.click()} style={{ fontSize: 13, fontWeight: 700, padding: '9px 16px', borderRadius: 9, border: '1px solid #cbd5e1', background: '#fff', color: '#0f1720', cursor: 'pointer' }}>Choose File</button>
+                <span style={{ fontSize: 14, color: '#64748b' }}>{fieldFileName || 'No file selected'}</span>
+              </div>
+              <textarea
+                value={fieldText}
+                onChange={(e) => setFieldText(e.target.value)}
+                placeholder={'Scottie Scheffler\nRory McIlroy\nJon Rahm\n...'}
+                rows={6}
+                style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #cbd5e1', borderRadius: 8, padding: 12, fontSize: 13, fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', resize: 'vertical' }}
+              />
+              <div>
+                <button onClick={saveField} disabled={fieldBusy || !fieldText.trim()} style={{ ...btn('#173b63'), opacity: fieldBusy || !fieldText.trim() ? 0.5 : 1 }}>{fieldBusy ? 'Registering…' : 'Register Field'}</button>
+              </div>
+              {fieldMsg && (
+                <div style={{ background: fieldMsg.kind === 'ok' ? '#ecfdf3' : '#fef2f2', color: fieldMsg.kind === 'ok' ? '#027a48' : '#b42318', border: `1px solid ${fieldMsg.kind === 'ok' ? '#a6f4c5' : '#fecdca'}`, borderRadius: 8, padding: '10px 14px', fontSize: 13 }}>{fieldMsg.text}</div>
+              )}
+            </div>
+
+            {/* ── Salary Pick List ── */}
+            <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', marginTop: 4 }}>Salary Pick List</div>
             <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
               Columns: <b>World Golf Rank</b>, <b>Player Name</b>, <b>Salary</b> (a header row is fine — it&apos;s skipped).
-              Upload the <b>.xlsx</b>/<b>.csv</b> file, or paste the rows. Unmatched names are listed back so you can fix spelling.
+              Upload the <b>.xlsx</b>/<b>.csv</b> file, or paste the rows. Any name not already in the pool is auto-added.
             </div>
 
             {status?.active && status.updatedAt && (
