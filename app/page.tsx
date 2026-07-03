@@ -4365,37 +4365,6 @@ export default function Page() {
                 </div>
               )}
 
-              {!showLivePayoutStrip && !showFinalTournamentView && picksOpenForTournament ? (
-                <div
-                  style={{
-                    marginTop: 14,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 16,
-                    flexWrap: 'wrap',
-                    color: '#5b6b79',
-                    fontSize: 14,
-                  }}
-                >
-                  <span>
-                    <strong style={{ color: '#0f1720' }}>Entry Fee:</strong> $30
-                  </span>
-                  <span>
-                    <strong style={{ color: '#0f1720' }}>Venmo:</strong>{' '}
-                    {isMobile ? (
-                      <>
-                        <span style={{ color: '#5b6b79' }}>@claytont743</span>{' '}
-                        <a
-                          href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool"
-                          style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 600 }}
-                        >
-                          (pay here)
-                        </a>
-                      </>
-                    ) : '@claytont743'}
-                  </span>
-                </div>
-              ) : null}
 
               {showFutureTournamentView ? (
                 <div
