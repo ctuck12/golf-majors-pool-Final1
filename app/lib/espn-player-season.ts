@@ -17,6 +17,10 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Chris Gabriele': '5350613',
   'Zach Haynes': '5350616',
   'Paul McClure': '5350615',
+  'Arni Sveinsson': '5362524',
+  'Jackson Ormond': '5360549',
+  'Ethan Fang': '5293232',
+  'Mateo Pulcini': '5344763',
   // Discovered + verified via /api/admin/espn-id-discovery — players ESPN's name search
   // wouldn't resolve. Each ID was confirmed to return a golf athlete with bio data.
   'Ugo Coussaud': '4418567',

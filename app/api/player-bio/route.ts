@@ -816,6 +816,11 @@ const NON_POOL_PGA_IDS: Record<string, string> = {
   'chris gabriele': '70407',
   'zach haynes': '70406',
   'paul mcclure': '58597',
+  'arni sveinsson': '70694',
+  'jackson ormond': '70296',
+  'chase kyes': '70692',
+  'ethan fang': '68932',
+  'mateo pulcini': '70145',
 };
 function resolvePgaTourId(name: string, provided: string): string {
   // LEGEND_PGA_IDS wins even over a provided id: these ids have LEADING ZEROS that a numeric
@@ -837,23 +842,38 @@ function pgaHeadshotUrl(pgaTourId: string): string | null {
   return `https://pga-tour-res.cloudinary.com/image/upload/c_fill,d_headshots_default.png,f_auto,g_face:center,h_350,q_auto,w_280/headshots_${pgaTourId}.png`;
 }
 
+// Known major champions whose winning major(s) the PGA Tour's playerProfileMajorResults feed
+// does NOT return — it only surfaces a partial/recent slice of a long career (e.g. Graeme
+// McDowell shows ~25 major starts, a fraction of his real total), so an older win like his 2010
+// U.S. Open falls outside the returned set and majorWins comes back 0. Keyed by normalized name.
+const KNOWN_MAJOR_WINS: Record<string, { majorWins: number; list: WinEntry[] }> = {
+  'graeme mcdowell': { majorWins: 1, list: [{ tournament: 'U.S. Open', year: '2010', course: 'Pebble Beach Golf Links', toPar: 'E' }] },
+};
+
 // Overlay manual overrides (app/lib/player-bio-overrides.ts) onto a bio. Override values
 // win over API data. Applied on every response (including cache hits) so edits take effect
 // immediately without a cache bump.
 function applyBioOverrides(name: string, bio: PlayerBio): PlayerBio {
   const ov = lookupBioOverride(name);
-  if (!ov) return bio;
-  if (ov.height) bio.height = ov.height;
-  if (ov.weight) bio.weight = ov.weight;
-  if (ov.birthPlace) bio.birthPlace = ov.birthPlace;
-  if (ov.swing) bio.swing = ov.swing;
-  if (ov.college) { bio.college = ov.college; bio.collegeConfirmedAbsent = false; }
-  else if (ov.noCollege) { bio.college = null; bio.collegeConfirmedAbsent = true; }
-  if (ov.dob) {
-    const formatted = fmtDob(ov.dob);
-    if (formatted) { bio.dob = formatted; bio.age = calcAge(ov.dob); }
+  if (ov) {
+    if (ov.height) bio.height = ov.height;
+    if (ov.weight) bio.weight = ov.weight;
+    if (ov.birthPlace) bio.birthPlace = ov.birthPlace;
+    if (ov.swing) bio.swing = ov.swing;
+    if (ov.college) { bio.college = ov.college; bio.collegeConfirmedAbsent = false; }
+    else if (ov.noCollege) { bio.college = null; bio.collegeConfirmedAbsent = true; }
+    if (ov.dob) {
+      const formatted = fmtDob(ov.dob);
+      if (formatted) { bio.dob = formatted; bio.age = calcAge(ov.dob); }
+    }
+    if (ov.turnedPro != null) bio.turnedPro = ov.turnedPro;
   }
-  if (ov.turnedPro != null) bio.turnedPro = ov.turnedPro;
+  const mw = KNOWN_MAJOR_WINS[normBioName(name)] ?? KNOWN_MAJOR_WINS[firstLastKey(name)];
+  if (mw) {
+    bio.majorWins = Math.max(bio.majorWins ?? 0, mw.majorWins);
+    bio.majorWinsList = mw.list;
+    if (bio.majorStarts != null && bio.majorStarts < mw.majorWins) bio.majorStarts = mw.majorWins;
+  }
   return bio;
 }
 
@@ -895,7 +915,7 @@ export async function GET(req: Request) {
   const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v35:${name}`;
+  const cacheKey = `player-bio:v36:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
