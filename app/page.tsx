@@ -9459,12 +9459,12 @@ export default function Page() {
                 <div style={{ fontSize: 17, fontWeight: 900, color: '#0f1720' }}>Submitted Picks ({submittedEntries.length})</div>
                 <button
                   onClick={() => setShowSubmittedPicksPopup(false)}
-                  style={{ background: '#f0f4f8', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 15, color: '#5b6b79' }}
+                  style={{ background: selectedTournament === 'open' ? '#173b63' : '#f0f4f8', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 15, color: selectedTournament === 'open' ? '#fff' : '#5b6b79' }}
                 >✕</button>
               </div>
               <div style={{ overflowY: 'auto', display: 'grid', gap: 8 }}>
                 {submittedEntries.map((entry) => (
-                  <div key={entry.id} style={{ padding: '10px 14px', borderRadius: 12, background: '#f4f7fa', fontSize: 15, fontWeight: 700, color: '#0f1720' }}>
+                  <div key={entry.id} style={{ padding: '10px 14px', borderRadius: 12, background: selectedTournament === 'open' ? '#173b63' : '#f4f7fa', fontSize: 15, fontWeight: 700, color: selectedTournament === 'open' ? '#fff' : '#0f1720' }}>
                     {entry.name}
                   </div>
                 ))}
