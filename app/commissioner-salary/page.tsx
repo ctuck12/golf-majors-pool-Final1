@@ -109,6 +109,7 @@ export default function CommissionerSalaryPage() {
   const [fieldMsg, setFieldMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
   const [fieldFileName, setFieldFileName] = useState('');
   const [fieldRegistered, setFieldRegistered] = useState<number | null>(null);
+  const [fieldUpdatedAt, setFieldUpdatedAt] = useState<string | null>(null); // persists across reloads
   const [fieldAdded, setFieldAdded] = useState<string[]>([]); // brand-new names from the last field upload
   const fieldFileRef = useRef<HTMLInputElement>(null);
   // PGA Professionals upload (PGA Championship only) — a plain list of names that each get the PGA seal.
@@ -135,7 +136,11 @@ export default function CommissionerSalaryPage() {
   const loadFieldStatus = async () => {
     try {
       const res = await fetch('/api/commissioner/tournament-field', { cache: 'no-store' });
-      if (res.ok) { const d = await res.json(); setFieldRegistered(typeof d.registered === 'number' ? d.registered : null); }
+      if (res.ok) {
+        const d = await res.json();
+        setFieldRegistered(typeof d.registered === 'number' ? d.registered : null);
+        setFieldUpdatedAt(typeof d.updatedAt === 'string' ? d.updatedAt : null);
+      }
     } catch { /* ignore */ }
   };
   const loadProStatus = async () => {
@@ -188,6 +193,17 @@ export default function CommissionerSalaryPage() {
         loadFieldStatus();
       }
     } catch { setFieldMsg({ kind: 'err', text: 'Network error while registering the field.' }); }
+    setFieldBusy(false);
+  };
+
+  const clearField = async () => {
+    if (!confirm('Clear every registered field player? This removes all auto-added players (from field AND salary uploads) from the pool, reverting to just the built-in draft pool. Salaries on the pick sheet are not affected.')) return;
+    setFieldBusy(true); setFieldMsg(null); setFieldAdded([]);
+    try {
+      const res = await fetch('/api/commissioner/tournament-field', { method: 'DELETE' });
+      if (!res.ok) { const d = await res.json().catch(() => ({})); setFieldMsg({ kind: 'err', text: d.error ?? 'Clear failed.' }); }
+      else { setFieldMsg({ kind: 'ok', text: 'Cleared all registered field players.' }); loadFieldStatus(); }
+    } catch { setFieldMsg({ kind: 'err', text: 'Network error while clearing the field.' }); }
     setFieldBusy(false);
   };
 
@@ -309,6 +325,11 @@ export default function CommissionerSalaryPage() {
                 {' '}<b>Amateurs are flagged automatically</b> from the standard <b>(a)</b> marker most field lists already include — they get a red “AMATEUR” in their bio, no action needed.
                 {fieldRegistered != null && fieldRegistered > 0 && <span> Currently <b>{fieldRegistered}</b> extra player(s) registered.</span>}
               </div>
+              {fieldUpdatedAt && (
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: '#475569' }}>
+                  Last updated: {new Date(fieldUpdatedAt).toLocaleString()}{fieldRegistered ? ` · ${fieldRegistered} registered` : ''}
+                </div>
+              )}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                 <input
                   ref={fieldFileRef}
@@ -327,8 +348,9 @@ export default function CommissionerSalaryPage() {
                 rows={6}
                 style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #cbd5e1', borderRadius: 8, padding: 12, fontSize: 13, fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', resize: 'vertical' }}
               />
-              <div>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <button onClick={saveField} disabled={fieldBusy || !fieldText.trim()} style={{ ...btn('#173b63'), opacity: fieldBusy || !fieldText.trim() ? 0.5 : 1 }}>{fieldBusy ? 'Registering…' : 'Register Field'}</button>
+                {fieldRegistered != null && fieldRegistered > 0 && <button onClick={clearField} disabled={fieldBusy} style={{ ...btn('#64748b'), opacity: fieldBusy ? 0.5 : 1 }}>Clear</button>}
               </div>
               {fieldMsg && (
                 <div style={{ background: fieldMsg.kind === 'ok' ? '#ecfdf3' : '#fef2f2', color: fieldMsg.kind === 'ok' ? '#027a48' : '#b42318', border: `1px solid ${fieldMsg.kind === 'ok' ? '#a6f4c5' : '#fecdca'}`, borderRadius: 8, padding: '10px 14px', fontSize: 13 }}>{fieldMsg.text}</div>
@@ -429,7 +451,7 @@ export default function CommissionerSalaryPage() {
             />
 
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <button onClick={() => setConfirmOpen(true)} disabled={busy || !text.trim()} style={{ ...btn('#2c6449'), opacity: busy || !text.trim() ? 0.5 : 1 }}>{busy ? 'Saving…' : 'Save & Apply'}</button>
+              <button onClick={() => setConfirmOpen(true)} disabled={busy || !text.trim()} style={{ ...btn(headerTournament.color), opacity: busy || !text.trim() ? 0.5 : 1 }}>{busy ? 'Saving…' : 'Save & Apply'}</button>
               {status?.active && <button onClick={clear} disabled={busy} style={{ ...btn('#64748b'), opacity: busy ? 0.5 : 1 }}>Clear (use built-in list)</button>}
             </div>
 

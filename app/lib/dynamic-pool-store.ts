@@ -20,9 +20,32 @@ export type DynamicPlayer = {
 };
 
 const STORE_KEY = 'dynamic-pool:v1';
+const META_KEY = 'dynamic-pool-meta:v1'; // last field-upload timestamp
 // High base so auto-assigned IDs never collide with static pool IDs (1–~283, next 284) or the
 // retired IDs, and stay stable across re-uploads (saved rosters reference IDs by number).
 const ID_BASE = 500000;
+
+// When was the tournament field last registered (for the commissioner tool's "Last updated" line).
+export async function getFieldMeta(): Promise<{ updatedAt: string | null }> {
+  try {
+    const raw = await redis.get(META_KEY);
+    if (!raw) return { updatedAt: null };
+    const parsed = JSON.parse(raw as string) as { updatedAt?: unknown };
+    return { updatedAt: typeof parsed?.updatedAt === 'string' ? parsed.updatedAt : null };
+  } catch {
+    return { updatedAt: null };
+  }
+}
+
+export async function setFieldUpdatedAt(updatedAt: string): Promise<void> {
+  await redis.set(META_KEY, JSON.stringify({ updatedAt }));
+}
+
+// Remove every auto-added player (and the field-upload timestamp), reverting to just the static pool.
+export async function clearDynamicPlayers(): Promise<void> {
+  await redis.del(STORE_KEY);
+  await redis.del(META_KEY);
+}
 
 export async function getDynamicPlayers(): Promise<DynamicPlayer[]> {
   try {

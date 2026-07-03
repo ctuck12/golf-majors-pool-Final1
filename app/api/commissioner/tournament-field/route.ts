@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { getSessionContext, SESSION_COOKIE_NAME } from '../../../lib/pool-store';
 import { PLAYER_POOL_WITH_PGA_IDS } from '../../../lib/player-pool';
-import { getDynamicPlayers, ensureDynamicPlayers, backfillDynamicPgaIds } from '../../../lib/dynamic-pool-store';
+import { getDynamicPlayers, ensureDynamicPlayers, backfillDynamicPgaIds, getFieldMeta, setFieldUpdatedAt, clearDynamicPlayers } from '../../../lib/dynamic-pool-store';
 import { getPgaDirectoryResolver } from '../../../lib/pga-directory';
 import { canonicalNameKey, detectPlayerTags } from '../../../lib/name-match';
 import { mergePlayerTags } from '../../../lib/player-tags-store';
@@ -54,7 +54,15 @@ export async function GET() {
   const auth = await requireCommissioner();
   if (auth.error) return auth.error;
   const dyn = await getDynamicPlayers();
-  return NextResponse.json({ registered: dyn.length });
+  const meta = await getFieldMeta();
+  return NextResponse.json({ registered: dyn.length, updatedAt: meta.updatedAt });
+}
+
+export async function DELETE() {
+  const auth = await requireCommissioner();
+  if (auth.error) return auth.error;
+  await clearDynamicPlayers();
+  return NextResponse.json({ ok: true, registered: 0 });
 }
 
 export async function POST(request: Request) {
@@ -87,9 +95,12 @@ export async function POST(request: Request) {
   const { all, added } = await ensureDynamicPlayers(toRegister.map((name) => ({ name, worldRank: null })), resolvePgaId);
   await backfillDynamicPgaIds(resolvePgaId);
   const withPgaId = added.filter((p) => p.pgaTourId > 0).length;
+  const updatedAt = new Date().toISOString();
+  await setFieldUpdatedAt(updatedAt);
 
   return NextResponse.json({
     ok: true,
+    updatedAt,
     fieldCount: names.length,
     alreadyInPool: names.length - toRegister.length,
     registered: toRegister.length,
