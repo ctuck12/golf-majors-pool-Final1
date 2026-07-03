@@ -805,6 +805,7 @@ const LEGEND_PGA_IDS: Record<string, string> = {
   'jose maria olazabal': '06373',
   'fred couples': '01226',
   'angel cabrera': '20848',
+  'shaun micheel': '06515', // 2003 PGA champ; pool stores 6515 (leading zero dropped -> majors feed empty)
 };
 // Non-pool field players (DP World / international) who ARE on the PGA Tour but aren't in the
 // draft pool, so resolvePgaTourId can't find their id by name. Keyed by normalized name; supplies
@@ -861,6 +862,7 @@ function pgaHeadshotUrl(pgaTourId: string): string | null {
 // U.S. Open falls outside the returned set and majorWins comes back 0. Keyed by normalized name.
 const KNOWN_MAJOR_WINS: Record<string, { majorWins: number; list: WinEntry[] }> = {
   'graeme mcdowell': { majorWins: 1, list: [{ tournament: 'U.S. Open', year: '2010', course: 'Pebble Beach Golf Links', toPar: 'E' }] },
+  'shaun micheel': { majorWins: 1, list: [{ tournament: 'PGA Championship', year: '2003', course: 'Oak Hill Country Club', toPar: '-4' }] },
 };
 
 // Official PGA Tour wins the (partial/recent) playerProfileTournamentResults feed omits — a major
@@ -868,6 +870,7 @@ const KNOWN_MAJOR_WINS: Record<string, { majorWins: number; list: WinEntry[] }> 
 // PGA Tour Wins list shows only 3. These are APPENDED (deduped by tournament+year) to the live list.
 const KNOWN_PGA_WINS: Record<string, WinEntry[]> = {
   'graeme mcdowell': [{ tournament: 'U.S. Open', year: '2010', course: 'Pebble Beach Golf Links', toPar: 'E' }],
+  'shaun micheel': [{ tournament: 'PGA Championship', year: '2003', course: 'Oak Hill Country Club', toPar: '-4' }],
 };
 
 // Overlay manual overrides (app/lib/player-bio-overrides.ts) onto a bio. Override values
@@ -957,7 +960,7 @@ export async function GET(req: Request) {
   }
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v45:${name}`;
+  const cacheKey = `player-bio:v46:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
