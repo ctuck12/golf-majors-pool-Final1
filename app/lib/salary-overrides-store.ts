@@ -1,6 +1,7 @@
 import redis from './redis';
 import { PLAYER_POOL_WITH_PGA_IDS } from './player-pool';
 import { canonicalNameKey, detectPlayerTags } from './name-match';
+import { applyNameAlias } from './name-aliases';
 
 // Commissioner-editable salary + world-rank pick list.
 //
@@ -46,7 +47,10 @@ for (const p of PLAYER_POOL_WITH_PGA_IDS) {
   if (!BY_CANON.has(ck)) BY_CANON.set(ck, p.id);
 }
 function resolveId(name: string): number | null {
-  return BY_NORM.get(norm(name)) ?? BY_FL.get(firstLast(name)) ?? BY_CANON.get(canonicalNameKey(name)) ?? null;
+  // Alias full/alternate first names to the pool spelling first (e.g. "Benjamin James" -> "Ben James")
+  // so they match the existing pool player instead of being treated as a new (duplicate) name.
+  const n = applyNameAlias(name);
+  return BY_NORM.get(norm(n)) ?? BY_FL.get(firstLast(n)) ?? BY_CANON.get(canonicalNameKey(n)) ?? null;
 }
 
 export type SalaryParseResult = {

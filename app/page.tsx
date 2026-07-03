@@ -4,6 +4,7 @@ import { Fragment, startTransition, useEffect, useLayoutEffect, useMemo, useRef,
 import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
 import { PLAYER_ESPN_IDS } from '@/app/lib/player-espn-ids';
 import { canonicalNameKey } from '@/app/lib/name-match';
+import { applyNameAlias } from '@/app/lib/name-aliases';
 import {
   AlertCircle,
   ArrowLeft,
@@ -303,11 +304,8 @@ const PLAYER_FLAGS: Record<string, string> = {
 // without needing a duplicate entry. Mirrors the normalizer in the stat-leaderboard route.
 // Some feeds label a player differently than our pool (e.g. the Masters field lists
 // "Samuel Stevens" for our "Sam Stevens"). Canonicalize to the pool name so flags, photos,
-// stats and ranks all resolve to the same player.
-const NAME_ALIASES: Record<string, string> = {
-  'Samuel Stevens': 'Sam Stevens',
-};
-const canonicalName = (name: string): string => NAME_ALIASES[name] ?? name;
+// stats and ranks all resolve to the same player. Shared with the salary matcher (see name-aliases.ts).
+const canonicalName = (name: string): string => applyNameAlias(name);
 
 const normFlagName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '')
   .replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase().trim();

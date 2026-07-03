@@ -5,6 +5,7 @@ import { PLAYER_POOL_WITH_PGA_IDS } from '../../../lib/player-pool';
 import { getDynamicPlayers, ensureDynamicPlayers, backfillDynamicPgaIds, getFieldMeta, setFieldUpdatedAt, clearDynamicPlayers } from '../../../lib/dynamic-pool-store';
 import { getPgaDirectoryResolver } from '../../../lib/pga-directory';
 import { canonicalNameKey, detectPlayerTags } from '../../../lib/name-match';
+import { applyNameAlias } from '../../../lib/name-aliases';
 import { mergePlayerTags } from '../../../lib/player-tags-store';
 
 export const dynamic = 'force-dynamic';
@@ -88,7 +89,7 @@ export async function POST(request: Request) {
 
   // Only register names that aren't already in the static pool (those already resolve). The dynamic
   // store dedups by canonical name, so re-uploading the same field is safe (no duplicates, no salaries).
-  const toRegister = names.filter((n) => !STATIC_CANON.has(canonicalNameKey(n)));
+  const toRegister = names.filter((n) => !STATIC_CANON.has(canonicalNameKey(applyNameAlias(n))));
   // Auto-resolve each new player's PGA Tour id from the tour directory so their PGA/major stats load
   // with no manual step. Also retry any previously-unresolved dynamic players.
   const resolvePgaId = await getPgaDirectoryResolver();
