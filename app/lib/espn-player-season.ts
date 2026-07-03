@@ -32,6 +32,8 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'S.H. Kim': '4698579',
   'Cam Davis': '10863',
   'Patton Kizzire': '3980',
+  'Francisco Bidé': '3089127',
+  'Francisco Bide': '3089127',
   // Discovered + verified via /api/admin/espn-id-discovery — players ESPN's name search
   // wouldn't resolve. Each ID was confirmed to return a golf athlete with bio data.
   'Ugo Coussaud': '4418567',

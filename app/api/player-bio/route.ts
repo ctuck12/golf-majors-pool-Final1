@@ -835,6 +835,7 @@ const NON_POOL_PGA_IDS: Record<string, string> = {
   'sh kim': '50188',
   'cam davis': '45157',
   'patton kizzire': '32757',
+  'francisco bide': '36964', // PGA club pro (Capital City Club); PGA Championship debut at Aronimink
 };
 function resolvePgaTourId(name: string, provided: string): string {
   // LEGEND_PGA_IDS wins even over a provided id: these ids have LEADING ZEROS that a numeric
@@ -960,7 +961,7 @@ export async function GET(req: Request) {
   }
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v46:${name}`;
+  const cacheKey = `player-bio:v47:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
