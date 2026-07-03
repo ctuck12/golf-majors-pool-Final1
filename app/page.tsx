@@ -9453,7 +9453,7 @@ export default function Page() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              style={{ background: '#fff', borderRadius: 20, padding: 24, width: '100%', maxWidth: 360, boxShadow: '0 18px 48px rgba(9,34,51,0.25)', maxHeight: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}
+              style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 20, padding: 24, width: '100%', maxWidth: 360, boxShadow: '0 18px 48px rgba(9,34,51,0.25)', maxHeight: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <div style={{ fontSize: 17, fontWeight: 900, color: '#0f1720' }}>Submitted Picks ({submittedEntries.length})</div>
