@@ -535,6 +535,7 @@ const MANUAL_PHOTO_FILES: Record<string, string> = {
   'Andy Sullivan': '/player-photos/andy-sullivan.png',
   'Jordan Gumberg': '/player-photos/jordan-gumberg.png',
   'Paul McClure': '/player-photos/paul-mcclure.png',
+  'Derek Berg': '/player-photos/derek-berg.png',
 };
 const normPhotoName = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, '').trim();
 const MANUAL_PHOTO_BY_NORM: Record<string, string> = {};
