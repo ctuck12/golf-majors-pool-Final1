@@ -6333,6 +6333,7 @@ export default function Page() {
                   display: 'grid',
                   gridTemplateColumns: isMobile ? 'repeat(2, minmax(0, 1fr))' : 'repeat(auto-fit, minmax(220px, 1fr))',
                   gap: isMobile ? 8 : 14,
+                  gridAutoRows: '1fr', // equal-height rows so all four status boxes match
                 }}
               >
                 <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 12 : 18, padding: isMobile ? 10 : 16, background: '#f8fbfd' }}>
