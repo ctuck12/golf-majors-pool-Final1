@@ -1,5 +1,6 @@
 import redis from './redis';
 import { canonicalNameKey } from './name-match';
+import { applyNameAlias } from './name-aliases';
 
 // Amateur / PGA-club-professional flags detected from uploaded fields & salary lists.
 //
@@ -40,12 +41,14 @@ export async function mergePlayerTags(amateurNames: string[], clubProNames: stri
   const amateur = new Set(current.amateur);
   const clubPro = new Set(current.clubPro);
   let changed = false;
+  // Alias full/alternate spellings to the pool name before keying, so a marker on "Benjamin James"
+  // flags the pool's "Ben James" (the client checks tags against the pool name).
   for (const n of amateurNames) {
-    const ck = canonicalNameKey(n);
+    const ck = canonicalNameKey(applyNameAlias(n));
     if (ck && !amateur.has(ck)) { amateur.add(ck); changed = true; }
   }
   for (const n of clubProNames) {
-    const ck = canonicalNameKey(n);
+    const ck = canonicalNameKey(applyNameAlias(n));
     if (ck && !clubPro.has(ck)) { clubPro.add(ck); changed = true; }
   }
   const next: PlayerTags = { amateur: [...amateur], clubPro: [...clubPro] };
