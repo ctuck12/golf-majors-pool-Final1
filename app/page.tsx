@@ -6428,8 +6428,8 @@ export default function Page() {
                     />
                   </div>
                   <div>
-                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>Salary Pick List</div>
-                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Upload salaries + world ranks</div>
+                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>Full Field & Salary Pick List</div>
+                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Upload full field + salaries + owgr</div>
                   </div>
                 </a>
                 <a
