@@ -5350,8 +5350,9 @@ export default function Page() {
                         <div
                           style={{
                             borderRadius: 12,
-                            border: '1px solid #dce6ee',
-                            background: '#f8fbfd',
+                            // For The Open the box blends with the section's yellow (bubbles keep their colors).
+                            border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #dce6ee',
+                            background: entriesTournamentId === 'open' ? '#F4BC41' : '#f8fbfd',
                             padding: isMobile ? '8px 10px' : '12px 14px',
                             display: 'grid',
                             gap: isMobile ? 6 : 10,
