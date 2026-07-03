@@ -6340,7 +6340,7 @@ export default function Page() {
                   <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Data source
                   </div>
-                  <div style={{ marginTop: isMobile ? 4 : 8, height: isMobile ? 18 : 22, display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14 }}>
+                  <div style={{ marginTop: isMobile ? 4 : 8, height: isMobile ? 30 : 40, display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 16 }}>
                     <img src="/espn-logo.png" alt="ESPN" style={{ height: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
                     <img src="/pga-tour-logo.png" alt="PGA Tour" style={{ height: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
                   </div>
