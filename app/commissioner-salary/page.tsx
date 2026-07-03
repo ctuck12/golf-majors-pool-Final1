@@ -302,6 +302,7 @@ export default function CommissionerSalaryPage() {
             <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
               Columns: <b>World Golf Rank</b>, <b>Player Name</b>, <b>Salary</b> (a header row is fine — it&apos;s skipped).
               Upload the <b>.xlsx</b>/<b>.csv</b> file, or paste the rows. Any name not already in the pool is auto-added.
+              {' '}Mark amateurs with <b>(a)</b> and PGA Championship club pros with <b>(c)</b> after the name (e.g. <code>Miles Russell (a)</code>, <code>Michael Block (c)</code>) — amateurs get a red “AMATEUR” in their bio and club pros get the PGA seal, automatically.
             </div>
 
             {status?.active && status.updatedAt && (
