@@ -306,7 +306,7 @@ export default function CommissionerSalaryPage() {
               <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>Full Tournament Field</div>
               <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
                 Upload the <b>entire field</b> — one player name per line (a leading rank number is fine). This registers everyone in the pool so their photo/bio resolve, <b>without</b> giving them a salary, so it does <b>not</b> change the pick sheet.
-                {' '}Mark amateurs with <b>(a)</b> and PGA Championship club pros with <b>(c)</b> after the name (e.g. <code>Miles Russell (a)</code>, <code>Michael Block (c)</code>) — amateurs get a red “AMATEUR” in their bio and club pros get the PGA seal, automatically.
+                {' '}<b>Amateurs are flagged automatically</b> from the standard <b>(a)</b> marker most field lists already include — they get a red “AMATEUR” in their bio, no action needed.
                 {fieldRegistered != null && fieldRegistered > 0 && <span> Currently <b>{fieldRegistered}</b> extra player(s) registered.</span>}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -398,7 +398,7 @@ export default function CommissionerSalaryPage() {
             <div style={{ fontSize: 12.5, color: '#607282', lineHeight: 1.5 }}>
               Columns: <b>World Golf Rank</b>, <b>Player Name</b>, <b>Salary</b> (a header row is fine — it&apos;s skipped).
               Upload the <b>.xlsx</b>/<b>.csv</b> file, or paste the rows. Any name not already in the pool is auto-added.
-              {' '}Mark amateurs with <b>(a)</b> and PGA Championship club pros with <b>(c)</b> after the name (e.g. <code>Miles Russell (a)</code>, <code>Michael Block (c)</code>) — amateurs get a red “AMATEUR” in their bio and club pros get the PGA seal, automatically.
+              {' '}<b>Amateurs are flagged automatically</b> from the standard <b>(a)</b> marker most salary lists already include — they get a red “AMATEUR” in their bio, no action needed.
             </div>
 
             {status?.active && status.updatedAt && (
