@@ -274,6 +274,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Chase Kyes': 'us',
   'Arni Sveinsson': 'is',
   'Jack Schoenberger': 'us',
+  'Logan Reilly': 'us',
   // Masters field: amateurs + accented-name variants of past champions (unaccented keys already exist).
   'Jackson Herrington': 'us',
   'Mason Howell': 'us',

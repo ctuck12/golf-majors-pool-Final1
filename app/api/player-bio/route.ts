@@ -851,6 +851,13 @@ const KNOWN_MAJOR_WINS: Record<string, { majorWins: number; list: WinEntry[] }> 
   'graeme mcdowell': { majorWins: 1, list: [{ tournament: 'U.S. Open', year: '2010', course: 'Pebble Beach Golf Links', toPar: 'E' }] },
 };
 
+// Official PGA Tour wins the (partial/recent) playerProfileTournamentResults feed omits — a major
+// win like McDowell's 2010 U.S. Open counts as a PGA Tour win but is too old to be returned, so his
+// PGA Tour Wins list shows only 3. These are APPENDED (deduped by tournament+year) to the live list.
+const KNOWN_PGA_WINS: Record<string, WinEntry[]> = {
+  'graeme mcdowell': [{ tournament: 'U.S. Open', year: '2010', course: 'Pebble Beach Golf Links', toPar: 'E' }],
+};
+
 // Overlay manual overrides (app/lib/player-bio-overrides.ts) onto a bio. Override values
 // win over API data. Applied on every response (including cache hits) so edits take effect
 // immediately without a cache bump.
@@ -874,6 +881,18 @@ function applyBioOverrides(name: string, bio: PlayerBio): PlayerBio {
     bio.majorWins = Math.max(bio.majorWins ?? 0, mw.majorWins);
     bio.majorWinsList = mw.list;
     if (bio.majorStarts != null && bio.majorStarts < mw.majorWins) bio.majorStarts = mw.majorWins;
+  }
+  const pw = KNOWN_PGA_WINS[normBioName(name)] ?? KNOWN_PGA_WINS[firstLastKey(name)];
+  if (pw) {
+    const existing = bio.pgaTourWinsList ?? [];
+    const winKey = (w: WinEntry) => `${w.tournament.toLowerCase()}|${w.year}`;
+    const seen = new Set(existing.map(winKey));
+    const toAdd = pw.filter((w) => !seen.has(winKey(w)));
+    if (toAdd.length) {
+      const merged = [...existing, ...toAdd].sort((a, b) => Number(b.year) - Number(a.year));
+      bio.pgaTourWinsList = merged;
+      bio.careerWins = merged.length;
+    }
   }
   return bio;
 }
