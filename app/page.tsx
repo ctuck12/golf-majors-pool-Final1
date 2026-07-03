@@ -6336,13 +6336,15 @@ export default function Page() {
                   gridAutoRows: '1fr', // equal-height rows so all four status boxes match
                 }}
               >
-                <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 12 : 18, padding: isMobile ? 10 : 16, background: '#f8fbfd' }}>
+                <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 12 : 18, padding: isMobile ? 10 : 16, background: '#f8fbfd', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Data source
                   </div>
-                  <div style={{ marginTop: isMobile ? 4 : 8, height: isMobile ? 30 : 40, display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 16 }}>
-                    <img src="/espn-logo.png" alt="ESPN" style={{ height: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
-                    <img src="/pga-tour-logo.png" alt="PGA Tour" style={{ height: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
+                  <div style={{ marginTop: isMobile ? 4 : 8, flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14 }}>
+                    {/* PGA Tour logo is a near-square badge, so it's sized taller than the wide ESPN mark to read
+                        as big; maxHeight caps both to the row so the box never grows. */}
+                    <img src="/espn-logo.png" alt="ESPN" style={{ height: isMobile ? 28 : 38, maxHeight: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
+                    <img src="/pga-tour-logo.png" alt="PGA Tour" style={{ height: isMobile ? 48 : 64, maxHeight: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
                   </div>
                 </div>
                 <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 12 : 18, padding: isMobile ? 10 : 16, background: '#f8fbfd' }}>
