@@ -116,6 +116,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Ethan Fang':                 { height: `6'0"`, weight: '145 lbs' },
   'Jack Schoenberger':          { height: `5'10"`, turnedPro: 2026 },
   'Jackson Koivun':             { dob: 'May 23, 2005', turnedPro: 2026 },
+  'Miles Russell':              { dob: 'November 1, 2008' },
   'Michael Brennan':            { weight: '175 lbs' },
   'Neal Shipley':               { weight: '205 lbs' },
   'Filippo Celli':              { weight: '170 lbs' },

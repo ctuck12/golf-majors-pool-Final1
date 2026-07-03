@@ -24,6 +24,7 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Jack Schoenberger': '5362526',
   'Jackson Koivun': '5215013',
   'Ryder Cowan': '5362517',
+  'Miles Russell': '5209798',
   // Discovered + verified via /api/admin/espn-id-discovery — players ESPN's name search
   // wouldn't resolve. Each ID was confirmed to return a golf athlete with bio data.
   'Ugo Coussaud': '4418567',
