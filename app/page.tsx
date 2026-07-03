@@ -295,7 +295,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Séamus Power': 'ie',
   'Thorbjørn Olesen': 'dk',
   'Cam Davis': 'au',
-  'David Ford': 'gb-eng',
+  'David Ford': 'us',
 };
 // Accent-insensitive index of PLAYER_FLAGS, so leaderboard display names with diacritics
 // (e.g. "Séamus Power", "Thorbjørn Olesen") resolve to the same flag as their unaccented key

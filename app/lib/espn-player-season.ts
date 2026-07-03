@@ -28,6 +28,10 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Jackson Herrington': '5344766',
   'Thorbjørn Olesen': '5140',
   'Thorbjorn Olesen': '5140',
+  'David Ford': '5150294',
+  'S.H. Kim': '4698579',
+  'Cam Davis': '10863',
+  'Patton Kizzire': '3980',
   // Discovered + verified via /api/admin/espn-id-discovery — players ESPN's name search
   // wouldn't resolve. Each ID was confirmed to return a golf athlete with bio data.
   'Ugo Coussaud': '4418567',
