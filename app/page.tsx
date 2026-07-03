@@ -8943,8 +8943,11 @@ export default function Page() {
                   // standalone bookends). Each group renders as its own outlined card with a small gap.
                   type BioBottomRow = { label: string; value: string | number | null; wins?: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; amateur?: boolean };
                   // Amateurs (flagged from the commissioner's "(a)" upload markers) show a red "AMATEUR"
-                  // in place of a Turned Pro year.
-                  const isAmateur = amateurKeys.has(canonicalNameKey(pickHistoryPlayerPopup.player.name));
+                  // in place of a Turned Pro year — BUT only while they have no turn-pro year. A turn-pro
+                  // year is the authoritative signal that they've gone pro (ESPN publishes it, or a bio
+                  // override sets it), so the moment one exists the field auto-flips from AMATEUR to the
+                  // year with no re-upload or manual step.
+                  const isAmateur = amateurKeys.has(canonicalNameKey(pickHistoryPlayerPopup.player.name)) && bio?.turnedPro == null;
                   const bottomGroups: BioBottomRow[][] = [
                     [
                       isAmateur
