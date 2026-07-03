@@ -111,7 +111,16 @@ export default function CommissionerSalaryPage() {
   const [fieldRegistered, setFieldRegistered] = useState<number | null>(null);
   const [fieldAdded, setFieldAdded] = useState<string[]>([]); // brand-new names from the last field upload
   const fieldFileRef = useRef<HTMLInputElement>(null);
+  // PGA Professionals upload (PGA Championship only) — a plain list of names that each get the PGA seal.
+  const [proText, setProText] = useState('');
+  const [proBusy, setProBusy] = useState(false);
+  const [proMsg, setProMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+  const [proFileName, setProFileName] = useState('');
+  const [proNames, setProNames] = useState<string[]>([]); // names flagged by the last pro upload
+  const [proCount, setProCount] = useState<number | null>(null); // total club pros currently flagged
+  const proFileRef = useRef<HTMLInputElement>(null);
   const headerTournament = getHeaderTournament();
+  const isPgaChampionship = headerTournament.id === 'pga';
 
   const loadStatus = async () => {
     try {
@@ -129,7 +138,13 @@ export default function CommissionerSalaryPage() {
       if (res.ok) { const d = await res.json(); setFieldRegistered(typeof d.registered === 'number' ? d.registered : null); }
     } catch { /* ignore */ }
   };
-  useEffect(() => { loadStatus(); loadFieldStatus(); }, []);
+  const loadProStatus = async () => {
+    try {
+      const res = await fetch('/api/commissioner/pga-professionals', { cache: 'no-store' });
+      if (res.ok) { const d = await res.json(); setProCount(typeof d.clubProCount === 'number' ? d.clubProCount : null); }
+    } catch { /* ignore */ }
+  };
+  useEffect(() => { loadStatus(); loadFieldStatus(); loadProStatus(); }, []);
 
   const readFileToText = async (file: File): Promise<string | null> => {
     let rows: string[][];
@@ -174,6 +189,39 @@ export default function CommissionerSalaryPage() {
       }
     } catch { setFieldMsg({ kind: 'err', text: 'Network error while registering the field.' }); }
     setFieldBusy(false);
+  };
+
+  const onProFile = async (file: File) => {
+    setProMsg(null);
+    try {
+      const asText = await readFileToText(file);
+      if (asText === null) { setProMsg({ kind: 'err', text: 'Please choose a .xlsx or .csv file (or paste below).' }); return; }
+      if (!asText) { setProMsg({ kind: 'err', text: 'Couldn’t read any names from that file.' }); return; }
+      setProText(asText);
+      setProMsg({ kind: 'ok', text: `Loaded names from ${file.name}. Review below, then Give PGA Seal.` });
+    } catch (e) {
+      setProMsg({ kind: 'err', text: e instanceof Error ? e.message : 'Could not read that file.' });
+    }
+  };
+
+  const savePros = async () => {
+    setProBusy(true); setProMsg(null); setProNames([]);
+    try {
+      const res = await fetch('/api/commissioner/pga-professionals', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: proText }),
+      });
+      const data = await res.json();
+      if (!res.ok) setProMsg({ kind: 'err', text: data.error ?? 'Upload failed.' });
+      else {
+        setProMsg({ kind: 'ok', text: `${data.submitted} name(s) flagged as PGA Professionals — they now show the PGA seal in their bio. ${data.clubProCount} club pro(s) flagged in total.` });
+        setProNames(Array.isArray(data.names) ? data.names : []);
+        setProText('');
+        if (proFileRef.current) proFileRef.current.value = '';
+        setProFileName('');
+        loadProStatus();
+      }
+    } catch { setProMsg({ kind: 'err', text: 'Network error while uploading.' }); }
+    setProBusy(false);
   };
 
   const onFile = async (file: File) => {
@@ -296,6 +344,54 @@ export default function CommissionerSalaryPage() {
                 </div>
               )}
             </div>
+
+            {/* ── PGA Professionals (PGA Championship only) — plain name list, each gets the PGA seal ── */}
+            {isPgaChampionship && (
+              <div style={{ border: '1px solid #e6dcc2', borderRadius: 12, padding: 14, display: 'grid', gap: 10, background: '#fbf8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <img src="/pga-seal-gold.png" alt="PGA" style={{ height: 26, objectFit: 'contain', flexShrink: 0 }} />
+                  <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720' }}>PGA Professionals</div>
+                </div>
+                <div style={{ fontSize: 12.5, color: '#6b5f43', lineHeight: 1.5 }}>
+                  Upload just the <b>PGA Club Professionals</b> — one name per line (a leading number is fine). Each name gets the <b>PGA seal</b> in their bio header automatically, so you don&apos;t have to mark <code>(c)</code> in the field or salary uploads. Additive — re-uploading is safe.
+                  {proCount != null && proCount > 0 && <span> Currently <b>{proCount}</b> club pro(s) flagged.</span>}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                  <input
+                    ref={proFileRef}
+                    type="file"
+                    accept=".xlsx,.csv"
+                    onChange={(e) => { const f = e.target.files?.[0]; setProFileName(f ? f.name : ''); if (f) onProFile(f); }}
+                    style={{ display: 'none' }}
+                  />
+                  <button type="button" onClick={() => proFileRef.current?.click()} style={{ fontSize: 13, fontWeight: 700, padding: '9px 16px', borderRadius: 9, border: '1px solid #d8c99e', background: '#fff', color: '#0f1720', cursor: 'pointer' }}>Choose File</button>
+                  <span style={{ fontSize: 14, color: '#8a7d5c' }}>{proFileName || 'No file selected'}</span>
+                </div>
+                <textarea
+                  value={proText}
+                  onChange={(e) => setProText(e.target.value)}
+                  placeholder={'Michael Block\nBraden Shattuck\nJesse Droemer\n...'}
+                  rows={6}
+                  style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #d8c99e', borderRadius: 8, padding: 12, fontSize: 13, fontFamily: 'ui-monospace,SFMono-Regular,Menlo,monospace', resize: 'vertical' }}
+                />
+                <div>
+                  <button onClick={savePros} disabled={proBusy || !proText.trim()} style={{ ...btn('#B09963'), opacity: proBusy || !proText.trim() ? 0.5 : 1 }}>{proBusy ? 'Applying…' : 'Give PGA Seal'}</button>
+                </div>
+                {proMsg && (
+                  <div style={{ background: proMsg.kind === 'ok' ? '#ecfdf3' : '#fef2f2', color: proMsg.kind === 'ok' ? '#027a48' : '#b42318', border: `1px solid ${proMsg.kind === 'ok' ? '#a6f4c5' : '#fecdca'}`, borderRadius: 8, padding: '10px 14px', fontSize: 13 }}>{proMsg.text}</div>
+                )}
+                {proNames.length > 0 && (
+                  <div style={{ border: '1px solid #e6dcc2', borderRadius: 8, overflow: 'hidden' }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: '#7a6a3f', padding: '8px 12px', background: '#f5eeda' }}>GIVEN THE PGA SEAL ({proNames.length})</div>
+                    <div style={{ maxHeight: 220, overflowY: 'auto' }}>
+                      {proNames.map((n, i) => (
+                        <div key={n} style={{ padding: '5px 12px', fontSize: 13, color: '#0f1720', background: i % 2 ? '#fbf8f0' : '#fff', borderBottom: '1px solid #f0e9d6' }}>{n}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* ── Salary Pick List ── */}
             <div style={{ fontSize: 14, fontWeight: 900, color: '#0f1720', marginTop: 4 }}>Salary Pick List</div>
