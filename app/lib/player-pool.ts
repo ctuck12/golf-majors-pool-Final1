@@ -251,6 +251,16 @@ export const PLAYER_ARCHIVE = [
   { id: 301, name: 'Mike Weir',                 pgaTourId: 10423, defaultOdds: '+100000', worldRank: 999 },
   { id: 302, name: 'Sergio Garcia',             pgaTourId: 21209, defaultOdds: '+100000', worldRank: 999 },
   { id: 303, name: 'Charl Schwartzel',          pgaTourId: 26331, defaultOdds: '+100000', worldRank: 999 },
+  // PGA club professionals committed permanently to the pool (previously only auto-added to the
+  // dynamic Redis pool per-upload). Now first-class members so their PGA Tour id / bio / seal wire
+  // up automatically in any future tournament. They only appear on a pick sheet when salaried.
+  { id: 304, name: 'Derek Berg',                pgaTourId: 39464, defaultOdds: '+100000', worldRank: 999 },
+  { id: 305, name: 'Paul McClure',              pgaTourId: 58597, defaultOdds: '+100000', worldRank: 999 },
+  { id: 306, name: 'Zach Haynes',               pgaTourId: 70406, defaultOdds: '+100000', worldRank: 999 },
+  { id: 307, name: 'Chris Gabriele',            pgaTourId: 70407, defaultOdds: '+100000', worldRank: 999 },
+  { id: 308, name: 'Francisco Bidé',            pgaTourId: 36964, defaultOdds: '+100000', worldRank: 999 },
+  { id: 309, name: 'Bryce Fisher',              pgaTourId: 27484, defaultOdds: '+100000', worldRank: 999 },
+  { id: 310, name: 'Garrett Sapp',              pgaTourId: 32467, defaultOdds: '+100000', worldRank: 999 },
 ] as const;
 
 export type PlayerPoolEntry = (typeof PLAYER_POOL_WITH_PGA_IDS)[number];

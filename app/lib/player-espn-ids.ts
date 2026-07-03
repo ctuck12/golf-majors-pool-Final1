@@ -6,6 +6,15 @@
 // Players with no ESPN id (e.g. Benjamin James, Dan Brown) are absent and fall back to PGA.
 
 export const PLAYER_ESPN_IDS: Record<string, string> = {
+  // PGA club professionals committed permanently to the pool — ESPN ids for their headshots.
+  "Derek Berg": '5350614',
+  "Paul McClure": '5350615',
+  "Zach Haynes": '5350616',
+  "Chris Gabriele": '5350613',
+  "Francisco Bidé": '3089127',
+  "Francisco Bide": '3089127',
+  "Bryce Fisher": '2233',
+  "Garrett Sapp": '5921',
   // Masters-legend field players (not in the pool) — ESPN ids for their headshots.
   "Danny Willett": '4304',
   "Mike Weir": '453',

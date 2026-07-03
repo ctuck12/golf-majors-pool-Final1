@@ -961,7 +961,7 @@ export async function GET(req: Request) {
   }
   if (!name) return Response.json({ bio: null });
 
-  const cacheKey = `player-bio:v47:${name}`;
+  const cacheKey = `player-bio:v48:${name}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
