@@ -6339,7 +6339,10 @@ export default function Page() {
                   <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Data source
                   </div>
-                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 13 : 18, fontWeight: 800 }}>ESPN</div>
+                  <div style={{ marginTop: isMobile ? 4 : 8, height: isMobile ? 18 : 22, display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14 }}>
+                    <img src="/espn-logo.png" alt="ESPN" style={{ height: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
+                    <img src="/pga-tour-logo.png" alt="PGA Tour" style={{ height: '100%', width: 'auto', objectFit: 'contain', display: 'block' }} />
+                  </div>
                 </div>
                 <div style={{ border: '1px solid #e6edf1', borderRadius: isMobile ? 12 : 18, padding: isMobile ? 10 : 16, background: '#f8fbfd' }}>
                   <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
@@ -6351,10 +6354,10 @@ export default function Page() {
                   onClick={handleToggleLineupLock}
                   disabled={!canManagePool || commissionerBusy}
                   style={{
-                    border: `2px solid ${locked ? '#dc2626' : '#2d7a4f'}`,
+                    border: `1.5px solid ${locked ? '#e7a3a3' : '#a8d3ba'}`,
                     borderRadius: isMobile ? 12 : 18,
                     padding: isMobile ? 10 : 16,
-                    background: locked ? '#fdecec' : '#edf7f1',
+                    background: locked ? '#fbf1f1' : '#f1f8f4',
                     textAlign: 'left',
                     cursor: !canManagePool || commissionerBusy ? 'not-allowed' : 'pointer',
                   }}
@@ -6362,8 +6365,8 @@ export default function Page() {
                   <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Lineup lock
                   </div>
-                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 15 : 20, fontWeight: 900, color: locked ? '#c0271f' : '#1f7a46', display: 'flex', alignItems: 'center', gap: 7 }}>
-                    <span style={{ width: isMobile ? 9 : 11, height: isMobile ? 9 : 11, borderRadius: '50%', background: locked ? '#dc2626' : '#2d7a4f', flexShrink: 0 }} />
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: locked ? '#c0271f' : '#1f7a46', display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <span style={{ width: isMobile ? 8 : 9, height: isMobile ? 8 : 9, borderRadius: '50%', background: locked ? '#dc2626' : '#2d7a4f', flexShrink: 0 }} />
                     {locked ? 'Locked' : 'Unlocked'}
                   </div>
                   <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
@@ -6374,10 +6377,10 @@ export default function Page() {
                   onClick={handleTogglePicksOpen}
                   disabled={!canManagePool || commissionerBusy}
                   style={{
-                    border: `2px solid ${pool?.picksOpen?.[selectedTournament] ? '#2d7a4f' : '#dc2626'}`,
+                    border: `1.5px solid ${pool?.picksOpen?.[selectedTournament] ? '#a8d3ba' : '#e7a3a3'}`,
                     borderRadius: isMobile ? 12 : 18,
                     padding: isMobile ? 10 : 16,
-                    background: pool?.picksOpen?.[selectedTournament] ? '#edf7f1' : '#fdecec',
+                    background: pool?.picksOpen?.[selectedTournament] ? '#f1f8f4' : '#fbf1f1',
                     textAlign: 'left',
                     cursor: !canManagePool || commissionerBusy ? 'not-allowed' : 'pointer',
                   }}
@@ -6385,8 +6388,8 @@ export default function Page() {
                   <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
                     Player picks
                   </div>
-                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 15 : 20, fontWeight: 900, color: pool?.picksOpen?.[selectedTournament] ? '#1f7a46' : '#c0271f', display: 'flex', alignItems: 'center', gap: 7 }}>
-                    <span style={{ width: isMobile ? 9 : 11, height: isMobile ? 9 : 11, borderRadius: '50%', background: pool?.picksOpen?.[selectedTournament] ? '#2d7a4f' : '#dc2626', flexShrink: 0 }} />
+                  <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: pool?.picksOpen?.[selectedTournament] ? '#1f7a46' : '#c0271f', display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <span style={{ width: isMobile ? 8 : 9, height: isMobile ? 8 : 9, borderRadius: '50%', background: pool?.picksOpen?.[selectedTournament] ? '#2d7a4f' : '#dc2626', flexShrink: 0 }} />
                     {pool?.picksOpen?.[selectedTournament] ? 'Open' : 'Closed'}
                   </div>
                   <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
