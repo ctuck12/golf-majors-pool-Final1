@@ -3,6 +3,8 @@ import redis from '@/app/lib/redis';
 import { getEspnId } from '@/app/lib/espn-player-season';
 import { PLAYER_BIO_OVERRIDES, type BioOverride } from '@/app/lib/player-bio-overrides';
 import { PLAYER_POOL_WITH_PGA_IDS, PLAYER_ARCHIVE } from '@/app/lib/player-pool';
+import { getDynamicPlayers } from '@/app/lib/dynamic-pool-store';
+import { canonicalNameKey } from '@/app/lib/name-match';
 
 const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
 const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
@@ -942,7 +944,17 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const name = url.searchParams.get('name') ?? '';
   // Backfill a missing/0 pgaTourId from the pool by name so PGA career/major data still loads.
-  const pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
+  let pgaTourId = resolvePgaTourId(name, url.searchParams.get('pgaTourId') ?? '');
+  // Not in the static pool? Fall back to the dynamic pool (players auto-added via a commissioner
+  // field/salary upload), whose pgaTourId is auto-resolved from the PGA Tour directory.
+  if ((!pgaTourId || pgaTourId === '0') && name) {
+    try {
+      const dyn = await getDynamicPlayers();
+      const canon = canonicalNameKey(name);
+      const hit = dyn.find((p) => p.pgaTourId > 0 && canonicalNameKey(p.name) === canon);
+      if (hit) pgaTourId = String(hit.pgaTourId);
+    } catch { /* ignore */ }
+  }
   if (!name) return Response.json({ bio: null });
 
   const cacheKey = `player-bio:v45:${name}`;

@@ -44,6 +44,7 @@ async function saveDynamicPlayers(players: DynamicPlayer[]): Promise<void> {
 // the full list plus a canonicalNameKey -> id map covering every ensured entry.
 export async function ensureDynamicPlayers(
   entries: Array<{ name: string; worldRank: number | null; espnId?: string }>,
+  resolvePgaId?: (name: string) => number | null,
 ): Promise<{ all: DynamicPlayer[]; idByCanon: Record<string, number>; added: DynamicPlayer[] }> {
   const all = await getDynamicPlayers();
   const byCanon = new Map(all.map((p) => [canonicalNameKey(p.name), p]));
@@ -58,12 +59,17 @@ export async function ensureDynamicPlayers(
       idByCanon[ck] = existing.id;
       if (e.worldRank != null && existing.worldRank !== e.worldRank) { existing.worldRank = e.worldRank; changed = true; }
       if (e.espnId && existing.espnId !== e.espnId) { existing.espnId = e.espnId; changed = true; }
+      // Retry PGA Tour id resolution for players previously left unresolved.
+      if (!existing.pgaTourId && resolvePgaId) {
+        const rid = resolvePgaId(existing.name);
+        if (rid) { existing.pgaTourId = rid; changed = true; }
+      }
       continue;
     }
     const player: DynamicPlayer = {
       id: nextId++,
       name: e.name,
-      pgaTourId: 0,
+      pgaTourId: resolvePgaId?.(e.name) ?? 0,
       worldRank: e.worldRank ?? 9999,
       defaultOdds: '+100000',
       espnId: e.espnId,
@@ -76,4 +82,19 @@ export async function ensureDynamicPlayers(
   }
   if (changed) await saveDynamicPlayers(all);
   return { all, idByCanon, added };
+}
+
+// Also re-resolve pgaTourId for ALL still-unresolved dynamic players (used opportunistically on every
+// upload so anyone who wasn't yet in the PGA directory gets filled in on a later attempt).
+export async function backfillDynamicPgaIds(resolvePgaId: (name: string) => number | null): Promise<number> {
+  const all = await getDynamicPlayers();
+  let filled = 0;
+  for (const p of all) {
+    if (!p.pgaTourId) {
+      const rid = resolvePgaId(p.name);
+      if (rid) { p.pgaTourId = rid; filled++; }
+    }
+  }
+  if (filled > 0) await saveDynamicPlayers(all);
+  return filled;
 }

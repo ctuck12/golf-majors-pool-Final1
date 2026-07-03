@@ -7,7 +7,8 @@ import {
   saveManualSalaries,
   clearManualSalaries,
 } from '../../../lib/salary-overrides-store';
-import { getDynamicPlayers, ensureDynamicPlayers } from '../../../lib/dynamic-pool-store';
+import { getDynamicPlayers, ensureDynamicPlayers, backfillDynamicPgaIds } from '../../../lib/dynamic-pool-store';
+import { getPgaDirectoryResolver } from '../../../lib/pga-directory';
 import { getEspnId } from '../../../lib/espn-player-season';
 import { canonicalNameKey } from '../../../lib/name-match';
 
@@ -69,7 +70,9 @@ export async function POST(request: Request) {
         espnId: (await getEspnId(u.name).catch(() => null)) ?? undefined,
       })),
     );
-    const { idByCanon, added } = await ensureDynamicPlayers(withEspn);
+    const resolvePgaId = await getPgaDirectoryResolver();
+    const { idByCanon, added } = await ensureDynamicPlayers(withEspn, resolvePgaId);
+    await backfillDynamicPgaIds(resolvePgaId);
     newlyAddedNames = added.map((p) => p.name).sort();
     for (const u of parsed.unmatched) {
       const id = idByCanon[canonicalNameKey(u.name)];

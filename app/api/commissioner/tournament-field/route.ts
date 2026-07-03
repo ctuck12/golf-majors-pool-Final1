@@ -2,7 +2,8 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { getSessionContext, SESSION_COOKIE_NAME } from '../../../lib/pool-store';
 import { PLAYER_POOL_WITH_PGA_IDS } from '../../../lib/player-pool';
-import { getDynamicPlayers, ensureDynamicPlayers } from '../../../lib/dynamic-pool-store';
+import { getDynamicPlayers, ensureDynamicPlayers, backfillDynamicPgaIds } from '../../../lib/dynamic-pool-store';
+import { getPgaDirectoryResolver } from '../../../lib/pga-directory';
 import { canonicalNameKey } from '../../../lib/name-match';
 
 export const dynamic = 'force-dynamic';
@@ -67,7 +68,12 @@ export async function POST(request: Request) {
   // Only register names that aren't already in the static pool (those already resolve). The dynamic
   // store dedups by canonical name, so re-uploading the same field is safe (no duplicates, no salaries).
   const toRegister = names.filter((n) => !STATIC_CANON.has(canonicalNameKey(n)));
-  const { all, added } = await ensureDynamicPlayers(toRegister.map((name) => ({ name, worldRank: null })));
+  // Auto-resolve each new player's PGA Tour id from the tour directory so their PGA/major stats load
+  // with no manual step. Also retry any previously-unresolved dynamic players.
+  const resolvePgaId = await getPgaDirectoryResolver();
+  const { all, added } = await ensureDynamicPlayers(toRegister.map((name) => ({ name, worldRank: null })), resolvePgaId);
+  await backfillDynamicPgaIds(resolvePgaId);
+  const withPgaId = added.filter((p) => p.pgaTourId > 0).length;
 
   return NextResponse.json({
     ok: true,
@@ -75,6 +81,7 @@ export async function POST(request: Request) {
     alreadyInPool: names.length - toRegister.length,
     registered: toRegister.length,
     newlyAdded: added.length,
+    newlyAddedWithStats: withPgaId, // of the new adds, how many got a PGA Tour id (full stats)
     addedNames: added.map((p) => p.name).sort(),
     totalDynamic: all.length,
   });

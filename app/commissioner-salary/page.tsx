@@ -164,7 +164,7 @@ export default function CommissionerSalaryPage() {
       const data = await res.json();
       if (!res.ok) setFieldMsg({ kind: 'err', text: data.error ?? 'Register failed.' });
       else {
-        setFieldMsg({ kind: 'ok', text: `Field: ${data.fieldCount} players — ${data.alreadyInPool} already in the pool, ${data.newlyAdded} newly added. This does not affect the pick list.` });
+        setFieldMsg({ kind: 'ok', text: `Field: ${data.fieldCount} players — ${data.alreadyInPool} already in the pool, ${data.newlyAdded} newly added${typeof data.newlyAddedWithStats === 'number' ? ` (${data.newlyAddedWithStats} auto-linked to full PGA Tour stats)` : ''}. This does not affect the pick list.` });
         setFieldAdded(Array.isArray(data.addedNames) ? data.addedNames : []);
         setFieldText('');
         if (fieldFileRef.current) fieldFileRef.current.value = '';
