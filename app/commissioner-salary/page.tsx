@@ -289,12 +289,12 @@ export default function CommissionerSalaryPage() {
   };
 
   const clear = async () => {
-    if (!confirm('Clear the uploaded list and revert to the built-in salaries + world ranks?')) return;
+    if (!confirm('Clear the uploaded salary list for this tournament? The pick sheet will have no players until a new list is uploaded.')) return;
     setBusy(true); setMsg(null); setResp(null);
     try {
       const res = await fetch(`/api/commissioner/salary-overrides?tournamentId=${salaryTid}`, { method: 'DELETE' });
       if (!res.ok) { const d = await res.json().catch(() => ({})); setMsg({ kind: 'err', text: d.error ?? 'Clear failed.' }); }
-      else { setMsg({ kind: 'ok', text: 'Reverted to the built-in list.' }); loadStatus(); }
+      else { setMsg({ kind: 'ok', text: 'Salary list cleared.' }); loadStatus(); }
     } catch { setMsg({ kind: 'err', text: 'Network error while clearing.' }); }
     setBusy(false);
   };
@@ -474,7 +474,7 @@ export default function CommissionerSalaryPage() {
 
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <button onClick={() => setConfirmOpen(true)} disabled={busy || !text.trim()} style={{ ...btn(headerTournament.color), opacity: busy || !text.trim() ? 0.5 : 1 }}>{busy ? 'Saving…' : 'Save & Apply'}</button>
-              {status?.active && <button onClick={clear} disabled={busy} style={{ ...btn('#64748b'), opacity: busy ? 0.5 : 1 }}>Clear (use built-in list)</button>}
+              {status?.active && <button onClick={clear} disabled={busy} style={{ ...btn('#64748b'), opacity: busy ? 0.5 : 1 }}>Clear</button>}
             </div>
 
             {msg && (
