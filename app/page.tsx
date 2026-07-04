@@ -384,12 +384,37 @@ const PGA_CLUB_PROFESSIONALS = new Set<string>([
   'Chris Gabriele',
 ]);
 
-// Event/venue logos shown in the pick-sheet header (transparent PNGs on file). The Players trophy
-// is tall and narrow, so it gets its own size/position values in the pick-sheet <img> styles.
+// Event/venue logos shown in the pick-sheet header (transparent PNGs on file).
 const TOURNAMENT_EVENT_LOGOS: Partial<Record<string, string>> = {
-  open: '/the-open-royal-birkdale-logo.png',
+  open: '/masters-tab-logo.png',
   players: '/players-trophy.png',
 };
+
+// Per-event size/position for the pick-sheet header logo — aspect ratios differ wildly (square
+// crest, tall trophy, wide Masters script), so each logo is tuned per view. m* = portrait mobile,
+// l* = landscape phone, dH = desktop height; dCentered floats the logo mid-header on desktop
+// instead of pinning it against the search bar.
+type EventLogoLayout = { mTop: number; mRight: number; mH: number; lTop: number; lRight: number; lH: number; dH: number; dCentered?: boolean };
+const DEFAULT_EVENT_LOGO_LAYOUT: EventLogoLayout = { mTop: -10, mRight: 28, mH: 132, lTop: 2, lRight: 72, lH: 206, dH: 140 };
+const TOURNAMENT_EVENT_LOGO_LAYOUTS: Partial<Record<string, EventLogoLayout>> = {
+  open: { mTop: 16, mRight: 28, mH: 48, lTop: 16, lRight: 150, lH: 60, dH: 72, dCentered: true },
+  players: { mTop: 12, mRight: 28, mH: 132, lTop: 2, lRight: 150, lH: 180, dH: 140, dCentered: true },
+};
+
+function eventLogoStyle(tid: string, isMobile: boolean, isLandscapePhone: boolean): CSSProperties {
+  const L = TOURNAMENT_EVENT_LOGO_LAYOUTS[tid] ?? DEFAULT_EVENT_LOGO_LAYOUT;
+  return {
+    position: isMobile || isLandscapePhone ? 'absolute' : 'static',
+    top: isMobile ? L.mTop : isLandscapePhone ? L.lTop : undefined,
+    right: isMobile ? L.mRight : isLandscapePhone ? L.lRight : undefined,
+    height: isMobile ? L.mH : isLandscapePhone ? L.lH : L.dH,
+    width: 'auto',
+    objectFit: 'contain',
+    pointerEvents: 'none',
+    flexShrink: 0,
+    marginLeft: isMobile || isLandscapePhone || L.dCentered ? undefined : 'auto',
+  };
+}
 
 // Per-tournament logo height (px) for the player-popup Career tab — each logo has a different aspect
 // ratio, so they're tuned individually so they read at a consistent visual size.
@@ -5746,7 +5771,7 @@ export default function Page() {
                           </div>
                         </div>
                         {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? (entriesTournamentId === 'players' ? 12 : -10) : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? (entriesTournamentId === 'players' ? 150 : 72) : undefined, height: isMobile ? 132 : isLandscapePhone ? (entriesTournamentId === 'players' ? 180 : 206) : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone || entriesTournamentId === 'players' ? undefined : 'auto' }} />
+                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={eventLogoStyle(entriesTournamentId, isMobile, isLandscapePhone)} />
                         )}
                         <label
                           style={{
@@ -5943,7 +5968,7 @@ export default function Page() {
                           </div>
                         </div>
                         {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? (entriesTournamentId === 'players' ? 12 : -10) : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? (entriesTournamentId === 'players' ? 150 : 72) : undefined, height: isMobile ? 132 : isLandscapePhone ? (entriesTournamentId === 'players' ? 180 : 206) : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone || entriesTournamentId === 'players' ? undefined : 'auto' }} />
+                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={eventLogoStyle(entriesTournamentId, isMobile, isLandscapePhone)} />
                         )}
                         <label
                           style={{
@@ -7090,7 +7115,7 @@ export default function Page() {
                         </div>
                       </div>
                       {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                        <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? (entriesTournamentId === 'players' ? 12 : -10) : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? (entriesTournamentId === 'players' ? 150 : 72) : undefined, height: isMobile ? 132 : isLandscapePhone ? (entriesTournamentId === 'players' ? 180 : 206) : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone || entriesTournamentId === 'players' ? undefined : 'auto' }} />
+                        <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={eventLogoStyle(entriesTournamentId, isMobile, isLandscapePhone)} />
                       )}
                       <label
                         style={{
