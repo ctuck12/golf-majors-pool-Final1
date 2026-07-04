@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
+import { getDynamicPlayers } from '@/app/lib/dynamic-pool-store';
 import { parseMongo, type SlashGolfLeaderboardRow } from '@/app/lib/slashgolf';
 import { TOURNAMENT_META } from '@/app/lib/tournament-config';
 import {
@@ -311,18 +312,28 @@ export async function GET(request: Request) {
   const projectedCut = cached.projectedCut;
 
   // ── 2. Load scoring support data (all from Redis) ─────────────────────
-  const [scorecardCache, roundLeaderStore, lowRoundStore, statOverrides] = await Promise.all([
+  const [scorecardCache, roundLeaderStore, lowRoundStore, statOverrides, dynamicPool] = await Promise.all([
     getScorecardCache(tournamentId),
     getRoundLeaderStore(),
     getLowRoundStore(),
     getStatOverrides(),
+    getDynamicPlayers().catch(() => []),
   ]);
 
   const tournamentLowRound = getTournamentLowRoundScore(tournamentId, lowRoundStore);
 
   // ── 3. Build scored player list ───────────────────────────────────────
-  const poolByName = new Map(PLAYER_POOL_WITH_PGA_IDS.map((p) => [normName(p.name), p]));
-  const watchedPlayerNames = PLAYER_POOL_WITH_PGA_IDS.map((p) => p.name);
+  // Combine the static draft pool with any dynamically-added field players (from the commissioner's
+  // Full Tournament Field / salary uploads) so THEY appear on the leaderboard with live scores too,
+  // and so the tiebreak's winner auto-detection works even for a surprise champion. Static entries win
+  // on a name collision (they carry richer data); dynamic-only names are appended.
+  const staticNames = new Set(PLAYER_POOL_WITH_PGA_IDS.map((p) => normName(p.name)));
+  const combinedPool = [
+    ...PLAYER_POOL_WITH_PGA_IDS,
+    ...dynamicPool.filter((d) => d?.name && !staticNames.has(normName(d.name))),
+  ];
+  const poolByName = new Map(combinedPool.map((p) => [normName(p.name), p]));
+  const watchedPlayerNames = combinedPool.map((p) => p.name);
 
   // Accent-insensitive index of this tournament's WD/DQ/MDF overrides: normName strips accents/case
   // (and periods), so a commissioner entry of "Ludvig Aberg" matches the pool's "Ludvig Åberg" etc.
@@ -428,7 +439,7 @@ export async function GET(request: Request) {
       const playerName = key.slice(prefix.length);
       // Accent/case-insensitive match so "Ludvig Aberg" resolves to the pool's "Ludvig Åberg".
       if (playersInApi.has(normName(playerName))) continue;
-      const poolPlayer = PLAYER_POOL_WITH_PGA_IDS.find((p) => normName(p.name) === normName(playerName));
+      const poolPlayer = combinedPool.find((p) => normName(p.name) === normName(playerName));
       if (!poolPlayer) continue;
       const inferredScore = CUT_STATUSES.has(override.position.toUpperCase())
         ? override.position.toUpperCase()
