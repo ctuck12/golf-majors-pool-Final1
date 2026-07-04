@@ -5668,8 +5668,9 @@ export default function Page() {
                     style={{
                       marginTop: 20,
                       borderRadius: 18,
-                      border: '1px solid #d7e0e8',
-                      background: '#f8fbfd',
+                      // For The Open the box blends with the section's yellow; the ✕ goes navy like Save Entry Name.
+                      border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #d7e0e8',
+                      background: entriesTournamentId === 'open' ? '#F4BC41' : '#f8fbfd',
                       padding: 18,
                       display: 'grid',
                       gap: 14,
@@ -5679,7 +5680,7 @@ export default function Page() {
                       <div style={{ fontSize: 20, fontWeight: 900, color: '#0f1720' }}>Rename Entry</div>
                       <button
                         onClick={() => setMyEntriesDetailView('none')}
-                        style={{ background: 'rgba(0,0,0,0.06)', border: '1px solid #d7e0e8', borderRadius: 10, cursor: 'pointer', color: '#0f1720', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}
+                        style={{ background: entriesTournamentId === 'open' ? headerSolid : 'rgba(0,0,0,0.06)', border: entriesTournamentId === 'open' ? 'none' : '1px solid #d7e0e8', borderRadius: 10, cursor: 'pointer', color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}
                       >✕</button>
                     </div>
                     <input
