@@ -384,9 +384,11 @@ const PGA_CLUB_PROFESSIONALS = new Set<string>([
   'Chris Gabriele',
 ]);
 
-// Event/venue logos shown in the pick-sheet header (transparent PNGs on file).
+// Event/venue logos shown in the pick-sheet header (transparent PNGs on file). The Players trophy
+// is tall and narrow, so it gets its own size/position values in the pick-sheet <img> styles.
 const TOURNAMENT_EVENT_LOGOS: Partial<Record<string, string>> = {
-  open: '/players-trophy.png',
+  open: '/the-open-royal-birkdale-logo.png',
+  players: '/players-trophy.png',
 };
 
 // Per-tournament logo height (px) for the player-popup Career tab — each logo has a different aspect
@@ -5744,7 +5746,7 @@ export default function Page() {
                           </div>
                         </div>
                         {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? 12 : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? 150 : undefined, height: isMobile ? 132 : isLandscapePhone ? 180 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0 }} />
+                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? (entriesTournamentId === 'players' ? 12 : -10) : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? (entriesTournamentId === 'players' ? 150 : 72) : undefined, height: isMobile ? 132 : isLandscapePhone ? (entriesTournamentId === 'players' ? 180 : 206) : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone || entriesTournamentId === 'players' ? undefined : 'auto' }} />
                         )}
                         <label
                           style={{
@@ -5941,7 +5943,7 @@ export default function Page() {
                           </div>
                         </div>
                         {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? 12 : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? 150 : undefined, height: isMobile ? 132 : isLandscapePhone ? 180 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0 }} />
+                          <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? (entriesTournamentId === 'players' ? 12 : -10) : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? (entriesTournamentId === 'players' ? 150 : 72) : undefined, height: isMobile ? 132 : isLandscapePhone ? (entriesTournamentId === 'players' ? 180 : 206) : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone || entriesTournamentId === 'players' ? undefined : 'auto' }} />
                         )}
                         <label
                           style={{
@@ -7088,7 +7090,7 @@ export default function Page() {
                         </div>
                       </div>
                       {TOURNAMENT_EVENT_LOGOS[entriesTournamentId] && (
-                        <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? 12 : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? 150 : undefined, height: isMobile ? 132 : isLandscapePhone ? 180 : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0 }} />
+                        <img src={TOURNAMENT_EVENT_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ position: isMobile || isLandscapePhone ? 'absolute' : 'static', top: isMobile ? (entriesTournamentId === 'players' ? 12 : -10) : isLandscapePhone ? 2 : undefined, right: isMobile ? 28 : isLandscapePhone ? (entriesTournamentId === 'players' ? 150 : 72) : undefined, height: isMobile ? 132 : isLandscapePhone ? (entriesTournamentId === 'players' ? 180 : 206) : 140, width: 'auto', objectFit: 'contain', pointerEvents: 'none', flexShrink: 0, marginLeft: isMobile || isLandscapePhone || entriesTournamentId === 'players' ? undefined : 'auto' }} />
                       )}
                       <label
                         style={{
