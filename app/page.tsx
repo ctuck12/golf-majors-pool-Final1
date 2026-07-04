@@ -5618,12 +5618,13 @@ export default function Page() {
                                 different aspect ratios (wide Masters ribbon vs boxy PGA shield); the row is locked
                                 at 22px and the logo overdraws into the card's padding so the card doesn't grow. */}
                             {(() => {
-                              const logoH = ({ players: 40, masters: 22, pga: 42, 'us-open': 30, open: 30 } as Record<string, number>)[event.id] ?? 30;
+                              const logoH = ({ players: 40, masters: 25, pga: 42, 'us-open': 30, open: 30 } as Record<string, number>)[event.id] ?? 30;
+                              const logoY = ({ masters: -2 } as Record<string, number>)[event.id] ?? 0; // fine-tune vertical alignment per logo
                               return (
                                 <div style={{ height: 22, display: 'flex', alignItems: 'center', gap: 10 }}>
                                   <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
                                   {TOURNAMENT_TAB_LOGOS[event.id] && (
-                                    <img src={TOURNAMENT_TAB_LOGOS[event.id]} alt={event.name} style={{ height: logoH, width: 'auto', objectFit: 'contain', margin: `${(22 - logoH) / 2}px 0`, flexShrink: 0 }} />
+                                    <img src={TOURNAMENT_TAB_LOGOS[event.id]} alt={event.name} style={{ height: logoH, width: 'auto', objectFit: 'contain', margin: `${(22 - logoH) / 2}px 0`, transform: logoY ? `translateY(${logoY}px)` : undefined, flexShrink: 0 }} />
                                   )}
                                 </div>
                               );
