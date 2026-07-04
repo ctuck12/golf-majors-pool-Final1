@@ -5614,7 +5614,15 @@ export default function Page() {
                               gap: 10,
                             }}
                           >
-                            <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
+                            {TOURNAMENT_TAB_LOGOS[event.id] ? (
+                              // Tab logo replaces the text header at a uniform height; negative margins keep the
+                              // row the same 22px the text line occupied so the card height doesn't change.
+                              <div style={{ height: 22, display: 'flex', alignItems: 'center' }}>
+                                <img src={TOURNAMENT_TAB_LOGOS[event.id]} alt={event.name} style={{ height: 30, width: 'auto', objectFit: 'contain', margin: '-4px 0' }} />
+                              </div>
+                            ) : (
+                              <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
+                            )}
                             {historyPlayers.length > 0 ? (
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                                 {historyPlayers.map((player) => {
