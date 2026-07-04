@@ -5619,7 +5619,7 @@ export default function Page() {
                                 at 22px and the logo overdraws into the card's padding so the card doesn't grow. */}
                             {(() => {
                               const logoH = ({ players: 40, masters: 25, pga: 42, 'us-open': 30, open: 30 } as Record<string, number>)[event.id] ?? 30;
-                              const logoY = ({ masters: -2 } as Record<string, number>)[event.id] ?? 0; // fine-tune vertical alignment per logo
+                              const logoY = ({ masters: -5 } as Record<string, number>)[event.id] ?? 0; // fine-tune vertical alignment per logo
                               return (
                                 <div style={{ height: 22, display: 'flex', alignItems: 'center', gap: 10 }}>
                                   <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
