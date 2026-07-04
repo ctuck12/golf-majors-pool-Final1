@@ -386,7 +386,7 @@ const PGA_CLUB_PROFESSIONALS = new Set<string>([
 
 // Event/venue logos shown in the pick-sheet header (transparent PNGs on file).
 const TOURNAMENT_EVENT_LOGOS: Partial<Record<string, string>> = {
-  open: '/the-open-royal-birkdale-logo.png',
+  open: '/pga-seal-gold.png',
   masters: '/masters-tab-logo.png',
   players: '/players-trophy.png',
 };
