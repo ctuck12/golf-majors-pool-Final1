@@ -6244,7 +6244,7 @@ export default function Page() {
               <div style={{ display: 'contents' }}>
 
                 {/* ── Card 1: How It Works ── */}
-                <section style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '2', order: 2 }}>
+                <section style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '1', order: 1 }}>
                   <div style={{ padding: isMobile ? 14 : 22 }}>
                     <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 10 : 14 }}>How It Works</div>
                     <div style={{ display: 'grid', gap: 0 }}>
@@ -6263,8 +6263,8 @@ export default function Page() {
                   </div>
                 </section>
 
-                {/* ── Card 2: Entry & Contact ── */}
-                <section style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '1', order: 1 }}>
+                {/* ── Card 2: Entry & Contact (bottom of the page) ── */}
+                <section style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '2', order: 4 }}>
                   <div style={{ padding: isMobile ? '12px 14px 0' : '16px 22px 0' }}>
                     <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 10 : 14 }}>Join the Pool</div>
                   </div>
@@ -6276,9 +6276,6 @@ export default function Page() {
                     <div style={{ border: selectedTournament === 'open' ? '1.5px solid #000000' : '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 8px' : '10px 14px', background: selectedTournament === 'open' ? '#F4BC41' : '#f0f6ff' }}>
                       <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: selectedTournament === 'open' ? headerSolid : '#5b6b79', letterSpacing: '0.07em' }}>Venmo</div>
                       <div style={{ marginTop: 4, fontSize: isMobile ? 13 : 16, fontWeight: 800, color: selectedTournament === 'open' ? '#000000' : '#173b63' }}>@claytont743</div>
-                      <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 13 }}>
-                        <a href="venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=Golf%20Majors%20Pool" style={{ color: '#3d95ce', textDecoration: 'underline', fontWeight: 800 }}>(pay here)</a>
-                      </div>
                     </div>
                     <div style={{ border: selectedTournament === 'open' ? '1.5px solid #000000' : '1px solid #dce8f5', borderRadius: isMobile ? 10 : 12, padding: isMobile ? '8px 8px' : '10px 14px', background: selectedTournament === 'open' ? '#F4BC41' : '#f0f6ff' }}>
                       <div style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 800, color: selectedTournament === 'open' ? headerSolid : '#5b6b79', letterSpacing: '0.07em' }}>Questions</div>
