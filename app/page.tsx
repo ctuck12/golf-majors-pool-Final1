@@ -386,7 +386,8 @@ const PGA_CLUB_PROFESSIONALS = new Set<string>([
 
 // Event/venue logos shown in the pick-sheet header (transparent PNGs on file).
 const TOURNAMENT_EVENT_LOGOS: Partial<Record<string, string>> = {
-  open: '/masters-tab-logo.png',
+  open: '/the-open-royal-birkdale-logo.png',
+  masters: '/masters-tab-logo.png',
   players: '/players-trophy.png',
 };
 
@@ -397,7 +398,7 @@ const TOURNAMENT_EVENT_LOGOS: Partial<Record<string, string>> = {
 type EventLogoLayout = { mTop: number; mRight: number; mH: number; lTop: number; lRight: number; lH: number; dH: number; dCentered?: boolean };
 const DEFAULT_EVENT_LOGO_LAYOUT: EventLogoLayout = { mTop: -10, mRight: 28, mH: 132, lTop: 2, lRight: 72, lH: 206, dH: 140 };
 const TOURNAMENT_EVENT_LOGO_LAYOUTS: Partial<Record<string, EventLogoLayout>> = {
-  open: { mTop: 18, mRight: 28, mH: 38, lTop: 50, lRight: 84, lH: 60, dH: 34, dCentered: true },
+  masters: { mTop: 18, mRight: 28, mH: 38, lTop: 50, lRight: 84, lH: 60, dH: 34, dCentered: true },
   players: { mTop: 12, mRight: 28, mH: 132, lTop: 2, lRight: 150, lH: 180, dH: 140, dCentered: true },
 };
 
