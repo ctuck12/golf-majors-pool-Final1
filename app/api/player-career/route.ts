@@ -9,20 +9,40 @@ const CACHE_TTL = 432000; // 120 hours
 // ESPN's archive names the same major differently across years — e.g. The Open appears as
 // "The Open Championship" (pre-2016), "The 146th Open", "146th Open Championship", or just
 // "The Open" — so each tournament gets a matcher over lowercased names instead of one literal
-// substring. Exclusions guard against sibling events (Senior/Women's/Amateur editions, the
-// British Masters, the PGA Professional Championship) that share the flagship's keywords.
-const EXCLUDE = /senior|women|girls|amateur|junior|adaptive|latin|asia/;
-const TOURNAMENT_MATCHERS: Record<string, (n: string) => boolean> = {
-  players: (n) => n.includes('players championship') && !EXCLUDE.test(n),
-  masters: (n) => n.includes('masters') && !n.includes('british') && !n.includes('australian') && !EXCLUDE.test(n),
-  pga: (n) => n.includes('pga championship') && !n.includes('professional') && !EXCLUDE.test(n),
-  'us-open': (n) => (n.includes('u.s. open') || n.includes('us open')) && !EXCLUDE.test(n),
-  open: (n) =>
-    !EXCLUDE.test(n) &&
-    (n.includes('open championship') ||
-      /(^|\s)the (\d+(st|nd|rd|th) )?open($|\s|®)/.test(n) ||
-      /(^|\s)\d+(st|nd|rd|th) open($|\s|®)/.test(n) ||
-      n.includes('british open')),
+// substring. Matchers are anchored to the START of the name because the impostor events that
+// share the flagship's keywords all carry a prefix word: "BMW PGA Championship" (Wentworth),
+// "Australian PGA Championship" (Royal Queensland), "British Masters", "Andalucía Masters",
+// "South African Open Championship". The real majors have no prefix in ESPN's names.
+const EXCLUDE = /senior|women|girls|amateur|junior|adaptive|latin|asia|professional|assistant|club pro/;
+const norm = (n: string) => n.replace(/[®™]/g, '').replace(/\s+/g, ' ').trim();
+const TOURNAMENT_MATCHERS: Record<string, (raw: string) => boolean> = {
+  players: (raw) => {
+    const n = norm(raw);
+    return !EXCLUDE.test(n) && /^(the )?players championship\b/.test(n);
+  },
+  masters: (raw) => {
+    const n = norm(raw);
+    return !EXCLUDE.test(n) && /^(the )?masters( tournament)?$/.test(n);
+  },
+  pga: (raw) => {
+    const n = norm(raw);
+    return !EXCLUDE.test(n) && /^(\d{4} )?pga championship$/.test(n);
+  },
+  'us-open': (raw) => {
+    const n = norm(raw);
+    return !EXCLUDE.test(n) && /^(\d{4} )?(u\.s\.|us) open( championship)?$/.test(n);
+  },
+  open: (raw) => {
+    const n = norm(raw);
+    if (EXCLUDE.test(n)) return false;
+    return (
+      n === 'the open' ||
+      /^the (\d+(st|nd|rd|th) )?open$/.test(n) ||
+      /^\d+(st|nd|rd|th) open$/.test(n) ||
+      /^(the )?(\d+(st|nd|rd|th) )?open championship$/.test(n) ||
+      /^(the )?british open$/.test(n)
+    );
+  },
 };
 
 async function getEspnId(name: string): Promise<string | null> {
@@ -70,7 +90,7 @@ export async function GET(request: Request) {
   const matches = TOURNAMENT_MATCHERS[tournamentId];
   if (!matches) return Response.json({ results: null });
 
-  const cacheKey = `player-career:v3:${tournamentId}:${name}`;
+  const cacheKey = `player-career:v4:${tournamentId}:${name}`;
 
   try {
     const cached = await redis.get(cacheKey);
