@@ -8917,7 +8917,7 @@ export default function Page() {
 
               {/* Tab bar — segmented control so each tab reads as a clickable button */}
               <div style={{ display: 'flex', gap: 5, background: '#fff', borderBottom: '1.5px solid #e2e8ef', padding: '8px 8px', flexShrink: 0 }}>
-                {(pickHistoryPlayerPopup.defaultTab === 'season' ? (['bio', 'season', 'career', 'stats'] as const) : (['bio', 'stats', 'season', 'career'] as const)).map((tab) => {
+                {(['bio', 'stats', 'season', 'career'] as const).map((tab) => {
                   const careerTabLabel: Record<string, string> = {
                     players: 'Players Career',
                     masters: 'Masters Career',
