@@ -14,7 +14,9 @@ const CACHE_TTL = 432000; // 120 hours
 // "Australian PGA Championship" (Royal Queensland), "British Masters", "Andalucía Masters",
 // "South African Open Championship". The real majors have no prefix in ESPN's names.
 const EXCLUDE = /senior|women|girls|amateur|junior|adaptive|latin|asia|professional|assistant|club pro/;
-const norm = (n: string) => n.replace(/[®™]/g, '').replace(/\s+/g, ' ').trim();
+// Some seasons carry a year prefix ("2021 Masters Tournament", "2017 Masters Tournament");
+// strip it before matching so the anchored patterns still hit.
+const norm = (n: string) => n.replace(/[®™]/g, '').replace(/\s+/g, ' ').trim().replace(/^(19|20)\d{2} /, '');
 const TOURNAMENT_MATCHERS: Record<string, (raw: string) => boolean> = {
   players: (raw) => {
     const n = norm(raw);
@@ -90,7 +92,7 @@ export async function GET(request: Request) {
   const matches = TOURNAMENT_MATCHERS[tournamentId];
   if (!matches) return Response.json({ results: null });
 
-  const cacheKey = `player-career:v5:${tournamentId}:${name}`;
+  const cacheKey = `player-career:v6:${tournamentId}:${name}`;
 
   try {
     const cached = await redis.get(cacheKey);
@@ -165,34 +167,48 @@ export async function GET(request: Request) {
             }),
           );
 
-          const match = eventDetails.find(
-            (e) => e && matches(((e.eData.name as string) ?? '').toLowerCase()),
+          // A wraparound/COVID-era season can contain TWO editions of the same major (ESPN's
+          // 2021 season holds both the Nov-2020 and Apr-2021 Masters, and both the Sep-2020
+          // and Jun-2021 U.S. Opens), so collect every match and label each by the event's
+          // actual DATE — not the season number the eventlog was fetched under.
+          const matched = eventDetails.filter(
+            (e): e is NonNullable<typeof e> => !!e && matches(((e.eData.name as string) ?? '').toLowerCase()),
           );
-          if (!match) return null;
+          if (matched.length === 0) return null;
 
-          const { eventId, league, eData } = match;
-          const courses = eData.courses as Array<{ name?: string }> | undefined;
-          const course = courses?.[0]?.name ?? '';
+          return Promise.all(
+            matched.map(async ({ eventId, league, eData }) => {
+              const courses = eData.courses as Array<{ name?: string }> | undefined;
+              const course = courses?.[0]?.name ?? '';
+              const dateYear = parseInt(String(eData.date ?? '').slice(0, 4), 10);
+              const displayYear = dateYear >= 1990 && dateYear <= 2100 ? dateYear : year;
 
-          let statusData: unknown = null;
-          try {
-            const statusRes = await fetch(
-              `${ESPN_CORE}/${league}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/status`,
-              opts,
-            );
-            if (statusRes.ok) statusData = await statusRes.json();
-            else if (statusRes.status !== 400 && statusRes.status !== 404) degraded = true;
-          } catch {
-            degraded = true;
-          }
-          const position = getPosition(statusData as Parameters<typeof getPosition>[0]);
+              let statusData: unknown = null;
+              try {
+                const statusRes = await fetch(
+                  `${ESPN_CORE}/${league}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/status`,
+                  opts,
+                );
+                if (statusRes.ok) statusData = await statusRes.json();
+                else if (statusRes.status !== 400 && statusRes.status !== 404) degraded = true;
+              } catch {
+                degraded = true;
+              }
+              const position = getPosition(statusData as Parameters<typeof getPosition>[0]);
 
-          if (position === '--') return null;
-          return { year, course, position };
+              if (position === '--') return null;
+              return { eventId, year: displayYear, course, position };
+            }),
+          );
         }),
       )
     )
-      .filter((r): r is CareerResult => r !== null)
+      .flat()
+      .filter((r): r is CareerResult & { eventId: string } => r !== null)
+      // The same event can surface in adjacent season eventlogs — dedupe by event, then by year.
+      .filter((r, i, arr) => arr.findIndex((o) => o.eventId === r.eventId) === i)
+      .filter((r, i, arr) => arr.findIndex((o) => o.year === r.year) === i)
+      .map(({ year, course, position }) => ({ year, course, position }))
       .sort((a, b) => b.year - a.year);
 
     if (results.length > 0 && !degraded) {
