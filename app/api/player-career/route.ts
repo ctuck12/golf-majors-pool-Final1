@@ -90,7 +90,7 @@ export async function GET(request: Request) {
   const matches = TOURNAMENT_MATCHERS[tournamentId];
   if (!matches) return Response.json({ results: null });
 
-  const cacheKey = `player-career:v4:${tournamentId}:${name}`;
+  const cacheKey = `player-career:v5:${tournamentId}:${name}`;
 
   try {
     const cached = await redis.get(cacheKey);
@@ -116,7 +116,10 @@ export async function GET(request: Request) {
           let logRes: Response;
           try {
             logRes = await fetch(
-              `${ESPN_CORE}/pga/seasons/${year}/athletes/${espnId}/eventlog`,
+              // limit=300: the eventlog is paginated (~25/page by default). Players with many
+              // worldwide starts (e.g. PGA + Japan tours) overflow page 1 and the major silently
+              // vanished from their career results — Matsuyama was missing 2017–2021 Masters.
+              `${ESPN_CORE}/pga/seasons/${year}/athletes/${espnId}/eventlog?limit=300`,
               opts,
             );
           } catch {
