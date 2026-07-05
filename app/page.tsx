@@ -5881,7 +5881,7 @@ export default function Page() {
                             padding: isMobile ? '16px 16px' : '16px 18px',
                           }}
                         >
-                          <div style={{ fontSize: isMobile ? 17 : 18, color: '#556572' }}>Golfer #{index + 1}</div>
+                          <div style={{ fontSize: isMobile ? 17 : 18, color: entriesTournamentId === 'open' ? '#000000' : '#556572' }}>Golfer #{index + 1}</div>
                         </div>
                       ))}
                     </div>
@@ -6169,9 +6169,9 @@ export default function Page() {
                               ) : (
                                 <div style={{ flex: 1, padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
                                   <div style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, background: entriesTournamentId === 'open' ? '#e8a830' : '#e8eef4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <CircleUserRound size={isMobile ? 32 : 40} color="#a0b0be" />
+                                    <CircleUserRound size={isMobile ? 32 : 40} color={entriesTournamentId === 'open' ? '#000000' : '#a0b0be'} />
                                   </div>
-                                  <div style={{ fontSize: isMobile ? 16 : 18, color: '#50616f', fontWeight: 600 }}>Golfer #{index + 1}</div>
+                                  <div style={{ fontSize: isMobile ? 16 : 18, color: entriesTournamentId === 'open' ? '#000000' : '#50616f', fontWeight: 600 }}>Golfer #{index + 1}</div>
                                 </div>
                               )}
                           </div>
@@ -7317,9 +7317,9 @@ export default function Page() {
                             ) : (
                               <div style={{ flex: 1, padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
                                 <div style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, background: entriesTournamentId === 'open' ? '#e8a830' : '#e8eef4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                  <CircleUserRound size={isMobile ? 32 : 40} color="#a0b0be" />
+                                  <CircleUserRound size={isMobile ? 32 : 40} color={entriesTournamentId === 'open' ? '#000000' : '#a0b0be'} />
                                 </div>
-                                <div style={{ fontSize: isMobile ? 16 : 18, color: '#50616f', fontWeight: 600 }}>Golfer #{index + 1}</div>
+                                <div style={{ fontSize: isMobile ? 16 : 18, color: entriesTournamentId === 'open' ? '#000000' : '#50616f', fontWeight: 600 }}>Golfer #{index + 1}</div>
                               </div>
                             )}
                         </div>
