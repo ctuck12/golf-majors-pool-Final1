@@ -5728,7 +5728,7 @@ export default function Page() {
             ) : sessionUser && entriesPreFieldView ? (
               <section
                 style={{
-                  background: '#fff',
+                  background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff',
                   borderRadius: 24,
                   padding: isMobile ? 14 : 22,
                   boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
@@ -5757,12 +5757,12 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'grid', gap: 20 }}>
-                    <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
+                    <div style={{ border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff' }}>
                       <div
                         style={{
                           padding: isMobile ? 12 : isLandscapePhone ? '12px 22px 22px' : 22,
                           position: 'relative',
-                          background: '#f7f9fb',
+                          background: entriesTournamentId === 'open' ? '#F4BC41' : '#f7f9fb',
                           display: 'flex',
                           justifyContent: 'space-between',
                           gap: 12,
@@ -5835,10 +5835,10 @@ export default function Page() {
                       </div>
 
                       <div style={{ maxHeight: isMobile ? 540 : 722, overflowY: 'auto' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
-                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>OWGR</div>
-                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
-                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Salary</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: entriesTournamentId === 'open' ? headerSolid : '#f7f9fb', zIndex: 1 }}>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', textAlign: 'center' }}>OWGR</div>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720' }}>Salary</div>
                           <div></div>
                         </div>
                         <div style={{ padding: isMobile ? '20px 16px' : '32px 24px' }}>
@@ -5854,9 +5854,9 @@ export default function Page() {
                     <div
                       style={{
                         borderRadius: 16,
-                        border: '1px solid #dce6ee',
+                        border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #dce6ee',
                         padding: '22px 26px',
-                        background: '#fff',
+                        background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff',
                       }}
                     >
                       <div style={{ fontSize: isMobile ? 13 : 18, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
@@ -5876,8 +5876,8 @@ export default function Page() {
                           key={`placeholder-slot-${index + 1}`}
                           style={{
                             borderRadius: 14,
-                            border: '1px solid #d7e0e8',
-                            background: '#fff',
+                            border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #d7e0e8',
+                            background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff',
                             padding: isMobile ? '16px 16px' : '16px 18px',
                           }}
                         >
@@ -5925,7 +5925,7 @@ export default function Page() {
             ) : sessionUser ? (
               <section
                 style={{
-                  background: '#fff',
+                  background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff',
                   borderRadius: 24,
                   padding: isMobile ? 14 : 22,
                   boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
@@ -5954,12 +5954,12 @@ export default function Page() {
                   }}
                 >
                   <div style={{ display: 'grid', gap: 18 }}>
-                    <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
+                    <div style={{ border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff' }}>
                       <div
                         style={{
                           padding: isMobile ? 12 : isLandscapePhone ? '12px 22px 22px' : 22,
                           position: 'relative',
-                          background: '#f7f9fb',
+                          background: entriesTournamentId === 'open' ? '#F4BC41' : '#f7f9fb',
                           display: 'flex',
                           justifyContent: 'space-between',
                           gap: 12,
@@ -6032,10 +6032,10 @@ export default function Page() {
                       </div>
 
                       <div style={{ maxHeight: isMobile ? 540 : 722, overflowY: 'auto' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
-                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>OWGR</div>
-                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
-                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Salary</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: entriesTournamentId === 'open' ? headerSolid : '#f7f9fb', zIndex: 1 }}>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', textAlign: 'center' }}>OWGR</div>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
+                          <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720' }}>Salary</div>
                           <div></div>
                         </div>
                         {salaryListMissing && (
@@ -6055,10 +6055,10 @@ export default function Page() {
                                 display: 'grid',
                                 gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px',
                                 padding: isMobile ? '11px 12px' : '15px 20px',
-                                borderBottom: '1px solid #e6edf1',
+                                borderBottom: entriesTournamentId === 'open' ? '1px solid rgba(0,0,0,0.12)' : '1px solid #e6edf1',
                                 alignItems: 'center',
                                 opacity: disabled ? 0.45 : 1,
-                                background: '#fff',
+                                background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff',
                               }}
                             >
                               <div style={{ fontSize: isMobile ? 13 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
@@ -6073,9 +6073,9 @@ export default function Page() {
                                   width: isMobile ? 34 : 42,
                                   height: isMobile ? 34 : 42,
                                   borderRadius: 10,
-                                  border: '1px solid #d7dee6',
-                                  background: '#fff',
-                                  color: '#0f1720',
+                                  border: entriesTournamentId === 'open' ? 'none' : '1px solid #d7dee6',
+                                  background: entriesTournamentId === 'open' ? headerSolid : '#fff',
+                                  color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720',
                                   fontSize: isMobile ? 20 : 24,
                                   fontWeight: 400,
                                   cursor: disabled ? 'not-allowed' : 'pointer',
@@ -6095,7 +6095,7 @@ export default function Page() {
                   </div>
 
                   <div style={{ display: 'grid', gap: 18 }}>
-                    <div style={{ border: '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: '#fff' }}>
+                    <div style={{ border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff' }}>
                       <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
                       <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 34, fontWeight: 900, color: '#1f8d4e' }}>${salaryRemaining.toLocaleString()}</div>
                       <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: '#31424f' }}>
@@ -6112,9 +6112,9 @@ export default function Page() {
                           <div
                             key={`entries-roster-slot-${index}`}
                             style={{
-                              border: '1px solid #d7e0e8',
+                              border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #d7e0e8',
                               borderRadius: isMobile ? 14 : 14,
-                              background: '#fff',
+                              background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff',
                               minHeight: isMobile ? 100 : undefined,
                               height: isMobile ? undefined : 96,
                               display: 'flex',
@@ -6123,7 +6123,7 @@ export default function Page() {
                           >
                               {golfer ? (
                                 <>
-                                  <div style={{ width: isMobile ? 90 : 88, flexShrink: 0, alignSelf: 'stretch', background: '#fff', overflow: 'hidden', position: 'relative' }}>
+                                  <div style={{ width: isMobile ? 90 : 88, flexShrink: 0, alignSelf: 'stretch', background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff', overflow: 'hidden', position: 'relative' }}>
                                     <img
                                       src={playerPhotoSrc(golfer.name, golfer.pgaTourId, golfer.photoUrl)} data-fb={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)} onError={photoOnError}
                                       alt={golfer.name}
@@ -6150,9 +6150,9 @@ export default function Page() {
                                         width: isMobile ? 34 : 30,
                                         height: isMobile ? 34 : 30,
                                         borderRadius: 8,
-                                        border: '1px solid #d7dee6',
-                                        background: '#fff',
-                                        color: '#0f1720',
+                                        border: entriesTournamentId === 'open' ? 'none' : '1px solid #d7dee6',
+                                        background: entriesTournamentId === 'open' ? '#dc2626' : '#fff',
+                                        color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720',
                                         fontSize: isMobile ? 20 : 18,
                                         fontWeight: 400,
                                         cursor: 'pointer',
@@ -6168,7 +6168,7 @@ export default function Page() {
                                 </>
                               ) : (
                                 <div style={{ flex: 1, padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
-                                  <div style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, background: '#e8eef4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                  <div style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, background: entriesTournamentId === 'open' ? '#e8a830' : '#e8eef4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                     <CircleUserRound size={isMobile ? 32 : 40} color="#a0b0be" />
                                   </div>
                                   <div style={{ fontSize: isMobile ? 16 : 18, color: '#50616f', fontWeight: 600 }}>Golfer #{index + 1}</div>
@@ -7056,7 +7056,7 @@ export default function Page() {
             ) : commissionerConsoleView === 'member-picks' ? (
             <section
               style={{
-                background: '#fff',
+                background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff',
                 borderRadius: 24,
                 padding: 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
@@ -7098,12 +7098,12 @@ export default function Page() {
                 }}
               >
                 <div style={{ display: 'grid', gap: 18 }}>
-                  <div style={{ border: '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: '#fff' }}>
+                  <div style={{ border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #d7e0e8', borderRadius: 20, overflow: 'hidden', background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff' }}>
                     <div
                       style={{
                         padding: isMobile ? 12 : isLandscapePhone ? '12px 22px 22px' : 22,
                         position: 'relative',
-                        background: '#f7f9fb',
+                        background: entriesTournamentId === 'open' ? '#F4BC41' : '#f7f9fb',
                         display: 'flex',
                         justifyContent: 'space-between',
                         gap: 12,
@@ -7176,10 +7176,10 @@ export default function Page() {
                     </div>
 
                     <div style={{ maxHeight: isMobile ? 540 : 722, overflowY: 'auto' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: '#f7f9fb', zIndex: 1 }}>
-                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', textAlign: 'center' }}>OWGR</div>
-                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
-                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#0f1720' }}>Salary</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: entriesTournamentId === 'open' ? headerSolid : '#f7f9fb', zIndex: 1 }}>
+                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', textAlign: 'center' }}>OWGR</div>
+                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
+                        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720' }}>Salary</div>
                         <div></div>
                       </div>
                       {salaryListMissing && (
@@ -7199,10 +7199,10 @@ export default function Page() {
                               display: 'grid',
                               gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px',
                               padding: isMobile ? '11px 12px' : '15px 20px',
-                              borderBottom: '1px solid #e6edf1',
+                              borderBottom: entriesTournamentId === 'open' ? '1px solid rgba(0,0,0,0.12)' : '1px solid #e6edf1',
                               alignItems: 'center',
                               opacity: isDisabled ? 0.45 : 1,
-                              background: '#fff',
+                              background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff',
                             }}
                           >
                             <div style={{ fontSize: isMobile ? 13 : 17, color: '#0f1720', textAlign: 'center' }}>{player.worldRank}</div>
@@ -7217,9 +7217,9 @@ export default function Page() {
                                 width: isMobile ? 34 : 42,
                                 height: isMobile ? 34 : 42,
                                 borderRadius: 10,
-                                border: '1px solid #d7dee6',
-                                background: '#fff',
-                                color: '#0f1720',
+                                border: entriesTournamentId === 'open' ? 'none' : '1px solid #d7dee6',
+                                background: entriesTournamentId === 'open' ? headerSolid : '#fff',
+                                color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720',
                                 fontSize: isMobile ? 20 : 24,
                                 fontWeight: 400,
                                 cursor: isDisabled ? 'not-allowed' : 'pointer',
@@ -7239,7 +7239,7 @@ export default function Page() {
                 </div>
 
                 <div style={{ display: 'grid', gap: 18 }}>
-                  <div style={{ border: '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: '#fff' }}>
+                  <div style={{ border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff' }}>
                     <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
                     <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 34, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
                     <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: '#31424f' }}>
@@ -7260,9 +7260,9 @@ export default function Page() {
                         <div
                           key={`commissioner-roster-slot-${index}`}
                           style={{
-                            border: '1px solid #d7e0e8',
+                            border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #d7e0e8',
                             borderRadius: isMobile ? 14 : 14,
-                            background: '#fff',
+                            background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff',
                             minHeight: isMobile ? 100 : undefined,
                             height: isMobile ? undefined : 96,
                             display: 'flex',
@@ -7271,7 +7271,7 @@ export default function Page() {
                         >
                             {golfer ? (
                               <>
-                                <div style={{ width: isMobile ? 90 : 88, flexShrink: 0, alignSelf: 'stretch', background: '#fff', overflow: 'hidden', position: 'relative' }}>
+                                <div style={{ width: isMobile ? 90 : 88, flexShrink: 0, alignSelf: 'stretch', background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff', overflow: 'hidden', position: 'relative' }}>
                                   <img
                                     src={playerPhotoSrc(golfer.name, golfer.pgaTourId, golfer.photoUrl)} data-fb={golfer.photoUrl ?? pgaPhoto(golfer.pgaTourId)} onError={photoOnError}
                                     alt={golfer.name}
@@ -7298,9 +7298,9 @@ export default function Page() {
                                       width: isMobile ? 34 : 30,
                                       height: isMobile ? 34 : 30,
                                       borderRadius: 8,
-                                      border: '1px solid #d7dee6',
-                                      background: '#fff',
-                                      color: '#0f1720',
+                                      border: entriesTournamentId === 'open' ? 'none' : '1px solid #d7dee6',
+                                      background: entriesTournamentId === 'open' ? '#dc2626' : '#fff',
+                                      color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720',
                                       fontSize: isMobile ? 20 : 18,
                                       fontWeight: 400,
                                       cursor: 'pointer',
@@ -7316,7 +7316,7 @@ export default function Page() {
                               </>
                             ) : (
                               <div style={{ flex: 1, padding: isMobile ? '12px 14px' : '14px 18px', display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 14 }}>
-                                <div style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, background: '#e8eef4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <div style={{ width: isMobile ? 62 : 72, height: isMobile ? 62 : 72, borderRadius: 6, background: entriesTournamentId === 'open' ? '#e8a830' : '#e8eef4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                   <CircleUserRound size={isMobile ? 32 : 40} color="#a0b0be" />
                                 </div>
                                 <div style={{ fontSize: isMobile ? 16 : 18, color: '#50616f', fontWeight: 600 }}>Golfer #{index + 1}</div>
