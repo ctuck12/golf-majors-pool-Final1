@@ -560,7 +560,7 @@ const MANUAL_PHOTO_FILES: Record<string, string> = {
   'Ernie Els': '/player-photos/ernie-els.jpg',
   'John Daly': '/player-photos/john-daly.jpg',
   'Phil Mickelson': '/player-photos/phil-mickelson.jpg',
-  'Rory McIlroy': '/player-photos/rory-mcilroy.jpg',
+  'Rory McIlroy': '/player-photos/rory-mcilroy.png', // transparent cutout so it blends on colored cards
   'Tiger Woods': '/player-photos/tiger-woods.jpg',
   // Neither ESPN nor PGA Tour has a headshot for these — supplied manually.
   'Andy Sullivan': '/player-photos/andy-sullivan.png',
@@ -5747,7 +5747,7 @@ export default function Page() {
                     >
                       <ArrowLeft size={isMobile ? 14 : 20} />
                     </button>
-                    <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
+                    <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 26, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
                   </div>
                 </div>
 
@@ -5944,7 +5944,7 @@ export default function Page() {
                     >
                       <ArrowLeft size={isMobile ? 14 : 20} />
                     </button>
-                    <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 30, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
+                    <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 26, color: '#0f1720' }}>Pick Sheet for {userLabel}</h2>
                   </div>
                 </div>
 
@@ -7089,7 +7089,7 @@ export default function Page() {
                 >
                   <ArrowLeft size={20} />
                 </button>
-                <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 34, color: '#0f1720' }}>
+                <h2 style={{ margin: 0, fontSize: isMobile ? 18 : 28, color: '#0f1720' }}>
                   Pick Sheet for {commissionerRosterMember?.displayName ?? 'Member'}
                 </h2>
               </div>
