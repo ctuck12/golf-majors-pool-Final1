@@ -557,11 +557,12 @@ const PGA_PHOTO_ONLY = new Set<string>([
 const MANUAL_PHOTO_FILES: Record<string, string> = {
   // Fred Couples, José María Olazábal and Vijay Singh were switched to their (higher-quality)
   // ESPN headshots (see PLAYER_ESPN_IDS), so they're intentionally not listed here anymore.
-  'Ernie Els': '/player-photos/ernie-els.jpg',
-  'John Daly': '/player-photos/john-daly.jpg',
-  'Phil Mickelson': '/player-photos/phil-mickelson.jpg',
-  'Rory McIlroy': '/player-photos/rory-mcilroy.png', // transparent cutout so it blends on colored cards
-  'Tiger Woods': '/player-photos/tiger-woods.jpg',
+  // All transparent cutouts so they blend on colored cards (gold Open surfaces etc.).
+  'Ernie Els': '/player-photos/ernie-els.png',
+  'John Daly': '/player-photos/john-daly.png',
+  'Phil Mickelson': '/player-photos/phil-mickelson.png',
+  'Rory McIlroy': '/player-photos/rory-mcilroy.png',
+  'Tiger Woods': '/player-photos/tiger-woods.png',
   // Neither ESPN nor PGA Tour has a headshot for these — supplied manually.
   'Andy Sullivan': '/player-photos/andy-sullivan.png',
   'Jordan Gumberg': '/player-photos/jordan-gumberg.png',
