@@ -132,7 +132,7 @@ export async function GET(request: Request) {
 
     if (isTournament) {
       const meta = getTournamentMetaByEspnId(eventId);
-      const pgaTournId = meta ? pgaTourTournId(meta.slashGolfTournId, meta.year) : null;
+      const pgaTournId = meta ? pgaTourTournId(meta.pgaTournCode, meta.year) : null;
 
       const [espnStats, scorecardResult, pgaResult, espnSeasonStats] = await Promise.all([
         fetchPlayerTournamentStats(name, eventId),

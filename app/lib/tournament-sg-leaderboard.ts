@@ -75,7 +75,7 @@ async function buildStatDetailsLeaderboard(eventId: string, statKey: string): Pr
   if (!cfg) return { entries: [], fieldAvg: null };
   const meta = getTournamentMetaByEspnId(eventId);
   if (!meta) return { entries: [], fieldAvg: null };
-  const pgaTournId = pgaTourTournId(meta.slashGolfTournId, meta.year);
+  const pgaTournId = pgaTourTournId(meta.pgaTournCode, meta.year);
   const year = parseInt(meta.year, 10);
 
   const query = `
@@ -195,7 +195,7 @@ async function batchMap<T, R>(items: T[], size: number, fn: (item: T) => Promise
 export async function buildFullFieldScramblingLeaderboard(eventId: string): Promise<TournLbResult> {
   const meta = getTournamentMetaByEspnId(eventId);
   if (!meta) return { entries: [], fieldAvg: null };
-  const pgaTournId = pgaTourTournId(meta.slashGolfTournId, meta.year);
+  const pgaTournId = pgaTourTournId(meta.pgaTournCode, meta.year);
 
   // made-cut values (percent numbers keyed by normalized name)
   const madeCut = await buildStatDetailsLeaderboard(eventId, 'scrambling');

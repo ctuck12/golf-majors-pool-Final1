@@ -302,22 +302,6 @@ export async function GET() {
       `${ESPN_CORE}/eur/seasons/2026/athletes/3470/statistics`
     ),
 
-    // 29. SlashGolf: check if /stats endpoint exists (with auth headers)
-    (async () => {
-      const label = 'slashgolf_stats_endpoint';
-      try {
-        const key = process.env.SLASH_GOLF_API_KEY ?? '';
-        const res = await fetch('https://live-golf-data.p.rapidapi.com/stats?tournId=026&year=2026', {
-          cache: 'no-store',
-          headers: { 'x-rapidapi-host': 'live-golf-data.p.rapidapi.com', 'x-rapidapi-key': key },
-          signal: AbortSignal.timeout(8000),
-        });
-        const text = await res.text();
-        let json: unknown; try { json = JSON.parse(text); } catch { json = text; }
-        return { label, status: res.status, ok: res.ok, data: json };
-      } catch (e) { return { label, error: String(e) }; }
-    })(),
-
     // 30. PGA Tour GQL scorecardStatsV3 — US Open, try R2026026
     tryGql('pga_gql_scorecardStatsV3_R2026026', `
       query ScorecardStatsV3($id: ID!, $playerId: ID!) {

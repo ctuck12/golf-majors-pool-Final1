@@ -1,30 +1,20 @@
 export const dynamic = 'force-dynamic';
 
-import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
-import {
-  fetchLeaderboard,
-  fetchScorecard,
-  parseMongo,
-  type SlashGolfLeaderboardRow,
-  type SlashGolfLeaderboardResponse,
-} from '@/app/lib/slashgolf';
+import { parseMongo, type SlashGolfLeaderboardRow } from '@/app/lib/slashgolf';
 import { fetchESPNTournament } from '@/app/lib/espn';
 import { TOURNAMENT_META } from '@/app/lib/tournament-config';
 import {
   getScorecardCache,
   saveScorecardCache,
   mergeScorecardCache,
-  getRoundLeaderStore,
   saveRoundLeader,
   getLowRoundStore,
   saveLowRound,
   readLeaderboardCache,
   writeLeaderboardCache,
-  normName,
   type StoredPlayerScorecards,
 } from '@/app/lib/scorecard-store';
 import {
-  getSelectedPlayerIdsForTournament,
   autoLockPoolLineup,
   TOURNAMENT_IDS,
   type TournamentId,
@@ -87,10 +77,6 @@ function getRoundStrokes(row: SlashGolfLeaderboardRow, roundNum: number): number
 function isRoundComplete(roundStatus: string): boolean {
   const s = roundStatus.toLowerCase();
   return s === 'complete' || s === 'official' || s === 'final';
-}
-
-function extractProjectedCut(lb: SlashGolfLeaderboardResponse): string | null {
-  return lb.cutLines?.[0]?.cutScore ?? null;
 }
 
 // Cut positions: number of players who make the cut (top N + ties)
@@ -230,94 +216,6 @@ async function captureRoundLeader(
   const names = leaders.map((r) => `${r.firstName} ${r.lastName}`);
   const leadScore = Number(String(leaders[0].total ?? '0').replace('+', '')) || 0;
   await saveRoundLeader(tournamentId, roundId, names, leadScore);
-}
-
-async function refreshScorecards(
-  tournamentId: string,
-  slashGolfTournId: string,
-  year: string,
-  rows: SlashGolfLeaderboardRow[],
-  currentRound: number,
-): Promise<void> {
-  const rowByName = new Map<string, SlashGolfLeaderboardRow>();
-  for (const row of rows) rowByName.set(normName(`${row.firstName} ${row.lastName}`), row);
-
-  const players: Record<string, StoredPlayerScorecards> = {};
-  for (const poolPlayer of PLAYER_POOL_WITH_PGA_IDS) {
-    const row = rowByName.get(normName(poolPlayer.name));
-    if (!row?.playerId) continue;
-    try {
-      const rounds = await fetchScorecard(slashGolfTournId, year, row.playerId);
-      const stored = rounds
-        .filter((r) => r.roundComplete)
-        .map((r) => ({
-          roundId: parseMongo(r.roundId),
-          holes: Object.entries(r.holes ?? {})
-            .sort(([a], [b]) => Number(a) - Number(b))
-            .map(([, h]) => ({
-              holeNumber: parseMongo(h.holeId),
-              par: parseMongo(h.par),
-              score: parseMongo(h.holeScore),
-            }))
-            .filter((h) => h.par > 0 && h.score > 0),
-        }));
-      players[row.playerId] = {
-        playerId: row.playerId,
-        playerName: poolPlayer.name,
-        rounds: stored,
-        refreshedAt: new Date().toISOString(),
-      };
-    } catch { /* not in field */ }
-  }
-  fixParValues(players);
-  await saveScorecardCache(tournamentId, players, currentRound);
-}
-
-async function refreshLiveScorecards(
-  tournamentId: string,
-  slashGolfTournId: string,
-  year: string,
-  rows: SlashGolfLeaderboardRow[],
-  selectedPoolIds: Set<number>,
-): Promise<void> {
-  const rowByName = new Map<string, SlashGolfLeaderboardRow>();
-  for (const row of rows) rowByName.set(normName(`${row.firstName} ${row.lastName}`), row);
-
-  const updatedPlayers: Record<string, StoredPlayerScorecards> = {};
-  for (const poolPlayer of PLAYER_POOL_WITH_PGA_IDS) {
-    if (!selectedPoolIds.has(poolPlayer.id)) continue;
-    const row = rowByName.get(normName(poolPlayer.name));
-    if (!row?.playerId) continue;
-    const status = String(row.status ?? '').toLowerCase();
-    if (status === 'cut' || status === 'wd' || status === 'dq') continue;
-    const thru = String(row.thru ?? '').trim() || '--';
-    if (thru === '--') continue;
-
-    try {
-      const roundsRaw = await fetchScorecard(slashGolfTournId, year, row.playerId);
-      const stored = roundsRaw.map((r) => ({
-        roundId: parseMongo(r.roundId),
-        holes: Object.entries(r.holes ?? {})
-          .sort(([a], [b]) => Number(a) - Number(b))
-          .map(([, h]) => ({
-            holeNumber: parseMongo(h.holeId),
-            par: parseMongo(h.par),
-            score: parseMongo(h.holeScore),
-          }))
-          .filter((h) => h.par > 0 && h.score > 0),
-      }));
-      updatedPlayers[row.playerId] = {
-        playerId: row.playerId,
-        playerName: poolPlayer.name,
-        rounds: stored,
-        refreshedAt: new Date().toISOString(),
-      };
-    } catch { /* not in field */ }
-  }
-  if (Object.keys(updatedPlayers).length > 0) {
-    fixParValues(updatedPlayers);
-    await mergeScorecardCache(tournamentId, updatedPlayers);
-  }
 }
 
 // ── Per-tournament refresh ────────────────────────────────────────────────
@@ -499,103 +397,10 @@ async function refreshTournament(tournamentId: string): Promise<string> {
     await redis.del(`leaderboard-cache:${tournamentId}`);
   }
 
-  // ESPN path — one fetch returns both leaderboard and all scorecard data
-  if (meta.dataSource === 'espn' && meta.espnEventId) {
-    return refreshTournamentFromESPN(tournamentId, meta.espnEventId, existing);
-  }
-
-  let lb: SlashGolfLeaderboardResponse;
-  try {
-    lb = await fetchLeaderboard(meta.slashGolfTournId, meta.year);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes('400') && msg.toLowerCase().includes('not found')) {
-      await writeLeaderboardCache(tournamentId, {
-        cachedAt: new Date().toISOString(),
-        leaderboard: [],
-        currentRound: 0,
-        roundStatus: '',
-        projectedCut: null,
-        notStarted: true,
-      });
-      return 'not-started';
-    }
-    throw err;
-  }
-
-  const rows = lb.leaderboardRows ?? [];
-  const currentRound = parseMongo(lb.roundId);
-  const roundStatus = lb.roundStatus ?? lb.status ?? '';
-  const projectedCut = extractProjectedCut(lb);
-
-  await writeLeaderboardCache(tournamentId, {
-    cachedAt: new Date().toISOString(),
-    leaderboard: rows,
-    currentRound,
-    roundStatus,
-    projectedCut,
-  });
-
-  // ── Completed-round bookkeeping ─────────────────────────────────────────
-  const scorecardCache = await getScorecardCache(tournamentId);
-  const roundLeaderStore = await getRoundLeaderStore();
-  const lowRoundStore = await getLowRoundStore();
-
-  const roundComplete = isRoundComplete(roundStatus);
-  const needsFullRefresh = roundComplete && (scorecardCache?.lastCompletedRound ?? 0) < currentRound;
-
-  if (needsFullRefresh) {
-    await captureLowRound(tournamentId, currentRound, rows);
-    if (currentRound <= 3) await captureRoundLeader(tournamentId, currentRound, rows);
-
-    // Backfill any prior rounds whose data is missing
-    for (let rndId = 1; rndId < currentRound; rndId++) {
-      if (!lowRoundStore[tournamentId]?.[String(rndId)]) {
-        await captureLowRound(tournamentId, rndId, rows);
-      }
-      if (rndId <= 3 && !roundLeaderStore[tournamentId]?.[String(rndId)]) {
-        try {
-          const histLb = await fetchLeaderboard(meta.slashGolfTournId, meta.year, rndId);
-          await captureRoundLeader(tournamentId, rndId, histLb.leaderboardRows ?? []);
-        } catch { /* not available */ }
-      }
-    }
-
-    await refreshScorecards(tournamentId, meta.slashGolfTournId, meta.year, rows, currentRound);
-
-    // Round 4 just finished — all data is now cached; stop polling forever
-    if (currentRound >= 4) {
-      await markTournamentComplete(tournamentId, existing, rows, currentRound, roundStatus, projectedCut);
-      return 'tournament-complete-marked';
-    }
-
-    return `round-${currentRound}-complete-refreshed`;
-  }
-
-  // If round 4 is already complete and scorecards are current, mark and stop
-  if (roundComplete && currentRound >= 4 && (scorecardCache?.lastCompletedRound ?? 0) >= currentRound) {
-    await markTournamentComplete(tournamentId, existing, rows, currentRound, roundStatus, projectedCut);
-    return 'tournament-complete-marked';
-  }
-
-  // ── Live scorecard refresh for active rounds ────────────────────────────
-  if (!roundComplete && TOURNAMENT_IDS.includes(tournamentId as TournamentId)) {
-    const selectedPoolIds = await getSelectedPlayerIdsForTournament(tournamentId as TournamentId);
-    if (selectedPoolIds.size > 0) {
-      await refreshLiveScorecards(
-        tournamentId,
-        meta.slashGolfTournId,
-        meta.year,
-        rows,
-        selectedPoolIds,
-      );
-      await captureLiveLowRound(tournamentId, currentRound, rows);
-      if (currentRound <= 3) await captureRoundLeader(tournamentId, currentRound, rows);
-      return 'live-scorecards-refreshed';
-    }
-  }
-
-  return 'leaderboard-refreshed';
+  // ESPN is the only data source — one free fetch returns both the leaderboard and
+  // every player's scorecards. (The paid Slash Golf/RapidAPI path was removed entirely.)
+  if (!meta.espnEventId) return 'no-espn-event-id';
+  return refreshTournamentFromESPN(tournamentId, meta.espnEventId, existing);
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────

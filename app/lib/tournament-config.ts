@@ -8,12 +8,13 @@ export function getActiveSeason(): number {
 }
 
 export type TournamentMeta = {
-  slashGolfTournId: string;
+  // PGA Tour 3-digit tournament code (builds GraphQL ids like R2026100 for the stats APIs).
+  // Live scoring is ESPN-only via espnEventId — no paid feeds.
+  pgaTournCode: string;
   year: string;
   courseName: string;
   par: number;
   espnEventId?: string;
-  dataSource?: 'slashgolf' | 'espn'; // defaults to 'slashgolf' if omitted
   // UTC ISO — picks lock and cron notStarted bypass trigger at this time
   lockAtUtc?: string;
 };
@@ -23,11 +24,11 @@ export function getTournamentMetaByEspnId(espnEventId: string): TournamentMeta |
   return Object.values(TOURNAMENT_META).find((m) => m.espnEventId === espnEventId);
 }
 
-// tournIds confirmed via /schedule?year=2026 — no "R2026" prefix, just the 3-digit code
+// 3-digit PGA Tour tournament codes (no "R2026" prefix) — used only for PGA Tour GraphQL stat ids
 // ESPN event IDs confirmed via site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard
 export const TOURNAMENT_META: Record<string, TournamentMeta> = {
   players: {
-    slashGolfTournId: '011',
+    pgaTournCode: '011',
     year: '2026',
     courseName: 'TPC Sawgrass',
     par: 72,
@@ -35,39 +36,35 @@ export const TOURNAMENT_META: Record<string, TournamentMeta> = {
     lockAtUtc: '2026-03-12T11:40:00Z', // 7:40 AM EDT
   },
   masters: {
-    slashGolfTournId: '014',
+    pgaTournCode: '014',
     year: '2026',
     courseName: 'Augusta National Golf Club',
     par: 72,
     espnEventId: '401811941',
     lockAtUtc: '2026-04-09T11:30:00Z', // 7:30 AM EDT
-    // tournamentComplete — cron skips it; dataSource irrelevant
   },
   pga: {
-    slashGolfTournId: '033',
+    pgaTournCode: '033',
     year: '2026',
     courseName: 'Aronimink Golf Club',
     par: 70,
     espnEventId: '401811947',
-    dataSource: 'espn',
     lockAtUtc: '2026-05-14T11:20:00Z', // 7:20 AM EDT
   },
   'us-open': {
-    slashGolfTournId: '026',
+    pgaTournCode: '026',
     year: '2026',
     courseName: 'Shinnecock Hills Golf Club',
     par: 70,
     espnEventId: '401811952',
-    dataSource: 'espn',
     lockAtUtc: '2026-06-18T11:15:00Z', // 7:15 AM EDT
   },
   open: {
-    slashGolfTournId: '100',
+    pgaTournCode: '100',
     year: '2026',
     courseName: 'Royal Birkdale Golf Club',
     par: 71,
     espnEventId: '401811957',
-    dataSource: 'espn',
     lockAtUtc: '2026-07-16T05:35:00Z', // 6:35 AM BST
   },
 };

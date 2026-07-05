@@ -65,8 +65,8 @@ function mapPerformanceStat(statId: string, raw: string, acc: Partial<PlayerStat
 }
 
 // Derive PGA Tour tournament ID from slashGolf ID + year (e.g. "R2026033")
-export function pgaTourTournId(slashGolfTournId: string, year: string): string {
-  return `R${year}${slashGolfTournId.padStart(3, '0')}`;
+export function pgaTourTournId(pgaTournCode: string, year: string): string {
+  return `R${year}${pgaTournCode.padStart(3, '0')}`;
 }
 
 export async function fetchPgaScorecardStats(
