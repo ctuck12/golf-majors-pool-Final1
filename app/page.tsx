@@ -2988,7 +2988,7 @@ export default function Page() {
       seasonStatRanks: {},
       fieldDistributions: {},
       playerBio: null,
-      playerBioLoading: landingTab === 'bio',
+      playerBioLoading: true,
       espnPhotoUrl: null,
       pgaPhotoUrl: null,
       tournamentStatsFetchedAt: null,
@@ -2996,8 +2996,8 @@ export default function Page() {
       bioFetchedAt: null,
       rankingsChangedAt: null,
     });
-    // Bio is the default tab, so fetch it eagerly on open (it's otherwise lazy-loaded on tab click).
-    if (landingTab === 'bio') {
+    // Bio is the landing tab, so fetch it eagerly on open (it's otherwise lazy-loaded on tab click).
+    {
       const bioParams = new URLSearchParams({ name: player.name });
       if (player.pgaTourId) bioParams.set('pgaTourId', String(player.pgaTourId));
       readJson<{ bio: { height: string | null; weight: string | null; dob: string | null; age: number | null; birthPlace: string | null; college: string | null; collegeConfirmedAbsent: boolean; swing: string | null; turnedPro: number | null; pgaTourDebut: number | null; careerStarts: number | null; cutsMade: number | null; careerWins: number | null; majorStarts: number | null; majorCutsMade: number | null; majorWins: number | null; careerEarnings: string | null; pgaTourWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null; majorWinsList: { tournament: string; year: string; course: string | null; toPar: string | null }[] | null }; espnPhotoUrl?: string | null; pgaPhotoUrl?: string | null; updatedAt?: string | null }>(`/api/player-bio?${bioParams.toString()}`, { cache: 'no-store' })
