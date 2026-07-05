@@ -5916,7 +5916,7 @@ export default function Page() {
                     </button>
                     <div style={{ color: entriesTournamentId === 'open' ? '#000000' : '#5b6b79', fontSize: 13, lineHeight: 1.65 }}>
                       * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
-                      Use their total strokes, NOT score to par. Example: Enter 274 (NOT -14)
+                      Use their total strokes, NOT score to par. Example: Enter {(TOURNAMENT_TOTAL_PAR[entriesTournamentId] ?? 288) - 14} (NOT -14)
                     </div>
                   </aside>
                 </div>
@@ -6227,7 +6227,7 @@ export default function Page() {
                       </button>
                       <div style={{ color: entriesTournamentId === 'open' ? '#000000' : '#5b6b79', fontSize: 13, lineHeight: 1.65 }}>
                         * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
-                        Use their total strokes, NOT score to par. Example: Enter 274 (NOT -14)
+                        Use their total strokes, NOT score to par. Example: Enter {(TOURNAMENT_TOTAL_PAR[entriesTournamentId] ?? 288) - 14} (NOT -14)
                       </div>
                     </div>
                   </div>
@@ -7358,7 +7358,7 @@ export default function Page() {
                     </button>
 
                     <div style={{ fontSize: 13, color: entriesTournamentId === 'open' ? '#000000' : '#607282', marginTop: 4 }}>
-                      * - The tiebreak value is your predicted total score for the winning golfer of this tournament. Use their total strokes, NOT score to par. Example: Enter 274 (NOT -14)
+                      * - The tiebreak value is your predicted total score for the winning golfer of this tournament. Use their total strokes, NOT score to par. Example: Enter {(TOURNAMENT_TOTAL_PAR[entriesTournamentId] ?? 288) - 14} (NOT -14)
                     </div>
                   </div>
                 </div>
