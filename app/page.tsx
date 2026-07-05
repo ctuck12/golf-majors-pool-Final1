@@ -1493,6 +1493,8 @@ export default function Page() {
   const [entriesPlayerSearch, setEntriesPlayerSearch] = useState('');
   const [tieBreakInput, setTieBreakInput] = useState('');
   const [showRosterConfirm, setShowRosterConfirm] = useState(false);
+  // Brief "Roster successfully submitted!" flash shown between Submit & Pay and the Venmo handoff.
+  const [showSubmitToast, setShowSubmitToast] = useState(false);
   const [showSubmittedPicksPopup, setShowSubmittedPicksPopup] = useState(false);
   const [commissionerPlayerSearch, setCommissionerPlayerSearch] = useState('');
   const [commissionerMemberModalOpen, setCommissionerMemberModalOpen] = useState(false);
@@ -9474,7 +9476,12 @@ export default function Page() {
                         onClick={() => {
                           setShowRosterConfirm(false);
                           void handleSave();
-                          window.location.href = `venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=${encodeURIComponent('⛳')}`;
+                          // Flash the success confirmation, then hand off to Venmo.
+                          setShowSubmitToast(true);
+                          setTimeout(() => {
+                            setShowSubmitToast(false);
+                            window.location.href = `venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=${encodeURIComponent('⛳')}`;
+                          }, 1400);
                         }}
                         style={{ flex: 1, border: 'none', borderRadius: 12, padding: '13px 0', background: entriesTournamentBg, color: '#fff', fontSize: 15, fontWeight: 900, cursor: 'pointer' }}
                       >
@@ -9505,6 +9512,15 @@ export default function Page() {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {showSubmitToast && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(9,34,51,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <div style={{ background: '#fff', borderRadius: 18, padding: '24px 28px', boxShadow: '0 18px 48px rgba(9,34,51,0.3)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <CheckCircle2 size={30} color="#1f8d4e" />
+              <span style={{ fontSize: 17, fontWeight: 900, color: '#0f1720' }}>Roster successfully submitted!</span>
             </div>
           </div>
         )}
