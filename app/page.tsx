@@ -7255,7 +7255,7 @@ export default function Page() {
                   <div style={{ display: 'grid', gap: isMobile ? 10 : 12 }}>
                     <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 900, color: '#0f1720' }}>Your Roster</div>
 
-                    <div style={{ fontSize: isMobile ? 12 : 13, color: '#607282', marginTop: -4 }}>
+                    <div style={{ fontSize: isMobile ? 12 : 13, color: entriesTournamentId === 'open' ? '#000000' : '#607282', marginTop: -4 }}>
                       Click the plus sign to add a golfer or the minus sign to remove them.
                     </div>
 
