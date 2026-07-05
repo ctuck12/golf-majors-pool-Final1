@@ -5737,7 +5737,7 @@ export default function Page() {
                     <button
                       onClick={closeMyEntriesEditor}
                       aria-label="Back"
-                      style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+                      style={{ border: entriesTournamentId === 'open' ? 'none' : '1px solid #d7e0e8', borderRadius: 999, background: entriesTournamentId === 'open' ? headerSolid : '#fff', color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
                     >
                       <ArrowLeft size={isMobile ? 14 : 20} />
                     </button>
@@ -5766,7 +5766,7 @@ export default function Page() {
                           gap: 12,
                           alignItems: isMobile || isLandscapePhone ? 'flex-start' : 'center',
                           flexWrap: 'wrap',
-                          borderBottom: '1px solid #d7e0e8',
+                          borderBottom: entriesTournamentId === 'open' ? `1px solid ${headerSolid}` : '1px solid #d7e0e8',
                         }}
                       >
                         <div style={{ flexBasis: isLandscapePhone ? '100%' : undefined }}>
@@ -5833,7 +5833,7 @@ export default function Page() {
                       </div>
 
                       <div style={{ maxHeight: isMobile ? 540 : 722, overflowY: 'auto' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: entriesTournamentId === 'open' ? headerSolid : '#f7f9fb', zIndex: 1 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: entriesTournamentId === 'open' ? `1px solid ${headerSolid}` : '1px solid #e6edf1', position: 'sticky', top: 0, background: entriesTournamentId === 'open' ? headerSolid : '#f7f9fb', zIndex: 1 }}>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', textAlign: 'center' }}>OWGR</div>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720' }}>Salary</div>
@@ -5934,7 +5934,7 @@ export default function Page() {
                     <button
                       onClick={closeMyEntriesEditor}
                       aria-label="Back"
-                      style={{ border: '1px solid #d7e0e8', borderRadius: 999, background: '#fff', width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+                      style={{ border: entriesTournamentId === 'open' ? 'none' : '1px solid #d7e0e8', borderRadius: 999, background: entriesTournamentId === 'open' ? headerSolid : '#fff', color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
                     >
                       <ArrowLeft size={isMobile ? 14 : 20} />
                     </button>
@@ -5963,7 +5963,7 @@ export default function Page() {
                           gap: 12,
                           alignItems: isMobile || isLandscapePhone ? 'flex-start' : 'center',
                           flexWrap: 'wrap',
-                          borderBottom: '1px solid #d7e0e8',
+                          borderBottom: entriesTournamentId === 'open' ? `1px solid ${headerSolid}` : '1px solid #d7e0e8',
                         }}
                       >
                         <div style={{ flexBasis: isLandscapePhone ? '100%' : undefined }}>
@@ -6030,7 +6030,7 @@ export default function Page() {
                       </div>
 
                       <div style={{ maxHeight: isMobile ? 540 : 722, overflowY: 'auto' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: entriesTournamentId === 'open' ? headerSolid : '#f7f9fb', zIndex: 1 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: entriesTournamentId === 'open' ? `1px solid ${headerSolid}` : '1px solid #e6edf1', position: 'sticky', top: 0, background: entriesTournamentId === 'open' ? headerSolid : '#f7f9fb', zIndex: 1 }}>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', textAlign: 'center' }}>OWGR</div>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
                           <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720' }}>Salary</div>
@@ -7069,9 +7069,10 @@ export default function Page() {
                     setCommissionerRosterMemberId(null);
                   }}
                   style={{
-                    border: '1px solid #d7e0e8',
+                    border: entriesTournamentId === 'open' ? 'none' : '1px solid #d7e0e8',
                     borderRadius: 999,
-                    background: '#fff',
+                    background: entriesTournamentId === 'open' ? headerSolid : '#fff',
+                    color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720',
                     width: 44,
                     height: 44,
                     display: 'flex',
@@ -7107,7 +7108,7 @@ export default function Page() {
                         gap: 12,
                         alignItems: isMobile || isLandscapePhone ? 'flex-start' : 'center',
                         flexWrap: 'wrap',
-                        borderBottom: '1px solid #d7e0e8',
+                        borderBottom: entriesTournamentId === 'open' ? `1px solid ${headerSolid}` : '1px solid #d7e0e8',
                       }}
                     >
                       <div style={{ flexBasis: isLandscapePhone ? '100%' : undefined }}>
@@ -7174,7 +7175,7 @@ export default function Page() {
                     </div>
 
                     <div style={{ maxHeight: isMobile ? 540 : 722, overflowY: 'auto' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: '1px solid #e6edf1', position: 'sticky', top: 0, background: entriesTournamentId === 'open' ? headerSolid : '#f7f9fb', zIndex: 1 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '62px 1fr 84px 44px' : '92px 1fr 155px 50px', padding: isMobile ? '8px 12px' : '10px 20px', borderBottom: entriesTournamentId === 'open' ? `1px solid ${headerSolid}` : '1px solid #e6edf1', position: 'sticky', top: 0, background: entriesTournamentId === 'open' ? headerSolid : '#f7f9fb', zIndex: 1 }}>
                         <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', textAlign: 'center' }}>OWGR</div>
                         <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720', paddingLeft: isMobile ? 8 : 12 }}>Player</div>
                         <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: entriesTournamentId === 'open' ? '#ffffff' : '#0f1720' }}>Salary</div>
