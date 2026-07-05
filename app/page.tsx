@@ -9433,7 +9433,7 @@ export default function Page() {
                   ))}
                 </div>
 
-                <div style={{ borderTop: '1px solid #e8edf2', marginBottom: 10 }} />
+                <div style={{ borderTop: entriesTournamentId === 'open' ? '1px solid #8a8f96' : '1px solid #e8edf2', marginBottom: 10 }} />
 
                 {/* Salary summary */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 5 }}>
@@ -9445,7 +9445,7 @@ export default function Page() {
                   <span style={{ fontWeight: 700, color: salaryRemaining < 0 ? '#dc2626' : '#0f1720' }}>${salaryRemaining.toLocaleString()}</span>
                 </div>
 
-                <div style={{ borderTop: '1px solid #e8edf2', marginBottom: 10 }} />
+                <div style={{ borderTop: entriesTournamentId === 'open' ? '1px solid #8a8f96' : '1px solid #e8edf2', marginBottom: 10 }} />
 
                 {/* Tiebreaker */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 16 }}>
