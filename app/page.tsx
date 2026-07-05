@@ -2963,10 +2963,8 @@ export default function Page() {
     params.set('pgaTourId', String(player.pgaTourId));
     const showSubToggle = statsCtx === 'tournament' && selectedTournament !== 'us-open' && defaultTab === 'stats';
     setStatsSubView('tournament');
-    // Bio is the default landing tab for the standard popup; explicit "season" deep-links (e.g. roster
-    // name taps that open straight to Season Results) still land on Season.
-    const landingTab: 'stats' | 'season' | 'bio' = defaultTab === 'season' ? 'season' : 'bio';
-    setPickHistoryView(landingTab);
+    // Bio is the landing tab for every path into this popup (pick-sheet ⓘ included).
+    setPickHistoryView('bio');
     setPickHistoryPlayerPopup({
       player,
       results: {},
