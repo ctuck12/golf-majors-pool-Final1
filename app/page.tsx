@@ -8925,7 +8925,8 @@ export default function Page() {
                     open: 'The Open Career',
                   };
                   const label = tab === 'stats'
-                    ? (careerTournamentId === 'us-open' ? 'Season Stats' : 'Stats')
+                    // Pick-sheet opens (defaultTab 'season') show season-long stats, so say "Season Stats".
+                    ? (pickHistoryPlayerPopup.defaultTab === 'season' || careerTournamentId === 'us-open' ? 'Season Stats' : 'Stats')
                     : tab === 'season' ? 'Season Results' : tab === 'bio' ? 'Bio' : (careerTabLabel[careerTournamentId] ?? 'Major Career');
                   const isActive = pickHistoryView === tab;
                   // The far-right "Career" tab shows the tournament's logo (same as the main standings
