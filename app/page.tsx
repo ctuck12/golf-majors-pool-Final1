@@ -9403,7 +9403,7 @@ export default function Page() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 380, boxShadow: '0 18px 48px rgba(9,34,51,0.25)', overflow: 'hidden', maxHeight: 'calc(100vh - 40px)', display: 'flex', flexDirection: 'column' }}
+              style={{ background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff', borderRadius: 20, width: '100%', maxWidth: 380, boxShadow: '0 18px 48px rgba(9,34,51,0.25)', overflow: 'hidden', maxHeight: 'calc(100vh - 40px)', display: 'flex', flexDirection: 'column' }}
             >
               {/* Coloured header */}
               <div style={{ background: entriesTournamentBg, padding: '16px 20px 14px', flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: hasSubmittedRoster ? 'center' : 'flex-start', gap: 12 }}>
@@ -9427,7 +9427,7 @@ export default function Page() {
                   {orderedRosterPlayers.map((player) => (
                     <div key={player.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 14 }}>
                       <span style={{ fontWeight: 700, color: '#0f1720' }}>{player.name}</span>
-                      <span style={{ fontWeight: 600, color: '#5b6b79' }}>${player.salary.toLocaleString()}</span>
+                      <span style={{ fontWeight: 600, color: entriesTournamentId === 'open' ? entriesTournamentBg : '#5b6b79' }}>${player.salary.toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
@@ -9436,11 +9436,11 @@ export default function Page() {
 
                 {/* Salary summary */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 5 }}>
-                  <span style={{ color: '#5b6b79' }}>Salary used</span>
+                  <span style={{ color: entriesTournamentId === 'open' ? entriesTournamentBg : '#5b6b79' }}>Salary used</span>
                   <span style={{ fontWeight: 700, color: '#0f1720' }}>${salaryUsed.toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 12 }}>
-                  <span style={{ color: '#5b6b79' }}>Remaining</span>
+                  <span style={{ color: entriesTournamentId === 'open' ? entriesTournamentBg : '#5b6b79' }}>Remaining</span>
                   <span style={{ fontWeight: 700, color: salaryRemaining < 0 ? '#dc2626' : '#0f1720' }}>${salaryRemaining.toLocaleString()}</span>
                 </div>
 
@@ -9448,13 +9448,13 @@ export default function Page() {
 
                 {/* Tiebreaker */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 16 }}>
-                  <span style={{ color: '#5b6b79' }}>Your tiebreaker</span>
-                  <span style={{ fontWeight: 700, color: '#0f1720' }}>{tieBreakInput} <span style={{ fontWeight: 400, color: '#8a99a6' }}>(par {TOURNAMENT_TOTAL_PAR[entriesTournamentId] ?? '—'})</span></span>
+                  <span style={{ color: entriesTournamentId === 'open' ? entriesTournamentBg : '#5b6b79' }}>Your tiebreaker</span>
+                  <span style={{ fontWeight: 700, color: '#0f1720' }}>{tieBreakInput} <span style={{ fontWeight: 400, color: entriesTournamentId === 'open' ? entriesTournamentBg : '#8a99a6' }}>(par {TOURNAMENT_TOTAL_PAR[entriesTournamentId] ?? '—'})</span></span>
                 </div>
 
                 {/* Explanation for the Submit & Pay flow */}
                 {!hasSubmittedRoster && (
-                  <div style={{ fontSize: 11.5, color: '#5b6b79', lineHeight: 1.5, marginBottom: 10 }}>
+                  <div style={{ fontSize: 11.5, color: entriesTournamentId === 'open' ? entriesTournamentBg : '#5b6b79', lineHeight: 1.5, marginBottom: 10 }}>
                     *Hitting <b>Submit &amp; Pay</b>{' '}submits your roster and automatically opens Venmo to @claytont743 to pay the pool entry fee. The $30 amount and what it&apos;s for are auto-populated for you.
                   </div>
                 )}
