@@ -9481,7 +9481,7 @@ export default function Page() {
                           setTimeout(() => {
                             setShowSubmitToast(false);
                             window.location.href = `venmo://paycharge?txn=pay&recipients=claytont743&amount=30&note=${encodeURIComponent('⛳')}`;
-                          }, 1400);
+                          }, 2000);
                         }}
                         style={{ flex: 1, border: 'none', borderRadius: 12, padding: '13px 0', background: entriesTournamentBg, color: '#fff', fontSize: 15, fontWeight: 900, cursor: 'pointer' }}
                       >
@@ -9520,7 +9520,10 @@ export default function Page() {
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(9,34,51,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
             <div style={{ background: '#fff', borderRadius: 18, padding: '24px 28px', boxShadow: '0 18px 48px rgba(9,34,51,0.3)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <CheckCircle2 size={30} color="#1f8d4e" />
-              <span style={{ fontSize: 17, fontWeight: 900, color: '#0f1720' }}>Roster successfully submitted!</span>
+              <span style={{ fontSize: 17, fontWeight: 900, color: '#0f1720' }}>
+                Roster successfully submitted!
+                <span style={{ display: 'block', marginTop: 4, fontSize: 14, fontWeight: 700, color: '#5b6b79' }}>Now opening Venmo…</span>
+              </span>
             </div>
           </div>
         )}
