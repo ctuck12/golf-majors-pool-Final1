@@ -5915,7 +5915,7 @@ export default function Page() {
                     >
                       Submit Roster
                     </button>
-                    <div style={{ color: '#5b6b79', fontSize: 13, lineHeight: 1.65 }}>
+                    <div style={{ color: entriesTournamentId === 'open' ? '#000000' : '#5b6b79', fontSize: 13, lineHeight: 1.65 }}>
                       * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
                       Use their total strokes, NOT score to par. Example: Enter 274 (NOT -14)
                     </div>
@@ -6098,7 +6098,7 @@ export default function Page() {
                     <div style={{ border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff' }}>
                       <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
                       <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 34, fontWeight: 900, color: '#1f8d4e' }}>${salaryRemaining.toLocaleString()}</div>
-                      <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: '#31424f' }}>
+                      <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: entriesTournamentId === 'open' ? '#000000' : '#31424f' }}>
                         Avg Rem./Player: ${averageRemainingPerPlayer.toLocaleString()}
                       </div>
                     </div>
@@ -6136,10 +6136,10 @@ export default function Page() {
                                       <div style={{ fontSize: isMobile ? 18 : 19, fontWeight: 800, color: '#0f1720' }}>
                                         {(() => { const customSplit = isMobile ? MOBILE_CUSTOM_SPLITS[golfer.name] : undefined; const parts = golfer.name.split(' '); const first = customSplit ? customSplit[0] : parts.slice(0, -1).join(' '); const last = customSplit ? customSplit[1] : parts[parts.length - 1]; const forcedBreak = isMobile && MOBILE_TWO_LINE_NAMES.has(golfer.name); const infoBtn = <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: golfer.id, name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl, worldRank: golfer.worldRank }, 'season'); }} style={{ width: isMobile ? 17 : 17, height: isMobile ? 17 : 17, borderRadius: '50%', border: `${isMobile ? 1.5 : 1.5}px solid ${entriesTournamentId === 'open' ? '#000000' : '#9ca3af'}`, background: 'transparent', color: entriesTournamentId === 'open' ? '#000000' : '#9ca3af', fontSize: isMobile ? 11 : 11, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 5 : 6, flexShrink: 0 }} aria-label={`View ${golfer.name} stats`}>i</button>; return (<>{first}{forcedBreak ? <br /> : (first ? ' ' : '')}<span style={{ whiteSpace: 'nowrap' }}>{last}{infoBtn}</span></>); })()}
                                       </div>
-                                      <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 15, color: '#607282' }}>
+                                      <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 15, color: entriesTournamentId === 'open' ? '#000000' : '#607282' }}>
                                         Salary: <span style={{ fontWeight: 800, color: salaryColor }}>${golfer.salary.toLocaleString()}</span>
                                       </div>
-                                      <div style={{ marginTop: isMobile ? 2 : 1, fontSize: isMobile ? 14 : 13, color: '#607282' }}>
+                                      <div style={{ marginTop: isMobile ? 2 : 1, fontSize: isMobile ? 14 : 13, color: entriesTournamentId === 'open' ? '#000000' : '#607282' }}>
                                         World Rank: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
                                       </div>
                                     </div>
@@ -6226,7 +6226,7 @@ export default function Page() {
                       >
                         Submit Roster
                       </button>
-                      <div style={{ color: '#5b6b79', fontSize: 13, lineHeight: 1.65 }}>
+                      <div style={{ color: entriesTournamentId === 'open' ? '#000000' : '#5b6b79', fontSize: 13, lineHeight: 1.65 }}>
                         * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
                         Use their total strokes, NOT score to par. Example: Enter 274 (NOT -14)
                       </div>
@@ -7242,7 +7242,7 @@ export default function Page() {
                   <div style={{ border: entriesTournamentId === 'open' ? '1px solid #e0a92e' : '1px solid #d7e0e8', borderRadius: isMobile ? 18 : 14, padding: isMobile ? 16 : '12px 18px', background: entriesTournamentId === 'open' ? '#F4BC41' : '#fff' }}>
                     <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 900, color: '#0f1720' }}>Remaining Salary:</div>
                     <div style={{ marginTop: 2, fontSize: isMobile ? 30 : 34, fontWeight: 900, color: '#1f8d4e' }}>${commissionerSalaryRemaining.toLocaleString()}</div>
-                    <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: '#31424f' }}>
+                    <div style={{ marginTop: isMobile ? 8 : 4, fontSize: isMobile ? 12 : 13, color: entriesTournamentId === 'open' ? '#000000' : '#31424f' }}>
                       Avg Rem./Player: ${commissionerAverageRemainingPerPlayer.toLocaleString()}
                     </div>
                   </div>
@@ -7284,10 +7284,10 @@ export default function Page() {
                                     <div style={{ fontSize: isMobile ? 18 : 19, fontWeight: 800, color: '#0f1720' }}>
                                       {(() => { const customSplit = isMobile ? MOBILE_CUSTOM_SPLITS[golfer.name] : undefined; const parts = golfer.name.split(' '); const first = customSplit ? customSplit[0] : parts.slice(0, -1).join(' '); const last = customSplit ? customSplit[1] : parts[parts.length - 1]; const forcedBreak = isMobile && MOBILE_TWO_LINE_NAMES.has(golfer.name); const infoBtn = <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: golfer.id, name: golfer.name, pgaTourId: golfer.pgaTourId, photoUrl: golfer.photoUrl, worldRank: golfer.worldRank }, 'season'); }} style={{ width: isMobile ? 17 : 17, height: isMobile ? 17 : 17, borderRadius: '50%', border: `${isMobile ? 1.5 : 1.5}px solid ${entriesTournamentId === 'open' ? '#000000' : '#9ca3af'}`, background: 'transparent', color: entriesTournamentId === 'open' ? '#000000' : '#9ca3af', fontSize: isMobile ? 11 : 11, fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, lineHeight: 1, touchAction: 'manipulation', verticalAlign: 'middle', marginLeft: isMobile ? 5 : 6, flexShrink: 0 }} aria-label={`View ${golfer.name} stats`}>i</button>; return (<>{first}{forcedBreak ? <br /> : (first ? ' ' : '')}<span style={{ whiteSpace: 'nowrap' }}>{last}{infoBtn}</span></>); })()}
                                     </div>
-                                    <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 15, color: '#607282' }}>
+                                    <div style={{ marginTop: isMobile ? 3 : 2, fontSize: isMobile ? 15 : 15, color: entriesTournamentId === 'open' ? '#000000' : '#607282' }}>
                                       Salary: <span style={{ fontWeight: 800, color: '#3f73ad' }}>${golfer.salary.toLocaleString()}</span>
                                     </div>
-                                    <div style={{ marginTop: isMobile ? 2 : 1, fontSize: isMobile ? 14 : 13, color: '#607282' }}>
+                                    <div style={{ marginTop: isMobile ? 2 : 1, fontSize: isMobile ? 14 : 13, color: entriesTournamentId === 'open' ? '#000000' : '#607282' }}>
                                       World Rank: <span style={{ fontWeight: 700, color: '#0f1720' }}>{golfer.worldRank}</span>
                                     </div>
                                   </div>
@@ -7357,7 +7357,7 @@ export default function Page() {
                       Submit Roster
                     </button>
 
-                    <div style={{ fontSize: 13, color: '#607282', marginTop: 4 }}>
+                    <div style={{ fontSize: 13, color: entriesTournamentId === 'open' ? '#000000' : '#607282', marginTop: 4 }}>
                       * - The tiebreak value is your predicted total score for the winning golfer of this tournament. Use their total strokes, NOT score to par. Example: Enter 274 (NOT -14)
                     </div>
                   </div>
