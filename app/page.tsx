@@ -1343,6 +1343,8 @@ function formatCurrentRoundScore(value: string | undefined, fallback: string) {
 export default function Page() {
   const initialTournament = getDefaultTournamentId(getTournamentCardStatuses(), new Date());
   const [mainTab, setMainTab] = useState<MainTab>('Standings');
+  // Tab the My Entries pick-sheet editor was opened from, so its back button truly goes back.
+  const myEntriesReturnTabRef = useRef<MainTab>('My Entries');
   // When returning from a commissioner tool page (?tab=commissioner), reopen the
   // Commissioner Hub tab once the session confirms the user can manage the pool.
   const [pendingCommissionerTab, setPendingCommissionerTab] = useState<boolean>(
@@ -3336,6 +3338,7 @@ export default function Page() {
     setSelectedRoster(savedRoster.length > 0 ? savedRoster : []);
     const savedTieBreak = sessionUser?.tieBreaks?.[entriesTournamentId];
     setTieBreakInput(savedTieBreak != null ? String(savedTieBreak) : '');
+    myEntriesReturnTabRef.current = mainTab; // so the pick sheet's back button returns here
     setMyEntriesEditorOpen(true);
     handleMainTabChange('My Entries');
     setMyEntriesEditorOpen(true);
@@ -3346,6 +3349,8 @@ export default function Page() {
     setMyEntriesMenuOpen(false);
     setMyEntriesDetailView('none');
     setSaveMessage('');
+    // Return to whichever tab the pick sheet was opened from (e.g. Standings' Make Picks button).
+    if (myEntriesReturnTabRef.current !== 'My Entries') handleMainTabChange(myEntriesReturnTabRef.current);
   };
 
   const renderRosterCards = (background: string, allowRemove = false) => (
