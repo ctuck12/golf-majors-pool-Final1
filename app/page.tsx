@@ -9489,7 +9489,7 @@ export default function Page() {
                       </button>
                       <button
                         onClick={() => setShowRosterConfirm(false)}
-                        style={{ flex: 1, border: '2px solid #dfe5eb', borderRadius: 12, padding: '13px 0', background: '#fff', color: '#374151', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+                        style={{ flex: 1, border: entriesTournamentId === 'open' ? 'none' : '2px solid #dfe5eb', borderRadius: 12, padding: '13px 0', background: entriesTournamentId === 'open' ? '#dce6f5' : '#fff', color: entriesTournamentId === 'open' ? '#173b63' : '#374151', fontSize: 15, fontWeight: entriesTournamentId === 'open' ? 800 : 700, cursor: 'pointer' }}
                       >
                         Edit
                       </button>
@@ -9504,7 +9504,7 @@ export default function Page() {
                       </button>
                       <button
                         onClick={() => setShowRosterConfirm(false)}
-                        style={{ flex: 1, border: '2px solid #dfe5eb', borderRadius: 12, padding: '13px 0', background: '#fff', color: '#374151', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+                        style={{ flex: 1, border: entriesTournamentId === 'open' ? 'none' : '2px solid #dfe5eb', borderRadius: 12, padding: '13px 0', background: entriesTournamentId === 'open' ? '#dce6f5' : '#fff', color: entriesTournamentId === 'open' ? '#173b63' : '#374151', fontSize: 15, fontWeight: entriesTournamentId === 'open' ? 800 : 700, cursor: 'pointer' }}
                       >
                         Edit
                       </button>
