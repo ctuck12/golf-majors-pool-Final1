@@ -8602,15 +8602,17 @@ export default function Page() {
                 {/* Solid color header */}
                 <div style={{ background: bpHeaderBg, borderRadius: '20px 20px 0 0', padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'open' ? '#F4BC41' : selectedTournament === 'us-open' ? 'rgba(255,255,255,0.7)' : '#173b63', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{tournament.fullName}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>Bonus Points</div>
-                      <button onClick={() => { closeBonusPoints(); setShowPointsSystem(true); }} style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
-                        {isMobile ? 'Tap for points system' : 'Click for points system'} <span style={{ fontSize: 10, opacity: 0.8 }}>›</span>
-                      </button>
-                    </div>
+                    <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>Bonus Points</div>
+                    <button onClick={() => { closeBonusPoints(); setShowPointsSystem(true); }} style={{ marginTop: 6, background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
+                      Points System <span style={{ fontSize: 10, opacity: 0.8 }}>›</span>
+                    </button>
                   </div>
-                  <button onClick={closeBonusPoints} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>✕</button>
+                  {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
+                    <div style={{ background: '#fff', borderRadius: 10, padding: '6px 10px', flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img src={TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: 30, width: 'auto', objectFit: 'contain', display: 'block' }} />
+                    </div>
+                  )}
+                  <button onClick={closeBonusPoints} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0, marginLeft: 12 }}>✕</button>
                 </div>
 
                 <div style={{ padding: isMobile ? '14px 14px 6px' : '16px 18px 8px', display: 'flex', flexDirection: 'column', gap: 10 }}>
