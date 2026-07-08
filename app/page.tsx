@@ -432,31 +432,16 @@ const CAREER_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
   open: 30,
 };
 
-// White-knockout tab logos for colored popup headers: the logo file is used as a CSS mask over
-// solid white, so every tournament's mark reads cleanly on any header color without a chip.
-const TAB_LOGO_ASPECTS: Partial<Record<string, string>> = {
-  players: '1500 / 697',
-  masters: '1065 / 259',
-  pga: '1200 / 675',
-  'us-open': '475 / 178',
-  open: '1222 / 627',
+// Two-tone knockout tab logos for colored popup headers: pre-processed copies of the tab logos
+// where everything is white except each tournament's signature element (gold golfer, yellow map +
+// red flag, PGA seal, navy OPEN), so they read cleanly on the colored headers without a chip.
+const KNOCKOUT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
+  players: '/knockout-players.png',
+  masters: '/knockout-masters.png',
+  pga: '/knockout-pga.png',
+  'us-open': '/knockout-us-open.png',
+  open: '/knockout-open.png',
 };
-const knockoutLogoStyle = (tid: TournamentId, height: number): CSSProperties => ({
-  height,
-  aspectRatio: TAB_LOGO_ASPECTS[tid] ?? '2 / 1',
-  maxWidth: 110,
-  background: '#fff',
-  WebkitMaskImage: `url(${TOURNAMENT_TAB_LOGOS[tid]})`,
-  maskImage: `url(${TOURNAMENT_TAB_LOGOS[tid]})`,
-  WebkitMaskRepeat: 'no-repeat',
-  maskRepeat: 'no-repeat',
-  WebkitMaskSize: 'contain',
-  maskSize: 'contain',
-  WebkitMaskPosition: 'center',
-  maskPosition: 'center',
-  flexShrink: 0,
-});
-
 const TOURNAMENT_HEADING_LOGOS: Partial<Record<TournamentId, string>> = {
   masters: '/masters-heading-logo.png',
 };
@@ -6598,7 +6583,7 @@ export default function Page() {
                       </div>
                       {TOURNAMENT_TAB_LOGOS[tournament.id] && (
                         <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                          <span role="img" aria-label={tournament.name} style={knockoutLogoStyle(tournament.id, tournament.id === 'pga' || tournament.id === 'players' ? 44 : tournament.id === 'open' ? 40 : 36)} />
+                          <img src={KNOCKOUT_TAB_LOGOS[tournament.id] ?? TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: tournament.id === 'pga' || tournament.id === 'players' ? 44 : tournament.id === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
                         </div>
                       )}
                     </div>
@@ -7711,7 +7696,7 @@ export default function Page() {
                     <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
                     {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
                       <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span role="img" aria-label={tournament.fullName} style={knockoutLogoStyle(selectedTournament, selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36)} />
+                        <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
                       </div>
                     )}
                     <button
@@ -8049,7 +8034,7 @@ export default function Page() {
                       <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>Points System</div>
                       {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
                         <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <span role="img" aria-label={tournament.fullName} style={knockoutLogoStyle(selectedTournament, selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36)} />
+                          <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
                         </div>
                       )}
                       <button onClick={() => setShowPointsSystem(false)} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>✕</button>
@@ -8639,7 +8624,7 @@ export default function Page() {
                   </div>
                   {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
                     <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span role="img" aria-label={tournament.fullName} style={knockoutLogoStyle(selectedTournament, selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36)} />
+                      <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
                     </div>
                   )}
                   <button onClick={closeBonusPoints} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0, marginLeft: 12 }}>✕</button>
