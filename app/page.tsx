@@ -6583,7 +6583,7 @@ export default function Page() {
                       </div>
                       {TOURNAMENT_TAB_LOGOS[tournament.id] && (
                         <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                          <img src={KNOCKOUT_TAB_LOGOS[tournament.id] ?? TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: tournament.id === 'pga' || tournament.id === 'players' ? 44 : tournament.id === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+                          <img src={KNOCKOUT_TAB_LOGOS[tournament.id] ?? TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: tournament.id === 'pga' || tournament.id === 'players' ? 52 : tournament.id === 'open' ? 40 : tournament.id === 'masters' ? undefined : 36, width: tournament.id === 'masters' ? 110 : undefined, margin: tournament.id === 'pga' || tournament.id === 'players' ? '-4px 0' : undefined, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
                         </div>
                       )}
                     </div>
@@ -7696,7 +7696,7 @@ export default function Page() {
                     <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
                     {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
                       <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+                        <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 52 : selectedTournament === 'open' ? 40 : selectedTournament === 'masters' ? undefined : 36, width: selectedTournament === 'masters' ? 110 : undefined, margin: selectedTournament === 'pga' || selectedTournament === 'players' ? '-4px 0' : undefined, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
                       </div>
                     )}
                     <button
@@ -8034,7 +8034,7 @@ export default function Page() {
                       <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>Points System</div>
                       {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
                         <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+                          <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 52 : selectedTournament === 'open' ? 40 : selectedTournament === 'masters' ? undefined : 36, width: selectedTournament === 'masters' ? 110 : undefined, margin: selectedTournament === 'pga' || selectedTournament === 'players' ? '-4px 0' : undefined, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
                         </div>
                       )}
                       <button onClick={() => setShowPointsSystem(false)} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>✕</button>
@@ -8624,7 +8624,7 @@ export default function Page() {
                   </div>
                   {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
                     <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+                      <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 52 : selectedTournament === 'open' ? 40 : selectedTournament === 'masters' ? undefined : 36, width: selectedTournament === 'masters' ? 110 : undefined, margin: selectedTournament === 'pga' || selectedTournament === 'players' ? '-4px 0' : undefined, maxWidth: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
                     </div>
                   )}
                   <button onClick={closeBonusPoints} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0, marginLeft: 12 }}>✕</button>
