@@ -15,6 +15,16 @@ const SCHEDULE: HeaderTournament[] = [
 
 // id + display name for every tournament, in schedule order — for the commissioner tool's
 // per-tournament salary selector (lets past events be backfilled).
+// White-knockout versions of the tab logos (white marks with each tournament's signature element
+// kept in brand color) for use on dark/colored headers. Generated from the tab logos.
+export const KNOCKOUT_TAB_LOGOS: Record<string, string> = {
+  players: '/knockout-players.png',
+  masters: '/knockout-masters.png',
+  pga: '/knockout-pga.png',
+  'us-open': '/knockout-us-open.png',
+  open: '/knockout-open.png',
+};
+
 export const TOURNAMENT_OPTIONS = SCHEDULE.map((t) => ({ id: t.id, name: t.name, color: t.color }));
 
 // First-tee times (UTC) match app/page.tsx TOURNAMENTS.

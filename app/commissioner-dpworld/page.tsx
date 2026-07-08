@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { parseSpreadsheetFile, rowsToText } from '@/app/lib/spreadsheet-client';
-import { getHeaderTournament } from '@/app/lib/tournament-logo';
+import { getHeaderTournament, KNOCKOUT_TAB_LOGOS } from '@/app/lib/tournament-logo';
 
 type Status = {
   active: boolean;
@@ -101,8 +101,8 @@ export default function CommissionerDpWorldPage() {
             </button>
             <div style={{ color: '#fff', fontSize: 18, fontWeight: 900 }}>DP World Rankings</div>
           </div>
-          <div style={{ background: '#fff', borderRadius: 12, padding: '6px 12px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-            <img src={headerTournament.logo} alt={headerTournament.name} style={{ height: 44, maxWidth: 110, objectFit: 'contain', display: 'block' }} />
+          <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            <img src={KNOCKOUT_TAB_LOGOS[headerTournament.id] ?? headerTournament.logo} alt={headerTournament.name} style={{ height: headerTournament.id === 'pga' ? 60 : headerTournament.id === 'players' ? 52 : headerTournament.id === 'open' ? 40 : headerTournament.id === 'masters' ? undefined : 36, width: headerTournament.id === 'masters' ? 120 : undefined, margin: headerTournament.id === 'pga' ? '-8px 0' : headerTournament.id === 'players' ? '-4px 0' : undefined, maxWidth: 120, objectFit: 'contain', display: 'block' }} />
           </div>
         </div>
 
