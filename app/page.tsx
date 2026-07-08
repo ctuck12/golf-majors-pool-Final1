@@ -3645,7 +3645,7 @@ export default function Page() {
                         flex: '0 0 auto',
                       }}
                     >
-                      {tab}
+                      {tab === 'My Entries' ? 'My Entry' : tab}
                     </button>
                   );
                 })}
@@ -5313,7 +5313,7 @@ export default function Page() {
                   boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                 }}
               >
-                <h2 style={{ margin: 0, fontSize: isMobile ? 15 : 26, color: '#0f1720' }}>Manage Entries</h2>
+                <h2 style={{ margin: 0, fontSize: isMobile ? 15 : 26, color: '#0f1720' }}>Manage Entry</h2>
                 <div style={{ marginTop: isMobile ? 6 : 18, color: '#0f1720', fontSize: isMobile ? 11 : 15, lineHeight: 1.45 }}>
                   {TOURNAMENT_ENTRIES_INTRO[entriesTournamentId] ?? `Make or edit your picks for ${entriesTournament.name} below.`} You can submit or modify your picks up until the first tee time of Round 1.
                 </div>
@@ -5339,7 +5339,7 @@ export default function Page() {
 
                 <div
                   style={{
-                    marginTop: isMobile ? 10 : 24,
+                    marginTop: isMobile ? 14 : 28,
                     display: 'grid',
                     gridTemplateColumns: (isMobile && hasSubmittedRoster)
                       ? '1fr auto'
