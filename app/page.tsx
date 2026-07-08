@@ -7920,7 +7920,7 @@ export default function Page() {
                           Points: {formatPointValue(activeStandingGolfer.points)}
                         </div>
                         <button onClick={() => setShowPointsSystem(true)} style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
-                          {isMobile ? 'Tap for points system' : 'Click here for points system'} <span style={{ fontSize: 10, opacity: 0.8 }}>›</span>
+                          Points System <span style={{ fontSize: 10, opacity: 0.8 }}>›</span>
                         </button>
                       </div>
                     </div>
