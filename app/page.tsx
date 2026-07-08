@@ -8010,7 +8010,7 @@ export default function Page() {
                 setActiveStandingEntryId(null);
               }
             }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, zIndex: 70 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, zIndex: 95 }}
           >
             <div
               onClick={(e) => e.stopPropagation()}
@@ -8623,7 +8623,7 @@ export default function Page() {
                 <div style={{ background: bpHeaderBg, borderRadius: '20px 20px 0 0', padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>Bonus Points</div>
-                    <button onClick={() => { closeBonusPoints(); setShowPointsSystem(true); }} style={{ marginTop: 6, background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
+                    <button onClick={() => setShowPointsSystem(true)} style={{ marginTop: 6, background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
                       Points System <span style={{ fontSize: 10, opacity: 0.8 }}>›</span>
                     </button>
                   </div>
