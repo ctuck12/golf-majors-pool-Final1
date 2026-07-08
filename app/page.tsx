@@ -5339,7 +5339,7 @@ export default function Page() {
 
                 <div
                   style={{
-                    marginTop: isMobile ? 14 : 28,
+                    marginTop: isMobile ? 20 : 34,
                     display: 'grid',
                     gridTemplateColumns: (isMobile && hasSubmittedRoster)
                       ? '1fr auto'
