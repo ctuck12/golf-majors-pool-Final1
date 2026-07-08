@@ -7683,10 +7683,7 @@ export default function Page() {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-                    <div>
-                      <div style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'us-open' ? 'rgba(255,255,255,0.7)' : selectedTournament === 'pga' ? '#173b63' : (selectedTournament === 'players' || selectedTournament === 'open') ? '#E0AB43' : 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>{(selectedTournament === 'masters' ? 'The Masters Tournament' : tournament.fullName).replace(/\s+Championship$/i, '')}</div>
-                      <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
-                    </div>
+                    <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
                     {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
                       <div style={{ background: '#fff', borderRadius: 10, padding: '6px 10px', flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <img src={TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: 30, width: 'auto', objectFit: 'contain', display: 'block' }} />
