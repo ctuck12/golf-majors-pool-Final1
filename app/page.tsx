@@ -6572,8 +6572,8 @@ export default function Page() {
                         {poolToolModal === 'payouts' ? 'Tournament Payouts' : poolToolModal === 'tiebreak' ? 'Tiebreak Score' : poolToolModal === 'roundLeader' ? 'Round Leader Tools' : 'Mark WD / DQ / MDF'}
                       </div>
                       {TOURNAMENT_TAB_LOGOS[tournament.id] && (
-                        <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                          <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: tournament.id === 'pga' || tournament.id === 'players' ? 44 : tournament.id === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.95)) drop-shadow(0 0 1px rgba(255,255,255,0.9)) drop-shadow(0 1px 6px rgba(255,255,255,0.55))' }} />
+                        <div style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 10, padding: '5px 10px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                          <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: tournament.id === 'pga' || tournament.id === 'players' ? 40 : tournament.id === 'open' ? 36 : 32, margin: tournament.id === 'pga' || tournament.id === 'players' ? '-4px 0' : tournament.id === 'open' ? '-2px 0' : undefined, maxWidth: 100, objectFit: 'contain', display: 'block' }} />
                         </div>
                       )}
                     </div>
@@ -7685,8 +7685,8 @@ export default function Page() {
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0 }}>
                     <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingEntry.name}</div>
                     {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
-                      <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <img src={TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.95)) drop-shadow(0 0 1px rgba(255,255,255,0.9)) drop-shadow(0 1px 6px rgba(255,255,255,0.55))' }} />
+                      <div style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 10, padding: '5px 10px', flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <img src={TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 40 : selectedTournament === 'open' ? 36 : 32, margin: selectedTournament === 'pga' || selectedTournament === 'players' ? '-4px 0' : selectedTournament === 'open' ? '-2px 0' : undefined, maxWidth: 100, objectFit: 'contain', display: 'block' }} />
                       </div>
                     )}
                     <button
@@ -8023,8 +8023,8 @@ export default function Page() {
                     <div style={{ background: hBg, padding: isMobile ? '14px 16px 12px' : '16px 20px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0 }}>
                       <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>Points System</div>
                       {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
-                        <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <img src={TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.95)) drop-shadow(0 0 1px rgba(255,255,255,0.9)) drop-shadow(0 1px 6px rgba(255,255,255,0.55))' }} />
+                        <div style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 10, padding: '5px 10px', flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <img src={TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 40 : selectedTournament === 'open' ? 36 : 32, margin: selectedTournament === 'pga' || selectedTournament === 'players' ? '-4px 0' : selectedTournament === 'open' ? '-2px 0' : undefined, maxWidth: 100, objectFit: 'contain', display: 'block' }} />
                         </div>
                       )}
                       <button onClick={() => setShowPointsSystem(false)} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>✕</button>
@@ -8613,8 +8613,8 @@ export default function Page() {
                     </button>
                   </div>
                   {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
-                    <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <img src={TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 44 : selectedTournament === 'open' ? 40 : 36, maxWidth: 110, objectFit: 'contain', display: 'block', filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.95)) drop-shadow(0 0 1px rgba(255,255,255,0.9)) drop-shadow(0 1px 6px rgba(255,255,255,0.55))' }} />
+                    <div style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 10, padding: '5px 10px', flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img src={TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: selectedTournament === 'pga' || selectedTournament === 'players' ? 40 : selectedTournament === 'open' ? 36 : 32, margin: selectedTournament === 'pga' || selectedTournament === 'players' ? '-4px 0' : selectedTournament === 'open' ? '-2px 0' : undefined, maxWidth: 100, objectFit: 'contain', display: 'block' }} />
                     </div>
                   )}
                   <button onClick={closeBonusPoints} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0, marginLeft: 12 }}>✕</button>
