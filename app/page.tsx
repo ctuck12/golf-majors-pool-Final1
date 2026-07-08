@@ -336,6 +336,16 @@ const TOURNAMENT_PICKS_HEADER: Record<string, string> = {
   open: 'The Open Picks',
 };
 
+// Heights for the tab logo shown in place of the "<Tournament> Picks" column header
+// ([mobile, desktop]) — tuned per logo shape; negative margins keep the row at text height.
+const PICKS_HEADER_LOGO_H: Record<string, [number, number]> = {
+  players: [26, 34],
+  masters: [20, 26],
+  pga: [30, 40],
+  'us-open': [24, 30],
+  open: [26, 32],
+};
+
 const TOURNAMENT_ENTRIES_INTRO: Record<string, string> = {
   players: 'Make or edit your picks for The Players Championship below.',
   masters: 'Make or edit your picks for The Masters below.',
@@ -5356,9 +5366,14 @@ export default function Page() {
                   <div
                     style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'center', justifySelf: 'center' }}
                   >
-                    {entriesTournamentId === 'open' && TOURNAMENT_TAB_LOGOS.open ? (
-                      // Logo in place of "The Open Picks"; negative margins keep the row the height of the text line.
-                      <img src={TOURNAMENT_TAB_LOGOS.open} alt="The Open Picks" style={{ height: isMobile ? 26 : 32, margin: isMobile ? '-8px 0' : '-9px 0', width: 'auto', objectFit: 'contain', display: 'block' }} />
+                    {TOURNAMENT_TAB_LOGOS[entriesTournamentId] ? (
+                      (() => {
+                        // Tournament logo in place of the "<Tournament> Picks" text; negative margins
+                        // keep the row at the text line's height so the box never grows.
+                        const lh = isMobile ? 12 : 17;
+                        const hgt = (PICKS_HEADER_LOGO_H[entriesTournamentId] ?? [26, 32])[isMobile ? 0 : 1];
+                        return <img src={TOURNAMENT_TAB_LOGOS[entriesTournamentId]} alt={TOURNAMENT_PICKS_HEADER[entriesTournamentId] ?? `${entriesTournament.name} Picks`} style={{ height: hgt, margin: `${-(hgt - lh) / 2}px 0`, width: 'auto', maxWidth: 120, objectFit: 'contain', display: 'block' }} />;
+                      })()
                     ) : (
                       TOURNAMENT_PICKS_HEADER[entriesTournamentId] ?? `${entriesTournament.name} Picks`
                     )}
