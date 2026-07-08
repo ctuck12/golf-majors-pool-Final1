@@ -6573,7 +6573,7 @@ export default function Page() {
                       </div>
                       {TOURNAMENT_TAB_LOGOS[tournament.id] && (
                         <div style={{ background: '#fff', borderRadius: 8, padding: '5px 10px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                          <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: 32, maxWidth: 100, objectFit: 'contain', display: 'block' }} />
+                          <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: tournament.id === 'pga' || tournament.id === 'players' ? 40 : tournament.id === 'open' ? 34 : 32, margin: tournament.id === 'pga' || tournament.id === 'players' ? '-4px 0' : tournament.id === 'open' ? '-1px 0' : undefined, maxWidth: 100, objectFit: 'contain', display: 'block' }} />
                         </div>
                       )}
                     </div>
