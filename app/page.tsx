@@ -8020,8 +8020,13 @@ export default function Page() {
                 );
                 return (
                   <>
-                    <div style={{ background: hBg, padding: isMobile ? '14px 16px 12px' : '16px 20px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+                    <div style={{ background: hBg, padding: isMobile ? '14px 16px 12px' : '16px 20px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0 }}>
                       <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>Points System</div>
+                      {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
+                        <div style={{ background: '#fff', borderRadius: 10, padding: '6px 10px', flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <img src={TOURNAMENT_TAB_LOGOS[selectedTournament]} alt={tournament.fullName} style={{ height: 30, width: 'auto', objectFit: 'contain', display: 'block' }} />
+                        </div>
+                      )}
                       <button onClick={() => setShowPointsSystem(false)} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, cursor: 'pointer', color: '#fff', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>✕</button>
                     </div>
                     <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: isMobile ? '10px 12px 16px' : '12px 16px 20px' }}>
