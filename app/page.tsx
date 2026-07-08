@@ -5356,7 +5356,12 @@ export default function Page() {
                   <div
                     style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'center', justifySelf: 'center' }}
                   >
-                    {TOURNAMENT_PICKS_HEADER[entriesTournamentId] ?? `${entriesTournament.name} Picks`}
+                    {entriesTournamentId === 'open' && TOURNAMENT_TAB_LOGOS.open ? (
+                      // Logo in place of "The Open Picks"; negative margins keep the row the height of the text line.
+                      <img src={TOURNAMENT_TAB_LOGOS.open} alt="The Open Picks" style={{ height: isMobile ? 26 : 32, margin: isMobile ? '-8px 0' : '-9px 0', width: 'auto', objectFit: 'contain', display: 'block' }} />
+                    ) : (
+                      TOURNAMENT_PICKS_HEADER[entriesTournamentId] ?? `${entriesTournament.name} Picks`
+                    )}
                   </div>
                   <div style={{ fontSize: isMobile ? 10 : 14, fontWeight: 900, color: '#0f1720', textAlign: 'right' }}>Options</div>
 
