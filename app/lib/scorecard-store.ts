@@ -1,3 +1,4 @@
+import { gzipSync, gunzipSync } from 'zlib';
 import redis from './redis';
 import type { SlashGolfLeaderboardRow } from './slashgolf';
 
@@ -61,18 +62,30 @@ export type LeaderboardCacheFile = {
 };
 
 // ── Redis helpers ──────────────────────────────────────────────────────────
+// Large values are gzip-compressed (~5-8x smaller) to keep Redis Cloud NETWORK usage down —
+// the leaderboard + scorecard blobs move on every cron tick and every client poll, and raw
+// JSON was blowing past the plan's monthly bandwidth. Reads transparently handle both the
+// compressed ("gz:" prefix) and legacy plain-JSON formats, so no migration is needed.
+
+const GZ_PREFIX = 'gz:';
+const GZ_MIN_BYTES = 1024;
 
 async function rget<T>(key: string): Promise<T | null> {
   const raw = await redis.get(key);
-  return raw ? (JSON.parse(raw) as T) : null;
+  if (!raw) return null;
+  const json = raw.startsWith(GZ_PREFIX)
+    ? gunzipSync(Buffer.from(raw.slice(GZ_PREFIX.length), 'base64')).toString('utf8')
+    : raw;
+  return JSON.parse(json) as T;
 }
 
 async function rset(key: string, value: unknown, ttlSeconds?: number): Promise<void> {
   const json = JSON.stringify(value);
+  const payload = json.length >= GZ_MIN_BYTES ? GZ_PREFIX + gzipSync(json).toString('base64') : json;
   if (ttlSeconds) {
-    await redis.setex(key, ttlSeconds, json);
+    await redis.setex(key, ttlSeconds, payload);
   } else {
-    await redis.set(key, json);
+    await redis.set(key, payload);
   }
 }
 

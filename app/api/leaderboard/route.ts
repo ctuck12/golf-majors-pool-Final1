@@ -268,6 +268,12 @@ function buildSyntheticRounds(statLine: {
 
 // ── Main handler ──────────────────────────────────────────────────────────
 
+// Vercel edge cache: every pool member polls this route every 60s, and each origin hit reads
+// the full leaderboard + scorecard blobs from Redis. Letting the CDN serve it for 25s collapses
+// all concurrent viewers into ~2 Redis reads/minute per tournament (cron refreshes every 2 min,
+// so 25s of staleness is invisible).
+const EDGE_CACHE_HEADERS = { 'Cache-Control': 'public, s-maxage=25, stale-while-revalidate=120' };
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const tournamentId = searchParams.get('tournamentId') ?? 'pga';
@@ -290,7 +296,7 @@ export async function GET(request: Request) {
       fetchedAt: new Date().toISOString(),
       players: [],
       odds: [],
-    });
+    }, { headers: EDGE_CACHE_HEADERS });
   }
 
   if (cached.notStarted) {
@@ -303,7 +309,7 @@ export async function GET(request: Request) {
       fetchedAt: cached.cachedAt,
       players: [],
       odds: [],
-    });
+    }, { headers: EDGE_CACHE_HEADERS });
   }
 
   const rows = cached.leaderboard;
@@ -517,5 +523,5 @@ export async function GET(request: Request) {
     players,
     odds: odds.players,
     ...(fullLeaderboard ? { fullLeaderboard } : {}),
-  });
+  }, { headers: EDGE_CACHE_HEADERS });
 }

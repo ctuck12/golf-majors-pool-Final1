@@ -373,7 +373,11 @@ async function refreshTournamentFromESPN(
   const mergedBetweenRounds = { ...(scorecardCache?.players ?? {}), ...playerScorecards };
   if (Object.keys(mergedBetweenRounds).length > 0) {
     fixParValues(mergedBetweenRounds);
-    await saveScorecardCache(tournamentId, mergedBetweenRounds, lastCompleted);
+    // Between rounds this data is static — skip the (large) rewrite when nothing changed,
+    // instead of pushing an identical multi-hundred-KB blob to Redis every 2 minutes all night.
+    if (JSON.stringify(mergedBetweenRounds) !== JSON.stringify(scorecardCache?.players ?? {})) {
+      await saveScorecardCache(tournamentId, mergedBetweenRounds, lastCompleted);
+    }
   }
   return 'leaderboard-refreshed';
 }
