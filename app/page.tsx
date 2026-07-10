@@ -5669,7 +5669,7 @@ export default function Page() {
                             {historyPlayers.length > 0 ? (
                               // 3-per-row grid so a full 6-man roster always renders as exactly two rows,
                               // regardless of how wide individual names are (flex-wrap could spill to 3 rows).
-                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: isMobile ? 6 : 8 }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: isMobile ? 6 : '10px 12px' }}>
                                 {historyPlayers.map((player) => {
                                   const bubblePalette: Record<string, { bg: string; text: string }> = {
                                     players:  { bg: '#dce6f5', text: '#173b63' },
@@ -5688,20 +5688,22 @@ export default function Page() {
                                         borderRadius: 999,
                                         background: bg,
                                         color: text,
-                                        padding: isMobile ? '4px 8px 4px 4px' : '5px 12px 5px 5px',
-                                        fontSize: isMobile ? 12 : 13,
+                                        padding: isMobile ? '4px 8px 4px 4px' : '6px 18px 6px 6px',
+                                        fontSize: isMobile ? 12 : 14,
                                         fontWeight: 800,
                                         display: 'inline-flex',
                                         alignItems: 'center',
-                                        gap: 6,
+                                        gap: isMobile ? 6 : 8,
                                         cursor: 'pointer',
                                         minWidth: 0,
+                                        // Desktop: pills hug their content instead of stretching to the column width
+                                        justifySelf: isMobile ? undefined : 'start',
                                       }}
                                     >
                                       <img
                                         src={playerPhotoSrc(player.name, player.pgaTourId, player.photoUrl)} data-fb={player.photoUrl ?? pgaPhoto(player.pgaTourId)} onError={photoOnError}
                                         alt={player.name}
-                                        style={{ width: isMobile ? 22 : 24, height: isMobile ? 22 : 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#fff' }}
+                                        style={{ width: isMobile ? 22 : 30, height: isMobile ? 22 : 30, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#fff' }}
                                       />
                                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</span>
                                     </span>
