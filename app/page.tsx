@@ -583,7 +583,6 @@ const MANUAL_PHOTO_FILES: Record<string, string> = {
   'Ernie Els': '/player-photos/ernie-els.png',
   'John Daly': '/player-photos/john-daly.png',
   'Phil Mickelson': '/player-photos/phil-mickelson.png',
-  'Rory McIlroy': '/player-photos/rory-mcilroy.png',
   'Tiger Woods': '/player-photos/tiger-woods.png',
   // Neither ESPN nor PGA Tour has a headshot for these — supplied manually.
   'Andy Sullivan': '/player-photos/andy-sullivan.png',
