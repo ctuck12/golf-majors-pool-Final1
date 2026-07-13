@@ -14,6 +14,9 @@ export const NAME_ALIASES: Record<string, string> = {
   'Matthew McCarty': 'Matt McCarty',
   'Matthias Schmid': 'Matti Schmid',
   'Nicolas Echavarria': 'Nico Echavarria',
+  'JT Poston': 'J.T. Poston',
+  'Daniel Brown': 'Dan Brown',
+  'Jayden Schaper': 'Jayden Trey Schaper',
 };
 
 // Case/space-insensitive lookup so "benjamin james" resolves too.
