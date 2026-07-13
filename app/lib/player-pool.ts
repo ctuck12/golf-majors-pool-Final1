@@ -247,7 +247,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 500067, name: 'Henrik Stenson',                 pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
   { id: 500069, name: 'Jesper Svensson',                pgaTourId: 57586, defaultOdds: '+100000', worldRank: 9999 },
   { id: 500071, name: 'Austen Truslow',                 pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
-  { id: 500073, name: 'Scott Vincent',                  pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
+  { id: 500073, name: 'Scott Vincent',                  pgaTourId: 34126, defaultOdds: '+100000', worldRank: 152 },
   { id: 500075, name: 'Tim Wiedemeyer',                 pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
   { id: 500077, name: 'Jiho Yang',                      pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
   { id: 500078, name: 'Ren Yonezawa',                   pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
