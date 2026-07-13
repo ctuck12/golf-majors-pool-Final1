@@ -7771,8 +7771,8 @@ export default function Page() {
                               {golfer.score === 'CUT' || golfer.score === 'MDF' || golfer.score === 'WD' || golfer.score === 'DQ' ? (
                                 <>
                                   <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: isMobile ? 12 : 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                    <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
                                     <span>Total: {golfer.originalScore ?? '--'}</span>
+                                    <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
                                   </div>
                                   <button
                                     className="breakdown-golfer-subtext"
@@ -7836,8 +7836,8 @@ export default function Page() {
                               {golfer.score === 'CUT' || golfer.score === 'MDF' || golfer.score === 'WD' || golfer.score === 'DQ' ? (
                                 <>
                                   <div className="breakdown-golfer-subtext" style={{ marginTop: 2, color: selectedTournament === 'open' ? '#1a1a1a' : '#6b7b88', fontSize: isMobile ? 12 : 11, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                    <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
                                     <span>Total: {golfer.originalScore ?? '--'}</span>
+                                    <span>Picked: {standings.reduce((sum, entry) => sum + entry.golfers.filter((g) => g.id === golfer.id).length, 0)}</span>
                                   </div>
                                   <button
                                     className="breakdown-golfer-subtext"
