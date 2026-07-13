@@ -712,6 +712,7 @@ type PoolEntry = {
   name: string;
   rosters: Partial<Record<TournamentId, number[]>>;
   tieBreaks: Partial<Record<TournamentId, number>>;
+  rosterSubmittedAt?: Partial<Record<TournamentId, string>>;
 };
 
 type CommissionerMember = AuthUser;
@@ -1529,6 +1530,8 @@ export default function Page() {
   // Brief "Roster successfully submitted!" flash shown between Submit & Pay and the Venmo handoff.
   const [showSubmitToast, setShowSubmitToast] = useState(false);
   const [showSubmittedPicksPopup, setShowSubmittedPicksPopup] = useState(false);
+  // Submitted Picks popup ordering: alphabetical by default, or newest submission first.
+  const [submittedPicksSort, setSubmittedPicksSort] = useState<'alpha' | 'newest'>('alpha');
   const [commissionerPlayerSearch, setCommissionerPlayerSearch] = useState('');
   const [commissionerMemberModalOpen, setCommissionerMemberModalOpen] = useState(false);
   const [commissionerMemberModalView, setCommissionerMemberModalView] = useState<'menu' | 'displayName' | 'email' | 'confirmDelete' | 'confirmClearPicks'>('menu');
@@ -9681,12 +9684,24 @@ export default function Page() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <div style={{ fontSize: 17, fontWeight: 900, color: '#0f1720' }}>Submitted Picks ({submittedEntries.length})</div>
                 <button
+                  onClick={() => setSubmittedPicksSort((s) => (s === 'alpha' ? 'newest' : 'alpha'))}
+                  style={{ marginLeft: 'auto', marginRight: 8, background: selectedTournament === 'open' ? '#173b63' : '#f0f4f8', border: 'none', borderRadius: 999, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 800, color: selectedTournament === 'open' ? '#fff' : '#5b6b79' }}
+                >
+                  {submittedPicksSort === 'alpha' ? 'A–Z' : 'Newest'}
+                </button>
+                <button
                   onClick={() => setShowSubmittedPicksPopup(false)}
                   style={{ background: selectedTournament === 'open' ? '#173b63' : '#f0f4f8', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 15, color: selectedTournament === 'open' ? '#fff' : '#5b6b79' }}
                 >✕</button>
               </div>
               <div style={{ overflowY: 'auto', display: 'grid', gap: 8 }}>
-                {[...submittedEntries].sort((a, b) => a.name.localeCompare(b.name)).map((entry) => (
+                {[...submittedEntries].sort((a, b) => {
+                  if (submittedPicksSort === 'alpha') return a.name.localeCompare(b.name);
+                  const ta = a.rosterSubmittedAt?.[entriesTournamentId] ?? '';
+                  const tb = b.rosterSubmittedAt?.[entriesTournamentId] ?? '';
+                  if (ta !== tb) return tb.localeCompare(ta); // newest first; missing stamps sink
+                  return a.name.localeCompare(b.name);
+                }).map((entry) => (
                   <div key={entry.id} style={{ padding: '10px 14px', borderRadius: 12, background: selectedTournament === 'open' ? '#173b63' : '#f4f7fa', fontSize: 15, fontWeight: 700, color: selectedTournament === 'open' ? '#fff' : '#0f1720' }}>
                     {entry.name}
                   </div>

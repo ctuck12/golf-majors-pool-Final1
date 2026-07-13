@@ -23,6 +23,9 @@ type StoredUser = {
   poolIds: string[];
   rosters: Partial<Record<TournamentId, number[]>>;
   tieBreaks: Partial<Record<TournamentId, number>>;
+  // When each tournament's roster was FIRST submitted complete (drives the newest-first
+  // sort in the Submitted Picks popup). Absent for rosters saved before this field existed.
+  rosterSubmittedAt?: Partial<Record<TournamentId, string>>;
   createdAt: string;
 };
 
@@ -65,6 +68,7 @@ export type PublicPoolEntry = {
   name: string;
   rosters: Partial<Record<TournamentId, number[]>>;
   tieBreaks: Partial<Record<TournamentId, number>>;
+  rosterSubmittedAt?: Partial<Record<TournamentId, string>>;
 };
 
 export type PublicPool = {
@@ -322,6 +326,7 @@ export async function getSessionContext(token: string | undefined) {
           name: item.displayName,
           rosters: item.rosters,
           tieBreaks: item.tieBreaks ?? {},
+          rosterSubmittedAt: item.rosterSubmittedAt ?? {},
         }))
     : [];
 
@@ -402,6 +407,9 @@ export async function saveRosterForUser(userId: string, tournamentId: Tournament
 
   user.rosters = user.rosters ?? {};
   user.rosters[tournamentId] = sanitizedRoster;
+  // Stamp the first complete submission only, so later edits keep the original order.
+  user.rosterSubmittedAt = user.rosterSubmittedAt ?? {};
+  user.rosterSubmittedAt[tournamentId] ??= new Date().toISOString();
   await writeDatabase(database);
 
   return user.rosters[tournamentId] ?? [];
@@ -566,6 +574,10 @@ export async function updatePoolMember(
     for (const tournamentId of TOURNAMENT_IDS) {
       if (Object.prototype.hasOwnProperty.call(updates.rosters, tournamentId)) {
         member.rosters[tournamentId] = sanitizeRoster(updates.rosters[tournamentId]);
+        if ((member.rosters[tournamentId] ?? []).length === 6) {
+          member.rosterSubmittedAt = member.rosterSubmittedAt ?? {};
+          member.rosterSubmittedAt[tournamentId] ??= new Date().toISOString();
+        }
       }
     }
   }
