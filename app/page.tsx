@@ -779,7 +779,7 @@ function buildPricedPlayers(
   const realRank = (override: number | undefined, poolRank: number) => {
     if (override != null && override < 999) return override;
     if (poolRank < 999) return poolRank;
-    return override ?? poolRank;
+    return Math.min(override ?? poolRank, 999); // unranked always displays as 999, never 9999
   };
   return playerPool.map((player) => ({
     id: player.id,
