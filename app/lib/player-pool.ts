@@ -190,7 +190,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 104, name: 'Stewart Cink',              pgaTourId: 20229, defaultOdds: '+50000',  worldRank: 700 },
   { id: 112, name: 'Marco Penge',               pgaTourId: 51003, defaultOdds: '+20000',  worldRank:  40 },
   { id: 145, name: 'Thomas Detry',              pgaTourId: 33653, defaultOdds: '+10000',  worldRank:  61 },
-  { id: 148, name: 'Rasmus Neergaard-Petersen', pgaTourId: 52689, defaultOdds: '+10000',  worldRank: 999 },
+  { id: 148, name: 'Rasmus Neergaard-Petersen', pgaTourId: 52689, defaultOdds: '+10000',  worldRank:  91 },
   { id: 149, name: 'Casey Jarvis',              pgaTourId: 57688, defaultOdds: '+10000',  worldRank:  72 },
   { id: 153, name: 'Jordan Smith',              pgaTourId: 46464, defaultOdds: '+12000',  worldRank:  82 },
   { id: 157, name: 'Tom McKibbin',              pgaTourId: 50823, defaultOdds: '+15000',  worldRank: 108 },
