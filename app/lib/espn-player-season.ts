@@ -11,6 +11,7 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Ben James': '5077389',
   'Mikael Lindberg': '4699290',
   'Daniel Brown': '10221',
+  'Dan Brown': '10221',
   'Angel Ayora': '5105333',
   'Eugenio Chacarra': '4565467',
   'Eugenio Lopez-Chacarra': '4565467',

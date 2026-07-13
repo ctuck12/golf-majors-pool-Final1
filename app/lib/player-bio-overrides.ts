@@ -63,6 +63,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
 
   // ---- Missing 2 fields ----
   'Jordan Smith':               { birthPlace: 'Bath, England', swing: 'Right' },
+  'Dan Brown':                  { birthPlace: 'Northallerton, England', weight: '190 lbs', swing: 'Right' },
   'Johnny Keefer':              { dob: 'January 11, 2001', weight: '175 lbs' },
   'Cooper Dossey':              { dob: 'March 24, 1998', swing: 'Right' },
   'Manav Shah':                 { dob: 'April 13, 1992', birthPlace: 'Bakersfield, California' },

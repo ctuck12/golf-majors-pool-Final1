@@ -200,7 +200,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 166, name: 'Daniel Hillier',            pgaTourId: 49813, defaultOdds: '+25000',  worldRank:  96 },
   { id: 167, name: 'Kota Kaneko',               pgaTourId: 61148, defaultOdds: '+25000',  worldRank: 192 },
   { id: 168, name: 'Bernd Wiesberger',          pgaTourId: 29454, defaultOdds: '+30000',  worldRank: 203 },
-  { id: 171, name: 'Dan Brown',                 pgaTourId: 57259, defaultOdds: '+30000',  worldRank: 999 },
+  { id: 171, name: 'Dan Brown',                 pgaTourId: 57259, defaultOdds: '+30000',  worldRank:  96 },
   // ── Promoted from the dynamic Redis pool (The Open 2026 field registration). IDs are
   // frozen high dynamic ids — saved rosters/salaries may reference them by number; do not renumber.
   { id: 500009, name: 'Angel Ayora',                    pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
