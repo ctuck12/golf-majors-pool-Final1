@@ -1515,6 +1515,9 @@ export default function Page() {
   const [commissionerMembers, setCommissionerMembers] = useState<CommissionerMember[]>([]);
   // Member id whose submitted roster is shown in the commissioner-hub roster popup.
   const [submittedRosterMemberId, setSubmittedRosterMemberId] = useState<string | null>(null);
+  // Where to land after editing picks opened from the submitted-roster popup: restore the
+  // console view and reopen the popup (showing the updated roster) on back or save.
+  const commissionerEditReturnRef = useRef<{ view: 'dashboard' | 'members' | 'member-picks'; memberId: string } | null>(null);
   const [commissionerBusy, setCommissionerBusy] = useState(false);
   const [commissionerError, setCommissionerError] = useState('');
   const [commissionerSuccess, setCommissionerSuccess] = useState('');
@@ -2736,7 +2739,10 @@ export default function Page() {
       );
       setSessionUser((current) => (current && current.id === payload.member.id ? payload.member : current));
       setCommissionerSuccess(`${payload.member.displayName}'s ${commissionerTournamentLabel} picks were saved.`);
-      setCommissionerConsoleView('members');
+      const ret = commissionerEditReturnRef.current;
+      commissionerEditReturnRef.current = null;
+      setCommissionerConsoleView(ret ? ret.view : 'members');
+      if (ret) setSubmittedRosterMemberId(ret.memberId);
       setCommissionerRosterMemberId(null);
     } catch (err) {
       setCommissionerError(err instanceof Error ? err.message : 'Unable to save member picks.');
@@ -6864,7 +6870,7 @@ export default function Page() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, borderTop: '1px solid #e2e8ef', paddingTop: 10, marginTop: 2 }}>
                           <span style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#5b6b79' }}>Left Over: <span style={{ color: leftOver < 0 ? '#dc2626' : '#16a34a' }}>${leftOver.toLocaleString()}</span></span>
                           <button
-                            onClick={() => { setSubmittedRosterMemberId(null); openCommissionerMemberPicks(member.id); }}
+                            onClick={() => { commissionerEditReturnRef.current = { view: commissionerConsoleView, memberId: member.id }; setSubmittedRosterMemberId(null); openCommissionerMemberPicks(member.id); }}
                             style={{ border: 'none', borderRadius: 10, padding: '9px 22px', background: entriesTournamentSolid, color: '#fff', fontWeight: 800, fontSize: isMobile ? 13 : 14, cursor: 'pointer' }}
                           >
                             Edit
@@ -7183,7 +7189,10 @@ export default function Page() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                 <button
                   onClick={() => {
-                    setCommissionerConsoleView('members');
+                    const ret = commissionerEditReturnRef.current;
+                    commissionerEditReturnRef.current = null;
+                    setCommissionerConsoleView(ret ? ret.view : 'members');
+                    if (ret) setSubmittedRosterMemberId(ret.memberId);
                     setCommissionerRosterMemberId(null);
                   }}
                   style={{
