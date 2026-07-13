@@ -774,10 +774,17 @@ function buildPricedPlayers(
   // Salaries come ONLY from the commissioner's uploaded list (/commissioner-salary). There is no
   // automated pricing: a player not on the uploaded list gets salary 0 and is filtered out of the
   // pickable list, so the uploaded file is the single source of the pick list.
+  // Uploaded ranks win, EXCEPT 999+ placeholders ("unranked" rows in the spreadsheet, or ranks
+  // captured while a player was a dynamic add) — those defer to the pool's rank when it's real.
+  const realRank = (override: number | undefined, poolRank: number) => {
+    if (override != null && override < 999) return override;
+    if (poolRank < 999) return poolRank;
+    return override ?? poolRank;
+  };
   return playerPool.map((player) => ({
     id: player.id,
     name: player.name,
-    worldRank: worldRankOverrides?.[player.id] ?? player.worldRank,
+    worldRank: realRank(worldRankOverrides?.[player.id], player.worldRank),
     odds: liveOddsMap[normalizeName(player.name)] ?? player.defaultOdds,
     salary: salaryOverrides?.[player.id] ?? 0,
     pgaTourId: player.pgaTourId,
