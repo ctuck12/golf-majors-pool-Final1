@@ -5692,9 +5692,9 @@ export default function Page() {
                               );
                             })()}
                             {historyPlayers.length > 0 ? (
-                              // 3-per-row grid so a full 6-man roster always renders as exactly two rows,
-                              // regardless of how wide individual names are (flex-wrap could spill to 3 rows).
-                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: isMobile ? 6 : '10px 12px' }}>
+                              // Mobile: 3-per-row grid (a 6-man roster is exactly two rows). Desktop: pills flow
+                              // side by side and wrap naturally, so there's no dead space between grid columns.
+                              <div style={isMobile ? { display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 6 } : { display: 'flex', flexWrap: 'wrap', gap: '10px 12px' }}>
                                 {historyPlayers.map((player) => {
                                   const bubblePalette: Record<string, { bg: string; text: string }> = {
                                     players:  { bg: '#dce6f5', text: '#173b63' },
@@ -5721,8 +5721,6 @@ export default function Page() {
                                         gap: isMobile ? 6 : 8,
                                         cursor: 'pointer',
                                         minWidth: 0,
-                                        // Desktop: pills hug their content instead of stretching to the column width
-                                        justifySelf: isMobile ? undefined : 'start',
                                       }}
                                     >
                                       <img
