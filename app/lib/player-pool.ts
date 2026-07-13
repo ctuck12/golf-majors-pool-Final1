@@ -233,7 +233,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 500046, name: 'Jack McDonald',                  pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
   { id: 500048, name: 'Francesco Molinari',             pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
   { id: 500049, name: 'Ryutaro Nagano',                 pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
-  { id: 500050, name: 'Keita Nakajima',                 pgaTourId: 49228, defaultOdds: '+100000', worldRank: 9999 },
+  { id: 500050, name: 'Keita Nakajima',                 pgaTourId: 49228, defaultOdds: '+100000', worldRank: 90 },
   { id: 500052, name: 'Shaun Norris',                   pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
   { id: 500053, name: 'Louis Oosthuizen',               pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
   { id: 500055, name: 'Victor Perez',                   pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
