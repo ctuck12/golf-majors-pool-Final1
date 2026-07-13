@@ -27,6 +27,8 @@ export const PLAYER_ESPN_IDS: Record<string, string> = {
   "Angel Cabrera": '65',
   "A.J. Ewart": '5075652',
   "Aaron Rai": '10906',
+  "Eugenio Chacarra": '4565467',
+  "Eugenio Lopez-Chacarra": '4565467',
   "Adam Schenk": '10372',
   "Adam Scott": '388',
   "Adam Svensson": '9127',
