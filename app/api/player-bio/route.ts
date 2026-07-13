@@ -969,8 +969,11 @@ export async function GET(req: Request) {
   if (!name) return Response.json({ bio: null });
 
   const cacheKey = `player-bio:v49:${name}`;
+  // ?refresh=1 skips the cached bio and rebuilds it — for pulling in a data fix (e.g. a newly
+  // resolved pgaTourId) without waiting out the 24h TTL. The rebuilt bio re-caches as usual.
+  const forceRefresh = url.searchParams.get('refresh') === '1';
   try {
-    const cached = await redis.get(cacheKey);
+    const cached = forceRefresh ? null : await redis.get(cacheKey);
     if (cached) {
       const espnId = await getEspnId(name).catch(() => null);
       const espnPhotoUrl = espnId ? `https://a.espncdn.com/i/headshots/golf/players/full/${espnId}.png` : null;
