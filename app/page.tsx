@@ -1511,6 +1511,8 @@ export default function Page() {
     password: '',
   });
   const [commissionerMembers, setCommissionerMembers] = useState<CommissionerMember[]>([]);
+  // Member id whose submitted roster is shown in the commissioner-hub roster popup.
+  const [submittedRosterMemberId, setSubmittedRosterMemberId] = useState<string | null>(null);
   const [commissionerBusy, setCommissionerBusy] = useState(false);
   const [commissionerError, setCommissionerError] = useState('');
   const [commissionerSuccess, setCommissionerSuccess] = useState('');
@@ -6768,12 +6770,13 @@ export default function Page() {
                   <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 900, color: '#0f1720' }}>Submitted Picks</div>
                   {submittedCommissionerMembers.length > 0 ? (
                     submittedCommissionerMembers.map((member) => (
-                      <div
+                      <button
                         key={`submitted-${member.id}`}
-                        style={{ borderRadius: 10, background: '#fff', padding: isMobile ? '6px 8px' : '12px 14px', color: '#0f1720', fontWeight: 700, fontSize: isMobile ? 12 : 14 }}
+                        onClick={() => setSubmittedRosterMemberId(member.id)}
+                        style={{ borderRadius: 10, background: '#fff', border: 'none', padding: isMobile ? '6px 8px' : '12px 14px', color: '#0f1720', fontWeight: 700, fontSize: isMobile ? 12 : 14, textAlign: 'left', cursor: 'pointer', width: '100%' }}
                       >
                         {member.displayName}
-                      </div>
+                      </button>
                     ))
                   ) : (
                     <div style={{ color: '#6b7b88', fontSize: isMobile ? 11 : 14 }}>No registered members have submitted picks yet.</div>
@@ -6807,6 +6810,56 @@ export default function Page() {
                 </div>
               </div>
             </section>
+
+            {/* ── Submitted roster popup (player info popup stacks above at z 200) ── */}
+            {(() => {
+              if (!submittedRosterMemberId) return null;
+              const member = commissionerMembers.find((m) => m.id === submittedRosterMemberId);
+              if (!member) return null;
+              const roster = (member.rosters[entriesTournamentId] ?? [])
+                .map((id) => playersById[id])
+                .filter(Boolean)
+                .sort((a, b) => b.salary - a.salary);
+              const used = roster.reduce((sum, p) => sum + p.salary, 0);
+              const leftOver = SALARY_CAP - used;
+              return (
+                <div
+                  onClick={() => setSubmittedRosterMemberId(null)}
+                  style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 150 }}
+                >
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(440px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 40px)', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <div style={{ background: entriesTournamentSolid, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                      <div style={{ color: '#fff', fontSize: 16, fontWeight: 900, minWidth: 0 }}>{member.displayName}</div>
+                      {TOURNAMENT_TAB_LOGOS[tournament.id] && (
+                        <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, marginLeft: 'auto' }}>
+                          <img src={KNOCKOUT_TAB_LOGOS[tournament.id] ?? TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: tournament.id === 'pga' ? 60 : tournament.id === 'players' ? 52 : tournament.id === 'open' ? 40 : tournament.id === 'masters' ? undefined : 36, width: tournament.id === 'masters' ? 120 : undefined, margin: tournament.id === 'pga' ? '-12px 0' : tournament.id === 'players' ? '-8px 0' : undefined, maxWidth: 120, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+                        </div>
+                      )}
+                      <button onClick={() => setSubmittedRosterMemberId(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
+                    </div>
+                    <div style={{ padding: isMobile ? 14 : 18, display: 'grid', gap: 8, overflowY: 'auto', minHeight: 0 }}>
+                      {roster.length > 0 ? roster.map((p) => (
+                        <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, border: '1px solid #e2e8ef', borderRadius: 12, padding: isMobile ? '10px 12px' : '12px 14px', background: '#f8fbfd' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                            <span style={{ fontSize: isMobile ? 13 : 14, fontWeight: 800, color: '#0f1720' }}>{p.name}</span>
+                            <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: p.id, name: p.name, pgaTourId: p.pgaTourId, photoUrl: p.photoUrl, worldRank: p.worldRank }); }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 14 : 15, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }}>&#9432;</button>
+                          </div>
+                          <span style={{ fontSize: isMobile ? 13 : 14, fontWeight: 800, color: entriesTournamentSolid, flexShrink: 0 }}>${p.salary.toLocaleString()}</span>
+                        </div>
+                      )) : (
+                        <div style={{ color: '#6b7b88', fontSize: 13 }}>No roster found for this tournament.</div>
+                      )}
+                      {roster.length > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, borderTop: '1px solid #e2e8ef', paddingTop: 10, marginTop: 2 }}>
+                          <span style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#5b6b79' }}>Salary Used: <span style={{ color: '#0f1720' }}>${used.toLocaleString()}</span></span>
+                          <span style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#5b6b79' }}>Left Over: <span style={{ color: leftOver < 0 ? '#dc2626' : '#16a34a' }}>${leftOver.toLocaleString()}</span></span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
               </>
             ) : commissionerConsoleView === 'members' ? (
             <section
