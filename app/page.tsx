@@ -6822,8 +6822,7 @@ export default function Page() {
                 .map((id) => playersById[id])
                 .filter(Boolean)
                 .sort((a, b) => b.salary - a.salary);
-              const used = roster.reduce((sum, p) => sum + p.salary, 0);
-              const leftOver = SALARY_CAP - used;
+              const leftOver = SALARY_CAP - roster.reduce((sum, p) => sum + p.salary, 0);
               return (
                 <div
                   onClick={() => setSubmittedRosterMemberId(null)}
@@ -6841,8 +6840,15 @@ export default function Page() {
                     </div>
                     <div style={{ padding: isMobile ? 14 : 18, display: 'grid', gap: 8, overflowY: 'auto', minHeight: 0 }}>
                       {roster.length > 0 ? roster.map((p) => (
-                        <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, border: '1px solid #e2e8ef', borderRadius: 12, padding: isMobile ? '10px 12px' : '12px 14px', background: '#f8fbfd' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                        <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, border: '1px solid #e2e8ef', borderRadius: 12, padding: isMobile ? '8px 12px 8px 8px' : '8px 14px 8px 8px', background: '#f8fbfd' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                            <div style={{ width: isMobile ? 38 : 44, height: isMobile ? 38 : 44, borderRadius: 10, overflow: 'hidden', background: '#fff', flexShrink: 0 }}>
+                              <img
+                                src={playerPhotoSrc(p.name, p.pgaTourId, p.photoUrl)} data-fb={p.photoUrl ?? pgaPhoto(p.pgaTourId)} onError={photoOnError}
+                                alt={p.name}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                              />
+                            </div>
                             <span style={{ fontSize: isMobile ? 13 : 14, fontWeight: 800, color: '#0f1720' }}>{p.name}</span>
                             <button onClick={(e) => { e.stopPropagation(); openPlayerPopup({ id: p.id, name: p.name, pgaTourId: p.pgaTourId, photoUrl: p.photoUrl, worldRank: p.worldRank }); }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 14 : 15, color: '#607282', lineHeight: 1, touchAction: 'manipulation' }}>&#9432;</button>
                           </div>
@@ -6852,9 +6858,14 @@ export default function Page() {
                         <div style={{ color: '#6b7b88', fontSize: 13 }}>No roster found for this tournament.</div>
                       )}
                       {roster.length > 0 && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, borderTop: '1px solid #e2e8ef', paddingTop: 10, marginTop: 2 }}>
-                          <span style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#5b6b79' }}>Salary Used: <span style={{ color: '#0f1720' }}>${used.toLocaleString()}</span></span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, borderTop: '1px solid #e2e8ef', paddingTop: 10, marginTop: 2 }}>
                           <span style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: '#5b6b79' }}>Left Over: <span style={{ color: leftOver < 0 ? '#dc2626' : '#16a34a' }}>${leftOver.toLocaleString()}</span></span>
+                          <button
+                            onClick={() => { setSubmittedRosterMemberId(null); openCommissionerMemberPicks(member.id); }}
+                            style={{ border: 'none', borderRadius: 10, padding: '9px 22px', background: entriesTournamentSolid, color: '#fff', fontWeight: 800, fontSize: isMobile ? 13 : 14, cursor: 'pointer' }}
+                          >
+                            Edit
+                          </button>
                         </div>
                       )}
                     </div>
