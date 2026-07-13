@@ -2985,6 +2985,15 @@ export default function Page() {
   // picks during the pre-tournament (UP NEXT) window, not only once the event is ACTIVE.
   const picksOpenForTournament = showFutureTournamentView && pool?.picksOpen?.[selectedTournament] === true;
   const tournamentStartLabel = formatTournamentStartDate(displayTournamentWindow.inProgressAt);
+  // Monday of tournament week (Thursday start minus 3 days) — when the finalized field is
+  // entered and picks open, shown in the pre-tournament standings card.
+  const tournamentFieldMondayLabel = (() => {
+    const d = new Date(displayTournamentWindow.inProgressAt);
+    d.setDate(d.getDate() - 3);
+    const day = d.getDate();
+    const suffix = day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+    return `Monday ${d.toLocaleDateString('en-US', { month: 'long' })} ${day}${suffix}`;
+  })();
 
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
 
@@ -4489,7 +4498,7 @@ export default function Page() {
                     <div style={{ marginTop: 14 }}>
                       {picksOpenForTournament
                         ? 'The field has been finalized and picks are now open in the pool. Build your lineup before 6:15 am CST on Thursday.'
-                        : 'Picks can not be entered until the tournament field has been finalized and entered in our system on Monday July 13th.'}
+                        : `Picks can not be entered until the tournament field has been finalized and entered in our system on ${tournamentFieldMondayLabel}.`}
                     </div>
 
                     {picksOpenForTournament && selectedTournament === entriesTournamentId && sessionUser ? (
