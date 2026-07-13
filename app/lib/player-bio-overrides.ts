@@ -62,6 +62,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Jake Sollon':                { dob: 'February 18, 1998', birthPlace: 'Venetia, Pennsylvania', swing: 'Right' },
 
   // ---- Missing 2 fields ----
+  'Jordan Smith':               { birthPlace: 'Bath, England', swing: 'Right' },
   'Johnny Keefer':              { dob: 'January 11, 2001', weight: '175 lbs' },
   'Cooper Dossey':              { dob: 'March 24, 1998', swing: 'Right' },
   'Manav Shah':                 { dob: 'April 13, 1992', birthPlace: 'Bakersfield, California' },
