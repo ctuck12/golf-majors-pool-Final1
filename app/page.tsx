@@ -9686,7 +9686,7 @@ export default function Page() {
                 >✕</button>
               </div>
               <div style={{ overflowY: 'auto', display: 'grid', gap: 8 }}>
-                {submittedEntries.map((entry) => (
+                {[...submittedEntries].sort((a, b) => a.name.localeCompare(b.name)).map((entry) => (
                   <div key={entry.id} style={{ padding: '10px 14px', borderRadius: 12, background: selectedTournament === 'open' ? '#173b63' : '#f4f7fa', fontSize: 15, fontWeight: 700, color: selectedTournament === 'open' ? '#fff' : '#0f1720' }}>
                     {entry.name}
                   </div>
