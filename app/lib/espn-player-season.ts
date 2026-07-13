@@ -14,6 +14,7 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Angel Ayora': '5105333',
   'Eugenio Chacarra': '4565467',
   'Eugenio Lopez-Chacarra': '4565467',
+  'Jordan Smith': '9506',
   'Ian Holt': '4408324',
   'Derek Berg': '5350614',
   'Chris Gabriele': '5350613',
