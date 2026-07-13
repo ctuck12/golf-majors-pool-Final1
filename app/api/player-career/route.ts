@@ -83,6 +83,102 @@ export type CareerResult = {
   position: string;
 };
 
+// Pre-2010 titles that ESPN's per-athlete event logs can't reach (their archive floor is
+// ~2010) — hand-entered so past champions show their wins. Merged into every response,
+// including cached ones, and never written to the cache. Position '1' matches how ESPN
+// labels a winner. Keyed by the exact name the popup passes (pool / legend display name).
+const HISTORIC_WINS: Record<string, Record<string, CareerResult[]>> = {
+  open: {
+    'Padraig Harrington': [
+      { year: 2008, course: 'Royal Birkdale GC', position: '1' },
+      { year: 2007, course: 'Carnoustie Golf Links', position: '1' },
+    ],
+    'Stewart Cink': [{ year: 2009, course: 'Turnberry (Ailsa Course)', position: '1' }],
+    'David Duval': [{ year: 2001, course: 'Royal Lytham & St. Annes Golf Club', position: '1' }],
+    'Ernie Els': [{ year: 2002, course: 'Muirfield Golf Links', position: '1' }],
+    'John Daly': [{ year: 1995, course: 'St Andrews Links (Old Course)', position: '1' }],
+    'Tiger Woods': [
+      { year: 2006, course: 'Royal Liverpool GC', position: '1' },
+      { year: 2005, course: 'St Andrews Links (Old Course)', position: '1' },
+      { year: 2000, course: 'St Andrews Links (Old Course)', position: '1' },
+    ],
+  },
+  'us-open': {
+    'Lucas Glover': [{ year: 2009, course: 'Bethpage State Park (Black Course)', position: '1' }],
+    'Ernie Els': [
+      { year: 1997, course: 'Congressional Country Club', position: '1' },
+      { year: 1994, course: 'Oakmont Country Club', position: '1' },
+    ],
+    'Angel Cabrera': [{ year: 2007, course: 'Oakmont Country Club', position: '1' }],
+    'Tiger Woods': [
+      { year: 2008, course: 'Torrey Pines (South Course)', position: '1' },
+      { year: 2002, course: 'Bethpage State Park (Black Course)', position: '1' },
+      { year: 2000, course: 'Pebble Beach Golf Links', position: '1' },
+    ],
+  },
+  masters: {
+    'Zach Johnson': [{ year: 2007, course: 'Augusta National Golf Club', position: '1' }],
+    'Mike Weir': [{ year: 2003, course: 'Augusta National Golf Club', position: '1' }],
+    'Angel Cabrera': [{ year: 2009, course: 'Augusta National Golf Club', position: '1' }],
+    'Phil Mickelson': [
+      { year: 2006, course: 'Augusta National Golf Club', position: '1' },
+      { year: 2004, course: 'Augusta National Golf Club', position: '1' },
+    ],
+    'Tiger Woods': [
+      { year: 2005, course: 'Augusta National Golf Club', position: '1' },
+      { year: 2002, course: 'Augusta National Golf Club', position: '1' },
+      { year: 2001, course: 'Augusta National Golf Club', position: '1' },
+      { year: 1997, course: 'Augusta National Golf Club', position: '1' },
+    ],
+    'Vijay Singh': [{ year: 2000, course: 'Augusta National Golf Club', position: '1' }],
+    'José María Olazábal': [
+      { year: 1999, course: 'Augusta National Golf Club', position: '1' },
+      { year: 1994, course: 'Augusta National Golf Club', position: '1' },
+    ],
+    'Jose Maria Olazabal': [
+      { year: 1999, course: 'Augusta National Golf Club', position: '1' },
+      { year: 1994, course: 'Augusta National Golf Club', position: '1' },
+    ],
+    'Fred Couples': [{ year: 1992, course: 'Augusta National Golf Club', position: '1' }],
+  },
+  pga: {
+    'Y.E. Yang': [{ year: 2009, course: 'Hazeltine National Golf Club', position: '1' }],
+    'Padraig Harrington': [{ year: 2008, course: 'Oakland Hills Country Club', position: '1' }],
+    'Shaun Micheel': [{ year: 2003, course: 'Oak Hill Country Club', position: '1' }],
+    'Phil Mickelson': [{ year: 2005, course: 'Baltusrol Golf Club', position: '1' }],
+    'Vijay Singh': [
+      { year: 2004, course: 'Whistling Straits', position: '1' },
+      { year: 1998, course: 'Sahalee Country Club', position: '1' },
+    ],
+    'John Daly': [{ year: 1991, course: 'Crooked Stick Golf Club', position: '1' }],
+    'Tiger Woods': [
+      { year: 2007, course: 'Southern Hills Country Club', position: '1' },
+      { year: 2006, course: 'Medinah Country Club', position: '1' },
+      { year: 2000, course: 'Valhalla Golf Club', position: '1' },
+      { year: 1999, course: 'Medinah Country Club', position: '1' },
+    ],
+  },
+  players: {
+    'Sergio Garcia': [{ year: 2008, course: 'TPC Sawgrass', position: '1' }],
+    'Phil Mickelson': [{ year: 2007, course: 'TPC Sawgrass', position: '1' }],
+    'Tiger Woods': [{ year: 2001, course: 'TPC Sawgrass', position: '1' }],
+    'Fred Couples': [{ year: 1996, course: 'TPC Sawgrass', position: '1' }],
+  },
+};
+
+function withHistoricWins(
+  tournamentId: string,
+  name: string,
+  results: CareerResult[] | null,
+): CareerResult[] | null {
+  const extra = HISTORIC_WINS[tournamentId]?.[name];
+  if (!extra?.length) return results;
+  const base = results ?? [];
+  const merged = [...base, ...extra.filter((h) => !base.some((r) => r.year === h.year))];
+  merged.sort((a, b) => b.year - a.year);
+  return merged;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const name = searchParams.get('name') ?? '';
@@ -96,10 +192,10 @@ export async function GET(request: Request) {
 
   try {
     const cached = await redis.get(cacheKey);
-    if (cached) return Response.json({ results: JSON.parse(cached) });
+    if (cached) return Response.json({ results: withHistoricWins(tournamentId, name, JSON.parse(cached)) });
 
     const espnId = await getEspnId(name);
-    if (!espnId) return Response.json({ results: null });
+    if (!espnId) return Response.json({ results: withHistoricWins(tournamentId, name, null) });
 
     const currentYear = new Date().getFullYear();
     const startYear = 1990;
@@ -214,8 +310,8 @@ export async function GET(request: Request) {
     if (results.length > 0 && !degraded) {
       await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(results));
     }
-    return Response.json({ results: results.length > 0 ? results : null });
+    return Response.json({ results: withHistoricWins(tournamentId, name, results.length > 0 ? results : null) });
   } catch {
-    return Response.json({ results: null });
+    return Response.json({ results: withHistoricWins(tournamentId, name, null) });
   }
 }
