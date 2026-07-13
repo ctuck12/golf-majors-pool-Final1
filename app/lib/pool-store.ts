@@ -326,7 +326,14 @@ export async function getSessionContext(token: string | undefined) {
           name: item.displayName,
           rosters: item.rosters,
           tieBreaks: item.tieBreaks ?? {},
-          rosterSubmittedAt: item.rosterSubmittedAt ?? {},
+          // Every complete roster gets a stamp: the recorded submission time, or the member's
+          // account-creation time for rosters submitted before stamping existed — a stable
+          // stand-in that keeps pre-feature entries ordered and below all real (newer) stamps.
+          rosterSubmittedAt: Object.fromEntries(
+            TOURNAMENT_IDS
+              .filter((tid) => (item.rosters[tid] ?? []).length === 6)
+              .map((tid) => [tid, item.rosterSubmittedAt?.[tid] ?? item.createdAt]),
+          ),
         }))
     : [];
 
