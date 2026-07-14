@@ -4549,7 +4549,7 @@ export default function Page() {
                           <Pencil size={isMobile ? 13 : 14} />
                           {hasSubmittedRoster ? 'Edit Picks' : 'Make Picks'}
                         </button>
-                        <div style={{ color: '#5b6b79', fontSize: isMobile ? 14 : 19, fontWeight: 600 }}>
+                        <div style={{ color: selectedTournament === 'open' ? '#000000' : '#5b6b79', fontSize: isMobile ? 14 : 19, fontWeight: 600 }}>
                           Members with submitted picks:{' '}
                           <span
                             onClick={() => setShowSubmittedPicksPopup(true)}
