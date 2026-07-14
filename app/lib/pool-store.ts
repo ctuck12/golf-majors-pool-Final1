@@ -63,6 +63,15 @@ export type PublicUser = {
   tieBreaks: Partial<Record<TournamentId, number>>;
 };
 
+// The Open 2026 rosters submitted before rosterSubmittedAt existed, in their actual
+// submission order (synthetic times on the Monday picks opened; any post-feature
+// submission is newer and sorts above them).
+const LEGACY_ROSTER_SUBMITTED_AT: Record<string, Partial<Record<TournamentId, string>>> = {
+  'Stephen Warren': { open: '2026-07-13T15:00:00.000Z' },
+  'Brian Carr':     { open: '2026-07-13T16:00:00.000Z' },
+  'Clayton Tucker': { open: '2026-07-13T17:00:00.000Z' },
+};
+
 export type PublicPoolEntry = {
   id: string;
   name: string;
@@ -326,13 +335,18 @@ export async function getSessionContext(token: string | undefined) {
           name: item.displayName,
           rosters: item.rosters,
           tieBreaks: item.tieBreaks ?? {},
-          // Every complete roster gets a stamp: the recorded submission time, or the member's
-          // account-creation time for rosters submitted before stamping existed — a stable
-          // stand-in that keeps pre-feature entries ordered and below all real (newer) stamps.
+          // Every complete roster gets a stamp: the recorded submission time, else the known
+          // legacy order below, else the member's account-creation time — stable stand-ins
+          // that keep pre-feature entries ordered and below all real (newer) stamps.
           rosterSubmittedAt: Object.fromEntries(
             TOURNAMENT_IDS
               .filter((tid) => (item.rosters[tid] ?? []).length === 6)
-              .map((tid) => [tid, item.rosterSubmittedAt?.[tid] ?? item.createdAt]),
+              .map((tid) => [
+                tid,
+                item.rosterSubmittedAt?.[tid]
+                  ?? LEGACY_ROSTER_SUBMITTED_AT[item.displayName]?.[tid]
+                  ?? item.createdAt,
+              ]),
           ),
         }))
     : [];
