@@ -5428,7 +5428,8 @@ export default function Page() {
                   )}
                   <div style={{ display: 'grid', justifyItems: (isMobile && hasSubmittedRoster) ? 'stretch' : 'center' }}>
                     {hasSubmittedRoster ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, width: '100%' }}>
+                      // Small top margin keeps the (oversized, negative-margin) header logo from touching the box.
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, width: '100%', marginTop: isMobile ? 5 : 7 }}>
                         <div
                           style={{
                             borderRadius: 12,
