@@ -191,6 +191,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Alejandro del Rey': 'es', 'Ivan Cantero': 'es', 'David Puig': 'es', 'Eugenio Chacarra': 'es',
   // 2026 Open field additions
   'Nick Dunlap': 'us', 'Lanto Griffin': 'us', 'Rafael Campos': 'pr',
+  'Jack Buchanan': 'za', 'Stuart Grehan': 'ie', 'Lev Grinberg': 'ua', 'David Howard': 'ie', 'Nevill Ruiter': 'nl',
   'Jose Luis Ballester Barrio': 'es', 'Martin Couvra': 'fr', 'Francesco Laporta': 'it', 'Dan Bradbury': 'gb-eng', 'Alistair Docherty': 'us', 'Michael Hollick': 'za', 'Kazuma Kobori': 'nz', 'Frederic Lacroix': 'fr', 'Shaun Norris': 'za', 'Sam Bairstow': 'gb-eng', 'Jeongwoo Ham': 'kr', 'Ryutaro Nagano': 'jp', 'Matthew Southgate': 'gb-eng', 'Austen Truslow': 'us', 'Jiho Yang': 'kr', 'Ren Yonezawa': 'jp', 'Matthew Baldwin': 'gb-eng', 'Tiger Christensen': 'de', 'David Duval': 'us', 'Cameron John': 'au', 'Jack McDonald': 'gb-sct', 'Marcus Plunkett': 'us', 'Baard Bjoernevik Skogen': 'no', 'Tom Sloman': 'gb-eng', 'Jose Maria Olazabal': 'es', 'Angel Hidalgo Portillo': 'es', 'Rocco Paolo Repetto Taylor': 'es',
   // South Africa
   'Louis Oosthuizen': 'za', 'Charl Schwartzel': 'za', 'Branden Grace': 'za',
@@ -328,7 +329,7 @@ const getFlagSrc = (name: string): string => {
   const svgCodes = new Set(['us', 'au', 'ie', 'gb-sct', 'no', 'kr', 'jp', 'za', 'se', 'nz', 'dk', 'de', 'cl', 'co', 'ar', 've', 'be', 'at', 'fr', 'fi', 'cn', 'it', 'in', 'ph', 'fj', 'pr']);
   return `/flags/${svgCodes.has(code) ? code + '.svg' : code + '.png'}`;
 };
-const FLAG_LABELS: Record<string, string> = { 'us': 'USA', 'gb-eng': 'ENG', 'gb-nir': 'NIR', 'au': 'AUS', 'ie': 'IRL', 'gb-sct': 'SCT', 'no': 'NOR', 'es': 'ESP', 'kr': 'KOR', 'jp': 'JPN', 'za': 'RSA', 'se': 'SWE', 'ca': 'CAN', 'nz': 'NZL', 'dk': 'DEN', 'de': 'GER', 'cl': 'CHI', 'co': 'COL', 'mx': 'MEX', 'ar': 'ARG', 've': 'VEN', 'be': 'BEL', 'at': 'AUT', 'fr': 'FRA', 'gb-wls': 'WAL', 'fi': 'FIN', 'cn': 'CHN', 'it': 'ITA', 'in': 'IND', 'ph': 'PHI', 'fj': 'FIJ', 'pr': 'PRI', 'tw': 'TPE', 'jm': 'JAM', 'th': 'THA', 'is': 'ISL' };
+const FLAG_LABELS: Record<string, string> = { 'us': 'USA', 'gb-eng': 'ENG', 'gb-nir': 'NIR', 'au': 'AUS', 'ie': 'IRL', 'gb-sct': 'SCT', 'no': 'NOR', 'es': 'ESP', 'kr': 'KOR', 'jp': 'JPN', 'za': 'RSA', 'se': 'SWE', 'ca': 'CAN', 'nz': 'NZL', 'dk': 'DEN', 'de': 'GER', 'cl': 'CHI', 'co': 'COL', 'mx': 'MEX', 'ar': 'ARG', 've': 'VEN', 'be': 'BEL', 'at': 'AUT', 'fr': 'FRA', 'gb-wls': 'WAL', 'fi': 'FIN', 'cn': 'CHN', 'it': 'ITA', 'in': 'IND', 'ph': 'PHI', 'fj': 'FIJ', 'pr': 'PRI', 'tw': 'TPE', 'jm': 'JAM', 'th': 'THA', 'is': 'ISL', 'ua': 'UKR', 'nl': 'NED' };
 const getCountryLabel = (name: string): string => FLAG_LABELS[lookupFlagCode(name)] ?? '';
 
 const TOURNAMENT_PICKS_HEADER: Record<string, string> = {

@@ -20,13 +20,17 @@ export type PlayerTags = {
   clubPro: string[]; // canonicalNameKey list
 };
 
+// Corrections for mistaken upload markers — these players are professionals and must never
+// show the AMATEUR badge. Filtered at read time so a re-upload can't reintroduce the flag.
+const NEVER_AMATEUR = new Set([canonicalNameKey('Johnny Keefer'), canonicalNameKey('John Keefer')]);
+
 export async function getPlayerTags(): Promise<PlayerTags> {
   try {
     const raw = await redis.get(STORE_KEY);
     if (!raw) return { amateur: [], clubPro: [] };
     const parsed = JSON.parse(raw as string) as Partial<PlayerTags>;
     return {
-      amateur: Array.isArray(parsed.amateur) ? parsed.amateur : [],
+      amateur: (Array.isArray(parsed.amateur) ? parsed.amateur : []).filter((ck) => !NEVER_AMATEUR.has(ck)),
       clubPro: Array.isArray(parsed.clubPro) ? parsed.clubPro : [],
     };
   } catch {
