@@ -1421,6 +1421,9 @@ export default function Page() {
     playerStatsLoading: boolean;
     playerRounds: { round: number; score: string }[] | null;
     statsContext: 'season' | 'tournament';
+    // Tournament this popup was opened in the context of (a Pick History section's event,
+    // else the selected tournament) — drives the stats context and the career tab.
+    ctxTournamentId: TournamentId;
     defaultTab: 'stats' | 'season';
     statAverages: Record<string, string>;
     fieldAverages: Record<string, string>;
@@ -1625,7 +1628,7 @@ export default function Page() {
   const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
   const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
   const entriesTournamentId = getDefaultTournamentId(tournamentCardStatuses, new Date());
-  const careerTournamentId = selectedTournament;
+  const careerTournamentId = pickHistoryPlayerPopup?.ctxTournamentId ?? selectedTournament;
   const entriesTournament = TOURNAMENTS.find((item) => item.id === entriesTournamentId) ?? TOURNAMENTS[0];
   const entriesTournamentStatus = tournamentCardStatuses[entriesTournamentId];
   // Picks are open when the commissioner's toggle is on AND the event is in the pre-tournament/live
@@ -3011,7 +3014,7 @@ export default function Page() {
 
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
 
-  const openPlayerPopup = (rawPlayer: { id: number; name: string; pgaTourId: number; photoUrl?: string; worldRank?: number }, defaultTab: 'stats' | 'season' = 'stats') => {
+  const openPlayerPopup = (rawPlayer: { id: number; name: string; pgaTourId: number; photoUrl?: string; worldRank?: number }, defaultTab: 'stats' | 'season' = 'stats', ctxTournamentId?: TournamentId) => {
     // Canonicalize feed-name variants (e.g. "Samuel Stevens" -> "Sam Stevens") so the bio,
     // ranks, photo and flag all resolve to the same pool player. worldRank is pinned to the ORIGINAL
     // static rank (never the commissioner's uploaded pick-list rank) so the info popup is unaffected.
@@ -3020,12 +3023,15 @@ export default function Page() {
       name: canonicalName(rawPlayer.name),
       worldRank: ORIGINAL_WORLD_RANK_BY_ID.get(rawPlayer.id) ?? rawPlayer.worldRank,
     };
-    const espnEventId = TOURNAMENT_ESPN_EVENT_IDS[selectedTournament];
-    const statsCtx: 'season' | 'tournament' = tournamentStatsUnlocked ? 'tournament' : 'season';
+    const ctxTid = ctxTournamentId ?? selectedTournament;
+    const ctxStatus = tournamentCardStatuses[ctxTid];
+    const ctxStatsUnlocked = ctxStatus?.label === 'LOCKED' || ctxStatus?.label === 'IN PROGRESS';
+    const espnEventId = TOURNAMENT_ESPN_EVENT_IDS[ctxTid];
+    const statsCtx: 'season' | 'tournament' = ctxStatsUnlocked ? 'tournament' : 'season';
     const params = new URLSearchParams({ name: player.name, context: statsCtx });
-    if (espnEventId && tournamentStatsUnlocked) params.set('eventId', espnEventId);
+    if (espnEventId && ctxStatsUnlocked) params.set('eventId', espnEventId);
     params.set('pgaTourId', String(player.pgaTourId));
-    const showSubToggle = statsCtx === 'tournament' && selectedTournament !== 'us-open';
+    const showSubToggle = statsCtx === 'tournament' && ctxTid !== 'us-open';
     setStatsSubView('tournament');
     // Bio is the landing tab for every path into this popup (pick-sheet ⓘ included).
     setPickHistoryView('bio');
@@ -3045,6 +3051,7 @@ export default function Page() {
       playerStatsLoading: true,
       playerRounds: null,
       statsContext: statsCtx,
+      ctxTournamentId: ctxTid,
       defaultTab,
       statAverages: {},
       fieldAverages: {},
@@ -3069,9 +3076,9 @@ export default function Page() {
         .catch(() => setPickHistoryPlayerPopup((prev) => prev ? { ...prev, playerBioLoading: false } : null));
     }
     const scorecardFetch = statsCtx === 'tournament'
-      ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
+      ? readJson<{ rounds: { round: number; score: string }[] | null }>(`/api/scorecard?tournamentId=${ctxTid}&playerName=${encodeURIComponent(player.name)}`, { cache: 'no-store' }).catch(() => ({ rounds: null }))
       : Promise.resolve({ rounds: null });
-    const seasonStatsFetch = showSubToggle || selectedTournament === 'us-open'
+    const seasonStatsFetch = showSubToggle || ctxTid === 'us-open'
       ? readJson<{ stats: { drivingDistance: string | null; drivingAccuracy: string | null; gir: string | null; scrambling: string | null; sandSaves: string | null; puttAverage: string | null; avgPuttsPerRound: string | null; proximity: string | null; scoringAverage: string | null; birdiesPerRound: string | null; birdies: string | null; pars: string | null; bogeys: string | null; eagles: string | null; scoreToPar: string | null; sgTotal: string | null; sgOffTee: string | null; sgApproach: string | null; sgAroundGreen: string | null; sgPutting: string | null; sgTeeToGreen: string | null; rounds: string[] | null } | null; ranks: Record<string, string> | null; updatedAt?: string | null }>(`/api/player-stats?name=${encodeURIComponent(player.name)}&context=season&pgaTourId=${player.pgaTourId}`, { cache: 'no-store' }).catch(() => ({ stats: null, ranks: null, updatedAt: null }))
       : Promise.resolve({ stats: null, ranks: null, updatedAt: null });
     Promise.all([
@@ -5727,7 +5734,7 @@ export default function Page() {
                                   return (
                                     <span
                                       key={`history-player-${event.id}-${player.id}`}
-                                      onClick={() => openPlayerPopup({ id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl, worldRank: player.worldRank })}
+                                      onClick={() => openPlayerPopup({ id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl, worldRank: player.worldRank }, 'stats', event.id)}
                                       style={{
                                         borderRadius: 999,
                                         background: bg,
