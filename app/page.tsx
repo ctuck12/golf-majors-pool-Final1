@@ -3338,6 +3338,7 @@ export default function Page() {
         setFeedRefreshNonce((value) => value + 1);
         setSelectedLeaderboardPlayerId(null);
         setCommissionerConsoleView('dashboard');
+        setCommissionerPicksSort('alpha');
         setCommissionerRosterMemberId(null);
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
@@ -3350,6 +3351,7 @@ export default function Page() {
         setSaveMessage('');
         setSelectedLeaderboardPlayerId(null);
         setCommissionerConsoleView('dashboard');
+        setCommissionerPicksSort('alpha');
         setCommissionerRosterMemberId(null);
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
@@ -3360,6 +3362,7 @@ export default function Page() {
         setSaveMessage('');
         setSelectedLeaderboardPlayerId(null);
         setCommissionerConsoleView('dashboard');
+        setCommissionerPicksSort('alpha');
         setCommissionerRosterMemberId(null);
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
@@ -3370,6 +3373,7 @@ export default function Page() {
         setSaveMessage('');
         setSelectedLeaderboardPlayerId(null);
         setCommissionerConsoleView('dashboard');
+        setCommissionerPicksSort('alpha');
         setCommissionerRosterMemberId(null);
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
