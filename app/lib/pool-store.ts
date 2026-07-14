@@ -61,6 +61,7 @@ export type PublicUser = {
   poolIds: string[];
   rosters: Partial<Record<TournamentId, number[]>>;
   tieBreaks: Partial<Record<TournamentId, number>>;
+  rosterSubmittedAt?: Partial<Record<TournamentId, string>>;
 };
 
 // The Open 2026 rosters submitted before rosterSubmittedAt existed, in their actual
@@ -136,6 +137,21 @@ function sanitizeRoster(roster: unknown) {
   return sanitized;
 }
 
+// Stamp for every complete roster: recorded submission time, else the known legacy order,
+// else the member's account-creation time (see LEGACY_ROSTER_SUBMITTED_AT).
+function resolveRosterSubmittedAt(user: StoredUser): Partial<Record<TournamentId, string>> {
+  return Object.fromEntries(
+    TOURNAMENT_IDS
+      .filter((tid) => (user.rosters?.[tid] ?? []).length === 6)
+      .map((tid) => [
+        tid,
+        user.rosterSubmittedAt?.[tid]
+          ?? LEGACY_ROSTER_SUBMITTED_AT[user.displayName]?.[tid]
+          ?? user.createdAt,
+      ]),
+  );
+}
+
 function toPublicUser(user: StoredUser): PublicUser {
   return {
     id: user.id,
@@ -144,6 +160,7 @@ function toPublicUser(user: StoredUser): PublicUser {
     poolIds: user.poolIds ?? [],
     rosters: user.rosters ?? {},
     tieBreaks: user.tieBreaks ?? {},
+    rosterSubmittedAt: resolveRosterSubmittedAt(user),
   };
 }
 
@@ -335,19 +352,7 @@ export async function getSessionContext(token: string | undefined) {
           name: item.displayName,
           rosters: item.rosters,
           tieBreaks: item.tieBreaks ?? {},
-          // Every complete roster gets a stamp: the recorded submission time, else the known
-          // legacy order below, else the member's account-creation time — stable stand-ins
-          // that keep pre-feature entries ordered and below all real (newer) stamps.
-          rosterSubmittedAt: Object.fromEntries(
-            TOURNAMENT_IDS
-              .filter((tid) => (item.rosters[tid] ?? []).length === 6)
-              .map((tid) => [
-                tid,
-                item.rosterSubmittedAt?.[tid]
-                  ?? LEGACY_ROSTER_SUBMITTED_AT[item.displayName]?.[tid]
-                  ?? item.createdAt,
-              ]),
-          ),
+          rosterSubmittedAt: resolveRosterSubmittedAt(item),
         }))
     : [];
 

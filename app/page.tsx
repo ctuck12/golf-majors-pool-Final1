@@ -695,6 +695,7 @@ type AuthUser = {
   poolIds: string[];
   rosters: Partial<Record<TournamentId, number[]>>;
   tieBreaks: Partial<Record<TournamentId, number>>;
+  rosterSubmittedAt?: Partial<Record<TournamentId, string>>;
 };
 
 type PoolInfo = {
@@ -1515,6 +1516,8 @@ export default function Page() {
   const [commissionerMembers, setCommissionerMembers] = useState<CommissionerMember[]>([]);
   // Member id whose submitted roster is shown in the commissioner-hub roster popup.
   const [submittedRosterMemberId, setSubmittedRosterMemberId] = useState<string | null>(null);
+  // Commissioner-hub Submitted Picks column ordering (A-Z default, or newest first).
+  const [commissionerPicksSort, setCommissionerPicksSort] = useState<'alpha' | 'newest'>('alpha');
   // Where to land after editing picks opened from the submitted-roster popup: restore the
   // console view and reopen the popup (showing the updated roster) on back or save.
   const commissionerEditReturnRef = useRef<{ view: 'dashboard' | 'members' | 'member-picks'; memberId: string } | null>(null);
@@ -2917,7 +2920,14 @@ export default function Page() {
     : submittedEntries.length;
   const submittedCommissionerMembers = commissionerMembers
     .filter((member) => (member.rosters[entriesTournamentId] ?? []).length === REQUIRED_GOLFERS)
-    .sort((a, b) => a.displayName.localeCompare(b.displayName));
+    .sort((a, b) => {
+      if (commissionerPicksSort === 'newest') {
+        const ta = a.rosterSubmittedAt?.[entriesTournamentId] ?? '';
+        const tb = b.rosterSubmittedAt?.[entriesTournamentId] ?? '';
+        if (ta !== tb) return tb.localeCompare(ta); // newest first
+      }
+      return a.displayName.localeCompare(b.displayName);
+    });
   const pendingCommissionerMembers = commissionerMembers
     .filter((member) => (member.rosters[entriesTournamentId] ?? []).length !== REQUIRED_GOLFERS)
     .sort((a, b) => a.displayName.localeCompare(b.displayName));
@@ -6784,7 +6794,15 @@ export default function Page() {
                     gap: isMobile ? 6 : 12,
                   }}
                 >
-                  <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 900, color: '#0f1720' }}>Submitted Picks</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                    <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 900, color: '#0f1720' }}>Submitted Picks</div>
+                    <button
+                      onClick={() => setCommissionerPicksSort((s) => (s === 'alpha' ? 'newest' : 'alpha'))}
+                      style={{ background: entriesTournamentSolid, border: 'none', borderRadius: 999, padding: isMobile ? '4px 9px' : '5px 12px', cursor: 'pointer', fontSize: isMobile ? 10 : 12, fontWeight: 800, color: '#fff', flexShrink: 0 }}
+                    >
+                      {commissionerPicksSort === 'alpha' ? 'A–Z' : 'Newest'}
+                    </button>
+                  </div>
                   {submittedCommissionerMembers.length > 0 ? (
                     submittedCommissionerMembers.map((member) => (
                       <button
