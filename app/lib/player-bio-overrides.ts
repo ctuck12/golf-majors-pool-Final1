@@ -66,6 +66,11 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Dan Brown':                  { birthPlace: 'Northallerton, England', weight: '190 lbs', swing: 'Right' },
 
   // ---- 2026 Open field additions (researched July 2026) ----
+  'Jack Buchanan':              { dob: 'January 20, 2005', birthPlace: 'Cape Town, South Africa', height: `5'9"`, college: 'Southern California' },
+  'Stuart Grehan':              { birthPlace: 'Tullamore, Ireland', college: 'Maynooth University' },
+  'Lev Grinberg':               { dob: 'November 17, 2007', birthPlace: 'Kyiv, Ukraine' },
+  'David Howard':               { birthPlace: 'Cork, Ireland', noCollege: true },
+  'Nevill Ruiter':              { birthPlace: 'Bergen, Netherlands', height: `6'5"`, college: 'College of Charleston' },
   'Jose Luis Ballester Barrio': { dob: 'August 18, 2003', birthPlace: 'Castellón, Spain', height: `6'0"`, weight: '180 lbs', college: 'Arizona State' },
   'Martin Couvra':              { dob: 'January 17, 2003', birthPlace: 'Toulon, France', noCollege: true },
   'Francesco Laporta':          { dob: 'October 10, 1990', birthPlace: 'Castellana Grotte, Italy', height: `5'9"`, weight: '154 lbs' },
