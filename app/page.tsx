@@ -3014,7 +3014,7 @@ export default function Page() {
     const params = new URLSearchParams({ name: player.name, context: statsCtx });
     if (espnEventId && tournamentStatsUnlocked) params.set('eventId', espnEventId);
     params.set('pgaTourId', String(player.pgaTourId));
-    const showSubToggle = statsCtx === 'tournament' && selectedTournament !== 'us-open' && defaultTab === 'stats';
+    const showSubToggle = statsCtx === 'tournament' && selectedTournament !== 'us-open';
     setStatsSubView('tournament');
     // Bio is the landing tab for every path into this popup (pick-sheet ⓘ included).
     setPickHistoryView('bio');
@@ -9078,8 +9078,9 @@ export default function Page() {
                     open: 'The Open Career',
                   };
                   const label = tab === 'stats'
-                    // Pick-sheet opens (defaultTab 'season') show season-long stats, so say "Season Stats".
-                    ? (pickHistoryPlayerPopup.defaultTab === 'season' || careerTournamentId === 'us-open' ? 'Season Stats' : 'Stats')
+                    // Until the tournament starts only season-long stats exist, so say "Season Stats";
+                    // once underway/finished the tab is "Stats" with a Tournament/Season toggle inside.
+                    ? (pickHistoryPlayerPopup.statsContext !== 'tournament' || careerTournamentId === 'us-open' ? 'Season Stats' : 'Stats')
                     : tab === 'season' ? 'Season Results' : tab === 'bio' ? 'Bio' : (careerTabLabel[careerTournamentId] ?? 'Major Career');
                   const isActive = pickHistoryView === tab;
                   // The far-right "Career" tab shows the tournament's logo (same as the main standings
@@ -9258,7 +9259,7 @@ export default function Page() {
                 })()}
                 {pickHistoryView === 'stats' && (() => {
                   const isTournCtx = pickHistoryPlayerPopup.statsContext === 'tournament';
-                  const showSubToggle = isTournCtx && careerTournamentId !== 'us-open' && pickHistoryPlayerPopup.defaultTab === 'stats';
+                  const showSubToggle = isTournCtx && careerTournamentId !== 'us-open';
                   const s = showSubToggle && statsSubView === 'season'
                     ? pickHistoryPlayerPopup.playerSeasonStats
                     : pickHistoryPlayerPopup.playerStats;
