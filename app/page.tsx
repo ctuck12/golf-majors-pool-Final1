@@ -342,11 +342,11 @@ const TOURNAMENT_PICKS_HEADER: Record<string, string> = {
 // Heights for the tab logo shown in place of the "<Tournament> Picks" column header
 // ([mobile, desktop]) — tuned per logo shape; negative margins keep the row at text height.
 const PICKS_HEADER_LOGO_H: Record<string, [number, number]> = {
-  players: [26, 34],
-  masters: [20, 26],
-  pga: [30, 40],
-  'us-open': [24, 30],
-  open: [26, 32],
+  players: [30, 39],
+  masters: [23, 30],
+  pga: [34, 46],
+  'us-open': [28, 34],
+  open: [30, 37],
 };
 
 const TOURNAMENT_ENTRIES_INTRO: Record<string, string> = {
