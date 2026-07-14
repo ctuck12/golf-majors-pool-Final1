@@ -9674,7 +9674,7 @@ export default function Page() {
 
         {showSubmittedPicksPopup && (
           <div
-            onClick={() => setShowSubmittedPicksPopup(false)}
+            onClick={() => { setShowSubmittedPicksPopup(false); setSubmittedPicksSort('alpha'); }}
             style={{ position: 'fixed', inset: 0, background: 'rgba(9,34,51,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
           >
             <div
@@ -9690,7 +9690,7 @@ export default function Page() {
                   {submittedPicksSort === 'alpha' ? 'A–Z' : 'Newest'}
                 </button>
                 <button
-                  onClick={() => setShowSubmittedPicksPopup(false)}
+                  onClick={() => { setShowSubmittedPicksPopup(false); setSubmittedPicksSort('alpha'); }}
                   style={{ background: selectedTournament === 'open' ? '#173b63' : '#f0f4f8', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 15, color: selectedTournament === 'open' ? '#fff' : '#5b6b79' }}
                 >✕</button>
               </div>
