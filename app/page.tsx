@@ -1063,6 +1063,33 @@ function getTournamentStartDate(tournamentId: TournamentId, year: number) {
   }
 }
 
+// Commissioner-set pool lock times (Round 1 first tee, UTC ISO), fetched at boot from
+// /api/commissioner/lock-time. When set, a tournament's IN PROGRESS transition (live
+// standings/leaderboard + pick lock) happens at exactly this moment instead of the
+// built-in firstTeeUtc schedule. Module-level so the pure window helpers below see it.
+let LOCK_TIME_OVERRIDES: Partial<Record<TournamentId, string>> = {};
+
+// Render a UTC instant as a datetime-local value in Central time, and convert back.
+function utcToCentralInput(iso: string): string {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(iso));
+  const g = (t: string) => parts.find((p) => p.type === t)?.value ?? '00';
+  return `${g('year')}-${g('month')}-${g('day')}T${g('hour')}:${g('minute')}`;
+}
+function centralInputToUtc(input: string): string | null {
+  const m = input.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+  if (!m) return null;
+  const want = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+  let utc = want;
+  // Iterate: adjust until the Chicago rendering of `utc` matches the requested wall time.
+  for (let i = 0; i < 3; i++) {
+    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(utc));
+    const g = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
+    const rendered = Date.UTC(g('year'), g('month') - 1, g('day'), g('hour'), g('minute'));
+    utc += want - rendered;
+  }
+  return new Date(utc).toISOString();
+}
+
 type TournamentCardStatus = {
   label: 'LOCKED' | 'UP NEXT' | 'ACTIVE' | 'IN PROGRESS';
   color: string;
@@ -1072,7 +1099,12 @@ type TournamentCardStatus = {
 function getTournamentEventWindow(tournament: (typeof TOURNAMENTS)[number], year: number) {
   const startDate = getTournamentStartDate(tournament.id, year);
   const activeAt = addDays(startOfDay(startDate), -3);
-  const inProgressAt = buildOccurrenceDate(tournament.firstTeeUtc, year, startDate);
+  const overrideIso = LOCK_TIME_OVERRIDES[tournament.id];
+  const overrideDate = overrideIso ? new Date(overrideIso) : null;
+  // A commissioner-set Pool Lock Time replaces the built-in first-tee time for its year.
+  const inProgressAt = overrideDate && overrideDate.getFullYear() === year
+    ? overrideDate
+    : buildOccurrenceDate(tournament.firstTeeUtc, year, startDate);
   const concludeAt = addDays(startOfDay(startDate), 4);
 
   return {
@@ -1522,6 +1554,30 @@ export default function Page() {
   const [commissionerMembers, setCommissionerMembers] = useState<CommissionerMember[]>([]);
   // Member id whose submitted roster is shown in the commissioner-hub roster popup.
   const [submittedRosterMemberId, setSubmittedRosterMemberId] = useState<string | null>(null);
+  // Pool Lock Time tool (commissioner hub): modal + datetime-local input in Central time.
+  const [poolLockModalOpen, setPoolLockModalOpen] = useState(false);
+  const [poolLockInput, setPoolLockInput] = useState('');
+  const [poolLockBusy, setPoolLockBusy] = useState(false);
+  const [poolLockMsg, setPoolLockMsg] = useState('');
+  const savePoolLockTime = async (clear: boolean) => {
+    const iso = clear ? null : centralInputToUtc(poolLockInput);
+    if (!clear && !iso) { setPoolLockMsg('Enter a valid date & time.'); return; }
+    setPoolLockBusy(true); setPoolLockMsg('');
+    try {
+      const res = await fetch('/api/commissioner/lock-time', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tournamentId: entriesTournamentId, lockAtUtc: iso }) });
+      const d = await res.json();
+      if (!res.ok) { setPoolLockMsg(d.error ?? 'Save failed.'); }
+      else {
+        const next: Partial<Record<TournamentId, string>> = d.overrides ?? {};
+        LOCK_TIME_OVERRIDES = next;
+        setLockTimeOverridesState(next);
+        setPoolLockMsg(clear
+          ? 'Cleared — using the automatic schedule again.'
+          : `Saved — pool locks & goes live ${new Date(iso!).toLocaleString('en-US', { timeZone: 'America/Chicago', weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} CST.`);
+      }
+    } catch { setPoolLockMsg('Network error — try again.'); }
+    setPoolLockBusy(false);
+  };
   // Commissioner-hub Submitted Picks column ordering (A-Z default, or newest first).
   const [commissionerPicksSort, setCommissionerPicksSort] = useState<'alpha' | 'newest'>('alpha');
   // Where to land after editing picks opened from the submitted-roster popup: restore the
@@ -2788,6 +2844,16 @@ export default function Page() {
   const [salaryByTournament, setSalaryByTournament] = useState<Record<string, SalaryMaps>>({});
   // Players the commissioner's salary upload auto-added because they weren't in the static pool.
   const [dynamicPlayers, setDynamicPlayers] = useState<Array<{ id: number; name: string; pgaTourId: number; worldRank: number; defaultOdds: string }>>([]);
+  // Commissioner-set pool lock times (mirrors the module-level map so changes re-render).
+  const [lockTimeOverrides, setLockTimeOverridesState] = useState<Partial<Record<TournamentId, string>>>({});
+  useEffect(() => {
+    fetch('/api/commissioner/lock-time', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d: { overrides?: Partial<Record<TournamentId, string>> }) => {
+        if (d.overrides) { LOCK_TIME_OVERRIDES = d.overrides; setLockTimeOverridesState(d.overrides); }
+      })
+      .catch(() => { /* keep the built-in schedule */ });
+  }, []);
   const [salaryListLoaded, setSalaryListLoaded] = useState(false); // false until the fetch resolves
   // Re-fetchable so a fresh commissioner upload shows up without a hard reload (mobile back/bfcache
   // otherwise restores the pre-upload page without re-running the mount fetch).
@@ -3017,7 +3083,7 @@ export default function Page() {
   // Picks-lock deadline in Central time, derived from the tournament's configured lock
   // timestamp (e.g. The Open locks 05:35 UTC = 12:35 am CST on Thursday).
   const lineupDeadlineLabel = (() => {
-    const lockAt = TOURNAMENT_META[selectedTournament]?.lockAtUtc;
+    const lockAt = lockTimeOverrides[selectedTournament] ?? TOURNAMENT_META[selectedTournament]?.lockAtUtc;
     if (!lockAt) return '6:15 am CST on Thursday';
     const d = new Date(lockAt);
     const time = d.toLocaleTimeString('en-US', { timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit' }).toLowerCase();
@@ -6612,8 +6678,75 @@ export default function Page() {
                     <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Full member listing &amp; participation</div>
                   </div>
                 </button>
+                <button
+                  onClick={() => {
+                    const current = lockTimeOverrides[entriesTournamentId] ?? TOURNAMENT_META[entriesTournamentId]?.lockAtUtc;
+                    setPoolLockInput(current ? utcToCentralInput(current) : '');
+                    setPoolLockMsg('');
+                    setPoolLockModalOpen(true);
+                  }}
+                  style={{ textAlign: 'left', border: '1px solid #cdd9e1', borderRadius: 12, padding: isMobile ? '12px 14px' : '14px 16px', background: '#fff', color: '#0f1720', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 12 }}
+                >
+                  <div style={{ width: isMobile ? 34 : 40, height: isMobile ? 34 : 40, borderRadius: 10, background: entriesTournamentSolid, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Lock size={isMobile ? 18 : 22} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>Pool Lock Time</div>
+                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Set Rd 1 first tee (CST) — locks picks &amp; goes live</div>
+                  </div>
+                </button>
               </div>
             </section>
+
+            {/* ── Pool Lock Time modal ─────────────────────────────────────── */}
+            {poolLockModalOpen && (
+              <div
+                onClick={() => setPoolLockModalOpen(false)}
+                style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 900 }}
+              >
+                <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(430px, calc(100vw - 32px))', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
+                  <div style={{ background: entriesTournamentSolid, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                    <div style={{ color: '#fff', fontSize: 16, fontWeight: 900 }}>Pool Lock Time</div>
+                    {TOURNAMENT_TAB_LOGOS[entriesTournamentId] && (
+                      <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, marginLeft: 'auto' }}>
+                        <img src={KNOCKOUT_TAB_LOGOS[entriesTournamentId] ?? TOURNAMENT_TAB_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: entriesTournamentId === 'pga' ? 60 : entriesTournamentId === 'players' ? 52 : entriesTournamentId === 'open' ? 40 : entriesTournamentId === 'masters' ? undefined : 36, width: entriesTournamentId === 'masters' ? 120 : undefined, margin: entriesTournamentId === 'pga' ? '-12px 0' : entriesTournamentId === 'players' ? '-8px 0' : undefined, maxWidth: 120, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+                      </div>
+                    )}
+                    <button onClick={() => setPoolLockModalOpen(false)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
+                  </div>
+                  <div style={{ padding: 20, display: 'grid', gap: 12 }}>
+                    <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.5 }}>
+                      Round 1 first tee time for <b>{entriesTournament.name}</b>, in <b>Central time</b>. At exactly this moment picks lock and the standings switch to the live leaderboard. {lockTimeOverrides[entriesTournamentId] ? 'A manual time is set and overrides the automatic schedule.' : 'Currently using the automatic schedule.'}
+                    </div>
+                    <input
+                      type="datetime-local"
+                      value={poolLockInput}
+                      onChange={(e) => setPoolLockInput(e.target.value)}
+                      style={{ border: '1.5px solid #d1dae3', borderRadius: 10, padding: '10px 12px', fontSize: 14, fontWeight: 600, color: '#0f1720' }}
+                    />
+                    <button
+                      onClick={() => void savePoolLockTime(false)}
+                      disabled={!canManagePool || poolLockBusy || !poolLockInput}
+                      style={{ border: 'none', borderRadius: 12, padding: '12px 16px', background: entriesTournamentSolid, color: '#fff', fontWeight: 900, cursor: (!canManagePool || poolLockBusy || !poolLockInput) ? 'not-allowed' : 'pointer', opacity: (!canManagePool || poolLockBusy || !poolLockInput) ? 0.5 : 1 }}
+                    >
+                      Save lock time
+                    </button>
+                    {lockTimeOverrides[entriesTournamentId] && (
+                      <button
+                        onClick={() => void savePoolLockTime(true)}
+                        disabled={!canManagePool || poolLockBusy}
+                        style={{ border: '1.5px solid #d1dae3', borderRadius: 12, padding: '11px 16px', background: '#fff', color: '#374151', fontWeight: 700, cursor: (!canManagePool || poolLockBusy) ? 'not-allowed' : 'pointer', opacity: (!canManagePool || poolLockBusy) ? 0.5 : 1 }}
+                      >
+                        Clear — use automatic schedule
+                      </button>
+                    )}
+                    {poolLockMsg && (
+                      <div style={{ fontSize: 13, fontWeight: 600, color: poolLockMsg.startsWith('Saved') || poolLockMsg.startsWith('Cleared') ? '#16a34a' : '#dc2626' }}>{poolLockMsg}</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Pool management tools — each opens a centered modal; actions confirm before applying */}
             <section

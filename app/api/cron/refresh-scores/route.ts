@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { parseMongo, type SlashGolfLeaderboardRow } from '@/app/lib/slashgolf';
 import { fetchESPNTournament } from '@/app/lib/espn';
 import { TOURNAMENT_META } from '@/app/lib/tournament-config';
+import { getLockTimeOverrides } from '@/app/lib/lock-time-store';
 import {
   getScorecardCache,
   saveScorecardCache,
@@ -395,7 +396,11 @@ async function refreshTournament(tournamentId: string): Promise<string> {
   // then force a fresh fetch so the transition to live doesn't stall for 30 min.
   const wasNotStarted = !!existing?.notStarted;
   if (wasNotStarted) {
-    const pastLock = meta.lockAtUtc && Date.now() >= new Date(meta.lockAtUtc).getTime();
+    // Commissioner-set Pool Lock Time overrides the built-in lockAtUtc.
+    const lockOverrides = await getLockTimeOverrides().catch((): Awaited<ReturnType<typeof getLockTimeOverrides>> => ({}));
+    const lockOverride = lockOverrides[tournamentId as keyof typeof lockOverrides];
+    const lockIso = lockOverride ?? meta.lockAtUtc;
+    const pastLock = lockIso && Date.now() >= new Date(lockIso).getTime();
     if (!pastLock) return 'not-started-cached';
     // Clear the stale notStarted entry so the fetch below proceeds cleanly.
     await redis.del(`leaderboard-cache:${tournamentId}`);
