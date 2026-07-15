@@ -1556,6 +1556,8 @@ export default function Page() {
   const [submittedRosterMemberId, setSubmittedRosterMemberId] = useState<string | null>(null);
   // Pick Popularity breakdown (commissioner hub) — collapsed by default.
   const [pickPopularityOpen, setPickPopularityOpen] = useState(false);
+  // Player whose "picked by" entry list is shown in a popup (from the Pick Popularity rows).
+  const [pickPopularityPlayer, setPickPopularityPlayer] = useState<{ id: number; name: string } | null>(null);
   // Pool Lock Time tool (commissioner hub): modal + datetime-local input in Central time.
   const [poolLockModalOpen, setPoolLockModalOpen] = useState(false);
   const [poolLockInput, setPoolLockInput] = useState('');
@@ -7058,7 +7060,7 @@ export default function Page() {
                         {rows.length > 0 ? `${rows.length} player${rows.length === 1 ? '' : 's'} picked across ${submittedCommissionerMembers.length} submitted team${submittedCommissionerMembers.length === 1 ? '' : 's'}` : 'No picks submitted yet'}
                       </div>
                     </div>
-                    <span style={{ fontSize: 16, color: '#5b6b79', flexShrink: 0, transform: pickPopularityOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>&#9656;</span>
+                    <span style={{ fontSize: 14, color: '#5b6b79', flexShrink: 0 }}>{pickPopularityOpen ? '\u25B2' : '\u25BC'}</span>
                   </button>
                   {pickPopularityOpen && rows.length > 0 && (
                     <div style={{ marginTop: isMobile ? 12 : 16, display: 'grid', gap: isMobile ? 7 : 8 }}>
@@ -7067,10 +7069,11 @@ export default function Page() {
                           <img
                             src={playerPhotoSrc(player.name, player.pgaTourId, player.photoUrl)} data-fb={player.photoUrl ?? pgaPhoto(player.pgaTourId)} onError={photoOnError}
                             alt={player.name}
-                            style={{ width: isMobile ? 24 : 28, height: isMobile ? 24 : 28, borderRadius: '50%', objectFit: 'cover', background: '#f0f4f8', flexShrink: 0 }}
+                            onClick={() => openPlayerPopup({ id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl, worldRank: player.worldRank })}
+                            style={{ width: isMobile ? 24 : 28, height: isMobile ? 24 : 28, borderRadius: '50%', objectFit: 'cover', background: '#f0f4f8', flexShrink: 0, cursor: 'pointer' }}
                           />
                           <span
-                            onClick={() => openPlayerPopup({ id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl, worldRank: player.worldRank })}
+                            onClick={() => setPickPopularityPlayer({ id: player.id, name: player.name })}
                             style={{ fontSize: isMobile ? 12 : 13, fontWeight: 700, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer' }}
                           >
                             {player.name}
@@ -7084,6 +7087,40 @@ export default function Page() {
                     </div>
                   )}
                 </section>
+              );
+            })()}
+
+            {/* ── Picked-by popup: which entries selected this player ── */}
+            {(() => {
+              if (!pickPopularityPlayer) return null;
+              const pickedBy = commissionerMembers
+                .filter((m) => (m.rosters[entriesTournamentId] ?? []).includes(pickPopularityPlayer.id))
+                .map((m) => m.displayName)
+                .sort((a, b) => a.localeCompare(b));
+              return (
+                <div
+                  onClick={() => setPickPopularityPlayer(null)}
+                  style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 150 }}
+                >
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(380px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 40px)', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <div style={{ background: entriesTournamentSolid, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ color: '#fff', fontSize: 15, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pickPopularityPlayer.name}</div>
+                        <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: 700, marginTop: 1 }}>Picked by {pickedBy.length} {pickedBy.length === 1 ? 'entry' : 'entries'}</div>
+                      </div>
+                      <button onClick={() => setPickPopularityPlayer(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
+                    </div>
+                    <div style={{ padding: isMobile ? 14 : 16, display: 'grid', gap: 8, overflowY: 'auto', minHeight: 0 }}>
+                      {pickedBy.length > 0 ? pickedBy.map((name) => (
+                        <div key={`picked-by-${name}`} style={{ padding: '10px 14px', borderRadius: 12, background: '#f4f7fa', fontSize: 14, fontWeight: 700, color: '#0f1720' }}>
+                          {name}
+                        </div>
+                      )) : (
+                        <div style={{ color: '#6b7b88', fontSize: 13 }}>No entries have this player.</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               );
             })()}
 
