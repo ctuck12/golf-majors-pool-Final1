@@ -6733,7 +6733,7 @@ export default function Page() {
                             <div style={{ fontSize: 10, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.06em' }}>Current lock time</div>
                             <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 800, color: '#0f1720', marginTop: 2 }}>{label} CST</div>
                           </div>
-                          <span style={{ fontSize: 11, fontWeight: 800, borderRadius: 999, padding: '4px 10px', background: overrideIso ? '#dcefe2' : '#e8eef5', color: overrideIso ? '#15803d' : '#3b5b7a', flexShrink: 0, whiteSpace: 'nowrap' }}>{overrideIso ? 'Set manually' : 'Automatic schedule'}</span>
+                          <span style={{ fontSize: 11, fontWeight: 800, borderRadius: 999, padding: '4px 10px', background: overrideIso ? '#dcefe2' : '#1e4d8c', color: overrideIso ? '#15803d' : '#ffffff', flexShrink: 0, whiteSpace: 'nowrap' }}>{overrideIso ? 'Set manually' : 'Auto set'}</span>
                         </div>
                       );
                     })()}
