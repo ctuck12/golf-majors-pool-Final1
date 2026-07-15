@@ -7108,6 +7108,11 @@ export default function Page() {
                         <div style={{ color: '#fff', fontSize: 15, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pickPopularityPlayer.name}</div>
                         <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: 700, marginTop: 1 }}>Picked by {pickedBy.length} {pickedBy.length === 1 ? 'entry' : 'entries'}</div>
                       </div>
+                      {TOURNAMENT_TAB_LOGOS[entriesTournamentId] && (
+                        <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, marginLeft: 'auto' }}>
+                          <img src={KNOCKOUT_TAB_LOGOS[entriesTournamentId] ?? TOURNAMENT_TAB_LOGOS[entriesTournamentId]} alt={entriesTournament.name} style={{ height: entriesTournamentId === 'pga' ? 60 : entriesTournamentId === 'players' ? 52 : entriesTournamentId === 'open' ? 40 : entriesTournamentId === 'masters' ? undefined : 36, width: entriesTournamentId === 'masters' ? 120 : undefined, margin: entriesTournamentId === 'pga' ? '-12px 0' : entriesTournamentId === 'players' ? '-8px 0' : undefined, maxWidth: 120, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+                        </div>
+                      )}
                       <button onClick={() => setPickPopularityPlayer(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
                     </div>
                     <div style={{ padding: isMobile ? 14 : 16, display: 'grid', gap: 8, overflowY: 'auto', minHeight: 0 }}>
