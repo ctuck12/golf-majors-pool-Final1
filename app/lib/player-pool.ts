@@ -2,7 +2,7 @@
 // Permanently retired IDs: 11, 26, 83, 86, 88, 95, 97, 99, 100, 101, 105, 106, 107, 108, 109, 110, 111,
 //   113, 115, 118, 120, 122, 123, 124, 125, 127, 128, 129, 130, 132, 133, 134, 135, 137, 138, 140, 141,
 //   142, 147, 156, 160, 162, 176, 177, 179, 180, 182, 187, 189
-// Next available ID: 284 (ids 500000+ are promoted dynamic-pool players — keep their ids as-is)
+// Next available ID: 285 (ids 500000+ are promoted dynamic-pool players — keep their ids as-is)
 // pgaTourId: 0 means the ID has not yet been resolved — bio/stats still work via name-based ESPN lookup,
 //   but photos will show the default headshot. Run /api/admin/resolve-player-ids to auto-fill.
 
@@ -180,6 +180,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 281, name: 'Brice Garnett',                    pgaTourId: 29535, defaultOdds: '+30000',  worldRank: 200 },
   { id: 282, name: 'Davis Chatfield',                  pgaTourId: 59006, defaultOdds: '+50000',  worldRank: 400 },
   { id: 283, name: 'Pontus Nyholm',                    pgaTourId: 55851, defaultOdds: '+30000',  worldRank: 150 },
+  { id: 284, name: 'Joe Dean',                         pgaTourId: 37094, defaultOdds: '+100000', worldRank: 268 },
   // ── Reactivated from PLAYER_ARCHIVE for The Open 2026 (in the registered field) ──
   { id:  39, name: 'Rasmus Hojgaard',           pgaTourId: 52686, defaultOdds: '+7500',   worldRank:  64 },
   { id:  67, name: 'Matt Wallace',              pgaTourId: 48887, defaultOdds: '+15000',  worldRank:  69 },

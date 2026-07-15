@@ -27,6 +27,7 @@ export const PLAYER_ESPN_IDS: Record<string, string> = {
   "Angel Cabrera": '65',
   "A.J. Ewart": '5075652',
   "Aaron Rai": '10906',
+  "Joe Dean": '6970',
   "Jack Buchanan": '5337673',
   "Lev Grinberg": '5062278',
   "David Howard": '5369476',
