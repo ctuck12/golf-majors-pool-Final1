@@ -1,8 +1,0 @@
-<svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" aria-label="China flag" role="img">
-  <rect width="900" height="600" fill="#EE1C25"/>
-  <polygon points="150,72 171,136 238,136 184,176 205,240 150,201 95,240 116,176 62,136 129,136" fill="#FFFF00"/>
-  <polygon points="290,58 298,82 323,82 303,97 311,121 290,106 269,121 277,97 257,82 282,82" fill="#FFFF00" transform="rotate(22 290 90)"/>
-  <polygon points="350,118 358,142 383,142 363,157 371,181 350,166 329,181 337,157 317,142 342,142" fill="#FFFF00" transform="rotate(45 350 150)"/>
-  <polygon points="350,206 358,230 383,230 363,245 371,269 350,254 329,269 337,245 317,230 342,230" fill="#FFFF00" transform="rotate(22 350 238)"/>
-  <polygon points="290,266 298,290 323,290 303,305 311,329 290,314 269,329 277,305 257,290 282,290" fill="#FFFF00" transform="rotate(0 290 298)"/>
-</svg>

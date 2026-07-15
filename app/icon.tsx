@@ -1,14 +1,9 @@
-import { ImageResponse } from 'next/og'
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import { ImageResponse } from 'next/og';
 
-export const size = { width: 32, height: 32 }
-export const contentType = 'image/png'
+export const size = { width: 32, height: 32 };
+export const contentType = 'image/png';
 
 export default function Icon() {
-  const imageData = readFileSync(join(process.cwd(), 'public', 'golf-circle-icon.png'))
-  const dataUrl = `data:image/png;base64,${imageData.toString('base64')}`
-
   return new ImageResponse(
     (
       <div
@@ -18,20 +13,17 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          overflow: 'hidden',
+          background: '#2a78d6',
+          borderRadius: 8,
+          color: '#fff',
+          fontSize: 22,
+          fontWeight: 700,
+          fontFamily: 'system-ui, sans-serif',
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={dataUrl}
-          style={{
-            width: '165%',
-            height: '165%',
-            objectFit: 'contain',
-          }}
-        />
+        $
       </div>
     ),
-    { ...size },
-  )
+    size,
+  );
 }

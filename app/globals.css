@@ -1,24 +1,30 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-page: #f9f9f7;
+  --color-surface: #fcfcfb;
+  --color-ink: #0b0b0b;
+  --color-ink-secondary: #52514e;
+  --color-ink-muted: #898781;
+  --color-hairline: #e1e0d9;
+  --color-accent: #2a78d6;
+  --color-accent-deep: #256abf;
+  --color-good: #0ca30c;
+  --color-good-text: #006300;
+  --color-warning: #fab219;
+  --color-critical: #d03b3b;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
 
 html,
 body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: #e8edf3;
-  overflow-x: hidden;
-  overscroll-behavior-x: none;
-  max-width: 100vw;
-}
-
-body {
-  min-height: 100svh;
-  color: #1a1a1a;
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 
 * {
@@ -28,125 +34,10 @@ body {
 button {
   -webkit-appearance: none;
   appearance: none;
+  font-family: inherit;
 }
 
-
-@keyframes phFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.ph-fade-in {
-  animation: phFadeIn 0.22s ease both;
-}
-
-@keyframes phPulse {
-  0%, 100% { opacity: 0.45; }
-  50%       { opacity: 0.9; }
-}
-.ph-skeleton {
-  background: #e2e8ef;
-  border-radius: 8px;
-  animation: phPulse 1.4s ease-in-out infinite;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #e8edf3;
-}
-::-webkit-scrollbar-thumb {
-  background: #b8c4d0;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #8fa0b0;
-}
-
-/* Remove gray background from player photos via multiply blend on white backgrounds */
-.roster-card-photo,
-.breakdown-golfer-photo,
-.breakdown-scoring-photo {
-  mix-blend-mode: multiply;
-}
-
-/* Scale down and center on phones narrower than Pro Max.
-   zoom affects layout dims in WebKit, so body flex-centering works correctly. */
-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.app-root {
-  width: 100%;
-  min-height: 100svh;
-  flex-shrink: 0;
-}
-
-/* iPhone 14 Pro / 15 Pro / 16 Pro / 17 Pro and similar (≤ 430px) → scale to ~Pro Max proportions */
-@media (max-width: 430px) {
-  .app-root {
-    zoom: 0.915;
-  }
-}
-
-/* iPhone SE / Mini (≤ 375px) → scale down a bit more */
-@media (max-width: 375px) {
-  .app-root {
-    zoom: 0.872;
-  }
-}
-
-/* Pick sheet player rows and roster card photo — desktop sizing */
-@media (min-width: 768px) {
-  .picksheet-player-name {
-    font-size: 17px !important;
-  }
-  .picksheet-player-subtext {
-    font-size: 14px !important;
-  }
-  .picksheet-player-salary-right {
-    font-size: 14px !important;
-  }
-}
-
-/* Entry Breakdown / Player Scoring Breakdown — desktop sizing */
-@media (min-width: 768px) {
-  .breakdown-modal {
-    width: min(1020px, 100%) !important;
-    padding: 20px !important;
-    border-radius: 24px !important;
-  }
-  .entry-breakdown-modal {
-    width: min(500px, 100%) !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-  }
-  .scoring-breakdown-modal {
-    width: min(500px, 100%) !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-  }
-
-  .breakdown-golfer-name {
-    font-size: 17px !important;
-  }
-  .breakdown-golfer-subtext {
-    font-size: 13px !important;
-  }
-  .breakdown-golfer-points {
-    font-size: 22px !important;
-  }
-  .breakdown-scoring-photo {
-    width: 90px !important;
-    height: auto !important;
-  }
-  .breakdown-scoring-name {
-    font-size: 24px !important;
-  }
-  .breakdown-scoring-subtext {
-    font-size: 13px !important;
-  }
+input,
+select {
+  font-family: inherit;
 }
