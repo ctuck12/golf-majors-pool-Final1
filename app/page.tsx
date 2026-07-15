@@ -6692,7 +6692,7 @@ export default function Page() {
                   </div>
                   <div>
                     <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 800, color: '#0f1720' }}>Pool Lock Time</div>
-                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Set Rd 1 first tee (CST) — locks picks &amp; goes live</div>
+                    <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#5b6b79' }}>Set Round 1 first tee time</div>
                   </div>
                 </button>
               </div>
