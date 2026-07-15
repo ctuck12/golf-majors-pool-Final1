@@ -6716,14 +6716,32 @@ export default function Page() {
                   </div>
                   <div style={{ padding: 20, display: 'grid', gap: 12 }}>
                     <div style={{ fontSize: 13, color: '#5b6b79', lineHeight: 1.5 }}>
-                      Round 1 first tee time for <b>{entriesTournament.name}</b>, in <b>Central time</b>. At exactly this moment picks lock and the standings switch to the live leaderboard. {lockTimeOverrides[entriesTournamentId] ? 'A manual time is set and overrides the automatic schedule.' : 'Currently using the automatic schedule.'}
+                      Round 1 first tee time for <b>{entriesTournament.name}</b>, in <b>Central time</b>. At exactly this moment picks lock and the standings switch to the live leaderboard.
                     </div>
-                    <input
-                      type="datetime-local"
-                      value={poolLockInput}
-                      onChange={(e) => setPoolLockInput(e.target.value)}
-                      style={{ border: '1.5px solid #d1dae3', borderRadius: 10, padding: '10px 12px', fontSize: 14, fontWeight: 600, color: '#0f1720' }}
-                    />
+                    {(() => {
+                      const overrideIso = lockTimeOverrides[entriesTournamentId];
+                      const effective = overrideIso ?? TOURNAMENT_META[entriesTournamentId]?.lockAtUtc;
+                      if (!effective) return null;
+                      const label = new Date(effective).toLocaleString('en-US', { timeZone: 'America/Chicago', weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                      return (
+                        <div style={{ border: '1.5px solid #d1dae3', borderRadius: 10, padding: '10px 12px', background: '#f4f7fa', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                          <div>
+                            <div style={{ fontSize: 10, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.06em' }}>Current lock time</div>
+                            <div style={{ fontSize: 14, fontWeight: 800, color: '#0f1720', marginTop: 2 }}>{label} CST</div>
+                          </div>
+                          <span style={{ fontSize: 11, fontWeight: 800, borderRadius: 999, padding: '4px 10px', background: overrideIso ? '#dcefe2' : '#e8eef5', color: overrideIso ? '#15803d' : '#3b5b7a', flexShrink: 0, whiteSpace: 'nowrap' }}>{overrideIso ? 'Set manually' : 'Automatic schedule'}</span>
+                        </div>
+                      );
+                    })()}
+                    <label style={{ display: 'grid', gap: 6 }}>
+                      <span style={{ fontSize: 10, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.06em' }}>Set a new lock time (Central)</span>
+                      <input
+                        type="datetime-local"
+                        value={poolLockInput}
+                        onChange={(e) => setPoolLockInput(e.target.value)}
+                        style={{ border: '1.5px solid #d1dae3', borderRadius: 10, padding: '10px 12px', fontSize: 14, fontWeight: 600, color: '#0f1720', width: '100%' }}
+                      />
+                    </label>
                     <button
                       onClick={() => void savePoolLockTime(false)}
                       disabled={!canManagePool || poolLockBusy || !poolLockInput}
