@@ -114,6 +114,51 @@ const DP_WORLD_RANKINGS: Record<string, number> = {
   'Yuto Katsuragawa': 100,
 };
 
+// Fallback FedEx Cup rank straight from the PGA Tour's own standings (statDetails 02671 =
+// FedExCup Season Points) — used when ESPN's leaders feed is down (it 500'd during Open week
+// 2026). Matches by pgaTourId when known, else by normalized name.
+const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
+const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
+const normPga = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/ø/gi, 'o').replace(/å/gi, 'a').replace(/æ/gi, 'ae').toLowerCase().replace(/[^a-z ]/g, '').trim();
+
+async function fedexRankFromPgaTour(pgaTourId: string, name: string): Promise<number | null> {
+  try {
+    const query = `
+      query StatDetails($statId: String!) {
+        statDetails(tourCode: R, statId: $statId) {
+          rows {
+            ... on StatDetailsPlayer {
+              playerId
+              playerName
+              rank
+            }
+          }
+        }
+      }
+    `;
+    const res = await fetch(PGA_GQL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': PGA_API_KEY, 'Referer': 'https://www.pgatour.com/', 'Origin': 'https://www.pgatour.com' },
+      body: JSON.stringify({ query, variables: { statId: '02671' } }),
+      signal: AbortSignal.timeout(8000),
+      next: { revalidate: 1800 },
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as {
+      data?: { statDetails?: { rows?: Array<{ playerId?: string; playerName?: string; rank?: number | string }> } };
+    };
+    const rows = data?.data?.statDetails?.rows ?? [];
+    const want = normPga(name);
+    const hit = rows.find((r) => (pgaTourId && String(r.playerId ?? '') === pgaTourId) || (r.playerName && normPga(r.playerName) === want));
+    if (!hit) return null;
+    const rank = Number(hit.rank);
+    return Number.isFinite(rank) && rank > 0 ? rank : null;
+  } catch {
+    return null;
+  }
+}
+
 async function getRankFromLeaders(
   standingsRes: Response,
   espnId: string,
@@ -142,6 +187,7 @@ async function getRankFromLeaders(
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const name = searchParams.get('name') ?? '';
+  const pgaTourId = searchParams.get('pgaTourId') ?? '';
   if (!name) return Response.json({ rank: null, dpWorldRank: null });
 
   try {
@@ -154,14 +200,15 @@ export async function GET(request: Request) {
       ),
     ]);
 
-    if (!espnId) return Response.json({ rank: null, dpWorldRank: DP_WORLD_RANKINGS[name] ?? null });
-
-    const fedexRank = await getRankFromLeaders(fedexRes, espnId, 'cupPoints');
+    const fedexFromEspn = espnId ? await getRankFromLeaders(fedexRes, espnId, 'cupPoints') : null;
+    // ESPN's leaders feed has been unreliable — fall back to the PGA Tour's own standings.
+    const fedexRank = fedexFromEspn ?? await fedexRankFromPgaTour(pgaTourId !== '0' ? pgaTourId : '', name);
     const dpWorldRank = DP_WORLD_RANKINGS[name] ?? null;
 
     const updatedAt = await resolveChangedAt(`rank-changed:fedex:${name}`, String(fedexRank ?? ''));
     return Response.json({ rank: fedexRank, dpWorldRank, updatedAt });
   } catch {
-    return Response.json({ rank: null, dpWorldRank: DP_WORLD_RANKINGS[name] ?? null });
+    const fallback = await fedexRankFromPgaTour(pgaTourId !== '0' ? pgaTourId : '', name).catch(() => null);
+    return Response.json({ rank: fallback, dpWorldRank: DP_WORLD_RANKINGS[name] ?? null });
   }
 }
