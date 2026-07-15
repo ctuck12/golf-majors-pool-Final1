@@ -9613,7 +9613,7 @@ export default function Page() {
                   {orderedRosterPlayers.map((player) => (
                     <div key={player.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 14 }}>
                       <span style={{ fontWeight: 700, color: '#0f1720' }}>{player.name}</span>
-                      <span style={{ fontWeight: 600, color: entriesTournamentId === 'open' ? entriesTournamentBg : '#5b6b79' }}>${player.salary.toLocaleString()}</span>
+                      <span style={{ fontWeight: 600, color: entriesTournamentId === 'open' ? entriesTournamentBg : '#5b6b79', fontVariantNumeric: 'tabular-nums' }}>${player.salary.toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
@@ -9623,11 +9623,11 @@ export default function Page() {
                 {/* Salary summary */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 5 }}>
                   <span style={{ color: entriesTournamentId === 'open' ? entriesTournamentBg : '#5b6b79' }}>Salary used</span>
-                  <span style={{ fontWeight: 700, color: '#0f1720' }}>${salaryUsed.toLocaleString()}</span>
+                  <span style={{ fontWeight: 700, color: '#0f1720', fontVariantNumeric: 'tabular-nums' }}>${salaryUsed.toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 12 }}>
                   <span style={{ color: entriesTournamentId === 'open' ? entriesTournamentBg : '#5b6b79' }}>Remaining</span>
-                  <span style={{ fontWeight: 700, color: salaryRemaining < 0 ? '#dc2626' : '#0f1720' }}>${salaryRemaining.toLocaleString()}</span>
+                  <span style={{ fontWeight: 700, color: salaryRemaining < 0 ? '#dc2626' : '#0f1720', fontVariantNumeric: 'tabular-nums' }}>${salaryRemaining.toLocaleString()}</span>
                 </div>
 
                 <div style={{ borderTop: entriesTournamentId === 'open' ? '1px solid #8a8f96' : '1px solid #e8edf2', marginBottom: 10 }} />
