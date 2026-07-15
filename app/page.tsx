@@ -6724,10 +6724,10 @@ export default function Page() {
                       if (!effective) return null;
                       const label = new Date(effective).toLocaleString('en-US', { timeZone: 'America/Chicago', weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
                       return (
-                        <div style={{ border: '1.5px solid #d1dae3', borderRadius: 10, padding: '10px 12px', background: '#f4f7fa', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                        <div style={{ border: '1.5px solid #d1dae3', borderRadius: 10, padding: '10px 12px', background: '#f4f7fa', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', boxSizing: 'border-box' }}>
                           <div>
                             <div style={{ fontSize: 10, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.06em' }}>Current lock time</div>
-                            <div style={{ fontSize: 14, fontWeight: 800, color: '#0f1720', marginTop: 2 }}>{label} CST</div>
+                            <div style={{ fontSize: isMobile ? 13 : 14, fontWeight: 800, color: '#0f1720', marginTop: 2 }}>{label} CST</div>
                           </div>
                           <span style={{ fontSize: 11, fontWeight: 800, borderRadius: 999, padding: '4px 10px', background: overrideIso ? '#dcefe2' : '#e8eef5', color: overrideIso ? '#15803d' : '#3b5b7a', flexShrink: 0, whiteSpace: 'nowrap' }}>{overrideIso ? 'Set manually' : 'Automatic schedule'}</span>
                         </div>
@@ -6739,7 +6739,7 @@ export default function Page() {
                         type="datetime-local"
                         value={poolLockInput}
                         onChange={(e) => setPoolLockInput(e.target.value)}
-                        style={{ border: '1.5px solid #d1dae3', borderRadius: 10, padding: '10px 12px', fontSize: 14, fontWeight: 600, color: '#0f1720', width: '100%' }}
+                        style={{ border: '1.5px solid #d1dae3', borderRadius: 10, padding: '10px 12px', fontSize: 14, fontWeight: 600, color: '#0f1720', width: '100%', boxSizing: 'border-box', minWidth: 0, minHeight: 44, background: '#fff', WebkitAppearance: 'none', appearance: 'none', textAlign: 'left' }}
                       />
                     </label>
                     <button
