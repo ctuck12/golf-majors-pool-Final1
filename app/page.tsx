@@ -3,6 +3,7 @@
 import { Fragment, startTransition, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { PLAYER_POOL_WITH_PGA_IDS } from '@/app/lib/player-pool';
 import { PLAYER_ESPN_IDS } from '@/app/lib/player-espn-ids';
+import { TOURNAMENT_META } from '@/app/lib/tournament-config';
 import { canonicalNameKey } from '@/app/lib/name-match';
 import { applyNameAlias } from '@/app/lib/name-aliases';
 import {
@@ -3013,6 +3014,17 @@ export default function Page() {
     return `Monday ${d.toLocaleDateString('en-US', { month: 'long' })} ${day}${suffix}`;
   })();
 
+  // Picks-lock deadline in Central time, derived from the tournament's configured lock
+  // timestamp (e.g. The Open locks 05:35 UTC = 12:35 am CST on Thursday).
+  const lineupDeadlineLabel = (() => {
+    const lockAt = TOURNAMENT_META[selectedTournament]?.lockAtUtc;
+    if (!lockAt) return '6:15 am CST on Thursday';
+    const d = new Date(lockAt);
+    const time = d.toLocaleTimeString('en-US', { timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit' }).toLowerCase();
+    const day = d.toLocaleDateString('en-US', { timeZone: 'America/Chicago', weekday: 'long' });
+    return `${time} CST on ${day}`;
+  })();
+
   const userLabel = sessionUser?.displayName ?? 'Guest lineup';
 
   const openPlayerPopup = (rawPlayer: { id: number; name: string; pgaTourId: number; photoUrl?: string; worldRank?: number }, defaultTab: 'stats' | 'season' = 'stats', ctxTournamentId?: TournamentId) => {
@@ -4523,7 +4535,7 @@ export default function Page() {
                     </div>
                     <div style={{ marginTop: 14 }}>
                       {picksOpenForTournament
-                        ? 'The field has been finalized and picks are now open in the pool. Build your lineup before 6:15 am CST on Thursday.'
+                        ? `The field has been finalized and picks are now open in the pool. Build your lineup before ${lineupDeadlineLabel}.`
                         : `Picks can not be entered until the tournament field has been finalized and entered in our system on ${tournamentFieldMondayLabel}.`}
                     </div>
 
