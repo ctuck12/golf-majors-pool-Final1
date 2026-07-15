@@ -1559,6 +1559,7 @@ export default function Page() {
   const [poolLockInput, setPoolLockInput] = useState('');
   const [poolLockBusy, setPoolLockBusy] = useState(false);
   const [poolLockMsg, setPoolLockMsg] = useState('');
+  const poolLockMsgTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savePoolLockTime = async (clear: boolean) => {
     const iso = clear ? null : centralInputToUtc(poolLockInput);
     if (!clear && !iso) { setPoolLockMsg('Enter a valid date & time.'); return; }
@@ -1574,6 +1575,9 @@ export default function Page() {
         setPoolLockMsg(clear
           ? 'Cleared — using the automatic schedule again.'
           : `Saved — pool locks & goes live ${new Date(iso!).toLocaleString('en-US', { timeZone: 'America/Chicago', weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} CST.`);
+        // Success confirmations fade out on their own; errors stay until addressed.
+        if (poolLockMsgTimer.current) clearTimeout(poolLockMsgTimer.current);
+        poolLockMsgTimer.current = setTimeout(() => setPoolLockMsg(''), 4000);
       }
     } catch { setPoolLockMsg('Network error — try again.'); }
     setPoolLockBusy(false);
