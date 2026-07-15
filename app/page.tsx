@@ -1554,6 +1554,8 @@ export default function Page() {
   const [commissionerMembers, setCommissionerMembers] = useState<CommissionerMember[]>([]);
   // Member id whose submitted roster is shown in the commissioner-hub roster popup.
   const [submittedRosterMemberId, setSubmittedRosterMemberId] = useState<string | null>(null);
+  // Pick Popularity breakdown (commissioner hub) — collapsed by default.
+  const [pickPopularityOpen, setPickPopularityOpen] = useState(false);
   // Pool Lock Time tool (commissioner hub): modal + datetime-local input in Central time.
   const [poolLockModalOpen, setPoolLockModalOpen] = useState(false);
   const [poolLockInput, setPoolLockInput] = useState('');
@@ -3430,6 +3432,7 @@ export default function Page() {
         setSelectedLeaderboardPlayerId(null);
         setCommissionerConsoleView('dashboard');
         setCommissionerPicksSort('alpha');
+        setPickPopularityOpen(false);
         setCommissionerRosterMemberId(null);
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
@@ -3443,6 +3446,7 @@ export default function Page() {
         setSelectedLeaderboardPlayerId(null);
         setCommissionerConsoleView('dashboard');
         setCommissionerPicksSort('alpha');
+        setPickPopularityOpen(false);
         setCommissionerRosterMemberId(null);
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
@@ -3454,6 +3458,7 @@ export default function Page() {
         setSelectedLeaderboardPlayerId(null);
         setCommissionerConsoleView('dashboard');
         setCommissionerPicksSort('alpha');
+        setPickPopularityOpen(false);
         setCommissionerRosterMemberId(null);
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
@@ -3465,6 +3470,7 @@ export default function Page() {
         setSelectedLeaderboardPlayerId(null);
         setCommissionerConsoleView('dashboard');
         setCommissionerPicksSort('alpha');
+        setPickPopularityOpen(false);
         setCommissionerRosterMemberId(null);
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
@@ -7026,6 +7032,60 @@ export default function Page() {
                 </div>
               </div>
             </section>
+
+            {/* ── Pick Popularity: how many teams picked each player ── */}
+            {(() => {
+              const counts = new Map<number, number>();
+              for (const member of commissionerMembers) {
+                for (const pid of member.rosters[entriesTournamentId] ?? []) {
+                  counts.set(pid, (counts.get(pid) ?? 0) + 1);
+                }
+              }
+              const rows = [...counts.entries()]
+                .map(([pid, count]) => ({ player: playersById[pid], count }))
+                .filter((r): r is { player: (typeof playersById)[number]; count: number } => !!r.player)
+                .sort((a, b) => b.count - a.count || a.player.name.localeCompare(b.player.name));
+              const maxCount = rows[0]?.count ?? 0;
+              return (
+                <section style={{ background: '#fff', borderRadius: 24, padding: isMobile ? 14 : 22, boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)' }}>
+                  <button
+                    onClick={() => setPickPopularityOpen((v) => !v)}
+                    style={{ width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, textAlign: 'left' }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>Pick Popularity</div>
+                      <div style={{ marginTop: 2, fontSize: isMobile ? 11 : 12, color: '#8a99a6' }}>
+                        {rows.length > 0 ? `${rows.length} player${rows.length === 1 ? '' : 's'} picked across ${submittedCommissionerMembers.length} submitted team${submittedCommissionerMembers.length === 1 ? '' : 's'}` : 'No picks submitted yet'}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 16, color: '#5b6b79', flexShrink: 0, transform: pickPopularityOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>&#9656;</span>
+                  </button>
+                  {pickPopularityOpen && rows.length > 0 && (
+                    <div style={{ marginTop: isMobile ? 12 : 16, display: 'grid', gap: isMobile ? 7 : 8 }}>
+                      {rows.map(({ player, count }) => (
+                        <div key={`pop-${player.id}`} style={{ display: 'grid', gridTemplateColumns: isMobile ? '24px 108px 1fr 22px' : '28px 170px 1fr 30px', alignItems: 'center', gap: isMobile ? 6 : 10 }}>
+                          <img
+                            src={playerPhotoSrc(player.name, player.pgaTourId, player.photoUrl)} data-fb={player.photoUrl ?? pgaPhoto(player.pgaTourId)} onError={photoOnError}
+                            alt={player.name}
+                            style={{ width: isMobile ? 24 : 28, height: isMobile ? 24 : 28, borderRadius: '50%', objectFit: 'cover', background: '#f0f4f8', flexShrink: 0 }}
+                          />
+                          <span
+                            onClick={() => openPlayerPopup({ id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl, worldRank: player.worldRank })}
+                            style={{ fontSize: isMobile ? 12 : 13, fontWeight: 700, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer' }}
+                          >
+                            {player.name}
+                          </span>
+                          <div style={{ background: '#eef2f6', borderRadius: 999, height: isMobile ? 10 : 12, overflow: 'hidden' }}>
+                            <div style={{ width: `${maxCount > 0 ? Math.max(6, Math.round((count / maxCount) * 100)) : 0}%`, height: '100%', background: entriesTournamentSolid, borderRadius: 999 }} />
+                          </div>
+                          <span style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: entriesTournamentSolid, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              );
+            })()}
 
             {/* ── Submitted roster popup (player info popup stacks above at z 200) ── */}
             {(() => {
