@@ -7117,14 +7117,21 @@ export default function Page() {
                         <div style={{ minWidth: 0 }}>
                           <div style={{ color: '#fff', fontSize: 15, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pickPopularityPlayer.name}</div>
                         </div>
-                        {getFlagSrc(pickPopularityPlayer.name) && (
-                          // The flag itself centers on the name line; the abbreviation hangs below
-                          // (absolutely positioned) without pushing the flag off-center.
-                          <div style={{ position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                            <img src={getFlagSrc(pickPopularityPlayer.name)} alt={getCountryLabel(pickPopularityPlayer.name)} style={{ width: 26, height: 17, objectFit: 'cover', borderRadius: 3, display: 'block' }} />
-                            <span style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 2, fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{getCountryLabel(pickPopularityPlayer.name)}</span>
-                          </div>
-                        )}
+                        {getFlagSrc(pickPopularityPlayer.name) && (() => {
+                          // Long names (e.g. Bryson DeChambeau) would push an inline abbreviation off
+                          // the edge — stack it under the flag for those; keep it beside the flag
+                          // for everyone else. The flag always centers on the name line.
+                          const stackedLabel = pickPopularityPlayer.name.length > 14;
+                          return (
+                            <div style={{ position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <img src={getFlagSrc(pickPopularityPlayer.name)} alt={getCountryLabel(pickPopularityPlayer.name)} style={{ width: 26, height: 17, objectFit: 'cover', borderRadius: 3, display: 'block' }} />
+                              <span style={stackedLabel
+                                ? { position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 2, fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.05em', whiteSpace: 'nowrap' }
+                                : { fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}
+                              >{getCountryLabel(pickPopularityPlayer.name)}</span>
+                            </div>
+                          );
+                        })()}
                       </div>
                       {TOURNAMENT_TAB_LOGOS[entriesTournamentId] && (
                         <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, marginLeft: 'auto' }}>
