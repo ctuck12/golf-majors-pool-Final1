@@ -4692,7 +4692,7 @@ export default function Page() {
                   </div>
                 ) : null}
                 {(selectedTournament === 'open' || selectedTournament === 'us-open' || selectedTournament === 'pga') && showLivePayoutStrip && (
-                  <img src={selectedTournament === 'open' ? '/open-o-logo.png' : selectedTournament === 'us-open' ? '/us-open-shinnecock-logo.gif' : '/pga-aronimink-logo.png'} alt="" style={{ position: 'absolute', left: '54%', top: isMobile ? '108%' : '75%', transform: 'translate(-50%, -50%)', height: isMobile ? 40 : 54, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
+                  <img src={selectedTournament === 'open' ? '/open-o-logo.png' : selectedTournament === 'us-open' ? '/us-open-shinnecock-logo.gif' : '/pga-aronimink-logo.png'} alt="" style={{ position: 'absolute', left: '54%', top: (isTournamentFinal && !showFutureTournamentView) ? (isMobile ? '81%' : '68%') : (isMobile ? '108%' : '75%'), transform: 'translate(-50%, -50%)', height: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? (isMobile ? 46 : 60) : (isMobile ? 40 : 54), width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
                 )}
               </div>
               {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
