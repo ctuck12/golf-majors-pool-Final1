@@ -635,7 +635,17 @@ function AutoFitName({ text, base, min }: { text: string; base: number; min: num
   const outerRef = useRef<HTMLSpanElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
   const [size, setSize] = useState(base);
+  const [, setMeasureTick] = useState(0);
   useLayoutEffect(() => { setSize(base); }, [text, base]);
+  // The row's free space changes without a React render when the flag/logo images finish
+  // loading (they start at width 0) — observe the span's box so any squeeze re-fits.
+  useLayoutEffect(() => {
+    const outer = outerRef.current;
+    if (!outer || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setMeasureTick((v) => v + 1));
+    ro.observe(outer);
+    return () => ro.disconnect();
+  }, []);
   useLayoutEffect(() => {
     const outer = outerRef.current;
     const meas = measureRef.current;
