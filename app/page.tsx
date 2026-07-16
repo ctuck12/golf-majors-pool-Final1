@@ -4673,7 +4673,7 @@ export default function Page() {
                   </div>
                 ) : null}
                 {selectedTournament === 'open' && showLivePayoutStrip && (
-                  <img src="/open-o-logo.png" alt="" style={{ position: 'absolute', left: '54%', top: isMobile ? '68%' : '50%', transform: 'translate(-50%, -50%)', height: isMobile ? 40 : 54, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
+                  <img src="/open-o-logo.png" alt="" style={{ position: 'absolute', left: '54%', top: isMobile ? '108%' : '75%', transform: 'translate(-50%, -50%)', height: isMobile ? 40 : 54, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
                 )}
               </div>
               {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
