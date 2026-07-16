@@ -63,7 +63,7 @@ export const TOURNAMENT_META: Record<string, TournamentMeta> = {
     pgaTournCode: '100',
     year: '2026',
     courseName: 'Royal Birkdale Golf Club',
-    par: 71,
+    par: 70,
     espnEventId: '401811957',
     lockAtUtc: '2026-07-16T05:35:00Z', // 6:35 AM BST
   },
