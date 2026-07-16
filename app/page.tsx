@@ -4728,7 +4728,7 @@ export default function Page() {
                     <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#000000', whiteSpace: 'nowrap' }}>
                       {currentRoundComplete && nextRoundStartLabel
                         ? `Rd ${nextRoundNum} Start: ${nextRoundStartLabel}`
-                        : `Course Time: ${courseLocalTimeLabel}`}
+                        : `Local Time: ${courseLocalTimeLabel}`}
                     </span>
                   )}
                 </div>
