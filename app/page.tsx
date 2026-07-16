@@ -8428,9 +8428,6 @@ export default function Page() {
                     <div>
                       <div style={{ fontSize: isMobile ? 18 : 21, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{activeStandingGolfer.name}{getPlayerFlag(activeStandingGolfer.name) && <><img src={getFlagSrc(activeStandingGolfer.name)} alt="" style={{ marginLeft: 8, height: 20, verticalAlign: 'middle', display: 'inline-block', borderRadius: 3 }} />{getCountryLabel(activeStandingGolfer.name) && <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, verticalAlign: 'middle' }}>{getCountryLabel(activeStandingGolfer.name)}</span>}{(PGA_CLUB_PROFESSIONALS.has(activeStandingGolfer.name) || clubProKeys.has(canonicalNameKey(activeStandingGolfer.name))) && <img src="/pga-seal-gold.png" alt="PGA" style={{ marginLeft: 6, height: 38, verticalAlign: 'middle', display: 'inline-block', objectFit: 'contain' }} />}</>}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
-                        <div style={{ borderRadius: 999, background: selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'open' ? '#F4BC41' : '#1e3a5f', padding: '3px 10px', fontSize: 13, fontWeight: 700, color: selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'open' ? '#0f1720' : '#fff', lineHeight: 1.2, flexShrink: 0, border: selectedTournament === 'masters' ? '1.5px solid #c8b800' : selectedTournament === 'players' ? '1.5px solid #a07010' : selectedTournament === 'open' ? '1.5px solid #c8a030' : '1.5px solid #0f2448', boxShadow: selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : selectedTournament === 'open' ? '0 2px 8px rgba(180,140,0,0.4)' : '0 2px 8px rgba(14,45,100,0.4)' }}>
-                          Points: {formatPointValue(activeStandingGolfer.points)}
-                        </div>
                         <button onClick={() => setShowPointsSystem(true)} style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
                           Points System <span style={{ fontSize: 10, opacity: 0.8 }}>›</span>
                         </button>
@@ -8462,7 +8459,10 @@ export default function Page() {
                   ['Rnd 3 Leader', activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? 1 : 0, activeStandingGolfer.scoreBreakdown.roundLeadersAwarded.third ? SCORING_RULES.thirdRoundLeader : 0],
                 ]
                   .filter(([, count]) => Number(count) > 0)
-                  .concat([['Leaderboard Place', activeStandingGolfer.position, activeStandingGolfer.scoreBreakdown.madeCut === false ? activeStandingGolfer.scoreBreakdown.cutPenaltyPoints : activeStandingGolfer.scoreBreakdown.placementPoints] as const])
+                  .concat([
+                    ['Leaderboard Place', activeStandingGolfer.position, activeStandingGolfer.scoreBreakdown.madeCut === false ? activeStandingGolfer.scoreBreakdown.cutPenaltyPoints : activeStandingGolfer.scoreBreakdown.placementPoints] as const,
+                    ['Total', '', activeStandingGolfer.points] as const,
+                  ])
                   .map(([label, count, points]) => (
                   <div
                     key={String(label)}
@@ -8481,7 +8481,7 @@ export default function Page() {
                     <div style={{ color: selectedTournament === 'open' ? '#000000' : (selectedTournament === 'players') ? '#4a5568' : '#6b7b88', fontSize: 12 }}>
                       {label === 'Leaderboard Place'
                         ? `Position: ${ordinal(String(count))}`
-                        : ['Tourn Low Rnd', 'Rnd 1 Leader', 'Rnd 2 Leader', 'Rnd 3 Leader'].includes(String(label))
+                        : ['Tourn Low Rnd', 'Rnd 1 Leader', 'Rnd 2 Leader', 'Rnd 3 Leader', 'Total'].includes(String(label))
                         ? ''
                         : `Count: ${String(count)}`}
                     </div>
