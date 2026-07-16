@@ -363,6 +363,13 @@ export async function GET(request: Request) {
       }
     }
   }
+  // Round leaders (from the awarded store) — same shape, one entry per leader per round.
+  {
+    const rlRounds = roundLeaderStore[tournamentId] ?? {};
+    for (const rk of ['1', '2', '3'] as const) {
+      fieldBonusEvents[`round${rk}Leader`] = (rlRounds[rk]?.leaders ?? []).map((n) => ({ name: n, rounds: [parseInt(rk, 10)] }));
+    }
+  }
 
   // ── 3. Build scored player list ───────────────────────────────────────
   // Combine the static draft pool with any dynamically-added field players (from the commissioner's

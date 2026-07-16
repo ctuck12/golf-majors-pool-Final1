@@ -9237,7 +9237,7 @@ export default function Page() {
           const pickedBonusKeys = new Set(pickedPlayers.map((p) => canonicalNameKey(applyNameAlias(p.name))));
           const fieldBonus = feed?.fieldBonusEvents ?? {};
           const unpickedBonusFor = (key: string) => (fieldBonus[key] ?? []).filter((e) => !pickedBonusKeys.has(canonicalNameKey(applyNameAlias(e.name))));
-          const BONUS_FIELD_KEYS: Record<string, string> = { '3 Birdie Streaks': 'threeBirdieStreaks', 'No Bogey Rounds': 'bogeyFreeRounds', 'Eagles': 'eagles', 'Hole in One': 'holeInOne', 'Albatross': 'albatross' };
+          const BONUS_FIELD_KEYS: Record<string, string> = { 'Tourn Low Rnd': 'lowRound', 'Round 1 Leader': 'round1Leader', 'Round 2 Leader': 'round2Leader', 'Round 3 Leader': 'round3Leader', '3 Birdie Streaks': 'threeBirdieStreaks', 'No Bogey Rounds': 'bogeyFreeRounds', 'Eagles': 'eagles', 'Hole in One': 'holeInOne', 'Albatross': 'albatross' };
           const bpColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#1e4d8c';
           const catHeaderColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#1e4d8c' : '#173b63';
           const bpHeaderBg = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'pga' ? '#B09963' : '#173b63';
@@ -9278,7 +9278,7 @@ export default function Page() {
                         <div key={cat.label} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 12, border: selectedTournament === 'open' ? '1px solid #000000' : '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: (isMobile && selectedTournament === 'open') ? '0.75px solid #000000' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : selectedTournament === 'open' ? '0.5px solid #000000' : '1px solid #edf1f6' }}>
                             <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
-                              {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}{isLowRnd && unpickedBonusFor('lowRound').length > 0 ? <button onClick={() => setBonusInfoPopup({ title: 'Tournament Low Round', entries: unpickedBonusFor('lowRound') })} style={{ background: 'none', border: 'none', padding: '0 0 0 6px', cursor: 'pointer', fontSize: 14, color: '#c0392b', lineHeight: 1, verticalAlign: 'middle', touchAction: 'manipulation' }}>ⓘ</button> : null}
+                              {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}{(() => { const fieldKey = BONUS_FIELD_KEYS[cat.label]; const unpicked = fieldKey ? unpickedBonusFor(fieldKey) : []; if (unpicked.length === 0) return null; return <button onClick={() => setBonusInfoPopup({ title: isLowRnd ? 'Tournament Low Round' : cat.label, entries: unpicked })} style={{ background: 'none', border: 'none', padding: '0 0 0 6px', cursor: 'pointer', fontSize: 14, color: '#c0392b', lineHeight: 1, verticalAlign: 'middle', touchAction: 'manipulation' }}>ⓘ</button>; })()}
                             </div>
                           </div>
                           {hasEarners ? (
@@ -9325,14 +9325,14 @@ export default function Page() {
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                               {(() => {
                                 const fieldKey = BONUS_FIELD_KEYS[cat.label];
                                 const unpicked = fieldKey ? unpickedBonusFor(fieldKey) : [];
                                 if (unpicked.length === 0) return null;
                                 return <span onClick={(e) => { e.stopPropagation(); setBonusInfoPopup({ title: cat.label, entries: unpicked }); }} style={{ fontSize: 14, color: '#000000', lineHeight: 1, cursor: 'pointer', touchAction: 'manipulation' }}>ⓘ</span>;
                               })()}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                               {hasEarners ? (
                                 <span style={{ fontSize: 11, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '#173b63' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', borderRadius: 999, padding: '1px 8px', minWidth: 22, textAlign: 'center', border: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '1.5px solid #0f2d6b' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : selectedTournament === 'masters' ? '1.5px solid #c8b800' : '1.5px solid #a07010', boxShadow: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '0 2px 8px rgba(14,45,100,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : '0 2px 8px rgba(180,140,0,0.4)' }}>{earnerCount}</span>
                               ) : (
