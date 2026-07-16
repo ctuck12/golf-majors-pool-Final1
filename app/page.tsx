@@ -8164,7 +8164,7 @@ export default function Page() {
                       onClick={() => setActiveStandingGolferId(golfer.id)}
                       style={{
                         width: '100%',
-                        border: '1px solid #e2e8ef',
+                        border: selectedTournament === 'open' ? '1px solid #000000' : '1px solid #e2e8ef',
                         borderRadius: 12,
                         padding: 0,
                         background: selectedTournament === 'open' ? (isActiveGolfer ? '#e8a830' : '#F4BC41') : isActiveGolfer ? '#eef4ff' : '#fff',
@@ -8323,7 +8323,7 @@ export default function Page() {
                     No lineup has been saved for this team yet.
                   </div>
                 )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: isMobile ? '12px 14px' : '12px 16px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 12, border: selectedTournament === 'open' ? '1px solid #000000' : '1px solid #e2e8ef', padding: isMobile ? '12px 14px' : '12px 16px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
                 <div style={{ color: selectedTournament === 'masters' ? '#2e7d32' : '#173b63', fontSize: 14, fontWeight: 600 }}>
                   Total Holes Rem: <strong style={{ color: '#000' }}>{activeStandingEntry.holesRemaining}</strong>
                 </div>
@@ -8424,7 +8424,7 @@ export default function Page() {
                       gridTemplateColumns: 'minmax(140px, 1.3fr) minmax(100px, 0.7fr) minmax(80px, 0.7fr)',
                       gap: 8,
                       alignItems: 'center',
-                      border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
+                      border: selectedTournament === 'open' ? '1px solid #000000' : selectedTournament === 'players' ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
                       borderRadius: 10,
                       padding: '8px 12px',
                       background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
@@ -8613,8 +8613,8 @@ export default function Page() {
                 const backScore   = allScoresNull ? 0 : back.reduce((s,  h) => s + (h.score ?? 0), 0);
                 const totalScore  = frontScore + backScore;
 
-                const border = '1px solid #d1d9e0';
-                const thickBorder = '2px solid #9ab0c4';
+                const border = selectedTournament === 'open' ? '1px solid #000000' : '1px solid #d1d9e0';
+                const thickBorder = selectedTournament === 'open' ? '2px solid #000000' : '2px solid #9ab0c4';
 
                 const isGoldTab = selectedTournament === 'open';
                 const baseCell: React.CSSProperties = {
@@ -8756,8 +8756,8 @@ export default function Page() {
                   const prevRnds = scorecardData.rounds.filter(r => r.round < currentRnd.round && r.holes.length > 0).sort((a, b) => b.round - a.round);
                   const allRnds = [currentRnd, ...prevRnds];
 
-                  const border = '1px solid #d1d9e0';
-                  const thickBorder = '2px solid #9ab0c4';
+                  const border = selectedTournament === 'open' ? '1px solid #000000' : '1px solid #d1d9e0';
+                  const thickBorder = selectedTournament === 'open' ? '2px solid #000000' : '2px solid #9ab0c4';
                   const isGoldTab = selectedTournament === 'open';
                   const isMastersTournament = selectedTournament === 'masters';
                   const isRedTotalTournament = selectedTournament === 'us-open' || selectedTournament === 'pga';
@@ -8873,8 +8873,8 @@ export default function Page() {
                 ) : (() => {
                   const rounds = cutScorecardData.rounds.filter(r => r.holes.length > 0 && r.round <= 2 && r.holes.some(h => h.score != null && h.score !== 0 && String(h.label) !== '')).sort((a, b) => b.round - a.round);
                   if (rounds.length === 0) return <div style={{ color: '#607282', fontSize: 14, padding: '16px 0' }}>No scorecard data available.</div>;
-                  const border = '1px solid #d1d9e0';
-                  const thickBorder = '2px solid #9ab0c4';
+                  const border = selectedTournament === 'open' ? '1px solid #000000' : '1px solid #d1d9e0';
+                  const thickBorder = selectedTournament === 'open' ? '2px solid #000000' : '2px solid #9ab0c4';
                   const isGoldTab = selectedTournament === 'open';
                   const isMastersTournament = selectedTournament === 'masters';
                   const isRedTotalTournament = selectedTournament === 'us-open' || selectedTournament === 'pga';
