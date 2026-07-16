@@ -66,7 +66,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Dan Brown':                  { birthPlace: 'Northallerton, England', weight: '190 lbs', swing: 'Right' },
 
   // ---- 2026 Open field additions (researched July 2026) ----
-  'Joe Dean':                   { dob: 'June 23, 1994', birthPlace: 'Sheffield, England', noCollege: true },
+  'Joe Dean':                   { dob: 'June 23, 1994', birthPlace: 'Sheffield, England', height: `6'0"`, weight: '180 lbs', noCollege: true },
   'Jack Buchanan':              { dob: 'January 20, 2005', birthPlace: 'Cape Town, South Africa', height: `5'9"`, college: 'Southern California' },
   'Stuart Grehan':              { birthPlace: 'Tullamore, Ireland', college: 'Maynooth University' },
   'Lev Grinberg':               { dob: 'November 17, 2007', birthPlace: 'Kyiv, Ukraine' },
