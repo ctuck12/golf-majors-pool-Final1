@@ -7116,7 +7116,6 @@ export default function Page() {
                       <div style={{ minWidth: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ minWidth: 0 }}>
                           <div style={{ color: '#fff', fontSize: 15, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pickPopularityPlayer.name}</div>
-                          <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: 700, marginTop: 1 }}>Picked: {pickedBy.length} {pickedBy.length === 1 ? 'time' : 'times'}</div>
                         </div>
                         {getFlagSrc(pickPopularityPlayer.name) && (
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flexShrink: 0 }}>
