@@ -8426,7 +8426,7 @@ export default function Page() {
                     }}
                   >
                     <div style={{ fontWeight: 800, fontSize: 13, color: '#0f1720' }}>{label}</div>
-                    <div style={{ color: selectedTournament === 'open' ? '#2d3748' : (selectedTournament === 'players') ? '#4a5568' : '#6b7b88', fontSize: 12 }}>
+                    <div style={{ color: selectedTournament === 'open' ? '#000000' : (selectedTournament === 'players') ? '#4a5568' : '#6b7b88', fontSize: 12 }}>
                       {label === 'Leaderboard Place'
                         ? `Position: ${ordinal(String(count))}`
                         : ['Tourn Low Rnd', 'Rnd 1 Leader', 'Rnd 2 Leader', 'Rnd 3 Leader'].includes(String(label))
