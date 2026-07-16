@@ -4827,7 +4827,7 @@ export default function Page() {
                           Leaderboard
                           <span style={{ position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)', display: 'inline-flex', alignItems: 'center', paddingLeft: 3 }}>
                             <button onClick={() => setShowHeaderCutInfo((v) => !v)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: isMobile ? 14 : 15, color: '#000000', lineHeight: 1, touchAction: 'manipulation' }} aria-label="Cut line info">ⓘ</button>
-                            {showHeaderCutInfo && (<><div style={{ position: 'absolute', bottom: '100%', right: 0, marginBottom: 6, background: '#fff', border: '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>Cut Line: Top 70 & ties</div></>)}
+                            {showHeaderCutInfo && (<><div style={{ position: 'absolute', bottom: '100%', right: 0, marginBottom: 6, background: '#173b63', border: '1px solid #0c1f3a', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>Cut Line: Top 70 & ties</div></>)}
                           </span>
                         </span>
                       </div>
