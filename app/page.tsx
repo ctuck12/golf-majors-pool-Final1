@@ -4693,7 +4693,7 @@ export default function Page() {
                   </div>
                 ) : null}
                 {(selectedTournament === 'open' || selectedTournament === 'us-open' || selectedTournament === 'pga') && showLivePayoutStrip && (
-                  <img src={selectedTournament === 'open' ? '/open-o-logo.png' : selectedTournament === 'us-open' ? '/us-open-shinnecock-logo.gif' : '/pga-aronimink-logo.png'} alt="" style={{ position: 'absolute', left: '54%', top: (isTournamentFinal && !showFutureTournamentView) ? (isMobile ? '81%' : '68%') : (isMobile ? '108%' : '75%'), transform: 'translate(-50%, -50%)', height: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? (isMobile ? 46 : 60) : (isMobile ? 40 : 54), width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
+                  <img src={selectedTournament === 'open' ? '/open-o-logo.png' : selectedTournament === 'us-open' ? '/us-open-shinnecock-logo.gif' : '/pga-aronimink-logo.png'} alt="" style={{ position: 'absolute', left: selectedTournament === 'us-open' ? '50%' : '54%', top: (isTournamentFinal && !showFutureTournamentView) ? (isMobile ? '81%' : '68%') : (isMobile ? '108%' : '75%'), transform: 'translate(-50%, -50%)', height: selectedTournament === 'us-open' ? (isMobile ? 50 : 66) : selectedTournament === 'pga' ? (isMobile ? 46 : 60) : (isMobile ? 40 : 54), width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
                 )}
               </div>
               {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
@@ -4823,7 +4823,7 @@ export default function Page() {
                   </div>
                 </div>
               ) : showFinalTournamentView ? (
-                <div style={{ marginTop: isMobile ? 14 : 28, overflowX: 'auto' }}>
+                <div style={{ marginTop: (isTournamentFinal && !showFutureTournamentView) ? (isMobile ? 20 : 34) : (isMobile ? 14 : 28), overflowX: 'auto' }}>
                   <div style={{ borderRadius: 10, overflow: 'hidden', border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
@@ -4885,7 +4885,7 @@ export default function Page() {
                   </div>
                 </div>
               ) : (
-                <div style={{ marginTop: isMobile ? 14 : 28, overflowX: 'auto' }}>
+                <div style={{ marginTop: (isTournamentFinal && !showFutureTournamentView) ? (isMobile ? 20 : 34) : (isMobile ? 14 : 28), overflowX: 'auto' }}>
                   <div style={{ borderRadius: 10, overflow: 'hidden', border: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #d1dae3' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
