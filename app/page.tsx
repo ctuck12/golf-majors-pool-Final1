@@ -590,6 +590,7 @@ const MANUAL_PHOTO_FILES: Record<string, string> = {
   'Tiger Woods': '/player-photos/tiger-woods.png',
   // Neither ESPN nor PGA Tour has a headshot for these — supplied manually.
   'Andy Sullivan': '/player-photos/andy-sullivan.png',
+  'Joe Dean': '/player-photos/joe-dean.png',
   'Jordan Gumberg': '/player-photos/jordan-gumberg.png',
   'Paul McClure': '/player-photos/paul-mcclure.png',
   'Derek Berg': '/player-photos/derek-berg.png',
