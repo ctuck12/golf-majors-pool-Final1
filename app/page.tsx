@@ -633,7 +633,7 @@ const photoOnError = (e: { currentTarget: HTMLImageElement }) => {
 const HEADER_LOGO_WIDTH_EST: Record<TournamentId, number> = { players: 90, masters: 120, pga: 110, 'us-open': 90, open: 70 };
 let headerMeasureCtx: CanvasRenderingContext2D | null | undefined;
 function fitPopupHeader(name: string, abbr: string | null | undefined | false, popupMaxW: number, padH: number, tournamentId: TournamentId, mobile: boolean, forceInline = false): { fontSize: number; flagH: number; stacked: boolean; shrinkLogo: boolean } {
-  const sizes = mobile ? [18, 17, 16, 15, 14, 13] : [21, 20, 19, 18, 17, 16];
+  const sizes = mobile ? [18, 17, 16, 15, 14, 13, 12] : [21, 20, 19, 18, 17, 16, 15, 14];
   const fallback = { fontSize: sizes[0], flagH: 20, stacked: false, shrinkLogo: false };
   if (typeof window === 'undefined' || !name) return fallback;
   if (headerMeasureCtx === undefined) headerMeasureCtx = document.createElement('canvas').getContext('2d');
@@ -646,10 +646,10 @@ function fitPopupHeader(name: string, abbr: string | null | undefined | false, p
     if (!ctx) return text.length * px * 0.62;
     let widest = 0;
     for (const fam of [family, 'sans-serif']) {
-      ctx.font = `${weight} ${px}px ${fam}`;
+      ctx.font = `${weight} 100px ${fam}`;
       widest = Math.max(widest, ctx.measureText(text).width);
     }
-    return widest * 1.05;
+    return (widest * px / 100) * 1.06;
   };
   const logoWFull = HEADER_LOGO_WIDTH_EST[tournamentId] ?? 90;
   const popupW = Math.min(popupMaxW, window.innerWidth - 40);
