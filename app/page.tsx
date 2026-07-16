@@ -9278,7 +9278,7 @@ export default function Page() {
                         <div key={cat.label} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 12, border: selectedTournament === 'open' ? '1px solid #000000' : '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: (isMobile && selectedTournament === 'open') ? '0.75px solid #000000' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : selectedTournament === 'open' ? '0.5px solid #000000' : '1px solid #edf1f6' }}>
                             <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
-                              {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}{(() => { const fieldKey = BONUS_FIELD_KEYS[cat.label]; const unpicked = fieldKey ? unpickedBonusFor(fieldKey) : []; if (unpicked.length === 0) return null; return <button onClick={() => setBonusInfoPopup({ title: isLowRnd ? 'Tournament Low Round' : cat.label, entries: unpicked })} style={{ background: 'none', border: 'none', padding: '0 0 0 3px', cursor: 'pointer', fontSize: 14, color: '#000000', lineHeight: 1, verticalAlign: 'middle', touchAction: 'manipulation' }}>ⓘ</button>; })()}
+                              {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}{(() => { const fieldKey = BONUS_FIELD_KEYS[cat.label]; const unpicked = fieldKey ? unpickedBonusFor(fieldKey) : []; if (unpicked.length === 0) return null; return <button onClick={() => setBonusInfoPopup({ title: cat.label, entries: unpicked })} style={{ background: 'none', border: 'none', padding: '0 0 0 3px', cursor: 'pointer', fontSize: 14, color: '#000000', lineHeight: 1, verticalAlign: 'middle', touchAction: 'manipulation' }}>ⓘ</button>; })()}
                             </div>
                           </div>
                           {hasEarners ? (
@@ -9356,19 +9356,26 @@ export default function Page() {
                   </div>
                   {bonusInfoPopup && (
                     <div onClick={() => setBonusInfoPopup(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, zIndex: 120 }}>
-                      <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 14, padding: '14px 16px 16px', width: 'min(320px, 100%)', boxShadow: '0 18px 44px rgba(9,34,51,0.35)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{bonusInfoPopup.title}</div>
-                          <button onClick={() => setBonusInfoPopup(null)} style={{ background: '#eef2f6', border: 'none', borderRadius: 8, cursor: 'pointer', color: '#0f1720', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>✕</button>
+                      <div onClick={(e) => e.stopPropagation()} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 14, width: 'min(320px, 100%)', boxShadow: '0 18px 44px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
+                        <div style={{ background: bpHeaderBg, padding: '10px 12px 10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{bonusInfoPopup.title}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                            {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
+                              <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt="" style={{ height: selectedTournament === 'pga' ? 34 : selectedTournament === 'players' ? 30 : selectedTournament === 'open' ? 26 : selectedTournament === 'masters' ? undefined : 22, width: selectedTournament === 'masters' ? 64 : undefined, maxWidth: 72, objectFit: 'contain', display: 'block' }} />
+                            )}
+                            <button onClick={() => setBonusInfoPopup(null)} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 8, cursor: 'pointer', color: '#fff', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>✕</button>
+                          </div>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          {bonusInfoPopup.entries.map((en) => (
-                            <div key={en.name} style={{ fontSize: 13, fontWeight: 700, color: '#0f1720' }}>
-                              {en.name} <span style={{ color: '#607282', fontWeight: 500 }}>({en.rounds.map((r) => `R${r}`).join(', ')})</span>
-                            </div>
-                          ))}
+                        <div style={{ padding: '12px 16px 14px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {bonusInfoPopup.entries.map((en) => (
+                              <div key={en.name} style={{ fontSize: 13, fontWeight: 700, color: '#0f1720' }}>
+                                {en.name} <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 600 }}>({en.rounds.map((r) => `R${r}`).join(', ')})</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div style={{ marginTop: 10, fontSize: 11, color: selectedTournament === 'open' ? '#000000' : '#8a99a5', fontStyle: 'italic' }}>None of these players selected in the pool</div>
                         </div>
-                        <div style={{ marginTop: 10, fontSize: 11, color: '#8a99a5', fontStyle: 'italic' }}>Not selected in the pool</div>
                       </div>
                     </div>
                   )}
