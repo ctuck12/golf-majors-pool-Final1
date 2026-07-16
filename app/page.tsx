@@ -9213,7 +9213,7 @@ export default function Page() {
 
           const renderPlayerList = (cat: BonusCat) => {
             const earners = pickedPlayers.filter(cat.filter).sort((a, b) => cat.count(b) - cat.count(a));
-            if (earners.length === 0) return <div style={{ fontSize: 12, color: selectedTournament === 'open' ? '#000000' : '#607282', fontStyle: 'italic', padding: '2px 0 4px' }}>None</div>;
+            if (earners.length === 0) return <div style={{ fontSize: 12, color: selectedTournament === 'open' ? '#000000' : '#607282', fontStyle: 'italic', padding: '2px 0 4px' }}>None selected in pool apply</div>;
             return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, paddingBottom: 4 }}>
                 {earners.map((p) => (
@@ -9290,7 +9290,7 @@ export default function Page() {
                               ))}
                             </div>
                           ) : (
-                            <div style={{ fontSize: 12, color: selectedTournament === 'open' ? '#000000' : '#b0bec8', fontStyle: 'italic' }}>None</div>
+                            <div style={{ fontSize: 12, color: selectedTournament === 'open' ? '#000000' : '#b0bec8', fontStyle: 'italic' }}>None selected in pool apply</div>
                           )}
                         </div>
                       );
