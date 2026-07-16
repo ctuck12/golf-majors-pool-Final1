@@ -327,6 +327,13 @@ export async function GET(request: Request) {
   ]);
 
   const tournamentLowRound = getTournamentLowRoundScore(tournamentId, lowRoundStore);
+  // Who shot the tournament low round — from the full-field scorecard cache, so the Bonus
+  // Points popup can credit a non-pool player by name when no picked player holds it.
+  const tournamentLowRoundHolders = tournamentLowRound !== null && scorecardCache
+    ? Object.values(scorecardCache.players)
+        .filter((p) => p.rounds.some((r) => r.holes.length === 18 && r.holes.reduce((s, h) => s + h.score, 0) === tournamentLowRound))
+        .map((p) => p.playerName)
+    : [];
 
   // ── 3. Build scored player list ───────────────────────────────────────
   // Combine the static draft pool with any dynamically-added field players (from the commissioner's
@@ -518,6 +525,7 @@ export async function GET(request: Request) {
     projectedCut,
     tournamentComplete: cached.tournamentComplete ?? false,
     tournamentLowRoundScore: tournamentLowRound,
+    tournamentLowRoundHolders,
     coursePar: meta.par,
     fetchedAt: new Date().toISOString(),
     players,
