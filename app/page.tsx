@@ -632,18 +632,30 @@ const photoOnError = (e: { currentTarget: HTMLImageElement }) => {
 // would cut the name), jumps down proportionally in 0.5px steps before paint until the
 // full name fits or the floor is reached. Estimates can be wrong; this cannot clip.
 function AutoFitName({ text, base, min }: { text: string; base: number; min: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
+  const outerRef = useRef<HTMLSpanElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
   const [size, setSize] = useState(base);
   useLayoutEffect(() => { setSize(base); }, [text, base]);
   useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el || size <= min) return;
-    if (el.scrollWidth > el.clientWidth) {
-      const next = Math.max(min, Math.floor(size * (el.clientWidth / el.scrollWidth) * 2) / 2);
+    const outer = outerRef.current;
+    const meas = measureRef.current;
+    if (!outer || !meas || size <= min) return;
+    // WebKit can report scrollWidth === clientWidth on ellipsized text, hiding the
+    // overflow — so measure a hidden absolutely-positioned clone that is never
+    // truncated and compare it to the space the flex row actually gives the name.
+    const full = meas.offsetWidth;
+    const box = outer.clientWidth;
+    if (full > box) {
+      const next = Math.max(min, Math.floor(size * (box / full) * 2) / 2);
       setSize(next < size ? next : size - 0.5);
     }
   });
-  return <span ref={ref} style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: size }}>{text}</span>;
+  return (
+    <span ref={outerRef} style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: size, position: 'relative' }}>
+      {text}
+      <span ref={measureRef} aria-hidden="true" style={{ position: 'absolute', left: 0, top: 0, visibility: 'hidden', whiteSpace: 'nowrap', pointerEvents: 'none' }}>{text}</span>
+    </span>
+  );
 }
 
 // Popup-header layout fitting: measures the name, flag and country abbreviation with a
