@@ -8,6 +8,8 @@ import {
   TOURNAMENT_IDS,
   type TournamentId,
 } from '../../lib/pool-store';
+import { TOURNAMENT_META } from '../../lib/tournament-config';
+import { getLockTimeOverrides } from '../../lib/lock-time-store';
 function isTournamentId(value: string): value is TournamentId {
   return TOURNAMENT_IDS.includes(value as TournamentId);
 }
@@ -47,9 +49,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unknown tournament.' }, { status: 400 });
     }
 
-    // Server-side lock: picks are blocked only when commissioner has explicitly locked the lineup.
+    // Server-side lock: the commissioner's manual toggle, or the pool lock time
+    // (manual override or the built-in schedule) having passed.
     const tournamentId = body.tournamentId;
     if (session.pool?.lineupLocks?.[tournamentId] === true) {
+      return NextResponse.json({ error: 'Picks are locked for this tournament.' }, { status: 403 });
+    }
+    const lockOverrides = await getLockTimeOverrides().catch(() => ({} as Awaited<ReturnType<typeof getLockTimeOverrides>>));
+    const lockAtIso = lockOverrides[tournamentId] ?? TOURNAMENT_META[tournamentId]?.lockAtUtc;
+    if (lockAtIso && Date.now() >= new Date(lockAtIso).getTime()) {
       return NextResponse.json({ error: 'Picks are locked for this tournament.' }, { status: 403 });
     }
 

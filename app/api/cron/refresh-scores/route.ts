@@ -394,13 +394,15 @@ async function refreshTournament(tournamentId: string): Promise<string> {
 
   // not-started TTL handles its own backoff, UNLESS we're past the lock time —
   // then force a fresh fetch so the transition to live doesn't stall for 30 min.
+  // Commissioner-set Pool Lock Time overrides the built-in lockAtUtc. Once past it, flip the
+  // stored Lineup Lock immediately (idempotent) — don't wait for ESPN to show players started.
+  const lockOverrides = await getLockTimeOverrides().catch((): Awaited<ReturnType<typeof getLockTimeOverrides>> => ({}));
+  const lockIso = lockOverrides[tournamentId as keyof typeof lockOverrides] ?? meta.lockAtUtc;
+  const pastLock = !!lockIso && Date.now() >= new Date(lockIso).getTime();
+  if (pastLock) await autoLockPoolLineup(tournamentId as TournamentId).catch(() => {});
+
   const wasNotStarted = !!existing?.notStarted;
   if (wasNotStarted) {
-    // Commissioner-set Pool Lock Time overrides the built-in lockAtUtc.
-    const lockOverrides = await getLockTimeOverrides().catch((): Awaited<ReturnType<typeof getLockTimeOverrides>> => ({}));
-    const lockOverride = lockOverrides[tournamentId as keyof typeof lockOverrides];
-    const lockIso = lockOverride ?? meta.lockAtUtc;
-    const pastLock = lockIso && Date.now() >= new Date(lockIso).getTime();
     if (!pastLock) return 'not-started-cached';
     // Clear the stale notStarted entry so the fetch below proceeds cleanly.
     await redis.del(`leaderboard-cache:${tournamentId}`);

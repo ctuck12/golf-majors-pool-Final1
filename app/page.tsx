@@ -1532,6 +1532,16 @@ export default function Page() {
     }
   }, [saveMessage]);
   const [nowTick, setNowTick] = useState(() => Date.now());
+  // Commissioner-set pool lock times (mirrors the module-level map so changes re-render).
+  const [lockTimeOverrides, setLockTimeOverridesState] = useState<Partial<Record<TournamentId, string>>>({});
+  useEffect(() => {
+    fetch('/api/commissioner/lock-time', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d: { overrides?: Partial<Record<TournamentId, string>> }) => {
+        if (d.overrides) { LOCK_TIME_OVERRIDES = d.overrides; setLockTimeOverridesState(d.overrides); }
+      })
+      .catch(() => { /* keep the built-in schedule */ });
+  }, []);
   const [sessionUser, setSessionUser] = useState<AuthUser | null>(null);
   const [pool, setPool] = useState<PoolInfo | null>(null);
   const [poolEntries, setPoolEntries] = useState<PoolEntry[]>([]);
@@ -1707,7 +1717,14 @@ export default function Page() {
   // Show the "field being finalized" pre-view whenever picks aren't open; once the commissioner opens
   // them, show the actual pick sheet.
   const entriesPreFieldView = !entriesPicksOpenForTournament;
-  const entriesLocked = pool?.lineupLocks?.[entriesTournamentId] ?? entriesTournamentStatus?.label === 'IN PROGRESS';
+  // Locked when: the commissioner's manual toggle is ON, the event is live, OR the pool lock
+  // time (manual override or built-in) has passed. A stored `false` from a past toggle must
+  // NOT suppress the time-based lock (`?? ` did exactly that and let edits through post-lock).
+  const entriesLockAtIso = lockTimeOverrides[entriesTournamentId] ?? TOURNAMENT_META[entriesTournamentId]?.lockAtUtc;
+  const entriesLocked =
+    pool?.lineupLocks?.[entriesTournamentId] === true ||
+    entriesTournamentStatus?.label === 'IN PROGRESS' ||
+    (!!entriesLockAtIso && nowTick >= new Date(entriesLockAtIso).getTime());
   const selectedTournamentPayouts = pool?.payouts?.[selectedTournament] ?? null;
   const commissionerTournamentPayouts = pool?.payouts?.[entriesTournamentId] ?? null;
   const commissionerTournamentWinnerScore = pool?.winnerScores?.[entriesTournamentId] ?? null;
@@ -2853,16 +2870,6 @@ export default function Page() {
   const [salaryByTournament, setSalaryByTournament] = useState<Record<string, SalaryMaps>>({});
   // Players the commissioner's salary upload auto-added because they weren't in the static pool.
   const [dynamicPlayers, setDynamicPlayers] = useState<Array<{ id: number; name: string; pgaTourId: number; worldRank: number; defaultOdds: string }>>([]);
-  // Commissioner-set pool lock times (mirrors the module-level map so changes re-render).
-  const [lockTimeOverrides, setLockTimeOverridesState] = useState<Partial<Record<TournamentId, string>>>({});
-  useEffect(() => {
-    fetch('/api/commissioner/lock-time', { cache: 'no-store' })
-      .then((r) => r.json())
-      .then((d: { overrides?: Partial<Record<TournamentId, string>> }) => {
-        if (d.overrides) { LOCK_TIME_OVERRIDES = d.overrides; setLockTimeOverridesState(d.overrides); }
-      })
-      .catch(() => { /* keep the built-in schedule */ });
-  }, []);
   const [salaryListLoaded, setSalaryListLoaded] = useState(false); // false until the fetch resolves
   // Re-fetchable so a fresh commissioner upload shows up without a hard reload (mobile back/bfcache
   // otherwise restores the pre-upload page without re-running the mount fetch).
