@@ -4595,7 +4595,7 @@ export default function Page() {
                 alignSelf: 'start',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: isMobile ? 'flex-start' : 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: isMobile ? 'flex-start' : 'center', position: 'relative' }}>
                 <div>
                   {selectedTournament === 'players' ? (
                     <>
@@ -4672,6 +4672,9 @@ export default function Page() {
                     </span>
                   </div>
                 ) : null}
+                {selectedTournament === 'open' && showLivePayoutStrip && (
+                  <img src="/open-o-logo.png" alt="" style={{ position: 'absolute', left: '54%', top: isMobile ? '68%' : '50%', transform: 'translate(-50%, -50%)', height: isMobile ? 40 : 54, width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
+                )}
               </div>
               {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, gap: 8 }}>
