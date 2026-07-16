@@ -67,7 +67,9 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
 
   // ---- 2026 Open field additions (researched July 2026) ----
   'Joe Dean':                   { dob: 'June 23, 1994', birthPlace: 'Sheffield, England', height: `6'0"`, weight: '180 lbs', noCollege: true },
-  'Jack Buchanan':              { dob: 'January 20, 2005', birthPlace: 'Cape Town, South Africa', height: `5'9"`, college: 'Southern California' },
+  // Australian DP World Tour pro (ESPN 5119687) — NOT the South African-born USC amateur
+  // (ESPN 5337673), whose data was mistakenly used here before.
+  'Jack Buchanan':              { dob: 'April 1, 2002', birthPlace: 'Scotland', turnedPro: 2023, noCollege: true },
   'Stuart Grehan':              { birthPlace: 'Tullamore, Ireland', college: 'Maynooth University' },
   'Lev Grinberg':               { dob: 'November 17, 2007', birthPlace: 'Kyiv, Ukraine' },
   'David Howard':               { birthPlace: 'Cork, Ireland', noCollege: true },

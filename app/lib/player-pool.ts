@@ -209,7 +209,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 500011, name: 'Matthew Baldwin',                pgaTourId: 32622,     defaultOdds: '+100000', worldRank: 689 },
   { id: 500012, name: 'Jose Luis Ballester Barrio',     pgaTourId: 60165,     defaultOdds: '+100000', worldRank: 124 },
   { id: 500013, name: 'Dan Bradbury',                   pgaTourId: 63459,     defaultOdds: '+100000', worldRank: 153 },
-  { id: 500015, name: 'Jack Buchanan',                  pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
+  { id: 500015, name: 'Jack Buchanan',                  pgaTourId: 66202, defaultOdds: '+100000', worldRank: 702 },
   { id: 500016, name: 'Eugenio Chacarra',               pgaTourId: 57492,     defaultOdds: '+100000', worldRank: 9999 },
   { id: 500017, name: 'Tiger Christensen',              pgaTourId: 65071,     defaultOdds: '+100000', worldRank: 1141 },
   { id: 500019, name: 'Darren Clarke',                  pgaTourId: 19825,     defaultOdds: '+100000', worldRank: 9999 },

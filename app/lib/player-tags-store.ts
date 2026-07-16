@@ -22,7 +22,7 @@ export type PlayerTags = {
 
 // Corrections for mistaken upload markers — these players are professionals and must never
 // show the AMATEUR badge. Filtered at read time so a re-upload can't reintroduce the flag.
-const NEVER_AMATEUR = new Set([canonicalNameKey('Johnny Keefer'), canonicalNameKey('John Keefer')]);
+const NEVER_AMATEUR = new Set([canonicalNameKey('Johnny Keefer'), canonicalNameKey('John Keefer'), canonicalNameKey('Jack Buchanan')]);
 
 export async function getPlayerTags(): Promise<PlayerTags> {
   try {

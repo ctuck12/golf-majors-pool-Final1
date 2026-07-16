@@ -193,7 +193,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Alejandro del Rey': 'es', 'Ivan Cantero': 'es', 'David Puig': 'es', 'Eugenio Chacarra': 'es',
   // 2026 Open field additions
   'Nick Dunlap': 'us', 'Lanto Griffin': 'us', 'Rafael Campos': 'pr',
-  'Jack Buchanan': 'za', 'Stuart Grehan': 'ie', 'Lev Grinberg': 'ua', 'David Howard': 'ie', 'Nevill Ruiter': 'nl', 'Joe Dean': 'gb-eng',
+  'Jack Buchanan': 'au', 'Stuart Grehan': 'ie', 'Lev Grinberg': 'ua', 'David Howard': 'ie', 'Nevill Ruiter': 'nl', 'Joe Dean': 'gb-eng',
   'Jose Luis Ballester Barrio': 'es', 'Martin Couvra': 'fr', 'Francesco Laporta': 'it', 'Dan Bradbury': 'gb-eng', 'Alistair Docherty': 'us', 'Michael Hollick': 'za', 'Kazuma Kobori': 'nz', 'Frederic Lacroix': 'fr', 'Shaun Norris': 'za', 'Sam Bairstow': 'gb-eng', 'Jeongwoo Ham': 'kr', 'Ryutaro Nagano': 'jp', 'Matthew Southgate': 'gb-eng', 'Austen Truslow': 'us', 'Jiho Yang': 'kr', 'Ren Yonezawa': 'jp', 'Matthew Baldwin': 'gb-eng', 'Tiger Christensen': 'de', 'David Duval': 'us', 'Cameron John': 'au', 'Jack McDonald': 'gb-sct', 'Marcus Plunkett': 'us', 'Baard Bjoernevik Skogen': 'no', 'Tom Sloman': 'gb-eng', 'Jose Maria Olazabal': 'es', 'Angel Hidalgo Portillo': 'es', 'Rocco Paolo Repetto Taylor': 'es',
   // South Africa
   'Louis Oosthuizen': 'za', 'Charl Schwartzel': 'za', 'Branden Grace': 'za',

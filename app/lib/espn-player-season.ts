@@ -17,7 +17,7 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Eugenio Lopez-Chacarra': '4565467',
   'Jordan Smith': '9506',
   'Joe Dean': '6970',
-  'Jack Buchanan': '5337673',
+  'Jack Buchanan': '5119687',
   'Lev Grinberg': '5062278',
   'David Howard': '5369476',
   'Jose Luis Ballester Barrio': '5152205',
