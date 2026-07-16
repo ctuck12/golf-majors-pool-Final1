@@ -7118,9 +7118,9 @@ export default function Page() {
                           <div style={{ color: '#fff', fontSize: 15, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pickPopularityPlayer.name}</div>
                         </div>
                         {getFlagSrc(pickPopularityPlayer.name) && (
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                             <img src={getFlagSrc(pickPopularityPlayer.name)} alt={getCountryLabel(pickPopularityPlayer.name)} style={{ width: 26, height: 17, objectFit: 'cover', borderRadius: 3, display: 'block' }} />
-                            <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.05em' }}>{getCountryLabel(pickPopularityPlayer.name)}</span>
+                            <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.05em' }}>{getCountryLabel(pickPopularityPlayer.name)}</span>
                           </div>
                         )}
                       </div>
