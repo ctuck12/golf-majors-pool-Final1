@@ -656,8 +656,9 @@ function HeaderNameFlag({ name, flagSrc, abbr, base, min, allowStack, initialSta
     const full = meas.offsetWidth;
     const box = outer.clientWidth;
     if (full <= box) return;
-    if (size > min) {
-      const next = Math.max(min, Math.floor(size * (box / full) * 2) / 2);
+    const floorSize = stacked || !allowStack ? Math.max(11, min - 2) : min;
+    if (size > floorSize) {
+      const next = Math.max(floorSize, Math.floor(size * (box / full) * 2) / 2);
       setSize(next < size ? next : size - 0.5);
     } else if (allowStack && !stacked && abbr) {
       // Even the floor size can't fit beside the inline abbreviation — hang the
@@ -8538,11 +8539,6 @@ export default function Page() {
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: fitPopupHeader(activeStandingGolfer.name, getCountryLabel(activeStandingGolfer.name), 480, isMobile ? 36 : 44, selectedTournament, isMobile).fontSize, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', minWidth: 0, whiteSpace: 'nowrap' }}><HeaderNameFlag name={activeStandingGolfer.name} flagSrc={getPlayerFlag(activeStandingGolfer.name) ? getFlagSrc(activeStandingGolfer.name) : null} abbr={getCountryLabel(activeStandingGolfer.name) || null} base={fitPopupHeader(activeStandingGolfer.name, getCountryLabel(activeStandingGolfer.name), 480, isMobile ? 36 : 44, selectedTournament, isMobile).fontSize} min={isMobile ? 13 : 15} allowStack={true} initialStacked={fitPopupHeader(activeStandingGolfer.name, getCountryLabel(activeStandingGolfer.name), 480, isMobile ? 36 : 44, selectedTournament, isMobile).stacked} />{getPlayerFlag(activeStandingGolfer.name) && <>{(PGA_CLUB_PROFESSIONALS.has(activeStandingGolfer.name) || clubProKeys.has(canonicalNameKey(activeStandingGolfer.name))) && <img src="/pga-seal-gold.png" alt="PGA" style={{ marginLeft: 6, height: 38, verticalAlign: 'middle', display: 'inline-block', objectFit: 'contain' }} />}</>}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
-                        <button onClick={() => setShowPointsSystem(true)} style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
-                          Points System <span style={{ fontSize: 10, opacity: 0.8 }}>›</span>
-                        </button>
-                      </div>
                     </div>
                     {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
                       <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', alignSelf: selectedTournament !== 'open' ? 'center' : undefined }}>
