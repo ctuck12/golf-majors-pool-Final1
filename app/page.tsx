@@ -496,6 +496,16 @@ const TOURNAMENT_CUT_HIDE_AT: Partial<Record<TournamentId, string>> = {
   open: '2026-07-18T01:35:00-04:00', // ~6:35 AM BST
 };
 
+// IANA timezone of each tournament's course (2026 venues) — powers the "Course Time"
+// display in the standings card while a round is underway and no projected cut is shown.
+const TOURNAMENT_COURSE_TIMEZONES: Record<TournamentId, string> = {
+  players: 'America/New_York',   // TPC Sawgrass
+  masters: 'America/New_York',   // Augusta National
+  pga: 'America/New_York',       // Aronimink
+  'us-open': 'America/New_York', // Shinnecock Hills
+  open: 'Europe/London',         // Royal Birkdale
+};
+
 const TOURNAMENT_TAB_LOGO_HEIGHTS: Partial<Record<TournamentId, number>> = {
   players: 46,
   pga: 46,
@@ -3058,8 +3068,14 @@ export default function Page() {
     ((feed?.currentRound ?? 1) === 3 && /official|complete|final/i.test(feed?.status ?? ''));
   const currentRoundComplete = /official|complete|final/i.test(feed?.status ?? '');
   const currentRoundSuspended = /suspended/i.test(feed?.status ?? '');
+  // Once the real cut is applied (players carry Missed Cut markers) the projection is
+  // obsolete — stop showing it regardless of the time window.
+  const cutAssigned =
+    (feed?.players?.some((p) => p.score === 'CUT') ?? false) ||
+    (currentFullLeaderboardRows ?? []).some((p) => p.score === 'CUT');
   const showProjectedCut = (() => {
     if (selectedTournamentStatus?.label !== 'IN PROGRESS') return false;
+    if (cutAssigned) return false;
     const showAt = TOURNAMENT_CUT_SHOW_AT[selectedTournament];
     if (!showAt) return false;
     const now = nowTick;
@@ -3067,6 +3083,35 @@ export default function Page() {
     const hideAt = TOURNAMENT_CUT_HIDE_AT[selectedTournament];
     return hideAt ? now < new Date(hideAt).getTime() : true;
   })();
+  // Fills the slot right of the round chip when no projected cut is displayed: the time
+  // of day at the course while a round is in progress/suspended (ticks with nowTick).
+  const courseLocalTimeLabel = new Intl.DateTimeFormat('en-US', {
+    timeZone: TOURNAMENT_COURSE_TIMEZONES[selectedTournament],
+    hour: 'numeric', minute: '2-digit', hour12: true,
+  }).format(new Date(nowTick)).toLowerCase();
+  // Once a round is complete, the same slot shows when the next round begins — the
+  // earliest future tee time from the feed (ESPN posts next-round times on the rows).
+  const nextRoundStartLabel = (() => {
+    if (!currentRoundComplete) return null;
+    const MONTHS: Record<string, string> = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
+    let bestMs: number | null = null;
+    let bestStr: string | null = null;
+    for (const p of [...(feed?.players ?? []), ...(currentFullLeaderboardRows ?? [])]) {
+      const t = p.teeTime;
+      if (!t) continue;
+      const m = t.match(/\w+ (\w{3}) (\d+) (\d{1,2}):(\d{2}):\d{2} \w+ (\d{4})/);
+      if (!m) continue;
+      const [, monthName, day, hour, min, year] = m;
+      const month = MONTHS[monthName];
+      if (!month) continue;
+      // Same convention as teeTimeIsPast: ESPN stores EDT but mislabels the zone.
+      const d = new Date(`${year}-${month}-${day.padStart(2, '0')}T${hour.padStart(2, '0')}:${min}:00-04:00`);
+      if (isNaN(d.getTime()) || d.getTime() <= nowTick) continue;
+      if (bestMs === null || d.getTime() < bestMs) { bestMs = d.getTime(); bestStr = t; }
+    }
+    return bestStr ? `${formatTeeTime(bestStr)} CST` : null;
+  })();
+  const nextRoundNum = Math.min(4, (feed?.currentRound ?? 1) + 1);
   const showFutureTournamentView =
     selectedTournamentStatus?.label === 'UP NEXT' ||
     selectedTournamentStatus?.label === 'ACTIVE' ||
@@ -4568,7 +4613,13 @@ export default function Page() {
                       </span>
                       <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</span>
                     </div>
-                  ) : null}
+                  ) : (
+                    <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96', whiteSpace: 'nowrap' }}>
+                      {currentRoundComplete && nextRoundStartLabel
+                        ? `Rd ${nextRoundNum} Start: ${nextRoundStartLabel}`
+                        : `Course Time: ${courseLocalTimeLabel}`}
+                    </span>
+                  )}
                 </div>
               )}
 
