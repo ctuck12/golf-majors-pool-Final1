@@ -9,6 +9,7 @@ import { applyNameAlias } from '@/app/lib/name-aliases';
 import {
   AlertCircle,
   ArrowLeft,
+  Calendar,
   CircleUserRound,
   CheckCircle2,
   DollarSign,
@@ -6747,12 +6748,18 @@ export default function Page() {
                     })()}
                     <label style={{ display: 'grid', gap: 6 }}>
                       <span style={{ fontSize: 10, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', letterSpacing: '0.06em' }}>Set a new lock time (Central)</span>
-                      <input
-                        type="datetime-local"
-                        value={poolLockInput}
-                        onChange={(e) => setPoolLockInput(e.target.value)}
-                        style={{ border: '1.5px solid #d1dae3', borderRadius: 10, padding: '10px 12px', fontSize: 14, fontWeight: 600, color: '#0f1720', width: '100%', boxSizing: 'border-box', minWidth: 0, minHeight: 44, background: '#fff', WebkitAppearance: 'none', appearance: 'none', textAlign: 'left' }}
-                      />
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          type="datetime-local"
+                          value={poolLockInput}
+                          onChange={(e) => setPoolLockInput(e.target.value)}
+                          style={{ border: '1.5px solid #d1dae3', borderRadius: 10, padding: '10px 40px 10px 12px', fontSize: 14, fontWeight: 600, color: '#0f1720', width: '100%', boxSizing: 'border-box', minWidth: 0, minHeight: 44, background: '#fff', WebkitAppearance: 'none', appearance: 'none', textAlign: 'left' }}
+                        />
+                        {/* iOS renders no picker affordance — overlay a calendar icon so the box reads as tappable */}
+                        {isMobile && (
+                          <Calendar size={18} color="#5b6b79" style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                        )}
+                      </div>
                     </label>
                     <button
                       onClick={() => void savePoolLockTime(false)}
