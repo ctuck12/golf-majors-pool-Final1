@@ -633,35 +633,47 @@ const photoOnError = (e: { currentTarget: HTMLImageElement }) => {
 const HEADER_LOGO_WIDTH_EST: Record<TournamentId, number> = { players: 90, masters: 120, pga: 110, 'us-open': 90, open: 70 };
 let headerMeasureCtx: CanvasRenderingContext2D | null | undefined;
 function fitPopupHeader(name: string, abbr: string | null | undefined | false, popupMaxW: number, padH: number, tournamentId: TournamentId, mobile: boolean, forceInline = false): { fontSize: number; flagH: number; stacked: boolean; shrinkLogo: boolean } {
-  const sizes = mobile ? [18, 16, 15] : [21, 19, 18];
+  const sizes = mobile ? [18, 17, 16, 15, 14, 13] : [21, 20, 19, 18, 17, 16];
   const fallback = { fontSize: sizes[0], flagH: 20, stacked: false, shrinkLogo: false };
   if (typeof window === 'undefined' || !name) return fallback;
   if (headerMeasureCtx === undefined) headerMeasureCtx = document.createElement('canvas').getContext('2d');
   const ctx = headerMeasureCtx;
   const family = (document.body ? getComputedStyle(document.body).fontFamily : '') || 'sans-serif';
+  // Conservative measurement: canvas may resolve the app's webfont differently than the
+  // DOM, so take the widest of the app family and a plain sans-serif, plus 5% slack —
+  // underestimating here is what lets the name get clipped by the ellipsis.
   const w = (text: string, weight: number, px: number) => {
-    if (!ctx) return text.length * px * 0.58;
-    ctx.font = `${weight} ${px}px ${family}`;
-    return ctx.measureText(text).width;
-  };
-  const logoW = HEADER_LOGO_WIDTH_EST[tournamentId] ?? 90;
-  // popup width − header padding − logo − close button (34) − flex gaps
-  const avail = Math.min(popupMaxW, window.innerWidth - 40) - padH - logoW - 34 - 24;
-  const abbrW = abbr ? w(abbr, 400, 13) + 5 : 0;
-  for (const fs of sizes) {
-    const flagH = fs === sizes[0] ? 20 : fs === sizes[1] ? (mobile ? 18 : 20) : 16;
-    const nameRow = w(name, 900, fs) + 8 + flagH * 1.5; // + flag margin + 3:2 flag
-    if (forceInline) {
-      // Inline-only mode (headers with a second row under the name, e.g. the live
-      // scorecard's Previous Rounds button): the abbreviation must never hang below the
-      // flag, so step the whole trio down until it fits with breathing room to the logo.
-      if (nameRow + abbrW <= avail - 10) return { fontSize: fs, flagH, stacked: false, shrinkLogo: false };
-      continue;
+    if (!ctx) return text.length * px * 0.62;
+    let widest = 0;
+    for (const fam of [family, 'sans-serif']) {
+      ctx.font = `${weight} ${px}px ${fam}`;
+      widest = Math.max(widest, ctx.measureText(text).width);
     }
-    if (fs === sizes[0] && nameRow + abbrW <= avail) return { fontSize: fs, flagH, stacked: false, shrinkLogo: false };
-    if (nameRow <= avail) return { fontSize: fs, flagH, stacked: true, shrinkLogo: false };
+    return widest * 1.05;
+  };
+  const logoWFull = HEADER_LOGO_WIDTH_EST[tournamentId] ?? 90;
+  const popupW = Math.min(popupMaxW, window.innerWidth - 40);
+  const abbrW = abbr ? w(abbr, 400, 13) + 5 : 0;
+  const flagFor = (fs: number) => fs >= sizes[0] ? 20 : fs >= (mobile ? 16 : 19) ? 18 : 16;
+  // Two passes: full-size logo first, shrunken logo only if nothing fits beside it.
+  for (const shrinkLogo of [false, true]) {
+    // popup width − header padding − logo − close button (34) − flex gaps
+    const avail = popupW - padH - (shrinkLogo ? logoWFull * 0.75 : logoWFull) - 34 - 24;
+    for (const fs of sizes) {
+      const flagH = flagFor(fs);
+      const nameRow = w(name, 900, fs) + 8 + flagH * 1.5; // + flag margin + 3:2 flag
+      if (forceInline) {
+        // Inline-only mode (headers with a second row under the name, e.g. the live
+        // scorecard's Previous Rounds button): the abbreviation must never hang below the
+        // flag, so step the whole trio down until it fits with breathing room to the logo.
+        if (nameRow + abbrW <= avail - 10) return { fontSize: fs, flagH, stacked: false, shrinkLogo };
+        continue;
+      }
+      if (nameRow + abbrW <= avail) return { fontSize: fs, flagH, stacked: false, shrinkLogo };
+      if (nameRow <= avail) return { fontSize: fs, flagH, stacked: true, shrinkLogo };
+    }
   }
-  return { fontSize: sizes[2], flagH: 16, stacked: !forceInline, shrinkLogo: true };
+  return { fontSize: sizes[sizes.length - 1], flagH: 16, stacked: !forceInline, shrinkLogo: true };
 }
 
 const PLAYER_POOL = PLAYER_POOL_WITH_PGA_IDS;
