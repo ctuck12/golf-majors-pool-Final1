@@ -627,16 +627,17 @@ const photoOnError = (e: { currentTarget: HTMLImageElement }) => {
   if (fb) { img.dataset.fellback = '1'; img.src = fb; }
 };
 
-// Ground-truth header-name fitting: the span starts at the size fitPopupHeader picked and,
-// if the browser itself reports overflow (scrollWidth > clientWidth — i.e. the ellipsis
-// would cut the name), jumps down proportionally in 0.5px steps before paint until the
-// full name fits or the floor is reached. Estimates can be wrong; this cannot clip.
-function AutoFitName({ text, base, min }: { text: string; base: number; min: number }) {
+// Ground-truth header name/flag/abbreviation fitting: shrinks the name to fit the row
+// and, if even the minimum size cannot fit with the abbreviation inline, hangs the
+// abbreviation below the flag (where allowed) and re-grows the name. Decisions come from
+// real DOM measurements — no font/device estimate can cause truncation.
+function HeaderNameFlag({ name, flagSrc, abbr, base, min, allowStack, initialStacked }: { name: string; flagSrc: string | null; abbr: string | null; base: number; min: number; allowStack: boolean; initialStacked: boolean }) {
   const outerRef = useRef<HTMLSpanElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
   const [size, setSize] = useState(base);
+  const [stacked, setStacked] = useState(initialStacked);
   const [, setMeasureTick] = useState(0);
-  useLayoutEffect(() => { setSize(base); }, [text, base]);
+  useLayoutEffect(() => { setSize(base); setStacked(initialStacked); }, [name, base, initialStacked]);
   // The row's free space changes without a React render when the flag/logo images finish
   // loading (they start at width 0) — observe the span's box so any squeeze re-fits.
   useLayoutEffect(() => {
@@ -649,22 +650,38 @@ function AutoFitName({ text, base, min }: { text: string; base: number; min: num
   useLayoutEffect(() => {
     const outer = outerRef.current;
     const meas = measureRef.current;
-    if (!outer || !meas || size <= min) return;
-    // WebKit can report scrollWidth === clientWidth on ellipsized text, hiding the
-    // overflow — so measure a hidden absolutely-positioned clone that is never
-    // truncated and compare it to the space the flex row actually gives the name.
+    if (!outer || !meas) return;
+    // WebKit can report scrollWidth === clientWidth on ellipsized text, so measure a
+    // hidden untruncated clone and compare it to the space the flex row actually gives.
     const full = meas.offsetWidth;
     const box = outer.clientWidth;
-    if (full > box) {
+    if (full <= box) return;
+    if (size > min) {
       const next = Math.max(min, Math.floor(size * (box / full) * 2) / 2);
       setSize(next < size ? next : size - 0.5);
+    } else if (allowStack && !stacked && abbr) {
+      // Even the floor size can't fit beside the inline abbreviation — hang the
+      // abbreviation under the flag, which frees its width, and let the name grow back.
+      setStacked(true);
+      setSize(base);
     }
   });
+  const flagH = size >= 17 ? 20 : size >= 15 ? 18 : 16;
   return (
-    <span ref={outerRef} style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: size, position: 'relative' }}>
-      {text}
-      <span ref={measureRef} aria-hidden="true" style={{ position: 'absolute', left: 0, top: 0, visibility: 'hidden', whiteSpace: 'nowrap', pointerEvents: 'none' }}>{text}</span>
-    </span>
+    <>
+      <span ref={outerRef} style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: size, position: 'relative' }}>
+        {name}
+        <span ref={measureRef} aria-hidden="true" style={{ position: 'absolute', left: 0, top: 0, visibility: 'hidden', whiteSpace: 'nowrap', pointerEvents: 'none' }}>{name}</span>
+      </span>
+      {flagSrc && (
+        <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 8, verticalAlign: 'middle', flexShrink: 0 }}>
+          <img src={flagSrc} alt="" style={{ height: flagH, display: 'block', borderRadius: 3 }} />
+          {abbr && (stacked
+            ? <span style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 2, color: '#fff', fontWeight: 400, fontSize: 10, lineHeight: 1 }}>{abbr}</span>
+            : <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, lineHeight: 1 }}>{abbr}</span>)}
+        </span>
+      )}
+    </>
   );
 }
 
@@ -8520,7 +8537,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: fitPopupHeader(activeStandingGolfer.name, getCountryLabel(activeStandingGolfer.name), 480, isMobile ? 36 : 44, selectedTournament, isMobile).fontSize, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', minWidth: 0, whiteSpace: 'nowrap' }}><AutoFitName text={activeStandingGolfer.name} base={fitPopupHeader(activeStandingGolfer.name, getCountryLabel(activeStandingGolfer.name), 480, isMobile ? 36 : 44, selectedTournament, isMobile).fontSize} min={isMobile ? 13 : 15} />{getPlayerFlag(activeStandingGolfer.name) && <><span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 8, verticalAlign: 'middle', flexShrink: 0 }}><img src={getFlagSrc(activeStandingGolfer.name)} alt="" style={{ height: fitPopupHeader(activeStandingGolfer.name, getCountryLabel(activeStandingGolfer.name), 480, isMobile ? 36 : 44, selectedTournament, isMobile).flagH, display: 'block', borderRadius: 3 }} />{getCountryLabel(activeStandingGolfer.name) && (fitPopupHeader(activeStandingGolfer.name, getCountryLabel(activeStandingGolfer.name), 480, isMobile ? 36 : 44, selectedTournament, isMobile).stacked ? <span style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 2, color: '#fff', fontWeight: 400, fontSize: 10, lineHeight: 1 }}>{getCountryLabel(activeStandingGolfer.name)}</span> : <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, lineHeight: 1 }}>{getCountryLabel(activeStandingGolfer.name)}</span>)}</span>{(PGA_CLUB_PROFESSIONALS.has(activeStandingGolfer.name) || clubProKeys.has(canonicalNameKey(activeStandingGolfer.name))) && <img src="/pga-seal-gold.png" alt="PGA" style={{ marginLeft: 6, height: 38, verticalAlign: 'middle', display: 'inline-block', objectFit: 'contain' }} />}</>}</div>
+                      <div style={{ fontSize: fitPopupHeader(activeStandingGolfer.name, getCountryLabel(activeStandingGolfer.name), 480, isMobile ? 36 : 44, selectedTournament, isMobile).fontSize, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', minWidth: 0, whiteSpace: 'nowrap' }}><HeaderNameFlag name={activeStandingGolfer.name} flagSrc={getPlayerFlag(activeStandingGolfer.name) ? getFlagSrc(activeStandingGolfer.name) : null} abbr={getCountryLabel(activeStandingGolfer.name) || null} base={fitPopupHeader(activeStandingGolfer.name, getCountryLabel(activeStandingGolfer.name), 480, isMobile ? 36 : 44, selectedTournament, isMobile).fontSize} min={isMobile ? 13 : 15} allowStack={true} initialStacked={fitPopupHeader(activeStandingGolfer.name, getCountryLabel(activeStandingGolfer.name), 480, isMobile ? 36 : 44, selectedTournament, isMobile).stacked} />{getPlayerFlag(activeStandingGolfer.name) && <>{(PGA_CLUB_PROFESSIONALS.has(activeStandingGolfer.name) || clubProKeys.has(canonicalNameKey(activeStandingGolfer.name))) && <img src="/pga-seal-gold.png" alt="PGA" style={{ marginLeft: 6, height: 38, verticalAlign: 'middle', display: 'inline-block', objectFit: 'contain' }} />}</>}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
                         <button onClick={() => setShowPointsSystem(true)} style={{ background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 7, cursor: 'pointer', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 9px', lineHeight: 1, letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
                           Points System <span style={{ fontSize: 10, opacity: 0.8 }}>›</span>
@@ -8679,7 +8696,7 @@ export default function Page() {
                     {/* Name + round/score + close */}
                     <div style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: isMobile ? '10px 14px' : '12px 18px' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: !scorecardGolferName ? 19 : fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 28 : 36, selectedTournament, isMobile, true, 32).fontSize, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.1, display: 'flex', alignItems: 'center', minWidth: 0, whiteSpace: 'nowrap' }}><AutoFitName text={scorecardGolferName ?? ''} base={!scorecardGolferName ? 19 : fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 28 : 36, selectedTournament, isMobile, true, 32).fontSize} min={isMobile ? 13 : 15} />{scorecardGolferName && getPlayerFlag(scorecardGolferName) && <><span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 8, verticalAlign: 'middle', flexShrink: 0 }}><img src={getFlagSrc(scorecardGolferName)} alt="" style={{ height: fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 28 : 36, selectedTournament, isMobile, true, 32).flagH, display: 'block', borderRadius: 3 }} />{getCountryLabel(scorecardGolferName) && (fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 28 : 36, selectedTournament, isMobile, true, 32).stacked ? <span style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 2, color: '#fff', fontWeight: 400, fontSize: 10, lineHeight: 1 }}>{getCountryLabel(scorecardGolferName)}</span> : <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, lineHeight: 1 }}>{getCountryLabel(scorecardGolferName)}</span>)}</span></>}</div>
+                        <div style={{ fontSize: !scorecardGolferName ? 19 : fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 28 : 36, selectedTournament, isMobile, true, 32).fontSize, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.1, display: 'flex', alignItems: 'center', minWidth: 0, whiteSpace: 'nowrap' }}><HeaderNameFlag name={scorecardGolferName ?? ''} flagSrc={scorecardGolferName && getPlayerFlag(scorecardGolferName) ? getFlagSrc(scorecardGolferName) : null} abbr={scorecardGolferName ? (getCountryLabel(scorecardGolferName) || null) : null} base={!scorecardGolferName ? 19 : fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 28 : 36, selectedTournament, isMobile, true, 32).fontSize} min={isMobile ? 13 : 15} allowStack={false} initialStacked={false} />{scorecardGolferName && getPlayerFlag(scorecardGolferName) && <></>}</div>
                         {(() => {
                           const playerNotStarted = scorecardGolferThru === '--' && selectedTournamentStatus?.label === 'IN PROGRESS';
                           const prevRoundsBtn = (hasPrev: boolean) => hasPrev ? (
@@ -8891,7 +8908,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).fontSize, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', minWidth: 0, whiteSpace: 'nowrap' }}><AutoFitName text={scorecardGolferName ?? ''} base={fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).fontSize} min={isMobile ? 13 : 15} />{scorecardGolferName && getPlayerFlag(scorecardGolferName) && <><span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 8, verticalAlign: 'middle', flexShrink: 0 }}><img src={getFlagSrc(scorecardGolferName)} alt="" style={{ height: fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).flagH, display: 'block', borderRadius: 3 }} />{getCountryLabel(scorecardGolferName) && (fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).stacked ? <span style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 2, color: '#fff', fontWeight: 400, fontSize: 10, lineHeight: 1 }}>{getCountryLabel(scorecardGolferName)}</span> : <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, lineHeight: 1 }}>{getCountryLabel(scorecardGolferName)}</span>)}</span>{scorecardGolferName && (PGA_CLUB_PROFESSIONALS.has(scorecardGolferName) || clubProKeys.has(canonicalNameKey(scorecardGolferName))) && <img src="/pga-seal-gold.png" alt="PGA" style={{ marginLeft: 6, height: 38, verticalAlign: 'middle', display: 'inline-block', objectFit: 'contain' }} />}</>}</div>
+                      <div style={{ fontSize: fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).fontSize, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', minWidth: 0, whiteSpace: 'nowrap' }}><HeaderNameFlag name={scorecardGolferName ?? ''} flagSrc={scorecardGolferName && getPlayerFlag(scorecardGolferName) ? getFlagSrc(scorecardGolferName) : null} abbr={scorecardGolferName ? (getCountryLabel(scorecardGolferName) || null) : null} base={fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).fontSize} min={isMobile ? 13 : 15} allowStack={true} initialStacked={fitPopupHeader(scorecardGolferName ?? '', scorecardGolferName ? getCountryLabel(scorecardGolferName) : null, 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).stacked} />{scorecardGolferName && getPlayerFlag(scorecardGolferName) && <>{scorecardGolferName && (PGA_CLUB_PROFESSIONALS.has(scorecardGolferName) || clubProKeys.has(canonicalNameKey(scorecardGolferName))) && <img src="/pga-seal-gold.png" alt="PGA" style={{ marginLeft: 6, height: 38, verticalAlign: 'middle', display: 'inline-block', objectFit: 'contain' }} />}</>}</div>
                     </div>
                     {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
                       <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -9011,7 +9028,7 @@ export default function Page() {
                 return (
                   <div style={{ background: hBg, padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: fitPopupHeader(cutScorecardGolfer.name, getCountryLabel(cutScorecardGolfer.name), 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).fontSize, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', minWidth: 0, whiteSpace: 'nowrap' }}><AutoFitName text={cutScorecardGolfer.name} base={fitPopupHeader(cutScorecardGolfer.name, getCountryLabel(cutScorecardGolfer.name), 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).fontSize} min={isMobile ? 13 : 15} />{getPlayerFlag(cutScorecardGolfer.name) && <><span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 8, verticalAlign: 'middle', flexShrink: 0 }}><img src={getFlagSrc(cutScorecardGolfer.name)} alt="" style={{ height: fitPopupHeader(cutScorecardGolfer.name, getCountryLabel(cutScorecardGolfer.name), 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).flagH, display: 'block', borderRadius: 3 }} />{getCountryLabel(cutScorecardGolfer.name) && (fitPopupHeader(cutScorecardGolfer.name, getCountryLabel(cutScorecardGolfer.name), 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).stacked ? <span style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 2, color: '#fff', fontWeight: 400, fontSize: 10, lineHeight: 1 }}>{getCountryLabel(cutScorecardGolfer.name)}</span> : <span style={{ marginLeft: 5, color: '#fff', fontWeight: 400, fontSize: 13, lineHeight: 1 }}>{getCountryLabel(cutScorecardGolfer.name)}</span>)}</span>{(PGA_CLUB_PROFESSIONALS.has(cutScorecardGolfer.name) || clubProKeys.has(canonicalNameKey(cutScorecardGolfer.name))) && <img src="/pga-seal-gold.png" alt="PGA" style={{ marginLeft: 6, height: 38, verticalAlign: 'middle', display: 'inline-block', objectFit: 'contain' }} />}</>}</div>
+                      <div style={{ fontSize: fitPopupHeader(cutScorecardGolfer.name, getCountryLabel(cutScorecardGolfer.name), 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).fontSize, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', minWidth: 0, whiteSpace: 'nowrap' }}><HeaderNameFlag name={cutScorecardGolfer.name} flagSrc={getPlayerFlag(cutScorecardGolfer.name) ? getFlagSrc(cutScorecardGolfer.name) : null} abbr={getCountryLabel(cutScorecardGolfer.name) || null} base={fitPopupHeader(cutScorecardGolfer.name, getCountryLabel(cutScorecardGolfer.name), 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).fontSize} min={isMobile ? 13 : 15} allowStack={true} initialStacked={fitPopupHeader(cutScorecardGolfer.name, getCountryLabel(cutScorecardGolfer.name), 1140, isMobile ? 36 : 44, selectedTournament, isMobile, false, 32).stacked} />{getPlayerFlag(cutScorecardGolfer.name) && <>{(PGA_CLUB_PROFESSIONALS.has(cutScorecardGolfer.name) || clubProKeys.has(canonicalNameKey(cutScorecardGolfer.name))) && <img src="/pga-seal-gold.png" alt="PGA" style={{ marginLeft: 6, height: 38, verticalAlign: 'middle', display: 'inline-block', objectFit: 'contain' }} />}</>}</div>
                     </div>
                     {TOURNAMENT_TAB_LOGOS[selectedTournament] && (
                       <div style={{ flexShrink: 0, marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
