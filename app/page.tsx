@@ -7111,9 +7111,17 @@ export default function Page() {
                 >
                   <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(380px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 40px)', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     <div style={{ background: entriesTournamentSolid, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ color: '#fff', fontSize: 15, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pickPopularityPlayer.name}</div>
-                        <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: 700, marginTop: 1 }}>Picked by {pickedBy.length} {pickedBy.length === 1 ? 'entry' : 'entries'}</div>
+                      <div style={{ minWidth: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ color: '#fff', fontSize: 15, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pickPopularityPlayer.name}</div>
+                          <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: 700, marginTop: 1 }}>Picked: {pickedBy.length}</div>
+                        </div>
+                        {getFlagSrc(pickPopularityPlayer.name) && (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+                            <img src={getFlagSrc(pickPopularityPlayer.name)} alt={getCountryLabel(pickPopularityPlayer.name)} style={{ width: 26, height: 17, objectFit: 'cover', borderRadius: 3, display: 'block' }} />
+                            <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.05em' }}>{getCountryLabel(pickPopularityPlayer.name)}</span>
+                          </div>
+                        )}
                       </div>
                       {TOURNAMENT_TAB_LOGOS[entriesTournamentId] && (
                         <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, marginLeft: 'auto' }}>
