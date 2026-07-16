@@ -808,7 +808,7 @@ type FeedResponse = {
   projectedCut?: string | null;
   tournamentComplete?: boolean;
   tournamentLowRoundScore?: number | null;
-  tournamentLowRoundHolders?: string[] | null;
+  fieldBonusEvents?: Record<string, { name: string; rounds: number[] }[]> | null;
   coursePar?: number;
   fullLeaderboard?: FullFieldPlayer[];
 };
@@ -1552,6 +1552,7 @@ export default function Page() {
   const [showPreviousRounds, setShowPreviousRounds] = useState(false);
   const [showBonusPoints, setShowBonusPoints] = useState(false);
   const [expandedBonusCategories, setExpandedBonusCategories] = useState<Set<string>>(new Set());
+  const [bonusInfoPopup, setBonusInfoPopup] = useState<{ title: string; entries: { name: string; rounds: number[] }[] } | null>(null);
   const [cutScorecardGolfer, setCutScorecardGolfer] = useState<{ name: string; pgaTourId: number; photoUrl?: string } | null>(null);
   const [cutScorecardData, setCutScorecardData] = useState<ScorecardData | null>(null);
   const [cutScorecardLoading, setCutScorecardLoading] = useState(false);
@@ -9139,7 +9140,7 @@ export default function Page() {
             filter: (p: typeof players[number]) => boolean;
             count: (p: typeof players[number]) => number;
           };
-          const closeBonusPoints = () => { setShowBonusPoints(false); setExpandedBonusCategories(new Set()); };
+          const closeBonusPoints = () => { setShowBonusPoints(false); setExpandedBonusCategories(new Set()); setBonusInfoPopup(null); };
           const pickedPlayers = players.filter((p) => pickedPlayerIds.has(p.id));
 
           const alwaysOpenCats: BonusCat[] = [
@@ -9231,10 +9232,12 @@ export default function Page() {
           const coursePar = feed?.coursePar ?? 72;
           const lowToPar = validLowRawScore !== null ? validLowRawScore - coursePar : null;
           const lowToParLabel = lowToPar === null ? '' : lowToPar === 0 ? ' (E)' : lowToPar < 0 ? ` (${lowToPar})` : ` (+${lowToPar})`;
-          // "(-5) J. Suber" — credit the low-round holder by abbreviated name when they
-          // aren't a picked pool player (the card body would otherwise just say None).
-          const abbrevHolder = (n: string) => { const parts = n.trim().split(/\s+/); return parts.length > 1 ? `${parts[0][0]}. ${parts.slice(1).join(' ')}` : n; };
-          const lowRoundHolderLabel = (feed?.tournamentLowRoundHolders ?? []).map(abbrevHolder).join(', ') || null;
+          // Full-field bonus achievements not covered by pool picks — shown via info icons
+          // that open a popup listing full names with the round(s), e.g. "Jackson Suber (R1)".
+          const pickedBonusKeys = new Set(pickedPlayers.map((p) => canonicalNameKey(applyNameAlias(p.name))));
+          const fieldBonus = feed?.fieldBonusEvents ?? {};
+          const unpickedBonusFor = (key: string) => (fieldBonus[key] ?? []).filter((e) => !pickedBonusKeys.has(canonicalNameKey(applyNameAlias(e.name))));
+          const BONUS_FIELD_KEYS: Record<string, string> = { '3 Birdie Streaks': 'threeBirdieStreaks', 'No Bogey Rounds': 'bogeyFreeRounds', 'Eagles': 'eagles', 'Hole in One': 'holeInOne', 'Albatross': 'albatross' };
           const bpColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#1e4d8c';
           const catHeaderColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#1e4d8c' : '#173b63';
           const bpHeaderBg = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'pga' ? '#B09963' : '#173b63';
@@ -9275,7 +9278,7 @@ export default function Page() {
                         <div key={cat.label} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 12, border: selectedTournament === 'open' ? '1px solid #000000' : '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: (isMobile && selectedTournament === 'open') ? '0.75px solid #000000' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : selectedTournament === 'open' ? '0.5px solid #000000' : '1px solid #edf1f6' }}>
                             <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
-                              {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}{!hasEarners && lowRoundHolderLabel ? ` ${lowRoundHolderLabel}` : ''}</span> : null}
+                              {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}{isLowRnd && unpickedBonusFor('lowRound').length > 0 ? <button onClick={() => setBonusInfoPopup({ title: 'Tournament Low Round', entries: unpickedBonusFor('lowRound') })} style={{ background: 'none', border: 'none', padding: '0 0 0 6px', cursor: 'pointer', fontSize: 14, color: '#c0392b', lineHeight: 1, verticalAlign: 'middle', touchAction: 'manipulation' }}>ⓘ</button> : null}
                             </div>
                           </div>
                           {hasEarners ? (
@@ -9324,6 +9327,12 @@ export default function Page() {
                               <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                              {(() => {
+                                const fieldKey = BONUS_FIELD_KEYS[cat.label];
+                                const unpicked = fieldKey ? unpickedBonusFor(fieldKey) : [];
+                                if (unpicked.length === 0) return null;
+                                return <span onClick={(e) => { e.stopPropagation(); setBonusInfoPopup({ title: cat.label, entries: unpicked }); }} style={{ fontSize: 14, color: '#000000', lineHeight: 1, cursor: 'pointer', touchAction: 'manipulation' }}>ⓘ</span>;
+                              })()}
                               {hasEarners ? (
                                 <span style={{ fontSize: 11, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '#173b63' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', borderRadius: 999, padding: '1px 8px', minWidth: 22, textAlign: 'center', border: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '1.5px solid #0f2d6b' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : selectedTournament === 'masters' ? '1.5px solid #c8b800' : '1.5px solid #a07010', boxShadow: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '0 2px 8px rgba(14,45,100,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : '0 2px 8px rgba(180,140,0,0.4)' }}>{earnerCount}</span>
                               ) : (
@@ -9345,6 +9354,24 @@ export default function Page() {
                   <div style={{ padding: '6px 2px 12px', fontSize: 13, color: selectedTournament === 'open' ? '#000000' : '#a0b0bc', fontStyle: 'italic' }}>
                     *Applicable players not selected in the pool are not shown
                   </div>
+                  {bonusInfoPopup && (
+                    <div onClick={() => setBonusInfoPopup(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, zIndex: 120 }}>
+                      <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 14, padding: '14px 16px 16px', width: 'min(320px, 100%)', boxShadow: '0 18px 44px rgba(9,34,51,0.35)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1720', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{bonusInfoPopup.title}</div>
+                          <button onClick={() => setBonusInfoPopup(null)} style={{ background: '#eef2f6', border: 'none', borderRadius: 8, cursor: 'pointer', color: '#0f1720', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>✕</button>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          {bonusInfoPopup.entries.map((en) => (
+                            <div key={en.name} style={{ fontSize: 13, fontWeight: 700, color: '#0f1720' }}>
+                              {en.name} <span style={{ color: '#607282', fontWeight: 500 }}>({en.rounds.map((r) => `R${r}`).join(', ')})</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{ marginTop: 10, fontSize: 11, color: '#8a99a5', fontStyle: 'italic' }}>Not selected in the pool</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

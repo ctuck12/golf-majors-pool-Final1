@@ -327,13 +327,42 @@ export async function GET(request: Request) {
   ]);
 
   const tournamentLowRound = getTournamentLowRoundScore(tournamentId, lowRoundStore);
-  // Who shot the tournament low round — from the full-field scorecard cache, so the Bonus
-  // Points popup can credit a non-pool player by name when no picked player holds it.
-  const tournamentLowRoundHolders = tournamentLowRound !== null && scorecardCache
-    ? Object.values(scorecardCache.players)
-        .filter((p) => p.rounds.some((r) => r.holes.length === 18 && r.holes.reduce((s, h) => s + h.score, 0) === tournamentLowRound))
-        .map((p) => p.playerName)
-    : [];
+  // Full-field bonus achievements with round attribution (same definitions as lib/scoring) —
+  // powers the Bonus Points popup's info icons crediting players not picked in the pool.
+  const fieldBonusEvents: Record<string, { name: string; rounds: number[] }[]> = {
+    lowRound: [], threeBirdieStreaks: [], bogeyFreeRounds: [], eagles: [], holeInOne: [], albatross: [],
+  };
+  if (scorecardCache) {
+    for (const p of Object.values(scorecardCache.players)) {
+      const byCat: Record<string, Set<number>> = { lowRound: new Set(), threeBirdieStreaks: new Set(), bogeyFreeRounds: new Set(), eagles: new Set(), holeInOne: new Set(), albatross: new Set() };
+      for (const rnd of p.rounds) {
+        if (!rnd.holes.length) continue;
+        let consecutiveBirdies = 0;
+        let bogeyFree = true;
+        let total = 0;
+        for (const hole of rnd.holes) {
+          const diff = hole.score - hole.par;
+          total += hole.score;
+          if (hole.score === 1) byCat.holeInOne.add(rnd.roundId);
+          else if (diff <= -3) byCat.albatross.add(rnd.roundId);
+          else if (diff === -2) byCat.eagles.add(rnd.roundId);
+          if (diff >= 1) bogeyFree = false;
+          // 3-birdie streak: non-overlapping, resets after awarding (matches lib/scoring)
+          if (diff === -1) {
+            consecutiveBirdies++;
+            if (consecutiveBirdies === 3) { byCat.threeBirdieStreaks.add(rnd.roundId); consecutiveBirdies = 0; }
+          } else {
+            consecutiveBirdies = 0;
+          }
+        }
+        if (bogeyFree && rnd.holes.length === 18) byCat.bogeyFreeRounds.add(rnd.roundId);
+        if (rnd.holes.length === 18 && tournamentLowRound !== null && total === tournamentLowRound) byCat.lowRound.add(rnd.roundId);
+      }
+      for (const [cat, set] of Object.entries(byCat)) {
+        if (set.size) fieldBonusEvents[cat].push({ name: p.playerName, rounds: Array.from(set).sort((a, b) => a - b) });
+      }
+    }
+  }
 
   // ── 3. Build scored player list ───────────────────────────────────────
   // Combine the static draft pool with any dynamically-added field players (from the commissioner's
@@ -525,7 +554,7 @@ export async function GET(request: Request) {
     projectedCut,
     tournamentComplete: cached.tournamentComplete ?? false,
     tournamentLowRoundScore: tournamentLowRound,
-    tournamentLowRoundHolders,
+    fieldBonusEvents,
     coursePar: meta.par,
     fetchedAt: new Date().toISOString(),
     players,
