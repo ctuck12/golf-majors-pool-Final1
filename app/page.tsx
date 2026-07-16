@@ -3369,15 +3369,15 @@ export default function Page() {
     setSelectedRoster(next);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<boolean> => {
     if (!sessionUser) {
       setSaveMessage('Create an account or sign in to save this lineup to the pool.');
-      return;
+      return false;
     }
 
     if (!canSave) {
       setSaveMessage('Lineup must have 6 golfers, stay under the salary cap, and be saved before lock.');
-      return;
+      return false;
     }
 
     try {
@@ -3394,8 +3394,10 @@ export default function Page() {
       applySession(payload);
       setSaveMessage('Lineup saved to your account for this tournament.');
       setMyEntriesEditorOpen(false);
+      return true;
     } catch (err) {
       setSaveMessage(err instanceof Error ? err.message : 'Unable to save lineup.');
+      return false;
     }
   };
 
@@ -9934,10 +9936,12 @@ export default function Page() {
                   {!hasSubmittedRoster ? (
                     <>
                       <button
-                        onClick={() => {
+                        onClick={async () => {
+                          // Venmo opens ONLY after the roster save is confirmed — a failed save
+                          // (expired session, network blip) must never send someone off to pay.
+                          const saved = await handleSave();
                           setShowRosterConfirm(false);
-                          void handleSave();
-                          // Flash the success confirmation, then hand off to Venmo.
+                          if (!saved) return; // saveMessage shows the error on the pick sheet
                           setShowSubmitToast(true);
                           setTimeout(() => {
                             setShowSubmitToast(false);
