@@ -9033,11 +9033,11 @@ export default function Page() {
 
           const renderPlayerList = (cat: BonusCat) => {
             const earners = pickedPlayers.filter(cat.filter).sort((a, b) => cat.count(b) - cat.count(a));
-            if (earners.length === 0) return <div style={{ fontSize: 12, color: '#607282', fontStyle: 'italic', padding: '2px 0 4px' }}>None</div>;
+            if (earners.length === 0) return <div style={{ fontSize: 12, color: selectedTournament === 'open' ? '#000000' : '#607282', fontStyle: 'italic', padding: '2px 0 4px' }}>None</div>;
             return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, paddingBottom: 4 }}>
                 {earners.map((p) => (
-                  <div key={p.id} style={{ fontSize: 13, color: selectedTournament === 'open' ? '#0f1720' : '#2a3d50', fontWeight: 600 }}>
+                  <div key={p.id} style={{ fontSize: 13, color: selectedTournament === 'open' ? '#000000' : '#2a3d50', fontWeight: 600 }}>
                     {p.name}{cat.showCount ? <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 500 }}> ({cat.count(p)})</span> : null}
                   </div>
                 ))}
@@ -9097,7 +9097,7 @@ export default function Page() {
                           {hasEarners ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                               {earners.map((p) => (
-                                <div key={p.id} style={{ fontSize: 13, color: '#0f1720', fontWeight: 700 }}>
+                                <div key={p.id} style={{ fontSize: 13, color: selectedTournament === 'open' ? '#000000' : '#0f1720', fontWeight: 700 }}>
                                   {p.name}
                                   {isLowRnd && p.lowRoundIds?.length ? (
                                     <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 500, fontSize: 11 }}>{' '}({p.lowRoundIds.map(r => `R${r}`).join(', ')})</span>
