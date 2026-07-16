@@ -4611,10 +4611,10 @@ export default function Page() {
                           </>
                         )}
                       </span>
-                      <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96' }}>Projected Cut: {feed.projectedCut}</span>
+                      <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#000000' }}>Projected Cut: {feed.projectedCut}</span>
                     </div>
                   ) : (
-                    <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#2f5f96', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#000000', whiteSpace: 'nowrap' }}>
                       {currentRoundComplete && nextRoundStartLabel
                         ? `Rd ${nextRoundNum} Start: ${nextRoundStartLabel}`
                         : `Course Time: ${courseLocalTimeLabel}`}
