@@ -9062,7 +9062,7 @@ export default function Page() {
             >
               <div
                 onClick={(e) => e.stopPropagation()}
-                style={{ width: 'min(520px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: '#f4f7fa', borderRadius: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.35)' }}
+                style={{ width: 'min(520px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', background: selectedTournament === 'open' ? '#F4BC41' : '#f4f7fa', borderRadius: 20, boxShadow: '0 24px 60px rgba(9,34,51,0.35)' }}
               >
                 {/* Solid color header */}
                 <div style={{ background: bpHeaderBg, borderRadius: '20px 20px 0 0', padding: isMobile ? '16px 18px 14px' : '18px 22px 16px', position: 'sticky', top: 0, zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -9088,8 +9088,8 @@ export default function Page() {
                       const earners = pickedPlayers.filter(cat.filter);
                       const hasEarners = earners.length > 0;
                       return (
-                        <div key={cat.label} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 12, border: '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: (isMobile && selectedTournament === 'open') ? '0.75px solid #c5d4dc' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : selectedTournament === 'open' ? '0.5px solid #c5d4dc' : '1px solid #edf1f6' }}>
+                        <div key={cat.label} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 12, border: selectedTournament === 'open' ? '1px solid #000000' : '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: (isMobile && selectedTournament === 'open') ? '0.75px solid #000000' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : selectedTournament === 'open' ? '0.5px solid #000000' : '1px solid #edf1f6' }}>
                             <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
                               {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}
                             </div>
@@ -9106,7 +9106,7 @@ export default function Page() {
                               ))}
                             </div>
                           ) : (
-                            <div style={{ fontSize: 12, color: '#b0bec8', fontStyle: 'italic' }}>None</div>
+                            <div style={{ fontSize: 12, color: selectedTournament === 'open' ? '#000000' : '#b0bec8', fontStyle: 'italic' }}>None</div>
                           )}
                         </div>
                       );
@@ -9115,9 +9115,9 @@ export default function Page() {
 
                   {/* Section divider */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '4px 0 2px' }}>
-                    <div style={{ flex: 1, height: 1, background: '#c8d3dc' }} />
-                    <span style={{ fontSize: 10, fontWeight: 800, color: '#5f7180', letterSpacing: '0.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Individual Achievements</span>
-                    <div style={{ flex: 1, height: 1, background: '#c8d3dc' }} />
+                    <div style={{ flex: 1, height: 1, background: selectedTournament === 'open' ? '#000000' : '#c8d3dc' }} />
+                    <span style={{ fontSize: 10, fontWeight: 800, color: selectedTournament === 'open' ? '#000000' : '#5f7180', letterSpacing: '0.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Individual Achievements</span>
+                    <div style={{ flex: 1, height: 1, background: selectedTournament === 'open' ? '#000000' : '#c8d3dc' }} />
                   </div>
 
                   {/* Collapsible achievement rows */}
@@ -9127,14 +9127,14 @@ export default function Page() {
                       const earnerCount = pickedPlayers.filter(cat.filter).length;
                       const hasEarners = earnerCount > 0;
                       return (
-                        <div key={cat.label} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#f7f9fb', borderRadius: 12, border: '1px solid #e2e8ef', overflow: 'hidden' }}>
+                        <div key={cat.label} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#f7f9fb', borderRadius: 12, border: selectedTournament === 'open' ? '1px solid #000000' : '1px solid #e2e8ef', overflow: 'hidden' }}>
                           <button
                             onClick={() => setExpandedBonusCategories((prev) => {
                               const next = new Set(prev);
                               if (next.has(cat.label)) next.delete(cat.label); else next.add(cat.label);
                               return next;
                             })}
-                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: selectedTournament === 'open' ? '#F4BC41' : '#fff', border: 'none', borderBottom: isOpen ? ((isMobile && selectedTournament === 'open') ? '0.75px solid #c5d4dc' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : selectedTournament === 'open' ? '0.5px solid #c5d4dc' : '1px solid #edf1f6') : '1px solid transparent', cursor: 'pointer', textAlign: 'left', WebkitTapHighlightColor: 'transparent', transition: 'border-color 0.2s ease' }}
+                            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: isMobile ? '10px 12px' : '11px 14px', background: selectedTournament === 'open' ? '#F4BC41' : '#fff', border: 'none', borderBottom: isOpen ? ((isMobile && selectedTournament === 'open') ? '0.75px solid #000000' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : selectedTournament === 'open' ? '0.5px solid #000000' : '1px solid #edf1f6') : '1px solid transparent', cursor: 'pointer', textAlign: 'left', WebkitTapHighlightColor: 'transparent', transition: 'border-color 0.2s ease' }}
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.label}</div>
@@ -9143,7 +9143,7 @@ export default function Page() {
                               {hasEarners ? (
                                 <span style={{ fontSize: 11, fontWeight: 800, color: selectedTournament === 'masters' ? '#2c6449' : '#fff', background: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '#173b63' : selectedTournament === 'open' ? '#c0392b' : selectedTournament === 'masters' ? '#F3E44D' : '#E0AB43', borderRadius: 999, padding: '1px 8px', minWidth: 22, textAlign: 'center', border: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '1.5px solid #0f2d6b' : selectedTournament === 'open' ? '1.5px solid #7b1a13' : selectedTournament === 'masters' ? '1.5px solid #c8b800' : '1.5px solid #a07010', boxShadow: (selectedTournament === 'us-open' || selectedTournament === 'pga') ? '0 2px 8px rgba(14,45,100,0.4)' : selectedTournament === 'open' ? '0 2px 8px rgba(160,40,30,0.4)' : selectedTournament === 'masters' ? '0 2px 8px rgba(180,150,0,0.45)' : '0 2px 8px rgba(180,140,0,0.4)' }}>{earnerCount}</span>
                               ) : (
-                                <span style={{ fontSize: 12, fontWeight: 600, color: '#b0bec8' }}>0</span>
+                                <span style={{ fontSize: 12, fontWeight: 600, color: selectedTournament === 'open' ? '#000000' : '#b0bec8' }}>0</span>
                               )}
                               <span style={{ fontSize: 10, color: selectedTournament === 'open' ? '#173b63' : '#607282', lineHeight: 1, transition: 'transform 0.2s ease', display: 'inline-block', transform: isOpen ? 'rotate(0deg)' : 'rotate(180deg)' }}>▲</span>
                             </div>
@@ -9158,7 +9158,7 @@ export default function Page() {
                     })}
                   </div>
 
-                  <div style={{ padding: '6px 2px 12px', fontSize: 13, color: '#a0b0bc', fontStyle: 'italic' }}>
+                  <div style={{ padding: '6px 2px 12px', fontSize: 13, color: selectedTournament === 'open' ? '#000000' : '#a0b0bc', fontStyle: 'italic' }}>
                     *Applicable players not selected in the pool are not shown
                   </div>
                 </div>
