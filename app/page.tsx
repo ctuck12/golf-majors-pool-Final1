@@ -4652,7 +4652,7 @@ export default function Page() {
                       {showFinalTournamentView ? tournament.name : `${tournament.name} Pool Standings`}
                     </h2>
                   )}
-                  {isTournamentFinal ? (
+                  {isTournamentFinal && !showFutureTournamentView ? (
                     <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 12, fontWeight: 800, color: (selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga') ? '#c0392b' : '#0f1720', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                       Final Results
                     </div>
