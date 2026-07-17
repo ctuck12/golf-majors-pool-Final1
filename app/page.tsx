@@ -8688,7 +8688,7 @@ export default function Page() {
               {(() => {
                 const hBg = selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63';
                 const roundColor = selectedTournament === 'masters' ? '#F3E44D' : selectedTournament === 'players' ? '#E0AB43' : selectedTournament === 'us-open' ? '#0f1720' : selectedTournament === 'open' ? '#F4BC41' : '#173b63';
-                const teeTimeColor = selectedTournament === 'us-open' ? '#fff' : '#0f1720';
+                const teeTimeColor = (selectedTournament === 'us-open' || selectedTournament === 'open') ? '#fff' : '#0f1720';
                 return (
                   <div style={{ background: hBg, display: 'flex', alignItems: 'stretch', flexShrink: 0 }}>
                     {/* Name + round/score + close */}
