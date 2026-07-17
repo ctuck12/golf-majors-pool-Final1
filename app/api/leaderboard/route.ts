@@ -329,12 +329,13 @@ export async function GET(request: Request) {
   const tournamentLowRound = getTournamentLowRoundScore(tournamentId, lowRoundStore);
   // Full-field bonus achievements with round attribution (same definitions as lib/scoring) —
   // powers the Bonus Points popup's info icons crediting players not picked in the pool.
-  const fieldBonusEvents: Record<string, { name: string; rounds: number[] }[]> = {
+  const fieldBonusEvents: Record<string, { name: string; rounds: number[]; count?: number }[]> = {
     lowRound: [], threeBirdieStreaks: [], bogeyFreeRounds: [], eagles: [], holeInOne: [], albatross: [],
   };
   if (scorecardCache) {
     for (const p of Object.values(scorecardCache.players)) {
       const byCat: Record<string, Set<number>> = { lowRound: new Set(), threeBirdieStreaks: new Set(), bogeyFreeRounds: new Set(), eagles: new Set(), holeInOne: new Set(), albatross: new Set() };
+      const catCounts: Record<string, number> = { lowRound: 0, threeBirdieStreaks: 0, bogeyFreeRounds: 0, eagles: 0, holeInOne: 0, albatross: 0 };
       for (const rnd of p.rounds) {
         if (!rnd.holes.length) continue;
         let consecutiveBirdies = 0;
@@ -343,23 +344,23 @@ export async function GET(request: Request) {
         for (const hole of rnd.holes) {
           const diff = hole.score - hole.par;
           total += hole.score;
-          if (hole.score === 1) byCat.holeInOne.add(rnd.roundId);
-          else if (diff <= -3) byCat.albatross.add(rnd.roundId);
-          else if (diff === -2) byCat.eagles.add(rnd.roundId);
+          if (hole.score === 1) { byCat.holeInOne.add(rnd.roundId); catCounts.holeInOne++; }
+          else if (diff <= -3) { byCat.albatross.add(rnd.roundId); catCounts.albatross++; }
+          else if (diff === -2) { byCat.eagles.add(rnd.roundId); catCounts.eagles++; }
           if (diff >= 1) bogeyFree = false;
           // 3-birdie streak: non-overlapping, resets after awarding (matches lib/scoring)
           if (diff === -1) {
             consecutiveBirdies++;
-            if (consecutiveBirdies === 3) { byCat.threeBirdieStreaks.add(rnd.roundId); consecutiveBirdies = 0; }
+            if (consecutiveBirdies === 3) { byCat.threeBirdieStreaks.add(rnd.roundId); catCounts.threeBirdieStreaks++; consecutiveBirdies = 0; }
           } else {
             consecutiveBirdies = 0;
           }
         }
-        if (bogeyFree && rnd.holes.length === 18) byCat.bogeyFreeRounds.add(rnd.roundId);
-        if (rnd.holes.length === 18 && tournamentLowRound !== null && total === tournamentLowRound) byCat.lowRound.add(rnd.roundId);
+        if (bogeyFree && rnd.holes.length === 18) { byCat.bogeyFreeRounds.add(rnd.roundId); catCounts.bogeyFreeRounds++; }
+        if (rnd.holes.length === 18 && tournamentLowRound !== null && total === tournamentLowRound) { byCat.lowRound.add(rnd.roundId); catCounts.lowRound++; }
       }
       for (const [cat, set] of Object.entries(byCat)) {
-        if (set.size) fieldBonusEvents[cat].push({ name: p.playerName, rounds: Array.from(set).sort((a, b) => a - b) });
+        if (set.size) fieldBonusEvents[cat].push({ name: p.playerName, rounds: Array.from(set).sort((a, b) => a - b), count: catCounts[cat] });
       }
     }
   }
@@ -367,7 +368,7 @@ export async function GET(request: Request) {
   {
     const rlRounds = roundLeaderStore[tournamentId] ?? {};
     for (const rk of ['1', '2', '3'] as const) {
-      fieldBonusEvents[`round${rk}Leader`] = (rlRounds[rk]?.leaders ?? []).map((n) => ({ name: n, rounds: [parseInt(rk, 10)] }));
+      fieldBonusEvents[`round${rk}Leader`] = (rlRounds[rk]?.leaders ?? []).map((n) => ({ name: n, rounds: [parseInt(rk, 10)], count: 1 }));
     }
   }
 

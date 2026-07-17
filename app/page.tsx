@@ -808,7 +808,7 @@ type FeedResponse = {
   projectedCut?: string | null;
   tournamentComplete?: boolean;
   tournamentLowRoundScore?: number | null;
-  fieldBonusEvents?: Record<string, { name: string; rounds: number[] }[]> | null;
+  fieldBonusEvents?: Record<string, { name: string; rounds: number[]; count?: number }[]> | null;
   coursePar?: number;
   fullLeaderboard?: FullFieldPlayer[];
 };
@@ -1552,7 +1552,7 @@ export default function Page() {
   const [showPreviousRounds, setShowPreviousRounds] = useState(false);
   const [showBonusPoints, setShowBonusPoints] = useState(false);
   const [expandedBonusCategories, setExpandedBonusCategories] = useState<Set<string>>(new Set());
-  const [bonusInfoPopup, setBonusInfoPopup] = useState<{ title: string; entries: { name: string; rounds: number[] }[] } | null>(null);
+  const [bonusInfoPopup, setBonusInfoPopup] = useState<{ title: string; entries: { name: string; rounds: number[]; count?: number }[]; showCounts?: boolean } | null>(null);
   const [cutScorecardGolfer, setCutScorecardGolfer] = useState<{ name: string; pgaTourId: number; photoUrl?: string } | null>(null);
   const [cutScorecardData, setCutScorecardData] = useState<ScorecardData | null>(null);
   const [cutScorecardLoading, setCutScorecardLoading] = useState(false);
@@ -9216,7 +9216,7 @@ export default function Page() {
           // leaderboard popup rows (14x20 bordered flag, 9px code).
           const bonusFlag = (name: string) => getFlagSrc(name) ? (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginRight: 6, verticalAlign: 'middle' }}>
-              <img src={getFlagSrc(name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0', flexShrink: 0, display: 'block' }} />
+              <img src={getFlagSrc(name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: selectedTournament === 'open' ? '1px solid #000000' : '1px solid #d1d9e0', flexShrink: 0, display: 'block' }} />
               <span style={{ fontSize: 9, fontWeight: 700, color: selectedTournament === 'open' ? '#173b63' : '#9ca3af', letterSpacing: '0.05em' }}>{getCountryLabel(name)}</span>
             </span>
           ) : null;
@@ -9337,7 +9337,7 @@ export default function Page() {
                                 const fieldKey = BONUS_FIELD_KEYS[cat.label];
                                 const unpicked = fieldKey ? unpickedBonusFor(fieldKey) : [];
                                 if (unpicked.length === 0) return null;
-                                return <span onClick={(e) => { e.stopPropagation(); setBonusInfoPopup({ title: cat.label, entries: unpicked }); }} style={{ fontSize: 14, color: '#000000', lineHeight: 1, cursor: 'pointer', touchAction: 'manipulation' }}>ⓘ</span>;
+                                return <span onClick={(e) => { e.stopPropagation(); setBonusInfoPopup({ title: cat.label, entries: unpicked, showCounts: true }); }} style={{ fontSize: 14, color: '#000000', lineHeight: 1, cursor: 'pointer', touchAction: 'manipulation' }}>ⓘ</span>;
                               })()}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -9378,7 +9378,7 @@ export default function Page() {
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                             {bonusInfoPopup.entries.map((en) => (
                               <div key={en.name} style={{ fontSize: 13, fontWeight: 700, color: '#0f1720' }}>
-                                {bonusFlag(en.name)}{en.name} <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 600 }}>({en.rounds.map((r) => `R${r}`).join(', ')})</span>
+                                {bonusFlag(en.name)}{en.name} <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 600 }}>({bonusInfoPopup.showCounts ? (en.count ?? en.rounds.length) : en.rounds.map((r) => `R${r}`).join(', ')})</span>
                               </div>
                             ))}
                           </div>
