@@ -9158,7 +9158,7 @@ export default function Page() {
               filter: (p) => !!p.scoreBreakdown.roundLeadersAwarded?.first,
               count: () => 0,
             },
-            ...(roundTwoComplete ? [{
+            ...((feed?.currentRound ?? 1) >= 2 ? [{
               label: 'Round 2 Leader',
               pts: SCORING_RULES.secondRoundLeader,
               showCount: false,
