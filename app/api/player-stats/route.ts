@@ -200,7 +200,11 @@ export async function GET(request: Request) {
       // 404s per-player tournament statistics and the PGA Tour statDetails EVENT_ONLY feed
       // returns no rows), derive real tournament stats from our own hole-by-hole scorecard
       // cache instead of silently serving season numbers relabeled as tournament stats.
-      const hasTournamentSource = !!espnStats || !!pgaScorecardStats || Object.keys(mergedRanks).length > 0;
+      // True "we have per-event data" test: real stat VALUES landed (from ESPN/PGA scorecard or
+      // the leaderboard applyLb), or we matched a leaderboard rank. Checking object truthiness of
+      // pgaScorecardStats was wrong — the PGA feed can return a truthy-but-empty object for events
+      // it doesn't cover (The Open), which skipped the fallback and left a blank card.
+      const hasTournamentSource = Object.keys(stats).length > 0 || Object.keys(mergedRanks).length > 0;
       if (!hasTournamentSource) {
         const tournamentEntry = Object.entries(TOURNAMENT_META).find(([, m]) => m.espnEventId === eventId);
         if (tournamentEntry) {
