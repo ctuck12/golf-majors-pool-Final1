@@ -484,7 +484,7 @@ const TOURNAMENT_CUT_SHOW_AT: Partial<Record<TournamentId, string>> = {
   masters: '2026-04-10T12:00:00-04:00',
   pga: '2026-05-15T13:00:00-04:00',
   'us-open': '2026-06-19T12:00:00-04:00',
-  open: '2026-07-17T12:00:00-04:00',
+  open: '2026-07-17T10:00:00-04:00', // 9 AM Central — the Open's R2 runs overnight US time, so the cut picture forms much earlier
 };
 
 // Approximate first tee time (EDT) on the Saturday (Round 3) of each tournament
