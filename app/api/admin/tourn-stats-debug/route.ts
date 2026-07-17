@@ -3,105 +3,77 @@ export const maxDuration = 60;
 
 import redis from '@/app/lib/redis';
 import { tournLbCacheKey, getOrBuildPgaLeaderboard } from '@/app/lib/tournament-sg-leaderboard';
-import { getTournamentMetaByEspnId } from '@/app/lib/tournament-config';
-import { pgaTourTournId } from '@/app/lib/pga-scorecard-stats';
+import { getTournamentMetaByEspnId, TOURNAMENT_META } from '@/app/lib/tournament-config';
+import { getScorecardCache, normName } from '@/app/lib/scorecard-store';
 
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga';
-const PGA_GQL = 'https://orchestrator.pgatour.com/graphql';
-const PGA_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37pzxpq';
 
-async function pgaEventRows(pgaTournId: string, year: number, statId: string): Promise<string> {
-  const query = `
-    query TournStatLeaderboard($statId: String!, $tournamentId: String!, $year: Int!) {
-      statDetails(tourCode: R, statId: $statId, year: $year, eventQuery: { tournamentId: $tournamentId, queryType: EVENT_ONLY }) {
-        rows { ... on StatDetailsPlayer { playerName rank stats { ... on CategoryPlayerStat { statName statValue } } } }
-      }
-    }
-  `;
-  try {
-    const res = await fetch(PGA_GQL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': PGA_API_KEY, 'Referer': 'https://www.pgatour.com/', 'Origin': 'https://www.pgatour.com' },
-      body: JSON.stringify({ query, variables: { statId, tournamentId: pgaTournId, year } }),
-      cache: 'no-store',
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!res.ok) return `HTTP ${res.status}`;
-    const data = await res.json() as { data?: { statDetails?: { rows?: Array<{ stats?: Array<{ statName?: string }> }> } }; errors?: Array<{ message?: string }> };
-    if (data.errors?.length) return `gqlerr:${data.errors[0]?.message?.slice(0, 60)}`;
-    const rows = data?.data?.statDetails?.rows ?? [];
-    const cols = rows[0]?.stats?.map((s) => s.statName).slice(0, 6) ?? [];
-    return `rows:${rows.length} cols:[${cols.join(',')}]`;
-  } catch (e) { return `err:${String(e).slice(0, 80)}`; }
-}
-
-// Diagnoses why tournament-context stats fall back to season data for an event.
-// Open in a browser: /api/admin/tourn-stats-debug?eventId=401811957&espnId=4682
+// Diagnoses why tournament-context stats fall back / show nothing for an event+player.
+// /api/admin/tourn-stats-debug?eventId=401811957&player=Cameron%20Young
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const eventId = searchParams.get('eventId') ?? '401811957';
-  const espnId = searchParams.get('espnId') ?? '4682'; // Tommy Fleetwood
-  const out: Record<string, unknown> = { eventId, espnId };
+  const player = searchParams.get('player') ?? 'Cameron Young';
+  const out: Record<string, unknown> = { eventId, player };
 
-  // 1. Per-event leaderboard caches (what the player card reads)
+  // 1. Per-event leaderboard caches (course + SG) — do they have values?
   const KEYS = ['drivingDistance', 'drivingAccuracy', 'gir', 'sandSaves', 'puttAverage', 'sgTotal', 'scrambling'];
   const caches: Record<string, string> = {};
   for (const k of KEYS) {
     try {
       const raw = await redis.get(tournLbCacheKey(eventId, k));
       if (!raw) { caches[k] = 'cold'; continue; }
-      const parsed = JSON.parse(raw as string) as { entries?: unknown[] };
-      caches[k] = `warm(${parsed.entries?.length ?? 0})`;
+      const parsed = JSON.parse(raw as string) as { entries?: { name: string; value?: string }[] };
+      const hit = (parsed.entries ?? []).find((e) => normName(e.name) === normName(player));
+      caches[k] = `warm(${parsed.entries?.length ?? 0}) ${hit ? `HIT val=${hit.value ?? 'null'}` : 'no-hit'}`;
     } catch (e) { caches[k] = `err:${String(e).slice(0, 40)}`; }
   }
   out.leaderboardCaches = caches;
 
-  // 2. The app's REAL PGA builders, on demand
+  // 2. On-demand PGA SG builder
   try {
     const sg = await getOrBuildPgaLeaderboard(eventId, 'sgTotal');
-    out.builderSgTotal = sg ? `entries:${sg.entries.length} fieldAvg:${sg.fieldAvg}` : 'null';
-  } catch (e) { out.builderSgTotal = `err:${String(e).slice(0, 80)}`; }
-  try {
-    const scr = await getOrBuildPgaLeaderboard(eventId, 'scrambling');
-    out.builderScrambling = scr ? `entries:${scr.entries.length}` : 'null';
-  } catch (e) { out.builderScrambling = `err:${String(e).slice(0, 80)}`; }
+    out.builderSgTotal = sg ? `entries:${sg.entries.length}` : 'null';
+  } catch (e) { out.builderSgTotal = `err:${String(e).slice(0, 60)}`; }
 
-  // 3. Raw PGA statDetails EVENT_ONLY probes: SG total + course stat ids
-  const meta = getTournamentMetaByEspnId(eventId);
-  const pgaTournId = meta ? pgaTourTournId(meta.pgaTournCode, meta.year) : null;
-  out.pgaTournId = pgaTournId;
-  if (pgaTournId && meta) {
-    const year = parseInt(meta.year, 10);
-    const probes: Record<string, string> = {};
-    const PROBE_IDS: Record<string, string> = {
-      sgTotal_02675: '02675',
-      driveDist_101: '101',
-      driveAcc_102: '102',
-      gir_103: '103',
-      sandSaves_111: '111',
-      puttsPerGir_104: '104',
-      puttingAvg_119: '119',
-    };
-    for (const [label, statId] of Object.entries(PROBE_IDS)) {
-      probes[label] = await pgaEventRows(pgaTournId, year, statId);
+  // 3. Scorecard-derived path — the exact lookup the player-stats route runs
+  const tournamentEntry = Object.entries(TOURNAMENT_META).find(([, m]) => m.espnEventId === eventId);
+  out.tournamentId = tournamentEntry?.[0] ?? null;
+  if (tournamentEntry) {
+    const scCache = await getScorecardCache(tournamentEntry[0]).catch((e) => { out.scCacheError = String(e).slice(0, 80); return null; });
+    if (!scCache) {
+      out.scorecard = 'cache MISSING/null';
+    } else {
+      const players = Object.values(scCache.players);
+      out.scorecardPlayerCount = players.length;
+      out.scorecardSampleNames = players.slice(0, 5).map((p) => p.playerName);
+      const scPlayer = players.find((p) => normName(p.playerName) === normName(player));
+      if (!scPlayer) {
+        out.scorecardPlayerFound = false;
+        // fuzzy: any name containing the surname?
+        const surname = player.split(/\s+/).pop() ?? '';
+        out.scorecardFuzzyMatches = players.filter((p) => normName(p.playerName).includes(normName(surname))).map((p) => p.playerName).slice(0, 5);
+      } else {
+        out.scorecardPlayerFound = true;
+        out.scorecardStoredName = scPlayer.playerName;
+        let holes = 0; const roundDetail: string[] = [];
+        for (const rnd of scPlayer.rounds ?? []) {
+          const played = (rnd.holes ?? []).filter((h) => typeof h.score === 'number' && h.score > 0 && typeof h.par === 'number' && h.par > 0);
+          holes += played.length;
+          roundDetail.push(`R${rnd.roundId}: ${rnd.holes?.length ?? 0} holes, ${played.length} scored`);
+        }
+        out.scorecardRounds = roundDetail;
+        out.scorecardTotalScoredHoles = holes;
+        out.wouldDeriveStats = holes > 0;
+      }
     }
-    out.pgaEventProbes = probes;
   }
 
-  // 4. ESPN per-event competitor stats — try index 0 and the index list
+  // 4. ESPN per-event competitor stats availability (for a sample id)
   try {
-    const res = await fetch(`${ESPN_CORE}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/statistics/0`, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
-    out.espnStatsIdx0 = res.ok ? 'ok' : `HTTP ${res.status}`;
-  } catch (e) { out.espnStatsIdx0 = `err:${String(e).slice(0, 80)}`; }
-  try {
-    const res = await fetch(`${ESPN_CORE}/events/${eventId}/competitions/${eventId}/competitors/${espnId}/statistics?limit=10`, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
-    if (!res.ok) {
-      out.espnStatsList = `HTTP ${res.status}`;
-    } else {
-      const data = await res.json() as { count?: number; items?: Array<{ $ref?: string }> };
-      out.espnStatsList = { count: data.count ?? 0, refs: (data.items ?? []).map((i) => i.$ref?.replace(/^.*statistics/, 'statistics')).slice(0, 4) };
-    }
-  } catch (e) { out.espnStatsList = `err:${String(e).slice(0, 80)}`; }
+    const res = await fetch(`${ESPN_CORE}/events/${eventId}/competitions/${eventId}/competitors?limit=500`, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
+    out.espnCompetitors = res.ok ? 'ok' : `HTTP ${res.status}`;
+  } catch (e) { out.espnCompetitors = `err:${String(e).slice(0, 60)}`; }
 
   return Response.json(out);
 }
