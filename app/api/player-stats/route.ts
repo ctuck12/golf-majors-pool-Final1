@@ -135,19 +135,22 @@ export async function GET(request: Request) {
       const meta = getTournamentMetaByEspnId(eventId);
       const pgaTournId = meta ? pgaTourTournId(meta.pgaTournCode, meta.year) : null;
 
-      const [espnStats, scorecardResult, pgaResult, espnSeasonStats] = await Promise.all([
+      const [espnStats, scorecardResult] = await Promise.all([
         fetchPlayerTournamentStats(name, eventId),
         pgaTourId && pgaTournId ? fetchPgaScorecardStats(pgaTournId, pgaTourId) : Promise.resolve(null),
-        pgaTourId ? fetchPgaTourPlayerStats(pgaTourId) : Promise.resolve(null),
-        fetchPlayerSeasonStats(name),
       ]);
 
       const pgaScorecardStats = scorecardResult?.stats ?? null;
-      const pgaSeasonStats = pgaResult?.stats ?? null;
 
-      const stats = espnStats || pgaScorecardStats || pgaSeasonStats || espnSeasonStats
-        ? mergeStats(espnSeasonStats, pgaSeasonStats, espnStats, pgaScorecardStats)
-        : null;
+      // Tournament stats come ONLY from per-event sources (ESPN tournament stats, the PGA
+      // scorecard feed, and the per-event leaderboard caches). Season stats are deliberately
+      // NOT merged in: folding them made events with no per-event data (e.g. The Open, where
+      // ESPN 404s and the PGA statDetails feed is empty) silently show season numbers relabeled
+      // as tournament stats. `stats` starts as an object the leaderboard applyLb can populate;
+      // if it stays empty with no source we fall back to scorecard-derived stats below.
+      const stats: Record<string, unknown> = (espnStats || pgaScorecardStats)
+        ? mergeStats(espnStats, pgaScorecardStats)
+        : {};
 
       // Tournament view shows ONLY tournament-sourced ranks — no season ranks bleed in. BOTH course
       // and SG ranks+values come from the per-event leaderboard caches (the EXACT data the popup
@@ -171,7 +174,7 @@ export async function GET(request: Request) {
         // Use the entry's rank field (the number the popup displays) so tied ranks (e.g. 2,2,4) match
         // exactly; fall back to list position for course leaderboards built without ties.
         mergedRanks[key] = String(entries[idx].rank ?? (idx + 1));
-        if (stats && entries[idx].value != null) stats[key] = entries[idx].value; // leaderboard value (popup precision)
+        if (entries[idx].value != null) stats[key] = entries[idx].value; // leaderboard value (popup precision)
       };
 
       // COURSE: read the per-event leaderboard caches (warmed by the cron; same source as the card's
@@ -248,15 +251,18 @@ export async function GET(request: Request) {
         }
       }
 
-      if (stats) {
-        await redis.setex(cacheKey, ttl, JSON.stringify(stats));
+      // Serve null (not an empty object) when no per-event source produced anything, so the
+      // client shows "no tournament stats" rather than a blank card of season leftovers.
+      const finalStats = Object.keys(stats).length > 0 ? stats : null;
+      if (finalStats) {
+        await redis.setex(cacheKey, ttl, JSON.stringify(finalStats));
       }
       const tournRanksToCache = Object.keys(mergedRanks).length > 0 ? mergedRanks : null;
       if (tournRanksToCache) {
         await redis.setex(ranksCacheKey, ttl, JSON.stringify(tournRanksToCache));
       }
-      const updatedAt = await resolveChangedAt(sigCacheKey, JSON.stringify({ s: stats, r: tournRanksToCache }));
-      return Response.json({ stats, ranks: tournRanksToCache, updatedAt });
+      const updatedAt = await resolveChangedAt(sigCacheKey, JSON.stringify({ s: finalStats, r: tournRanksToCache }));
+      return Response.json({ stats: finalStats, ranks: tournRanksToCache, updatedAt });
     }
 
     // Season context
