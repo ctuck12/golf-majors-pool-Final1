@@ -9361,9 +9361,6 @@ export default function Page() {
                     })}
                   </div>
 
-                  <div style={{ padding: '6px 2px 12px', fontSize: 13, color: selectedTournament === 'open' ? '#000000' : '#a0b0bc', fontStyle: 'italic' }}>
-                    *Applicable players not selected in the pool are not shown
-                  </div>
                   {bonusInfoPopup && (
                     <div onClick={() => setBonusInfoPopup(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, zIndex: 120 }}>
                       <div onClick={(e) => e.stopPropagation()} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 14, width: 'min(320px, 100%)', boxShadow: '0 18px 44px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
