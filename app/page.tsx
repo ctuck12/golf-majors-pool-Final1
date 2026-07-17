@@ -9214,12 +9214,14 @@ export default function Page() {
 
           // Small flag + country code left of a player name — same style as the stat
           // leaderboard popup rows (14x20 bordered flag, 9px code).
-          const bonusFlag = (name: string) => getFlagSrc(name) ? (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginRight: 6, verticalAlign: 'middle' }}>
-              <img src={getFlagSrc(name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: selectedTournament === 'open' ? '1px solid #000000' : '1px solid #d1d9e0', flexShrink: 0, display: 'block' }} />
-              <span style={{ fontSize: 9, fontWeight: 700, color: selectedTournament === 'open' ? '#173b63' : '#9ca3af', letterSpacing: '0.05em' }}>{getCountryLabel(name)}</span>
+          const bonusFlag = (name: string) => (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginRight: 6, width: 50, flexShrink: 0, verticalAlign: 'middle' }}>
+              {getFlagSrc(name) ? <>
+                <img src={getFlagSrc(name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: selectedTournament === 'open' ? '0.5px solid #000000' : '1px solid #d1d9e0', flexShrink: 0, display: 'block' }} />
+                <span style={{ fontSize: 9, fontWeight: 700, color: selectedTournament === 'open' ? '#173b63' : '#9ca3af', letterSpacing: '0.05em', width: 22, display: 'inline-block' }}>{getCountryLabel(name)}</span>
+              </> : null}
             </span>
-          ) : null;
+          );
           const renderPlayerList = (cat: BonusCat) => {
             const earners = pickedPlayers.filter(cat.filter).sort((a, b) => cat.count(b) - cat.count(a));
             if (earners.length === 0) return <div style={{ fontSize: 12, color: selectedTournament === 'open' ? '#000000' : '#607282', fontStyle: 'italic', padding: '2px 0 4px' }}>None selected in pool apply</div>;
@@ -9283,7 +9285,7 @@ export default function Page() {
                       const earners = pickedPlayers.filter(cat.filter);
                       const hasEarners = earners.length > 0;
                       return (
-                        <div key={cat.label} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 12, border: selectedTournament === 'open' ? '1px solid #000000' : '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
+                        <div key={cat.label} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 12, border: selectedTournament === 'open' ? '0.5px solid #000000' : '1px solid #e2e8ef', padding: '12px 14px', boxShadow: '0 2px 6px rgba(9,34,51,0.05)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, paddingBottom: 8, marginBottom: 8, borderBottom: (isMobile && selectedTournament === 'open') ? '0.75px solid #000000' : (isMobile && selectedTournament === 'players') ? '1px solid #f0f4f7' : selectedTournament === 'open' ? '0.5px solid #000000' : '1px solid #edf1f6' }}>
                             <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 800, color: catHeaderColor, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
                               {isLowRnd && isMobile ? 'Tournament Low Round' : cat.label}{isLowRnd && lowToParLabel ? <span style={{ color: (lowToPar !== null && lowToPar < 0) ? '#c0392b' : '#6b7b88', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}>{lowToParLabel}</span> : null}{(() => { const fieldKey = BONUS_FIELD_KEYS[cat.label]; const unpicked = fieldKey ? unpickedBonusFor(fieldKey) : []; if (unpicked.length === 0) return null; return <button onClick={() => setBonusInfoPopup({ title: cat.label, entries: unpicked })} style={{ background: 'none', border: 'none', padding: '0 0 0 3px', cursor: 'pointer', fontSize: 14, color: '#000000', lineHeight: 1, verticalAlign: 'middle', touchAction: 'manipulation' }}>ⓘ</button>; })()}
@@ -9322,7 +9324,7 @@ export default function Page() {
                       const earnerCount = pickedPlayers.filter(cat.filter).length;
                       const hasEarners = earnerCount > 0;
                       return (
-                        <div key={cat.label} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#f7f9fb', borderRadius: 12, border: selectedTournament === 'open' ? '1px solid #000000' : '1px solid #e2e8ef', overflow: 'hidden' }}>
+                        <div key={cat.label} style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#f7f9fb', borderRadius: 12, border: selectedTournament === 'open' ? '0.5px solid #000000' : '1px solid #e2e8ef', overflow: 'hidden' }}>
                           <button
                             onClick={() => setExpandedBonusCategories((prev) => {
                               const next = new Set(prev);
