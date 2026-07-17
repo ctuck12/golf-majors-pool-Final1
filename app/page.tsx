@@ -8588,10 +8588,10 @@ export default function Page() {
                       border: selectedTournament === 'open' ? '1px solid #000000' : selectedTournament === 'players' ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e6edf1',
                       borderRadius: 10,
                       padding: '8px 12px',
-                      background: selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
+                      background: String(label) === 'Total' ? (selectedTournament === 'pga' ? '#B09963' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : '#173b63') : selectedTournament === 'open' && !showFutureTournamentView ? '#F4BC41' : '#fff',
                     }}
                   >
-                    <div style={{ fontWeight: 800, fontSize: 13, color: '#0f1720' }}>{label}</div>
+                    <div style={{ fontWeight: 800, fontSize: 13, color: String(label) === 'Total' ? '#ffffff' : '#0f1720' }}>{label}</div>
                     <div style={{ color: selectedTournament === 'open' ? '#000000' : (selectedTournament === 'players') ? '#4a5568' : '#6b7b88', fontSize: 12 }}>
                       {label === 'Leaderboard Place'
                         ? `Position: ${ordinal(String(count))}`
@@ -8599,7 +8599,7 @@ export default function Page() {
                         ? ''
                         : `Count: ${String(count)}`}
                     </div>
-                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: Number(points) < 0 ? '#cc2944' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#c8860a' : (selectedTournament === 'us-open' || selectedTournament === 'open' || selectedTournament === 'pga') ? '#1e4d8c' : '#173b63' }}>
+                    <div style={{ textAlign: 'right', fontWeight: 800, fontSize: 13, color: String(label) === 'Total' ? '#ffffff' : Number(points) < 0 ? '#cc2944' : selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'players' ? '#c8860a' : (selectedTournament === 'us-open' || selectedTournament === 'open' || selectedTournament === 'pga') ? '#1e4d8c' : '#173b63' }}>
                       {formatPointValue(Number(points))}
                     </div>
                   </div>
