@@ -9212,6 +9212,14 @@ export default function Page() {
             },
           ];
 
+          // Small flag + country code left of a player name — same style as the stat
+          // leaderboard popup rows (14x20 bordered flag, 9px code).
+          const bonusFlag = (name: string) => getFlagSrc(name) ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginRight: 6, verticalAlign: 'middle' }}>
+              <img src={getFlagSrc(name)} alt="" style={{ height: 14, width: 20, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0', flexShrink: 0, display: 'block' }} />
+              <span style={{ fontSize: 9, fontWeight: 700, color: selectedTournament === 'open' ? '#173b63' : '#9ca3af', letterSpacing: '0.05em' }}>{getCountryLabel(name)}</span>
+            </span>
+          ) : null;
           const renderPlayerList = (cat: BonusCat) => {
             const earners = pickedPlayers.filter(cat.filter).sort((a, b) => cat.count(b) - cat.count(a));
             if (earners.length === 0) return <div style={{ fontSize: 12, color: selectedTournament === 'open' ? '#000000' : '#607282', fontStyle: 'italic', padding: '2px 0 4px' }}>None selected in pool apply</div>;
@@ -9219,7 +9227,7 @@ export default function Page() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, paddingBottom: 4 }}>
                 {earners.map((p) => (
                   <div key={p.id} style={{ fontSize: 13, color: selectedTournament === 'open' ? '#000000' : '#2a3d50', fontWeight: 600 }}>
-                    {p.name}{cat.showCount ? <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 500 }}> ({cat.count(p)})</span> : null}
+                    {bonusFlag(p.name)}{p.name}{cat.showCount ? <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 500 }}> ({cat.count(p)})</span> : null}
                   </div>
                 ))}
               </div>
@@ -9285,7 +9293,7 @@ export default function Page() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                               {earners.map((p) => (
                                 <div key={p.id} style={{ fontSize: 13, color: selectedTournament === 'open' ? '#000000' : '#0f1720', fontWeight: 700 }}>
-                                  {p.name}
+                                  {bonusFlag(p.name)}{p.name}
                                   {isLowRnd && p.lowRoundIds?.length ? (
                                     <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 500, fontSize: 11 }}>{' '}({p.lowRoundIds.map(r => `R${r}`).join(', ')})</span>
                                   ) : null}
@@ -9370,7 +9378,7 @@ export default function Page() {
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                             {bonusInfoPopup.entries.map((en) => (
                               <div key={en.name} style={{ fontSize: 13, fontWeight: 700, color: '#0f1720' }}>
-                                {en.name} <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 600 }}>({en.rounds.map((r) => `R${r}`).join(', ')})</span>
+                                {bonusFlag(en.name)}{en.name} <span style={{ color: selectedTournament === 'open' ? '#173b63' : '#607282', fontWeight: 600 }}>({en.rounds.map((r) => `R${r}`).join(', ')})</span>
                               </div>
                             ))}
                           </div>
