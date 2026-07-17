@@ -4730,7 +4730,9 @@ export default function Page() {
                     </div>
                   ) : (
                     <span style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: '#000000', whiteSpace: 'nowrap' }}>
-                      {currentRoundComplete && nextRoundStartLabel
+                      {(feed?.currentRound === 2 && currentRoundComplete && feed?.projectedCut)
+                        ? `Cut Line: ${feed.projectedCut}`
+                        : currentRoundComplete && nextRoundStartLabel
                         ? `Rd ${nextRoundNum} Start: ${nextRoundStartLabel}`
                         : `Local Time: ${courseLocalTimeLabel}`}
                     </span>
