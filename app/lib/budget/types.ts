@@ -70,6 +70,12 @@ export interface Debt {
   apr?: number; // percent, e.g. 29.99
   payoffAtSale: boolean; // cleared with home-sale proceeds
   notes?: string;
+  // Auto-tracking (manual edits always allowed; editing the balance resets
+  // the baseline so tracking continues from the new figure):
+  matchPatterns?: string[]; // case-insensitive substrings; matching payments decrement the balance
+  linkedAccountId?: string; // mirror a linked account's live balance (best for credit cards)
+  balanceAsOf?: string; // YYYY-MM-DD; only later transactions auto-apply
+  appliedTxnIds?: string[]; // transactions already subtracted (idempotency)
 }
 
 export interface ExpectedInflow {

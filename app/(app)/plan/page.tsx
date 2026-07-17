@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react';
 import { CheckCircle2, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { baselineNet, phaseMath, planMath } from '../../lib/budget/plan';
-import type { Debt, ExpectedInflow, MovePlan } from '../../lib/budget/types';
+import type { Account, Debt, ExpectedInflow, MovePlan } from '../../lib/budget/types';
 import { Card, buttonPrimary, buttonSecondary, inputClass, usd } from '../../components/ui';
 import { useAsyncEffect } from '../../components/useAsyncEffect';
 
@@ -48,12 +48,17 @@ function SectionTitle({ title, sub }: { title: string; sub?: string }) {
 
 export default function PlanPage() {
   const [plan, setPlan] = useState<MovePlan | null>(null);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await fetch('/api/budget/plan');
-    if (res.ok) setPlan((await res.json()).plan);
+    const [planRes, accountRes] = await Promise.all([
+      fetch('/api/budget/plan'),
+      fetch('/api/budget/accounts'),
+    ]);
+    if (planRes.ok) setPlan((await planRes.json()).plan);
+    if (accountRes.ok) setAccounts((await accountRes.json()).accounts);
   }, []);
   useAsyncEffect(load);
 
@@ -236,7 +241,7 @@ export default function PlanPage() {
       <section>
         <SectionTitle
           title="Loans & debts"
-          sub="Check “Pay off at sale” for balances the home-sale proceeds will clear."
+          sub="Balances update themselves: payments matching a debt’s auto-match names are subtracted as they sync (when a monthly payment is set, only amounts ≥ half of it count, so similarly-named purchases don’t). Credit cards can mirror a linked account’s live balance instead. You can always type a balance yourself — tracking simply continues from your number."
         />
         <Card className="overflow-x-auto">
           <table className="w-full text-[13px] min-w-[640px]">
@@ -261,14 +266,60 @@ export default function PlanPage() {
                       aria-label="Debt name"
                     />
                     {d.notes ? <div className="text-[11px] text-ink-muted mt-0.5">{d.notes}</div> : null}
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      <input
+                        value={(d.matchPatterns ?? []).join(', ')}
+                        onChange={(e) =>
+                          updateDebt(d.id, {
+                            matchPatterns: e.target.value.split(',').map((p) => p.trimStart()),
+                          })
+                        }
+                        placeholder="auto-match names, comma-separated"
+                        className="flex-1 min-w-40 rounded-md border border-[rgba(11,11,11,0.12)] bg-surface px-2 py-1 text-[11px] text-ink-secondary outline-none focus:border-accent"
+                        aria-label={`Auto-match names for ${d.name}`}
+                        disabled={Boolean(d.linkedAccountId)}
+                      />
+                      <select
+                        value={d.linkedAccountId ?? ''}
+                        onChange={(e) =>
+                          updateDebt(d.id, { linkedAccountId: e.target.value || undefined })
+                        }
+                        className="rounded-md border border-[rgba(11,11,11,0.12)] bg-surface px-1.5 py-1 text-[11px] text-ink-secondary max-w-44"
+                        aria-label={`Mirror account for ${d.name}`}
+                      >
+                        <option value="">no account mirror</option>
+                        {accounts
+                          .filter((a) => a.type === 'credit' || a.type === 'loan')
+                          .map((a) => (
+                            <option key={a.id} value={a.id}>
+                              mirror: {a.name}
+                              {a.mask ? ` ••${a.mask}` : ''}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
                   </td>
                   <td className="px-2 py-2 text-right">
-                    <NumberField
-                      value={d.balance}
-                      onChange={(n) => updateDebt(d.id, { balance: n ?? 0 })}
-                      ariaLabel={`Balance for ${d.name}`}
-                      className="w-24"
-                    />
+                    {d.linkedAccountId ? (
+                      <div>
+                        <div className="font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                          {usd(d.balance)}
+                        </div>
+                        <span className="text-[10px] uppercase tracking-wide text-good-text">live</span>
+                      </div>
+                    ) : (
+                      <div>
+                        <NumberField
+                          value={d.balance}
+                          onChange={(n) => updateDebt(d.id, { balance: n ?? 0 })}
+                          ariaLabel={`Balance for ${d.name}`}
+                          className="w-24"
+                        />
+                        {d.balanceAsOf ? (
+                          <div className="text-[10px] text-ink-muted mt-0.5">as of {d.balanceAsOf}</div>
+                        ) : null}
+                      </div>
+                    )}
                   </td>
                   <td className="px-2 py-2 text-right">
                     <NumberField

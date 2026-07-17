@@ -1,4 +1,5 @@
 import { requireAuth } from '../../../lib/budget/auth';
+import { mergeManualDebtEdits, reconcileDebts } from '../../../lib/budget/debts';
 import { DEFAULT_PLAN, sanitizeDebt } from '../../../lib/budget/plan';
 import { getPlan, resetPlan, savePlan } from '../../../lib/budget/store';
 import type { ExpectedInflow, MovePlan, PlanPhase, VariableTarget } from '../../../lib/budget/types';
@@ -6,6 +7,9 @@ import type { ExpectedInflow, MovePlan, PlanPhase, VariableTarget } from '../../
 export async function GET() {
   const denied = await requireAuth();
   if (denied) return denied;
+  // Fold in any loan payments / linked-account balances synced since the
+  // last look, so the plan is always current when it loads.
+  await reconcileDebts().catch(() => {});
   return Response.json({ plan: await getPlan() });
 }
 
@@ -67,8 +71,12 @@ export async function PUT(request: Request) {
     return Response.json({ error: 'plan object required' }, { status: 400 });
   }
   const plan = sanitizePlan(body.plan as Partial<MovePlan>);
+  const previous = await getPlan();
+  const today = new Date().toISOString().slice(0, 10);
+  plan.debts = mergeManualDebtEdits(previous.debts, plan.debts, today);
   await savePlan(plan);
-  return Response.json({ plan });
+  await reconcileDebts().catch(() => {});
+  return Response.json({ plan: await getPlan() });
 }
 
 // Restore the spreadsheet defaults.

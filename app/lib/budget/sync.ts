@@ -1,4 +1,5 @@
 import { categoryFromPlaid } from './categories';
+import { reconcileDebts } from './debts';
 import {
   getAccounts as plaidGetAccounts,
   transactionsSync,
@@ -76,6 +77,8 @@ export async function syncItem(item: Item): Promise<{ added: number; modified: n
   }
 
   await upsertItem({ ...item, cursor, lastSyncedAt: new Date().toISOString() });
+  // Keep move-plan debt balances in step with the new transactions/balances.
+  await reconcileDebts().catch(() => {});
   return { added, modified, removed };
 }
 

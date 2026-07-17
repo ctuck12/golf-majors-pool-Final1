@@ -29,6 +29,8 @@ export const DEFAULT_PLAN: MovePlan = {
       balance: 23784,
       payment: 365.93,
       payoffAtSale: true,
+      matchPatterns: ['dept of education', 'dept education', 'student loan'],
+      balanceAsOf: '2026-07-14',
     },
     {
       id: 'sofi',
@@ -36,6 +38,8 @@ export const DEFAULT_PLAN: MovePlan = {
       balance: 20369,
       payment: 403.95,
       payoffAtSale: true,
+      matchPatterns: ['sofi'],
+      balanceAsOf: '2026-07-14',
     },
     {
       id: 'best-buy',
@@ -44,6 +48,8 @@ export const DEFAULT_PLAN: MovePlan = {
       payment: 216.67,
       payoffAtSale: true,
       notes: 'Payments have been $150–250/mo',
+      matchPatterns: ['best buy card', 'bestbuy cbna', 'best buy pay'],
+      balanceAsOf: '2026-07-14',
     },
     {
       id: 'car-loan',
@@ -52,6 +58,8 @@ export const DEFAULT_PLAN: MovePlan = {
       payment: 892.17,
       payoffAtSale: true,
       notes: 'Drafted on the 1st each month',
+      matchPatterns: ['first watch'],
+      balanceAsOf: '2026-07-14',
     },
     {
       id: 'citi',
@@ -59,7 +67,8 @@ export const DEFAULT_PLAN: MovePlan = {
       balance: 4451.33,
       apr: 29.99,
       payoffAtSale: true,
-      notes: 'As of 6/22 statement — the tax refund covers most of this',
+      notes: 'As of 6/22 statement — the tax refund covers most of this. Link the Citi account to mirror its live balance.',
+      balanceAsOf: '2026-07-14',
     },
     {
       id: 'chase',
@@ -67,7 +76,8 @@ export const DEFAULT_PLAN: MovePlan = {
       balance: 4294.96,
       apr: 21.49,
       payoffAtSale: true,
-      notes: '21.49% purchase / 28.49% cash-advance APR (as of 6/27 statement)',
+      notes: '21.49% purchase / 28.49% cash-advance APR (as of 6/27 statement). Link the Chase account to mirror its live balance.',
+      balanceAsOf: '2026-07-14',
     },
     {
       id: 'lowes',
@@ -76,6 +86,8 @@ export const DEFAULT_PLAN: MovePlan = {
       payment: 114.8,
       payoffAtSale: false,
       notes: 'Underlying balance not visible from statements — fill in',
+      matchPatterns: ['synchrony', 'lowes pay', "lowe's pay"],
+      balanceAsOf: '2026-07-14',
     },
   ],
   phases: [
@@ -179,6 +191,11 @@ export function baselineNet(plan: MovePlan) {
 }
 
 export function sanitizeDebt(d: Partial<Debt>, index: number): Debt {
+  const patterns = (Array.isArray(d.matchPatterns) ? d.matchPatterns : [])
+    .filter((p): p is string => typeof p === 'string')
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .slice(0, 10);
   return {
     id: typeof d.id === 'string' && d.id ? d.id : `debt-${index}`,
     name: typeof d.name === 'string' ? d.name : 'Debt',
@@ -187,5 +204,12 @@ export function sanitizeDebt(d: Partial<Debt>, index: number): Debt {
     apr: d.apr === undefined || d.apr === null ? undefined : Number(d.apr) || 0,
     payoffAtSale: Boolean(d.payoffAtSale),
     notes: typeof d.notes === 'string' && d.notes ? d.notes : undefined,
+    matchPatterns: patterns.length ? patterns : undefined,
+    linkedAccountId:
+      typeof d.linkedAccountId === 'string' && d.linkedAccountId ? d.linkedAccountId : undefined,
+    balanceAsOf: typeof d.balanceAsOf === 'string' && d.balanceAsOf ? d.balanceAsOf : undefined,
+    appliedTxnIds: Array.isArray(d.appliedTxnIds)
+      ? d.appliedTxnIds.filter((x): x is string => typeof x === 'string').slice(0, 5000)
+      : undefined,
   };
 }

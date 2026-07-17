@@ -24,6 +24,10 @@ for bank connections. Deploys on Vercel via Git integration.
   a phase-by-phase monthly plan with savings/investment percentages and a
   variable-spending allowance. Seeded from the household budget
   spreadsheet; editable in the app (`/plan`).
+- **Debt auto-tracking** — loan balances decrement as matching payment
+  transactions sync (name patterns + amount guard, each payment applied
+  once); credit-card debts can mirror a linked account's live balance.
+  Manual edits always allowed — tracking continues from your number.
 
 ## Environment variables
 
