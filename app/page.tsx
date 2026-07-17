@@ -4719,7 +4719,7 @@ export default function Page() {
                         {showCutInfo && (
                           <>
                             <div onClick={() => setShowCutInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9 }} />
-                            <div style={{ position: 'absolute', right: '100%', top: '50%', transform: 'translateY(-50%)', marginRight: 6, background: selectedTournament === 'open' ? '#173b63' : '#fff', border: selectedTournament === 'open' ? '1px solid #0c1f3a' : '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: selectedTournament === 'open' ? '#ffffff' : '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
+                            <div style={{ position: 'absolute', right: '100%', top: '50%', transform: 'translateY(-50%)', marginRight: 1, background: selectedTournament === 'open' ? '#173b63' : '#fff', border: selectedTournament === 'open' ? '1px solid #0c1f3a' : '1px solid #d1dae3', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: selectedTournament === 'open' ? '#ffffff' : '#374151', whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.13)', zIndex: 10 }}>
                               {(selectedTournament as string) === 'players' ? 'Top 65 & ties' : (selectedTournament as string) === 'masters' ? 'Top 50 & ties' : (selectedTournament as string) === 'pga' ? 'Top 70 & ties' : (selectedTournament as string) === 'us-open' ? 'Top 60 & ties' : 'Top 70 & ties'}
                             </div>
                           </>
