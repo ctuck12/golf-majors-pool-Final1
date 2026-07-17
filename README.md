@@ -19,6 +19,11 @@ for bank connections. Deploys on Vercel via Git integration.
 - **Activity** — searchable transaction list; recategorize anything (your
   overrides survive re-syncs) or hide one-offs from budgets.
 - **Family passcode** — one shared passcode gates the whole app.
+- **Move & payoff plan** — loans/debts tracker, expected one-time money
+  (tax refund), sale-day payoff math (equity − down payment − payoffs), and
+  a phase-by-phase monthly plan with savings/investment percentages and a
+  variable-spending allowance. Seeded from the household budget
+  spreadsheet; editable in the app (`/plan`).
 
 ## Environment variables
 

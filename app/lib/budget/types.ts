@@ -60,6 +60,62 @@ export interface Transaction {
 // entry are unbudgeted.
 export type Budgets = Partial<Record<CategoryId, number>>;
 
+// ---- Move & payoff plan ----
+
+export interface Debt {
+  id: string;
+  name: string;
+  balance: number;
+  payment?: number; // required monthly payment, if fixed
+  apr?: number; // percent, e.g. 29.99
+  payoffAtSale: boolean; // cleared with home-sale proceeds
+  notes?: string;
+}
+
+export interface ExpectedInflow {
+  id: string;
+  name: string; // e.g. "IRS tax refund"
+  amount: number;
+  expectedDate?: string; // YYYY-MM-DD
+  received: boolean;
+  notes?: string;
+}
+
+export interface PlanPhase {
+  id: string;
+  label: string;
+  income: number; // monthly take-home
+  mortgage: number;
+  recurringBills: number;
+  giving: number;
+  carPayment: number;
+  savingsPct: number; // percent of income
+  investPct: number; // percent of income
+  notes?: string;
+}
+
+export interface VariableTarget {
+  label: string;
+  amount: number;
+  note?: string;
+}
+
+export interface MovePlan {
+  targetWindow: string; // free text, e.g. "Jan – Mar 2027"
+  baseline: {
+    income: number; // current monthly take-home
+    recurringBills: number;
+    variableSpending: number;
+  };
+  saleEquity: number; // expected net equity from home sale
+  downPayment: number; // down payment on the new home
+  inflows: ExpectedInflow[];
+  debts: Debt[];
+  phases: PlanPhase[];
+  variableTargets: VariableTarget[];
+  currentVariableRunRate: number; // for the required-reduction comparison
+}
+
 export interface Goal {
   id: string;
   name: string;

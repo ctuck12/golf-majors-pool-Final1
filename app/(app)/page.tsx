@@ -4,7 +4,8 @@ import { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { CATEGORIES, CATEGORY_MAP } from '../lib/budget/categories';
-import type { Account, Budgets, CategoryId, Goal, Transaction } from '../lib/budget/types';
+import { planMath } from '../lib/budget/plan';
+import type { Account, Budgets, CategoryId, Goal, MovePlan, Transaction } from '../lib/budget/types';
 import {
   BudgetMeter,
   Card,
@@ -35,22 +36,25 @@ export default function DashboardPage() {
   const [budgets, setBudgets] = useState<Budgets>({});
   const [goals, setGoals] = useState<Goal[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [plan, setPlan] = useState<MovePlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
 
   const load = useCallback(async () => {
-    const [configRes, txnRes, budgetRes, goalRes, accountRes] = await Promise.all([
+    const [configRes, txnRes, budgetRes, goalRes, accountRes, planRes] = await Promise.all([
       fetch('/api/budget/config'),
       fetch(`/api/budget/transactions?month=${month}`),
       fetch('/api/budget/budgets'),
       fetch('/api/budget/goals'),
       fetch('/api/budget/accounts'),
+      fetch('/api/budget/plan'),
     ]);
     if (configRes.ok) setConfig(await configRes.json());
     if (txnRes.ok) setTxns((await txnRes.json()).transactions);
     if (budgetRes.ok) setBudgets((await budgetRes.json()).budgets);
     if (goalRes.ok) setGoals((await goalRes.json()).goals);
     if (accountRes.ok) setAccounts((await accountRes.json()).accounts);
+    if (planRes.ok) setPlan((await planRes.json()).plan);
     setLoading(false);
   }, [month]);
 
@@ -207,6 +211,57 @@ export default function DashboardPage() {
           </Card>
         )}
       </section>
+
+      {plan ? (
+        <section>
+          <div className="flex items-baseline justify-between mb-2">
+            <h2 className="text-[15px] font-semibold">Move & payoff plan</h2>
+            <Link href="/plan" className="text-[13px] text-accent-deep hover:underline">
+              Open plan
+            </Link>
+          </div>
+          <Card className="p-4">
+            {(() => {
+              const m = planMath(plan);
+              const pending = plan.inflows.filter((i) => !i.received);
+              return (
+                <>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-[14px]" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <div>
+                      <div className="text-[12px] text-ink-secondary">Debt to clear at sale</div>
+                      <div className="text-[20px] font-semibold">{usdWhole(m.payoffTotal)}</div>
+                    </div>
+                    <div>
+                      <div className="text-[12px] text-ink-secondary">Cash left after payoffs</div>
+                      <div className={`text-[20px] font-semibold ${m.cashAfterPayoffs < 0 ? 'text-critical' : 'text-good-text'}`}>
+                        {usdWhole(m.cashAfterPayoffs)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[12px] text-ink-secondary">Payments freed up</div>
+                      <div className="text-[20px] font-semibold">{usdWhole(m.freedMonthly)}/mo</div>
+                    </div>
+                    <div>
+                      <div className="text-[12px] text-ink-secondary">Expected money</div>
+                      <div className="text-[20px] font-semibold">
+                        {usdWhole(m.inflowTotal)}
+                        {pending.length > 0 ? (
+                          <span className="ml-2 align-middle text-[11px] font-medium px-2 py-0.5 rounded-full bg-warning/20 text-ink-secondary">
+                            {pending.length === 1 ? `${pending[0].name} pending` : `${pending.length} pending`}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-hairline text-[12px] text-ink-muted">
+                    Target window: {plan.targetWindow}
+                  </div>
+                </>
+              );
+            })()}
+          </Card>
+        </section>
+      ) : null}
 
       <section className="grid md:grid-cols-2 gap-6">
         <div>

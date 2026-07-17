@@ -3,7 +3,8 @@
 // fallback so local dev and builds work without Redis. Family-scale data
 // (a few thousand transactions) fits comfortably in single JSON documents.
 import redis from '../redis';
-import type { Account, Budgets, Goal, Item, Transaction } from './types';
+import { DEFAULT_PLAN } from './plan';
+import type { Account, Budgets, Goal, Item, MovePlan, Transaction } from './types';
 
 const hasRedis = Boolean(process.env.REDIS_URL);
 const memory = new Map<string, string>();
@@ -35,6 +36,7 @@ const KEYS = {
   transactions: 'budget:transactions',
   budgets: 'budget:budgets',
   goals: 'budget:goals',
+  plan: 'budget:plan',
 };
 
 async function readJSON<T>(key: string, fallback: T): Promise<T> {
@@ -63,6 +65,10 @@ export const saveBudgets = (budgets: Budgets) => kvSet(KEYS.budgets, JSON.string
 
 export const getGoals = () => readJSON<Goal[]>(KEYS.goals, []);
 export const saveGoals = (goals: Goal[]) => kvSet(KEYS.goals, JSON.stringify(goals));
+
+export const getPlan = () => readJSON<MovePlan>(KEYS.plan, DEFAULT_PLAN);
+export const savePlan = (plan: MovePlan) => kvSet(KEYS.plan, JSON.stringify(plan));
+export const resetPlan = () => kvDel(KEYS.plan);
 
 export async function upsertItem(item: Item) {
   const items = await getItems();

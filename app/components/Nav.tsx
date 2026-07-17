@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, List, PieChart, Target, Landmark, LogOut } from 'lucide-react';
+import { Home, List, PieChart, Target, Map, Landmark, LogOut } from 'lucide-react';
 
 const LINKS = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/transactions', label: 'Activity', icon: List },
   { href: '/budgets', label: 'Budgets', icon: PieChart },
   { href: '/goals', label: 'Goals', icon: Target },
+  { href: '/plan', label: 'Plan', icon: Map },
   { href: '/accounts', label: 'Accounts', icon: Landmark },
 ];
 
@@ -64,7 +65,7 @@ export default function Nav({ authEnabled }: { authEnabled: boolean }) {
 
       {/* Mobile bottom tabs */}
       <nav className="sm:hidden fixed bottom-0 inset-x-0 z-20 bg-surface border-t border-hairline pb-[env(safe-area-inset-bottom)]">
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-6">
           {LINKS.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
             return (
