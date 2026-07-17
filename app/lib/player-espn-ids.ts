@@ -61,6 +61,7 @@ export const PLAYER_ESPN_IDS: Record<string, string> = {
   "Jack McDonald": '6849',
   "Marcus Plunkett": '5075661',
   "Tom Sloman": '11270',
+  "Thomas Sloman": '11270',
   "Eugenio Chacarra": '4565467',
   "Eugenio Lopez-Chacarra": '4565467',
   "Adam Schenk": '10372',

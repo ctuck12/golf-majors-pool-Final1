@@ -243,7 +243,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 500059, name: 'Antoine Rozner',                 pgaTourId: 46646,     defaultOdds: '+100000', worldRank: 185 },
   { id: 500060, name: 'Nevill Ruiter',                  pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
   { id: 500062, name: 'Baard Bjoernevik Skogen',        pgaTourId: 0,     defaultOdds: '+100000', worldRank: 717 },
-  { id: 500063, name: 'Tom Sloman',                     pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
+  { id: 500063, name: 'Thomas Sloman',                  pgaTourId: 0,     defaultOdds: '+100000', worldRank: 935 },
   { id: 500066, name: 'Matthew Southgate',              pgaTourId: 35174,     defaultOdds: '+100000', worldRank: 590 },
   { id: 500067, name: 'Henrik Stenson',                 pgaTourId: 21528,     defaultOdds: '+100000', worldRank: 1382 },
   { id: 500069, name: 'Jesper Svensson',                pgaTourId: 57586, defaultOdds: '+100000', worldRank: 9999 },

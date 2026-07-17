@@ -102,7 +102,7 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Jack McDonald':              { dob: 'February 12, 1993', birthPlace: 'Kilmarnock, Scotland', college: 'Stirling' },
   'Marcus Plunkett':            { birthPlace: 'St. Louis Park, Minnesota', college: 'Army (West Point)' },
   'Baard Bjoernevik Skogen':    { birthPlace: 'Sveio, Norway', height: `6'4"`, college: 'Texas Tech' },
-  'Tom Sloman':                 { birthPlace: 'Taunton, England', college: 'Hartpury College' },
+  'Thomas Sloman':              { birthPlace: 'Taunton, England', college: 'Hartpury College' },
   'Johnny Keefer':              { dob: 'January 11, 2001', weight: '175 lbs' },
   'Cooper Dossey':              { dob: 'March 24, 1998', swing: 'Right' },
   'Manav Shah':                 { dob: 'April 13, 1992', birthPlace: 'Bakersfield, California' },

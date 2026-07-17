@@ -50,6 +50,7 @@ export const ESPN_ID_OVERRIDES: Record<string, string> = {
   'Jack McDonald': '6849',
   'Marcus Plunkett': '5075661',
   'Tom Sloman': '11270',
+  'Thomas Sloman': '11270',
   'Ian Holt': '4408324',
   'Derek Berg': '5350614',
   'Chris Gabriele': '5350613',

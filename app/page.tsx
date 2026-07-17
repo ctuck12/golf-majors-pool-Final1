@@ -194,7 +194,7 @@ const PLAYER_FLAGS: Record<string, string> = {
   // 2026 Open field additions
   'Nick Dunlap': 'us', 'Lanto Griffin': 'us', 'Rafael Campos': 'pr',
   'Jack Buchanan': 'au', 'Stuart Grehan': 'ie', 'Lev Grinberg': 'ua', 'David Howard': 'ie', 'Nevill Ruiter': 'nl', 'Joe Dean': 'gb-eng',
-  'Jose Luis Ballester Barrio': 'es', 'Martin Couvra': 'fr', 'Francesco Laporta': 'it', 'Dan Bradbury': 'gb-eng', 'Alistair Docherty': 'us', 'Michael Hollick': 'za', 'Kazuma Kobori': 'nz', 'Frederic Lacroix': 'fr', 'Shaun Norris': 'za', 'Sam Bairstow': 'gb-eng', 'Jeongwoo Ham': 'kr', 'Ryutaro Nagano': 'jp', 'Matthew Southgate': 'gb-eng', 'Austen Truslow': 'us', 'Jiho Yang': 'kr', 'Ren Yonezawa': 'jp', 'Matthew Baldwin': 'gb-eng', 'Tiger Christensen': 'de', 'David Duval': 'us', 'Cameron John': 'au', 'Jack McDonald': 'gb-sct', 'Marcus Plunkett': 'us', 'Baard Bjoernevik Skogen': 'no', 'Tom Sloman': 'gb-eng', 'Jose Maria Olazabal': 'es', 'Angel Hidalgo Portillo': 'es', 'Rocco Paolo Repetto Taylor': 'es',
+  'Jose Luis Ballester Barrio': 'es', 'Martin Couvra': 'fr', 'Francesco Laporta': 'it', 'Dan Bradbury': 'gb-eng', 'Alistair Docherty': 'us', 'Michael Hollick': 'za', 'Kazuma Kobori': 'nz', 'Frederic Lacroix': 'fr', 'Shaun Norris': 'za', 'Sam Bairstow': 'gb-eng', 'Jeongwoo Ham': 'kr', 'Ryutaro Nagano': 'jp', 'Matthew Southgate': 'gb-eng', 'Austen Truslow': 'us', 'Jiho Yang': 'kr', 'Ren Yonezawa': 'jp', 'Matthew Baldwin': 'gb-eng', 'Tiger Christensen': 'de', 'David Duval': 'us', 'Cameron John': 'au', 'Jack McDonald': 'gb-sct', 'Marcus Plunkett': 'us', 'Baard Bjoernevik Skogen': 'no', 'Thomas Sloman': 'gb-eng', 'Jose Maria Olazabal': 'es', 'Angel Hidalgo Portillo': 'es', 'Rocco Paolo Repetto Taylor': 'es',
   // South Africa
   'Louis Oosthuizen': 'za', 'Charl Schwartzel': 'za', 'Branden Grace': 'za',
   'Erik van Rooyen': 'za', 'Garrick Higgo': 'za', 'Dean Burmester': 'za',
@@ -9246,7 +9246,7 @@ export default function Page() {
           // that open a popup listing full names with the round(s), e.g. "Jackson Suber (R1)".
           const pickedBonusKeys = new Set(pickedPlayers.map((p) => canonicalNameKey(applyNameAlias(p.name))));
           const fieldBonus = feed?.fieldBonusEvents ?? {};
-          const unpickedBonusFor = (key: string) => (fieldBonus[key] ?? []).filter((e) => !pickedBonusKeys.has(canonicalNameKey(applyNameAlias(e.name))));
+          const unpickedBonusFor = (key: string) => (fieldBonus[key] ?? []).filter((e) => !pickedBonusKeys.has(canonicalNameKey(applyNameAlias(e.name)))).sort((a, b) => (b.count ?? 0) - (a.count ?? 0));
           const BONUS_FIELD_KEYS: Record<string, string> = { 'Tourn Low Rnd': 'lowRound', 'Round 1 Leader': 'round1Leader', 'Round 2 Leader': 'round2Leader', 'Round 3 Leader': 'round3Leader', '3 Birdie Streaks': 'threeBirdieStreaks', 'No Bogey Rounds': 'bogeyFreeRounds', 'Eagles': 'eagles', 'Hole in One': 'holeInOne', 'Albatross': 'albatross' };
           const bpColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#BE3436' : selectedTournament === 'open' ? '#c0392b' : '#1e4d8c';
           const catHeaderColor = selectedTournament === 'masters' ? '#2c6449' : selectedTournament === 'us-open' ? '#1e4d8c' : '#173b63';
