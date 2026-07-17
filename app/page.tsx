@@ -9723,6 +9723,10 @@ export default function Page() {
                   // override sets it), so the moment one exists the field auto-flips from AMATEUR to the
                   // year with no re-upload or manual step.
                   const isAmateur = amateurKeys.has(canonicalNameKey(pickHistoryPlayerPopup.player.name)) && bio?.turnedPro == null;
+                  // A player with no PGA Tour starts (ESPN returns no career-starts figure) has never
+                  // played a PGA Tour event — show 0 across the PGA Tour trio instead of dashes. Only
+                  // once the bio has actually loaded; while loading (bio null) they stay as dashes.
+                  const noPgaCareer = bio != null && (bio.careerStarts == null || bio.careerStarts === 0);
                   const bottomGroups: BioBottomRow[][] = [
                     [
                       isAmateur
@@ -9730,9 +9734,9 @@ export default function Page() {
                         : { label: 'Turned Pro', value: bio?.turnedPro ?? null },
                     ],
                     [
-                      { label: 'PGA Tour Starts', value: bio?.careerStarts ?? null },
-                      { label: 'Cuts Made', value: bio?.cutsMade ?? null },
-                      { label: 'PGA Tour Wins', value: bio?.careerWins ?? null, wins: bio?.pgaTourWinsList ?? null },
+                      { label: 'PGA Tour Starts', value: noPgaCareer ? 0 : bio?.careerStarts ?? null },
+                      { label: 'Cuts Made', value: noPgaCareer ? 0 : bio?.cutsMade ?? null },
+                      { label: 'PGA Tour Wins', value: noPgaCareer ? 0 : (bio?.careerWins ?? null), wins: bio?.pgaTourWinsList ?? null },
                     ],
                     [
                       { label: 'Major Starts', value: bio?.majorStarts ?? null },
