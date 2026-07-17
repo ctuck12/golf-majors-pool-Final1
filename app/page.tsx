@@ -5281,7 +5281,7 @@ export default function Page() {
                                         <td colSpan={6} style={{ padding: '2px 0' }}>
                                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
                                             <div style={{ flex: 1, height: 2, background: '#111827' }} />
-                                            <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>PROJECTED CUT</span>
+                                            <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>PROJECTED CUT{feed?.projectedCut ? `: ${feed.projectedCut}` : ''}</span>
                                             <div style={{ flex: 1, height: 2, background: '#111827' }} />
                                           </div>
                                         </td>
@@ -5426,7 +5426,7 @@ export default function Page() {
                                         <td colSpan={6} style={{ padding: '2px 0' }}>
                                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
                                             <div style={{ flex: 1, height: 2, background: '#111827' }} />
-                                            <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>PROJECTED CUT</span>
+                                            <span style={{ fontSize: 10, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>PROJECTED CUT{feed?.projectedCut ? `: ${feed.projectedCut}` : ''}</span>
                                             <div style={{ flex: 1, height: 2, background: '#111827' }} />
                                           </div>
                                         </td>
