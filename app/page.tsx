@@ -3587,6 +3587,46 @@ export default function Page() {
     });
   };
 
+  // Open the live scorecard popup for a leaderboard player (used by row click and by the
+  // Total-column score tap for picked players).
+  const openLiveScorecard = (name: string, teeTime: string | null, thru: string | null, backNineStart: boolean) => {
+    setScorecardGolferName(name);
+    setScorecardGolferPhoto(null);
+    setScorecardGolferTeeTime(teeTime);
+    setScorecardGolferThru(thru);
+    setScorecardGolferBackNineStart(backNineStart);
+    setScorecardData(null);
+    setScorecardLoading(true);
+    fetch(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(name)}&round=${feed?.currentRound ?? 1}`)
+      .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
+  };
+  const openCutScorecardFor = (name: string) => {
+    setCutScorecardGolfer({ name, pgaTourId: 0, photoUrl: undefined });
+    setCutScorecardData(null);
+    setCutScorecardLoading(true);
+    fetch(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(name)}&round=2`)
+      .then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false));
+  };
+  // CUT text in the Total column: single tap keeps the existing expand-to-score toggle,
+  // double tap opens the player's scorecard popup.
+  const cutTapRef = useRef<{ id: string; timer: ReturnType<typeof setTimeout> } | null>(null);
+  const handleCutTotalTap = (playerId: string, name: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const existing = cutTapRef.current;
+    if (existing && existing.id === playerId) {
+      clearTimeout(existing.timer);
+      cutTapRef.current = null;
+      openCutScorecardFor(name); // double tap
+    } else {
+      if (existing) clearTimeout(existing.timer);
+      const timer = setTimeout(() => {
+        cutTapRef.current = null;
+        handleCutClick(playerId, { stopPropagation: () => {} } as React.MouseEvent); // single tap = expand
+      }, 260);
+      cutTapRef.current = { id: playerId, timer };
+    }
+  };
+
   const handleMainTabChange = (tab: MainTab, options?: { refreshAfterChange?: boolean }) => {
     setAccountMenuOpen(false);
     setMyEntriesMenuOpen(false);
@@ -5236,28 +5276,16 @@ export default function Page() {
                                         if (player.poolPlayerId !== null && timesPicked > 0) {
                                           setSelectedLeaderboardPlayerId(activePlayer ? null : player.poolPlayerId);
                                         } else if (player.score === 'CUT' || player.score === 'MDF' || player.score === 'WD' || player.score === 'DQ') {
-                                          setCutScorecardGolfer({ name: player.name, pgaTourId: 0, photoUrl: undefined });
-                                          setCutScorecardData(null);
-                                          setCutScorecardLoading(true);
-                                          fetch(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}&round=2`)
-                                            .then(r => r.json()).then(setCutScorecardData).catch(() => setCutScorecardData(null)).finally(() => setCutScorecardLoading(false));
+                                          openCutScorecardFor(player.name);
                                         } else {
-                                          setScorecardGolferName(player.name);
-                                          setScorecardGolferPhoto(null);
-                                          setScorecardGolferTeeTime(player.teeTime ?? null);
-                                          setScorecardGolferThru(player.thru);
-                                          setScorecardGolferBackNineStart(player.backNineStart ?? false);
-                                          setScorecardData(null);
-                                          setScorecardLoading(true);
-                                          fetch(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(player.name)}&round=${feed?.currentRound ?? 1}`)
-                                            .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
+                                          openLiveScorecard(player.name, player.teeTime ?? null, player.thru, player.backNineStart ?? false);
                                         }
                                       }}
                                       style={{ background: rowBg, borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef', cursor: 'pointer' }}
                                     >
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: selectedTournament === 'open' ? '#0f1720' : '#374151' }}>{notStartedR1 ? '—' : (player.score === 'WD' || player.score === 'DQ') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{player.score}</span> : formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{notStartedR1 ? '—' : player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.playerId), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.playerId)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : (colIsCut && colVal !== 'CUT') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{notStartedR1 ? '—' : player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutTotalTap(String(player.playerId), player.name, e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.playerId)) ? player.originalScore : 'CUT'}</span> : (() => { const valNode = useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : (colIsCut && colVal !== 'CUT') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal; return (player.poolPlayerId !== null && timesPicked > 0) ? <span onClick={(e) => { e.stopPropagation(); openLiveScorecard(player.name, player.teeTime ?? null, player.thru, player.backNineStart ?? false); }} style={{ cursor: 'pointer', display: 'inline-block', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>{valNode}</span> : valNode; })()}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: selectedTournament === 'open' ? '#000000' : '#374151' }}>{(() => {
                                         const isGoldTheme = selectedTournament === 'open';
                                         const thruDisplay = (() => {
@@ -5399,7 +5427,7 @@ export default function Page() {
                                     >
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: 600, color: selectedTournament === 'open' ? '#0f1720' : '#374151' }}>{notStartedR1 ? '—' : (player.score === 'WD' || player.score === 'DQ') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{player.score}</span> : formatLeaderboardPosition(player.position)}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', fontWeight: activePlayer ? 800 : 500, color: '#0f1720' }}>{player.name}</td>
-                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{notStartedR1 ? '—' : player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutClick(String(player.id), e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.id)) ? player.originalScore : 'CUT'}</span> : useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : (colIsCut && colVal !== 'CUT') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal}</td>
+                                      <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', fontWeight: colIsCut ? 600 : 700, color: colUnderPar && !useRedBadge ? '#dc2626' : (useNavyBadge ? '#0f1720' : (colVal === 'E' ? '#16a34a' : (colIsCut ? '#374151' : '#0f1720'))) }}>{notStartedR1 ? '—' : player.score === 'CUT' && player.originalScore && leaderboardSortMode === 'default' ? <span onClick={(e) => handleCutTotalTap(String(player.id), player.name, e)} style={{ cursor: 'pointer', display: 'inline-block', minWidth: 34, textAlign: 'center', WebkitTapHighlightColor: 'transparent', userSelect: 'none', touchAction: 'manipulation' }}>{expandedCutIds.has(String(player.id)) ? player.originalScore : 'CUT'}</span> : (() => { const valNode = useRedBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#dc2626', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : useNavyBadge ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#1e3a5f', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : (colIsCut && colVal !== 'CUT') ? <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#cc2944', color: '#fff', borderRadius: 4, padding: '2px 5px', minWidth: 28, fontWeight: 700 }}>{colVal}</span> : colVal; return (timesPicked > 0) ? <span onClick={(e) => { e.stopPropagation(); openLiveScorecard(player.name, player.teeTime ?? null, player.thru, player.backNineStart ?? false); }} style={{ cursor: 'pointer', display: 'inline-block', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>{valNode}</span> : valNode; })()}</td>
                                       <td style={{ padding: isMobile ? '6px 4px' : '7px 8px', textAlign: 'center', color: selectedTournament === 'open' ? '#000000' : '#374151' }}>{(() => {
                                         const isGoldTheme = selectedTournament === 'open';
                                         const thruDisplay = (() => {
