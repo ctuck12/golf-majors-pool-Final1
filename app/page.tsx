@@ -9819,8 +9819,13 @@ export default function Page() {
                 })()}
                 {pickHistoryView === 'stats' && (() => {
                   const isTournCtx = pickHistoryPlayerPopup.statsContext === 'tournament';
-                  const showSubToggle = isTournCtx && careerTournamentId !== 'us-open';
-                  const s = showSubToggle && statsSubView === 'season'
+                  // The Open publishes no per-event advanced stats (ESPN 404s, PGA feed empty), so
+                  // like the US Open it shows Season stats only with no Tournament/Season toggle.
+                  const seasonOnlyTab = careerTournamentId === 'us-open' || careerTournamentId === 'open';
+                  const showSubToggle = isTournCtx && !seasonOnlyTab;
+                  const s = careerTournamentId === 'open'
+                    ? pickHistoryPlayerPopup.playerSeasonStats
+                    : showSubToggle && statsSubView === 'season'
                     ? pickHistoryPlayerPopup.playerSeasonStats
                     : pickHistoryPlayerPopup.playerStats;
                   const espnRounds = isTournCtx
@@ -9829,8 +9834,7 @@ export default function Page() {
                   const rounds = isTournCtx
                     ? (pickHistoryPlayerPopup.playerRounds?.length ? pickHistoryPlayerPopup.playerRounds : espnRounds)
                     : [];
-                  const isUsOpenSeasonTab = careerTournamentId === 'us-open';
-                  const isTournView = !isUsOpenSeasonTab && ((showSubToggle && statsSubView === 'tournament') || (!showSubToggle && isTournCtx));
+                  const isTournView = !seasonOnlyTab && ((showSubToggle && statsSubView === 'tournament') || (!showSubToggle && isTournCtx));
                   const avgs = isTournView
                     ? { ...pickHistoryPlayerPopup.statAverages, ...pickHistoryPlayerPopup.fieldAverages }
                     : pickHistoryPlayerPopup.statAverages ?? {};
@@ -9889,40 +9893,23 @@ export default function Page() {
                     const r = seasonRanks[key] ?? null;
                     return r ? ordinal(r) : null;
                   }
-                  // Scorecard-derived tournament stats: served when neither ESPN nor the PGA Tour
-                  // publishes per-event stats for this event (e.g. The Open) — real performance
-                  // numbers from our own hole-by-hole scorecards; no field averages or ranks exist.
-                  const derivedStats = s as unknown as (Record<string, string | null | undefined> & { scorecardDerived?: boolean }) | null;
-                  const isDerivedTournStats = isTournView && derivedStats?.scorecardDerived === true;
                   const courseStatCells: { label: string; value: string; avgKey?: string; rankKey?: string }[] = [];
                   const sgStatCells: { label: string; value: string; rankKey?: string }[] = [];
-                  if (isDerivedTournStats && derivedStats) {
-                    if (derivedStats.scoreToPar) courseStatCells.push({ label: 'Score to Par', value: String(derivedStats.scoreToPar) });
-                    if (derivedStats.scoringAverage) courseStatCells.push({ label: 'Scoring Avg', value: String(derivedStats.scoringAverage) });
-                    if (derivedStats.lowRound) courseStatCells.push({ label: 'Low Round', value: String(derivedStats.lowRound) });
-                    if (derivedStats.birdies) courseStatCells.push({ label: 'Birdies', value: String(derivedStats.birdies) });
-                    if (derivedStats.eagles) courseStatCells.push({ label: 'Eagles', value: String(derivedStats.eagles) });
-                    if (derivedStats.pars) courseStatCells.push({ label: 'Pars', value: String(derivedStats.pars) });
-                    if (derivedStats.bogeys) courseStatCells.push({ label: 'Bogeys', value: String(derivedStats.bogeys) });
-                    if (derivedStats.doublesPlus) courseStatCells.push({ label: 'Doubles+', value: String(derivedStats.doublesPlus) });
-                    if (derivedStats.holesPlayed) courseStatCells.push({ label: 'Holes Played', value: String(derivedStats.holesPlayed) });
-                  } else {
-                    if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Distance', value: s.drivingDistance, avgKey: 'drivingDistance', rankKey: 'drivingDistance' });
-                    if (s?.drivingAccuracy) courseStatCells.push({ label: 'Drive Accuracy', value: s.drivingAccuracy, avgKey: 'drivingAccuracy', rankKey: 'drivingAccuracy' });
-                    if (s?.gir) courseStatCells.push({ label: 'Greens in Reg', value: s.gir, avgKey: 'gir', rankKey: 'gir' });
-                    if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling, avgKey: 'scrambling', rankKey: 'scrambling' });
-                    if (s?.sandSaves) courseStatCells.push({ label: 'Sand Saves', value: s.sandSaves, avgKey: 'sandSaves', rankKey: 'sandSaves' });
-                    if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Green', value: s.puttAverage, avgKey: 'puttAverage', rankKey: 'puttAverage' });
-                    if (showSubToggle && statsSubView === 'tournament') {
-                      if (s?.proximity) courseStatCells.push({ label: 'Proximity', value: s.proximity });
-                    }
-                    if (s?.sgTotal) sgStatCells.push({ label: 'Total', value: s.sgTotal, rankKey: 'sgTotal' });
-                    if (s?.sgTeeToGreen) sgStatCells.push({ label: 'Tee to Green', value: s.sgTeeToGreen, rankKey: 'sgTeeToGreen' });
-                    if (s?.sgOffTee) sgStatCells.push({ label: 'Off the Tee', value: s.sgOffTee, rankKey: 'sgOffTee' });
-                    if (s?.sgApproach) sgStatCells.push({ label: 'Approach', value: s.sgApproach, rankKey: 'sgApproach' });
-                    if (s?.sgAroundGreen) sgStatCells.push({ label: 'Around Green', value: s.sgAroundGreen, rankKey: 'sgAroundGreen' });
-                    if (s?.sgPutting) sgStatCells.push({ label: 'Putting', value: s.sgPutting, rankKey: 'sgPutting' });
+                  if (s?.drivingDistance) courseStatCells.push({ label: 'Drive Distance', value: s.drivingDistance, avgKey: 'drivingDistance', rankKey: 'drivingDistance' });
+                  if (s?.drivingAccuracy) courseStatCells.push({ label: 'Drive Accuracy', value: s.drivingAccuracy, avgKey: 'drivingAccuracy', rankKey: 'drivingAccuracy' });
+                  if (s?.gir) courseStatCells.push({ label: 'Greens in Reg', value: s.gir, avgKey: 'gir', rankKey: 'gir' });
+                  if (s?.scrambling) courseStatCells.push({ label: 'Scrambling', value: s.scrambling, avgKey: 'scrambling', rankKey: 'scrambling' });
+                  if (s?.sandSaves) courseStatCells.push({ label: 'Sand Saves', value: s.sandSaves, avgKey: 'sandSaves', rankKey: 'sandSaves' });
+                  if (s?.puttAverage) courseStatCells.push({ label: 'Putts/Green', value: s.puttAverage, avgKey: 'puttAverage', rankKey: 'puttAverage' });
+                  if (showSubToggle && statsSubView === 'tournament') {
+                    if (s?.proximity) courseStatCells.push({ label: 'Proximity', value: s.proximity });
                   }
+                  if (s?.sgTotal) sgStatCells.push({ label: 'Total', value: s.sgTotal, rankKey: 'sgTotal' });
+                  if (s?.sgTeeToGreen) sgStatCells.push({ label: 'Tee to Green', value: s.sgTeeToGreen, rankKey: 'sgTeeToGreen' });
+                  if (s?.sgOffTee) sgStatCells.push({ label: 'Off the Tee', value: s.sgOffTee, rankKey: 'sgOffTee' });
+                  if (s?.sgApproach) sgStatCells.push({ label: 'Approach', value: s.sgApproach, rankKey: 'sgApproach' });
+                  if (s?.sgAroundGreen) sgStatCells.push({ label: 'Around Green', value: s.sgAroundGreen, rankKey: 'sgAroundGreen' });
+                  if (s?.sgPutting) sgStatCells.push({ label: 'Putting', value: s.sgPutting, rankKey: 'sgPutting' });
                   const statCells = [...courseStatCells, ...sgStatCells];
                   const subToggle = showSubToggle ? (
                     <div key="stats-subtoggle" style={{ display: 'flex', background: '#e8edf2', borderRadius: 8, padding: 3, marginBottom: 10, justifySelf: 'start' }}>

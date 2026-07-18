@@ -6,8 +6,7 @@ import { fetchPlayerSeasonStats, fetchPlayerTournamentStats } from '@/app/lib/es
 import { fetchPgaTourPlayerStats } from '@/app/lib/pga-player-stats';
 import type { PlayerStatRanks } from '@/app/lib/pga-player-stats';
 import { fetchPgaScorecardStats, pgaTourTournId } from '@/app/lib/pga-scorecard-stats';
-import { getTournamentMetaByEspnId, TOURNAMENT_META } from '@/app/lib/tournament-config';
-import { getScorecardCache, normName as normScorecardName } from '@/app/lib/scorecard-store';
+import { getTournamentMetaByEspnId } from '@/app/lib/tournament-config';
 import { resolvePgaTourIdByName } from '@/app/lib/pga-id-resolver';
 import { getOrBuildPgaLeaderboard, tournLbCacheKey } from '@/app/lib/tournament-sg-leaderboard';
 import { resolveChangedAt } from '@/app/lib/changed-at';
@@ -194,65 +193,6 @@ export async function GET(request: Request) {
       for (let i = 0; i < TOURN_PGA_KEYS.length; i++) {
         const lb = pgaLbs[i];
         if (lb?.entries?.length) applyLb(TOURN_PGA_KEYS[i], lb.entries);
-      }
-
-      // When NEITHER provider carries per-event stats for this event (e.g. The Open: ESPN
-      // 404s per-player tournament statistics and the PGA Tour statDetails EVENT_ONLY feed
-      // returns no rows), derive real tournament stats from our own hole-by-hole scorecard
-      // cache instead of silently serving season numbers relabeled as tournament stats.
-      // True "we have per-event data" test: real stat VALUES landed (from ESPN/PGA scorecard or
-      // the leaderboard applyLb), or we matched a leaderboard rank. Checking object truthiness of
-      // pgaScorecardStats was wrong — the PGA feed can return a truthy-but-empty object for events
-      // it doesn't cover (The Open), which skipped the fallback and left a blank card.
-      const hasTournamentSource = Object.keys(stats).length > 0 || Object.keys(mergedRanks).length > 0;
-      if (!hasTournamentSource) {
-        const tournamentEntry = Object.entries(TOURNAMENT_META).find(([, m]) => m.espnEventId === eventId);
-        if (tournamentEntry) {
-          const scCache = await getScorecardCache(tournamentEntry[0]).catch(() => null);
-          const scPlayer = scCache ? Object.values(scCache.players).find((p) => normScorecardName(p.playerName) === normScorecardName(name)) : null;
-          if (scPlayer) {
-            let birdies = 0, pars = 0, bogeys = 0, eagles = 0, doubles = 0, holes = 0, toPar = 0;
-            let completedRounds = 0, strokesCompleted = 0;
-            let lowRound: number | null = null;
-            for (const rnd of scPlayer.rounds ?? []) {
-              const played = (rnd.holes ?? []).filter((h) => typeof h.score === 'number' && h.score > 0 && typeof h.par === 'number' && h.par > 0);
-              let rndStrokes = 0;
-              for (const h of played) {
-                const diff = h.score - h.par;
-                toPar += diff;
-                holes++;
-                rndStrokes += h.score;
-                if (diff <= -2) eagles++;
-                else if (diff === -1) birdies++;
-                else if (diff === 0) pars++;
-                else if (diff === 1) bogeys++;
-                else doubles++;
-              }
-              if (played.length === 18) {
-                completedRounds++;
-                strokesCompleted += rndStrokes;
-                if (lowRound === null || rndStrokes < lowRound) lowRound = rndStrokes;
-              }
-            }
-            if (holes > 0) {
-              const derived: Record<string, unknown> = {
-                scorecardDerived: true,
-                scoreToPar: toPar === 0 ? 'E' : toPar > 0 ? `+${toPar}` : String(toPar),
-                scoringAverage: completedRounds > 0 ? (strokesCompleted / completedRounds).toFixed(1) : null,
-                lowRound: lowRound !== null ? String(lowRound) : null,
-                holesPlayed: String(holes),
-                birdies: String(birdies),
-                eagles: String(eagles),
-                pars: String(pars),
-                bogeys: String(bogeys),
-                doublesPlus: String(doubles),
-              };
-              await redis.setex(cacheKey, ttl, JSON.stringify(derived));
-              const updatedAtDerived = await resolveChangedAt(sigCacheKey, JSON.stringify({ s: derived, r: null }));
-              return Response.json({ stats: derived, ranks: null, updatedAt: updatedAtDerived });
-            }
-          }
-        }
       }
 
       // Serve null (not an empty object) when no per-event source produced anything, so the
