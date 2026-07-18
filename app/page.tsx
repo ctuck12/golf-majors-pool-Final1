@@ -5132,7 +5132,7 @@ export default function Page() {
                                 onClick={() => { setLeaderboardPickedSort('default'); setLeaderboardSortMode((m) => m === 'default' ? 'round-desc' : m === 'round-desc' ? 'round-asc' : 'default'); }}
                                 style={{ padding: isMobile ? '8px 4px' : '9px 8px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.04em', cursor: 'pointer', userSelect: 'none', ...stickyTh }}
                               >
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, whiteSpace: 'nowrap' }}>
                                   {leaderboardSortMode === 'default' ? 'Total' : `Rnd ${feed?.currentRound ?? 1}`}
                                   {leaderboardSortMode === 'round-desc' && <span style={{ fontSize: isMobile ? 8 : 9 }}>▼</span>}
                                   {leaderboardSortMode === 'round-asc' && <span style={{ fontSize: isMobile ? 8 : 9 }}>▲</span>}
