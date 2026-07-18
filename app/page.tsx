@@ -4695,9 +4695,9 @@ export default function Page() {
                       {showFinalTournamentView ? tournament.name : `${tournament.name} Pool Standings`}
                     </h2>
                   )}
-                  {isTournamentFinal && !showFutureTournamentView ? (
-                    <div style={{ marginTop: 4, fontSize: isMobile ? 11 : 12, fontWeight: 800, color: (selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga') ? '#c0392b' : '#0f1720', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                      Final Results
+                  {isTournamentFinal && !showFutureTournamentView && TOURNAMENT_META[selectedTournament]?.courseName ? (
+                    <div style={{ marginTop: 3, fontSize: isMobile ? 12 : 13, fontStyle: 'italic', fontWeight: 600, color: '#0f1720' }}>
+                      {TOURNAMENT_META[selectedTournament]?.courseName}
                     </div>
                   ) : null}
                 </div>
@@ -4722,6 +4722,11 @@ export default function Page() {
                           Bonus Points
                         </button>
                       </div>
+                      {isTournamentFinal && !showFutureTournamentView ? (
+                        <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, color: (selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga') ? '#c0392b' : '#0f1720', letterSpacing: '0.1em', textTransform: 'uppercase', textAlign: 'right' }}>
+                          Final Results
+                        </div>
+                      ) : null}
                   </div>
                 ) : !showFutureTournamentView && !showFinalTournamentView ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b6b79', fontSize: 14 }}>
@@ -4734,7 +4739,7 @@ export default function Page() {
                   </div>
                 ) : null}
                 {(selectedTournament === 'open' || selectedTournament === 'us-open' || selectedTournament === 'pga') && showLivePayoutStrip && (
-                  <img src={selectedTournament === 'open' ? '/open-o-logo.png' : selectedTournament === 'us-open' ? '/us-open-shinnecock-logo.gif' : '/pga-aronimink-logo.png'} alt="" style={{ position: 'absolute', left: selectedTournament === 'us-open' ? '50%' : '54%', top: (isTournamentFinal && !showFutureTournamentView) ? (isMobile ? '81%' : '68%') : (isMobile ? '108%' : '75%'), transform: 'translate(-50%, -50%)', height: selectedTournament === 'us-open' ? (isMobile ? 50 : 66) : selectedTournament === 'pga' ? (isMobile ? 46 : 60) : (isMobile ? 40 : 54), width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
+                  <img src={selectedTournament === 'open' ? '/open-o-logo.png' : selectedTournament === 'us-open' ? '/us-open-shinnecock-logo.gif' : '/pga-seal-gold.png'} alt="" style={{ position: 'absolute', left: selectedTournament === 'us-open' ? '50%' : '54%', top: isMobile ? '108%' : '75%', transform: 'translate(-50%, -50%)', height: selectedTournament === 'us-open' ? (isMobile ? 50 : 66) : selectedTournament === 'pga' ? (isMobile ? 46 : 60) : (isMobile ? 40 : 54), width: 'auto', objectFit: 'contain', pointerEvents: 'none' }} />
                 )}
               </div>
               {!feed?.tournamentComplete && (feed?.currentRound ?? 0) > 0 && (
