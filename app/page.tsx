@@ -5166,7 +5166,9 @@ export default function Page() {
                               const parseRndScoreFL = (s: string | null | undefined) => { if (!s || s === '--') return Infinity; if (s === 'E') return 0; const n = parseFloat(s); return isNaN(n) ? Infinity : n; };
                               const parseTeeTimeMinFL = (t: string | null | undefined) => { if (!t) return Infinity; const m = t.match(/(\d{1,2}):(\d{2}):/); return m ? parseInt(m[1], 10) * 60 + parseInt(m[2], 10) : Infinity; };
                               const filteredFull = leaderboardSortMode !== 'default'
-                                ? [...filteredFullRaw].filter((p) => !CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => {
+                                // Round 2 sort keeps the WHOLE field — cut players played round 2, so their
+                                // round-2 scores must appear. Rounds 3/4 exclude cut players (they didn't play).
+                                ? [...filteredFullRaw].filter((p) => (feed?.currentRound ?? 1) === 2 || !CUT_SCORE_SET_FL.has(p.score.toUpperCase())).sort((a, b) => {
                                     const aS = parseRndScoreFL(a.currentRoundScore);
                                     const bS = parseRndScoreFL(b.currentRoundScore);
                                     if (aS !== bS) return leaderboardSortMode === 'round-desc' ? aS - bS : bS - aS;
@@ -5325,7 +5327,7 @@ export default function Page() {
                                     return a.name.localeCompare(b.name);
                                   })
                                 : leaderboardSortMode !== 'default'
-                                ? [...filteredPickedRaw].filter((p) => !CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => {
+                                ? [...filteredPickedRaw].filter((p) => (feed?.currentRound ?? 1) === 2 || !CUT_SCORE_SET_PO.has(p.score.toUpperCase())).sort((a, b) => {
                                     const aS = parseRndScorePO(a.currentRoundScore);
                                     const bS = parseRndScorePO(b.currentRoundScore);
                                     if (aS !== bS) return leaderboardSortMode === 'round-desc' ? aS - bS : bS - aS;
