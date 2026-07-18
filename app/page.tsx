@@ -9636,7 +9636,7 @@ export default function Page() {
                   const label = tab === 'stats'
                     // Until the tournament starts only season-long stats exist, so say "Season Stats";
                     // once underway/finished the tab is "Stats" with a Tournament/Season toggle inside.
-                    ? (pickHistoryPlayerPopup.statsContext !== 'tournament' || careerTournamentId === 'us-open' ? 'Season Stats' : 'Stats')
+                    ? (pickHistoryPlayerPopup.statsContext !== 'tournament' || careerTournamentId === 'us-open' || careerTournamentId === 'open' ? 'Season Stats' : 'Stats')
                     : tab === 'season' ? 'Season Results' : tab === 'bio' ? 'Bio' : (careerTabLabel[careerTournamentId] ?? 'Major Career');
                   const isActive = pickHistoryView === tab;
                   // The far-right "Career" tab shows the tournament's logo (same as the main standings
