@@ -4715,7 +4715,7 @@ export default function Page() {
                   {isTournamentFinal && !showFutureTournamentView && TOURNAMENT_META[selectedTournament]?.courseName ? (() => {
                     const cn = TOURNAMENT_META[selectedTournament]!.courseName;
                     const fs = isMobile ? (cn.length > 23 ? 11.5 : cn.length > 18 ? 12.5 : 13.5) : (cn.length > 26 ? 13.5 : 14.5);
-                    return <div style={{ marginTop: 3, fontSize: fs, fontStyle: 'italic', fontWeight: 400, color: '#0f1720', whiteSpace: 'nowrap' }}>{cn}</div>;
+                    return <div style={{ marginTop: 3, fontSize: fs, lineHeight: isMobile ? '15px' : '17px', fontStyle: 'italic', fontWeight: 400, color: '#0f1720', whiteSpace: 'nowrap' }}>{cn}</div>;
                   })() : null}
                 </div>
                 {showLivePayoutStrip ? (
