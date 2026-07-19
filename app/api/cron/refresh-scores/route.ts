@@ -283,7 +283,7 @@ async function refreshTournamentFromESPN(
     throw err;
   }
 
-  const { currentRound, roundStatus, playerScorecards } = espnResult;
+  const { currentRound, roundStatus, playerScorecards, eventComplete } = espnResult;
   const roundComplete = isRoundComplete(roundStatus);
   // Apply cut statuses when ESPN hasn't flagged them explicitly (ESPN keeps numeric scores on cut players)
   const rows = applyEspnCutStatuses(tournamentId, espnResult.leaderboardRows, currentRound, roundComplete);
@@ -327,7 +327,11 @@ async function refreshTournamentFromESPN(
     fixParValues(mergedComplete);
     await saveScorecardCache(tournamentId, mergedComplete, currentRound);
 
-    if (currentRound >= 4) {
+    // Only mark the tournament permanently complete when ESPN says the whole event is
+    // final (status.type.completed). currentRound>=4 alone is NOT sufficient: between
+    // rounds ESPN reports state='post' (→ roundComplete) and pre-increments the period,
+    // which previously tripped this and froze the tournament as "Final Results".
+    if (eventComplete) {
       await markTournamentComplete(tournamentId, existing, rows, currentRound, roundStatus, projectedCut);
       return 'tournament-complete-marked';
     }
@@ -335,7 +339,7 @@ async function refreshTournamentFromESPN(
     return `round-${currentRound}-complete-refreshed`;
   }
 
-  if (roundComplete && currentRound >= 4 && lastCompleted >= currentRound) {
+  if (eventComplete && lastCompleted >= currentRound) {
     await markTournamentComplete(tournamentId, existing, rows, currentRound, roundStatus, projectedCut);
     return 'tournament-complete-marked';
   }
@@ -389,8 +393,27 @@ async function refreshTournament(tournamentId: string): Promise<string> {
 
   const existing = await readLeaderboardCache(tournamentId);
 
-  // Permanently done — skip forever, all data is in Redis
-  if (existing?.tournamentComplete) return 'tournament-complete-skipped';
+  // Permanently done — skip forever, all data is in Redis. EXCEPT: self-heal a FALSE
+  // completion. ESPN pre-increments the round between rounds, which previously tripped the
+  // complete logic and froze a still-live tournament as "Final Results". If we're still
+  // inside the event's active week, re-verify against ESPN; if the event isn't actually
+  // final, fall through — the refresh below rewrites the cache without the complete flag
+  // and live updates resume.
+  if (existing?.tournamentComplete) {
+    const lockMs = meta.lockAtUtc ? new Date(meta.lockAtUtc).getTime() : 0;
+    const ACTIVE_WINDOW_MS = 8 * 24 * 60 * 60 * 1000; // ~8 days covers the full tournament week
+    const withinActiveWindow = lockMs > 0 && Date.now() >= lockMs && Date.now() - lockMs < ACTIVE_WINDOW_MS;
+    if (!withinActiveWindow || !meta.espnEventId) return 'tournament-complete-skipped';
+    let actuallyComplete = true;
+    try {
+      const check = await fetchESPNTournament(meta.espnEventId);
+      actuallyComplete = check.eventComplete;
+    } catch {
+      actuallyComplete = true; // event not on today's board / transient error → leave as complete
+    }
+    if (actuallyComplete) return 'tournament-complete-skipped';
+    // else: stale/false completion — fall through to a normal refresh which clears the flag.
+  }
 
   // not-started TTL handles its own backoff, UNLESS we're past the lock time —
   // then force a fresh fetch so the transition to live doesn't stall for 30 min.

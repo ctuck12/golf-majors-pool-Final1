@@ -56,6 +56,10 @@ export type ESPNTournamentResult = {
   roundStatus: string;
   projectedCut: string | null;
   playerScorecards: Record<string, StoredPlayerScorecards>;
+  // ESPN's authoritative "whole event is over" flag (status.type.completed). This is the
+  // ONLY reliable signal that the tournament is truly final — `roundStatus` alone is
+  // ambiguous because ESPN reports state='post' between rounds too.
+  eventComplete: boolean;
 };
 
 // ── Private helpers ────────────────────────────────────────────────────────
@@ -90,14 +94,22 @@ function deriveCurrentRound(
   competitors: EspnCompetitor[],
   statusPeriod: number | undefined,
 ): number {
-  if (statusPeriod && statusPeriod > 0) return statusPeriod;
-  let max = 0;
+  // Highest round that actually has hole-by-hole data (i.e. has really been played).
+  let maxWithData = 0;
   for (const c of competitors) {
     for (const r of c.linescores ?? []) {
-      if ((r.linescores?.length ?? 0) > 0) max = Math.max(max, r.period);
+      if ((r.linescores?.length ?? 0) > 0) maxWithData = Math.max(maxWithData, r.period);
     }
   }
-  return max || 1;
+  // ESPN pre-increments status.period to the next round during the gap between rounds
+  // (e.g. period=4 the moment round 3 is official, before anyone tees off in round 4).
+  // Trusting that blindly makes the app think round 4 is underway/finished and can trip
+  // the tournament-complete logic prematurely. Only advance to statusPeriod once that
+  // round has real play; otherwise stay on the last round that was actually contested.
+  if (statusPeriod && statusPeriod > 0) {
+    return maxWithData > 0 ? Math.min(statusPeriod, maxWithData) : statusPeriod;
+  }
+  return maxWithData || 1;
 }
 
 // Tee time lives in the last stats entry of a round's linescore.
@@ -231,6 +243,7 @@ export async function fetchESPNTournament(espnEventId: string): Promise<ESPNTour
 
   const currentRound = deriveCurrentRound(competitors, eventStatus?.period);
   const roundStatus = mapRoundStatus(eventStatus);
+  const eventComplete = eventStatus?.type?.completed === true;
 
   // Round 3+: if ESPN marks a competitor as CUT but they have hole-by-hole data for round 3,
   // they physically played round 3 and are not cut — restore their computed to-par score so
@@ -301,5 +314,5 @@ export async function fetchESPNTournament(espnEventId: string): Promise<ESPNTour
     }
   }
 
-  return { leaderboardRows, currentRound, roundStatus, projectedCut: null, playerScorecards };
+  return { leaderboardRows, currentRound, roundStatus, projectedCut: null, playerScorecards, eventComplete };
 }
