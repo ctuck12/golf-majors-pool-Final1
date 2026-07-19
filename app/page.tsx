@@ -6726,6 +6726,7 @@ export default function Page() {
                         <>Golfers <strong>can be picked more than once per season.</strong> Points are awarded hole-by-hole plus tournament standings. Cut players receive <strong>−10 pts.</strong></>,
                         <>All <strong>6 golfers</strong> on your roster contribute to your total score.</>,
                         <><strong>1st, 2nd, and 3rd place pay out.</strong> Amounts vary based on the size of the pool field.</>,
+                        <>Complete breakdown of tiebreak rules can be found <span onClick={() => setShowTiebreakerRules(true)} style={{ textDecoration: 'underline', textUnderlineOffset: 2, cursor: 'pointer', fontWeight: 700 }}>here</span>.</>,
                       ] as const).map((text, i, arr) => (
                         <div key={i} style={{ borderLeft: `3px solid ${headerSolid}`, paddingLeft: isMobile ? 10 : 14, paddingTop: isMobile ? 7 : 9, paddingBottom: isMobile ? 7 : 9, marginLeft: 2, borderBottom: i < arr.length - 1 ? (selectedTournament === 'open' ? '1px solid rgba(0,0,0,0.08)' : '1px solid #f0f3f6') : 'none', fontSize: isMobile ? 12 : 14, color: selectedTournament === 'open' ? '#000000' : '#374151', lineHeight: 1.55 }}>
                           {text}
@@ -6761,22 +6762,6 @@ export default function Page() {
                   </div>
                 </section>
 
-                {/* ── Card 4: Tiebreaker Rules ── */}
-                <section style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '3', order: 4 }}>
-                  <div style={{ padding: isMobile ? 14 : 22 }}>
-                    <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 8 : 12 }}>Tiebreaker Rules</div>
-                    <div style={{ fontSize: isMobile ? 12 : 14, color: selectedTournament === 'open' ? '#000000' : '#374151', lineHeight: 1.55, marginBottom: 12 }}>
-                      How ties are settled when entries finish level on points.
-                    </div>
-                    <button
-                      onClick={() => setShowTiebreakerRules(true)}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: headerSolid, color: '#fff', border: 'none', borderRadius: 999, padding: isMobile ? '9px 16px' : '10px 18px', fontSize: isMobile ? 12.5 : 13.5, fontWeight: 800, cursor: 'pointer', boxShadow: '0 2px 8px rgba(9,34,51,0.2)' }}
-                    >
-                      Tap here for complete tiebreaker rules →
-                    </button>
-                  </div>
-                </section>
-
               </div>{/* end left column */}
 
               {/* ── Card 3: Scoring System (right column) ── */}
@@ -6797,7 +6782,7 @@ export default function Page() {
                   </div>
                 );
                 return (
-                  <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '2', gridRow: isMobile ? undefined : '1 / 4', order: 3 }}>
+                  <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '2', gridRow: isMobile ? undefined : '1 / 3', order: 3 }}>
                     <div style={{ padding: isMobile ? '12px 14px 0' : '16px 22px 0' }}>
                       <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 10 : 14 }}>Scoring System</div>
                     </div>
