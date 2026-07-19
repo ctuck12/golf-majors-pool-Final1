@@ -3539,6 +3539,25 @@ export default function Page() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLeaderboardPlayerId]);
 
+  // With a leaderboard player selected (highlighting the entries that picked them), tapping
+  // anywhere EXCEPT a highlighted entry clears the selection. Exempt: highlighted entry rows
+  // (keep + open their popup), the leaderboard golfer rows (they manage their own toggle), and
+  // anything inside an open modal/overlay (all render as fixed-position layers).
+  useEffect(() => {
+    if (!selectedLeaderboardPlayerId) return;
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target || typeof target.closest !== 'function') return;
+      if (target.closest('[data-picked-highlight="true"]') || target.closest('[data-leaderboard-golfer="true"]')) return;
+      for (let el: HTMLElement | null = target; el; el = el.parentElement) {
+        if (window.getComputedStyle(el).position === 'fixed') return;
+      }
+      setSelectedLeaderboardPlayerId(null);
+    };
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    return () => document.removeEventListener('pointerdown', handlePointerDown, true);
+  }, [selectedLeaderboardPlayerId]);
+
   const activeStandingEntry = standings.find((entry) => entry.id === activeStandingEntryId) ?? null;
   const activeStandingGolfers = activeStandingEntry
     ? [...activeStandingEntry.golfers].sort((left, right) => {
@@ -4957,6 +4976,7 @@ export default function Page() {
                         <tr
                           key={entry.id}
                           data-entry-id={entry.id}
+                          data-picked-highlight={(selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)) ? 'true' : undefined}
                           onClick={() => {
                             setActiveStandingGolferId(null);
                             setActiveStandingEntryId(entry.id);
@@ -5025,6 +5045,7 @@ export default function Page() {
                         <tr
                           key={entry.id}
                           data-entry-id={entry.id}
+                          data-picked-highlight={(selectedLeaderboardPlayerId && entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)) ? 'true' : undefined}
                           onClick={() => {
                             setActiveStandingGolferId(null);
                             setActiveStandingEntryId(entry.id);
@@ -5358,6 +5379,7 @@ export default function Page() {
                                 return (
                                   <Fragment key={player.playerId}>
                                     <tr
+                                      data-leaderboard-golfer="true"
                                       onClick={() => {
                                         if (player.poolPlayerId !== null && timesPicked > 0) {
                                           setSelectedLeaderboardPlayerId(activePlayer ? null : player.poolPlayerId);
@@ -5504,6 +5526,7 @@ export default function Page() {
                                 return (
                                   <Fragment key={player.id}>
                                     <tr
+                                      data-leaderboard-golfer="true"
                                       onClick={() => setSelectedLeaderboardPlayerId(activePlayer ? null : player.id)}
                                       style={{
                                         background: rowBg,
