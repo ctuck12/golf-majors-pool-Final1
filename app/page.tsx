@@ -4959,6 +4959,12 @@ export default function Page() {
                           onClick={() => {
                             setActiveStandingGolferId(null);
                             setActiveStandingEntryId(entry.id);
+                            // When a leaderboard player is selected, tapping an entry that did NOT
+                            // pick that player clears the selection/highlights; tapping a highlighted
+                            // entry (one that picked them) keeps it in place.
+                            if (selectedLeaderboardPlayerId && !entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)) {
+                              setSelectedLeaderboardPlayerId(null);
+                            }
                           }}
                           style={{
                             borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef',
@@ -5021,6 +5027,12 @@ export default function Page() {
                           onClick={() => {
                             setActiveStandingGolferId(null);
                             setActiveStandingEntryId(entry.id);
+                            // When a leaderboard player is selected, tapping an entry that did NOT
+                            // pick that player clears the selection/highlights; tapping a highlighted
+                            // entry (one that picked them) keeps it in place.
+                            if (selectedLeaderboardPlayerId && !entry.golfers.some((golfer) => golfer.id === selectedLeaderboardPlayerId)) {
+                              setSelectedLeaderboardPlayerId(null);
+                            }
                           }}
                           style={{
                             borderBottom: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef',
