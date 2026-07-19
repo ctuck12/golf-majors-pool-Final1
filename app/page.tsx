@@ -3373,6 +3373,26 @@ export default function Page() {
     });
   };
 
+  // Tiebreak inputs, computed once (not per sort comparison):
+  // - tournamentChampion: the actual winner, auto-detected once the event is officially final.
+  //   Used for the stroke-prediction tiebreak (their total strokes) and the "picked the
+  //   champion" backup (their player id).
+  // - standingsWinnerScore: the winner's total STROKE count — auto from the champion when final,
+  //   else a commissioner-saved score. null while unknown.
+  const tournamentChampion = isTournamentFinal
+    ? players.find((p) => p.position === '1' && p.thru === 'F')
+    : undefined;
+  const championTotalStrokes =
+    tournamentChampion?.total && tournamentChampion.total !== '--'
+      ? parseInt(String(tournamentChampion.total), 10)
+      : NaN;
+  const standingsWinnerScore =
+    (!isNaN(championTotalStrokes) ? championTotalStrokes : null) ??
+    pool?.winnerScores?.[selectedTournament] ??
+    null;
+  const championId = tournamentChampion?.id ?? null;
+  const CUT_STATUS_SET = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
+
   const liveStandingEntries = (
     poolEntries.length > 0
       ? poolEntries
@@ -3443,23 +3463,53 @@ export default function Page() {
     })
     .filter((entry) => selectedTournament === 'players' || entry.picks.length === REQUIRED_GOLFERS)
     .sort((left, right) => {
+      // 1) Total points — most wins.
       if (right.rosterPoints !== left.rosterPoints) {
         return right.rosterPoints - left.rosterPoints;
       }
 
+      // 2) Holes remaining — fewest wins (only differentiates mid-tournament; all 0 once final).
       if (left.holesRemaining !== right.holesRemaining) {
         return left.holesRemaining - right.holesRemaining;
       }
 
-      // Tiebreak: closest to the actual tournament winner's total stroke count wins.
-      // Only auto-detect once the tournament is officially complete; fall back to manually saved score.
-      const feedWinner = isTournamentFinal ? (feed?.players ?? []).find((p) => p.position === '1' && p.thru === 'F') : undefined;
-      const feedWinnerTotal = feedWinner?.total && feedWinner.total !== '--' ? parseInt(feedWinner.total, 10) : NaN;
-      const winnerScore = (!isNaN(feedWinnerTotal) ? feedWinnerTotal : null) ?? pool?.winnerScores?.[selectedTournament] ?? null;
-      if (winnerScore != null) {
-        return Math.abs(left.tieBreakValue - winnerScore) - Math.abs(right.tieBreakValue - winnerScore);
+      // 3) Tiebreak prediction — closest to the champion's actual total stroke count wins.
+      if (standingsWinnerScore != null) {
+        const diff =
+          Math.abs(left.tieBreakValue - standingsWinnerScore) -
+          Math.abs(right.tieBreakValue - standingsWinnerScore);
+        if (diff !== 0) return diff;
+      } else if (left.tieBreakValue !== right.tieBreakValue) {
+        return left.tieBreakValue - right.tieBreakValue;
       }
-      return left.tieBreakValue - right.tieBreakValue;
+
+      // ── Backup tiebreakers: only reached when points, holes remaining, and the stroke
+      //    prediction are all dead-even (e.g. two guesses equidistant from the winner). ──
+
+      // 4) Picked the champion — an entry that rostered the actual winner beats one that didn't.
+      const leftHasChampion = championId != null && left.picks.includes(championId);
+      const rightHasChampion = championId != null && right.picks.includes(championId);
+      if (leftHasChampion !== rightHasChampion) return leftHasChampion ? -1 : 1;
+
+      // 5) Fewest golfers who missed the cut.
+      const leftMissedCuts = left.golfers.filter((g) => CUT_STATUS_SET.has(String(g.score).toUpperCase())).length;
+      const rightMissedCuts = right.golfers.filter((g) => CUT_STATUS_SET.has(String(g.score).toUpperCase())).length;
+      if (leftMissedCuts !== rightMissedCuts) return leftMissedCuts - rightMissedCuts;
+
+      // 6) Best-golfer points, cascading down each roster: compare the highest-scoring golfer,
+      //    then the 2nd-highest, then the 3rd, and so on until one entry's golfer out-points the
+      //    other's at the same rank.
+      const leftPointsDesc = left.golfers.map((g) => g.points).sort((a, b) => b - a);
+      const rightPointsDesc = right.golfers.map((g) => g.points).sort((a, b) => b - a);
+      const maxGolfers = Math.max(leftPointsDesc.length, rightPointsDesc.length);
+      for (let i = 0; i < maxGolfers; i++) {
+        const l = leftPointsDesc[i] ?? -Infinity;
+        const r = rightPointsDesc[i] ?? -Infinity;
+        if (l !== r) return r - l; // more points wins
+      }
+
+      // Every measure identical — a genuine, unbreakable co-tie.
+      return 0;
     })
     .map((entry, index) => ({ ...entry, place: index + 1 }));
 
