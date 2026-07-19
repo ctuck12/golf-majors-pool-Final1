@@ -9262,7 +9262,7 @@ export default function Page() {
                   {([
                     ['Closest Tiebreaker Prediction', <>Each entry submits a predicted score — the winning golfer&rsquo;s 4-round <strong>total strokes</strong> (not score to par). Whoever&rsquo;s prediction lands <strong>closest to the champion&rsquo;s actual total strokes</strong> wins. Example: if the champion finishes at 274, a guess of 272 (off by 2) beats a guess of 277 (off by 3).</>],
                     ['Picked the Champion', <>If still tied — because the predictions were equally close, or exactly the same — the entry that had the <strong>tournament&rsquo;s winning golfer</strong> on their roster wins. If both entries had the champion, or neither did, move on.</>],
-                    ['Fewest Missed Cuts', <>The entry with the <strong>fewest golfers who missed the cut</strong> wins.</>],
+                    ['Fewest Missed Cuts', <>The entry with the <strong>fewest golfers who missed the cut</strong> wins the tiebreak.</>],
                     ['Best Individual Golfers', <>Compare each entry&rsquo;s <strong>highest-scoring golfer</strong> by points. If those are equal, compare the second-highest, then the third-highest, and so on down the roster until one entry&rsquo;s golfer out-points the other&rsquo;s at the same spot.</>],
                   ] as const).map(([title, body], i) => (
                     <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
