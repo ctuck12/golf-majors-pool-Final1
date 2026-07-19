@@ -1192,6 +1192,12 @@ function getTournamentStartDate(tournamentId: TournamentId, year: number) {
 // built-in firstTeeUtc schedule. Module-level so the pure window helpers below see it.
 let LOCK_TIME_OVERRIDES: Partial<Record<TournamentId, string>> = {};
 
+// Tournaments manually pinned to keep showing their most recent completed results
+// (the LOCKED / Final Results leaderboard view) instead of rolling over to next
+// season's UP NEXT preview once their year's window has concluded. Remove an entry
+// here to let that tournament advance to its next-season pre-tournament view again.
+const FORCE_COMPLETED_VIEW: Partial<Record<TournamentId, boolean>> = { players: true };
+
 // Render a UTC instant as a datetime-local value in Central time, and convert back.
 function utcToCentralInput(iso: string): string {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(iso));
@@ -1277,6 +1283,17 @@ function getTournamentCardStatuses(now = new Date()) {
         label: 'ACTIVE',
         color: '#15803d',
         icon: 'check',
+      };
+      continue;
+    }
+
+    // Pinned tournaments stay on their concluded-year results view instead of
+    // advancing to next season's UP NEXT preview.
+    if (FORCE_COMPLETED_VIEW[tournament.id] && now >= currentWindow.concludeAt) {
+      statuses[tournament.id] = {
+        label: 'LOCKED',
+        color: '#be123c',
+        icon: 'lock',
       };
       continue;
     }
