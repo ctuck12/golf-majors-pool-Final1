@@ -9255,7 +9255,6 @@ export default function Page() {
                 </div>
                 <div style={{ display: 'grid', gap: 12 }}>
                   {([
-                    ['Holes Remaining (during the tournament only)', <>While play is ongoing, the entry whose golfers have <strong>fewer holes left to play</strong> is ranked higher. Once the tournament ends every entry is at zero, so this no longer affects the final results.</>],
                     ['Closest Tiebreaker Prediction', <>Each entry submits a predicted score — the winning golfer&rsquo;s 4-round <strong>total strokes</strong> (not score to par). Whoever&rsquo;s prediction lands <strong>closest to the champion&rsquo;s actual total strokes</strong> wins. Example: if the champion finishes at 274, a guess of 272 (off by 2) beats a guess of 277 (off by 3).</>],
                     ['Picked the Champion', <>If still tied — because the predictions were equally close, or exactly the same — the entry that had the <strong>tournament&rsquo;s winning golfer</strong> on their roster wins. If both entries had the champion, or neither did, move on.</>],
                     ['Fewest Missed Cuts', <>The entry with the <strong>fewest golfers who missed the cut</strong> wins.</>],
