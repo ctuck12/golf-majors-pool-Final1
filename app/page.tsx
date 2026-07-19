@@ -9244,7 +9244,7 @@ export default function Page() {
             onClick={() => setShowTiebreakerRules(false)}
             style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}
           >
-            <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(480px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(480px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
               <div style={{ background: headerSolid, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                 <div style={{ color: '#fff', fontSize: 17, fontWeight: 900, letterSpacing: '0.01em' }}>Tiebreaker Rules</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -9255,7 +9255,7 @@ export default function Page() {
                 </div>
               </div>
               <div style={{ padding: isMobile ? '16px 18px 20px' : '20px 24px 24px', overflowY: 'auto' }}>
-                <div style={{ fontSize: isMobile ? 13 : 14, color: '#374151', lineHeight: 1.6, marginBottom: 16 }}>
+                <div style={{ fontSize: isMobile ? 13 : 14, color: selectedTournament === 'open' ? '#000000' : '#374151', lineHeight: 1.6, marginBottom: 16 }}>
                   Final standings are ranked by <strong>total points</strong>. When two or more entries are tied on points, the tie is broken in the order below — each step is used only if the previous one leaves them still tied.
                 </div>
                 <div style={{ display: 'grid', gap: 12 }}>
@@ -9269,7 +9269,7 @@ export default function Page() {
                       <div style={{ flexShrink: 0, width: 26, height: 26, borderRadius: '50%', background: headerSolid, color: '#fff', fontWeight: 900, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: isMobile ? 13.5 : 14.5, fontWeight: 800, color: '#0f1720', marginBottom: 3 }}>{title}</div>
-                        <div style={{ fontSize: isMobile ? 12.5 : 13.5, color: '#4b5563', lineHeight: 1.55 }}>{body}</div>
+                        <div style={{ fontSize: isMobile ? 12.5 : 13.5, color: selectedTournament === 'open' ? '#1a1a1a' : '#4b5563', lineHeight: 1.55 }}>{body}</div>
                       </div>
                     </div>
                   ))}
