@@ -6378,12 +6378,6 @@ export default function Page() {
                       * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
                       Use their total strokes, NOT score to par. Example: Enter {(TOURNAMENT_TOTAL_PAR[entriesTournamentId] ?? 288) - 14} (NOT -14)
                     </div>
-                    <button
-                      onClick={() => setShowTiebreakerRules(true)}
-                      style={{ marginTop: 8, background: 'none', border: 'none', padding: 0, color: entriesTournamentId === 'open' ? '#0f1720' : '#173b63', fontSize: 13, fontWeight: 800, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer', textAlign: 'left', display: 'block' }}
-                    >
-                      Tap here for complete tiebreaker rules →
-                    </button>
                   </aside>
                 </div>
               </section>
@@ -6695,12 +6689,6 @@ export default function Page() {
                         * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
                         Use their total strokes, NOT score to par. Example: Enter {(TOURNAMENT_TOTAL_PAR[entriesTournamentId] ?? 288) - 14} (NOT -14)
                       </div>
-                      <button
-                        onClick={() => setShowTiebreakerRules(true)}
-                        style={{ marginTop: 8, background: 'none', border: 'none', padding: 0, color: entriesTournamentId === 'open' ? '#0f1720' : '#173b63', fontSize: 13, fontWeight: 800, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer', textAlign: 'left', display: 'block' }}
-                      >
-                        Tap here for complete tiebreaker rules →
-                      </button>
                     </div>
                   </div>
                 </div>
