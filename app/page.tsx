@@ -10184,10 +10184,11 @@ export default function Page() {
                         const renderCard = (r: FullResult, i: number) => {
                           const isCut = r.position === 'CUT' || r.position === 'WD' || r.position === 'MDF' || r.position === 'DQ';
                           const majorBadge = majorTint(r.tournament);
+                          const displayTournament = r.tournament === 'The Open' ? 'The Open Championship' : r.tournament;
                           return (
                             <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: majorBadge ? `1px solid ${majorBadge.bg}` : '1px solid #e2e8ef', background: majorBadge ? majorBadge.bg : '#fff', gap: 10 }}>
                               <div style={{ minWidth: 0, flex: 1 }}>
-                                <div style={{ fontSize: 12, fontWeight: 800, color: majorBadge ? majorBadge.text : '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.tournament}</div>
+                                <div style={{ fontSize: 12, fontWeight: 800, color: majorBadge ? majorBadge.text : '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayTournament}</div>
                                 <div style={{ fontSize: 11, color: majorBadge ? majorBadge.text : '#7a8c99', marginTop: 1, opacity: majorBadge ? 0.75 : 1 }}>{r.date}{r.course ? ` · ${r.course}` : ''}</div>
                               </div>
                               <div style={{ textAlign: 'right', flexShrink: 0 }}>
