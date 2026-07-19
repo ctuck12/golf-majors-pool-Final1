@@ -1569,6 +1569,7 @@ export default function Page() {
   const [scorecardLoading, setScorecardLoading] = useState(false);
   const [showPreviousRounds, setShowPreviousRounds] = useState(false);
   const [showBonusPoints, setShowBonusPoints] = useState(false);
+  const [showTiebreakerRules, setShowTiebreakerRules] = useState(false);
   const [expandedBonusCategories, setExpandedBonusCategories] = useState<Set<string>>(new Set());
   const [bonusInfoPopup, setBonusInfoPopup] = useState<{ title: string; entries: { name: string; rounds: number[]; count?: number }[]; showCounts?: boolean } | null>(null);
   const [cutScorecardGolfer, setCutScorecardGolfer] = useState<{ name: string; pgaTourId: number; photoUrl?: string } | null>(null);
@@ -6377,6 +6378,12 @@ export default function Page() {
                       * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
                       Use their total strokes, NOT score to par. Example: Enter {(TOURNAMENT_TOTAL_PAR[entriesTournamentId] ?? 288) - 14} (NOT -14)
                     </div>
+                    <button
+                      onClick={() => setShowTiebreakerRules(true)}
+                      style={{ marginTop: 8, background: 'none', border: 'none', padding: 0, color: entriesTournamentId === 'open' ? '#0f1720' : '#173b63', fontSize: 13, fontWeight: 800, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer', textAlign: 'left', display: 'block' }}
+                    >
+                      Tap here for complete tiebreaker rules →
+                    </button>
                   </aside>
                 </div>
               </section>
@@ -6688,6 +6695,12 @@ export default function Page() {
                         * - The tiebreak value is your predicted total score for the winning golfer of this tournament.
                         Use their total strokes, NOT score to par. Example: Enter {(TOURNAMENT_TOTAL_PAR[entriesTournamentId] ?? 288) - 14} (NOT -14)
                       </div>
+                      <button
+                        onClick={() => setShowTiebreakerRules(true)}
+                        style={{ marginTop: 8, background: 'none', border: 'none', padding: 0, color: entriesTournamentId === 'open' ? '#0f1720' : '#173b63', fontSize: 13, fontWeight: 800, textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer', textAlign: 'left', display: 'block' }}
+                      >
+                        Tap here for complete tiebreaker rules →
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -6748,6 +6761,22 @@ export default function Page() {
                   </div>
                 </section>
 
+                {/* ── Card 4: Tiebreaker Rules ── */}
+                <section style={{ background: selectedTournament === 'open' ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '1', gridRow: isMobile ? undefined : '3', order: 4 }}>
+                  <div style={{ padding: isMobile ? 14 : 22 }}>
+                    <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 8 : 12 }}>Tiebreaker Rules</div>
+                    <div style={{ fontSize: isMobile ? 12 : 14, color: selectedTournament === 'open' ? '#000000' : '#374151', lineHeight: 1.55, marginBottom: 12 }}>
+                      How ties are settled when entries finish level on points.
+                    </div>
+                    <button
+                      onClick={() => setShowTiebreakerRules(true)}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: headerSolid, color: '#fff', border: 'none', borderRadius: 999, padding: isMobile ? '9px 16px' : '10px 18px', fontSize: isMobile ? 12.5 : 13.5, fontWeight: 800, cursor: 'pointer', boxShadow: '0 2px 8px rgba(9,34,51,0.2)' }}
+                    >
+                      Tap here for complete tiebreaker rules →
+                    </button>
+                  </div>
+                </section>
+
               </div>{/* end left column */}
 
               {/* ── Card 3: Scoring System (right column) ── */}
@@ -6768,7 +6797,7 @@ export default function Page() {
                   </div>
                 );
                 return (
-                  <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '2', gridRow: isMobile ? undefined : '1 / 3', order: 3 }}>
+                  <section style={{ background: isGoldTheme ? '#F4BC41' : '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}`, gridColumn: isMobile ? undefined : '2', gridRow: isMobile ? undefined : '1 / 4', order: 3 }}>
                     <div style={{ padding: isMobile ? '12px 14px 0' : '16px 22px 0' }}>
                       <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid, marginBottom: isMobile ? 10 : 14 }}>Scoring System</div>
                     </div>
@@ -9232,6 +9261,42 @@ export default function Page() {
                   });
                 })()}
               </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showTiebreakerRules && (
+          <div
+            onClick={() => setShowTiebreakerRules(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}
+          >
+            <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(480px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
+              <div style={{ background: headerSolid, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                <div style={{ color: '#fff', fontSize: 17, fontWeight: 900, letterSpacing: '0.01em' }}>Tiebreaker Rules</div>
+                <button onClick={() => setShowTiebreakerRules(false)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
+              </div>
+              <div style={{ padding: isMobile ? '16px 18px 20px' : '20px 24px 24px', overflowY: 'auto' }}>
+                <div style={{ fontSize: isMobile ? 13 : 14, color: '#374151', lineHeight: 1.6, marginBottom: 16 }}>
+                  Final standings are ranked by <strong>total points</strong>. When two or more entries are tied on points, the tie is broken in the order below — each step is used only if the previous one leaves them still tied.
+                </div>
+                <div style={{ display: 'grid', gap: 12 }}>
+                  {([
+                    ['Holes Remaining (during the tournament only)', <>While play is ongoing, the entry whose golfers have <strong>fewer holes left to play</strong> is ranked higher. Once the tournament ends every entry is at zero, so this no longer affects the final results.</>],
+                    ['Closest Tiebreaker Prediction', <>Each entry submits a predicted score — the winning golfer&rsquo;s 4-round <strong>total strokes</strong> (not score to par). Whoever&rsquo;s prediction lands <strong>closest to the champion&rsquo;s actual total strokes</strong> wins. Example: if the champion finishes at 274, a guess of 272 (off by 2) beats a guess of 277 (off by 3).</>],
+                    ['Picked the Champion', <>If still tied — because the predictions were equally close, or exactly the same — the entry that had the <strong>tournament&rsquo;s winning golfer</strong> on their roster wins. If both entries had the champion, or neither did, move on.</>],
+                    ['Fewest Missed Cuts', <>The entry with the <strong>fewest golfers who missed the cut</strong> wins.</>],
+                    ['Best Individual Golfers', <>Compare each entry&rsquo;s <strong>highest-scoring golfer</strong> by points. If those are equal, compare the second-highest, then the third-highest, and so on down the roster until one entry&rsquo;s golfer out-points the other&rsquo;s at the same spot.</>],
+                  ] as const).map(([title, body], i) => (
+                    <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                      <div style={{ flexShrink: 0, width: 26, height: 26, borderRadius: '50%', background: headerSolid, color: '#fff', fontWeight: 900, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: isMobile ? 13.5 : 14.5, fontWeight: 800, color: '#0f1720', marginBottom: 3 }}>{title}</div>
+                        <div style={{ fontSize: isMobile ? 12.5 : 13.5, color: '#4b5563', lineHeight: 1.55 }}>{body}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
