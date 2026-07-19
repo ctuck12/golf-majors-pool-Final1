@@ -3545,7 +3545,12 @@ export default function Page() {
   // anything inside an open modal/overlay (all render as fixed-position layers).
   useEffect(() => {
     if (!selectedLeaderboardPlayerId) return;
-    const handlePointerDown = (e: PointerEvent) => {
+    let startX = 0, startY = 0;
+    const onDown = (e: PointerEvent) => { startX = e.clientX; startY = e.clientY; };
+    const onUp = (e: PointerEvent) => {
+      // Only a near-stationary press counts as a tap — a scroll/drag moves the pointer,
+      // so it should never clear the selection.
+      if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) return;
       const target = e.target as HTMLElement | null;
       if (!target || typeof target.closest !== 'function') return;
       if (target.closest('[data-picked-highlight="true"]') || target.closest('[data-leaderboard-golfer="true"]')) return;
@@ -3554,8 +3559,12 @@ export default function Page() {
       }
       setSelectedLeaderboardPlayerId(null);
     };
-    document.addEventListener('pointerdown', handlePointerDown, true);
-    return () => document.removeEventListener('pointerdown', handlePointerDown, true);
+    document.addEventListener('pointerdown', onDown, true);
+    document.addEventListener('pointerup', onUp, true);
+    return () => {
+      document.removeEventListener('pointerdown', onDown, true);
+      document.removeEventListener('pointerup', onUp, true);
+    };
   }, [selectedLeaderboardPlayerId]);
 
   const activeStandingEntry = standings.find((entry) => entry.id === activeStandingEntryId) ?? null;
