@@ -871,6 +871,9 @@ function pgaHeadshotUrl(pgaTourId: string): string | null {
 const KNOWN_MAJOR_WINS: Record<string, { majorWins: number; list: WinEntry[] }> = {
   'graeme mcdowell': { majorWins: 1, list: [{ tournament: 'U.S. Open', year: '2010', course: 'Pebble Beach Golf Links', toPar: 'E' }] },
   'shaun micheel': { majorWins: 1, list: [{ tournament: 'PGA Championship', year: '2003', course: 'Oak Hill Country Club', toPar: '-4' }] },
+  // 2026 Open champion — pinned so the win shows immediately while the PGA Tour profile feed
+  // catches up (it lags a day or two after the event, and bios are cached 24h).
+  'ryan fox': { majorWins: 1, list: [{ tournament: 'The Open Championship', year: '2026', course: 'Royal Birkdale Golf Club', toPar: null }] },
 };
 
 // Official PGA Tour wins the (partial/recent) playerProfileTournamentResults feed omits — a major
