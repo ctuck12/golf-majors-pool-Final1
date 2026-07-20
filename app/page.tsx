@@ -695,7 +695,7 @@ const HEADER_LOGO_WIDTH_EST: Record<TournamentId, number> = { players: 50, maste
 let headerMeasureCtx: CanvasRenderingContext2D | null | undefined;
 function fitPopupHeader(name: string, abbr: string | null | undefined | false, popupMaxW: number, padH: number, tournamentId: TournamentId, mobile: boolean, forceInline = false, overlayPad = 40): { fontSize: number; flagH: number; stacked: boolean; shrinkLogo: boolean } {
   const sizes: number[] = [];
-  for (let s = mobile ? 18 : 21; s >= (mobile ? 12 : 14); s -= 0.5) sizes.push(s);
+  for (let s = mobile ? 18 : 21; s >= (mobile ? 11 : 14); s -= 0.5) sizes.push(s);
   const fallback = { fontSize: sizes[0], flagH: 20, stacked: false, shrinkLogo: false };
   if (typeof window === 'undefined' || !name) return fallback;
   if (headerMeasureCtx === undefined) headerMeasureCtx = document.createElement('canvas').getContext('2d');
@@ -711,7 +711,7 @@ function fitPopupHeader(name: string, abbr: string | null | undefined | false, p
       ctx.font = `${weight} 100px ${fam}`;
       widest = Math.max(widest, ctx.measureText(text).width);
     }
-    return (widest * px / 100) * 1.04;
+    return (widest * px / 100) * 1.1;
   };
   const logoWFull = HEADER_LOGO_WIDTH_EST[tournamentId] ?? 90;
   const popupW = Math.min(popupMaxW, window.innerWidth - overlayPad);
