@@ -797,7 +797,8 @@ type ScorecardHole = { hole: number; par: number; score: number | null; label: s
 type ScorecardRound = { round: number; score?: number | string; holes: ScorecardHole[] };
 type ScorecardData = { courseName: string; par: number; rounds: ScorecardRound[]; source: string; message?: string };
 
-type ArchivedStandingRow = { place: number; name: string; points: number; holesRemaining: number; tieBreak: number };
+type ArchivedGolfer = { name: string; score: string; points: number; position: string };
+type ArchivedStandingRow = { place: number; name: string; points: number; holesRemaining: number; tieBreak: number; golfers?: ArchivedGolfer[] };
 type ArchivedStandingsData = { available?: boolean; standings?: ArchivedStandingRow[]; savedAt?: string | null; error?: string };
 
 type FeedResponse = {
@@ -1579,6 +1580,7 @@ export default function Page() {
   const [historyYearsAvailable, setHistoryYearsAvailable] = useState<number[]>([]);
   const [historyYearsLoading, setHistoryYearsLoading] = useState(false);
   const [historyPopup, setHistoryPopup] = useState<{ year: number; loading: boolean; data: ArchivedStandingsData | null } | null>(null);
+  const [historyRoster, setHistoryRoster] = useState<ArchivedStandingRow | null>(null);
   const archivedThisSession = useRef<Set<string>>(new Set());
   const [expandedBonusCategories, setExpandedBonusCategories] = useState<Set<string>>(new Set());
   const [bonusInfoPopup, setBonusInfoPopup] = useState<{ title: string; entries: { name: string; rounds: number[]; count?: number }[]; showCounts?: boolean } | null>(null);
@@ -3541,7 +3543,7 @@ export default function Page() {
       body: JSON.stringify({
         tournamentId: selectedTournament,
         year,
-        standings: standings.map((e) => ({ place: e.place, name: e.name, points: e.rosterPoints, holesRemaining: e.holesRemaining, tieBreak: e.tieBreakValue })),
+        standings: standings.map((e) => ({ place: e.place, name: e.name, points: e.rosterPoints, holesRemaining: e.holesRemaining, tieBreak: e.tieBreakValue, golfers: e.golfers.map((g) => ({ name: g.name, score: g.score, points: g.points, position: g.position })) })),
       }),
     }).catch(() => { archivedThisSession.current.delete(key); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -3731,6 +3733,7 @@ export default function Page() {
   };
   const openTournamentHistory = (year: number) => {
     setHistoryDropdownOpen(false);
+    setHistoryRoster(null);
     setHistoryPopup({ year, loading: true, data: null });
     fetch(`/api/standings-archive?tournamentId=${selectedTournament}&year=${year}`, { cache: 'no-store' })
       .then((r) => r.json())
@@ -9363,21 +9366,55 @@ export default function Page() {
           const histName = selectedTournament === 'players' ? 'The Players Championship' : selectedTournament === 'masters' ? 'Masters Tournament' : selectedTournament === 'pga' ? 'PGA Championship' : selectedTournament === 'us-open' ? 'U.S. Open' : 'The Open Championship';
           const rows = historyPopup.data?.standings ?? [];
           const medal = (place: number) => place === 1 ? '🥇' : place === 2 ? '🥈' : place === 3 ? '🥉' : null;
+          const closeAll = () => { setHistoryPopup(null); setHistoryRoster(null); };
+          const CUT_SET = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
+          const rosterGolfers = historyRoster?.golfers ? [...historyRoster.golfers].sort((a, b) => b.points - a.points) : [];
           return (
-            <div onClick={() => setHistoryPopup(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
+            <div onClick={closeAll} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
               <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(560px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
                 <div style={{ background: headerSolid, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{historyPopup.year} {histName}</div>
-                    <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: 700, marginTop: 1, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Final Pool Standings</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                    {historyRoster && (
+                      <button onClick={() => setHistoryRoster(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 17, flexShrink: 0, lineHeight: 1 }}>&#8249;</button>
+                    )}
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{historyRoster ? historyRoster.name : `${historyPopup.year} ${histName}`}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: 700, marginTop: 1, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{historyRoster ? `${historyPopup.year} Roster · #${historyRoster.place}` : 'Final Pool Standings'}</div>
+                    </div>
                   </div>
-                  <button onClick={() => setHistoryPopup(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
+                  <button onClick={closeAll} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
                 </div>
                 <div style={{ overflowY: 'auto' }}>
                   {historyPopup.loading ? (
                     <div style={{ padding: 34, textAlign: 'center', color: '#5b6b79', fontSize: 14 }}>Loading {historyPopup.year} standings…</div>
                   ) : rows.length === 0 ? (
                     <div style={{ padding: 34, textAlign: 'center', color: '#5b6b79', fontSize: 14, lineHeight: 1.5 }}>No banked standings for the {historyPopup.year} {histName} yet.</div>
+                  ) : historyRoster ? (
+                    rosterGolfers.length === 0 ? (
+                      <div style={{ padding: 30, textAlign: 'center', color: '#5b6b79', fontSize: 13.5, lineHeight: 1.5 }}>No roster was saved for this entry.</div>
+                    ) : (
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ background: '#f3f6f9' }}>
+                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>GOLFER</th>
+                            <th style={{ textAlign: 'center', padding: '9px 8px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>FINISH</th>
+                            <th style={{ textAlign: 'center', padding: '9px 8px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>POINTS</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rosterGolfers.map((g, i) => {
+                            const cut = CUT_SET.has(String(g.score).toUpperCase());
+                            return (
+                              <tr key={i} style={{ borderTop: '1px solid #eef2f6' }}>
+                                <td style={{ padding: '9px 12px', fontSize: 13, fontWeight: 600, color: '#0f1720' }}>{g.name}</td>
+                                <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: cut ? '#94a3b8' : '#374151' }}>{cut ? String(g.score).toUpperCase() : (g.position || '—')}{!cut && g.score ? <span style={{ marginLeft: 5, color: String(g.score).startsWith('-') ? '#dc2626' : '#5b6b79', fontWeight: 700 }}>{g.score}</span> : null}</td>
+                                <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', color: g.points < 0 ? '#dc2626' : '#0f1720' }}>{g.points % 1 === 0 ? g.points : g.points.toFixed(1)}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    )
                   ) : (
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                       <thead>
@@ -9389,14 +9426,17 @@ export default function Page() {
                         </tr>
                       </thead>
                       <tbody>
-                        {rows.map((r, i) => (
-                          <tr key={i} style={{ borderTop: '1px solid #eef2f6' }}>
-                            <td style={{ textAlign: 'center', padding: '8px 6px', fontSize: 13, fontWeight: 700, color: '#374151', whiteSpace: 'nowrap' }}>{r.place}</td>
-                            <td style={{ padding: '8px 12px', fontSize: 13, color: '#0f1720', fontWeight: r.place <= 3 ? 800 : 500 }}>{r.name}{medal(r.place) ? <span style={{ marginLeft: 6 }}>{medal(r.place)}</span> : null}</td>
-                            <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 700, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.points % 1 === 0 ? r.points : r.points.toFixed(1)}</td>
-                            <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 600, color: '#5b6b79', whiteSpace: 'nowrap' }}>{r.tieBreak}</td>
-                          </tr>
-                        ))}
+                        {rows.map((r, i) => {
+                          const clickable = (r.golfers?.length ?? 0) > 0;
+                          return (
+                            <tr key={i} onClick={clickable ? () => setHistoryRoster(r) : undefined} style={{ borderTop: '1px solid #eef2f6', cursor: clickable ? 'pointer' : 'default' }}>
+                              <td style={{ textAlign: 'center', padding: '8px 6px', fontSize: 13, fontWeight: 700, color: '#374151', whiteSpace: 'nowrap' }}>{r.place}</td>
+                              <td style={{ padding: '8px 12px', fontSize: 13, color: clickable ? '#173b63' : '#0f1720', fontWeight: r.place <= 3 ? 800 : 500, textDecoration: clickable ? 'underline' : 'none', textDecorationColor: 'rgba(23,59,99,0.35)', textUnderlineOffset: 2 }}>{r.name}{medal(r.place) ? <span style={{ marginLeft: 6, textDecoration: 'none' }}>{medal(r.place)}</span> : null}</td>
+                              <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 700, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.points % 1 === 0 ? r.points : r.points.toFixed(1)}</td>
+                              <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 600, color: '#5b6b79', whiteSpace: 'nowrap' }}>{r.tieBreak}</td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   )}

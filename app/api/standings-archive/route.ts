@@ -9,7 +9,8 @@ import redis from '@/app/lib/redis';
 
 const TOURNAMENT_IDS = new Set(['players', 'masters', 'pga', 'us-open', 'open']);
 
-type ArchiveRow = { place: number; name: string; points: number; holesRemaining: number; tieBreak: number };
+type ArchiveGolfer = { name: string; score: string; points: number; position: string };
+type ArchiveRow = { place: number; name: string; points: number; holesRemaining: number; tieBreak: number; golfers?: ArchiveGolfer[] };
 
 const rowKey = (tid: string, year: number) => `standings-archive:v1:${tid}:${year}`;
 const yearsKey = (tid: string) => `standings-archive-years:v1:${tid}`;
@@ -75,6 +76,12 @@ export async function POST(req: NextRequest) {
     points: Number(r.points) || 0,
     holesRemaining: Number(r.holesRemaining) || 0,
     tieBreak: Number(r.tieBreak) || 0,
+    golfers: Array.isArray(r.golfers) ? r.golfers.slice(0, 12).map((g) => ({
+      name: String(g?.name ?? '').slice(0, 80),
+      score: String(g?.score ?? ''),
+      points: Number(g?.points) || 0,
+      position: String(g?.position ?? ''),
+    })) : [],
   }));
 
   try {
