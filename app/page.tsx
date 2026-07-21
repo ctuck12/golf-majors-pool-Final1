@@ -17,6 +17,7 @@ import {
   EyeOff,
   Globe,
   History,
+  Clock,
   Lock,
   LogIn,
   Mail,
@@ -796,6 +797,9 @@ type ScorecardHole = { hole: number; par: number; score: number | null; label: s
 type ScorecardRound = { round: number; score?: number | string; holes: ScorecardHole[] };
 type ScorecardData = { courseName: string; par: number; rounds: ScorecardRound[]; source: string; message?: string };
 
+type TournamentHistoryRow = { position: string; name: string; score: string; total: number | null; country: string | null; isCut: boolean };
+type TournamentHistoryData = { available?: boolean; completed?: boolean; eventName?: string | null; venue?: string | null; date?: string | null; winner?: { name: string; score: string } | null; leaderboard?: TournamentHistoryRow[]; error?: string };
+
 type FeedResponse = {
   fetchedAt: string;
   players: FeedRow[];
@@ -1571,6 +1575,8 @@ export default function Page() {
   const [showPreviousRounds, setShowPreviousRounds] = useState(false);
   const [showBonusPoints, setShowBonusPoints] = useState(false);
   const [showTiebreakerRules, setShowTiebreakerRules] = useState(false);
+  const [historyDropdownOpen, setHistoryDropdownOpen] = useState(false);
+  const [historyPopup, setHistoryPopup] = useState<{ year: number; loading: boolean; data: TournamentHistoryData | null } | null>(null);
   const [expandedBonusCategories, setExpandedBonusCategories] = useState<Set<string>>(new Set());
   const [bonusInfoPopup, setBonusInfoPopup] = useState<{ title: string; entries: { name: string; rounds: number[]; count?: number }[]; showCounts?: boolean } | null>(null);
   const [cutScorecardGolfer, setCutScorecardGolfer] = useState<{ name: string; pgaTourId: number; photoUrl?: string } | null>(null);
@@ -3697,6 +3703,20 @@ export default function Page() {
     fetch(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(name)}&round=${feed?.currentRound ?? 1}`)
       .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
   };
+  const openTournamentHistory = (year: number) => {
+    setHistoryDropdownOpen(false);
+    setHistoryPopup({ year, loading: true, data: null });
+    fetch(`/api/tournament-history?tournamentId=${selectedTournament}&year=${year}`, { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((data: TournamentHistoryData) => setHistoryPopup({ year, loading: false, data }))
+      .catch(() => setHistoryPopup({ year, loading: false, data: { available: false, error: 'fetch failed' } }));
+  };
+  // Previous seasons available in the "Past Results" dropdown: the 10 years before the current
+  // season (the current year isn't a "previous" result). getActiveSeason handles the Nov rollover.
+  const historyYears = (() => {
+    const current = new Date(nowTick).getUTCMonth() + 1 >= 11 ? new Date(nowTick).getUTCFullYear() + 1 : new Date(nowTick).getUTCFullYear();
+    return Array.from({ length: 10 }, (_, i) => current - 1 - i);
+  })();
   const openCutScorecardFor = (name: string) => {
     setCutScorecardGolfer({ name, pgaTourId: 0, photoUrl: undefined });
     setCutScorecardData(null);
@@ -4755,6 +4775,28 @@ export default function Page() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: isMobile ? 'flex-start' : 'center', position: 'relative' }}>
                 <div>
+                  <div style={{ position: 'relative', marginBottom: isMobile ? 5 : 7 }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setHistoryDropdownOpen((v) => !v); }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'transparent', border: `1px solid ${selectedTournament === 'open' ? 'rgba(0,0,0,0.35)' : 'rgba(15,23,32,0.2)'}`, borderRadius: 999, padding: isMobile ? '2px 8px' : '3px 10px', fontSize: isMobile ? 9.5 : 10.5, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: selectedTournament === 'open' ? 'rgba(0,0,0,0.62)' : '#5b6b79', cursor: 'pointer', lineHeight: 1 }}
+                    >
+                      <Clock size={isMobile ? 10 : 11} /> Past Results <span style={{ fontSize: '0.9em' }}>{historyDropdownOpen ? '▴' : '▾'}</span>
+                    </button>
+                    {historyDropdownOpen && (
+                      <>
+                        <div onClick={() => setHistoryDropdownOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
+                        <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #d1dae3', borderRadius: 10, boxShadow: '0 8px 24px rgba(9,34,51,0.18)', zIndex: 41, overflow: 'hidden', minWidth: 128, maxHeight: 260, overflowY: 'auto' }}>
+                          <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94a3b8', padding: '8px 13px 5px' }}>Previous Years</div>
+                          {historyYears.map((yr) => (
+                            <button key={yr} onClick={(e) => { e.stopPropagation(); openTournamentHistory(yr); }}
+                              style={{ display: 'block', width: '100%', textAlign: 'left', background: 'transparent', border: 'none', borderTop: '1px solid #f0f3f6', padding: '9px 13px', fontSize: 13, fontWeight: 700, color: '#0f1720', cursor: 'pointer' }}>
+                              {yr}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
                   {selectedTournament === 'players' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>The Players Championship</h2>
@@ -9283,6 +9325,50 @@ export default function Page() {
             </div>
           </div>
         )}
+
+        {historyPopup && (() => {
+          const histName = selectedTournament === 'players' ? 'The Players Championship' : selectedTournament === 'masters' ? 'Masters Tournament' : selectedTournament === 'pga' ? 'PGA Championship' : selectedTournament === 'us-open' ? 'U.S. Open' : 'The Open Championship';
+          const lb = historyPopup.data?.leaderboard ?? [];
+          return (
+            <div onClick={() => setHistoryPopup(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(520px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
+                <div style={{ background: headerSolid, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{historyPopup.year} {histName}</div>
+                    {historyPopup.data?.venue && <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: 600, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{historyPopup.data.venue}</div>}
+                  </div>
+                  <button onClick={() => setHistoryPopup(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
+                </div>
+                <div style={{ overflowY: 'auto' }}>
+                  {historyPopup.loading ? (
+                    <div style={{ padding: 34, textAlign: 'center', color: '#5b6b79', fontSize: 14 }}>Loading {historyPopup.year} results…</div>
+                  ) : lb.length === 0 ? (
+                    <div style={{ padding: 34, textAlign: 'center', color: '#5b6b79', fontSize: 14, lineHeight: 1.5 }}>Final results aren&rsquo;t available for the {historyPopup.year} {histName}.</div>
+                  ) : (
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ background: '#f3f6f9', position: 'sticky', top: 0 }}>
+                          <th style={{ textAlign: 'center', padding: '9px 6px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>POS</th>
+                          <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>PLAYER</th>
+                          <th style={{ textAlign: 'center', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>SCORE</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {lb.map((r, i) => (
+                          <tr key={i} style={{ borderTop: '1px solid #eef2f6' }}>
+                            <td style={{ textAlign: 'center', padding: '8px 6px', fontSize: 13, fontWeight: 700, color: '#374151', whiteSpace: 'nowrap' }}>{r.position || '—'}</td>
+                            <td style={{ padding: '8px 12px', fontSize: 13, color: '#0f1720', fontWeight: i === 0 ? 800 : 500 }}>{r.name}</td>
+                            <td style={{ textAlign: 'center', padding: '8px 12px', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', color: r.isCut ? '#94a3b8' : (String(r.score).startsWith('-') ? '#dc2626' : '#0f1720') }}>{r.score || '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {showTiebreakerRules && (
           <div
