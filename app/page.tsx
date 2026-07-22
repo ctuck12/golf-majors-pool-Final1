@@ -18,7 +18,6 @@ import {
   EyeOff,
   Globe,
   History,
-  Clock,
   Lock,
   LogIn,
   Mail,
@@ -766,8 +765,8 @@ type TournamentId = (typeof TOURNAMENTS)[number]['id'];
 type MainTab = 'Standings' | 'My Entries' | 'Details' | 'Reports' | 'Commissioner Hub';
 const MAIN_TABS: MainTab[] = ['Standings', 'My Entries', 'Details', 'Reports', 'Commissioner Hub'];
 
-type ReportType = 'Player Pick Summary' | 'Pool Member Pick History' | 'Pool Member Pick Summary' | 'Player Performance Summary';
-const REPORT_OPTIONS: ReportType[] = ['Player Pick Summary', 'Pool Member Pick History', 'Pool Member Pick Summary', 'Player Performance Summary'];
+type ReportType = 'Player Pick Summary' | 'Pool Member Pick History' | 'Pool Member Pick Summary' | 'Player Performance Summary' | 'Pool Standings History';
+const REPORT_OPTIONS: ReportType[] = ['Player Pick Summary', 'Pool Member Pick History', 'Pool Member Pick Summary', 'Player Performance Summary', 'Pool Standings History'];
 const REPORT_TOURNAMENTS: { id: TournamentId; label: string }[] = [
   { id: 'players', label: 'The Players' },
   { id: 'masters', label: 'The Masters' },
@@ -1607,10 +1606,11 @@ export default function Page() {
   const [showPreviousRounds, setShowPreviousRounds] = useState(false);
   const [showBonusPoints, setShowBonusPoints] = useState(false);
   const [showTiebreakerRules, setShowTiebreakerRules] = useState(false);
-  const [historyDropdownOpen, setHistoryDropdownOpen] = useState(false);
   const [historyYearsAvailable, setHistoryYearsAvailable] = useState<number[]>([]);
   const [historyYearsLoading, setHistoryYearsLoading] = useState(false);
-  const [historyPopup, setHistoryPopup] = useState<{ year: number; loading: boolean; data: ArchivedStandingsData | null } | null>(null);
+  const [historyPopup, setHistoryPopup] = useState<{ tournament: TournamentId; year: number; loading: boolean; data: ArchivedStandingsData | null } | null>(null);
+  // Pool Standings History report — selected tournament for the past-standings lookup.
+  const [pshTournament, setPshTournament] = useState<TournamentId | ''>('');
   const [historyRoster, setHistoryRoster] = useState<ArchivedStandingRow | null>(null);
   const [historyAtBottom, setHistoryAtBottom] = useState(false);
   const archivedThisSession = useRef<Set<string>>(new Set());
@@ -3918,20 +3918,20 @@ export default function Page() {
     fetch(`/api/scorecard?tournamentId=${selectedTournament}&playerName=${encodeURIComponent(name)}&round=${feed?.currentRound ?? 1}`)
       .then(r => r.json()).then(setScorecardData).catch(() => setScorecardData(null)).finally(() => setScorecardLoading(false));
   };
-  const openTournamentHistory = (year: number) => {
-    setHistoryDropdownOpen(false);
+  const openTournamentHistory = (tournament: TournamentId, year: number) => {
     setHistoryRoster(null);
     setHistoryAtBottom(false);
-    setHistoryPopup({ year, loading: true, data: null });
-    fetch(`/api/standings-archive?tournamentId=${selectedTournament}&year=${year}`, { cache: 'no-store' })
+    setHistoryPopup({ tournament, year, loading: true, data: null });
+    fetch(`/api/standings-archive?tournamentId=${tournament}&year=${year}`, { cache: 'no-store' })
       .then((r) => r.json())
-      .then((data: ArchivedStandingsData) => setHistoryPopup({ year, loading: false, data }))
-      .catch(() => setHistoryPopup({ year, loading: false, data: { available: false, error: 'fetch failed' } }));
+      .then((data: ArchivedStandingsData) => setHistoryPopup({ tournament, year, loading: false, data }))
+      .catch(() => setHistoryPopup({ tournament, year, loading: false, data: { available: false, error: 'fetch failed' } }));
   };
-  // Load which seasons have banked standings for this tournament (populates the dropdown).
-  const loadHistoryYears = () => {
+  // Load which seasons have banked standings for a tournament (populates the report's year dropdown).
+  const loadHistoryYears = (tournament: TournamentId) => {
     setHistoryYearsLoading(true);
-    fetch(`/api/standings-archive?tournamentId=${selectedTournament}`, { cache: 'no-store' })
+    setHistoryYearsAvailable([]);
+    fetch(`/api/standings-archive?tournamentId=${tournament}`, { cache: 'no-store' })
       .then((r) => r.json())
       .then((d: { years?: number[] }) => setHistoryYearsAvailable(Array.isArray(d.years) ? d.years : []))
       .catch(() => setHistoryYearsAvailable([]))
@@ -3969,6 +3969,8 @@ export default function Page() {
     setMyEntriesMenuOpen(false);
     setReportsMenuOpen(false);
     setPpsPickPopup(null);
+    setHistoryPopup(null);
+    setHistoryRoster(null);
     setActiveStandingEntryId(null);
     setActiveStandingGolferId(null);
     setCommissionerMemberModalOpen(false);
@@ -5043,51 +5045,9 @@ export default function Page() {
                 <div>
                   {(selectedTournament === 'players' || selectedTournament === 'masters' || selectedTournament === 'pga' || selectedTournament === 'us-open' || selectedTournament === 'open') ? (() => {
                     const fullName = selectedTournament === 'players' ? 'The Players Championship' : selectedTournament === 'masters' ? 'The Masters Tournament' : selectedTournament === 'pga' ? 'The PGA Championship' : selectedTournament === 'us-open' ? 'U.S. Open Championship' : 'The Open Championship';
-                    const words = fullName.split(' ');
-                    const lastWord = words.pop();
-                    const firstPart = words.join(' ');
-                    // Fractionally smaller for the tournaments whose first line is widest, so the inline
-                    // clock still fits beside it on line 1 without forcing an early wrap.
-                    const baseFs = isSmallMobile ? 17 : isMobile ? 21 : (showLivePayoutStrip ? 25 : 30);
-                    const fs = (isMobile && (selectedTournament === 'masters' || selectedTournament === 'players')) ? baseFs - 0.5 : baseFs;
-                    const clkColor = selectedTournament === 'open' ? 'rgba(0,0,0,0.42)' : 'rgba(100,116,139,0.75)';
-                    const pastResultsClock = (
-                      <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', verticalAlign: 'middle', marginLeft: 5 }}>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setHistoryDropdownOpen((v) => { const next = !v; if (next) loadHistoryYears(); return next; }); }}
-                          title="View past standings"
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: 1, background: 'transparent', border: 'none', padding: 0, color: clkColor, cursor: 'pointer', lineHeight: 1 }}
-                        >
-                          <Clock size={isMobile ? 13 : 15} /><span style={{ fontSize: isMobile ? 8 : 9 }}>{historyDropdownOpen ? '▲' : '▼'}</span>
-                        </button>
-                        {historyDropdownOpen && (
-                          <>
-                            <div onClick={() => setHistoryDropdownOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
-                            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: selectedTournament === 'open' ? '#F4BC41' : '#fff', border: selectedTournament === 'open' ? '1px solid #000' : '1px solid #d1dae3', borderRadius: 10, boxShadow: '0 8px 24px rgba(9,34,51,0.18)', zIndex: 41, overflow: 'hidden', minWidth: 160, maxHeight: 260, overflowY: 'auto' }}>
-                              <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: selectedTournament === 'open' ? '#000' : '#94a3b8', background: selectedTournament === 'open' ? '#F4BC41' : undefined, padding: '8px 13px 5px' }}>Past Standings</div>
-                              {historyYearsLoading ? (
-                                <div style={{ padding: '9px 13px', fontSize: 12, color: '#94a3b8' }}>Loading…</div>
-                              ) : historyYearsAvailable.length === 0 ? (
-                                <div style={{ padding: '9px 13px 11px', fontSize: 11.5, color: '#94a3b8', lineHeight: 1.4, maxWidth: 180 }}>No past standings yet — they&rsquo;ll appear here each year.</div>
-                              ) : historyYearsAvailable.map((yr) => (
-                                <button key={yr} onClick={(e) => { e.stopPropagation(); openTournamentHistory(yr); }}
-                                  style={{ display: 'block', width: '100%', textAlign: 'left', background: selectedTournament === 'open' ? '#F4BC41' : 'transparent', border: 'none', borderTop: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef', padding: '9px 13px', fontSize: 13, fontWeight: 700, color: selectedTournament === 'open' ? '#1e3a5f' : '#0f1720', cursor: 'pointer' }}>
-                                  {yr}
-                                </button>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </span>
-                    );
+                    const fs = isSmallMobile ? 17 : isMobile ? 21 : (showLivePayoutStrip ? 25 : 30);
                     return (
-                      <h2 style={{ margin: 0, fontSize: fs, fontWeight: 800, color: '#0f1720', lineHeight: 1.15 }}>
-                        {isMobile ? (
-                          <><span style={{ whiteSpace: 'nowrap' }}>{firstPart}{pastResultsClock}</span>{' '}{lastWord}</>
-                        ) : (
-                          <>{fullName}{pastResultsClock}</>
-                        )}
-                      </h2>
+                      <h2 style={{ margin: 0, fontSize: fs, fontWeight: 800, color: '#0f1720', lineHeight: 1.15 }}>{fullName}</h2>
                     );
                   })() : TOURNAMENT_HEADING_LOGOS[selectedTournament] ? (
                       <img
@@ -7627,6 +7587,73 @@ export default function Page() {
                       )}
                     </>
                   );
+                })() : selectedReport === 'Pool Standings History' ? (() => {
+                  const tournamentBlock = (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: isMobile ? '1 1 120px' : '0 0 240px', minWidth: 0 }}>
+                      <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
+                      <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
+                        <select
+                          value={pshTournament}
+                          onChange={(e) => { const t = e.target.value as TournamentId | ''; setPshTournament(t); if (t) loadHistoryYears(t); else setHistoryYearsAvailable([]); }}
+                          style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: pshTournament ? 'transparent' : '#94a3b8', WebkitTextFillColor: pshTournament ? 'transparent' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                        >
+                          <option value="" disabled>Select tournament</option>
+                          {REPORT_TOURNAMENTS.map((t) => (
+                            <option key={t.id} value={t.id}>{t.label}</option>
+                          ))}
+                        </select>
+                        {pshTournament && TOURNAMENT_TAB_LOGOS[pshTournament] && (
+                          <span style={{ position: 'absolute', left: 12, right: 34, top: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', pointerEvents: 'none' }}>
+                            <img src={TOURNAMENT_TAB_LOGOS[pshTournament]} alt={REPORT_TOURNAMENTS.find((t) => t.id === pshTournament)?.label ?? ''} style={{ height: REPORT_DROPDOWN_LOGO_H[pshTournament], width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                  const yearBlock = (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: isMobile ? '0 0 116px' : '0 0 160px' }}>
+                      <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Year</label>
+                      <select
+                        value=""
+                        disabled={!pshTournament || historyYearsLoading}
+                        onChange={(e) => { if (pshTournament && e.target.value) openTournamentHistory(pshTournament, Number(e.target.value)); }}
+                        style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: '#94a3b8', cursor: pshTournament ? 'pointer' : 'not-allowed', opacity: pshTournament ? 1 : 0.6, backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                      >
+                        <option value="" disabled>{!pshTournament ? 'Select year' : historyYearsLoading ? 'Loading…' : historyYearsAvailable.length === 0 ? 'No past standings' : 'Select year'}</option>
+                        {historyYearsAvailable.map((yr) => (
+                          <option key={yr} value={yr}>{yr}</option>
+                        ))}
+                      </select>
+                    </div>
+                  );
+                  return (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: isMobile ? 10 : 14, rowGap: 12, flexWrap: 'wrap' }}>
+                        <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Pool Standings History</div>
+                        {!isMobile && (
+                          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
+                            {tournamentBlock}
+                            {yearBlock}
+                          </div>
+                        )}
+                      </div>
+                      {isMobile && (
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginTop: 14 }}>
+                          {tournamentBlock}
+                          {yearBlock}
+                        </div>
+                      )}
+                      <div style={{ marginTop: isMobile ? 20 : 26, fontSize: isMobile ? 13 : 14, color: '#5b6b79', lineHeight: 1.55 }}>
+                        {!pshTournament
+                          ? 'Choose a tournament and year to view that season’s final pool standings.'
+                          : historyYearsLoading
+                            ? 'Loading available years…'
+                            : historyYearsAvailable.length === 0
+                              ? 'No past standings have been banked for this tournament yet — they appear here after each event is finalized.'
+                              : 'Select a year above to view that season’s final pool standings.'}
+                      </div>
+                    </>
+                  );
                 })() : selectedReport ? (
                   <>
                     <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>{selectedReport}</div>
@@ -10162,23 +10189,25 @@ export default function Page() {
         })()}
 
         {historyPopup && (() => {
-          const histName = selectedTournament === 'players' ? 'The Players Championship' : selectedTournament === 'masters' ? 'Masters Tournament' : selectedTournament === 'pga' ? 'PGA Championship' : selectedTournament === 'us-open' ? 'U.S. Open' : 'The Open Championship';
+          const histTournament = historyPopup.tournament;
+          const histHeaderSolid = REPORT_TOURNAMENT_SOLID[histTournament];
+          const histName = histTournament === 'players' ? 'The Players Championship' : histTournament === 'masters' ? 'Masters Tournament' : histTournament === 'pga' ? 'PGA Championship' : histTournament === 'us-open' ? 'U.S. Open' : 'The Open Championship';
           const rows = historyPopup.data?.standings ?? [];
-          const histPayouts = historyPopup.data?.payouts ?? selectedTournamentPayouts ?? null;
+          const histPayouts = historyPopup.data?.payouts ?? pool?.payouts?.[histTournament] ?? null;
           const medalFor = (place: number) => (place === 1 ? '🥇' : place === 2 ? '🥈' : place === 3 ? '🥉' : null);
           const payoutFor = (place: number) => (place === 1 ? histPayouts?.first : place === 2 ? histPayouts?.second : place === 3 ? histPayouts?.third : undefined);
           const closeAll = () => { setHistoryPopup(null); setHistoryRoster(null); };
           const CUT_SET = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
           const rosterGolfers = historyRoster?.golfers ? [...historyRoster.golfers].sort((a, b) => b.points - a.points) : [];
           const showScrollHint = !historyRoster && !historyPopup.loading && rows.length > 20 && !historyAtBottom;
-          const isOpenHist = selectedTournament === 'open';
+          const isOpenHist = histTournament === 'open';
           const histGold = '#F4BC41';
           // Match the divider color/weight used in the live pool standings list for this tournament.
-          const histDivider = (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef';
+          const histDivider = (histTournament === 'players' || histTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef';
           return (
             <div onClick={closeAll} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
               <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', width: 'min(560px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
-                <div style={{ background: headerSolid, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                <div style={{ background: histHeaderSolid, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                     {historyRoster && (
                       <button onClick={() => { setHistoryRoster(null); setHistoryAtBottom(false); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 17, flexShrink: 0, lineHeight: 1 }}>&#8249;</button>
@@ -10188,8 +10217,8 @@ export default function Page() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                    {(KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]) && (
-                      <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt="" style={{ height: selectedTournament === 'pga' ? 52 : selectedTournament === 'players' ? 46 : selectedTournament === 'open' ? 36 : selectedTournament === 'masters' ? undefined : 32, width: selectedTournament === 'masters' ? 104 : undefined, margin: selectedTournament === 'pga' ? '-10px 0' : selectedTournament === 'players' ? '-7px 0' : undefined, maxWidth: 104, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+                    {(KNOCKOUT_TAB_LOGOS[histTournament] ?? TOURNAMENT_TAB_LOGOS[histTournament]) && (
+                      <img src={KNOCKOUT_TAB_LOGOS[histTournament] ?? TOURNAMENT_TAB_LOGOS[histTournament]} alt="" style={{ height: histTournament === 'pga' ? 52 : histTournament === 'players' ? 46 : histTournament === 'open' ? 36 : histTournament === 'masters' ? undefined : 32, width: histTournament === 'masters' ? 104 : undefined, margin: histTournament === 'pga' ? '-10px 0' : histTournament === 'players' ? '-7px 0' : undefined, maxWidth: 104, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
                     )}
                     <button onClick={closeAll} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
                   </div>
@@ -10283,7 +10312,7 @@ export default function Page() {
                 </div>
                 {showScrollHint && (
                   <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 60, pointerEvents: 'none', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: 9, background: isOpenHist ? 'linear-gradient(to bottom, rgba(244,188,65,0) 0%, rgba(244,188,65,0.97) 68%)' : 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 68%)' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: headerSolid, color: '#fff', fontSize: 11.5, fontWeight: 800, letterSpacing: '0.02em', boxShadow: '0 3px 10px rgba(9,34,51,0.22)' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: histHeaderSolid, color: '#fff', fontSize: 11.5, fontWeight: 800, letterSpacing: '0.02em', boxShadow: '0 3px 10px rgba(9,34,51,0.22)' }}>
                       <span>Scroll for more</span>
                       <ChevronDown size={14} style={{ animation: 'bounce 1.4s ease-in-out infinite' }} />
                     </div>
