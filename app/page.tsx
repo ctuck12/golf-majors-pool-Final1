@@ -7610,11 +7610,11 @@ export default function Page() {
               style={{
                 background: '#fff',
                 borderRadius: 24,
-                padding: isMobile ? 14 : 22,
+                padding: isMobile ? '9px 14px' : '15px 22px',
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: isMobile ? 10 : 18 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: isMobile ? 6 : 14 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 12, flexWrap: 'wrap' }}>
                   <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#5b6b79' }}>
                     Pool Status
