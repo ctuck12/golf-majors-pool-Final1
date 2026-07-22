@@ -10169,19 +10169,54 @@ export default function Page() {
           const menuW = 244;
           const vw = typeof window !== 'undefined' ? window.innerWidth : 9999;
           const left = Math.max(8, Math.min(reportsMenuRect.left, vw - menuW - 8));
+          const accent = REPORT_TOURNAMENT_SOLID[selectedTournament];
+          const hexToRgba = (hex: string, a: number) => {
+            const h = hex.replace('#', '');
+            const r = parseInt(h.slice(0, 2), 16);
+            const g = parseInt(h.slice(2, 4), 16);
+            const b = parseInt(h.slice(4, 6), 16);
+            return `rgba(${r},${g},${b},${a})`;
+          };
+          const accentSoft = hexToRgba(accent, 0.09);
+          const accentHover = hexToRgba(accent, 0.55);
+          const reportIcon = (opt: ReportType) => {
+            const p = { width: 15, height: 15, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+            switch (opt) {
+              case 'Player Pick Summary':
+                return <svg {...p}><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>;
+              case 'Pool Member Pick History':
+                return <svg {...p}><path d="M3 3v5h5" /><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8" /><path d="M12 7v5l4 2" /></svg>;
+              case 'Pool Member Pick Summary':
+                return <svg {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
+              case 'Player Performance Summary':
+                return <svg {...p}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>;
+              case 'Pool Standings History':
+                return <svg {...p}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>;
+              default:
+                return null;
+            }
+          };
           return (
             <>
               <div onClick={() => setReportsMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 1200 }} />
-              <div style={{ position: 'fixed', top: reportsMenuRect.top + 4, left, width: menuW, zIndex: 1201, background: '#fff', border: '1px solid #d1dae3', borderRadius: 12, boxShadow: '0 14px 34px rgba(9,34,51,0.24)', overflow: 'hidden' }}>
-                {REPORT_OPTIONS.map((opt, i) => (
-                  <button
-                    key={opt}
-                    onClick={() => { setSelectedReport(opt); setReportsMenuOpen(false); handleMainTabChange('Reports'); }}
-                    style={{ display: 'block', width: '100%', textAlign: 'left', background: selectedReport === opt ? '#eef4fb' : 'transparent', border: 'none', borderTop: i === 0 ? 'none' : '1px solid #eef2f6', padding: '12px 14px', fontSize: 12.5, fontWeight: 700, color: '#0f1720', cursor: 'pointer', whiteSpace: 'nowrap' }}
-                  >
-                    {opt}
-                  </button>
-                ))}
+              <div style={{ position: 'fixed', top: reportsMenuRect.top + 4, left, width: menuW, zIndex: 1201, background: '#fff', border: '1px solid #d1dae3', borderRadius: 12, boxShadow: '0 18px 40px -6px rgba(9,34,51,0.30), 0 4px 10px rgba(9,34,51,0.10)', overflow: 'hidden' }}>
+                <div style={{ height: 4, background: accent }} />
+                <div style={{ padding: '11px 14px 7px', fontSize: 10, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#94a3b8' }}>Reports</div>
+                {REPORT_OPTIONS.map((opt, i) => {
+                  const isSel = selectedReport === opt;
+                  return (
+                    <button
+                      key={opt}
+                      onClick={() => { setSelectedReport(opt); setReportsMenuOpen(false); handleMainTabChange('Reports'); }}
+                      onMouseEnter={(e) => { if (!isSel) { e.currentTarget.style.background = accentSoft; e.currentTarget.style.boxShadow = `inset 3px 0 0 ${accentHover}`; } }}
+                      onMouseLeave={(e) => { if (!isSel) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.boxShadow = 'none'; } }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', background: isSel ? accentSoft : 'transparent', border: 'none', borderTop: i === 0 ? 'none' : '1px solid #eef2f6', boxShadow: isSel ? `inset 3px 0 0 ${accent}` : 'none', padding: '12px 14px', fontSize: 12.5, fontWeight: 700, color: '#0f1720', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                    >
+                      <span style={{ width: 15, height: 15, flex: '0 0 15px', color: accent, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{reportIcon(opt)}</span>
+                      <span>{opt}</span>
+                    </button>
+                  );
+                })}
               </div>
             </>
           );
