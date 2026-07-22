@@ -61,6 +61,11 @@ export const PLAYER_BIO_OVERRIDES: Record<string, BioOverride> = {
   'Rocco Paolo Repetto Taylor': { height: `5'11"`, weight: '180 lbs', swing: 'Right' },
   'Jake Sollon':                { dob: 'February 18, 1998', birthPlace: 'Venetia, Pennsylvania', swing: 'Right' },
 
+  // ---- 2026 Open field players missing a flag/bio (researched July 2026) ----
+  'Alejandro De Castro Piera':  { birthPlace: 'Barcelona, Spain', swing: 'Left', college: 'Long Beach State' },
+  'Tim Wiedemeyer':             { dob: 'January 14, 2005', birthPlace: 'Munich, Germany', height: `6'0"`, college: 'Texas Tech' },
+  'Scott Vincent':              { dob: 'May 20, 1992', birthPlace: 'Harare, Zimbabwe', swing: 'Right', college: 'Virginia Tech', turnedPro: 2015 },
+
   // ---- Missing 2 fields ----
   'Jordan Smith':               { birthPlace: 'Bath, England', swing: 'Right' },
   'Dan Brown':                  { birthPlace: 'Northallerton, England', weight: '190 lbs', swing: 'Right' },

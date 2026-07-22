@@ -215,7 +215,7 @@ export const PLAYER_POOL_WITH_PGA_IDS = [
   { id: 500019, name: 'Darren Clarke',                  pgaTourId: 19825,     defaultOdds: '+100000', worldRank: 9999 },
   { id: 500020, name: 'Martin Couvra',                  pgaTourId: 60073,     defaultOdds: '+100000', worldRank: 164 },
   { id: 500021, name: 'MJ Daffue',                      pgaTourId: 39067,     defaultOdds: '+100000', worldRank: 233 },
-  { id: 500022, name: 'Alejandro De Castro Piera',      pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },
+  { id: 500022, name: 'Alejandro De Castro Piera',      pgaTourId: 63223, defaultOdds: '+100000', worldRank: 9999 },
   { id: 500024, name: 'Alistair Docherty',              pgaTourId: 51680,     defaultOdds: '+100000', worldRank: 187 },
   { id: 500025, name: 'David Duval',                    pgaTourId: 9011,     defaultOdds: '+100000', worldRank: 9999 },
   { id: 500026, name: 'Stuart Grehan',                  pgaTourId: 0,     defaultOdds: '+100000', worldRank: 9999 },

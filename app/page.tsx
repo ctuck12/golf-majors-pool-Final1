@@ -305,6 +305,10 @@ const PLAYER_FLAGS: Record<string, string> = {
   'Thorbjørn Olesen': 'dk',
   'Cam Davis': 'au',
   'David Ford': 'us',
+  // 2026 Open field players who had no flag — researched July 2026.
+  'Alejandro De Castro Piera': 'es', // Spain (Barcelona)
+  'Tim Wiedemeyer': 'de',            // Germany (Munich)
+  'Scott Vincent': 'zw',             // Zimbabwe (Harare)
 };
 // Accent-insensitive index of PLAYER_FLAGS, so leaderboard display names with diacritics
 // (e.g. "Séamus Power", "Thorbjørn Olesen") resolve to the same flag as their unaccented key
@@ -332,7 +336,7 @@ const getFlagSrc = (name: string): string => {
   const svgCodes = new Set(['us', 'au', 'ie', 'gb-sct', 'no', 'kr', 'jp', 'za', 'se', 'nz', 'dk', 'de', 'cl', 'co', 'ar', 've', 'be', 'at', 'fr', 'fi', 'cn', 'it', 'in', 'ph', 'fj', 'pr']);
   return `/flags/${svgCodes.has(code) ? code + '.svg' : code + '.png'}`;
 };
-const FLAG_LABELS: Record<string, string> = { 'us': 'USA', 'gb-eng': 'ENG', 'gb-nir': 'NIR', 'au': 'AUS', 'ie': 'IRL', 'gb-sct': 'SCT', 'no': 'NOR', 'es': 'ESP', 'kr': 'KOR', 'jp': 'JPN', 'za': 'RSA', 'se': 'SWE', 'ca': 'CAN', 'nz': 'NZL', 'dk': 'DEN', 'de': 'GER', 'cl': 'CHI', 'co': 'COL', 'mx': 'MEX', 'ar': 'ARG', 've': 'VEN', 'be': 'BEL', 'at': 'AUT', 'fr': 'FRA', 'gb-wls': 'WAL', 'fi': 'FIN', 'cn': 'CHN', 'it': 'ITA', 'in': 'IND', 'ph': 'PHI', 'fj': 'FIJ', 'pr': 'PRI', 'tw': 'TPE', 'jm': 'JAM', 'th': 'THA', 'is': 'ISL', 'ua': 'UKR', 'nl': 'NED' };
+const FLAG_LABELS: Record<string, string> = { 'us': 'USA', 'gb-eng': 'ENG', 'gb-nir': 'NIR', 'au': 'AUS', 'ie': 'IRL', 'gb-sct': 'SCT', 'no': 'NOR', 'es': 'ESP', 'kr': 'KOR', 'jp': 'JPN', 'za': 'RSA', 'se': 'SWE', 'ca': 'CAN', 'nz': 'NZL', 'dk': 'DEN', 'de': 'GER', 'cl': 'CHI', 'co': 'COL', 'mx': 'MEX', 'ar': 'ARG', 've': 'VEN', 'be': 'BEL', 'at': 'AUT', 'fr': 'FRA', 'gb-wls': 'WAL', 'fi': 'FIN', 'cn': 'CHN', 'it': 'ITA', 'in': 'IND', 'ph': 'PHI', 'fj': 'FIJ', 'pr': 'PRI', 'tw': 'TPE', 'jm': 'JAM', 'th': 'THA', 'is': 'ISL', 'ua': 'UKR', 'nl': 'NED', 'zw': 'ZIM' };
 const getCountryLabel = (name: string): string => FLAG_LABELS[lookupFlagCode(name)] ?? '';
 
 const TOURNAMENT_PICKS_HEADER: Record<string, string> = {

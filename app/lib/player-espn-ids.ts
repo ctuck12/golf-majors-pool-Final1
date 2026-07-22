@@ -33,6 +33,8 @@ export const PLAYER_ESPN_IDS: Record<string, string> = {
   "David Howard": '5369476',
   "Mateo Pulcini": '5344763',
   "Jose Luis Ballester Barrio": '5152205',
+  "Scott Vincent": '9963',
+  "Tim Wiedemeyer": '5147926',
   "Martin Couvra": '5102625',
   "Francesco Laporta": '5716',
   "Antoine Rozner": '4407372',
