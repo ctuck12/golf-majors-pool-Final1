@@ -7489,7 +7489,7 @@ export default function Page() {
                           <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79' }}>{q ? 'No players match your search.' : 'No field data available for this tournament yet.'}</div>
                         ) : (
                           <div style={{ marginTop: isMobile ? 16 : 22 }}>
-                            <div ref={ppfScrollRef} style={{ overflowX: 'auto', border: '1px solid #d1dae3', borderRadius: 10 }}>
+                            <div ref={ppfScrollRef} style={{ overflow: 'auto', maxHeight: isMobile ? '68vh' : '72vh', WebkitOverflowScrolling: 'touch', border: '1px solid #d1dae3', borderRadius: 10 }}>
                               <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: isMobile ? 11.5 : 12 }}>
                                 <thead>
                                   <tr style={{ background: tColor, color: '#fff', textAlign: 'center', fontSize: isMobile ? 10 : 11 }}>
@@ -7536,10 +7536,10 @@ export default function Page() {
                                       )}
                                       <tr style={{ background: rowBg, borderTop: '1px solid #eef2f6', textAlign: 'center', color: '#0f1720' }}>
                                         <td style={{ padding: '8px 7px', fontWeight: 700, whiteSpace: 'nowrap', color: isCut ? '#dc2626' : '#0f1720', position: 'sticky', left: 0, zIndex: 1, background: rowBg, width: 44, minWidth: 44 }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</td>
-                                        <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, whiteSpace: 'nowrap', position: 'sticky', left: 44, zIndex: 1, background: rowBg }}>
+                                        <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, position: 'sticky', left: 44, zIndex: 1, background: rowBg, maxWidth: isMobile ? 168 : 200 }}>
                                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                                             <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{rowFlag && <img src={rowFlag} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0' }} />}</span>
-                                            {r.name}
+                                            <span style={{ whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: 1.2 }}>{r.name}</span>
                                           </span>
                                         </td>
                                         <td style={{ padding: '8px 7px', fontWeight: 800, whiteSpace: 'nowrap', color: r.scoreNum < 0 ? '#dc2626' : '#0f1720' }}>{r.scoreDisplay}</td>
