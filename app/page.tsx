@@ -9368,7 +9368,6 @@ export default function Page() {
         {historyPopup && (() => {
           const histName = selectedTournament === 'players' ? 'The Players Championship' : selectedTournament === 'masters' ? 'Masters Tournament' : selectedTournament === 'pga' ? 'PGA Championship' : selectedTournament === 'us-open' ? 'U.S. Open' : 'The Open Championship';
           const rows = historyPopup.data?.standings ?? [];
-          const medal = (place: number) => place === 1 ? '🥇' : place === 2 ? '🥈' : place === 3 ? '🥉' : null;
           const closeAll = () => { setHistoryPopup(null); setHistoryRoster(null); };
           const CUT_SET = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
           const rosterGolfers = historyRoster?.golfers ? [...historyRoster.golfers].sort((a, b) => b.points - a.points) : [];
@@ -9381,11 +9380,16 @@ export default function Page() {
                       <button onClick={() => setHistoryRoster(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 17, flexShrink: 0, lineHeight: 1 }}>&#8249;</button>
                     )}
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{historyRoster ? historyRoster.name : `${historyPopup.year} ${histName}`}</div>
-                      <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: 700, marginTop: 1, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{historyRoster ? `${historyPopup.year} Roster · #${historyRoster.place}` : 'Final Pool Standings'}</div>
+                      <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{historyRoster ? historyRoster.name : `${historyPopup.year} Pool Standings`}</div>
+                      {historyRoster && <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: 700, marginTop: 1, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{`${historyPopup.year} Roster · #${historyRoster.place}`}</div>}
                     </div>
                   </div>
-                  <button onClick={closeAll} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                    {(KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]) && (
+                      <img src={KNOCKOUT_TAB_LOGOS[selectedTournament] ?? TOURNAMENT_TAB_LOGOS[selectedTournament]} alt="" style={{ height: selectedTournament === 'pga' ? 52 : selectedTournament === 'players' ? 46 : selectedTournament === 'open' ? 36 : selectedTournament === 'masters' ? undefined : 32, width: selectedTournament === 'masters' ? 104 : undefined, margin: selectedTournament === 'pga' ? '-10px 0' : selectedTournament === 'players' ? '-7px 0' : undefined, maxWidth: 104, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+                    )}
+                    <button onClick={closeAll} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
+                  </div>
                 </div>
                 <div style={{ overflowY: 'auto' }}>
                   {historyPopup.loading ? (
@@ -9434,7 +9438,7 @@ export default function Page() {
                           return (
                             <tr key={i} onClick={clickable ? () => setHistoryRoster(r) : undefined} style={{ borderTop: '1px solid #eef2f6', cursor: clickable ? 'pointer' : 'default' }}>
                               <td style={{ textAlign: 'center', padding: '8px 6px', fontSize: 13, fontWeight: 700, color: '#374151', whiteSpace: 'nowrap' }}>{r.place}</td>
-                              <td style={{ padding: '8px 12px', fontSize: 13, color: clickable ? '#173b63' : '#0f1720', fontWeight: r.place <= 3 ? 800 : 500, textDecoration: clickable ? 'underline' : 'none', textDecorationColor: 'rgba(23,59,99,0.35)', textUnderlineOffset: 2 }}>{r.name}{medal(r.place) ? <span style={{ marginLeft: 6, textDecoration: 'none' }}>{medal(r.place)}</span> : null}</td>
+                              <td style={{ padding: '8px 12px', fontSize: 13, color: '#0f1720', fontWeight: r.place <= 3 ? 800 : 500 }}>{r.name}</td>
                               <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 700, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.points % 1 === 0 ? r.points : r.points.toFixed(1)}</td>
                               <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 600, color: '#5b6b79', whiteSpace: 'nowrap' }}>{r.tieBreak}</td>
                             </tr>
