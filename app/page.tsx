@@ -777,6 +777,9 @@ const REPORT_TOURNAMENTS: { id: TournamentId; label: string }[] = [
 ];
 // Seasons the pool has run (season 1 = 2026). Append new years as future seasons are played.
 const POOL_SEASONS = [2026];
+// Explicit render heights (px) for the tournament logo shown inside the Reports dropdown box.
+// Uses an explicit height (not max-height) so the small source PNGs upscale to fill the box.
+const REPORT_DROPDOWN_LOGO_H: Record<TournamentId, number> = { players: 32, masters: 34, pga: 34, 'us-open': 26, open: 28 };
 const REPORT_TOURNAMENT_SOLID: Record<TournamentId, string> = {
   players: '#173b63',
   masters: '#2c6449',
@@ -7161,8 +7164,8 @@ export default function Page() {
                             ))}
                           </select>
                           {ppsTournament && TOURNAMENT_TAB_LOGOS[ppsTournament] && (
-                            <span style={{ position: 'absolute', left: 12, right: 36, top: 5, bottom: 5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', pointerEvents: 'none' }}>
-                              <img src={TOURNAMENT_TAB_LOGOS[ppsTournament]} alt={REPORT_TOURNAMENTS.find((t) => t.id === ppsTournament)?.label ?? ''} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+                            <span style={{ position: 'absolute', left: 12, right: 34, top: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', pointerEvents: 'none' }}>
+                              <img src={TOURNAMENT_TAB_LOGOS[ppsTournament]} alt={REPORT_TOURNAMENTS.find((t) => t.id === ppsTournament)?.label ?? ''} style={{ height: REPORT_DROPDOWN_LOGO_H[ppsTournament], width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
                             </span>
                           )}
                         </div>
@@ -7461,8 +7464,8 @@ export default function Page() {
                             ))}
                           </select>
                           {ppfTournament && TOURNAMENT_TAB_LOGOS[ppfTournament] && (
-                            <span style={{ position: 'absolute', left: 12, right: 36, top: 5, bottom: 5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', pointerEvents: 'none' }}>
-                              <img src={TOURNAMENT_TAB_LOGOS[ppfTournament]} alt={REPORT_TOURNAMENTS.find((t) => t.id === ppfTournament)?.label ?? ''} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+                            <span style={{ position: 'absolute', left: 12, right: 34, top: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', pointerEvents: 'none' }}>
+                              <img src={TOURNAMENT_TAB_LOGOS[ppfTournament]} alt={REPORT_TOURNAMENTS.find((t) => t.id === ppfTournament)?.label ?? ''} style={{ height: REPORT_DROPDOWN_LOGO_H[ppfTournament], width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
                             </span>
                           )}
                         </div>
