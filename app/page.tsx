@@ -7245,6 +7245,7 @@ export default function Page() {
                               const pct = Math.max(20, Math.round((r.count / maxCount) * 80));
                               const isCut = CUT_MARKS.has(String(r.position).toUpperCase());
                               const flagSrc = getPlayerFlag(r.name) ? getFlagSrc(r.name) : null;
+                              const abbr = getCountryLabel(r.name) || null;
                               return (
                                 <div key={r.id} onClick={() => { if (ppsResult.tournament === 'all') setPpsAllPlayerPopup({ id: r.id, name: r.name, pgaTourId: r.pgaTourId, photoUrl: r.photoUrl }); else setPpsPickPopup({ id: r.id, name: r.name, tournament: ppsResult.tournament }); }} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 9 : 12, cursor: 'pointer' }}>
                                   <img
@@ -7255,6 +7256,7 @@ export default function Page() {
                                   <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, lineHeight: 1.15 }}>
                                       <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0' }} />}</span>
+                                      {abbr && <span style={{ flexShrink: 0, fontSize: isMobile ? 10 : 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.02em' }}>{abbr}</span>}
                                       <span style={{ minWidth: 0, fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
                                     </div>
                                     {!isAll && (
