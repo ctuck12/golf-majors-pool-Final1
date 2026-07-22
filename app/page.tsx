@@ -1623,10 +1623,10 @@ export default function Page() {
   const [selectedReport, setSelectedReport] = useState<ReportType | null>(null);
   // Player Pick Summary report controls.
   const [ppsTournament, setPpsTournament] = useState<TournamentId | ''>('');
-  const [ppsSortBy, setPpsSortBy] = useState<'Times Picked' | 'Salary' | ''>('');
+  const [ppsSortBy, setPpsSortBy] = useState<'Picked' | 'Salary' | ''>('');
   const [ppsResult, setPpsResult] = useState<{
     tournament: TournamentId;
-    sortBy: 'Times Picked' | 'Salary';
+    sortBy: 'Picked' | 'Salary';
     rows: { id: number; name: string; pgaTourId: number; photoUrl?: string; count: number; salary: number; position: string }[];
   } | null>(null);
   // Player Pick Summary — "which entries picked this player" popup.
@@ -7112,8 +7112,8 @@ export default function Page() {
               <div style={{ padding: isMobile ? 18 : 28 }}>
                 {selectedReport === 'Player Pick Summary' ? (() => {
                   const ppsControls = (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: isMobile ? 10 : 12 }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1 1 140px' : '0 0 220px' }}>
+                    <div style={{ display: 'flex', flexWrap: isMobile ? 'nowrap' : 'wrap', alignItems: 'flex-end', gap: isMobile ? 7 : 12 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1 1 96px' : '0 0 220px' }}>
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
                         <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
                           <select
@@ -7133,38 +7133,36 @@ export default function Page() {
                           )}
                         </div>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1 1 140px' : '0 0 200px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1 1 88px' : '0 0 200px' }}>
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Sort By</label>
                         <select
                           value={ppsSortBy}
-                          onChange={(e) => { setPpsSortBy(e.target.value as 'Times Picked' | 'Salary' | ''); setPpsResult(null); }}
-                          style={{ appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: ppsSortBy ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                          onChange={(e) => { setPpsSortBy(e.target.value as 'Picked' | 'Salary' | ''); setPpsResult(null); }}
+                          style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: isMobile ? '10px 26px 10px 10px' : '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: ppsSortBy ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
                         >
                           <option value="" disabled>Select sort</option>
-                          <option value="Times Picked">Times Picked</option>
+                          <option value="Picked">Picked</option>
                           <option value="Salary">Salary</option>
                         </select>
                       </div>
                       {ppsTournament && ppsSortBy && (
-                        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', flexShrink: 0 }}>
                           <button
                             onClick={runPlayerPickSummary}
-                            style={{ background: headerSolid, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 26px', fontSize: 14, fontWeight: 800, cursor: 'pointer', letterSpacing: '0.02em' }}
+                            style={{ background: headerSolid, color: '#fff', border: 'none', borderRadius: 10, padding: isMobile ? '10px 13px' : '10px 26px', fontSize: 14, fontWeight: 800, cursor: 'pointer', letterSpacing: '0.02em' }}
                           >
                             Go
                           </button>
                         </div>
                       )}
+                      {reportYearSelect}
                     </div>
                   );
                   return (
                   <>
                     <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: isMobile ? 10 : 14, rowGap: 12, flexWrap: 'wrap' }}>
                       <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Player Pick Summary</div>
-                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
-                        {!isMobile && ppsControls}
-                        {reportYearSelect}
-                      </div>
+                      {!isMobile && ppsControls}
                     </div>
                     {isMobile && <div style={{ marginTop: 14 }}>{ppsControls}</div>}
 
