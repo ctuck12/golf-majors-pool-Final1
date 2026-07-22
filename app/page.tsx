@@ -1612,7 +1612,6 @@ export default function Page() {
   // Pool Standings History report — selected tournament for the past-standings lookup.
   const [pshTournament, setPshTournament] = useState<TournamentId | ''>('');
   const [historyRoster, setHistoryRoster] = useState<ArchivedStandingRow | null>(null);
-  const [historyAtBottom, setHistoryAtBottom] = useState(false);
   const archivedThisSession = useRef<Set<string>>(new Set());
   const [reportsMenuOpen, setReportsMenuOpen] = useState(false);
   const [reportsMenuRect, setReportsMenuRect] = useState<{ left: number; top: number; width: number } | null>(null);
@@ -3920,20 +3919,26 @@ export default function Page() {
   };
   const openTournamentHistory = (tournament: TournamentId, year: number) => {
     setHistoryRoster(null);
-    setHistoryAtBottom(false);
     setHistoryPopup({ tournament, year, loading: true, data: null });
     fetch(`/api/standings-archive?tournamentId=${tournament}&year=${year}`, { cache: 'no-store' })
       .then((r) => r.json())
       .then((data: ArchivedStandingsData) => setHistoryPopup({ tournament, year, loading: false, data }))
       .catch(() => setHistoryPopup({ tournament, year, loading: false, data: { available: false, error: 'fetch failed' } }));
   };
-  // Load which seasons have banked standings for a tournament (populates the report's year dropdown).
+  // Load which seasons have banked standings for a tournament (populates the report's year dropdown),
+  // then auto-select the most recent (latest) banked year so it's shown by default.
   const loadHistoryYears = (tournament: TournamentId) => {
     setHistoryYearsLoading(true);
     setHistoryYearsAvailable([]);
+    setHistoryPopup(null);
+    setHistoryRoster(null);
     fetch(`/api/standings-archive?tournamentId=${tournament}`, { cache: 'no-store' })
       .then((r) => r.json())
-      .then((d: { years?: number[] }) => setHistoryYearsAvailable(Array.isArray(d.years) ? d.years : []))
+      .then((d: { years?: number[] }) => {
+        const years = Array.isArray(d.years) ? d.years.filter((y) => typeof y === 'number') : [];
+        setHistoryYearsAvailable(years);
+        if (years.length > 0) openTournamentHistory(tournament, Math.max(...years));
+      })
       .catch(() => setHistoryYearsAvailable([]))
       .finally(() => setHistoryYearsLoading(false));
   };
@@ -7614,10 +7619,10 @@ export default function Page() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: isMobile ? '0 0 116px' : '0 0 160px' }}>
                       <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Year</label>
                       <select
-                        value=""
+                        value={(pshTournament && historyPopup?.tournament === pshTournament) ? String(historyPopup.year) : ''}
                         disabled={!pshTournament || historyYearsLoading}
                         onChange={(e) => { if (pshTournament && e.target.value) openTournamentHistory(pshTournament, Number(e.target.value)); }}
-                        style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: '#94a3b8', cursor: pshTournament ? 'pointer' : 'not-allowed', opacity: pshTournament ? 1 : 0.6, backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                        style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: (pshTournament && historyPopup?.tournament === pshTournament) ? '#0f1720' : '#94a3b8', cursor: pshTournament ? 'pointer' : 'not-allowed', opacity: pshTournament ? 1 : 0.6, backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
                       >
                         <option value="" disabled>{!pshTournament ? 'Select year' : historyYearsLoading ? 'Loading…' : historyYearsAvailable.length === 0 ? 'No past standings' : 'Select year'}</option>
                         {historyYearsAvailable.map((yr) => (
@@ -7626,6 +7631,17 @@ export default function Page() {
                       </select>
                     </div>
                   );
+                  const pshLoaded = !!pshTournament && historyPopup?.tournament === pshTournament;
+                  const pshRows = pshLoaded ? (historyPopup?.data?.standings ?? []) : [];
+                  const pshLoading = pshLoaded && !!historyPopup?.loading;
+                  const pshYear = historyPopup?.year;
+                  const pshHeaderSolid = pshTournament ? REPORT_TOURNAMENT_SOLID[pshTournament] : '#173b63';
+                  const pshPayouts = (pshLoaded ? historyPopup?.data?.payouts : null) ?? (pshTournament ? pool?.payouts?.[pshTournament] : null) ?? null;
+                  const pshMedal = (place: number) => (place === 1 ? '🥇' : place === 2 ? '🥈' : place === 3 ? '🥉' : null);
+                  const pshPayoutFor = (place: number) => (place === 1 ? pshPayouts?.first : place === 2 ? pshPayouts?.second : place === 3 ? pshPayouts?.third : undefined);
+                  const pshIsOpen = pshTournament === 'open';
+                  const pshDivider = (pshTournament === 'players' || pshTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef';
+                  const pshTh: React.CSSProperties = { padding: '10px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', color: '#fff' };
                   return (
                     <>
                       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: isMobile ? 10 : 14, rowGap: 12, flexWrap: 'wrap' }}>
@@ -7643,15 +7659,61 @@ export default function Page() {
                           {yearBlock}
                         </div>
                       )}
-                      <div style={{ marginTop: isMobile ? 20 : 26, fontSize: isMobile ? 13 : 14, color: '#5b6b79', lineHeight: 1.55 }}>
-                        {!pshTournament
-                          ? 'Choose a tournament and year to view that season’s final pool standings.'
-                          : historyYearsLoading
-                            ? 'Loading available years…'
-                            : historyYearsAvailable.length === 0
-                              ? 'No past standings have been banked for this tournament yet — they appear here after each event is finalized.'
-                              : 'Select a year above to view that season’s final pool standings.'}
-                      </div>
+                      {pshLoaded ? (
+                        pshLoading ? (
+                          <div style={{ marginTop: isMobile ? 20 : 26, fontSize: 14, color: '#5b6b79' }}>Loading {pshYear} standings…</div>
+                        ) : pshRows.length === 0 ? (
+                          <div style={{ marginTop: isMobile ? 20 : 26, fontSize: 14, color: '#5b6b79', lineHeight: 1.5 }}>No banked standings for the {pshYear} season yet.</div>
+                        ) : (
+                          <div style={{ marginTop: isMobile ? 18 : 24, border: '1px solid #d1dae3', borderRadius: 12, overflow: 'hidden' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', background: pshIsOpen ? '#F4BC41' : '#fff' }}>
+                              <thead>
+                                <tr style={{ background: pshHeaderSolid }}>
+                                  <th style={{ ...pshTh, textAlign: 'center' }}>RANK</th>
+                                  <th style={{ ...pshTh, textAlign: 'left' }}>ENTRY</th>
+                                  <th style={{ ...pshTh, textAlign: 'center' }}>POINTS</th>
+                                  <th style={{ ...pshTh, textAlign: 'center' }}>TIEBREAK</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {pshRows.map((r, i) => {
+                                  const clickable = (r.golfers?.length ?? 0) > 0;
+                                  return (
+                                    <tr key={i} onClick={clickable ? () => setHistoryRoster(r) : undefined} style={{ borderTop: pshDivider, cursor: clickable ? 'pointer' : 'default' }}>
+                                      <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 13, fontWeight: 700, color: '#374151', whiteSpace: 'nowrap' }}>{r.place}</td>
+                                      <td style={{ padding: '9px 12px', fontSize: 13, color: '#0f1720', fontWeight: r.place <= 3 ? 800 : 500 }}>
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                          <span>{r.name}</span>
+                                          {pshMedal(r.place) && (
+                                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
+                                              <span style={{ fontSize: 15 }}>{pshMedal(r.place)}</span>
+                                              {typeof pshPayoutFor(r.place) === 'number' && (
+                                                <span style={{ fontSize: 12, fontWeight: 700, color: '#0f7a3d' }}>(${pshPayoutFor(r.place)!.toLocaleString()})</span>
+                                              )}
+                                            </span>
+                                          )}
+                                        </span>
+                                      </td>
+                                      <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 13, fontWeight: 700, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.points % 1 === 0 ? r.points : r.points.toFixed(1)}</td>
+                                      <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 13, fontWeight: 600, color: pshIsOpen ? '#000' : '#5b6b79', whiteSpace: 'nowrap' }}>{r.tieBreak}</td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        )
+                      ) : (
+                        <div style={{ marginTop: isMobile ? 20 : 26, fontSize: isMobile ? 13 : 14, color: '#5b6b79', lineHeight: 1.55 }}>
+                          {!pshTournament
+                            ? 'Choose a tournament to view a season’s final pool standings.'
+                            : historyYearsLoading
+                              ? 'Loading standings…'
+                              : historyYearsAvailable.length === 0
+                                ? 'No past standings have been banked for this tournament yet — they appear here after each event is finalized.'
+                                : 'Select a year above to view that season’s final pool standings.'}
+                        </div>
+                      )}
                     </>
                   );
                 })() : selectedReport ? (
@@ -10188,121 +10250,61 @@ export default function Page() {
           );
         })()}
 
-        {historyPopup && (() => {
+        {historyRoster && historyPopup && (() => {
           const histTournament = historyPopup.tournament;
           const histHeaderSolid = REPORT_TOURNAMENT_SOLID[histTournament];
-          const histName = histTournament === 'players' ? 'The Players Championship' : histTournament === 'masters' ? 'Masters Tournament' : histTournament === 'pga' ? 'PGA Championship' : histTournament === 'us-open' ? 'U.S. Open' : 'The Open Championship';
-          const rows = historyPopup.data?.standings ?? [];
-          const histPayouts = historyPopup.data?.payouts ?? pool?.payouts?.[histTournament] ?? null;
-          const medalFor = (place: number) => (place === 1 ? '🥇' : place === 2 ? '🥈' : place === 3 ? '🥉' : null);
-          const payoutFor = (place: number) => (place === 1 ? histPayouts?.first : place === 2 ? histPayouts?.second : place === 3 ? histPayouts?.third : undefined);
-          const closeAll = () => { setHistoryPopup(null); setHistoryRoster(null); };
+          const closeRoster = () => setHistoryRoster(null);
           const CUT_SET = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
-          const rosterGolfers = historyRoster?.golfers ? [...historyRoster.golfers].sort((a, b) => b.points - a.points) : [];
-          const showScrollHint = !historyRoster && !historyPopup.loading && rows.length > 20 && !historyAtBottom;
+          const rosterGolfers = historyRoster.golfers ? [...historyRoster.golfers].sort((a, b) => b.points - a.points) : [];
           const isOpenHist = histTournament === 'open';
           const histGold = '#F4BC41';
-          // Match the divider color/weight used in the live pool standings list for this tournament.
           const histDivider = (histTournament === 'players' || histTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef';
           return (
-            <div onClick={closeAll} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
+            <div onClick={closeRoster} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
               <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', width: 'min(560px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
                 <div style={{ background: histHeaderSolid, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                    {historyRoster && (
-                      <button onClick={() => { setHistoryRoster(null); setHistoryAtBottom(false); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 17, flexShrink: 0, lineHeight: 1 }}>&#8249;</button>
-                    )}
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{historyRoster ? historyRoster.name : `${historyPopup.year} Pool Standings`}</div>
-                    </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{historyRoster.name}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                     {(KNOCKOUT_TAB_LOGOS[histTournament] ?? TOURNAMENT_TAB_LOGOS[histTournament]) && (
                       <img src={KNOCKOUT_TAB_LOGOS[histTournament] ?? TOURNAMENT_TAB_LOGOS[histTournament]} alt="" style={{ height: histTournament === 'pga' ? 52 : histTournament === 'players' ? 46 : histTournament === 'open' ? 36 : histTournament === 'masters' ? undefined : 32, width: histTournament === 'masters' ? 104 : undefined, margin: histTournament === 'pga' ? '-10px 0' : histTournament === 'players' ? '-7px 0' : undefined, maxWidth: 104, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
                     )}
-                    <button onClick={closeAll} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
+                    <button onClick={closeRoster} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
                   </div>
                 </div>
-                <div
-                  onScroll={(e) => {
-                    const el = e.currentTarget;
-                    setHistoryAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 24);
-                  }}
-                  style={{ overflowY: 'auto', background: isOpenHist ? histGold : undefined }}
-                >
-                  {historyPopup.loading ? (
-                    <div style={{ padding: 34, textAlign: 'center', color: '#5b6b79', fontSize: 14 }}>Loading {historyPopup.year} standings…</div>
-                  ) : rows.length === 0 ? (
-                    <div style={{ padding: 34, textAlign: 'center', color: '#5b6b79', fontSize: 14, lineHeight: 1.5 }}>No banked standings for the {historyPopup.year} {histName} yet.</div>
-                  ) : historyRoster ? (
-                    rosterGolfers.length === 0 ? (
-                      <div style={{ padding: 30, textAlign: 'center', color: '#5b6b79', fontSize: 13.5, lineHeight: 1.5 }}>No roster was saved for this entry.</div>
-                    ) : (
-                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                          <tr style={{ background: '#f3f6f9' }}>
-                            <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>GOLFER</th>
-                            <th style={{ textAlign: 'center', padding: '9px 6px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>SALARY</th>
-                            <th style={{ textAlign: 'center', padding: '9px 6px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>POS</th>
-                            <th style={{ textAlign: 'center', padding: '9px 8px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>POINTS</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {rosterGolfers.map((g, i) => {
-                            const cut = CUT_SET.has(String(g.score).toUpperCase()) || String(g.position).toUpperCase() === 'CUT';
-                            const flagSrc = getPlayerFlag(g.name) ? getFlagSrc(g.name) : null;
-                            const abbr = getCountryLabel(g.name) || null;
-                            return (
-                              <tr key={i} style={{ borderTop: histDivider }}>
-                                <td style={{ padding: '9px 12px', fontSize: 13, fontWeight: 600, color: '#0f1720' }}>
-                                  <span style={{ display: 'inline-flex', alignItems: 'center', minWidth: 0 }}>
-                                    <span style={{ width: 20, marginRight: 5, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>
-                                      {flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: isOpenHist ? '0.5px solid #000' : '1px solid #d1d9e0' }} />}
-                                    </span>
-                                    <span style={{ width: 24, flexShrink: 0, fontSize: 10, fontWeight: 700, color: isOpenHist ? '#1e3a5f' : '#94a3b8' }}>{abbr || ''}</span>
-                                    <span style={{ marginLeft: 8 }}>{g.name}</span>
-                                  </span>
-                                </td>
-                                <td style={{ textAlign: 'center', padding: '9px 6px', fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: '#374151' }}>{g.salary ? `$${g.salary.toLocaleString()}` : '—'}</td>
-                                <td style={{ textAlign: 'center', padding: '9px 6px', fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: '#374151' }}>{cut ? <span style={{ display: 'inline-block', background: '#dc2626', color: '#fff', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>CUT</span> : (g.position || '—')}</td>
-                                <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', color: g.points < 0 ? '#dc2626' : '#0f1720' }}>{g.points % 1 === 0 ? g.points : g.points.toFixed(1)}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    )
+                <div style={{ overflowY: 'auto', background: isOpenHist ? histGold : undefined }}>
+                  {rosterGolfers.length === 0 ? (
+                    <div style={{ padding: 30, textAlign: 'center', color: '#5b6b79', fontSize: 13.5, lineHeight: 1.5 }}>No roster was saved for this entry.</div>
                   ) : (
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                       <thead>
-                        <tr style={{ background: '#f3f6f9', position: 'sticky', top: 0 }}>
-                          <th style={{ textAlign: 'center', padding: '9px 6px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>RANK</th>
-                          <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>ENTRY</th>
+                        <tr style={{ background: '#f3f6f9' }}>
+                          <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>GOLFER</th>
+                          <th style={{ textAlign: 'center', padding: '9px 6px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>SALARY</th>
+                          <th style={{ textAlign: 'center', padding: '9px 6px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>POS</th>
                           <th style={{ textAlign: 'center', padding: '9px 8px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>POINTS</th>
-                          <th style={{ textAlign: 'center', padding: '9px 8px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>TIEBREAK</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {rows.map((r, i) => {
-                          const clickable = (r.golfers?.length ?? 0) > 0;
+                        {rosterGolfers.map((g, i) => {
+                          const cut = CUT_SET.has(String(g.score).toUpperCase()) || String(g.position).toUpperCase() === 'CUT';
+                          const flagSrc = getPlayerFlag(g.name) ? getFlagSrc(g.name) : null;
+                          const abbr = getCountryLabel(g.name) || null;
                           return (
-                            <tr key={i} onClick={clickable ? () => setHistoryRoster(r) : undefined} style={{ borderTop: histDivider, cursor: clickable ? 'pointer' : 'default' }}>
-                              <td style={{ textAlign: 'center', padding: '8px 6px', fontSize: 13, fontWeight: 700, color: '#374151', whiteSpace: 'nowrap' }}>{r.place}</td>
-                              <td style={{ padding: '8px 12px', fontSize: 13, color: '#0f1720', fontWeight: r.place <= 3 ? 800 : 500 }}>
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                                  <span>{r.name}</span>
-                                  {medalFor(r.place) && (
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
-                                      <span style={{ fontSize: 15 }}>{medalFor(r.place)}</span>
-                                      {typeof payoutFor(r.place) === 'number' && (
-                                        <span style={{ fontSize: 12, fontWeight: 700, color: '#0f7a3d' }}>(${payoutFor(r.place)!.toLocaleString()})</span>
-                                      )}
-                                    </span>
-                                  )}
+                            <tr key={i} style={{ borderTop: histDivider }}>
+                              <td style={{ padding: '9px 12px', fontSize: 13, fontWeight: 600, color: '#0f1720' }}>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', minWidth: 0 }}>
+                                  <span style={{ width: 20, marginRight: 5, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>
+                                    {flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: isOpenHist ? '0.5px solid #000' : '1px solid #d1d9e0' }} />}
+                                  </span>
+                                  <span style={{ width: 24, flexShrink: 0, fontSize: 10, fontWeight: 700, color: isOpenHist ? '#1e3a5f' : '#94a3b8' }}>{abbr || ''}</span>
+                                  <span style={{ marginLeft: 8 }}>{g.name}</span>
                                 </span>
                               </td>
-                              <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 700, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.points % 1 === 0 ? r.points : r.points.toFixed(1)}</td>
-                              <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 600, color: isOpenHist ? '#000' : '#5b6b79', whiteSpace: 'nowrap' }}>{r.tieBreak}</td>
+                              <td style={{ textAlign: 'center', padding: '9px 6px', fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: '#374151' }}>{g.salary ? `$${g.salary.toLocaleString()}` : '—'}</td>
+                              <td style={{ textAlign: 'center', padding: '9px 6px', fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: '#374151' }}>{cut ? <span style={{ display: 'inline-block', background: '#dc2626', color: '#fff', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>CUT</span> : (g.position || '—')}</td>
+                              <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', color: g.points < 0 ? '#dc2626' : '#0f1720' }}>{g.points % 1 === 0 ? g.points : g.points.toFixed(1)}</td>
                             </tr>
                           );
                         })}
@@ -10310,14 +10312,6 @@ export default function Page() {
                     </table>
                   )}
                 </div>
-                {showScrollHint && (
-                  <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 60, pointerEvents: 'none', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: 9, background: isOpenHist ? 'linear-gradient(to bottom, rgba(244,188,65,0) 0%, rgba(244,188,65,0.97) 68%)' : 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 68%)' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: histHeaderSolid, color: '#fff', fontSize: 11.5, fontWeight: 800, letterSpacing: '0.02em', boxShadow: '0 3px 10px rgba(9,34,51,0.22)' }}>
-                      <span>Scroll for more</span>
-                      <ChevronDown size={14} style={{ animation: 'bounce 1.4s ease-in-out infinite' }} />
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           );
