@@ -775,6 +775,13 @@ const REPORT_TOURNAMENTS: { id: TournamentId; label: string }[] = [
   { id: 'us-open', label: 'U.S. Open Championship' },
   { id: 'open', label: 'The Open Championship' },
 ];
+const REPORT_TOURNAMENT_SOLID: Record<TournamentId, string> = {
+  players: '#173b63',
+  masters: '#2c6449',
+  pga: '#B09963',
+  'us-open': '#BE3436',
+  open: '#173b63',
+};
 const REPORT_TOURNAMENT_CHIP: Record<TournamentId, { short: string; bg: string; fg: string }> = {
   players: { short: 'PLAYERS', bg: '#173b63', fg: '#fff' },
   masters: { short: 'MASTERS', bg: '#2c6449', fg: '#fff' },
@@ -1613,6 +1620,8 @@ export default function Page() {
     sortBy: 'Times Picked' | 'Salary';
     rows: { id: number; name: string; pgaTourId: number; photoUrl?: string; count: number; salary: number; position: string }[];
   } | null>(null);
+  // Player Pick Summary — "which entries picked this player" popup.
+  const [ppsPickPopup, setPpsPickPopup] = useState<{ id: number; name: string; tournament: TournamentId } | null>(null);
   // Pool Member Pick Summary report control.
   const [pmpsEntryId, setPmpsEntryId] = useState<string>('');
   // Player Performance Summary report controls.
@@ -3919,6 +3928,7 @@ export default function Page() {
     setAccountMenuOpen(false);
     setMyEntriesMenuOpen(false);
     setReportsMenuOpen(false);
+    setPpsPickPopup(null);
     setActiveStandingEntryId(null);
     setActiveStandingGolferId(null);
     setCommissionerMemberModalOpen(false);
@@ -7153,6 +7163,8 @@ export default function Page() {
                     {ppsResult && (() => {
                       const maxCount = ppsResult.rows.reduce((m, r) => Math.max(m, r.count), 0) || 1;
                       const tLabel = REPORT_TOURNAMENTS.find((t) => t.id === ppsResult.tournament)?.label ?? '';
+                      const barColor = REPORT_TOURNAMENT_SOLID[ppsResult.tournament];
+                      const CUT_MARKS = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                       if (ppsResult.rows.length === 0) {
                         return <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79' }}>No picks were recorded for {tLabel}.</div>;
                       }
@@ -7164,23 +7176,26 @@ export default function Page() {
                           <div style={{ display: 'grid', gap: isMobile ? 12 : 14 }}>
                             {ppsResult.rows.map((r) => {
                               const pct = Math.max(18, Math.round((r.count / maxCount) * 100));
+                              const isCut = CUT_MARKS.has(String(r.position).toUpperCase());
                               return (
-                                <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 9 : 12 }}>
+                                <div key={r.id} onClick={() => setPpsPickPopup({ id: r.id, name: r.name, tournament: ppsResult.tournament })} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 9 : 12, cursor: 'pointer' }}>
                                   <img
                                     src={playerPhotoSrc(r.name, r.pgaTourId, r.photoUrl)} data-fb={r.photoUrl ?? pgaPhoto(r.pgaTourId)} onError={photoOnError}
                                     alt={r.name}
                                     style={{ width: isMobile ? 40 : 48, height: isMobile ? 40 : 48, borderRadius: '50%', objectFit: 'cover', border: '1px solid #dce8f5', flexShrink: 0, background: '#eef2f6' }}
                                   />
                                   <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 5 }}>
                                       <span style={{ fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
-                                      <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', flexShrink: 0 }}>{formatLeaderboardPosition(r.position)}</span>
+                                      <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, color: isCut ? '#dc2626' : '#334155', background: isCut ? '#fee2e2' : '#eef2f7', borderRadius: 6, padding: '3px 8px', whiteSpace: 'nowrap' }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</span>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                      <div style={{ width: `${pct}%`, minWidth: isMobile ? 84 : 96, height: isMobile ? 24 : 26, borderRadius: 6, background: `linear-gradient(90deg, ${headerSolid} 0%, ${headerTabActiveColor} 100%)`, display: 'flex', alignItems: 'center', paddingLeft: 9, flexShrink: 0 }}>
-                                        <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>
+                                      <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ width: `${pct}%`, minWidth: isMobile ? 82 : 96, height: isMobile ? 24 : 26, borderRadius: 6, background: barColor, display: 'flex', alignItems: 'center', paddingLeft: 9 }}>
+                                          <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>
+                                        </div>
                                       </div>
-                                      <span style={{ fontSize: isMobile ? 13 : 14, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.count}</span>
+                                      <span style={{ flexShrink: 0, minWidth: 16, fontSize: isMobile ? 13 : 14, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.count}</span>
                                     </div>
                                   </div>
                                 </div>
@@ -9886,6 +9901,42 @@ export default function Page() {
                 ))}
               </div>
             </>
+          );
+        })()}
+
+        {ppsPickPopup && (() => {
+          const T = ppsPickPopup.tournament;
+          const headerColor = REPORT_TOURNAMENT_SOLID[T];
+          const logo = KNOCKOUT_TAB_LOGOS[T] ?? TOURNAMENT_TAB_LOGOS[T];
+          const entriesPicked = poolEntries
+            .filter((e) => (e.rosters[T] ?? []).includes(ppsPickPopup.id))
+            .map((e) => e.name)
+            .sort((a, b) => a.localeCompare(b));
+          const close = () => setPpsPickPopup(null);
+          return (
+            <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(420px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
+                <div style={{ background: headerColor, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                  <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{ppsPickPopup.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                    {logo && (
+                      <img src={logo} alt="" style={{ height: T === 'pga' ? 52 : T === 'players' ? 46 : T === 'open' ? 36 : T === 'masters' ? undefined : 32, width: T === 'masters' ? 104 : undefined, margin: T === 'pga' ? '-10px 0' : T === 'players' ? '-7px 0' : undefined, maxWidth: 104, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+                    )}
+                    <button onClick={close} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
+                  </div>
+                </div>
+                <div style={{ padding: '9px 0', overflowY: 'auto' }}>
+                  <div style={{ padding: '0 18px 8px', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>
+                    {entriesPicked.length} {entriesPicked.length === 1 ? 'entry' : 'entries'}
+                  </div>
+                  {entriesPicked.length === 0 ? (
+                    <div style={{ padding: '20px', textAlign: 'center', color: '#5b6b79', fontSize: 14 }}>No entries picked this player.</div>
+                  ) : entriesPicked.map((n, i) => (
+                    <div key={i} style={{ padding: '11px 18px', borderTop: '1px solid #eef2f6', fontSize: 14, fontWeight: 600, color: '#0f1720' }}>{n}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
           );
         })()}
 
