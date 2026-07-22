@@ -12,6 +12,7 @@ import {
   Calendar,
   CircleUserRound,
   CheckCircle2,
+  ChevronDown,
   DollarSign,
   Eye,
   EyeOff,
@@ -1582,6 +1583,7 @@ export default function Page() {
   const [historyYearsLoading, setHistoryYearsLoading] = useState(false);
   const [historyPopup, setHistoryPopup] = useState<{ year: number; loading: boolean; data: ArchivedStandingsData | null } | null>(null);
   const [historyRoster, setHistoryRoster] = useState<ArchivedStandingRow | null>(null);
+  const [historyAtBottom, setHistoryAtBottom] = useState(false);
   const archivedThisSession = useRef<Set<string>>(new Set());
   const [expandedBonusCategories, setExpandedBonusCategories] = useState<Set<string>>(new Set());
   const [bonusInfoPopup, setBonusInfoPopup] = useState<{ title: string; entries: { name: string; rounds: number[]; count?: number }[]; showCounts?: boolean } | null>(null);
@@ -3736,6 +3738,7 @@ export default function Page() {
   const openTournamentHistory = (year: number) => {
     setHistoryDropdownOpen(false);
     setHistoryRoster(null);
+    setHistoryAtBottom(false);
     setHistoryPopup({ year, loading: true, data: null });
     fetch(`/api/standings-archive?tournamentId=${selectedTournament}&year=${year}`, { cache: 'no-store' })
       .then((r) => r.json())
@@ -9376,13 +9379,14 @@ export default function Page() {
           const closeAll = () => { setHistoryPopup(null); setHistoryRoster(null); };
           const CUT_SET = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
           const rosterGolfers = historyRoster?.golfers ? [...historyRoster.golfers].sort((a, b) => b.points - a.points) : [];
+          const showScrollHint = !historyRoster && !historyPopup.loading && rows.length > 20 && !historyAtBottom;
           return (
             <div onClick={closeAll} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
-              <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(560px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', width: 'min(560px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
                 <div style={{ background: headerSolid, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                     {historyRoster && (
-                      <button onClick={() => setHistoryRoster(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 17, flexShrink: 0, lineHeight: 1 }}>&#8249;</button>
+                      <button onClick={() => { setHistoryRoster(null); setHistoryAtBottom(false); }} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 17, flexShrink: 0, lineHeight: 1 }}>&#8249;</button>
                     )}
                     <div style={{ minWidth: 0 }}>
                       <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{historyRoster ? historyRoster.name : `${historyPopup.year} Pool Standings`}</div>
@@ -9395,7 +9399,13 @@ export default function Page() {
                     <button onClick={closeAll} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
                   </div>
                 </div>
-                <div style={{ overflowY: 'auto' }}>
+                <div
+                  onScroll={(e) => {
+                    const el = e.currentTarget;
+                    setHistoryAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 24);
+                  }}
+                  style={{ overflowY: 'auto' }}
+                >
                   {historyPopup.loading ? (
                     <div style={{ padding: 34, textAlign: 'center', color: '#5b6b79', fontSize: 14 }}>Loading {historyPopup.year} standings…</div>
                   ) : rows.length === 0 ? (
@@ -9474,6 +9484,14 @@ export default function Page() {
                     </table>
                   )}
                 </div>
+                {showScrollHint && (
+                  <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 60, pointerEvents: 'none', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: 9, background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 68%)' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: headerSolid, color: '#fff', fontSize: 11.5, fontWeight: 800, letterSpacing: '0.02em', boxShadow: '0 3px 10px rgba(9,34,51,0.22)' }}>
+                      <span>Scroll for more</span>
+                      <ChevronDown size={14} style={{ animation: 'bounce 1.4s ease-in-out infinite' }} />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           );
