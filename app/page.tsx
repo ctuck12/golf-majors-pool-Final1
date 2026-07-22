@@ -7263,10 +7263,8 @@ export default function Page() {
                                       <div style={{ fontSize: isMobile ? 10 : 10.5, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', color: isCut ? '#dc2626' : '#9aa7b4', margin: '2px 0 6px' }}>{isCut ? 'Missed Cut' : `Finished ${formatLeaderboardPosition(r.position)}`}</div>
                                     )}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: isAll ? 6 : 0 }}>
-                                      <div style={{ flex: 1, minWidth: 0, display: 'flex' }}>
-                                        <div style={{ width: `${pct}%`, minWidth: isMobile ? 82 : 96, maxWidth: '100%', height: isMobile ? 24 : 26, borderRadius: 6, background: barColor, display: 'flex', alignItems: 'center', paddingLeft: 9, flexShrink: 0 }}>
-                                          {!isAll && <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>}
-                                        </div>
+                                      <div style={{ width: `${pct}%`, minWidth: isMobile ? 82 : 96, maxWidth: 'calc(100% - 34px)', height: isMobile ? 24 : 26, borderRadius: 6, background: barColor, display: 'flex', alignItems: 'center', paddingLeft: 9, flexShrink: 0 }}>
+                                        {!isAll && <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>}
                                       </div>
                                       <span style={{ flexShrink: 0, fontSize: isMobile ? 13 : 14, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.count}</span>
                                     </div>
