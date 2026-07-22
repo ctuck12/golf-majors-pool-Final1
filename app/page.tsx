@@ -7456,7 +7456,7 @@ export default function Page() {
                                 value={ppfSearch}
                                 onChange={(e) => setPpfSearch(e.target.value)}
                                 placeholder="Search player…"
-                                style={{ width: isMobile ? '100%' : 230, boxSizing: 'border-box', padding: '9px 30px 9px 32px', borderRadius: 10, border: '1px solid #cdd9e5', fontSize: 13.5, fontWeight: 600, color: '#0f1720', outline: 'none' }}
+                                style={{ width: isMobile ? '100%' : 230, boxSizing: 'border-box', padding: '9px 30px 9px 32px', borderRadius: 10, border: '1px solid #cdd9e5', fontSize: isMobile ? 16 : 13.5, fontWeight: 600, color: '#0f1720', outline: 'none' }}
                               />
                               {ppfSearch && (
                                 <button onClick={() => setPpfSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 14, lineHeight: 1, padding: 2 }}>✕</button>
