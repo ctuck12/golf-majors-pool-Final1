@@ -766,8 +766,8 @@ type TournamentId = (typeof TOURNAMENTS)[number]['id'];
 type MainTab = 'Standings' | 'My Entries' | 'Details' | 'Reports' | 'Commissioner Hub';
 const MAIN_TABS: MainTab[] = ['Standings', 'My Entries', 'Details', 'Reports', 'Commissioner Hub'];
 
-type ReportType = 'Player Pick Summary' | 'Pool Member Pick Summary' | 'Player Performance Summary';
-const REPORT_OPTIONS: ReportType[] = ['Player Pick Summary', 'Pool Member Pick Summary', 'Player Performance Summary'];
+type ReportType = 'Player Pick Summary' | 'Pool Member Pick History' | 'Pool Member Pick Summary' | 'Player Performance Summary';
+const REPORT_OPTIONS: ReportType[] = ['Player Pick Summary', 'Pool Member Pick History', 'Pool Member Pick Summary', 'Player Performance Summary'];
 const REPORT_TOURNAMENTS: { id: TournamentId; label: string }[] = [
   { id: 'players', label: 'The Players' },
   { id: 'masters', label: 'The Masters' },
@@ -1628,6 +1628,8 @@ export default function Page() {
   const [reportYear, setReportYear] = useState<number>(Math.max(...POOL_SEASONS));
   // Pool Member Pick Summary report control.
   const [pmpsEntryId, setPmpsEntryId] = useState<string>('');
+  // Pool Member Pick History report control.
+  const [pmphEntryId, setPmphEntryId] = useState<string>('');
   // Player Performance Summary report controls.
   const [ppfTournament, setPpfTournament] = useState<TournamentId | ''>('');
   const [ppfSearch, setPpfSearch] = useState('');
@@ -7229,7 +7231,88 @@ export default function Page() {
                       );
                     })()}
                   </>
-                ) : selectedReport === 'Pool Member Pick Summary' ? (() => {
+                ) : selectedReport === 'Pool Member Pick History' ? (() => {
+                  const entriesSorted = poolEntries.slice().sort((a, b) => a.name.localeCompare(b.name));
+                  const entry = poolEntries.find((e) => e.id === pmphEntryId) ?? null;
+                  return (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                        <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Pool Member Pick History</div>
+                        {reportYearSelect}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: isMobile ? 14 : 18, maxWidth: 320 }}>
+                        <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Pool Member</label>
+                        <select
+                          value={pmphEntryId}
+                          onChange={(e) => setPmphEntryId(e.target.value)}
+                          style={{ appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: pmphEntryId ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                        >
+                          <option value="" disabled>Select pool member</option>
+                          {entriesSorted.map((e) => (
+                            <option key={e.id} value={e.id}>{e.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      {entry && (
+                        <div style={{ display: 'grid', gap: 12, marginTop: isMobile ? 18 : 24 }}>
+                          {TOURNAMENTS.map((event) => {
+                            const historyPlayers = (entry.rosters[event.id] ?? []).map((id) => playersById[id]).filter(Boolean);
+                            return (
+                              <div
+                                key={`pmph-${event.id}`}
+                                style={{ borderRadius: 16, border: '1px solid #dce6ee', background: '#fff', padding: 14, display: 'grid', gap: 10 }}
+                              >
+                                {(() => {
+                                  const logoH = ({ players: 40, masters: 25, pga: 42, 'us-open': 30, open: 30 } as Record<string, number>)[event.id] ?? 30;
+                                  const logoY = ({ masters: -5 } as Record<string, number>)[event.id] ?? 0;
+                                  return (
+                                    <div style={{ height: 22, display: 'flex', alignItems: 'center', gap: 10 }}>
+                                      <div style={{ fontSize: 16, fontWeight: 900, color: '#0f1720' }}>{PICK_HISTORY_NAMES[event.id] ?? event.name}</div>
+                                      {TOURNAMENT_TAB_LOGOS[event.id] && (
+                                        <img src={TOURNAMENT_TAB_LOGOS[event.id]} alt={event.name} style={{ height: logoH, width: 'auto', objectFit: 'contain', margin: `${(22 - logoH) / 2}px 0`, transform: logoY ? `translateY(${logoY}px)` : undefined, flexShrink: 0 }} />
+                                      )}
+                                    </div>
+                                  );
+                                })()}
+                                {historyPlayers.length > 0 ? (
+                                  <div style={isMobile ? { display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 6 } : { display: 'flex', flexWrap: 'wrap', gap: '10px 12px' }}>
+                                    {historyPlayers.map((player) => {
+                                      const bubblePalette: Record<string, { bg: string; text: string }> = {
+                                        players: { bg: '#dce6f5', text: '#173b63' },
+                                        masters: { bg: '#d5eade', text: '#2c6449' },
+                                        'us-open': { bg: '#fde8e8', text: '#BE3436' },
+                                        pga: { bg: '#f5edd8', text: '#7a6a3e' },
+                                        open: { bg: '#dce6f5', text: '#173b63' },
+                                      };
+                                      const { bg, text } = bubblePalette[event.id] ?? { bg: '#e8f3ff', text: '#2f5f96' };
+                                      const displayName = isMobile ? (player.name.split(' ').pop() ?? player.name) : player.name;
+                                      return (
+                                        <span
+                                          key={`pmph-player-${event.id}-${player.id}`}
+                                          onClick={() => openPlayerPopup({ id: player.id, name: player.name, pgaTourId: player.pgaTourId, photoUrl: player.photoUrl, worldRank: player.worldRank }, 'stats', event.id)}
+                                          style={{ borderRadius: 999, background: bg, color: text, padding: isMobile ? '4px 8px 4px 4px' : '6px 18px 6px 6px', fontSize: isMobile ? 12 : 14, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: isMobile ? 6 : 8, cursor: 'pointer', minWidth: 0 }}
+                                        >
+                                          <img
+                                            src={playerPhotoSrc(player.name, player.pgaTourId, player.photoUrl)} data-fb={player.photoUrl ?? pgaPhoto(player.pgaTourId)} onError={photoOnError}
+                                            alt={player.name}
+                                            style={{ width: isMobile ? 22 : 30, height: isMobile ? 22 : 30, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#fff' }}
+                                          />
+                                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</span>
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                ) : (
+                                  <div style={{ color: '#6b7b88', fontSize: 14 }}>No submitted roster saved for this event yet.</div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </>
+                  );
+                })() : selectedReport === 'Pool Member Pick Summary' ? (() => {
                   const entriesSorted = poolEntries.slice().sort((a, b) => a.name.localeCompare(b.name));
                   const entry = poolEntries.find((e) => e.id === pmpsEntryId) ?? null;
                   const agg = new Map<number, { count: number; tournaments: TournamentId[] }>();
@@ -9920,7 +10003,7 @@ export default function Page() {
         )}
 
         {reportsMenuOpen && reportsMenuRect && (() => {
-          const menuW = 236;
+          const menuW = 244;
           const vw = typeof window !== 'undefined' ? window.innerWidth : 9999;
           const left = Math.max(8, Math.min(reportsMenuRect.left, vw - menuW - 8));
           return (
@@ -9931,7 +10014,7 @@ export default function Page() {
                   <button
                     key={opt}
                     onClick={() => { setSelectedReport(opt); setReportsMenuOpen(false); handleMainTabChange('Reports'); }}
-                    style={{ display: 'block', width: '100%', textAlign: 'left', background: selectedReport === opt ? '#eef4fb' : 'transparent', border: 'none', borderTop: i === 0 ? 'none' : '1px solid #eef2f6', padding: '13px 16px', fontSize: 14, fontWeight: 700, color: '#0f1720', cursor: 'pointer' }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', background: selectedReport === opt ? '#eef4fb' : 'transparent', border: 'none', borderTop: i === 0 ? 'none' : '1px solid #eef2f6', padding: '12px 14px', fontSize: 12.5, fontWeight: 700, color: '#0f1720', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
                     {opt}
                   </button>
