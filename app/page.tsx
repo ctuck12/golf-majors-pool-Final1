@@ -10320,7 +10320,7 @@ export default function Page() {
                     <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: 3 }}>{total} total {total === 1 ? 'pick' : 'picks'}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                    <img src="/golf-majors-pool-logo-v11.png" alt="Golf Majors Pool" style={{ height: 72, width: isMobile ? 138 : 172, objectFit: 'cover', objectPosition: 'center', display: 'block', flexShrink: 0 }} />
+                    <img src="/golf-majors-pool-logo-v11.png" alt="Golf Majors Pool" style={{ height: 72, width: isMobile ? 130 : 162, objectFit: 'cover', objectPosition: 'center', display: 'block', flexShrink: 0 }} />
                     <button onClick={close} style={{ background: 'rgba(255,255,255,0.22)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
                   </div>
                 </div>
