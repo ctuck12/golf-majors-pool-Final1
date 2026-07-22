@@ -4836,14 +4836,14 @@ export default function Page() {
                           <>
                             <div onClick={() => setHistoryDropdownOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
                             <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #d1dae3', borderRadius: 10, boxShadow: '0 8px 24px rgba(9,34,51,0.18)', zIndex: 41, overflow: 'hidden', minWidth: 160, maxHeight: 260, overflowY: 'auto' }}>
-                              <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94a3b8', padding: '8px 13px 5px' }}>Past Standings</div>
+                              <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: selectedTournament === 'open' ? '#000' : '#94a3b8', background: selectedTournament === 'open' ? '#F4BC41' : undefined, padding: '8px 13px 5px' }}>Past Standings</div>
                               {historyYearsLoading ? (
                                 <div style={{ padding: '9px 13px', fontSize: 12, color: '#94a3b8' }}>Loading…</div>
                               ) : historyYearsAvailable.length === 0 ? (
                                 <div style={{ padding: '9px 13px 11px', fontSize: 11.5, color: '#94a3b8', lineHeight: 1.4, maxWidth: 180 }}>No past standings yet — they&rsquo;ll appear here each year.</div>
                               ) : historyYearsAvailable.map((yr) => (
                                 <button key={yr} onClick={(e) => { e.stopPropagation(); openTournamentHistory(yr); }}
-                                  style={{ display: 'block', width: '100%', textAlign: 'left', background: 'transparent', border: 'none', borderTop: '1px solid #f0f3f6', padding: '9px 13px', fontSize: 13, fontWeight: 700, color: '#0f1720', cursor: 'pointer' }}>
+                                  style={{ display: 'block', width: '100%', textAlign: 'left', background: 'transparent', border: 'none', borderTop: '1px solid #f0f3f6', padding: '9px 13px', fontSize: 13, fontWeight: 700, color: selectedTournament === 'open' ? '#1e3a5f' : '#0f1720', cursor: 'pointer' }}>
                                   {yr}
                                 </button>
                               ))}
