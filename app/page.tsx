@@ -797,9 +797,10 @@ type ScorecardHole = { hole: number; par: number; score: number | null; label: s
 type ScorecardRound = { round: number; score?: number | string; holes: ScorecardHole[] };
 type ScorecardData = { courseName: string; par: number; rounds: ScorecardRound[]; source: string; message?: string };
 
-type ArchivedGolfer = { name: string; score: string; points: number; position: string };
+type ArchivedGolfer = { name: string; score: string; points: number; position: string; salary: number };
 type ArchivedStandingRow = { place: number; name: string; points: number; holesRemaining: number; tieBreak: number; golfers?: ArchivedGolfer[] };
-type ArchivedStandingsData = { available?: boolean; standings?: ArchivedStandingRow[]; savedAt?: string | null; error?: string };
+type ArchivedPayouts = { first?: number; second?: number; third?: number };
+type ArchivedStandingsData = { available?: boolean; standings?: ArchivedStandingRow[]; payouts?: ArchivedPayouts | null; savedAt?: string | null; error?: string };
 
 type FeedResponse = {
   fetchedAt: string;
@@ -3543,7 +3544,8 @@ export default function Page() {
       body: JSON.stringify({
         tournamentId: selectedTournament,
         year,
-        standings: standings.map((e) => ({ place: e.place, name: e.name, points: e.rosterPoints, holesRemaining: e.holesRemaining, tieBreak: e.tieBreakValue, golfers: e.golfers.map((g) => ({ name: g.name, score: g.score, points: g.points, position: g.position })) })),
+        standings: standings.map((e) => ({ place: e.place, name: e.name, points: e.rosterPoints, holesRemaining: e.holesRemaining, tieBreak: e.tieBreakValue, golfers: e.golfers.map((g) => ({ name: g.name, score: g.score, points: g.points, position: g.position, salary: g.salary })) })),
+        payouts: selectedTournamentPayouts ? { first: selectedTournamentPayouts.first, second: selectedTournamentPayouts.second, third: selectedTournamentPayouts.third } : undefined,
       }),
     }).catch(() => { archivedThisSession.current.delete(key); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -9368,6 +9370,9 @@ export default function Page() {
         {historyPopup && (() => {
           const histName = selectedTournament === 'players' ? 'The Players Championship' : selectedTournament === 'masters' ? 'Masters Tournament' : selectedTournament === 'pga' ? 'PGA Championship' : selectedTournament === 'us-open' ? 'U.S. Open' : 'The Open Championship';
           const rows = historyPopup.data?.standings ?? [];
+          const histPayouts = historyPopup.data?.payouts ?? selectedTournamentPayouts ?? null;
+          const medalFor = (place: number) => (place === 1 ? '🥇' : place === 2 ? '🥈' : place === 3 ? '🥉' : null);
+          const payoutFor = (place: number) => (place === 1 ? histPayouts?.first : place === 2 ? histPayouts?.second : place === 3 ? histPayouts?.third : undefined);
           const closeAll = () => { setHistoryPopup(null); setHistoryRoster(null); };
           const CUT_SET = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
           const rosterGolfers = historyRoster?.golfers ? [...historyRoster.golfers].sort((a, b) => b.points - a.points) : [];
@@ -9381,7 +9386,6 @@ export default function Page() {
                     )}
                     <div style={{ minWidth: 0 }}>
                       <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{historyRoster ? historyRoster.name : `${historyPopup.year} Pool Standings`}</div>
-                      {historyRoster && <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: 700, marginTop: 1, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{`${historyPopup.year} Roster · #${historyRoster.place}`}</div>}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -9404,17 +9408,27 @@ export default function Page() {
                         <thead>
                           <tr style={{ background: '#f3f6f9' }}>
                             <th style={{ textAlign: 'left', padding: '9px 12px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>GOLFER</th>
-                            <th style={{ textAlign: 'center', padding: '9px 8px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>FINISH</th>
+                            <th style={{ textAlign: 'center', padding: '9px 6px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>SALARY</th>
+                            <th style={{ textAlign: 'center', padding: '9px 6px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>POS</th>
                             <th style={{ textAlign: 'center', padding: '9px 8px', fontSize: 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.04em' }}>POINTS</th>
                           </tr>
                         </thead>
                         <tbody>
                           {rosterGolfers.map((g, i) => {
-                            const cut = CUT_SET.has(String(g.score).toUpperCase());
+                            const cut = CUT_SET.has(String(g.score).toUpperCase()) || String(g.position).toUpperCase() === 'CUT';
+                            const flagSrc = getPlayerFlag(g.name) ? getFlagSrc(g.name) : null;
+                            const abbr = getCountryLabel(g.name) || null;
                             return (
                               <tr key={i} style={{ borderTop: '1px solid #eef2f6' }}>
-                                <td style={{ padding: '9px 12px', fontSize: 13, fontWeight: 600, color: '#0f1720' }}>{g.name}</td>
-                                <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: cut ? '#94a3b8' : '#374151' }}>{cut ? String(g.score).toUpperCase() : (g.position || '—')}{!cut && g.score ? <span style={{ marginLeft: 5, color: String(g.score).startsWith('-') ? '#dc2626' : '#5b6b79', fontWeight: 700 }}>{g.score}</span> : null}</td>
+                                <td style={{ padding: '9px 12px', fontSize: 13, fontWeight: 600, color: '#0f1720' }}>
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
+                                    {flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
+                                    {abbr && <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', flexShrink: 0 }}>{abbr}</span>}
+                                    <span>{g.name}</span>
+                                  </span>
+                                </td>
+                                <td style={{ textAlign: 'center', padding: '9px 6px', fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: '#374151' }}>{g.salary ? `$${g.salary.toLocaleString()}` : '—'}</td>
+                                <td style={{ textAlign: 'center', padding: '9px 6px', fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: '#374151' }}>{cut ? <span style={{ display: 'inline-block', background: '#dc2626', color: '#fff', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>CUT</span> : (g.position || '—')}</td>
                                 <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', color: g.points < 0 ? '#dc2626' : '#0f1720' }}>{g.points % 1 === 0 ? g.points : g.points.toFixed(1)}</td>
                               </tr>
                             );
@@ -9438,7 +9452,19 @@ export default function Page() {
                           return (
                             <tr key={i} onClick={clickable ? () => setHistoryRoster(r) : undefined} style={{ borderTop: '1px solid #eef2f6', cursor: clickable ? 'pointer' : 'default' }}>
                               <td style={{ textAlign: 'center', padding: '8px 6px', fontSize: 13, fontWeight: 700, color: '#374151', whiteSpace: 'nowrap' }}>{r.place}</td>
-                              <td style={{ padding: '8px 12px', fontSize: 13, color: '#0f1720', fontWeight: r.place <= 3 ? 800 : 500 }}>{r.name}</td>
+                              <td style={{ padding: '8px 12px', fontSize: 13, color: '#0f1720', fontWeight: r.place <= 3 ? 800 : 500 }}>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                  <span>{r.name}</span>
+                                  {medalFor(r.place) && (
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
+                                      <span style={{ fontSize: 15 }}>{medalFor(r.place)}</span>
+                                      {typeof payoutFor(r.place) === 'number' && (
+                                        <span style={{ fontSize: 12, fontWeight: 700, color: '#0f7a3d' }}>(${payoutFor(r.place)!.toLocaleString()})</span>
+                                      )}
+                                    </span>
+                                  )}
+                                </span>
+                              </td>
                               <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 700, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.points % 1 === 0 ? r.points : r.points.toFixed(1)}</td>
                               <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 600, color: '#5b6b79', whiteSpace: 'nowrap' }}>{r.tieBreak}</td>
                             </tr>

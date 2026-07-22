@@ -9,8 +9,9 @@ import redis from '@/app/lib/redis';
 
 const TOURNAMENT_IDS = new Set(['players', 'masters', 'pga', 'us-open', 'open']);
 
-type ArchiveGolfer = { name: string; score: string; points: number; position: string };
+type ArchiveGolfer = { name: string; score: string; points: number; position: string; salary: number };
 type ArchiveRow = { place: number; name: string; points: number; holesRemaining: number; tieBreak: number; golfers?: ArchiveGolfer[] };
+type ArchivePayouts = { first?: number; second?: number; third?: number };
 
 const rowKey = (tid: string, year: number) => `standings-archive:v1:${tid}:${year}`;
 const yearsKey = (tid: string) => `standings-archive-years:v1:${tid}`;
@@ -39,15 +40,15 @@ export async function GET(req: NextRequest) {
   try {
     const raw = await redis.get(rowKey(tid, year));
     if (!raw) return Response.json({ tournamentId: tid, year, available: false, standings: [] });
-    const data = JSON.parse(raw as string) as { standings: ArchiveRow[]; savedAt: string };
-    return Response.json({ tournamentId: tid, year, available: true, standings: data.standings ?? [], savedAt: data.savedAt ?? null });
+    const data = JSON.parse(raw as string) as { standings: ArchiveRow[]; savedAt: string; payouts?: ArchivePayouts };
+    return Response.json({ tournamentId: tid, year, available: true, standings: data.standings ?? [], payouts: data.payouts ?? null, savedAt: data.savedAt ?? null });
   } catch {
     return Response.json({ tournamentId: tid, year, available: false, standings: [] });
   }
 }
 
 export async function POST(req: NextRequest) {
-  let body: { tournamentId?: string; year?: number; standings?: ArchiveRow[] };
+  let body: { tournamentId?: string; year?: number; standings?: ArchiveRow[]; payouts?: ArchivePayouts };
   try { body = await req.json(); } catch { return Response.json({ error: 'bad body' }, { status: 400 }); }
 
   const tid = body.tournamentId ?? '';
@@ -81,11 +82,17 @@ export async function POST(req: NextRequest) {
       score: String(g?.score ?? ''),
       points: Number(g?.points) || 0,
       position: String(g?.position ?? ''),
+      salary: Number(g?.salary) || 0,
     })) : [],
   }));
 
+  const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : undefined);
+  const payouts: ArchivePayouts | undefined = body.payouts
+    ? { first: num(body.payouts.first), second: num(body.payouts.second), third: num(body.payouts.third) }
+    : undefined;
+
   try {
-    await redis.set(rowKey(tid, year), JSON.stringify({ standings: clean, savedAt: new Date().toISOString() }));
+    await redis.set(rowKey(tid, year), JSON.stringify({ standings: clean, payouts, savedAt: new Date().toISOString() }));
     const years = await getYears(tid);
     if (!years.includes(year)) {
       years.push(year);
