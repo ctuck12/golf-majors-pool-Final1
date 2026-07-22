@@ -4030,6 +4030,21 @@ export default function Page() {
         setCommissionerMembersRefreshNonce((value) => value + 1);
       }
 
+      // Reports always return to their default, unselected state on any tab change — so
+      // re-opening a report (which routes through handleMainTabChange('Reports')) never
+      // auto-shows the last thing that was pulled.
+      setPpsTournament('');
+      setPpsSortBy('');
+      setPmpsEntryId('');
+      setPmphEntryId('');
+      setPpfTournament('');
+      setPpfSearch('');
+      setPpfSortKey('finish');
+      setPpfSortDir('asc');
+      setPpfSelectedRow(null);
+      setPshTournament('');
+      if (tab !== 'Reports') setSelectedReport(null);
+
       setLeaderboardSearch('');
       setLeaderboardViewMode('full');
       setLeaderboardSortMode('default');
