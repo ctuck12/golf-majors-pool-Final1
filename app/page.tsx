@@ -7149,16 +7149,23 @@ export default function Page() {
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? 10 : 14, marginTop: isMobile ? 14 : 18 }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1 1 140px' : '0 0 220px' }}>
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
-                        <select
-                          value={ppsTournament}
-                          onChange={(e) => { setPpsTournament(e.target.value as TournamentId | ''); setPpsResult(null); }}
-                          style={{ appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: ppsTournament ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
-                        >
-                          <option value="" disabled>Select tournament</option>
-                          {REPORT_TOURNAMENTS.map((t) => (
-                            <option key={t.id} value={t.id}>{t.label}</option>
-                          ))}
-                        </select>
+                        <div style={{ position: 'relative' }}>
+                          <select
+                            value={ppsTournament}
+                            onChange={(e) => { setPpsTournament(e.target.value as TournamentId | ''); setPpsResult(null); }}
+                            style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: ppsTournament ? 'transparent' : '#94a3b8', WebkitTextFillColor: ppsTournament ? 'transparent' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                          >
+                            <option value="" disabled>Select tournament</option>
+                            {REPORT_TOURNAMENTS.map((t) => (
+                              <option key={t.id} value={t.id}>{t.label}</option>
+                            ))}
+                          </select>
+                          {ppsTournament && TOURNAMENT_TAB_LOGOS[ppsTournament] && (
+                            <span style={{ position: 'absolute', left: 12, right: 36, top: 5, bottom: 5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', pointerEvents: 'none' }}>
+                              <img src={TOURNAMENT_TAB_LOGOS[ppsTournament]} alt={REPORT_TOURNAMENTS.find((t) => t.id === ppsTournament)?.label ?? ''} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1 1 140px' : '0 0 200px' }}>
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Sort By</label>
@@ -7442,16 +7449,23 @@ export default function Page() {
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: isMobile ? 14 : 18, maxWidth: 320 }}>
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
-                        <select
-                          value={ppfTournament}
-                          onChange={(e) => { setPpfTournament(e.target.value as TournamentId | ''); setPpfSearch(''); setPpfSortKey('finish'); setPpfSortDir('asc'); }}
-                          style={{ appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: ppfTournament ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
-                        >
-                          <option value="" disabled>Select tournament</option>
-                          {REPORT_TOURNAMENTS.map((t) => (
-                            <option key={t.id} value={t.id}>{t.label}</option>
-                          ))}
-                        </select>
+                        <div style={{ position: 'relative' }}>
+                          <select
+                            value={ppfTournament}
+                            onChange={(e) => { setPpfTournament(e.target.value as TournamentId | ''); setPpfSearch(''); setPpfSortKey('finish'); setPpfSortDir('asc'); }}
+                            style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: ppfTournament ? 'transparent' : '#94a3b8', WebkitTextFillColor: ppfTournament ? 'transparent' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                          >
+                            <option value="" disabled>Select tournament</option>
+                            {REPORT_TOURNAMENTS.map((t) => (
+                              <option key={t.id} value={t.id}>{t.label}</option>
+                            ))}
+                          </select>
+                          {ppfTournament && TOURNAMENT_TAB_LOGOS[ppfTournament] && (
+                            <span style={{ position: 'absolute', left: 12, right: 36, top: 5, bottom: 5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', pointerEvents: 'none' }}>
+                              <img src={TOURNAMENT_TAB_LOGOS[ppfTournament]} alt={REPORT_TOURNAMENTS.find((t) => t.id === ppfTournament)?.label ?? ''} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+                            </span>
+                          )}
+                        </div>
                       </div>
                       {ppfTournament && (
                         sorted.length === 0 ? (
