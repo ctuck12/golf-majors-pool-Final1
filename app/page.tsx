@@ -4336,7 +4336,7 @@ export default function Page() {
                         flex: '0 0 auto',
                       }}
                     >
-                      {tab === 'My Entries' ? 'My Entry' : tab}
+                      {tab === 'My Entries' ? 'My Entry' : tab === 'Commissioner Hub' ? 'Admin' : tab}
                     </button>
                   );
                 })}
@@ -7107,9 +7107,6 @@ export default function Page() {
           <main style={{ marginTop: isMobile ? 12 : 24 }}>
             <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}` }}>
               <div style={{ padding: isMobile ? 18 : 28 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isMobile ? 6 : 8 }}>
-                  <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid }}>Reports</div>
-                </div>
                 {selectedReport === 'Player Pick Summary' ? (
                   <>
                     <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Player Pick Summary</div>
