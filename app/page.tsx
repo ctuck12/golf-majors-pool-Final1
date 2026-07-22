@@ -7475,16 +7475,10 @@ export default function Page() {
                           <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79' }}>{q ? 'No players match your search.' : 'No field data available for this tournament yet.'}</div>
                         ) : (
                           <div style={{ marginTop: isMobile ? 16 : 22 }}>
-                            {cutLine && (
-                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#111827', color: '#fff', borderRadius: 8, padding: '5px 12px', fontSize: 12, fontWeight: 800, letterSpacing: '0.04em', marginBottom: 12 }}>
-                                CUT LINE: {cutLine}
-                              </div>
-                            )}
                             <div style={{ overflowX: 'auto', border: '1px solid #d1dae3', borderRadius: 10 }}>
                               <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: isMobile ? 11.5 : 12 }}>
                                 <thead>
                                   <tr style={{ background: tColor, color: '#fff', textAlign: 'center', fontSize: isMobile ? 10 : 11 }}>
-                                    {plainTh('WR', 'World rank at the time of the tournament')}
                                     {plainTh('POS', 'Finishing position')}
                                     <th style={{ padding: '9px 10px', textAlign: 'left', fontWeight: 700, letterSpacing: '0.03em', whiteSpace: 'nowrap', position: 'sticky', top: 0, background: tColor }}>PLAYER</th>
                                     {sortableTh('SCORE', 'finish', 'Score to par (sorts by finish)')}
@@ -7505,12 +7499,27 @@ export default function Page() {
                                 </thead>
                                 <tbody>
                                   {sorted.map((r, i) => {
-                                    const isCut = CUT_MARK.has(String(r.position).toUpperCase()) || !r.madeCut;
+                                    const rowIsCut = (row: typeof r) => CUT_MARK.has(String(row.position).toUpperCase()) || !row.madeCut;
+                                    const isCut = rowIsCut(r);
                                     const leaderMark = (on: boolean) => on ? <span style={{ color: '#0f7a3d', fontWeight: 900 }}>✓</span> : <span style={{ color: '#c3cdd8' }}>–</span>;
                                     const rowFlag = getPlayerFlag(r.name) ? getFlagSrc(r.name) : null;
+                                    // In the default finish sort the field is grouped made-cut → missed-cut, so drop a
+                                    // cut-line divider at the boundary (first cut player, just below the last to make it).
+                                    const showCutLine = ppfSortKey === 'finish' && !q && isCut && i > 0 && !rowIsCut(sorted[i - 1]);
                                     return (
-                                      <tr key={`${r.name}-${i}`} style={{ background: i % 2 === 0 ? '#fff' : '#f7fafc', borderTop: '1px solid #eef2f6', textAlign: 'center', color: '#0f1720' }}>
-                                        <td style={{ padding: '8px 7px', color: '#5b6b79', fontWeight: 600 }}>{r.worldRank ?? '–'}</td>
+                                      <Fragment key={`${r.name}-${i}`}>
+                                      {showCutLine && (
+                                        <tr>
+                                          <td colSpan={16} style={{ padding: '3px 0', background: '#fff' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 10px' }}>
+                                              <div style={{ flex: 1, height: 2, background: '#111827' }} />
+                                              <span style={{ fontSize: 10.5, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CUT LINE{cutLine ? `: ${cutLine}` : ''}</span>
+                                              <div style={{ flex: 1, height: 2, background: '#111827' }} />
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      )}
+                                      <tr style={{ background: i % 2 === 0 ? '#fff' : '#f7fafc', borderTop: '1px solid #eef2f6', textAlign: 'center', color: '#0f1720' }}>
                                         <td style={{ padding: '8px 7px', fontWeight: 700, whiteSpace: 'nowrap', color: isCut ? '#dc2626' : '#0f1720' }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</td>
                                         <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, whiteSpace: 'nowrap' }}>
                                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -7533,6 +7542,7 @@ export default function Page() {
                                         <td style={{ padding: '8px 7px' }}>{leaderMark(r.r2)}</td>
                                         <td style={{ padding: '8px 7px' }}>{leaderMark(r.r3)}</td>
                                       </tr>
+                                      </Fragment>
                                     );
                                   })}
                                 </tbody>
