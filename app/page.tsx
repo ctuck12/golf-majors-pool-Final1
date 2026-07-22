@@ -10337,11 +10337,15 @@ export default function Page() {
             .map((e) => e.name)
             .sort((a, b) => a.localeCompare(b));
           const close = () => setPpsPickPopup(null);
+          const flagSrc = getPlayerFlag(ppsPickPopup.name) ? getFlagSrc(ppsPickPopup.name) : null;
           return (
             <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
               <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(420px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
                 <div style={{ background: headerColor, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                  <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{ppsPickPopup.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
+                    <span style={{ color: '#fff', fontSize: isMobile ? 15 : 16, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{ppsPickPopup.name}</span>
+                    {flagSrc && <img src={flagSrc} alt="" style={{ width: 28, height: 19, objectFit: 'cover', borderRadius: 2, border: '1px solid rgba(255,255,255,0.45)', flexShrink: 0 }} />}
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                     {logo && (
                       <img src={logo} alt="" style={{ height: T === 'pga' ? 52 : T === 'players' ? 46 : T === 'open' ? 36 : T === 'masters' ? undefined : 32, width: T === 'masters' ? 104 : undefined, margin: T === 'pga' ? '-10px 0' : T === 'players' ? '-7px 0' : undefined, maxWidth: 104, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
