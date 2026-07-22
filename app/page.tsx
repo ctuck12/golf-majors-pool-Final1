@@ -10298,12 +10298,12 @@ export default function Page() {
                   <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
                       <span style={{ color: '#fff', fontSize: isMobile ? 15 : 16.5, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{player.name}</span>
-                      {flagSrc && <img src={flagSrc} alt="" style={{ width: 34, height: 23, objectFit: 'cover', borderRadius: 2, border: '1px solid rgba(255,255,255,0.35)', flexShrink: 0 }} />}
+                      {flagSrc && <img src={flagSrc} alt="" style={{ width: 32, height: 21, objectFit: 'cover', borderRadius: 2, border: '1px solid rgba(255,255,255,0.35)', flexShrink: 0 }} />}
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: 3 }}>{total} total {total === 1 ? 'pick' : 'picks'}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                    <img src="/golf-majors-pool-logo-v11.png" alt="Golf Majors Pool" style={{ height: 72, width: 'auto', maxWidth: isMobile ? 210 : 300, objectFit: 'contain', display: 'block' }} />
+                    <img src="/golf-majors-pool-logo-v11.png" alt="Golf Majors Pool" style={{ height: 72, width: isMobile ? 176 : 210, objectFit: 'cover', objectPosition: 'center', display: 'block', flexShrink: 0 }} />
                     <button onClick={close} style={{ background: 'rgba(255,255,255,0.22)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
                   </div>
                 </div>
