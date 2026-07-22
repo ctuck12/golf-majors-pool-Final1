@@ -769,12 +769,14 @@ const MAIN_TABS: MainTab[] = ['Standings', 'My Entries', 'Details', 'Reports', '
 type ReportType = 'Player Pick Summary' | 'Pool Member Pick Summary' | 'Player Performance Summary';
 const REPORT_OPTIONS: ReportType[] = ['Player Pick Summary', 'Pool Member Pick Summary', 'Player Performance Summary'];
 const REPORT_TOURNAMENTS: { id: TournamentId; label: string }[] = [
-  { id: 'players', label: 'The Players Championship' },
-  { id: 'masters', label: 'The Masters Tournament' },
-  { id: 'pga', label: 'PGA Championship' },
-  { id: 'us-open', label: 'U.S. Open Championship' },
-  { id: 'open', label: 'The Open Championship' },
+  { id: 'players', label: 'The Players' },
+  { id: 'masters', label: 'The Masters' },
+  { id: 'pga', label: 'The PGA' },
+  { id: 'us-open', label: 'U.S. Open' },
+  { id: 'open', label: 'The Open' },
 ];
+// Seasons the pool has run (season 1 = 2026). Append new years as future seasons are played.
+const POOL_SEASONS = [2026];
 const REPORT_TOURNAMENT_SOLID: Record<TournamentId, string> = {
   players: '#173b63',
   masters: '#2c6449',
@@ -1622,6 +1624,8 @@ export default function Page() {
   } | null>(null);
   // Player Pick Summary — "which entries picked this player" popup.
   const [ppsPickPopup, setPpsPickPopup] = useState<{ id: number; name: string; tournament: TournamentId } | null>(null);
+  // Season/year selector shared by all reports; defaults to the current (latest) season.
+  const [reportYear, setReportYear] = useState<number>(Math.max(...POOL_SEASONS));
   // Pool Member Pick Summary report control.
   const [pmpsEntryId, setPmpsEntryId] = useState<string>('');
   // Player Performance Summary report controls.
@@ -3257,6 +3261,22 @@ export default function Page() {
       };
     });
   }, [ppfTournament, feeds, salaryByTournament, playerDirectory]);
+
+  // Year/season picker shown to the right of every report header; defaults to the current season.
+  const reportYearSelect = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+      <label style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Year</label>
+      <select
+        value={reportYear}
+        onChange={(e) => setReportYear(Number(e.target.value))}
+        style={{ appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '8px 30px 8px 12px', fontSize: 14, fontWeight: 700, color: '#0f1720', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 9px center' }}
+      >
+        {[...POOL_SEASONS].sort((a, b) => b - a).map((y) => (
+          <option key={y} value={y}>{y}</option>
+        ))}
+      </select>
+    </div>
+  );
 
   const selectedCommissionerMember =
     commissionerMembers.find((member) => member.id === selectedCommissionerMemberId) ?? null;
@@ -7119,7 +7139,10 @@ export default function Page() {
               <div style={{ padding: isMobile ? 18 : 28 }}>
                 {selectedReport === 'Player Pick Summary' ? (
                   <>
-                    <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Player Pick Summary</div>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                      <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Player Pick Summary</div>
+                      {reportYearSelect}
+                    </div>
                     {/* Tournament + Sort By dropdowns */}
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? 10 : 14, marginTop: isMobile ? 14 : 18 }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1 1 140px' : '0 0 220px' }}>
@@ -7228,7 +7251,10 @@ export default function Page() {
                   const totalPicks = rows.reduce((s, r) => s + r.count, 0);
                   return (
                     <>
-                      <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Pool Member Pick Summary</div>
+                      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                        <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Pool Member Pick Summary</div>
+                        {reportYearSelect}
+                      </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: isMobile ? 14 : 18, maxWidth: 320 }}>
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Entry</label>
                         <select
@@ -7309,22 +7335,25 @@ export default function Page() {
                   const numCell = (v: number) => (v ? v : <span style={{ color: '#c3cdd8' }}>–</span>);
                   return (
                     <>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10 }}>
                         <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Player Performance Summary</div>
-                        {ppfTournament && (
-                          <div style={{ position: 'relative', flex: isMobile ? '1 1 100%' : '0 0 auto' }}>
-                            <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                            <input
-                              value={ppfSearch}
-                              onChange={(e) => setPpfSearch(e.target.value)}
-                              placeholder="Search player…"
-                              style={{ width: isMobile ? '100%' : 230, boxSizing: 'border-box', padding: '9px 30px 9px 32px', borderRadius: 10, border: '1px solid #cdd9e5', fontSize: 13.5, fontWeight: 600, color: '#0f1720', outline: 'none' }}
-                            />
-                            {ppfSearch && (
-                              <button onClick={() => setPpfSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 14, lineHeight: 1, padding: 2 }}>✕</button>
-                            )}
-                          </div>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, flex: isMobile ? '1 1 100%' : '0 0 auto' }}>
+                          {reportYearSelect}
+                          {ppfTournament && (
+                            <div style={{ position: 'relative', flex: '1 1 auto', minWidth: 130 }}>
+                              <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                              <input
+                                value={ppfSearch}
+                                onChange={(e) => setPpfSearch(e.target.value)}
+                                placeholder="Search player…"
+                                style={{ width: isMobile ? '100%' : 230, boxSizing: 'border-box', padding: '9px 30px 9px 32px', borderRadius: 10, border: '1px solid #cdd9e5', fontSize: 13.5, fontWeight: 600, color: '#0f1720', outline: 'none' }}
+                              />
+                              {ppfSearch && (
+                                <button onClick={() => setPpfSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 14, lineHeight: 1, padding: 2 }}>✕</button>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: isMobile ? 14 : 18, maxWidth: 320 }}>
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
