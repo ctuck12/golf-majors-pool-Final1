@@ -10299,8 +10299,8 @@ export default function Page() {
                   <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
                       <span style={{ color: '#fff', fontSize: isMobile ? 15 : 16.5, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{player.name}</span>
-                      {flagSrc && <img src={flagSrc} alt="" style={{ width: 22, height: 15, objectFit: 'cover', borderRadius: 2, border: '1px solid rgba(255,255,255,0.35)', flexShrink: 0 }} />}
-                      {abbr && <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: 800, letterSpacing: '0.04em', flexShrink: 0 }}>{abbr}</span>}
+                      {flagSrc && <img src={flagSrc} alt="" style={{ width: 27, height: 18, objectFit: 'cover', borderRadius: 2, border: '1px solid rgba(255,255,255,0.35)', flexShrink: 0 }} />}
+                      {abbr && <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 800, letterSpacing: '0.04em', flexShrink: 0 }}>{abbr}</span>}
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: 3 }}>{total} total {total === 1 ? 'pick' : 'picks'}</div>
                   </div>
