@@ -7448,7 +7448,7 @@ export default function Page() {
                   );
                   const numCell = (v: number) => (v ? v : <span style={{ color: '#c3cdd8' }}>–</span>);
                   const tournamentBlock = (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5, maxWidth: 320, width: isMobile ? '100%' : 240, flexShrink: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5, maxWidth: isMobile ? undefined : 320, flex: isMobile ? '1 1 130px' : '0 0 240px', minWidth: 0 }}>
                       <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
                       <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
                         <select
@@ -7473,11 +7473,11 @@ export default function Page() {
                     <>
                       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: isMobile ? 10 : 14, rowGap: 12 }}>
                         <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Player Performance Summary</div>
-                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: isMobile ? 10 : 12, flex: isMobile ? '1 1 100%' : '0 0 auto', flexWrap: 'wrap' }}>
-                          {!isMobile && tournamentBlock}
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: isMobile ? 8 : 12, flex: isMobile ? '1 1 100%' : '0 0 auto', flexWrap: isMobile ? 'nowrap' : 'wrap' }}>
+                          {tournamentBlock}
                           {isMobile && reportYearSelect}
                           {ppfTournament && (
-                            <div style={{ position: 'relative', flex: isMobile ? '1 1 auto' : '0 0 auto', minWidth: 130 }}>
+                            <div style={{ position: 'relative', flex: isMobile ? '1 1 92px' : '0 0 auto', minWidth: isMobile ? 88 : 130 }}>
                               <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                               <input
                                 value={ppfSearch}
@@ -7493,7 +7493,6 @@ export default function Page() {
                           {!isMobile && reportYearSelect}
                         </div>
                       </div>
-                      {isMobile && <div style={{ marginTop: 14 }}>{tournamentBlock}</div>}
                       {ppfTournament && (
                         sorted.length === 0 ? (
                           <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79' }}>{q ? 'No players match your search.' : 'No field data available for this tournament yet.'}</div>
