@@ -768,6 +768,20 @@ const MAIN_TABS: MainTab[] = ['Standings', 'My Entries', 'Details', 'Reports', '
 
 type ReportType = 'Player Pick Summary' | 'Pool Member Pick Summary' | 'Player Performance Summary';
 const REPORT_OPTIONS: ReportType[] = ['Player Pick Summary', 'Pool Member Pick Summary', 'Player Performance Summary'];
+const REPORT_TOURNAMENTS: { id: TournamentId; label: string }[] = [
+  { id: 'players', label: 'The Players Championship' },
+  { id: 'masters', label: 'The Masters Tournament' },
+  { id: 'pga', label: 'PGA Championship' },
+  { id: 'us-open', label: 'U.S. Open Championship' },
+  { id: 'open', label: 'The Open Championship' },
+];
+const REPORT_TOURNAMENT_CHIP: Record<TournamentId, { short: string; bg: string; fg: string }> = {
+  players: { short: 'PLAYERS', bg: '#173b63', fg: '#fff' },
+  masters: { short: 'MASTERS', bg: '#2c6449', fg: '#fff' },
+  pga: { short: 'PGA', bg: '#B09963', fg: '#fff' },
+  'us-open': { short: 'U.S. OPEN', bg: '#BE3436', fg: '#fff' },
+  open: { short: 'THE OPEN', bg: '#F4BC41', fg: '#000' },
+};
 const MAIN_TAB_STORAGE_KEY = `${STORAGE_PREFIX}:main-tab`;
 
 type FeedRow = {
@@ -1591,6 +1605,21 @@ export default function Page() {
   const [reportsMenuOpen, setReportsMenuOpen] = useState(false);
   const [reportsMenuRect, setReportsMenuRect] = useState<{ left: number; top: number; width: number } | null>(null);
   const [selectedReport, setSelectedReport] = useState<ReportType | null>(null);
+  // Player Pick Summary report controls.
+  const [ppsTournament, setPpsTournament] = useState<TournamentId | ''>('');
+  const [ppsSortBy, setPpsSortBy] = useState<'Times Picked' | 'Salary' | ''>('');
+  const [ppsResult, setPpsResult] = useState<{
+    tournament: TournamentId;
+    sortBy: 'Times Picked' | 'Salary';
+    rows: { id: number; name: string; pgaTourId: number; photoUrl?: string; count: number; salary: number; position: string }[];
+  } | null>(null);
+  // Pool Member Pick Summary report control.
+  const [pmpsEntryId, setPmpsEntryId] = useState<string>('');
+  // Player Performance Summary report controls.
+  const [ppfTournament, setPpfTournament] = useState<TournamentId | ''>('');
+  const [ppfSearch, setPpfSearch] = useState('');
+  const [ppfSortKey, setPpfSortKey] = useState<'finish' | 'par' | 'birdie' | 'eagle' | 'bogey' | 'double' | 'triple'>('finish');
+  const [ppfSortDir, setPpfSortDir] = useState<'asc' | 'desc'>('asc');
   const [expandedBonusCategories, setExpandedBonusCategories] = useState<Set<string>>(new Set());
   const [bonusInfoPopup, setBonusInfoPopup] = useState<{ title: string; entries: { name: string; rounds: number[]; count?: number }[]; showCounts?: boolean } | null>(null);
   const [cutScorecardGolfer, setCutScorecardGolfer] = useState<{ name: string; pgaTourId: number; photoUrl?: string } | null>(null);
@@ -3121,6 +3150,105 @@ export default function Page() {
   );
 
   const playersById = Object.fromEntries(players.map((player) => [player.id, player]));
+
+  // Directory of every pickable player by id (name/photo/pga id), independent of the tournament in
+  // view — used by the Reports feature, which aggregates picks across any of the five tournaments.
+  const playerDirectory = useMemo(() => {
+    const map = new Map<number, { id: number; name: string; pgaTourId: number; photoUrl?: string }>();
+    for (const p of [...PLAYER_POOL, ...dynamicPlayers]) {
+      map.set(p.id, { id: p.id, name: p.name, pgaTourId: p.pgaTourId, photoUrl: (p as { photoUrl?: string }).photoUrl });
+    }
+    return map;
+  }, [dynamicPlayers]);
+
+  // Turn a leaderboard position string ("1", "T4", "CUT") into a sortable finish rank (lower = better).
+  const positionSortRank = (pos?: string) => {
+    if (!pos) return 9999;
+    const s = pos.toUpperCase().trim();
+    if (s === '' || s === '--' || s === 'CUT' || s === 'MC' || s === 'MDF' || s === 'WD' || s === 'DQ') return 9000;
+    const n = parseInt(s.replace(/[^0-9]/g, ''), 10);
+    return Number.isNaN(n) ? 9500 : n;
+  };
+
+  const runPlayerPickSummary = () => {
+    if (!ppsTournament || !ppsSortBy) return;
+    const T = ppsTournament;
+    const sortBy = ppsSortBy;
+    const posByName = new Map<string, string>();
+    for (const row of feeds[T]?.players ?? []) posByName.set(normalizeName(row.canonicalName ?? ''), row.position);
+    const salaries = salaryByTournament[T]?.salaries ?? {};
+    const countById = new Map<number, number>();
+    for (const entry of poolEntries) {
+      for (const pid of entry.rosters[T] ?? []) countById.set(pid, (countById.get(pid) ?? 0) + 1);
+    }
+    const rows = Array.from(countById.entries())
+      .map(([pid, count]) => {
+        const p = playerDirectory.get(pid);
+        if (!p) return null;
+        const position = posByName.get(normalizeName(p.name)) ?? '--';
+        return { id: pid, name: p.name, pgaTourId: p.pgaTourId, photoUrl: p.photoUrl, count, salary: salaries[pid] ?? 0, position };
+      })
+      .filter((r): r is NonNullable<typeof r> => r !== null);
+    rows.sort((a, b) =>
+      sortBy === 'Salary'
+        ? (b.salary - a.salary) || (positionSortRank(a.position) - positionSortRank(b.position)) || a.name.localeCompare(b.name)
+        : (b.count - a.count) || (positionSortRank(a.position) - positionSortRank(b.position)) || a.name.localeCompare(b.name),
+    );
+    setPpsResult({ tournament: T, sortBy, rows });
+  };
+
+  // Full-field performance rows for the Player Performance Summary — one per player in the chosen
+  // tournament's field, with finish, score to par, and every scoring/bonus stat.
+  const ppfRows = useMemo(() => {
+    if (!ppfTournament) return [];
+    const T = ppfTournament;
+    const feedT = feeds[T];
+    if (!feedT) return [];
+    const worldRanks = salaryByTournament[T]?.worldRanks ?? {};
+    const nameToId = new Map<string, number>();
+    for (const [id, p] of playerDirectory) nameToId.set(normalizeName(p.name), id);
+    const CUTS = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
+    const toParNum = (s?: string) => { if (!s) return NaN; const u = s.toUpperCase().trim(); if (u === 'E') return 0; const n = parseFloat(u); return Number.isNaN(n) ? NaN : n; };
+    const rank = (pos?: string) => {
+      if (!pos) return 9999;
+      const s = pos.toUpperCase().trim();
+      if (s === '' || s === '--' || s === 'CUT' || s === 'MC' || s === 'MDF' || s === 'WD' || s === 'DQ') return 9000;
+      const n = parseInt(s.replace(/[^0-9]/g, ''), 10);
+      return Number.isNaN(n) ? 9500 : n;
+    };
+    return (feedT.players ?? []).map((row) => {
+      const nm = row.canonicalName ?? '';
+      const id = nameToId.get(normalizeName(nm)) ?? null;
+      const sl = row.scoreBreakdown?.statLine;
+      const rl = row.scoreBreakdown?.roundLeadersAwarded;
+      const isCut = CUTS.has(String(row.score).toUpperCase());
+      const scoreRaw = isCut ? toParNum(row.originalScore) : toParNum(row.score);
+      return {
+        id,
+        name: nm,
+        worldRank: id != null && worldRanks[id] != null ? worldRanks[id] : null,
+        position: row.position,
+        posRank: rank(row.position),
+        madeCut: row.scoreBreakdown?.madeCut ?? !isCut,
+        scoreNum: Number.isNaN(scoreRaw) ? 9999 : scoreRaw,
+        scoreDisplay: Number.isNaN(scoreRaw) ? '--' : scoreRaw === 0 ? 'E' : scoreRaw > 0 ? `+${scoreRaw}` : String(scoreRaw),
+        par: sl?.par ?? 0,
+        birdie: sl?.birdie ?? 0,
+        eagle: sl?.eagle ?? 0,
+        bogey: sl?.bogey ?? 0,
+        double: sl?.doubleBogey ?? 0,
+        triple: sl?.tripleOrWorse ?? 0,
+        ace: sl?.holeInOne ?? 0,
+        streak: sl?.threeBirdieStreaks ?? 0,
+        bogeyFree: sl?.bogeyFreeRounds ?? 0,
+        lowRound: sl?.lowRounds ?? 0,
+        r1: rl?.first ?? false,
+        r2: rl?.second ?? false,
+        r3: rl?.third ?? false,
+      };
+    });
+  }, [ppfTournament, feeds, salaryByTournament, playerDirectory]);
+
   const selectedCommissionerMember =
     commissionerMembers.find((member) => member.id === selectedCommissionerMemberId) ?? null;
   const filteredCommissionerMembers = commissionerMembers
@@ -6982,9 +7110,293 @@ export default function Page() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isMobile ? 6 : 8 }}>
                   <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid }}>Reports</div>
                 </div>
-                {selectedReport ? (
+                {selectedReport === 'Player Pick Summary' ? (
                   <>
-                    <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#0f1720' }}>{selectedReport}</div>
+                    <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Player Pick Summary</div>
+                    {/* Tournament + Sort By dropdowns */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? 10 : 14, marginTop: isMobile ? 14 : 18 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1 1 140px' : '0 0 220px' }}>
+                        <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
+                        <select
+                          value={ppsTournament}
+                          onChange={(e) => { setPpsTournament(e.target.value as TournamentId | ''); setPpsResult(null); }}
+                          style={{ appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: ppsTournament ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                        >
+                          <option value="" disabled>Select tournament</option>
+                          {REPORT_TOURNAMENTS.map((t) => (
+                            <option key={t.id} value={t.id}>{t.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1 1 140px' : '0 0 200px' }}>
+                        <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Sort By</label>
+                        <select
+                          value={ppsSortBy}
+                          onChange={(e) => { setPpsSortBy(e.target.value as 'Times Picked' | 'Salary' | ''); setPpsResult(null); }}
+                          style={{ appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: ppsSortBy ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                        >
+                          <option value="" disabled>Select sort</option>
+                          <option value="Times Picked">Times Picked</option>
+                          <option value="Salary">Salary</option>
+                        </select>
+                      </div>
+                      {ppsTournament && ppsSortBy && (
+                        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                          <button
+                            onClick={runPlayerPickSummary}
+                            style={{ background: headerSolid, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 26px', fontSize: 14, fontWeight: 800, cursor: 'pointer', letterSpacing: '0.02em' }}
+                          >
+                            Go
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Results — horizontal pick-count bars */}
+                    {ppsResult && (() => {
+                      const maxCount = ppsResult.rows.reduce((m, r) => Math.max(m, r.count), 0) || 1;
+                      const tLabel = REPORT_TOURNAMENTS.find((t) => t.id === ppsResult.tournament)?.label ?? '';
+                      if (ppsResult.rows.length === 0) {
+                        return <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79' }}>No picks were recorded for {tLabel}.</div>;
+                      }
+                      return (
+                        <div style={{ marginTop: isMobile ? 18 : 24 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, color: '#5b6b79', marginBottom: 12 }}>
+                            {tLabel} · sorted by {ppsResult.sortBy}
+                          </div>
+                          <div style={{ display: 'grid', gap: isMobile ? 12 : 14 }}>
+                            {ppsResult.rows.map((r) => {
+                              const pct = Math.max(18, Math.round((r.count / maxCount) * 100));
+                              return (
+                                <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 9 : 12 }}>
+                                  <img
+                                    src={playerPhotoSrc(r.name, r.pgaTourId, r.photoUrl)} data-fb={r.photoUrl ?? pgaPhoto(r.pgaTourId)} onError={photoOnError}
+                                    alt={r.name}
+                                    style={{ width: isMobile ? 40 : 48, height: isMobile ? 40 : 48, borderRadius: '50%', objectFit: 'cover', border: '1px solid #dce8f5', flexShrink: 0, background: '#eef2f6' }}
+                                  />
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
+                                      <span style={{ fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
+                                      <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', flexShrink: 0 }}>{formatLeaderboardPosition(r.position)}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                      <div style={{ width: `${pct}%`, minWidth: isMobile ? 84 : 96, height: isMobile ? 24 : 26, borderRadius: 6, background: `linear-gradient(90deg, ${headerSolid} 0%, ${headerTabActiveColor} 100%)`, display: 'flex', alignItems: 'center', paddingLeft: 9, flexShrink: 0 }}>
+                                        <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>
+                                      </div>
+                                      <span style={{ fontSize: isMobile ? 13 : 14, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.count}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </>
+                ) : selectedReport === 'Pool Member Pick Summary' ? (() => {
+                  const entriesSorted = poolEntries.slice().sort((a, b) => a.name.localeCompare(b.name));
+                  const entry = poolEntries.find((e) => e.id === pmpsEntryId) ?? null;
+                  const agg = new Map<number, { count: number; tournaments: TournamentId[] }>();
+                  if (entry) {
+                    for (const { id: tid } of REPORT_TOURNAMENTS) {
+                      for (const pid of entry.rosters[tid] ?? []) {
+                        const cur = agg.get(pid) ?? { count: 0, tournaments: [] };
+                        cur.count += 1;
+                        cur.tournaments.push(tid);
+                        agg.set(pid, cur);
+                      }
+                    }
+                  }
+                  const rows = Array.from(agg.entries())
+                    .map(([pid, v]) => {
+                      const p = playerDirectory.get(pid);
+                      return p ? { id: pid, name: p.name, pgaTourId: p.pgaTourId, photoUrl: p.photoUrl, count: v.count, tournaments: v.tournaments } : null;
+                    })
+                    .filter((r): r is NonNullable<typeof r> => r !== null)
+                    .sort((a, b) => (b.count - a.count) || a.name.localeCompare(b.name));
+                  const totalPicks = rows.reduce((s, r) => s + r.count, 0);
+                  return (
+                    <>
+                      <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Pool Member Pick Summary</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: isMobile ? 14 : 18, maxWidth: 320 }}>
+                        <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Entry</label>
+                        <select
+                          value={pmpsEntryId}
+                          onChange={(e) => setPmpsEntryId(e.target.value)}
+                          style={{ appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: pmpsEntryId ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                        >
+                          <option value="" disabled>Select entry</option>
+                          {entriesSorted.map((e) => (
+                            <option key={e.id} value={e.id}>{e.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      {entry && (rows.length === 0 ? (
+                        <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79' }}>{entry.name} hasn&rsquo;t made any picks yet this season.</div>
+                      ) : (
+                        <div style={{ marginTop: isMobile ? 18 : 24 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, color: '#5b6b79', marginBottom: 12 }}>
+                            {rows.length} {rows.length === 1 ? 'golfer' : 'golfers'} · {totalPicks} total picks across the season
+                          </div>
+                          <div style={{ display: 'grid', gap: isMobile ? 12 : 14 }}>
+                            {rows.map((r) => {
+                              const flagSrc = getPlayerFlag(r.name) ? getFlagSrc(r.name) : null;
+                              return (
+                                <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 9 : 12 }}>
+                                  <img
+                                    src={playerPhotoSrc(r.name, r.pgaTourId, r.photoUrl)} data-fb={r.photoUrl ?? pgaPhoto(r.pgaTourId)} onError={photoOnError}
+                                    alt={r.name}
+                                    style={{ width: isMobile ? 40 : 48, height: isMobile ? 40 : 48, borderRadius: '50%', objectFit: 'cover', border: '1px solid #dce8f5', flexShrink: 0, background: '#eef2f6' }}
+                                  />
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                                      {flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0', flexShrink: 0 }} />}
+                                      <span style={{ fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
+                                      <span style={{ marginLeft: 'auto', flexShrink: 0, fontSize: 11.5, fontWeight: 800, color: '#173b63', background: '#eaf1f9', borderRadius: 999, padding: '3px 10px', whiteSpace: 'nowrap' }}>{r.count}× picked</span>
+                                    </div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                                      {REPORT_TOURNAMENTS.filter((t) => r.tournaments.includes(t.id)).map((t) => {
+                                        const chip = REPORT_TOURNAMENT_CHIP[t.id];
+                                        return (
+                                          <span key={t.id} style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.03em', color: chip.fg, background: chip.bg, borderRadius: 5, padding: '3px 7px', whiteSpace: 'nowrap' }}>{chip.short}</span>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  );
+                })() : selectedReport === 'Player Performance Summary' ? (() => {
+                  const tColor = ppfTournament === 'pga' ? '#B09963' : ppfTournament === 'masters' ? '#2c6449' : ppfTournament === 'us-open' ? '#BE3436' : '#173b63';
+                  const cutLine = ppfTournament ? (feeds[ppfTournament]?.projectedCut ?? null) : null;
+                  const q = ppfSearch.trim().toLowerCase();
+                  const filtered = q ? ppfRows.filter((r) => r.name.toLowerCase().includes(q)) : ppfRows;
+                  const dirMul = ppfSortDir === 'asc' ? 1 : -1;
+                  const sorted = [...filtered].sort((a, b) => {
+                    if (ppfSortKey === 'finish') return (a.posRank - b.posRank) * dirMul || (a.scoreNum - b.scoreNum) || a.name.localeCompare(b.name);
+                    const av = a[ppfSortKey] as number;
+                    const bv = b[ppfSortKey] as number;
+                    return (av - bv) * dirMul || (a.posRank - b.posRank) || a.name.localeCompare(b.name);
+                  });
+                  const setSort = (key: typeof ppfSortKey) => {
+                    if (ppfSortKey === key) setPpfSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+                    else { setPpfSortKey(key); setPpfSortDir(key === 'finish' ? 'asc' : 'desc'); }
+                  };
+                  const arrow = (key: typeof ppfSortKey) => (ppfSortKey === key ? (ppfSortDir === 'asc' ? ' ▲' : ' ▼') : '');
+                  const CUT_MARK = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
+                  const sortableTh = (label: string, key: typeof ppfSortKey, title: string) => (
+                    <th title={title} onClick={() => setSort(key)} style={{ padding: '9px 7px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.03em', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap', position: 'sticky', top: 0, background: tColor }}>{label}{arrow(key)}</th>
+                  );
+                  const plainTh = (label: string, title: string) => (
+                    <th title={title} style={{ padding: '9px 7px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.03em', whiteSpace: 'nowrap', position: 'sticky', top: 0, background: tColor }}>{label}</th>
+                  );
+                  const numCell = (v: number) => (v ? v : <span style={{ color: '#c3cdd8' }}>–</span>);
+                  return (
+                    <>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                        <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Player Performance Summary</div>
+                        {ppfTournament && (
+                          <div style={{ position: 'relative', flex: isMobile ? '1 1 100%' : '0 0 auto' }}>
+                            <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                            <input
+                              value={ppfSearch}
+                              onChange={(e) => setPpfSearch(e.target.value)}
+                              placeholder="Search player…"
+                              style={{ width: isMobile ? '100%' : 230, boxSizing: 'border-box', padding: '9px 30px 9px 32px', borderRadius: 10, border: '1px solid #cdd9e5', fontSize: 13.5, fontWeight: 600, color: '#0f1720', outline: 'none' }}
+                            />
+                            {ppfSearch && (
+                              <button onClick={() => setPpfSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 14, lineHeight: 1, padding: 2 }}>✕</button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: isMobile ? 14 : 18, maxWidth: 320 }}>
+                        <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
+                        <select
+                          value={ppfTournament}
+                          onChange={(e) => { setPpfTournament(e.target.value as TournamentId | ''); setPpfSearch(''); setPpfSortKey('finish'); setPpfSortDir('asc'); }}
+                          style={{ appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: ppfTournament ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                        >
+                          <option value="" disabled>Select tournament</option>
+                          {REPORT_TOURNAMENTS.map((t) => (
+                            <option key={t.id} value={t.id}>{t.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      {ppfTournament && (
+                        sorted.length === 0 ? (
+                          <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79' }}>{q ? 'No players match your search.' : 'No field data available for this tournament yet.'}</div>
+                        ) : (
+                          <div style={{ marginTop: isMobile ? 16 : 22 }}>
+                            {cutLine && (
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#111827', color: '#fff', borderRadius: 8, padding: '5px 12px', fontSize: 12, fontWeight: 800, letterSpacing: '0.04em', marginBottom: 12 }}>
+                                CUT LINE: {cutLine}
+                              </div>
+                            )}
+                            <div style={{ overflowX: 'auto', border: '1px solid #d1dae3', borderRadius: 10 }}>
+                              <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: isMobile ? 11.5 : 12 }}>
+                                <thead>
+                                  <tr style={{ background: tColor, color: '#fff', textAlign: 'center', fontSize: isMobile ? 10 : 11 }}>
+                                    {plainTh('WR', 'World rank at the time of the tournament')}
+                                    {plainTh('POS', 'Finishing position')}
+                                    <th style={{ padding: '9px 10px', textAlign: 'left', fontWeight: 700, letterSpacing: '0.03em', whiteSpace: 'nowrap', position: 'sticky', top: 0, background: tColor }}>PLAYER</th>
+                                    {sortableTh('SCORE', 'finish', 'Score to par (sorts by finish)')}
+                                    {sortableTh('PARS', 'par', 'Pars')}
+                                    {sortableTh('BIRD', 'birdie', 'Birdies')}
+                                    {sortableTh('EAG', 'eagle', 'Eagles')}
+                                    {sortableTh('BOG', 'bogey', 'Bogeys')}
+                                    {sortableTh('DBL', 'double', 'Double bogeys')}
+                                    {sortableTh('TRP', 'triple', 'Triple bogeys or worse')}
+                                    {plainTh('ACE', 'Hole-in-ones')}
+                                    {plainTh('3BST', '3-birdie streaks')}
+                                    {plainTh('R1', 'Round 1 leader')}
+                                    {plainTh('R2', 'Round 2 leader')}
+                                    {plainTh('R3', 'Round 3 leader')}
+                                    {plainTh('LOW', 'Tournament low round')}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {sorted.map((r, i) => {
+                                    const isCut = CUT_MARK.has(String(r.position).toUpperCase()) || !r.madeCut;
+                                    const leaderMark = (on: boolean) => on ? <span style={{ color: '#0f7a3d', fontWeight: 900 }}>✓</span> : <span style={{ color: '#c3cdd8' }}>–</span>;
+                                    return (
+                                      <tr key={`${r.name}-${i}`} style={{ background: i % 2 === 0 ? '#fff' : '#f7fafc', borderTop: '1px solid #eef2f6', textAlign: 'center', color: '#0f1720' }}>
+                                        <td style={{ padding: '8px 7px', color: '#5b6b79', fontWeight: 600 }}>{r.worldRank ?? '–'}</td>
+                                        <td style={{ padding: '8px 7px', fontWeight: 700, whiteSpace: 'nowrap', color: isCut ? '#dc2626' : '#0f1720' }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</td>
+                                        <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, whiteSpace: 'nowrap' }}>{r.name}</td>
+                                        <td style={{ padding: '8px 7px', fontWeight: 800, whiteSpace: 'nowrap', color: r.scoreNum < 0 ? '#dc2626' : '#0f1720' }}>{r.scoreDisplay}</td>
+                                        <td style={{ padding: '8px 7px' }}>{numCell(r.par)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{numCell(r.birdie)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{numCell(r.eagle)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{numCell(r.bogey)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{numCell(r.double)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{numCell(r.triple)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{numCell(r.ace)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{numCell(r.streak)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{leaderMark(r.r1)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{leaderMark(r.r2)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{leaderMark(r.r3)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{numCell(r.lowRound)}</td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </>
+                  );
+                })() : selectedReport ? (
+                  <>
+                    <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>{selectedReport}</div>
                     <div style={{ marginTop: 10, fontSize: isMobile ? 13 : 15, color: '#5b6b79', lineHeight: 1.55 }}>
                       This report is coming soon.
                     </div>
