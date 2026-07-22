@@ -1241,6 +1241,16 @@ let LOCK_TIME_OVERRIDES: Partial<Record<TournamentId, string>> = {};
 // here to let that tournament advance to its next-season pre-tournament view again.
 const FORCE_COMPLETED_VIEW: Partial<Record<TournamentId, boolean>> = {};
 
+// Inverse of FORCE_COMPLETED_VIEW: tournaments manually flipped to show their NEXT season's
+// pre-tournament (UP NEXT) card right now, instead of their most recent concluded results.
+// Add an id (e.g. `masters: true`) to flip that tournament over; remove it to drop back to that
+// tournament's results. This does NOT disable the automatic start-time behavior: because the check
+// for this map sits BELOW the IN PROGRESS / ACTIVE checks in getTournamentCardStatuses, a forced
+// tournament still switches to IN PROGRESS / live standings on its own the moment its next event's
+// first-tee time arrives — no manual step needed. After that event concludes it rolls to the
+// following season's preview while the flag is set, so clear the flag to reveal that year's results.
+const FORCE_PRE_TOURNAMENT_VIEW: Partial<Record<TournamentId, boolean>> = {};
+
 // Render a UTC instant as a datetime-local value in Central time, and convert back.
 function utcToCentralInput(iso: string): string {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(iso));
@@ -1326,6 +1336,18 @@ function getTournamentCardStatuses(now = new Date()) {
         label: 'ACTIVE',
         color: '#15803d',
         icon: 'check',
+      };
+      continue;
+    }
+
+    // Manually flipped to its next-season pre-tournament (UP NEXT) card. Sits BELOW the IN PROGRESS /
+    // ACTIVE checks above, so once this tournament's next event reaches its start time it still turns
+    // over to live standings automatically — the flag only controls the pre-event waiting view.
+    if (FORCE_PRE_TOURNAMENT_VIEW[tournament.id]) {
+      statuses[tournament.id] = {
+        label: 'UP NEXT',
+        color: '#234d80',
+        icon: 'trophy',
       };
       continue;
     }
