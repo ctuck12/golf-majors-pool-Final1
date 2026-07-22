@@ -7421,6 +7421,9 @@ export default function Page() {
                   );
                 })() : selectedReport === 'Player Performance Summary' ? (() => {
                   const tColor = ppfTournament === 'pga' ? '#B09963' : ppfTournament === 'masters' ? '#2c6449' : ppfTournament === 'us-open' ? '#BE3436' : '#173b63';
+                  // The Open dresses the leaderboard body (everything below the navy header row) in its gold.
+                  const isOpen = ppfTournament === 'open';
+                  const openGold = '#F4BC41';
                   const cutLine = ppfTournament ? (feeds[ppfTournament]?.projectedCut ?? null) : null;
                   const q = ppfSearch.trim().toLowerCase();
                   const filtered = q ? ppfRows.filter((r) => r.name.toLowerCase().includes(q)) : ppfRows;
@@ -7454,7 +7457,7 @@ export default function Page() {
                   const plainTh = (label: string, title: string) => (
                     <th title={title} style={{ padding: '9px 7px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.03em', whiteSpace: 'nowrap', position: 'sticky', top: 0, zIndex: 2, background: tColor }}>{label}</th>
                   );
-                  const numCell = (v: number) => (v ? v : <span style={{ color: '#c3cdd8' }}>–</span>);
+                  const numCell = (v: number) => (v ? v : <span style={{ color: isOpen ? '#000' : '#c3cdd8' }}>–</span>);
                   const tournamentBlock = (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 5, maxWidth: isMobile ? undefined : 320, flex: isMobile ? '1 1 130px' : '0 0 240px', minWidth: 0 }}>
                       <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
@@ -7506,7 +7509,7 @@ export default function Page() {
                           <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79' }}>{q ? 'No players match your search.' : 'No field data available for this tournament yet.'}</div>
                         ) : (
                           <div style={{ marginTop: isMobile ? 16 : 22 }}>
-                            <div ref={ppfScrollRef} style={{ overflow: 'auto', maxHeight: isMobile ? '68vh' : '72vh', WebkitOverflowScrolling: 'touch', border: '1px solid #d1dae3', borderRadius: 10 }}>
+                            <div ref={ppfScrollRef} style={{ overflow: 'auto', maxHeight: isMobile ? '68vh' : '72vh', WebkitOverflowScrolling: 'touch', border: '1px solid #d1dae3', borderRadius: 10, background: isOpen ? openGold : undefined }}>
                               <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: isMobile ? 11.5 : 12 }}>
                                 <thead>
                                   <tr style={{ background: tColor, color: '#fff', textAlign: 'center', fontSize: isMobile ? 10 : 11 }}>
@@ -7532,19 +7535,19 @@ export default function Page() {
                                   {sorted.map((r, i) => {
                                     const rowIsCut = (row: typeof r) => CUT_MARK.has(String(row.position).toUpperCase()) || !row.madeCut;
                                     const isCut = rowIsCut(r);
-                                    const leaderMark = (on: boolean) => on ? <span style={{ color: '#0f7a3d', fontWeight: 900 }}>✓</span> : <span style={{ color: '#c3cdd8' }}>–</span>;
+                                    const leaderMark = (on: boolean) => on ? <span style={{ color: '#0f7a3d', fontWeight: 900 }}>✓</span> : <span style={{ color: isOpen ? '#000' : '#c3cdd8' }}>–</span>;
                                     const rowFlag = getPlayerFlag(r.name) ? getFlagSrc(r.name) : null;
                                     // In the default finish sort the field is grouped made-cut → missed-cut, so drop a
                                     // cut-line divider at the boundary (first cut player, just below the last to make it).
                                     const showCutLine = ppfSortKey === 'finish' && !q && isCut && i > 0 && !rowIsCut(sorted[i - 1]);
                                     const isSelected = ppfSelectedRow === r.name;
                                     const rowHighlight = ppfTournament === 'masters' ? '#dcfce7' : ppfTournament === 'open' ? '#93c5fd' : '#dbeafe';
-                                    const rowBg = isSelected ? rowHighlight : (i % 2 === 0 ? '#fff' : '#f7fafc');
+                                    const rowBg = isSelected ? rowHighlight : (isOpen ? openGold : (i % 2 === 0 ? '#fff' : '#f7fafc'));
                                     return (
                                       <Fragment key={`${r.name}-${i}`}>
                                       {showCutLine && (
                                         <tr>
-                                          <td colSpan={16} style={{ padding: 0, background: '#fff' }}>
+                                          <td colSpan={16} style={{ padding: 0, background: isOpen ? openGold : '#fff' }}>
                                             <div style={{ position: 'sticky', left: 0, width: ppfViewportW || '100%', boxSizing: 'border-box', display: 'flex', alignItems: 'center', gap: 8, padding: '4px 10px' }}>
                                               <div style={{ flex: 1, height: 2, background: '#111827' }} />
                                               <span style={{ fontSize: 10.5, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CUT LINE{cutLineLabel ? `: ${cutLineLabel}` : ''}</span>
@@ -7553,11 +7556,11 @@ export default function Page() {
                                           </td>
                                         </tr>
                                       )}
-                                      <tr onClick={() => setPpfSelectedRow((prev) => prev === r.name ? null : r.name)} style={{ background: rowBg, borderTop: '1px solid #eef2f6', textAlign: 'center', color: '#0f1720', cursor: 'pointer' }}>
-                                        <td style={{ padding: '8px 7px', fontWeight: 700, whiteSpace: 'nowrap', color: isCut ? '#dc2626' : '#0f1720', width: 44, minWidth: 44 }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</td>
+                                      <tr onClick={() => setPpfSelectedRow((prev) => prev === r.name ? null : r.name)} style={{ background: rowBg, borderTop: isOpen ? '1px solid rgba(0,0,0,0.12)' : '1px solid #eef2f6', textAlign: 'center', color: isOpen ? '#000' : '#0f1720', cursor: 'pointer' }}>
+                                        <td style={{ padding: '8px 7px', fontWeight: 700, whiteSpace: 'nowrap', color: isCut ? '#dc2626' : (isOpen ? '#000' : '#0f1720'), width: 44, minWidth: 44 }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</td>
                                         <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, width: isMobile ? 172 : 200, minWidth: isMobile ? 172 : 200, maxWidth: isMobile ? 172 : 200 }}>
                                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                                            <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{rowFlag && <img src={rowFlag} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0' }} />}</span>
+                                            <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{rowFlag && <img src={rowFlag} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: isOpen ? '1px solid #000' : '1px solid #d1d9e0' }} />}</span>
                                             <span style={{ whiteSpace: 'normal', lineHeight: 1.2, minWidth: 0 }}>{r.name}</span>
                                           </span>
                                         </td>
