@@ -7592,7 +7592,7 @@ export default function Page() {
                     Pool Status
                   </div>
                   {TOURNAMENT_TAB_LOGOS[tournament.id] && (
-                    <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: isMobile ? 40 : 56, maxWidth: isMobile ? 150 : 220, objectFit: 'contain' }} />
+                    <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: isMobile ? (tournament.id === 'players' ? 58 : 40) : (tournament.id === 'players' ? 76 : 56), maxWidth: isMobile ? (tournament.id === 'players' ? 220 : 150) : (tournament.id === 'players' ? 300 : 220), objectFit: 'contain' }} />
                   )}
                 </div>
                 <button
@@ -8026,7 +8026,7 @@ export default function Page() {
                   Pick Submissions
                 </div>
                 {TOURNAMENT_TAB_LOGOS[tournament.id] && (
-                  <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: isMobile ? 40 : 56, maxWidth: isMobile ? 150 : 220, objectFit: 'contain' }} />
+                  <img src={TOURNAMENT_TAB_LOGOS[tournament.id]} alt={tournament.name} style={{ height: isMobile ? (tournament.id === 'players' ? 58 : 40) : (tournament.id === 'players' ? 76 : 56), maxWidth: isMobile ? (tournament.id === 'players' ? 220 : 150) : (tournament.id === 'players' ? 300 : 220), objectFit: 'contain' }} />
                 )}
               </div>
               <div
