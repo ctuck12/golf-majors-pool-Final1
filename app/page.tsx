@@ -7494,7 +7494,7 @@ export default function Page() {
                                 <thead>
                                   <tr style={{ background: tColor, color: '#fff', textAlign: 'center', fontSize: isMobile ? 10 : 11 }}>
                                     <th title="Finishing position" style={{ padding: '9px 7px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.03em', whiteSpace: 'nowrap', position: 'sticky', top: 0, left: 0, zIndex: 4, background: tColor, width: 44, minWidth: 44 }}>POS</th>
-                                    <th style={{ padding: '9px 10px', textAlign: 'left', fontWeight: 700, letterSpacing: '0.03em', whiteSpace: 'nowrap', position: 'sticky', top: 0, left: 44, zIndex: 4, background: tColor }}>PLAYER</th>
+                                    <th style={{ padding: '9px 10px', textAlign: 'left', fontWeight: 700, letterSpacing: '0.03em', whiteSpace: 'nowrap', position: 'sticky', top: 0, left: 44, zIndex: 4, background: tColor, width: isMobile ? 172 : 200, minWidth: isMobile ? 172 : 200 }}>PLAYER</th>
                                     {sortableTh('SCORE', 'finish', 'Score to par (sorts by finish)')}
                                     {sortableTh('PARS', 'par', 'Pars')}
                                     {sortableTh('BIRD', 'birdie', 'Birdies')}
@@ -7536,10 +7536,10 @@ export default function Page() {
                                       )}
                                       <tr style={{ background: rowBg, borderTop: '1px solid #eef2f6', textAlign: 'center', color: '#0f1720' }}>
                                         <td style={{ padding: '8px 7px', fontWeight: 700, whiteSpace: 'nowrap', color: isCut ? '#dc2626' : '#0f1720', position: 'sticky', left: 0, zIndex: 1, background: rowBg, width: 44, minWidth: 44 }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</td>
-                                        <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, position: 'sticky', left: 44, zIndex: 1, background: rowBg, maxWidth: isMobile ? 168 : 200 }}>
+                                        <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, position: 'sticky', left: 44, zIndex: 1, background: rowBg, width: isMobile ? 172 : 200, minWidth: isMobile ? 172 : 200, maxWidth: isMobile ? 172 : 200 }}>
                                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                                             <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{rowFlag && <img src={rowFlag} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0' }} />}</span>
-                                            <span style={{ whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: 1.2 }}>{r.name}</span>
+                                            <span style={{ whiteSpace: 'normal', lineHeight: 1.2, minWidth: 0 }}>{r.name}</span>
                                           </span>
                                         </td>
                                         <td style={{ padding: '8px 7px', fontWeight: 800, whiteSpace: 'nowrap', color: r.scoreNum < 0 ? '#dc2626' : '#0f1720' }}>{r.scoreDisplay}</td>
