@@ -790,6 +790,9 @@ const REPORT_TOURNAMENT_SOLID: Record<TournamentId, string> = {
   'us-open': '#BE3436',
   open: '#173b63',
 };
+// Sky-blue gradient used for the Player Pick Summary "All tournaments" bars — matches the flag/accent
+// lines by the "Golf Majors Pool" logo in the main header (rgb 112,202,220 = #70cadc).
+const PPS_ALL_BAR_GRADIENT = 'linear-gradient(135deg, #7fd2e4 0%, #45a7cf 100%)';
 const REPORT_TOURNAMENT_CHIP: Record<TournamentId, { short: string; bg: string; fg: string }> = {
   players: { short: 'PLAYERS', bg: '#173b63', fg: '#fff' },
   masters: { short: 'MASTERS', bg: '#2c6449', fg: '#fff' },
@@ -1626,10 +1629,12 @@ export default function Page() {
   const [reportsMenuRect, setReportsMenuRect] = useState<{ left: number; top: number; width: number } | null>(null);
   const [selectedReport, setSelectedReport] = useState<ReportType | null>(null);
   // Player Pick Summary report controls.
-  const [ppsTournament, setPpsTournament] = useState<TournamentId | ''>('');
+  const [ppsTournament, setPpsTournament] = useState<TournamentId | 'all' | ''>('');
   const [ppsSortBy, setPpsSortBy] = useState<'Picked' | 'Salary' | ''>('');
   // Player Pick Summary — "which entries picked this player" popup.
   const [ppsPickPopup, setPpsPickPopup] = useState<{ id: number; name: string; tournament: TournamentId } | null>(null);
+  // Player Pick Summary "All" view — per-player popup breaking a player's picks down by major.
+  const [ppsAllPlayerPopup, setPpsAllPlayerPopup] = useState<{ id: number; name: string; pgaTourId: number; photoUrl?: string } | null>(null);
   // Season/year selector shared by all reports; defaults to the current (latest) season.
   const [reportYear, setReportYear] = useState<number>(Math.max(...POOL_SEASONS));
   // Pool Member Pick Summary report control.
@@ -3200,6 +3205,26 @@ export default function Page() {
   // sort option are both selected (no explicit "Go" step).
   const ppsResult = useMemo(() => {
     if (!ppsTournament || !ppsSortBy) return null;
+    // "All tournaments" — combined pick counts for every player picked at least once across all
+    // majors year to date. Only "Times Picked" applies (salary/finish vary by event), most-picked
+    // first with alphabetical tiebreaks.
+    if (ppsTournament === 'all') {
+      const countById = new Map<number, number>();
+      for (const entry of poolEntries) {
+        for (const t of REPORT_TOURNAMENTS) {
+          for (const pid of entry.rosters[t.id] ?? []) countById.set(pid, (countById.get(pid) ?? 0) + 1);
+        }
+      }
+      const rows = Array.from(countById.entries())
+        .map(([pid, count]) => {
+          const p = playerDirectory.get(pid);
+          if (!p) return null;
+          return { id: pid, name: p.name, pgaTourId: p.pgaTourId, photoUrl: p.photoUrl, count, salary: 0, position: '--' };
+        })
+        .filter((r): r is NonNullable<typeof r> => r !== null);
+      rows.sort((a, b) => (b.count - a.count) || a.name.localeCompare(b.name));
+      return { tournament: 'all' as const, sortBy: 'Picked' as const, rows };
+    }
     const T = ppsTournament;
     const sortBy = ppsSortBy;
     const posByName = new Map<string, string>();
@@ -3975,6 +4000,7 @@ export default function Page() {
     setMyEntriesMenuOpen(false);
     setReportsMenuOpen(false);
     setPpsPickPopup(null);
+    setPpsAllPlayerPopup(null);
     setHistoryPopup(null);
     setHistoryRoster(null);
     setActiveStandingEntryId(null);
@@ -7146,15 +7172,16 @@ export default function Page() {
                         <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
                           <select
                             value={ppsTournament}
-                            onChange={(e) => setPpsTournament(e.target.value as TournamentId | '')}
-                            style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: isMobile ? '10px 24px 10px 8px' : '10px 34px 10px 12px', fontSize: isMobile ? 12 : 14, fontWeight: 700, color: ppsTournament ? 'transparent' : '#94a3b8', WebkitTextFillColor: ppsTournament ? 'transparent' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: isMobile ? 'right 8px center' : 'right 10px center' }}
+                            onChange={(e) => { const v = e.target.value as TournamentId | 'all' | ''; setPpsTournament(v); if (v === 'all') setPpsSortBy('Picked'); }}
+                            style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: isMobile ? '10px 24px 10px 8px' : '10px 34px 10px 12px', fontSize: isMobile ? 12 : 14, fontWeight: 700, color: ppsTournament === 'all' ? '#0f1720' : (ppsTournament ? 'transparent' : '#94a3b8'), WebkitTextFillColor: ppsTournament === 'all' ? '#0f1720' : (ppsTournament ? 'transparent' : '#94a3b8'), cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: isMobile ? 'right 8px center' : 'right 10px center' }}
                           >
                             <option value="" disabled style={{ color: '#94a3b8', WebkitTextFillColor: '#94a3b8' }}>Select tournament</option>
                             {REPORT_TOURNAMENTS.map((t) => (
                               <option key={t.id} value={t.id} style={{ color: '#0f1720', WebkitTextFillColor: '#0f1720' }}>{t.label}</option>
                             ))}
+                            <option value="all" style={{ color: '#0f1720', WebkitTextFillColor: '#0f1720' }}>All</option>
                           </select>
-                          {ppsTournament && TOURNAMENT_TAB_LOGOS[ppsTournament] && (
+                          {ppsTournament && ppsTournament !== 'all' && TOURNAMENT_TAB_LOGOS[ppsTournament] && (
                             <span style={{ position: 'absolute', left: 12, right: 34, top: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', pointerEvents: 'none' }}>
                               <img src={TOURNAMENT_TAB_LOGOS[ppsTournament]} alt={REPORT_TOURNAMENTS.find((t) => t.id === ppsTournament)?.label ?? ''} style={{ height: REPORT_DROPDOWN_LOGO_H[ppsTournament], width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
                             </span>
@@ -7165,8 +7192,9 @@ export default function Page() {
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Sort By</label>
                         <select
                           value={ppsSortBy}
+                          disabled={ppsTournament === 'all'}
                           onChange={(e) => setPpsSortBy(e.target.value as 'Picked' | 'Salary' | '')}
-                          style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: isMobile ? '10px 22px 10px 8px' : '10px 34px 10px 12px', fontSize: isMobile ? 12 : 14, fontWeight: 700, color: ppsSortBy ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: isMobile ? 'right 7px center' : 'right 8px center' }}
+                          style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: ppsTournament === 'all' ? '#f1f5f9' : '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: isMobile ? '10px 22px 10px 8px' : '10px 34px 10px 12px', fontSize: isMobile ? 12 : 14, fontWeight: 700, color: ppsSortBy ? '#0f1720' : '#94a3b8', opacity: ppsTournament === 'all' ? 0.6 : 1, cursor: ppsTournament === 'all' ? 'not-allowed' : 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: isMobile ? 'right 7px center' : 'right 8px center' }}
                         >
                           <option value="" disabled>Select sort</option>
                           <option value="Picked">Times Picked</option>
@@ -7186,12 +7214,13 @@ export default function Page() {
 
                     {/* Results — horizontal pick-count bars */}
                     {ppsResult && (() => {
+                      const isAll = ppsResult.tournament === 'all';
                       const maxCount = ppsResult.rows.reduce((m, r) => Math.max(m, r.count), 0) || 1;
                       const tLabel = REPORT_TOURNAMENTS.find((t) => t.id === ppsResult.tournament)?.label ?? '';
-                      const barColor = REPORT_TOURNAMENT_SOLID[ppsResult.tournament];
+                      const barColor = ppsResult.tournament === 'all' ? PPS_ALL_BAR_GRADIENT : REPORT_TOURNAMENT_SOLID[ppsResult.tournament];
                       const CUT_MARKS = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                       if (ppsResult.rows.length === 0) {
-                        return <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79' }}>No picks were recorded for {tLabel}.</div>;
+                        return <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79' }}>{isAll ? 'No picks have been recorded yet.' : `No picks were recorded for ${tLabel}.`}</div>;
                       }
                       return (
                         <div style={{ marginTop: isMobile ? 18 : 24 }}>
@@ -7201,7 +7230,7 @@ export default function Page() {
                               const isCut = CUT_MARKS.has(String(r.position).toUpperCase());
                               const flagSrc = getPlayerFlag(r.name) ? getFlagSrc(r.name) : null;
                               return (
-                                <div key={r.id} onClick={() => setPpsPickPopup({ id: r.id, name: r.name, tournament: ppsResult.tournament })} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 9 : 12, cursor: 'pointer' }}>
+                                <div key={r.id} onClick={() => { if (ppsResult.tournament === 'all') setPpsAllPlayerPopup({ id: r.id, name: r.name, pgaTourId: r.pgaTourId, photoUrl: r.photoUrl }); else setPpsPickPopup({ id: r.id, name: r.name, tournament: ppsResult.tournament }); }} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 9 : 12, cursor: 'pointer' }}>
                                   <img
                                     src={playerPhotoSrc(r.name, r.pgaTourId, r.photoUrl)} data-fb={r.photoUrl ?? pgaPhoto(r.pgaTourId)} onError={photoOnError}
                                     alt={r.name}
@@ -7212,10 +7241,12 @@ export default function Page() {
                                       <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0' }} />}</span>
                                       <span style={{ minWidth: 0, fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
                                     </div>
-                                    <div style={{ fontSize: isMobile ? 10 : 10.5, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', color: isCut ? '#dc2626' : '#9aa7b4', margin: '2px 0 6px' }}>{isCut ? 'Missed Cut' : `Finished ${formatLeaderboardPosition(r.position)}`}</div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    {!isAll && (
+                                      <div style={{ fontSize: isMobile ? 10 : 10.5, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', color: isCut ? '#dc2626' : '#9aa7b4', margin: '2px 0 6px' }}>{isCut ? 'Missed Cut' : `Finished ${formatLeaderboardPosition(r.position)}`}</div>
+                                    )}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: isAll ? 6 : 0 }}>
                                       <div style={{ width: `${pct}%`, minWidth: isMobile ? 82 : 96, height: isMobile ? 24 : 26, borderRadius: 6, background: barColor, display: 'flex', alignItems: 'center', paddingLeft: 9, flexShrink: 0 }}>
-                                        <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>
+                                        {!isAll && <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>}
                                       </div>
                                       <span style={{ flexShrink: 0, fontSize: isMobile ? 13 : 14, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.count}</span>
                                     </div>
@@ -10247,6 +10278,49 @@ export default function Page() {
                 })}
               </div>
             </>
+          );
+        })()}
+
+        {ppsAllPlayerPopup && (() => {
+          const player = ppsAllPlayerPopup;
+          const close = () => setPpsAllPlayerPopup(null);
+          const rows = REPORT_TOURNAMENTS.map((t) => ({
+            t,
+            count: poolEntries.filter((e) => (e.rosters[t.id] ?? []).includes(player.id)).length,
+          }));
+          const maxC = rows.reduce((m, r) => Math.max(m, r.count), 0) || 1;
+          const total = rows.reduce((s, r) => s + r.count, 0);
+          return (
+            <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(460px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
+                <div style={{ background: PPS_ALL_BAR_GRADIENT, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 11, minWidth: 0 }}>
+                    <img src={playerPhotoSrc(player.name, player.pgaTourId, player.photoUrl)} data-fb={player.photoUrl ?? pgaPhoto(player.pgaTourId)} onError={photoOnError} alt={player.name} style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.7)', flexShrink: 0, background: '#eef2f6' }} />
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ color: '#fff', fontSize: isMobile ? 15 : 16.5, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{player.name}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: 11, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase' }}>{total} total {total === 1 ? 'pick' : 'picks'}</div>
+                    </div>
+                  </div>
+                  <button onClick={close} style={{ background: 'rgba(255,255,255,0.22)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
+                </div>
+                <div style={{ padding: '6px 0', overflowY: 'auto' }}>
+                  {rows.map(({ t, count }, i) => {
+                    const pct = count > 0 ? Math.max(16, Math.round((count / maxC) * 78)) : 0;
+                    return (
+                      <div key={t.id} onClick={count > 0 ? () => setPpsPickPopup({ id: player.id, name: player.name, tournament: t.id }) : undefined} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: count > 0 ? 'pointer' : 'default', padding: isMobile ? '11px 14px' : '12px 18px', borderTop: i === 0 ? 'none' : '1px solid #eef2f6' }}>
+                        <span style={{ width: 66, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {TOURNAMENT_TAB_LOGOS[t.id] && <img src={TOURNAMENT_TAB_LOGOS[t.id]} alt={t.label} style={{ height: 26, maxWidth: 66, objectFit: 'contain', display: 'block' }} />}
+                        </span>
+                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                          <div style={{ width: `${pct}%`, minWidth: count > 0 ? (isMobile ? 40 : 46) : 8, height: isMobile ? 22 : 24, borderRadius: 6, background: count > 0 ? REPORT_TOURNAMENT_SOLID[t.id] : '#e2e8f0', flexShrink: 0 }} />
+                          <span style={{ flexShrink: 0, fontSize: isMobile ? 13 : 14, fontWeight: 800, color: count > 0 ? '#0f1720' : '#94a3b8', whiteSpace: 'nowrap' }}>{count}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           );
         })()}
 
