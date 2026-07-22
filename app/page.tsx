@@ -10314,7 +10314,7 @@ export default function Page() {
                 <div style={{ background: '#0f1720', padding: '0 14px 0 18px', height: 72, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                   <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', minWidth: 0, color: '#fff', fontWeight: 900, whiteSpace: 'nowrap' }}>
-                      <HeaderNameFlag name={player.name} flagSrc={flagSrc} abbr={null} base={isMobile ? 15 : 16.5} min={isMobile ? 11.5 : 15} allowStack={false} initialStacked={false} />
+                      <HeaderNameFlag name={player.name} flagSrc={flagSrc} abbr={getCountryLabel(player.name) || null} base={isMobile ? 15 : 16.5} min={isMobile ? 11.5 : 15} allowStack={true} initialStacked={false} />
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: 3 }}>{total} total {total === 1 ? 'pick' : 'picks'}</div>
                   </div>
@@ -10328,8 +10328,8 @@ export default function Page() {
                     const pct = count > 0 ? Math.max(16, Math.round((count / maxC) * 78)) : 0;
                     return (
                       <div key={t.id} onClick={count > 0 ? () => setPpsPickPopup({ id: player.id, name: player.name, tournament: t.id }) : undefined} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: count > 0 ? 'pointer' : 'default', padding: isMobile ? '11px 14px' : '12px 18px', borderTop: i === 0 ? 'none' : '1px solid #eef2f6' }}>
-                        <span style={{ width: 66, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {TOURNAMENT_TAB_LOGOS[t.id] && <img src={TOURNAMENT_TAB_LOGOS[t.id]} alt={t.label} style={{ height: 26, maxWidth: 66, objectFit: 'contain', display: 'block' }} />}
+                        <span style={{ width: isMobile ? 82 : 92, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {TOURNAMENT_TAB_LOGOS[t.id] && <img src={TOURNAMENT_TAB_LOGOS[t.id]} alt={t.label} style={{ height: (t.id === 'players' || t.id === 'pga') ? 38 : t.id === 'masters' ? 30 : 26, maxWidth: isMobile ? 82 : 92, objectFit: 'contain', display: 'block' }} />}
                         </span>
                         <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
                           <div style={{ width: `${pct}%`, minWidth: count > 0 ? (isMobile ? 40 : 46) : 8, height: isMobile ? 22 : 24, borderRadius: 6, background: count > 0 ? REPORT_TOURNAMENT_SOLID[t.id] : '#e2e8f0', flexShrink: 0 }} />
