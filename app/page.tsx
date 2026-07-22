@@ -779,7 +779,7 @@ const REPORT_TOURNAMENTS: { id: TournamentId; label: string }[] = [
 const POOL_SEASONS = [2026];
 // Explicit render heights (px) for the tournament logo shown inside the Reports dropdown box.
 // Uses an explicit height (not max-height) so the small source PNGs upscale to fill the box.
-const REPORT_DROPDOWN_LOGO_H: Record<TournamentId, number> = { players: 32, masters: 34, pga: 34, 'us-open': 26, open: 28 };
+const REPORT_DROPDOWN_LOGO_H: Record<TournamentId, number> = { players: 42, masters: 28, pga: 44, 'us-open': 26, open: 28 };
 const REPORT_TOURNAMENT_SOLID: Record<TournamentId, string> = {
   players: '#173b63',
   masters: '#2c6449',
@@ -7152,7 +7152,7 @@ export default function Page() {
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? 10 : 14, marginTop: isMobile ? 14 : 18 }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1 1 140px' : '0 0 220px' }}>
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
-                        <div style={{ position: 'relative' }}>
+                        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
                           <select
                             value={ppsTournament}
                             onChange={(e) => { setPpsTournament(e.target.value as TournamentId | ''); setPpsResult(null); }}
@@ -7452,7 +7452,7 @@ export default function Page() {
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: isMobile ? 14 : 18, maxWidth: 320 }}>
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
-                        <div style={{ position: 'relative' }}>
+                        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
                           <select
                             value={ppfTournament}
                             onChange={(e) => { setPpfTournament(e.target.value as TournamentId | ''); setPpfSearch(''); setPpfSortKey('finish'); setPpfSortDir('asc'); }}
