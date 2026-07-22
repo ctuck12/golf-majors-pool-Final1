@@ -7213,7 +7213,7 @@ export default function Page() {
                                       <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0' }} />}</span>
                                       <span style={{ minWidth: 0, fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
                                     </div>
-                                    <div style={{ fontSize: isMobile ? 10 : 10.5, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', color: isCut ? '#dc2626' : '#9aa7b4', margin: '2px 0 6px 26px' }}>{isCut ? 'Missed Cut' : `Finished ${formatLeaderboardPosition(r.position)}`}</div>
+                                    <div style={{ fontSize: isMobile ? 10 : 10.5, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', color: isCut ? '#dc2626' : '#9aa7b4', margin: '2px 0 6px' }}>{isCut ? 'Missed Cut' : `Finished ${formatLeaderboardPosition(r.position)}`}</div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                       <div style={{ width: `${pct}%`, minWidth: isMobile ? 82 : 96, height: isMobile ? 24 : 26, borderRadius: 6, background: barColor, display: 'flex', alignItems: 'center', paddingLeft: 9, flexShrink: 0 }}>
                                         <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>
