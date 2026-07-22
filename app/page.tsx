@@ -1250,9 +1250,14 @@ const FORCE_COMPLETED_VIEW: Partial<Record<TournamentId, boolean>> = {};
 // first-tee time arrives — no manual step needed. After that event concludes it rolls to the
 // following season's preview while the flag is set, so clear the flag to reveal that year's results.
 const FORCE_PRE_TOURNAMENT_VIEW: Partial<Record<TournamentId, boolean>> = {};
-// Commissioner-set (Admin hub) equivalent of FORCE_PRE_TOURNAMENT_VIEW, synced from the
+// Commissioner-set (Admin hub) pre-tournament overrides, synced from the
 // /api/commissioner/pre-tournament store at boot and whenever the toggle is flipped.
+// COMMISSIONER_PRE_TOURNAMENT_VIEW holds the manual value (true = pre-tournament, false = results),
+// COMMISSIONER_PRE_TOURNAMENT_AT holds when it was set. A manual value is honored until the next
+// automatic reset point (that tournament's next start, or the next Jan 1), after which the view
+// falls back to the date-driven default. See shouldShowPreTournamentView below.
 let COMMISSIONER_PRE_TOURNAMENT_VIEW: Partial<Record<TournamentId, boolean>> = {};
+let COMMISSIONER_PRE_TOURNAMENT_AT: Partial<Record<TournamentId, string>> = {};
 
 // Render a UTC instant as a datetime-local value in Central time, and convert back.
 function utcToCentralInput(iso: string): string {
@@ -1311,6 +1316,34 @@ function getDisplayTournamentWindow(tournament: (typeof TOURNAMENTS)[number], no
   return getTournamentEventWindow(tournament, now.getFullYear() + 1);
 }
 
+// Whether a tournament's Standings tab should show its next-season pre-tournament card (vs results),
+// for the pre-event window only (IN PROGRESS / ACTIVE always win first in getTournamentCardStatuses).
+//
+//  - Date default: pre-tournament while the current calendar year's event hasn't started yet,
+//    results once it has. This alone gives the two automatic behaviors: every tab flips to Results
+//    on its own the moment its event starts, and every tab is pre-tournament again from Jan 1
+//    (when that year's event is once more in the future).
+//  - A commissioner manual toggle overrides the default, but only until the next reset point — the
+//    tournament's next start, or the next Jan 1 — after which it reverts to the date default. So a
+//    pre-event "pre-tournament" set is cleared when the event starts, and a manual set made before a
+//    New Year is cleared on Jan 1; a fresh manual set (e.g. re-engaging after the event) sticks.
+function shouldShowPreTournamentView(tournament: (typeof TOURNAMENTS)[number], now: Date): boolean {
+  if (FORCE_PRE_TOURNAMENT_VIEW[tournament.id]) return true;
+  const year = now.getFullYear();
+  const start = getTournamentEventWindow(tournament, year).inProgressAt;
+  const dateDefaultPre = now < start;
+  const manual = COMMISSIONER_PRE_TOURNAMENT_VIEW[tournament.id];
+  if (manual === undefined) return dateDefaultPre;
+  const atIso = COMMISSIONER_PRE_TOURNAMENT_AT[tournament.id];
+  const at = atIso ? new Date(atIso) : null;
+  if (!at || Number.isNaN(at.getTime())) return manual; // legacy value without a timestamp — treat as fresh
+  const crossedNewYear = now.getFullYear() > at.getFullYear();
+  const mostRecentStart = now >= start ? start : getTournamentEventWindow(tournament, year - 1).inProgressAt;
+  const crossedStart = mostRecentStart > at;
+  const stale = crossedNewYear || crossedStart;
+  return stale ? dateDefaultPre : manual;
+}
+
 function getTournamentCardStatuses(now = new Date()) {
   const currentYear = now.getFullYear();
   const windows = TOURNAMENTS.flatMap((tournament) => [
@@ -1343,10 +1376,11 @@ function getTournamentCardStatuses(now = new Date()) {
       continue;
     }
 
-    // Manually flipped to its next-season pre-tournament (UP NEXT) card. Sits BELOW the IN PROGRESS /
-    // ACTIVE checks above, so once this tournament's next event reaches its start time it still turns
-    // over to live standings automatically — the flag only controls the pre-event waiting view.
-    if (FORCE_PRE_TOURNAMENT_VIEW[tournament.id] || COMMISSIONER_PRE_TOURNAMENT_VIEW[tournament.id]) {
+    // Next-season pre-tournament (UP NEXT) card. Sits BELOW the IN PROGRESS / ACTIVE checks above, so
+    // once this tournament's next event reaches its start time it still turns over to live standings
+    // automatically. Date-driven by default, with a commissioner manual override — see
+    // shouldShowPreTournamentView.
+    if (shouldShowPreTournamentView(tournament, now)) {
       statuses[tournament.id] = {
         label: 'UP NEXT',
         color: '#234d80',
@@ -1790,14 +1824,17 @@ export default function Page() {
       })
       .catch(() => { /* keep the built-in schedule */ });
   }, []);
-  // Commissioner "show pre-tournament card" overrides, synced from the store at boot.
-  const [preTournamentOverrides, setPreTournamentOverridesState] = useState<Partial<Record<TournamentId, boolean>>>({});
+  // Commissioner "show pre-tournament card" overrides, synced from the store at boot. The state
+  // mirror only exists to force a re-render; the module-level maps above are what the status logic reads.
+  const [preTournamentTick, setPreTournamentTick] = useState(0);
   const [preTournamentBusy, setPreTournamentBusy] = useState<TournamentId | null>(null);
   useEffect(() => {
     fetch('/api/commissioner/pre-tournament', { cache: 'no-store' })
       .then((r) => r.json())
-      .then((d: { overrides?: Partial<Record<TournamentId, boolean>> }) => {
-        if (d.overrides) { COMMISSIONER_PRE_TOURNAMENT_VIEW = d.overrides; setPreTournamentOverridesState(d.overrides); }
+      .then((d: { overrides?: Partial<Record<TournamentId, boolean>>; manualAt?: Partial<Record<TournamentId, string>> }) => {
+        if (d.overrides) COMMISSIONER_PRE_TOURNAMENT_VIEW = d.overrides;
+        if (d.manualAt) COMMISSIONER_PRE_TOURNAMENT_AT = d.manualAt;
+        setPreTournamentTick((v) => v + 1);
       })
       .catch(() => { /* keep the built-in schedule */ });
   }, []);
@@ -1808,7 +1845,8 @@ export default function Page() {
       const d = await res.json();
       if (res.ok && d.overrides) {
         COMMISSIONER_PRE_TOURNAMENT_VIEW = d.overrides;
-        setPreTournamentOverridesState(d.overrides);
+        COMMISSIONER_PRE_TOURNAMENT_AT = d.manualAt ?? {};
+        setPreTournamentTick((v) => v + 1);
         setNowTick(window.performance.timeOrigin + window.performance.now());
       }
     } catch { /* ignore; leave prior state */ }
@@ -7960,7 +7998,9 @@ export default function Page() {
                   </div>
                 </button>
                 {(() => {
-                  const isPre = preTournamentOverrides[selectedTournament] === true;
+                  void preTournamentTick; // re-read module maps when the override changes
+                  const tObj = TOURNAMENTS.find((t) => t.id === selectedTournament);
+                  const isPre = tObj ? shouldShowPreTournamentView(tObj, new Date(nowTick)) : false;
                   const busy = preTournamentBusy === selectedTournament;
                   return (
                     <button

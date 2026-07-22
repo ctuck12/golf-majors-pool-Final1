@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { getSessionContext, SESSION_COOKIE_NAME, TOURNAMENT_IDS, type TournamentId } from '../../../lib/pool-store';
-import { getPreTournamentOverrides, setPreTournamentOverride } from '../../../lib/pre-tournament-store';
+import { getPreTournamentState, setPreTournamentOverride } from '../../../lib/pre-tournament-store';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,8 +24,8 @@ async function requireCommissioner() {
 
 // Public read — the client needs the overrides at boot to place the pre-tournament / results view.
 export async function GET() {
-  const overrides = await getPreTournamentOverrides();
-  return NextResponse.json({ overrides });
+  const state = await getPreTournamentState();
+  return NextResponse.json(state);
 }
 
 export async function POST(request: Request) {
@@ -40,6 +40,6 @@ export async function POST(request: Request) {
   if (typeof body.show !== 'boolean') {
     return NextResponse.json({ error: 'show (boolean) is required.' }, { status: 400 });
   }
-  const overrides = await setPreTournamentOverride(tournamentId, body.show);
-  return NextResponse.json({ ok: true, overrides });
+  const state = await setPreTournamentOverride(tournamentId, body.show, new Date().toISOString());
+  return NextResponse.json(state);
 }
