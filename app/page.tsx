@@ -1250,6 +1250,9 @@ const FORCE_COMPLETED_VIEW: Partial<Record<TournamentId, boolean>> = {};
 // first-tee time arrives — no manual step needed. After that event concludes it rolls to the
 // following season's preview while the flag is set, so clear the flag to reveal that year's results.
 const FORCE_PRE_TOURNAMENT_VIEW: Partial<Record<TournamentId, boolean>> = {};
+// Commissioner-set (Admin hub) equivalent of FORCE_PRE_TOURNAMENT_VIEW, synced from the
+// /api/commissioner/pre-tournament store at boot and whenever the toggle is flipped.
+let COMMISSIONER_PRE_TOURNAMENT_VIEW: Partial<Record<TournamentId, boolean>> = {};
 
 // Render a UTC instant as a datetime-local value in Central time, and convert back.
 function utcToCentralInput(iso: string): string {
@@ -1343,7 +1346,7 @@ function getTournamentCardStatuses(now = new Date()) {
     // Manually flipped to its next-season pre-tournament (UP NEXT) card. Sits BELOW the IN PROGRESS /
     // ACTIVE checks above, so once this tournament's next event reaches its start time it still turns
     // over to live standings automatically — the flag only controls the pre-event waiting view.
-    if (FORCE_PRE_TOURNAMENT_VIEW[tournament.id]) {
+    if (FORCE_PRE_TOURNAMENT_VIEW[tournament.id] || COMMISSIONER_PRE_TOURNAMENT_VIEW[tournament.id]) {
       statuses[tournament.id] = {
         label: 'UP NEXT',
         color: '#234d80',
@@ -1787,6 +1790,30 @@ export default function Page() {
       })
       .catch(() => { /* keep the built-in schedule */ });
   }, []);
+  // Commissioner "show pre-tournament card" overrides, synced from the store at boot.
+  const [preTournamentOverrides, setPreTournamentOverridesState] = useState<Partial<Record<TournamentId, boolean>>>({});
+  const [preTournamentBusy, setPreTournamentBusy] = useState<TournamentId | null>(null);
+  useEffect(() => {
+    fetch('/api/commissioner/pre-tournament', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d: { overrides?: Partial<Record<TournamentId, boolean>> }) => {
+        if (d.overrides) { COMMISSIONER_PRE_TOURNAMENT_VIEW = d.overrides; setPreTournamentOverridesState(d.overrides); }
+      })
+      .catch(() => { /* keep the built-in schedule */ });
+  }, []);
+  const savePreTournamentOverride = async (tournamentId: TournamentId, show: boolean) => {
+    setPreTournamentBusy(tournamentId);
+    try {
+      const res = await fetch('/api/commissioner/pre-tournament', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tournamentId, show }) });
+      const d = await res.json();
+      if (res.ok && d.overrides) {
+        COMMISSIONER_PRE_TOURNAMENT_VIEW = d.overrides;
+        setPreTournamentOverridesState(d.overrides);
+        setNowTick(window.performance.timeOrigin + window.performance.now());
+      }
+    } catch { /* ignore; leave prior state */ }
+    finally { setPreTournamentBusy(null); }
+  };
   const [sessionUser, setSessionUser] = useState<AuthUser | null>(null);
   const [pool, setPool] = useState<PoolInfo | null>(null);
   const [poolEntries, setPoolEntries] = useState<PoolEntry[]>([]);
@@ -7932,6 +7959,35 @@ export default function Page() {
                     {pool?.picksOpen?.[selectedTournament] ? 'Click to hide pick sheet' : 'Click to show pick sheet'}
                   </div>
                 </button>
+                {(() => {
+                  const isPre = preTournamentOverrides[selectedTournament] === true;
+                  const busy = preTournamentBusy === selectedTournament;
+                  return (
+                    <button
+                      onClick={() => savePreTournamentOverride(selectedTournament, !isPre)}
+                      disabled={!canManagePool || busy}
+                      style={{
+                        border: `1.5px solid ${isPre ? '#a9c2e0' : '#d9e2ea'}`,
+                        borderRadius: isMobile ? 12 : 18,
+                        padding: isMobile ? 10 : 16,
+                        background: isPre ? '#eef4fb' : '#f7f9fb',
+                        textAlign: 'left',
+                        cursor: !canManagePool || busy ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
+                        Standings view
+                      </div>
+                      <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: isPre ? '#234d80' : '#3a4a58', display: 'flex', alignItems: 'center', gap: 7 }}>
+                        <span style={{ width: isMobile ? 8 : 9, height: isMobile ? 8 : 9, borderRadius: '50%', background: isPre ? '#234d80' : '#94a3b8', flexShrink: 0 }} />
+                        {isPre ? 'Pre-tournament' : 'Results'}
+                      </div>
+                      <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
+                        {isPre ? 'Click to show most recent results' : 'Click to show next-season pre-tournament card'}
+                      </div>
+                    </button>
+                  );
+                })()}
               </div>
 
             </section>
