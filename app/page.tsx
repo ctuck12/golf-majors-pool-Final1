@@ -7125,7 +7125,7 @@ export default function Page() {
                 {selectedReport === 'Player Pick Summary' ? (() => {
                   const ppsControls = (
                     <div style={{ display: 'flex', flexWrap: isMobile ? 'nowrap' : 'wrap', alignItems: 'flex-end', gap: isMobile ? 7 : 12 }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1.7 1 96px' : '0 0 220px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1.5 1 92px' : '0 0 220px' }}>
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Tournament</label>
                         <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
                           <select
@@ -7145,7 +7145,7 @@ export default function Page() {
                           )}
                         </div>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1 1 72px' : '0 0 200px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, flex: isMobile ? '1.15 1 84px' : '0 0 200px' }}>
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Sort By</label>
                         <select
                           value={ppsSortBy}
@@ -7153,7 +7153,7 @@ export default function Page() {
                           style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: isMobile ? '10px 22px 10px 8px' : '10px 34px 10px 12px', fontSize: isMobile ? 12 : 14, fontWeight: 700, color: ppsSortBy ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: isMobile ? 'right 7px center' : 'right 8px center' }}
                         >
                           <option value="" disabled>Select sort</option>
-                          <option value="Picked">Picked</option>
+                          <option value="Picked">Times Picked</option>
                           <option value="Salary">Salary</option>
                         </select>
                       </div>
