@@ -7209,8 +7209,8 @@ export default function Page() {
                     <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: isMobile ? 10 : 14, rowGap: 12, flexWrap: 'wrap' }}>
                       <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Player Pick Summary</div>
                       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
-                        {reportYearSelect}
                         {!isMobile && ppsControls}
+                        {reportYearSelect}
                       </div>
                     </div>
                     {isMobile && <div style={{ marginTop: 14 }}>{ppsControls}</div>}
@@ -7272,7 +7272,6 @@ export default function Page() {
                         <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Pool Member Pick History</div>
                         {isMobile ? reportYearSelect : (
                           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
-                            {reportYearSelect}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 5, width: 240 }}>
                               <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Pool Member</label>
                               <select
@@ -7286,6 +7285,7 @@ export default function Page() {
                                 ))}
                               </select>
                             </div>
+                            {reportYearSelect}
                           </div>
                         )}
                       </div>
@@ -7391,7 +7391,6 @@ export default function Page() {
                         <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Pool Member Pick Summary</div>
                         {isMobile ? reportYearSelect : (
                           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
-                            {reportYearSelect}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 5, width: 240 }}>
                               <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Entry</label>
                               <select
@@ -7405,6 +7404,7 @@ export default function Page() {
                                 ))}
                               </select>
                             </div>
+                            {reportYearSelect}
                           </div>
                         )}
                       </div>
@@ -7516,7 +7516,7 @@ export default function Page() {
                         <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Player Performance Summary</div>
                         <div style={{ display: 'flex', alignItems: 'flex-end', gap: isMobile ? 10 : 12, flex: isMobile ? '1 1 100%' : '0 0 auto', flexWrap: 'wrap' }}>
                           {!isMobile && tournamentBlock}
-                          {reportYearSelect}
+                          {isMobile && reportYearSelect}
                           {ppfTournament && (
                             <div style={{ position: 'relative', flex: isMobile ? '1 1 auto' : '0 0 auto', minWidth: 130 }}>
                               <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
@@ -7531,6 +7531,7 @@ export default function Page() {
                               )}
                             </div>
                           )}
+                          {!isMobile && reportYearSelect}
                         </div>
                       </div>
                       {isMobile && <div style={{ marginTop: 14 }}>{tournamentBlock}</div>}
