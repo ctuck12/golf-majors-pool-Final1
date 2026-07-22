@@ -763,8 +763,11 @@ const DEFAULT_ROSTERS: Record<string, number[]> = {
 };
 
 type TournamentId = (typeof TOURNAMENTS)[number]['id'];
-type MainTab = 'Standings' | 'My Entries' | 'Details' | 'Commissioner Hub';
-const MAIN_TABS: MainTab[] = ['Standings', 'My Entries', 'Details', 'Commissioner Hub'];
+type MainTab = 'Standings' | 'My Entries' | 'Details' | 'Reports' | 'Commissioner Hub';
+const MAIN_TABS: MainTab[] = ['Standings', 'My Entries', 'Details', 'Reports', 'Commissioner Hub'];
+
+type ReportType = 'Player Pick Summary' | 'Pool Member Pick Summary' | 'Player Performance Summary';
+const REPORT_OPTIONS: ReportType[] = ['Player Pick Summary', 'Pool Member Pick Summary', 'Player Performance Summary'];
 const MAIN_TAB_STORAGE_KEY = `${STORAGE_PREFIX}:main-tab`;
 
 type FeedRow = {
@@ -1585,6 +1588,9 @@ export default function Page() {
   const [historyRoster, setHistoryRoster] = useState<ArchivedStandingRow | null>(null);
   const [historyAtBottom, setHistoryAtBottom] = useState(false);
   const archivedThisSession = useRef<Set<string>>(new Set());
+  const [reportsMenuOpen, setReportsMenuOpen] = useState(false);
+  const [reportsMenuRect, setReportsMenuRect] = useState<{ left: number; top: number; width: number } | null>(null);
+  const [selectedReport, setSelectedReport] = useState<ReportType | null>(null);
   const [expandedBonusCategories, setExpandedBonusCategories] = useState<Set<string>>(new Set());
   const [bonusInfoPopup, setBonusInfoPopup] = useState<{ title: string; entries: { name: string; rounds: number[]; count?: number }[]; showCounts?: boolean } | null>(null);
   const [cutScorecardGolfer, setCutScorecardGolfer] = useState<{ name: string; pgaTourId: number; photoUrl?: string } | null>(null);
@@ -3784,6 +3790,7 @@ export default function Page() {
   const handleMainTabChange = (tab: MainTab, options?: { refreshAfterChange?: boolean }) => {
     setAccountMenuOpen(false);
     setMyEntriesMenuOpen(false);
+    setReportsMenuOpen(false);
     setActiveStandingEntryId(null);
     setActiveStandingGolferId(null);
     setCommissionerMemberModalOpen(false);
@@ -3815,6 +3822,18 @@ export default function Page() {
         setCommissionerMemberSearch('');
         setShowAddMemberForm(false);
       } else if (tab === 'Details') {
+        setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date()), new Date()));
+        setMyEntriesEditorOpen(false);
+        setMyEntriesDetailView('none');
+        setSaveMessage('');
+        setSelectedLeaderboardPlayerId(null);
+        setCommissionerConsoleView('dashboard');
+        setCommissionerPicksSort('alpha');
+        setPickPopularityOpen(false);
+        setCommissionerRosterMemberId(null);
+        setCommissionerMemberSearch('');
+        setShowAddMemberForm(false);
+      } else if (tab === 'Reports') {
         setSelectedTournament(getDefaultTournamentId(getTournamentCardStatuses(new Date()), new Date()));
         setMyEntriesEditorOpen(false);
         setMyEntriesDetailView('none');
@@ -4140,6 +4159,37 @@ export default function Page() {
                 .filter((tab) => tab !== 'Commissioner Hub' || canManagePool)
                 .map((tab) => {
                   const active = tab === mainTab;
+                  if (tab === 'Reports') {
+                    return (
+                      <button
+                        key={tab}
+                        onClick={(e) => {
+                          const r = e.currentTarget.getBoundingClientRect();
+                          setReportsMenuRect({ left: r.left, top: r.bottom, width: r.width });
+                          setReportsMenuOpen((open) => !open);
+                        }}
+                        style={{
+                          border: 'none',
+                          borderBottom: active ? `3px solid ${headerTabActiveColor}` : '3px solid transparent',
+                          background: 'transparent',
+                          color: active ? headerTabActiveColor : '#ffffff',
+                          padding: isMobile ? '6px 10px 8px' : '7px 12px 9px',
+                          fontSize: isMobile ? 13 : 15,
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          lineHeight: 1.1,
+                          whiteSpace: 'nowrap',
+                          flex: '0 0 auto',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 3,
+                        }}
+                      >
+                        Reports
+                        <ChevronDown size={isMobile ? 13 : 15} style={{ transform: reportsMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s ease' }} />
+                      </button>
+                    );
+                  }
                   return (
                     <button
                       key={tab}
@@ -6925,6 +6975,44 @@ export default function Page() {
           </main>
         )}
 
+        {mainTab === 'Reports' && (
+          <main style={{ marginTop: isMobile ? 12 : 24 }}>
+            <section style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 18px 40px rgba(9,34,51,0.08)', borderTop: `3px solid ${headerSolid}` }}>
+              <div style={{ padding: isMobile ? 18 : 28 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isMobile ? 6 : 8 }}>
+                  <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: headerSolid }}>Reports</div>
+                </div>
+                {selectedReport ? (
+                  <>
+                    <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#0f1720' }}>{selectedReport}</div>
+                    <div style={{ marginTop: 10, fontSize: isMobile ? 13 : 15, color: '#5b6b79', lineHeight: 1.55 }}>
+                      This report is coming soon.
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: isMobile ? 18 : 24, fontWeight: 900, color: '#0f1720' }}>Choose a report</div>
+                    <div style={{ marginTop: 10, fontSize: isMobile ? 13 : 15, color: '#5b6b79', lineHeight: 1.55 }}>
+                      Use the <strong>Reports</strong> menu above to pick a summary to view.
+                    </div>
+                    <div style={{ marginTop: 16, display: 'grid', gap: 8, maxWidth: 360 }}>
+                      {REPORT_OPTIONS.map((opt) => (
+                        <button
+                          key={opt}
+                          onClick={() => setSelectedReport(opt)}
+                          style={{ textAlign: 'left', background: '#f0f6ff', border: '1px solid #dce8f5', borderRadius: 12, padding: '12px 16px', fontSize: isMobile ? 13 : 14, fontWeight: 700, color: '#173b63', cursor: 'pointer' }}
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </section>
+          </main>
+        )}
+
         {mainTab === 'Commissioner Hub' && (
           <main style={{ marginTop: isMobile ? 12 : 24, display: 'grid', gap: isMobile ? 12 : 20 }}>
             {commissionerConsoleView === 'dashboard' ? (
@@ -9369,6 +9457,28 @@ export default function Page() {
             </div>
           </div>
         )}
+
+        {reportsMenuOpen && reportsMenuRect && (() => {
+          const menuW = 236;
+          const vw = typeof window !== 'undefined' ? window.innerWidth : 9999;
+          const left = Math.max(8, Math.min(reportsMenuRect.left, vw - menuW - 8));
+          return (
+            <>
+              <div onClick={() => setReportsMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 1200 }} />
+              <div style={{ position: 'fixed', top: reportsMenuRect.top + 4, left, width: menuW, zIndex: 1201, background: '#fff', border: '1px solid #d1dae3', borderRadius: 12, boxShadow: '0 14px 34px rgba(9,34,51,0.24)', overflow: 'hidden' }}>
+                {REPORT_OPTIONS.map((opt, i) => (
+                  <button
+                    key={opt}
+                    onClick={() => { setSelectedReport(opt); setReportsMenuOpen(false); handleMainTabChange('Reports'); }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', background: selectedReport === opt ? '#eef4fb' : 'transparent', border: 'none', borderTop: i === 0 ? 'none' : '1px solid #eef2f6', padding: '13px 16px', fontSize: 14, fontWeight: 700, color: '#0f1720', cursor: 'pointer' }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </>
+          );
+        })()}
 
         {historyPopup && (() => {
           const histName = selectedTournament === 'players' ? 'The Players Championship' : selectedTournament === 'masters' ? 'Masters Tournament' : selectedTournament === 'pga' ? 'PGA Championship' : selectedTournament === 'us-open' ? 'U.S. Open' : 'The Open Championship';
