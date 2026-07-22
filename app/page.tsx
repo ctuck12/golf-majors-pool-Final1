@@ -7627,7 +7627,7 @@ export default function Page() {
                   const pshPayoutFor = (place: number) => (place === 1 ? pshPayouts?.first : place === 2 ? pshPayouts?.second : place === 3 ? pshPayouts?.third : undefined);
                   const pshIsOpen = pshTournament === 'open';
                   const pshDivider = (pshTournament === 'players' || pshTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef';
-                  const pshTh: React.CSSProperties = { padding: '10px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', color: '#fff' };
+                  const pshTh: React.CSSProperties = { padding: isMobile ? '10px 6px' : '10px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', color: '#fff' };
                   return (
                     <>
                       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: isMobile ? 10 : 14, rowGap: 12, flexWrap: 'wrap' }}>
@@ -7666,22 +7666,22 @@ export default function Page() {
                                   const clickable = (r.golfers?.length ?? 0) > 0;
                                   return (
                                     <tr key={i} onClick={clickable ? () => setHistoryRoster(r) : undefined} style={{ borderTop: pshDivider, cursor: clickable ? 'pointer' : 'default' }}>
-                                      <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 13, fontWeight: 700, color: '#374151', whiteSpace: 'nowrap' }}>{r.place}</td>
-                                      <td style={{ padding: '9px 12px', fontSize: 13, color: '#0f1720', fontWeight: r.place <= 3 ? 800 : 500 }}>
-                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                                          <span>{r.name}</span>
+                                      <td style={{ textAlign: 'center', padding: isMobile ? '9px 5px' : '9px 8px', fontSize: 13, fontWeight: 700, color: '#374151', whiteSpace: 'nowrap' }}>{r.place}</td>
+                                      <td style={{ padding: isMobile ? '9px 6px' : '9px 12px', fontSize: 13, color: '#0f1720', fontWeight: r.place <= 3 ? 800 : 500 }}>
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, flexWrap: 'nowrap', whiteSpace: 'nowrap' }}>
+                                          <span style={{ whiteSpace: 'nowrap' }}>{r.name}</span>
                                           {pshMedal(r.place) && (
-                                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
+                                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, whiteSpace: 'nowrap' }}>
                                               <span style={{ fontSize: 15 }}>{pshMedal(r.place)}</span>
                                               {typeof pshPayoutFor(r.place) === 'number' && (
-                                                <span style={{ fontSize: 12, fontWeight: 700, color: '#0f7a3d' }}>(${pshPayoutFor(r.place)!.toLocaleString()})</span>
+                                                <span style={{ fontSize: isMobile ? 11 : 12, fontWeight: 700, color: '#0f7a3d' }}>(${pshPayoutFor(r.place)!.toLocaleString()})</span>
                                               )}
                                             </span>
                                           )}
                                         </span>
                                       </td>
-                                      <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 13, fontWeight: 700, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.points % 1 === 0 ? r.points : r.points.toFixed(1)}</td>
-                                      <td style={{ textAlign: 'center', padding: '9px 8px', fontSize: 13, fontWeight: 600, color: pshIsOpen ? '#000' : '#5b6b79', whiteSpace: 'nowrap' }}>{r.tieBreak}</td>
+                                      <td style={{ textAlign: 'center', padding: isMobile ? '9px 6px' : '9px 8px', fontSize: 13, fontWeight: 700, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.points % 1 === 0 ? r.points : r.points.toFixed(1)}</td>
+                                      <td style={{ textAlign: 'center', padding: isMobile ? '9px 6px' : '9px 8px', fontSize: 13, fontWeight: 600, color: pshIsOpen ? '#000' : '#5b6b79', whiteSpace: 'nowrap' }}>{r.tieBreak}</td>
                                     </tr>
                                   );
                                 })}
