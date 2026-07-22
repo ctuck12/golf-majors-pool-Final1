@@ -9437,7 +9437,7 @@ export default function Page() {
                                 <td style={{ padding: '9px 12px', fontSize: 13, fontWeight: 600, color: '#0f1720' }}>
                                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
                                     {flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: isOpenHist ? '0.5px solid #000' : undefined, flexShrink: 0 }} />}
-                                    {abbr && <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', flexShrink: 0 }}>{abbr}</span>}
+                                    {abbr && <span style={{ fontSize: 10, fontWeight: 700, color: isOpenHist ? '#1e3a5f' : '#94a3b8', flexShrink: 0 }}>{abbr}</span>}
                                     <span>{g.name}</span>
                                   </span>
                                 </td>
