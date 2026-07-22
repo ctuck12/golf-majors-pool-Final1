@@ -7175,7 +7175,7 @@ export default function Page() {
                           </div>
                           <div style={{ display: 'grid', gap: isMobile ? 12 : 14 }}>
                             {ppsResult.rows.map((r) => {
-                              const pct = Math.max(18, Math.round((r.count / maxCount) * 100));
+                              const pct = Math.max(20, Math.round((r.count / maxCount) * 80));
                               const isCut = CUT_MARKS.has(String(r.position).toUpperCase());
                               return (
                                 <div key={r.id} onClick={() => setPpsPickPopup({ id: r.id, name: r.name, tournament: ppsResult.tournament })} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 9 : 12, cursor: 'pointer' }}>
@@ -7185,17 +7185,15 @@ export default function Page() {
                                     style={{ width: isMobile ? 40 : 48, height: isMobile ? 40 : 48, borderRadius: '50%', objectFit: 'cover', border: '1px solid #dce8f5', flexShrink: 0, background: '#eef2f6' }}
                                   />
                                   <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 5 }}>
-                                      <span style={{ fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
+                                      <span style={{ minWidth: 0, flexShrink: 1, fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
                                       <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, color: isCut ? '#dc2626' : '#334155', background: isCut ? '#fee2e2' : '#eef2f7', borderRadius: 6, padding: '3px 8px', whiteSpace: 'nowrap' }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</span>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                      <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ width: `${pct}%`, minWidth: isMobile ? 82 : 96, height: isMobile ? 24 : 26, borderRadius: 6, background: barColor, display: 'flex', alignItems: 'center', paddingLeft: 9 }}>
-                                          <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>
-                                        </div>
+                                      <div style={{ width: `${pct}%`, minWidth: isMobile ? 82 : 96, height: isMobile ? 24 : 26, borderRadius: 6, background: barColor, display: 'flex', alignItems: 'center', paddingLeft: 9, flexShrink: 0 }}>
+                                        <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>
                                       </div>
-                                      <span style={{ flexShrink: 0, minWidth: 16, fontSize: isMobile ? 13 : 14, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.count}</span>
+                                      <span style={{ flexShrink: 0, fontSize: isMobile ? 13 : 14, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.count}</span>
                                     </div>
                                   </div>
                                 </div>
