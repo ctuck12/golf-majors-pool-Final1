@@ -7560,7 +7560,7 @@ export default function Page() {
                                         <td style={{ padding: '8px 7px', fontWeight: 700, whiteSpace: 'nowrap', color: isCut ? '#dc2626' : (isOpen ? '#000' : '#0f1720'), width: 44, minWidth: 44 }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</td>
                                         <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, width: isMobile ? 172 : 200, minWidth: isMobile ? 172 : 200, maxWidth: isMobile ? 172 : 200 }}>
                                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                                            <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{rowFlag && <img src={rowFlag} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: isOpen ? '1px solid #000' : '1px solid #d1d9e0' }} />}</span>
+                                            <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{rowFlag && <img src={rowFlag} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: isOpen ? '0.5px solid #000' : '1px solid #d1d9e0' }} />}</span>
                                             <span style={{ whiteSpace: 'normal', lineHeight: 1.2, minWidth: 0 }}>{r.name}</span>
                                           </span>
                                         </td>
