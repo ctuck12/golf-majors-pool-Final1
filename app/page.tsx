@@ -9435,10 +9435,12 @@ export default function Page() {
                             return (
                               <tr key={i} style={{ borderTop: histDivider }}>
                                 <td style={{ padding: '9px 12px', fontSize: 13, fontWeight: 600, color: '#0f1720' }}>
-                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
-                                    {flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: isOpenHist ? '0.5px solid #000' : undefined, flexShrink: 0 }} />}
-                                    {abbr && <span style={{ fontSize: 10, fontWeight: 700, color: isOpenHist ? '#1e3a5f' : '#94a3b8', flexShrink: 0 }}>{abbr}</span>}
-                                    <span>{g.name}</span>
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', minWidth: 0 }}>
+                                    <span style={{ width: 20, marginRight: 5, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>
+                                      {flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: isOpenHist ? '0.5px solid #000' : undefined }} />}
+                                    </span>
+                                    <span style={{ width: 24, flexShrink: 0, fontSize: 10, fontWeight: 700, color: isOpenHist ? '#1e3a5f' : '#94a3b8' }}>{abbr || ''}</span>
+                                    <span style={{ marginLeft: 8 }}>{g.name}</span>
                                   </span>
                                 </td>
                                 <td style={{ textAlign: 'center', padding: '9px 6px', fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: '#374151' }}>{g.salary ? `$${g.salary.toLocaleString()}` : '—'}</td>
