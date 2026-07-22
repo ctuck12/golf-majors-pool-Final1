@@ -10291,7 +10291,6 @@ export default function Page() {
           const maxC = rows.reduce((m, r) => Math.max(m, r.count), 0) || 1;
           const total = rows.reduce((s, r) => s + r.count, 0);
           const flagSrc = getPlayerFlag(player.name) ? getFlagSrc(player.name) : null;
-          const abbr = getCountryLabel(player.name) || null;
           return (
             <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
               <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(460px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
@@ -10300,12 +10299,11 @@ export default function Page() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
                       <span style={{ color: '#fff', fontSize: isMobile ? 15 : 16.5, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{player.name}</span>
                       {flagSrc && <img src={flagSrc} alt="" style={{ width: 27, height: 18, objectFit: 'cover', borderRadius: 2, border: '1px solid rgba(255,255,255,0.35)', flexShrink: 0 }} />}
-                      {abbr && <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 800, letterSpacing: '0.04em', flexShrink: 0 }}>{abbr}</span>}
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.82)', fontSize: 11, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: 3 }}>{total} total {total === 1 ? 'pick' : 'picks'}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                    <img src="/golf-majors-pool-logo-v11.png" alt="Golf Majors Pool" style={{ height: isMobile ? 60 : 68, width: 'auto', maxWidth: isMobile ? 172 : 220, objectFit: 'contain', display: 'block' }} />
+                    <img src="/golf-majors-pool-logo-v11.png" alt="Golf Majors Pool" style={{ height: isMobile ? 64 : 72, width: 'auto', maxWidth: isMobile ? 188 : 240, objectFit: 'contain', display: 'block' }} />
                     <button onClick={close} style={{ background: 'rgba(255,255,255,0.22)', border: 'none', color: '#fff', borderRadius: 8, width: 30, height: 30, cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>&#10005;</button>
                   </div>
                 </div>
