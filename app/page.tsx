@@ -9380,6 +9380,8 @@ export default function Page() {
           const CUT_SET = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
           const rosterGolfers = historyRoster?.golfers ? [...historyRoster.golfers].sort((a, b) => b.points - a.points) : [];
           const showScrollHint = !historyRoster && !historyPopup.loading && rows.length > 20 && !historyAtBottom;
+          const isOpenHist = selectedTournament === 'open';
+          const histGold = '#F4BC41';
           return (
             <div onClick={closeAll} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
               <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', width: 'min(560px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
@@ -9404,7 +9406,7 @@ export default function Page() {
                     const el = e.currentTarget;
                     setHistoryAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 24);
                   }}
-                  style={{ overflowY: 'auto' }}
+                  style={{ overflowY: 'auto', background: isOpenHist ? histGold : undefined }}
                 >
                   {historyPopup.loading ? (
                     <div style={{ padding: 34, textAlign: 'center', color: '#5b6b79', fontSize: 14 }}>Loading {historyPopup.year} standings…</div>
@@ -9476,7 +9478,7 @@ export default function Page() {
                                 </span>
                               </td>
                               <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 700, color: '#0f1720', whiteSpace: 'nowrap' }}>{r.points % 1 === 0 ? r.points : r.points.toFixed(1)}</td>
-                              <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 600, color: '#5b6b79', whiteSpace: 'nowrap' }}>{r.tieBreak}</td>
+                              <td style={{ textAlign: 'center', padding: '8px 8px', fontSize: 13, fontWeight: 600, color: isOpenHist ? '#000' : '#5b6b79', whiteSpace: 'nowrap' }}>{r.tieBreak}</td>
                             </tr>
                           );
                         })}
@@ -9485,7 +9487,7 @@ export default function Page() {
                   )}
                 </div>
                 {showScrollHint && (
-                  <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 60, pointerEvents: 'none', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: 9, background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 68%)' }}>
+                  <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 60, pointerEvents: 'none', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: 9, background: isOpenHist ? 'linear-gradient(to bottom, rgba(244,188,65,0) 0%, rgba(244,188,65,0.97) 68%)' : 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 68%)' }}>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: headerSolid, color: '#fff', fontSize: 11.5, fontWeight: 800, letterSpacing: '0.02em', boxShadow: '0 3px 10px rgba(9,34,51,0.22)' }}>
                       <span>Scroll for more</span>
                       <ChevronDown size={14} style={{ animation: 'bounce 1.4s ease-in-out infinite' }} />
