@@ -779,7 +779,7 @@ const REPORT_TOURNAMENTS: { id: TournamentId; label: string }[] = [
 const POOL_SEASONS = [2026];
 // Explicit render heights (px) for the tournament logo shown inside the Reports dropdown box.
 // Uses an explicit height (not max-height) so the small source PNGs upscale to fill the box.
-const REPORT_DROPDOWN_LOGO_H: Record<TournamentId, number> = { players: 42, masters: 28, pga: 44, 'us-open': 32, open: 34 };
+const REPORT_DROPDOWN_LOGO_H: Record<TournamentId, number> = { players: 48, masters: 28, pga: 44, 'us-open': 32, open: 34 };
 const REPORT_TOURNAMENT_SOLID: Record<TournamentId, string> = {
   players: '#173b63',
   masters: '#2c6449',
