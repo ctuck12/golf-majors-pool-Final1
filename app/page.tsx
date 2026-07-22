@@ -1638,6 +1638,7 @@ export default function Page() {
   const [ppfSearch, setPpfSearch] = useState('');
   const [ppfSortKey, setPpfSortKey] = useState<'finish' | 'par' | 'birdie' | 'eagle' | 'bogey' | 'double' | 'triple'>('finish');
   const [ppfSortDir, setPpfSortDir] = useState<'asc' | 'desc'>('asc');
+  const [ppfSelectedRow, setPpfSelectedRow] = useState<string | null>(null);
   const ppfScrollRef = useRef<HTMLDivElement | null>(null);
   const [ppfViewportW, setPpfViewportW] = useState(0);
   const [expandedBonusCategories, setExpandedBonusCategories] = useState<Set<string>>(new Set());
@@ -7469,7 +7470,7 @@ export default function Page() {
                         <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
                           <select
                             value={ppfTournament}
-                            onChange={(e) => { setPpfTournament(e.target.value as TournamentId | ''); setPpfSearch(''); setPpfSortKey('finish'); setPpfSortDir('asc'); }}
+                            onChange={(e) => { setPpfTournament(e.target.value as TournamentId | ''); setPpfSearch(''); setPpfSortKey('finish'); setPpfSortDir('asc'); setPpfSelectedRow(null); }}
                             style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: ppfTournament ? 'transparent' : '#94a3b8', WebkitTextFillColor: ppfTournament ? 'transparent' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
                           >
                             <option value="" disabled>Select tournament</option>
@@ -7493,8 +7494,8 @@ export default function Page() {
                               <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: isMobile ? 11.5 : 12 }}>
                                 <thead>
                                   <tr style={{ background: tColor, color: '#fff', textAlign: 'center', fontSize: isMobile ? 10 : 11 }}>
-                                    <th title="Finishing position" style={{ padding: '9px 7px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.03em', whiteSpace: 'nowrap', position: 'sticky', top: 0, left: 0, zIndex: 4, background: tColor, width: 44, minWidth: 44 }}>POS</th>
-                                    <th style={{ padding: '9px 10px', textAlign: 'left', fontWeight: 700, letterSpacing: '0.03em', whiteSpace: 'nowrap', position: 'sticky', top: 0, left: 44, zIndex: 4, background: tColor, width: isMobile ? 172 : 200, minWidth: isMobile ? 172 : 200 }}>PLAYER</th>
+                                    <th title="Finishing position" style={{ padding: '9px 7px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.03em', whiteSpace: 'nowrap', position: 'sticky', top: 0, zIndex: 2, background: tColor, width: 44, minWidth: 44 }}>POS</th>
+                                    <th style={{ padding: '9px 10px', textAlign: 'left', fontWeight: 700, letterSpacing: '0.03em', whiteSpace: 'nowrap', position: 'sticky', top: 0, zIndex: 2, background: tColor, width: isMobile ? 172 : 200, minWidth: isMobile ? 172 : 200 }}>PLAYER</th>
                                     {sortableTh('SCORE', 'finish', 'Score to par (sorts by finish)')}
                                     {sortableTh('PARS', 'par', 'Pars')}
                                     {sortableTh('BIRD', 'birdie', 'Birdies')}
@@ -7520,7 +7521,9 @@ export default function Page() {
                                     // In the default finish sort the field is grouped made-cut → missed-cut, so drop a
                                     // cut-line divider at the boundary (first cut player, just below the last to make it).
                                     const showCutLine = ppfSortKey === 'finish' && !q && isCut && i > 0 && !rowIsCut(sorted[i - 1]);
-                                    const rowBg = i % 2 === 0 ? '#fff' : '#f7fafc';
+                                    const isSelected = ppfSelectedRow === r.name;
+                                    const rowHighlight = ppfTournament === 'masters' ? '#dcfce7' : ppfTournament === 'open' ? '#93c5fd' : '#dbeafe';
+                                    const rowBg = isSelected ? rowHighlight : (i % 2 === 0 ? '#fff' : '#f7fafc');
                                     return (
                                       <Fragment key={`${r.name}-${i}`}>
                                       {showCutLine && (
@@ -7534,9 +7537,9 @@ export default function Page() {
                                           </td>
                                         </tr>
                                       )}
-                                      <tr style={{ background: rowBg, borderTop: '1px solid #eef2f6', textAlign: 'center', color: '#0f1720' }}>
-                                        <td style={{ padding: '8px 7px', fontWeight: 700, whiteSpace: 'nowrap', color: isCut ? '#dc2626' : '#0f1720', position: 'sticky', left: 0, zIndex: 1, background: rowBg, width: 44, minWidth: 44 }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</td>
-                                        <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, position: 'sticky', left: 44, zIndex: 1, background: rowBg, width: isMobile ? 172 : 200, minWidth: isMobile ? 172 : 200, maxWidth: isMobile ? 172 : 200 }}>
+                                      <tr onClick={() => setPpfSelectedRow((prev) => prev === r.name ? null : r.name)} style={{ background: rowBg, borderTop: '1px solid #eef2f6', textAlign: 'center', color: '#0f1720', cursor: 'pointer' }}>
+                                        <td style={{ padding: '8px 7px', fontWeight: 700, whiteSpace: 'nowrap', color: isCut ? '#dc2626' : '#0f1720', width: 44, minWidth: 44 }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</td>
+                                        <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, width: isMobile ? 172 : 200, minWidth: isMobile ? 172 : 200, maxWidth: isMobile ? 172 : 200 }}>
                                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                                             <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{rowFlag && <img src={rowFlag} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0' }} />}</span>
                                             <span style={{ whiteSpace: 'normal', lineHeight: 1.2, minWidth: 0 }}>{r.name}</span>
