@@ -1631,6 +1631,7 @@ export default function Page() {
   // Player Pick Summary report controls.
   const [ppsTournament, setPpsTournament] = useState<TournamentId | 'all' | ''>('');
   const [ppsSortBy, setPpsSortBy] = useState<'Picked' | 'Salary' | ''>('');
+  const [ppsSearch, setPpsSearch] = useState('');
   // Player Pick Summary — "which entries picked this player" popup.
   const [ppsPickPopup, setPpsPickPopup] = useState<{ id: number; name: string; tournament: TournamentId } | null>(null);
   // Player Pick Summary "All" view — per-player popup breaking a player's picks down by major.
@@ -4077,6 +4078,7 @@ export default function Page() {
       // auto-shows the last thing that was pulled.
       setPpsTournament('');
       setPpsSortBy('');
+      setPpsSearch('');
       setPmpsEntryId('');
       setPmphEntryId('');
       setPpfTournament('');
@@ -7222,10 +7224,24 @@ export default function Page() {
                       if (ppsResult.rows.length === 0) {
                         return <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79' }}>{isAll ? 'No picks have been recorded yet.' : `No picks were recorded for ${tLabel}.`}</div>;
                       }
+                      const q = ppsSearch.trim().toLowerCase();
+                      const filtered = q ? ppsResult.rows.filter((r) => r.name.toLowerCase().includes(q)) : ppsResult.rows;
+                      const tallyColor = ppsResult.tournament === 'all' ? '#2f93bf' : REPORT_TOURNAMENT_SOLID[ppsResult.tournament];
                       return (
-                        <div style={{ marginTop: isMobile ? 18 : 24 }}>
+                        <div style={{ marginTop: isMobile ? 16 : 20 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: isMobile ? 14 : 18 }}>
+                            <div style={{ fontSize: isMobile ? 13.5 : 15.5, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap' }}>Total Players Picked: <span style={{ color: tallyColor }}>{ppsResult.rows.length}</span></div>
+                            <div style={{ position: 'relative', flex: isMobile ? '1 1 100%' : '0 0 auto' }}>
+                              <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                              <input value={ppsSearch} onChange={(e) => setPpsSearch(e.target.value)} placeholder="Search player" style={{ width: isMobile ? '100%' : 230, boxSizing: 'border-box', padding: '9px 30px 9px 32px', borderRadius: 10, border: '1px solid #cdd9e5', fontSize: isMobile ? 16 : 13.5, fontWeight: 600, color: '#0f1720', outline: 'none' }} />
+                              {ppsSearch && <button onClick={() => setPpsSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 14, lineHeight: 1, padding: 2 }}>✕</button>}
+                            </div>
+                          </div>
+                          {filtered.length === 0 ? (
+                            <div style={{ fontSize: 14, color: '#5b6b79' }}>No players match your search.</div>
+                          ) : (
                           <div style={{ display: 'grid', gap: isMobile ? 12 : 14 }}>
-                            {ppsResult.rows.map((r) => {
+                            {filtered.map((r) => {
                               const pct = Math.max(20, Math.round((r.count / maxCount) * 80));
                               const isCut = CUT_MARKS.has(String(r.position).toUpperCase());
                               const flagSrc = getPlayerFlag(r.name) ? getFlagSrc(r.name) : null;
@@ -7255,6 +7271,7 @@ export default function Page() {
                               );
                             })}
                           </div>
+                          )}
                         </div>
                       );
                     })()}
