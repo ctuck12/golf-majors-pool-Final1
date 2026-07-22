@@ -7437,6 +7437,14 @@ export default function Page() {
                   };
                   const arrow = (key: typeof ppfSortKey) => (ppfSortKey === key ? (ppfSortDir === 'asc' ? ' ▲' : ' ▼') : '');
                   const CUT_MARK = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
+                  // The cut line for a completed tournament isn't in the feed's projectedCut (that's only
+                  // populated live), so derive it: the worst (highest) to-par score among players who made
+                  // the cut is exactly the number a player needed to reach to survive it.
+                  const madeCutScoreNums = ppfRows
+                    .filter((r) => r.madeCut && !CUT_MARK.has(String(r.position).toUpperCase()) && Number.isFinite(r.scoreNum))
+                    .map((r) => r.scoreNum);
+                  const derivedCutNum = madeCutScoreNums.length ? Math.max(...madeCutScoreNums) : null;
+                  const cutLineLabel = cutLine ?? (derivedCutNum === null ? null : derivedCutNum === 0 ? 'E' : derivedCutNum > 0 ? `+${derivedCutNum}` : String(derivedCutNum));
                   const sortableTh = (label: string, key: typeof ppfSortKey, title: string) => (
                     <th title={title} onClick={() => setSort(key)} style={{ padding: '9px 7px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.03em', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap', position: 'sticky', top: 0, zIndex: 2, background: tColor }}>{label}{arrow(key)}</th>
                   );
@@ -7536,7 +7544,7 @@ export default function Page() {
                                           <td colSpan={16} style={{ padding: 0, background: '#fff' }}>
                                             <div style={{ position: 'sticky', left: 0, width: ppfViewportW || '100%', boxSizing: 'border-box', display: 'flex', alignItems: 'center', gap: 8, padding: '4px 10px' }}>
                                               <div style={{ flex: 1, height: 2, background: '#111827' }} />
-                                              <span style={{ fontSize: 10.5, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CUT LINE{cutLine ? `: ${cutLine}` : ''}</span>
+                                              <span style={{ fontSize: 10.5, fontWeight: 800, color: '#111827', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CUT LINE{cutLineLabel ? `: ${cutLineLabel}` : ''}</span>
                                               <div style={{ flex: 1, height: 2, background: '#111827' }} />
                                             </div>
                                           </td>
