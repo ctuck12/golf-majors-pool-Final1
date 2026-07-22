@@ -1239,7 +1239,7 @@ let LOCK_TIME_OVERRIDES: Partial<Record<TournamentId, string>> = {};
 // (the LOCKED / Final Results leaderboard view) instead of rolling over to next
 // season's UP NEXT preview once their year's window has concluded. Remove an entry
 // here to let that tournament advance to its next-season pre-tournament view again.
-const FORCE_COMPLETED_VIEW: Partial<Record<TournamentId, boolean>> = { players: true };
+const FORCE_COMPLETED_VIEW: Partial<Record<TournamentId, boolean>> = {};
 
 // Render a UTC instant as a datetime-local value in Central time, and convert back.
 function utcToCentralInput(iso: string): string {
