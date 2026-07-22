@@ -7686,11 +7686,7 @@ export default function Page() {
                             </table>
                           </div>
                         )
-                      ) : (
-                        <div style={{ marginTop: isMobile ? 20 : 26, fontSize: isMobile ? 13 : 14, color: '#5b6b79', lineHeight: 1.55 }}>
-                          Choose a tournament above to view the {pshYear} season’s final pool standings.
-                        </div>
-                      )}
+                      ) : null}
                     </>
                   );
                 })() : selectedReport ? (
