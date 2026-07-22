@@ -1606,11 +1606,16 @@ export default function Page() {
   const [showPreviousRounds, setShowPreviousRounds] = useState(false);
   const [showBonusPoints, setShowBonusPoints] = useState(false);
   const [showTiebreakerRules, setShowTiebreakerRules] = useState(false);
-  const [historyYearsAvailable, setHistoryYearsAvailable] = useState<number[]>([]);
-  const [historyYearsLoading, setHistoryYearsLoading] = useState(false);
   const [historyPopup, setHistoryPopup] = useState<{ tournament: TournamentId; year: number; loading: boolean; data: ArchivedStandingsData | null } | null>(null);
-  // Pool Standings History report — selected tournament for the past-standings lookup.
+  // Pool Standings History report — selected tournament, plus the year (defaults to the most recent
+  // COMPLETED season: the latest banked season earlier than the current live one, which is shown in
+  // Standings — e.g. 2026 now, still 2026 during 2027, 2027 during 2028, and so on).
   const [pshTournament, setPshTournament] = useState<TournamentId | ''>('');
+  const [pshYear, setPshYear] = useState<number>(() => {
+    const cy = new Date().getFullYear();
+    const prior = POOL_SEASONS.filter((y) => y < cy);
+    return prior.length ? Math.max(...prior) : Math.max(...POOL_SEASONS);
+  });
   const [historyRoster, setHistoryRoster] = useState<ArchivedStandingRow | null>(null);
   const archivedThisSession = useRef<Set<string>>(new Set());
   const [reportsMenuOpen, setReportsMenuOpen] = useState(false);
@@ -3924,23 +3929,6 @@ export default function Page() {
       .then((r) => r.json())
       .then((data: ArchivedStandingsData) => setHistoryPopup({ tournament, year, loading: false, data }))
       .catch(() => setHistoryPopup({ tournament, year, loading: false, data: { available: false, error: 'fetch failed' } }));
-  };
-  // Load which seasons have banked standings for a tournament (populates the report's year dropdown),
-  // then auto-select the most recent (latest) banked year so it's shown by default.
-  const loadHistoryYears = (tournament: TournamentId) => {
-    setHistoryYearsLoading(true);
-    setHistoryYearsAvailable([]);
-    setHistoryPopup(null);
-    setHistoryRoster(null);
-    fetch(`/api/standings-archive?tournamentId=${tournament}`, { cache: 'no-store' })
-      .then((r) => r.json())
-      .then((d: { years?: number[] }) => {
-        const years = Array.isArray(d.years) ? d.years.filter((y) => typeof y === 'number') : [];
-        setHistoryYearsAvailable(years);
-        if (years.length > 0) openTournamentHistory(tournament, Math.max(...years));
-      })
-      .catch(() => setHistoryYearsAvailable([]))
-      .finally(() => setHistoryYearsLoading(false));
   };
   const openCutScorecardFor = (name: string) => {
     setCutScorecardGolfer({ name, pgaTourId: 0, photoUrl: undefined });
@@ -7599,7 +7587,7 @@ export default function Page() {
                       <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
                         <select
                           value={pshTournament}
-                          onChange={(e) => { const t = e.target.value as TournamentId | ''; setPshTournament(t); if (t) loadHistoryYears(t); else setHistoryYearsAvailable([]); }}
+                          onChange={(e) => { const t = e.target.value as TournamentId | ''; setPshTournament(t); if (t) openTournamentHistory(t, pshYear); else setHistoryPopup(null); }}
                           style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: pshTournament ? 'transparent' : '#94a3b8', WebkitTextFillColor: pshTournament ? 'transparent' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
                         >
                           <option value="" disabled>Select tournament</option>
@@ -7619,13 +7607,11 @@ export default function Page() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: isMobile ? '0 0 116px' : '0 0 160px' }}>
                       <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Year</label>
                       <select
-                        value={(pshTournament && historyPopup?.tournament === pshTournament) ? String(historyPopup.year) : ''}
-                        disabled={!pshTournament || historyYearsLoading}
-                        onChange={(e) => { if (pshTournament && e.target.value) openTournamentHistory(pshTournament, Number(e.target.value)); }}
-                        style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: (pshTournament && historyPopup?.tournament === pshTournament) ? '#0f1720' : '#94a3b8', cursor: pshTournament ? 'pointer' : 'not-allowed', opacity: pshTournament ? 1 : 0.6, backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                        value={String(pshYear)}
+                        onChange={(e) => { const y = Number(e.target.value); setPshYear(y); if (pshTournament) openTournamentHistory(pshTournament, y); }}
+                        style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: '#0f1720', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
                       >
-                        <option value="" disabled>{!pshTournament ? 'Select year' : historyYearsLoading ? 'Loading…' : historyYearsAvailable.length === 0 ? 'No past standings' : 'Select year'}</option>
-                        {historyYearsAvailable.map((yr) => (
+                        {[...POOL_SEASONS].sort((a, b) => b - a).map((yr) => (
                           <option key={yr} value={yr}>{yr}</option>
                         ))}
                       </select>
@@ -7634,7 +7620,7 @@ export default function Page() {
                   const pshLoaded = !!pshTournament && historyPopup?.tournament === pshTournament;
                   const pshRows = pshLoaded ? (historyPopup?.data?.standings ?? []) : [];
                   const pshLoading = pshLoaded && !!historyPopup?.loading;
-                  const pshYear = historyPopup?.year;
+                  const pshLoadedYear = historyPopup?.year;
                   const pshHeaderSolid = pshTournament ? REPORT_TOURNAMENT_SOLID[pshTournament] : '#173b63';
                   const pshPayouts = (pshLoaded ? historyPopup?.data?.payouts : null) ?? (pshTournament ? pool?.payouts?.[pshTournament] : null) ?? null;
                   const pshMedal = (place: number) => (place === 1 ? '🥇' : place === 2 ? '🥈' : place === 3 ? '🥉' : null);
@@ -7661,9 +7647,9 @@ export default function Page() {
                       )}
                       {pshLoaded ? (
                         pshLoading ? (
-                          <div style={{ marginTop: isMobile ? 20 : 26, fontSize: 14, color: '#5b6b79' }}>Loading {pshYear} standings…</div>
+                          <div style={{ marginTop: isMobile ? 20 : 26, fontSize: 14, color: '#5b6b79' }}>Loading {pshLoadedYear} standings…</div>
                         ) : pshRows.length === 0 ? (
-                          <div style={{ marginTop: isMobile ? 20 : 26, fontSize: 14, color: '#5b6b79', lineHeight: 1.5 }}>No banked standings for the {pshYear} season yet.</div>
+                          <div style={{ marginTop: isMobile ? 20 : 26, fontSize: 14, color: '#5b6b79', lineHeight: 1.5 }}>No banked standings for the {pshLoadedYear} season yet.</div>
                         ) : (
                           <div style={{ marginTop: isMobile ? 18 : 24, border: '1px solid #d1dae3', borderRadius: 12, overflow: 'hidden' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse', background: pshIsOpen ? '#F4BC41' : '#fff' }}>
@@ -7705,13 +7691,7 @@ export default function Page() {
                         )
                       ) : (
                         <div style={{ marginTop: isMobile ? 20 : 26, fontSize: isMobile ? 13 : 14, color: '#5b6b79', lineHeight: 1.55 }}>
-                          {!pshTournament
-                            ? 'Choose a tournament to view a season’s final pool standings.'
-                            : historyYearsLoading
-                              ? 'Loading standings…'
-                              : historyYearsAvailable.length === 0
-                                ? 'No past standings have been banked for this tournament yet — they appear here after each event is finalized.'
-                                : 'Select a year above to view that season’s final pool standings.'}
+                          Choose a tournament above to view the {pshYear} season’s final pool standings.
                         </div>
                       )}
                     </>
