@@ -7208,13 +7208,8 @@ export default function Page() {
                                     style={{ width: isMobile ? 40 : 48, height: isMobile ? 40 : 48, borderRadius: '50%', objectFit: 'cover', border: '1px solid #dce8f5', flexShrink: 0, background: '#eef2f6' }}
                                   />
                                   <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 7, marginBottom: 5 }}>
-                                      <span style={{ minWidth: 0, flexShrink: 1, fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
-                                      <span style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'baseline', gap: 6, whiteSpace: 'nowrap' }}>
-                                        <span style={{ color: '#d7dee6', fontWeight: 700, fontSize: isMobile ? 11 : 12 }}>|</span>
-                                        <span style={{ fontSize: isMobile ? 11 : 12, fontWeight: 700, letterSpacing: '0.02em', textTransform: 'uppercase', color: isCut ? '#dc2626' : '#94a3b8' }}>{isCut ? 'Cut' : formatLeaderboardPosition(r.position)}</span>
-                                      </span>
-                                    </div>
+                                    <div style={{ fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.15 }}>{r.name}</div>
+                                    <div style={{ fontSize: isMobile ? 10 : 10.5, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', color: isCut ? '#dc2626' : '#9aa7b4', margin: '2px 0 6px' }}>{isCut ? 'Missed Cut' : `Finished ${formatLeaderboardPosition(r.position)}`}</div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                       <div style={{ width: `${pct}%`, minWidth: isMobile ? 82 : 96, height: isMobile ? 24 : 26, borderRadius: 6, background: barColor, display: 'flex', alignItems: 'center', paddingLeft: 9, flexShrink: 0 }}>
                                         <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>
