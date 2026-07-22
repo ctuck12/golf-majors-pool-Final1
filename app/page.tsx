@@ -4835,7 +4835,7 @@ export default function Page() {
                         {historyDropdownOpen && (
                           <>
                             <div onClick={() => setHistoryDropdownOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
-                            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #d1dae3', borderRadius: 10, boxShadow: '0 8px 24px rgba(9,34,51,0.18)', zIndex: 41, overflow: 'hidden', minWidth: 160, maxHeight: 260, overflowY: 'auto' }}>
+                            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: selectedTournament === 'open' ? '#F4BC41' : '#fff', border: selectedTournament === 'open' ? '1px solid #000' : '1px solid #d1dae3', borderRadius: 10, boxShadow: '0 8px 24px rgba(9,34,51,0.18)', zIndex: 41, overflow: 'hidden', minWidth: 160, maxHeight: 260, overflowY: 'auto' }}>
                               <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: selectedTournament === 'open' ? '#000' : '#94a3b8', background: selectedTournament === 'open' ? '#F4BC41' : undefined, padding: '8px 13px 5px' }}>Past Standings</div>
                               {historyYearsLoading ? (
                                 <div style={{ padding: '9px 13px', fontSize: 12, color: '#94a3b8' }}>Loading…</div>
@@ -4843,7 +4843,7 @@ export default function Page() {
                                 <div style={{ padding: '9px 13px 11px', fontSize: 11.5, color: '#94a3b8', lineHeight: 1.4, maxWidth: 180 }}>No past standings yet — they&rsquo;ll appear here each year.</div>
                               ) : historyYearsAvailable.map((yr) => (
                                 <button key={yr} onClick={(e) => { e.stopPropagation(); openTournamentHistory(yr); }}
-                                  style={{ display: 'block', width: '100%', textAlign: 'left', background: 'transparent', border: 'none', borderTop: '1px solid #f0f3f6', padding: '9px 13px', fontSize: 13, fontWeight: 700, color: selectedTournament === 'open' ? '#1e3a5f' : '#0f1720', cursor: 'pointer' }}>
+                                  style={{ display: 'block', width: '100%', textAlign: 'left', background: selectedTournament === 'open' ? '#F4BC41' : 'transparent', border: 'none', borderTop: (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef', padding: '9px 13px', fontSize: 13, fontWeight: 700, color: selectedTournament === 'open' ? '#1e3a5f' : '#0f1720', cursor: 'pointer' }}>
                                   {yr}
                                 </button>
                               ))}
@@ -9382,6 +9382,8 @@ export default function Page() {
           const showScrollHint = !historyRoster && !historyPopup.loading && rows.length > 20 && !historyAtBottom;
           const isOpenHist = selectedTournament === 'open';
           const histGold = '#F4BC41';
+          // Match the divider color/weight used in the live pool standings list for this tournament.
+          const histDivider = (selectedTournament === 'players' || selectedTournament === 'open') ? '1px solid rgba(0,0,0,0.1)' : '1px solid #e2e8ef';
           return (
             <div onClick={closeAll} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
               <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', width: 'min(560px, calc(100vw - 32px))', maxHeight: '86vh', display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 18, boxShadow: '0 24px 60px rgba(9,34,51,0.35)', overflow: 'hidden' }}>
@@ -9431,10 +9433,10 @@ export default function Page() {
                             const flagSrc = getPlayerFlag(g.name) ? getFlagSrc(g.name) : null;
                             const abbr = getCountryLabel(g.name) || null;
                             return (
-                              <tr key={i} style={{ borderTop: '1px solid #eef2f6' }}>
+                              <tr key={i} style={{ borderTop: histDivider }}>
                                 <td style={{ padding: '9px 12px', fontSize: 13, fontWeight: 600, color: '#0f1720' }}>
                                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
-                                    {flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, flexShrink: 0 }} />}
+                                    {flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #000', flexShrink: 0 }} />}
                                     {abbr && <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', flexShrink: 0 }}>{abbr}</span>}
                                     <span>{g.name}</span>
                                   </span>
@@ -9462,7 +9464,7 @@ export default function Page() {
                         {rows.map((r, i) => {
                           const clickable = (r.golfers?.length ?? 0) > 0;
                           return (
-                            <tr key={i} onClick={clickable ? () => setHistoryRoster(r) : undefined} style={{ borderTop: '1px solid #eef2f6', cursor: clickable ? 'pointer' : 'default' }}>
+                            <tr key={i} onClick={clickable ? () => setHistoryRoster(r) : undefined} style={{ borderTop: histDivider, cursor: clickable ? 'pointer' : 'default' }}>
                               <td style={{ textAlign: 'center', padding: '8px 6px', fontSize: 13, fontWeight: 700, color: '#374151', whiteSpace: 'nowrap' }}>{r.place}</td>
                               <td style={{ padding: '8px 12px', fontSize: 13, color: '#0f1720', fontWeight: r.place <= 3 ? 800 : 500 }}>
                                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
