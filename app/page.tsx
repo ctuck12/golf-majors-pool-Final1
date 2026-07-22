@@ -7270,7 +7270,7 @@ export default function Page() {
                     <>
                       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: isMobile ? 10 : 14, rowGap: 12, flexWrap: 'wrap' }}>
                         <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Pool Member Pick History</div>
-                        {isMobile ? reportYearSelect : (
+                        {!isMobile && (
                           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 5, width: 240 }}>
                               <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Pool Member</label>
@@ -7290,18 +7290,21 @@ export default function Page() {
                         )}
                       </div>
                       {isMobile && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: 14, maxWidth: 320 }}>
-                          <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Pool Member</label>
-                          <select
-                            value={pmphEntryId}
-                            onChange={(e) => setPmphEntryId(e.target.value)}
-                            style={{ appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: pmphEntryId ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
-                          >
-                            <option value="" disabled>Select pool member</option>
-                            {entriesSorted.map((e) => (
-                              <option key={e.id} value={e.id}>{e.name}</option>
-                            ))}
-                          </select>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginTop: 14 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: 1, minWidth: 0 }}>
+                            <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Pool Member</label>
+                            <select
+                              value={pmphEntryId}
+                              onChange={(e) => setPmphEntryId(e.target.value)}
+                              style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: pmphEntryId ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                            >
+                              <option value="" disabled>Select pool member</option>
+                              {entriesSorted.map((e) => (
+                                <option key={e.id} value={e.id}>{e.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          {reportYearSelect}
                         </div>
                       )}
                       {entry && (
@@ -7389,7 +7392,7 @@ export default function Page() {
                     <>
                       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: isMobile ? 10 : 14, rowGap: 12, flexWrap: 'wrap' }}>
                         <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 900, color: '#000000' }}>Pool Member Pick Summary</div>
-                        {isMobile ? reportYearSelect : (
+                        {!isMobile && (
                           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 5, width: 240 }}>
                               <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Entry</label>
@@ -7409,18 +7412,21 @@ export default function Page() {
                         )}
                       </div>
                       {isMobile && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: 14, maxWidth: 320 }}>
-                          <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Entry</label>
-                          <select
-                            value={pmpsEntryId}
-                            onChange={(e) => setPmpsEntryId(e.target.value)}
-                            style={{ appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: pmpsEntryId ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
-                          >
-                            <option value="" disabled>Select entry</option>
-                            {entriesSorted.map((e) => (
-                              <option key={e.id} value={e.id}>{e.name}</option>
-                            ))}
-                          </select>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginTop: 14 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: 1, minWidth: 0 }}>
+                            <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Entry</label>
+                            <select
+                              value={pmpsEntryId}
+                              onChange={(e) => setPmpsEntryId(e.target.value)}
+                              style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: '10px 34px 10px 12px', fontSize: 14, fontWeight: 700, color: pmpsEntryId ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                            >
+                              <option value="" disabled>Select entry</option>
+                              {entriesSorted.map((e) => (
+                                <option key={e.id} value={e.id}>{e.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          {reportYearSelect}
                         </div>
                       )}
                       {entry && (rows.length === 0 ? (
