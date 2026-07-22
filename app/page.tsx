@@ -10201,7 +10201,6 @@ export default function Page() {
               <div onClick={() => setReportsMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 1200 }} />
               <div style={{ position: 'fixed', top: reportsMenuRect.top + 4, left, width: menuW, zIndex: 1201, background: '#fff', border: '1px solid #d1dae3', borderRadius: 12, boxShadow: '0 18px 40px -6px rgba(9,34,51,0.30), 0 4px 10px rgba(9,34,51,0.10)', overflow: 'hidden' }}>
                 <div style={{ height: 4, background: accent }} />
-                <div style={{ padding: '11px 14px 7px', fontSize: 10, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#94a3b8' }}>Reports</div>
                 {REPORT_OPTIONS.map((opt, i) => {
                   const isSel = selectedReport === opt;
                   return (
