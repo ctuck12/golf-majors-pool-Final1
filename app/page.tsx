@@ -1624,11 +1624,6 @@ export default function Page() {
   // Player Pick Summary report controls.
   const [ppsTournament, setPpsTournament] = useState<TournamentId | ''>('');
   const [ppsSortBy, setPpsSortBy] = useState<'Picked' | 'Salary' | ''>('');
-  const [ppsResult, setPpsResult] = useState<{
-    tournament: TournamentId;
-    sortBy: 'Picked' | 'Salary';
-    rows: { id: number; name: string; pgaTourId: number; photoUrl?: string; count: number; salary: number; position: string }[];
-  } | null>(null);
   // Player Pick Summary — "which entries picked this player" popup.
   const [ppsPickPopup, setPpsPickPopup] = useState<{ id: number; name: string; tournament: TournamentId } | null>(null);
   // Season/year selector shared by all reports; defaults to the current (latest) season.
@@ -3195,8 +3190,10 @@ export default function Page() {
     return Number.isNaN(n) ? 9500 : n;
   };
 
-  const runPlayerPickSummary = () => {
-    if (!ppsTournament || !ppsSortBy) return;
+  // Player Pick Summary result — recomputed automatically whenever a tournament and a
+  // sort option are both selected (no explicit "Go" step).
+  const ppsResult = useMemo(() => {
+    if (!ppsTournament || !ppsSortBy) return null;
     const T = ppsTournament;
     const sortBy = ppsSortBy;
     const posByName = new Map<string, string>();
@@ -3219,8 +3216,8 @@ export default function Page() {
         ? (b.salary - a.salary) || (positionSortRank(a.position) - positionSortRank(b.position)) || a.name.localeCompare(b.name)
         : (b.count - a.count) || (positionSortRank(a.position) - positionSortRank(b.position)) || a.name.localeCompare(b.name),
     );
-    setPpsResult({ tournament: T, sortBy, rows });
-  };
+    return { tournament: T, sortBy, rows };
+  }, [ppsTournament, ppsSortBy, feeds, salaryByTournament, poolEntries, playerDirectory]);
 
   // Full-field performance rows for the Player Performance Summary — one per player in the chosen
   // tournament's field, with finish, score to par, and every scoring/bonus stat.
@@ -7118,7 +7115,7 @@ export default function Page() {
                         <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 10 }}>
                           <select
                             value={ppsTournament}
-                            onChange={(e) => { setPpsTournament(e.target.value as TournamentId | ''); setPpsResult(null); }}
+                            onChange={(e) => setPpsTournament(e.target.value as TournamentId | '')}
                             style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: isMobile ? '10px 30px 10px 10px' : '10px 34px 10px 12px', fontSize: isMobile ? 12.5 : 14, fontWeight: 700, color: ppsTournament ? 'transparent' : '#94a3b8', WebkitTextFillColor: ppsTournament ? 'transparent' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
                           >
                             <option value="" disabled style={{ color: '#94a3b8', WebkitTextFillColor: '#94a3b8' }}>Select tournament</option>
@@ -7137,7 +7134,7 @@ export default function Page() {
                         <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#5b6b79' }}>Sort By</label>
                         <select
                           value={ppsSortBy}
-                          onChange={(e) => { setPpsSortBy(e.target.value as 'Picked' | 'Salary' | ''); setPpsResult(null); }}
+                          onChange={(e) => setPpsSortBy(e.target.value as 'Picked' | 'Salary' | '')}
                           style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none', background: '#fff', border: '1px solid #cdd9e5', borderRadius: 10, padding: isMobile ? '10px 26px 10px 10px' : '10px 34px 10px 12px', fontSize: isMobile ? 12.5 : 14, fontWeight: 700, color: ppsSortBy ? '#0f1720' : '#94a3b8', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%235b6b79\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'/></svg>")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
                         >
                           <option value="" disabled>Select sort</option>
@@ -7145,16 +7142,6 @@ export default function Page() {
                           <option value="Salary">Salary</option>
                         </select>
                       </div>
-                      {ppsTournament && ppsSortBy && (
-                        <div style={{ display: 'flex', alignItems: 'flex-end', flexShrink: 0 }}>
-                          <button
-                            onClick={runPlayerPickSummary}
-                            style={{ background: headerSolid, color: '#fff', border: 'none', borderRadius: 10, padding: isMobile ? '10px 13px' : '10px 26px', fontSize: 14, fontWeight: 800, cursor: 'pointer', letterSpacing: '0.02em' }}
-                          >
-                            Go
-                          </button>
-                        </div>
-                      )}
                       {reportYearSelect}
                     </div>
                   );
@@ -7177,9 +7164,6 @@ export default function Page() {
                       }
                       return (
                         <div style={{ marginTop: isMobile ? 18 : 24 }}>
-                          <div style={{ fontSize: 12, fontWeight: 800, color: '#5b6b79', marginBottom: 12 }}>
-                            {tLabel} · sorted by {ppsResult.sortBy}
-                          </div>
                           <div style={{ display: 'grid', gap: isMobile ? 12 : 14 }}>
                             {ppsResult.rows.map((r) => {
                               const pct = Math.max(20, Math.round((r.count / maxCount) * 80));
