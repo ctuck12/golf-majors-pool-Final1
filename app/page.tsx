@@ -4803,36 +4803,40 @@ export default function Page() {
                 padding: isSmallMobile ? 12 : isMobile ? 14 : 22,
                 boxShadow: '0 18px 40px rgba(9, 34, 51, 0.08)',
                 alignSelf: 'start',
+                position: 'relative',
               }}
             >
+              {/* Past Results: an out-of-flow overlay tucked into the card's top-left corner so it
+                  never shifts the title/payouts/standings header from their original positions. */}
+              <div style={{ position: 'absolute', top: isMobile ? 3 : 6, left: isSmallMobile ? 12 : isMobile ? 14 : 22, zIndex: 6 }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setHistoryDropdownOpen((v) => { const next = !v; if (next) loadHistoryYears(); return next; }); }}
+                  title="View past standings"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 1, background: 'transparent', border: 'none', padding: 0, color: selectedTournament === 'open' ? 'rgba(0,0,0,0.42)' : 'rgba(100,116,139,0.7)', cursor: 'pointer', lineHeight: 1 }}
+                >
+                  <Clock size={isMobile ? 12 : 13} /><span style={{ fontSize: 8 }}>{historyDropdownOpen ? '▲' : '▼'}</span>
+                </button>
+                {historyDropdownOpen && (
+                  <>
+                    <div onClick={() => setHistoryDropdownOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
+                    <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #d1dae3', borderRadius: 10, boxShadow: '0 8px 24px rgba(9,34,51,0.18)', zIndex: 41, overflow: 'hidden', minWidth: 160, maxHeight: 260, overflowY: 'auto' }}>
+                      <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94a3b8', padding: '8px 13px 5px' }}>Past Standings</div>
+                      {historyYearsLoading ? (
+                        <div style={{ padding: '9px 13px', fontSize: 12, color: '#94a3b8' }}>Loading…</div>
+                      ) : historyYearsAvailable.length === 0 ? (
+                        <div style={{ padding: '9px 13px 11px', fontSize: 11.5, color: '#94a3b8', lineHeight: 1.4, maxWidth: 180 }}>No past standings yet — they&rsquo;ll appear here each year.</div>
+                      ) : historyYearsAvailable.map((yr) => (
+                        <button key={yr} onClick={(e) => { e.stopPropagation(); openTournamentHistory(yr); }}
+                          style={{ display: 'block', width: '100%', textAlign: 'left', background: 'transparent', border: 'none', borderTop: '1px solid #f0f3f6', padding: '9px 13px', fontSize: 13, fontWeight: 700, color: '#0f1720', cursor: 'pointer' }}>
+                          {yr}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: isMobile ? 'flex-start' : 'center', position: 'relative' }}>
                 <div>
-                  <div style={{ position: 'relative', marginBottom: isMobile ? 5 : 7 }}>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setHistoryDropdownOpen((v) => { const next = !v; if (next) loadHistoryYears(); return next; }); }}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'transparent', border: `1px solid ${selectedTournament === 'open' ? 'rgba(0,0,0,0.35)' : 'rgba(15,23,32,0.2)'}`, borderRadius: 999, padding: isMobile ? '2px 8px' : '3px 10px', fontSize: isMobile ? 9.5 : 10.5, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: selectedTournament === 'open' ? 'rgba(0,0,0,0.62)' : '#5b6b79', cursor: 'pointer', lineHeight: 1 }}
-                    >
-                      <Clock size={isMobile ? 10 : 11} /> Past Results <span style={{ fontSize: '0.9em' }}>{historyDropdownOpen ? '▴' : '▾'}</span>
-                    </button>
-                    {historyDropdownOpen && (
-                      <>
-                        <div onClick={() => setHistoryDropdownOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
-                        <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #d1dae3', borderRadius: 10, boxShadow: '0 8px 24px rgba(9,34,51,0.18)', zIndex: 41, overflow: 'hidden', minWidth: 150, maxHeight: 260, overflowY: 'auto' }}>
-                          <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94a3b8', padding: '8px 13px 5px' }}>Previous Standings</div>
-                          {historyYearsLoading ? (
-                            <div style={{ padding: '9px 13px', fontSize: 12, color: '#94a3b8' }}>Loading…</div>
-                          ) : historyYearsAvailable.length === 0 ? (
-                            <div style={{ padding: '9px 13px 11px', fontSize: 11.5, color: '#94a3b8', lineHeight: 1.4, maxWidth: 180 }}>No past standings yet — they&rsquo;ll appear here each year.</div>
-                          ) : historyYearsAvailable.map((yr) => (
-                            <button key={yr} onClick={(e) => { e.stopPropagation(); openTournamentHistory(yr); }}
-                              style={{ display: 'block', width: '100%', textAlign: 'left', background: 'transparent', border: 'none', borderTop: '1px solid #f0f3f6', padding: '9px 13px', fontSize: 13, fontWeight: 700, color: '#0f1720', cursor: 'pointer' }}>
-                              {yr}
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
                   {selectedTournament === 'players' ? (
                     <>
                       <h2 style={{ margin: 0, fontSize: isSmallMobile ? 17 : isMobile ? 21 : (showLivePayoutStrip ? 25 : 30), fontWeight: 800, color: '#0f1720' }}>The Players Championship</h2>
