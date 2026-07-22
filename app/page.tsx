@@ -771,7 +771,7 @@ const REPORT_OPTIONS: ReportType[] = ['Player Pick Summary', 'Pool Member Pick H
 const REPORT_TOURNAMENTS: { id: TournamentId; label: string }[] = [
   { id: 'players', label: 'The Players' },
   { id: 'masters', label: 'The Masters' },
-  { id: 'pga', label: 'The PGA' },
+  { id: 'pga', label: 'PGA Championship' },
   { id: 'us-open', label: 'U.S. Open' },
   { id: 'open', label: 'The Open' },
 ];
