@@ -7254,10 +7254,10 @@ export default function Page() {
                                     style={{ width: isMobile ? 40 : 48, height: isMobile ? 40 : 48, borderRadius: '50%', objectFit: 'cover', border: '1px solid #dce8f5', flexShrink: 0, background: '#eef2f6' }}
                                   />
                                   <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, lineHeight: 1.15 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 0, minWidth: 0, lineHeight: 1.15 }}>
                                       <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0' }} />}</span>
-                                      {abbr && <span style={{ flexShrink: 0, fontSize: isMobile ? 10 : 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.02em' }}>{abbr}</span>}
-                                      <span style={{ minWidth: 0, fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
+                                      {abbr && <span style={{ flexShrink: 0, marginLeft: 2, fontSize: isMobile ? 10 : 11, fontWeight: 700, color: '#5b6b79', letterSpacing: '0.02em' }}>{abbr}</span>}
+                                      <span style={{ minWidth: 0, marginLeft: abbr ? 4 : 6, fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
                                     </div>
                                     {!isAll && (
                                       <div style={{ fontSize: isMobile ? 10 : 10.5, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', color: isCut ? '#dc2626' : '#9aa7b4', margin: '2px 0 6px' }}>{isCut ? 'Missed Cut' : `Finished ${formatLeaderboardPosition(r.position)}`}</div>
