@@ -7200,6 +7200,7 @@ export default function Page() {
                             {ppsResult.rows.map((r) => {
                               const pct = Math.max(20, Math.round((r.count / maxCount) * 80));
                               const isCut = CUT_MARKS.has(String(r.position).toUpperCase());
+                              const flagSrc = getPlayerFlag(r.name) ? getFlagSrc(r.name) : null;
                               return (
                                 <div key={r.id} onClick={() => setPpsPickPopup({ id: r.id, name: r.name, tournament: ppsResult.tournament })} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 9 : 12, cursor: 'pointer' }}>
                                   <img
@@ -7208,8 +7209,11 @@ export default function Page() {
                                     style={{ width: isMobile ? 40 : 48, height: isMobile ? 40 : 48, borderRadius: '50%', objectFit: 'cover', border: '1px solid #dce8f5', flexShrink: 0, background: '#eef2f6' }}
                                   />
                                   <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.15 }}>{r.name}</div>
-                                    <div style={{ fontSize: isMobile ? 10 : 10.5, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', color: isCut ? '#dc2626' : '#9aa7b4', margin: '2px 0 6px' }}>{isCut ? 'Missed Cut' : `Finished ${formatLeaderboardPosition(r.position)}`}</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, lineHeight: 1.15 }}>
+                                      <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{flagSrc && <img src={flagSrc} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0' }} />}</span>
+                                      <span style={{ minWidth: 0, fontSize: isMobile ? 13 : 14.5, fontWeight: 800, color: '#0f1720', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
+                                    </div>
+                                    <div style={{ fontSize: isMobile ? 10 : 10.5, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', color: isCut ? '#dc2626' : '#9aa7b4', margin: '2px 0 6px 26px' }}>{isCut ? 'Missed Cut' : `Finished ${formatLeaderboardPosition(r.position)}`}</div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                       <div style={{ width: `${pct}%`, minWidth: isMobile ? 82 : 96, height: isMobile ? 24 : 26, borderRadius: 6, background: barColor, display: 'flex', alignItems: 'center', paddingLeft: 9, flexShrink: 0 }}>
                                         <span style={{ fontSize: isMobile ? 11.5 : 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap' }}>{r.salary ? `$${r.salary.toLocaleString()}` : '—'}</span>
@@ -7392,21 +7396,28 @@ export default function Page() {
                                     {sortableTh('TRP', 'triple', 'Triple bogeys or worse')}
                                     {plainTh('ACE', 'Hole-in-ones')}
                                     {plainTh('3BST', '3-birdie streaks')}
+                                    {plainTh('NBR', 'No-bogey rounds')}
+                                    {plainTh('LOW', 'Tournament low round')}
                                     {plainTh('R1', 'Round 1 leader')}
                                     {plainTh('R2', 'Round 2 leader')}
                                     {plainTh('R3', 'Round 3 leader')}
-                                    {plainTh('LOW', 'Tournament low round')}
                                   </tr>
                                 </thead>
                                 <tbody>
                                   {sorted.map((r, i) => {
                                     const isCut = CUT_MARK.has(String(r.position).toUpperCase()) || !r.madeCut;
                                     const leaderMark = (on: boolean) => on ? <span style={{ color: '#0f7a3d', fontWeight: 900 }}>✓</span> : <span style={{ color: '#c3cdd8' }}>–</span>;
+                                    const rowFlag = getPlayerFlag(r.name) ? getFlagSrc(r.name) : null;
                                     return (
                                       <tr key={`${r.name}-${i}`} style={{ background: i % 2 === 0 ? '#fff' : '#f7fafc', borderTop: '1px solid #eef2f6', textAlign: 'center', color: '#0f1720' }}>
                                         <td style={{ padding: '8px 7px', color: '#5b6b79', fontWeight: 600 }}>{r.worldRank ?? '–'}</td>
                                         <td style={{ padding: '8px 7px', fontWeight: 700, whiteSpace: 'nowrap', color: isCut ? '#dc2626' : '#0f1720' }}>{isCut ? 'CUT' : formatLeaderboardPosition(r.position)}</td>
-                                        <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, whiteSpace: 'nowrap' }}>{r.name}</td>
+                                        <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                                            <span style={{ width: 20, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{rowFlag && <img src={rowFlag} alt="" style={{ width: 20, height: 13, objectFit: 'cover', borderRadius: 2, border: '1px solid #d1d9e0' }} />}</span>
+                                            {r.name}
+                                          </span>
+                                        </td>
                                         <td style={{ padding: '8px 7px', fontWeight: 800, whiteSpace: 'nowrap', color: r.scoreNum < 0 ? '#dc2626' : '#0f1720' }}>{r.scoreDisplay}</td>
                                         <td style={{ padding: '8px 7px' }}>{numCell(r.par)}</td>
                                         <td style={{ padding: '8px 7px' }}>{numCell(r.birdie)}</td>
@@ -7416,10 +7427,11 @@ export default function Page() {
                                         <td style={{ padding: '8px 7px' }}>{numCell(r.triple)}</td>
                                         <td style={{ padding: '8px 7px' }}>{numCell(r.ace)}</td>
                                         <td style={{ padding: '8px 7px' }}>{numCell(r.streak)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{numCell(r.bogeyFree)}</td>
+                                        <td style={{ padding: '8px 7px' }}>{numCell(r.lowRound)}</td>
                                         <td style={{ padding: '8px 7px' }}>{leaderMark(r.r1)}</td>
                                         <td style={{ padding: '8px 7px' }}>{leaderMark(r.r2)}</td>
                                         <td style={{ padding: '8px 7px' }}>{leaderMark(r.r3)}</td>
-                                        <td style={{ padding: '8px 7px' }}>{numCell(r.lowRound)}</td>
                                       </tr>
                                     );
                                   })}
