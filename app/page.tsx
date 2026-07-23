@@ -3634,7 +3634,12 @@ export default function Page() {
     : getCurrentRoundLabel(displayTournamentWindow.startDate, new Date(nowTick));
   // Same rule for the standings card's Make Picks / Edit Picks button: the commissioner's toggle opens
   // picks during the pre-tournament (UP NEXT) window, not only once the event is ACTIVE.
-  const picksOpenForTournament = showFutureTournamentView && pool?.picksOpen?.[selectedTournament] === true;
+  // "Picks are open" for the upcoming card only when picks are open AND the lineup is unlocked — a
+  // stale picksOpen flag left true from a concluded (auto-locked) cycle must not read as open again.
+  const picksOpenForTournament =
+    showFutureTournamentView &&
+    pool?.picksOpen?.[selectedTournament] === true &&
+    pool?.lineupLocks?.[selectedTournament] !== true;
   const tournamentStartLabel = formatTournamentStartDate(displayTournamentWindow.inProgressAt);
   // Monday of tournament week (Thursday start minus 3 days) — when the finalized field is
   // entered and picks open, shown in the pre-tournament standings card.
