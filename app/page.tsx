@@ -2013,6 +2013,13 @@ export default function Page() {
   const tournament = TOURNAMENTS.find((item) => item.id === selectedTournament) ?? TOURNAMENTS[0];
   const canManagePool = canAccessCommissionerConsole(sessionUser);
   const tournamentCardStatuses = getTournamentCardStatuses(new Date(nowTick));
+  // Reports privacy gate: another member's picks for a tournament are only revealed once that
+  // tournament has actually started (its status is IN PROGRESS) or concluded (LOCKED). While it's
+  // sitting in its pre-tournament / upcoming window (UP NEXT / ACTIVE / future), picks stay hidden.
+  const picksRevealed = (tid: TournamentId): boolean => {
+    const label = tournamentCardStatuses[tid]?.label;
+    return label === 'IN PROGRESS' || label === 'LOCKED';
+  };
   const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
   const entriesTournamentId = getDefaultTournamentId(tournamentCardStatuses, new Date());
   const careerTournamentId = pickHistoryPlayerPopup?.ctxTournamentId ?? selectedTournament;
@@ -3297,9 +3304,14 @@ export default function Page() {
     // majors year to date. Only "Times Picked" applies (salary/finish vary by event), most-picked
     // first with alphabetical tiebreaks.
     if (ppsTournament === 'all') {
+      // Only combine tournaments whose picks are revealed (started or concluded); upcoming
+      // tournaments' picks stay private until they begin.
+      const statuses = getTournamentCardStatuses(new Date(nowTick));
+      const revealed = (tid: TournamentId) => { const l = statuses[tid]?.label; return l === 'IN PROGRESS' || l === 'LOCKED'; };
       const countById = new Map<number, number>();
       for (const entry of poolEntries) {
         for (const t of REPORT_TOURNAMENTS) {
+          if (!revealed(t.id)) continue;
           for (const pid of entry.rosters[t.id] ?? []) countById.set(pid, (countById.get(pid) ?? 0) + 1);
         }
       }
@@ -3336,7 +3348,7 @@ export default function Page() {
         : (b.count - a.count) || (positionSortRank(a.position) - positionSortRank(b.position)) || a.name.localeCompare(b.name),
     );
     return { tournament: T, sortBy, rows };
-  }, [ppsTournament, ppsSortBy, feeds, salaryByTournament, poolEntries, playerDirectory]);
+  }, [ppsTournament, ppsSortBy, feeds, salaryByTournament, poolEntries, playerDirectory, nowTick, preTournamentTick]);
 
   // Full-field performance rows for the Player Performance Summary — one per player in the chosen
   // tournament's field, with finish, score to par, and every scoring/bonus stat.
@@ -7306,6 +7318,10 @@ export default function Page() {
                       const isAll = ppsResult.tournament === 'all';
                       const maxCount = ppsResult.rows.reduce((m, r) => Math.max(m, r.count), 0) || 1;
                       const tLabel = REPORT_TOURNAMENTS.find((t) => t.id === ppsResult.tournament)?.label ?? '';
+                      // Privacy gate: a single tournament's picks stay hidden until it starts.
+                      if (!isAll && !picksRevealed(ppsResult.tournament)) {
+                        return <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79', lineHeight: 1.5 }}>Picks for {tLabel} are hidden until the tournament begins.</div>;
+                      }
                       const barColor = ppsResult.tournament === 'all' ? PPS_ALL_BAR_GRADIENT : REPORT_TOURNAMENT_SOLID[ppsResult.tournament];
                       const CUT_MARKS = new Set(['CUT', 'WD', 'DQ', 'MDF', 'MC']);
                       if (ppsResult.rows.length === 0) {
@@ -7431,7 +7447,9 @@ export default function Page() {
                                     </div>
                                   );
                                 })()}
-                                {historyPlayers.length > 0 ? (
+                                {!picksRevealed(event.id) ? (
+                                  <div style={{ color: '#6b7b88', fontSize: 14, lineHeight: 1.5 }}>Picks are hidden until this tournament begins.</div>
+                                ) : historyPlayers.length > 0 ? (
                                   <div style={isMobile ? { display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 6 } : { display: 'flex', flexWrap: 'wrap', gap: '10px 12px' }}>
                                     {historyPlayers.map((player) => {
                                       const bubblePalette: Record<string, { bg: string; text: string }> = {
@@ -7475,6 +7493,7 @@ export default function Page() {
                   const agg = new Map<number, { count: number; tournaments: TournamentId[] }>();
                   if (entry) {
                     for (const { id: tid } of REPORT_TOURNAMENTS) {
+                      if (!picksRevealed(tid)) continue; // upcoming tournaments' picks stay hidden until they start
                       for (const pid of entry.rosters[tid] ?? []) {
                         const cur = agg.get(pid) ?? { count: 0, tournaments: [] };
                         cur.count += 1;
@@ -10434,7 +10453,8 @@ export default function Page() {
         {ppsAllPlayerPopup && (() => {
           const player = ppsAllPlayerPopup;
           const close = () => setPpsAllPlayerPopup(null);
-          const rows = REPORT_TOURNAMENTS.map((t) => ({
+          // Only reveal per-major counts for tournaments that have started/concluded.
+          const rows = REPORT_TOURNAMENTS.filter((t) => picksRevealed(t.id)).map((t) => ({
             t,
             count: poolEntries.filter((e) => (e.rosters[t.id] ?? []).includes(player.id)).length,
           }));
@@ -10502,14 +10522,20 @@ export default function Page() {
                   </div>
                 </div>
                 <div style={{ padding: '9px 0', overflowY: 'auto' }}>
-                  <div style={{ padding: '0 18px 8px', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>
-                    {entriesPicked.length} {entriesPicked.length === 1 ? 'entry' : 'entries'}
-                  </div>
-                  {entriesPicked.length === 0 ? (
-                    <div style={{ padding: '20px', textAlign: 'center', color: '#5b6b79', fontSize: 14 }}>No entries picked this player.</div>
-                  ) : entriesPicked.map((n, i) => (
-                    <div key={i} style={{ padding: '11px 18px', borderTop: '1px solid #eef2f6', fontSize: 14, fontWeight: 600, color: '#0f1720' }}>{n}</div>
-                  ))}
+                  {!picksRevealed(T) ? (
+                    <div style={{ padding: '20px', textAlign: 'center', color: '#5b6b79', fontSize: 14, lineHeight: 1.5 }}>Picks are hidden until the tournament begins.</div>
+                  ) : (
+                    <>
+                      <div style={{ padding: '0 18px 8px', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>
+                        {entriesPicked.length} {entriesPicked.length === 1 ? 'entry' : 'entries'}
+                      </div>
+                      {entriesPicked.length === 0 ? (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#5b6b79', fontSize: 14 }}>No entries picked this player.</div>
+                      ) : entriesPicked.map((n, i) => (
+                        <div key={i} style={{ padding: '11px 18px', borderTop: '1px solid #eef2f6', fontSize: 14, fontWeight: 600, color: '#0f1720' }}>{n}</div>
+                      ))}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
