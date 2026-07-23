@@ -3641,7 +3641,7 @@ export default function Page() {
   const tournamentFieldMondayLabel = (() => {
     const d = new Date(displayTournamentWindow.inProgressAt);
     d.setDate(d.getDate() - 3);
-    return `Monday ${d.toLocaleDateString('en-US', { month: 'long' })} ${d.getDate()}`;
+    return `Monday, ${d.toLocaleDateString('en-US', { month: 'long' })} ${d.getDate()}`;
   })();
 
   // Picks-lock deadline in Central time, derived from the tournament's configured lock
