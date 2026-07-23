@@ -8026,18 +8026,15 @@ export default function Page() {
                             cursor: !canManagePool || busy ? 'not-allowed' : 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 10,
+                            gap: 12,
                           }}
                         >
-                          <span style={{ width: 46, height: 30, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {logo && <img src={logo} alt="" style={{ maxHeight: 28, maxWidth: 46, objectFit: 'contain', display: 'block' }} />}
+                          <span style={{ width: 70, height: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {logo && <img src={logo} alt={t.name} style={{ maxHeight: 42, maxWidth: 70, objectFit: 'contain', display: 'block' }} />}
                           </span>
-                          <div style={{ minWidth: 0, flex: 1 }}>
-                            <div style={{ fontSize: isMobile ? 13 : 13.5, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.name}</div>
-                            <div style={{ marginTop: 3, fontSize: isMobile ? 12 : 12.5, fontWeight: 800, color: isPre ? '#234d80' : '#3a4a58', display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: isPre ? '#234d80' : '#94a3b8', flexShrink: 0 }} />
-                              {isPre ? 'Pre-tournament' : 'Results'}
-                            </div>
+                          <div style={{ minWidth: 0, flex: 1, fontSize: isMobile ? 15 : 16, fontWeight: 800, color: isPre ? '#234d80' : '#3a4a58', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ width: 11, height: 11, borderRadius: '50%', background: isPre ? '#234d80' : '#94a3b8', flexShrink: 0 }} />
+                            {isPre ? 'Pre-tournament' : 'Results'}
                           </div>
                         </button>
                       );
