@@ -8019,30 +8019,27 @@ export default function Page() {
                           disabled={!canManagePool || busy}
                           style={{
                             border: `1.5px solid ${isPre ? '#a9c2e0' : '#d9e2ea'}`,
-                            borderRadius: isMobile ? 12 : 16,
-                            padding: isMobile ? '10px 12px' : '12px 14px',
+                            borderRadius: isMobile ? 11 : 14,
+                            padding: isMobile ? '8px 10px' : '9px 12px',
                             background: isPre ? '#eef4fb' : '#f7f9fb',
                             textAlign: 'left',
                             cursor: !canManagePool || busy ? 'not-allowed' : 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 12,
+                            gap: 10,
                           }}
                         >
-                          <span style={{ width: 96, height: 54, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {logo && <img src={logo} alt={t.name} style={{ maxHeight: t.id === 'open' ? 42 : 52, maxWidth: t.id === 'open' ? 72 : 96, objectFit: 'contain', display: 'block' }} />}
+                          <span style={{ width: 82, height: 46, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {logo && <img src={logo} alt={t.name} style={{ maxHeight: t.id === 'open' ? 36 : 44, maxWidth: t.id === 'open' ? 62 : 82, objectFit: 'contain', display: 'block' }} />}
                           </span>
-                          <div style={{ minWidth: 0, flex: 1, fontSize: isMobile ? 15 : 16, fontWeight: 800, color: isPre ? '#234d80' : '#3a4a58', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ width: 11, height: 11, borderRadius: '50%', background: isPre ? '#234d80' : '#94a3b8', flexShrink: 0 }} />
+                          <div style={{ minWidth: 0, flex: 1, fontSize: isMobile ? 13.5 : 14.5, fontWeight: 800, color: isPre ? '#234d80' : '#3a4a58', display: 'flex', alignItems: 'center', gap: 7 }}>
+                            <span style={{ width: 10, height: 10, borderRadius: '50%', background: isPre ? '#234d80' : '#94a3b8', flexShrink: 0 }} />
                             {isPre ? 'Pre-tournament' : 'Results'}
                           </div>
                         </button>
                       );
                     });
                   })()}
-                </div>
-                <div style={{ marginTop: isMobile ? 8 : 10, fontSize: isMobile ? 11 : 12, color: '#8a97a4', lineHeight: 1.5 }}>
-                  Each tab flips itself to live standings when its event starts, and back to its pre-tournament card every Jan 1. Use these to override a single tournament in the meantime.
                 </div>
               </div>
 
