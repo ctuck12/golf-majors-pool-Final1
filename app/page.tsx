@@ -8081,7 +8081,7 @@ export default function Page() {
                 <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', marginBottom: isMobile ? 8 : 10 }}>
                   Standings view — per tournament
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', gap: isMobile ? 8 : 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(210px, 1fr))', gap: isMobile ? 8 : 12 }}>
                   {(() => {
                     void preTournamentTick; // re-read module maps when any override changes
                     return TOURNAMENTS.map((t) => {
@@ -8105,11 +8105,11 @@ export default function Page() {
                             gap: 10,
                           }}
                         >
-                          <span style={{ width: 82, height: 46, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {logo && <img src={logo} alt={t.name} style={{ maxHeight: t.id === 'open' ? 36 : 44, maxWidth: t.id === 'open' ? 62 : 82, objectFit: 'contain', display: 'block' }} />}
+                          <span style={{ width: isMobile ? 82 : 74, height: 46, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {logo && <img src={logo} alt={t.name} style={{ maxHeight: t.id === 'open' ? 36 : 44, maxWidth: t.id === 'open' ? 62 : (isMobile ? 82 : 74), objectFit: 'contain', display: 'block' }} />}
                           </span>
-                          <div style={{ minWidth: 0, flex: 1, fontSize: isMobile ? 13.5 : 14.5, fontWeight: 800, color: isPre ? '#234d80' : '#3a4a58', display: 'flex', alignItems: 'center', gap: 7 }}>
-                            <span style={{ width: 10, height: 10, borderRadius: '50%', background: isPre ? '#234d80' : '#94a3b8', flexShrink: 0 }} />
+                          <div style={{ minWidth: 0, flex: 1, fontSize: isMobile ? 13.5 : 13, fontWeight: 800, color: isPre ? '#234d80' : '#3a4a58', display: 'flex', alignItems: 'center', gap: isMobile ? 7 : 6, whiteSpace: 'nowrap' }}>
+                            <span style={{ width: isMobile ? 10 : 8, height: isMobile ? 10 : 8, borderRadius: '50%', background: isPre ? '#234d80' : '#94a3b8', flexShrink: 0 }} />
                             {isPre ? 'Pre-tournament' : 'Results'}
                           </div>
                         </button>
