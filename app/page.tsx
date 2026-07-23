@@ -5357,7 +5357,7 @@ export default function Page() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      minHeight: selectedTournament === 'open' ? (isMobile ? 220 : 260) : (isMobile ? 160 : 180),
+                      minHeight: isMobile ? 220 : 260,
                     }}
                   >
                     {TOURNAMENT_CARD_LOGOS[selectedTournament] ? (
@@ -5366,8 +5366,8 @@ export default function Page() {
                         alt={tournament.name}
                         style={{
                           maxWidth: '100%',
-                          maxHeight: selectedTournament === 'open' ? (isMobile ? 220 : 260) : (isMobile ? 170 : 180),
-                          height: selectedTournament === 'open' ? (isMobile ? 210 : 250) : undefined,
+                          maxHeight: isMobile ? 220 : 260,
+                          height: isMobile ? 210 : 250,
                           objectFit: 'contain',
                           display: 'block',
                         }}
