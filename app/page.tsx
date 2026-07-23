@@ -2054,6 +2054,16 @@ export default function Page() {
     const label = tournamentCardStatuses[tid]?.label;
     return label === 'IN PROGRESS' || label === 'LOCKED';
   };
+  // Year-aware reveal for the Reports tab: a tournament's picks are visible whenever that
+  // tournament's event FOR THE SELECTED REPORT YEAR has already begun (or concluded). Past
+  // seasons are always reviewable; only tournaments that haven't started yet stay hidden. This
+  // is intentionally independent of the live standings card (which may be flipped to a future
+  // season's pre-tournament preview) so concluded results never get hidden behind that preview.
+  const picksRevealedForYear = (tid: TournamentId, year: number): boolean => {
+    const tournament = TOURNAMENTS.find((t) => t.id === tid);
+    if (!tournament) return false;
+    return new Date(nowTick) >= getTournamentEventWindow(tournament, year).inProgressAt;
+  };
   const selectedTournamentStatus = tournamentCardStatuses[selectedTournament];
   const entriesTournamentId = getDefaultTournamentId(tournamentCardStatuses, new Date());
   const careerTournamentId = pickHistoryPlayerPopup?.ctxTournamentId ?? selectedTournament;
@@ -3338,10 +3348,13 @@ export default function Page() {
     // majors year to date. Only "Times Picked" applies (salary/finish vary by event), most-picked
     // first with alphabetical tiebreaks.
     if (ppsTournament === 'all') {
-      // Only combine tournaments whose picks are revealed (started or concluded); upcoming
-      // tournaments' picks stay private until they begin.
-      const statuses = getTournamentCardStatuses(new Date(nowTick));
-      const revealed = (tid: TournamentId) => { const l = statuses[tid]?.label; return l === 'IN PROGRESS' || l === 'LOCKED'; };
+      // Only combine tournaments whose picks are revealed for the selected report year (started
+      // or concluded); upcoming tournaments' picks stay private until they begin.
+      const clockNow = new Date(nowTick);
+      const revealed = (tid: TournamentId) => {
+        const tournament = TOURNAMENTS.find((t) => t.id === tid);
+        return !!tournament && clockNow >= getTournamentEventWindow(tournament, reportYear).inProgressAt;
+      };
       const countById = new Map<number, number>();
       for (const entry of poolEntries) {
         for (const t of REPORT_TOURNAMENTS) {
@@ -3382,7 +3395,7 @@ export default function Page() {
         : (b.count - a.count) || (positionSortRank(a.position) - positionSortRank(b.position)) || a.name.localeCompare(b.name),
     );
     return { tournament: T, sortBy, rows };
-  }, [ppsTournament, ppsSortBy, feeds, salaryByTournament, poolEntries, playerDirectory, nowTick, preTournamentTick]);
+  }, [ppsTournament, ppsSortBy, feeds, salaryByTournament, poolEntries, playerDirectory, nowTick, preTournamentTick, reportYear]);
 
   // Full-field performance rows for the Player Performance Summary — one per player in the chosen
   // tournament's field, with finish, score to par, and every scoring/bonus stat.
@@ -7363,7 +7376,7 @@ export default function Page() {
                       const maxCount = ppsResult.rows.reduce((m, r) => Math.max(m, r.count), 0) || 1;
                       const tLabel = REPORT_TOURNAMENTS.find((t) => t.id === ppsResult.tournament)?.label ?? '';
                       // Privacy gate: a single tournament's picks stay hidden until it starts.
-                      if (!isAll && !picksRevealed(ppsResult.tournament)) {
+                      if (!isAll && !picksRevealedForYear(ppsResult.tournament, reportYear)) {
                         return <div style={{ marginTop: 20, fontSize: 14, color: '#5b6b79', lineHeight: 1.5 }}>Picks for {tLabel} are hidden until the tournament begins.</div>;
                       }
                       const barColor = ppsResult.tournament === 'all' ? PPS_ALL_BAR_GRADIENT : REPORT_TOURNAMENT_SOLID[ppsResult.tournament];
@@ -7491,7 +7504,7 @@ export default function Page() {
                                     </div>
                                   );
                                 })()}
-                                {!picksRevealed(event.id) ? (
+                                {!picksRevealedForYear(event.id, reportYear) ? (
                                   <div style={{ color: '#6b7b88', fontSize: 14, lineHeight: 1.5 }}>Picks are hidden until this tournament begins.</div>
                                 ) : historyPlayers.length > 0 ? (
                                   <div style={isMobile ? { display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 6 } : { display: 'flex', flexWrap: 'wrap', gap: '10px 12px' }}>
@@ -7537,7 +7550,7 @@ export default function Page() {
                   const agg = new Map<number, { count: number; tournaments: TournamentId[] }>();
                   if (entry) {
                     for (const { id: tid } of REPORT_TOURNAMENTS) {
-                      if (!picksRevealed(tid)) continue; // upcoming tournaments' picks stay hidden until they start
+                      if (!picksRevealedForYear(tid, reportYear)) continue; // upcoming tournaments' picks stay hidden until they start
                       for (const pid of entry.rosters[tid] ?? []) {
                         const cur = agg.get(pid) ?? { count: 0, tournaments: [] };
                         cur.count += 1;
@@ -10498,7 +10511,7 @@ export default function Page() {
           const player = ppsAllPlayerPopup;
           const close = () => setPpsAllPlayerPopup(null);
           // Only reveal per-major counts for tournaments that have started/concluded.
-          const rows = REPORT_TOURNAMENTS.filter((t) => picksRevealed(t.id)).map((t) => ({
+          const rows = REPORT_TOURNAMENTS.filter((t) => picksRevealedForYear(t.id, reportYear)).map((t) => ({
             t,
             count: poolEntries.filter((e) => (e.rosters[t.id] ?? []).includes(player.id)).length,
           }));
@@ -10566,7 +10579,7 @@ export default function Page() {
                   </div>
                 </div>
                 <div style={{ padding: '9px 0', overflowY: 'auto' }}>
-                  {!picksRevealed(T) ? (
+                  {!picksRevealedForYear(T, reportYear) ? (
                     <div style={{ padding: '20px', textAlign: 'center', color: '#5b6b79', fontSize: 14, lineHeight: 1.5 }}>Picks are hidden until the tournament begins.</div>
                   ) : (
                     <>
