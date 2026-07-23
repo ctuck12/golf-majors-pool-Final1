@@ -5370,6 +5370,7 @@ export default function Page() {
                           height: (isMobile ? 220 : 260) * (selectedTournament === 'pga' ? 0.86 : selectedTournament === 'us-open' ? 0.9 : 1),
                           objectFit: 'contain',
                           display: 'block',
+                          transform: selectedTournament === 'players' ? 'translateY(10px) scale(1.12)' : undefined,
                         }}
                       />
                     ) : null}
