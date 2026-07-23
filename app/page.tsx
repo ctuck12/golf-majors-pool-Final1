@@ -5366,8 +5366,8 @@ export default function Page() {
                         alt={tournament.name}
                         style={{
                           maxWidth: '100%',
-                          maxHeight: isMobile ? 220 : 260,
-                          height: isMobile ? 220 : 260,
+                          maxHeight: (isMobile ? 220 : 260) * (selectedTournament === 'pga' ? 0.86 : selectedTournament === 'us-open' ? 0.9 : 1),
+                          height: (isMobile ? 220 : 260) * (selectedTournament === 'pga' ? 0.86 : selectedTournament === 'us-open' ? 0.9 : 1),
                           objectFit: 'contain',
                           display: 'block',
                         }}
