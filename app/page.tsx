@@ -7997,37 +7997,56 @@ export default function Page() {
                     {pool?.picksOpen?.[selectedTournament] ? 'Click to hide pick sheet' : 'Click to show pick sheet'}
                   </div>
                 </button>
-                {(() => {
-                  void preTournamentTick; // re-read module maps when the override changes
-                  const tObj = TOURNAMENTS.find((t) => t.id === selectedTournament);
-                  const isPre = tObj ? shouldShowPreTournamentView(tObj, new Date(nowTick)) : false;
-                  const busy = preTournamentBusy === selectedTournament;
-                  return (
-                    <button
-                      onClick={() => savePreTournamentOverride(selectedTournament, !isPre)}
-                      disabled={!canManagePool || busy}
-                      style={{
-                        border: `1.5px solid ${isPre ? '#a9c2e0' : '#d9e2ea'}`,
-                        borderRadius: isMobile ? 12 : 18,
-                        padding: isMobile ? 10 : 16,
-                        background: isPre ? '#eef4fb' : '#f7f9fb',
-                        textAlign: 'left',
-                        cursor: !canManagePool || busy ? 'not-allowed' : 'pointer',
-                      }}
-                    >
-                      <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79' }}>
-                        Standings view
-                      </div>
-                      <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 14 : 18, fontWeight: 800, color: isPre ? '#234d80' : '#3a4a58', display: 'flex', alignItems: 'center', gap: 7 }}>
-                        <span style={{ width: isMobile ? 8 : 9, height: isMobile ? 8 : 9, borderRadius: '50%', background: isPre ? '#234d80' : '#94a3b8', flexShrink: 0 }} />
-                        {isPre ? 'Pre-tournament' : 'Results'}
-                      </div>
-                      <div style={{ marginTop: isMobile ? 4 : 8, fontSize: isMobile ? 11 : 13, color: '#5b6b79' }}>
-                        {isPre ? 'Click to show most recent results' : 'Click to show next-season pre-tournament card'}
-                      </div>
-                    </button>
-                  );
-                })()}
+              </div>
+
+              {/* Standings view — an independent pre-tournament / results toggle for EACH tournament,
+                  since these aren't tied to the tab you're viewing. */}
+              <div style={{ marginTop: isMobile ? 14 : 20 }}>
+                <div style={{ fontSize: 11, textTransform: 'uppercase', fontWeight: 800, color: '#5b6b79', marginBottom: isMobile ? 8 : 10 }}>
+                  Standings view — per tournament
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', gap: isMobile ? 8 : 12 }}>
+                  {(() => {
+                    void preTournamentTick; // re-read module maps when any override changes
+                    return TOURNAMENTS.map((t) => {
+                      const isPre = shouldShowPreTournamentView(t, new Date(nowTick));
+                      const busy = preTournamentBusy === t.id;
+                      const logo = TOURNAMENT_TAB_LOGOS[t.id];
+                      return (
+                        <button
+                          key={t.id}
+                          onClick={() => savePreTournamentOverride(t.id, !isPre)}
+                          disabled={!canManagePool || busy}
+                          style={{
+                            border: `1.5px solid ${isPre ? '#a9c2e0' : '#d9e2ea'}`,
+                            borderRadius: isMobile ? 12 : 16,
+                            padding: isMobile ? '10px 12px' : '12px 14px',
+                            background: isPre ? '#eef4fb' : '#f7f9fb',
+                            textAlign: 'left',
+                            cursor: !canManagePool || busy ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                          }}
+                        >
+                          <span style={{ width: 46, height: 30, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {logo && <img src={logo} alt="" style={{ maxHeight: 28, maxWidth: 46, objectFit: 'contain', display: 'block' }} />}
+                          </span>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontSize: isMobile ? 13 : 13.5, fontWeight: 800, color: '#0f1720', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.name}</div>
+                            <div style={{ marginTop: 3, fontSize: isMobile ? 12 : 12.5, fontWeight: 800, color: isPre ? '#234d80' : '#3a4a58', display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: isPre ? '#234d80' : '#94a3b8', flexShrink: 0 }} />
+                              {isPre ? 'Pre-tournament' : 'Results'}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    });
+                  })()}
+                </div>
+                <div style={{ marginTop: isMobile ? 8 : 10, fontSize: isMobile ? 11 : 12, color: '#8a97a4', lineHeight: 1.5 }}>
+                  Each tab flips itself to live standings when its event starts, and back to its pre-tournament card every Jan 1. Use these to override a single tournament in the meantime.
+                </div>
               </div>
 
             </section>
