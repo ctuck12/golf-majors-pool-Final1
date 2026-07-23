@@ -3641,9 +3641,7 @@ export default function Page() {
   const tournamentFieldMondayLabel = (() => {
     const d = new Date(displayTournamentWindow.inProgressAt);
     d.setDate(d.getDate() - 3);
-    const day = d.getDate();
-    const suffix = day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th';
-    return `Monday ${d.toLocaleDateString('en-US', { month: 'long' })} ${day}${suffix}`;
+    return `Monday ${d.toLocaleDateString('en-US', { month: 'long' })} ${d.getDate()}`;
   })();
 
   // Picks-lock deadline in Central time, derived from the tournament's configured lock
@@ -5379,7 +5377,7 @@ export default function Page() {
                         selectedTournament === 'pga'
                           ? 'The PGA Championship'
                           : selectedTournament === 'us-open'
-                            ? 'The U.S. Open'
+                            ? 'The U.S. Open Championship'
                             : selectedTournament === 'open'
                               ? 'The Open Championship'
                             : selectedTournament === 'masters'
