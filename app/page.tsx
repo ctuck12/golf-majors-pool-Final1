@@ -370,7 +370,7 @@ const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
   masters: '/the-masters-2027-logo.png',
   pga: '/pga-frisco-2027-logo.png',
   'us-open': '/us-open-pebble-beach-2027-logo.png',
-  open: '/the-open-royal-birkdale-logo.png',
+  open: '/the-open-card-logo.png',
 };
 
 const TOURNAMENT_TAB_LOGOS: Partial<Record<TournamentId, string>> = {
