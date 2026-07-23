@@ -344,13 +344,34 @@ export async function getSessionContext(token: string | undefined) {
   }
 
   const activePool = database.pools.find((pool) => user.poolIds.includes(pool.id)) ?? null;
+  // Pick privacy: another member's picks for a tournament stay hidden while its pick window is
+  // open but not yet locked (the pre-start submission window). The commissioner sees everything,
+  // and every member always sees their OWN picks. Masking preserves the roster LENGTH (so "who has
+  // submitted" counts still work) but replaces the golfer ids with 0 so the actual picks are gone.
+  const isCommissionerViewer =
+    user.email.trim().toLowerCase() === 'ctuck12@gmail.com' &&
+    (user.displayName ?? '').trim() === 'Clayton Tucker';
+  const tournamentRevealed = (tid: TournamentId): boolean =>
+    !(activePool?.picksOpen?.[tid] === true && activePool?.lineupLocks?.[tid] !== true);
+  const maskRosters = (
+    rosters: Partial<Record<TournamentId, number[]>> | undefined,
+    isSelf: boolean,
+  ): Partial<Record<TournamentId, number[]>> => {
+    if (isCommissionerViewer || isSelf || !rosters) return rosters ?? {};
+    const out: Partial<Record<TournamentId, number[]>> = {};
+    for (const key of Object.keys(rosters) as TournamentId[]) {
+      const ids = rosters[key] ?? [];
+      out[key] = tournamentRevealed(key) ? ids : ids.map(() => 0);
+    }
+    return out;
+  };
   const entries = activePool
     ? database.users
         .filter((item) => activePool.memberUserIds.includes(item.id))
         .map((item) => ({
           id: item.id,
           name: item.displayName,
-          rosters: item.rosters,
+          rosters: maskRosters(item.rosters, item.id === user.id),
           tieBreaks: item.tieBreaks ?? {},
           rosterSubmittedAt: resolveRosterSubmittedAt(item),
         }))
@@ -708,6 +729,13 @@ export async function updatePoolPicksOpen(
 
   activePool.picksOpen = activePool.picksOpen ?? {};
   activePool.picksOpen[tournamentId] = open;
+  // Opening picks begins a fresh pick window: clear any stale lineup lock from the previous cycle so
+  // members can edit AND so other members' new picks stay masked (getSessionContext hides rosters
+  // while picks are open and unlocked; the auto-lock cron re-locks — and re-reveals — at first tee).
+  if (open) {
+    activePool.lineupLocks = activePool.lineupLocks ?? {};
+    activePool.lineupLocks[tournamentId] = false;
+  }
   await writeDatabase(database);
 
   return {
