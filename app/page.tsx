@@ -5345,6 +5345,8 @@ export default function Page() {
                           ? 'The U.S. Open'
                           : selectedTournament === 'open'
                             ? 'The Open Championship'
+                          : selectedTournament === 'masters'
+                            ? 'The Masters Tournament'
                           : tournament.name}{' '}
                       begins on{' '}
                       {tournamentStartLabel}.
