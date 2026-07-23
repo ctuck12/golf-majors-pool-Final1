@@ -5347,7 +5347,7 @@ export default function Page() {
                   style={{
                     marginTop: isMobile ? 14 : 28,
                     display: 'grid',
-                    gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : 'minmax(180px, 240px) minmax(0, 1fr)',
+                    gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : 'minmax(240px, 320px) minmax(0, 1fr)',
                     gap: isMobile ? 14 : 28,
                     alignItems: 'start',
                   }}
@@ -5367,7 +5367,7 @@ export default function Page() {
                         style={{
                           maxWidth: '100%',
                           maxHeight: isMobile ? 220 : 260,
-                          height: isMobile ? 210 : 250,
+                          height: isMobile ? 220 : 260,
                           objectFit: 'contain',
                           display: 'block',
                         }}
