@@ -693,6 +693,40 @@ function HeaderNameFlag({ name, flagSrc, abbr, base, min, allowStack, initialSta
   );
 }
 
+// Renders a single line of text that shrinks its font (down to `min`) just enough to stay on one
+// line at any width — used for the pre-tournament card's "<Event> begins on <date>." headline so it
+// never wraps on narrow phones. Measurement-based, so no device/font estimate can mis-fit it.
+function FitOneLineText({ text, base, min, style }: { text: string; base: number; min: number; style?: CSSProperties }) {
+  const outerRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
+  const [size, setSize] = useState(base);
+  const [, setTick] = useState(0);
+  useLayoutEffect(() => { setSize(base); }, [text, base]);
+  useLayoutEffect(() => {
+    const outer = outerRef.current;
+    if (!outer || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setTick((v) => v + 1));
+    ro.observe(outer);
+    return () => ro.disconnect();
+  }, []);
+  useLayoutEffect(() => {
+    const outer = outerRef.current;
+    const meas = measureRef.current;
+    if (!outer || !meas) return;
+    const avail = outer.clientWidth;
+    const full = meas.offsetWidth;
+    if (full <= avail || size <= min) return;
+    const next = Math.max(min, Math.floor(size * (avail / full) * 2) / 2);
+    setSize(next < size ? next : size - 0.5);
+  });
+  return (
+    <div ref={outerRef} style={{ ...style, fontSize: size, whiteSpace: 'nowrap', overflow: 'hidden', position: 'relative' }}>
+      {text}
+      <span ref={measureRef} aria-hidden="true" style={{ position: 'absolute', left: 0, top: 0, visibility: 'hidden', whiteSpace: 'nowrap', pointerEvents: 'none' }}>{text}</span>
+    </div>
+  );
+}
+
 // Popup-header layout fitting: measures the name, flag and country abbreviation with a
 // canvas so the header only stacks the abbreviation below the flag — and only shrinks the
 // name/flag/logo — when the row genuinely cannot fit them at full size on one line.
@@ -5338,21 +5372,23 @@ export default function Page() {
                     ) : null}
                   </div>
                   <div style={{ color: '#0f1720', fontSize: isMobile ? 14 : 17, lineHeight: 1.55 }}>
-                    <div style={{ fontSize: isMobile ? 15 : 20 }}>
-                      {selectedTournament === 'pga'
-                        ? 'The PGA Championship'
-                        : selectedTournament === 'us-open'
-                          ? 'The U.S. Open'
-                          : selectedTournament === 'open'
-                            ? 'The Open Championship'
-                          : selectedTournament === 'masters'
-                            ? 'The Masters Tournament'
-                          : selectedTournament === 'players'
-                            ? 'The Players Championship'
-                          : tournament.name}{' '}
-                      begins on{' '}
-                      {tournamentStartLabel}.
-                    </div>
+                    <FitOneLineText
+                      base={isMobile ? 15 : 20}
+                      min={isMobile ? 11 : 15}
+                      text={`${
+                        selectedTournament === 'pga'
+                          ? 'The PGA Championship'
+                          : selectedTournament === 'us-open'
+                            ? 'The U.S. Open'
+                            : selectedTournament === 'open'
+                              ? 'The Open Championship'
+                            : selectedTournament === 'masters'
+                              ? 'The Masters Tournament'
+                            : selectedTournament === 'players'
+                              ? 'The Players Championship'
+                            : tournament.name
+                      } begins on ${tournamentStartLabel}.`}
+                    />
                     <div style={{ marginTop: 14 }}>
                       {picksOpenForTournament
                         ? `The field has been finalized and picks are now open in the pool. Build your lineup before ${lineupDeadlineLabel}.`
