@@ -367,7 +367,7 @@ const TOURNAMENT_ENTRIES_INTRO: Record<string, string> = {
 
 const TOURNAMENT_CARD_LOGOS: Partial<Record<TournamentId, string>> = {
   players: '/the-players-championship-logo.png',
-  masters: '/the-masters-2027-logo.png',
+  masters: '/the-masters-card-logo.png',
   pga: '/pga-frisco-2027-logo.png',
   'us-open': '/us-open-pebble-beach-2027-logo.png',
   open: '/the-open-card-logo.png',
