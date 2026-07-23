@@ -8029,8 +8029,8 @@ export default function Page() {
                             gap: 12,
                           }}
                         >
-                          <span style={{ width: 70, height: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {logo && <img src={logo} alt={t.name} style={{ maxHeight: 42, maxWidth: 70, objectFit: 'contain', display: 'block' }} />}
+                          <span style={{ width: 96, height: 54, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {logo && <img src={logo} alt={t.name} style={{ maxHeight: t.id === 'open' ? 42 : 52, maxWidth: t.id === 'open' ? 72 : 96, objectFit: 'contain', display: 'block' }} />}
                           </span>
                           <div style={{ minWidth: 0, flex: 1, fontSize: isMobile ? 15 : 16, fontWeight: 800, color: isPre ? '#234d80' : '#3a4a58', display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ width: 11, height: 11, borderRadius: '50%', background: isPre ? '#234d80' : '#94a3b8', flexShrink: 0 }} />
